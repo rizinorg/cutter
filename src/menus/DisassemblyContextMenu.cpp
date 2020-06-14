@@ -3,7 +3,6 @@
 #include "dialogs/EditInstructionDialog.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/FlagDialog.h"
-#include "dialogs/RenameDialog.h"
 #include "dialogs/XrefsDialog.h"
 #include "dialogs/EditVariablesDialog.h"
 #include "dialogs/SetToDataDialog.h"
@@ -19,6 +18,7 @@
 #include <QClipboard>
 #include <QApplication>
 #include <QPushButton>
+#include <QInputDialog>
 
 DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *mainWindow)
     :   QMenu(parent),
@@ -770,12 +770,14 @@ void DisassemblyContextMenu::on_actionAddComment_triggered()
 
 void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
 {
-    RenameDialog dialog(mainWindow);
-    dialog.setWindowTitle(tr("Analyze function at %1").arg(RAddressString(offset)));
-    dialog.setPlaceholderText(tr("Function name"));
-    if (dialog.exec()) {
-        QString function_name = dialog.getName();
-        Core()->createFunctionAt(offset, function_name);
+    bool ok;
+    // Create dialog
+    QString functionName = QInputDialog::getText(this, tr("New function %1").arg(RAddressString(offset)),
+                            tr("Function name:"), QLineEdit::Normal, QString(), &ok);
+
+    // If user accepted
+    if (ok && !functionName.isEmpty()) {
+        Core()->createFunctionAt(offset, functionName);
     }
 }
 
@@ -788,69 +790,68 @@ void DisassemblyContextMenu::on_actionAddFlag_triggered()
 void DisassemblyContextMenu::on_actionRename_triggered()
 {
     RCore *core = Core()->core();
+    bool ok;
+    
+    RAnalFunction *fcn = Core()->functionIn(offset);
+    RFlagItem *f = r_flag_get_i(core->flags, offset);
 
-    RenameDialog dialog(mainWindow);
-
-    RAnalFunction *fcn = Core()->functionIn (offset);
-    RFlagItem *f = r_flag_get_i (core->flags, offset);
     if (fcn) {
-        /* Rename function */
-        dialog.setWindowTitle(tr("Rename function %1").arg(fcn->name));
-        dialog.setName(fcn->name);
-        if (dialog.exec()) {
-            QString new_name = dialog.getName();
-            Core()->renameFunction(fcn->name, new_name);
+        // Renaming a function
+        QString newName = QInputDialog::getText(this, tr("Rename function %2").arg(fcn->name),
+                                            tr("Function name:"), QLineEdit::Normal, fcn->name, &ok);
+        if (ok && !newName.isEmpty()) {
+            Core()->renameFunction(fcn->name, newName);
         }
     } else if (f) {
-        /* Rename current flag */
-        dialog.setWindowTitle(tr("Rename flag %1").arg(f->name));
-        dialog.setName(f->name);
-        if (dialog.exec()) {
-            QString new_name = dialog.getName();
-            Core()->renameFlag(f->name, new_name);
+        // Renaming flag
+        QString newName = QInputDialog::getText(this, tr("Rename flag %2").arg(f->name),
+                                            tr("Flag name:"), QLineEdit::Normal, f->name, &ok);
+        if (ok && !newName.isEmpty()) {
+            Core()->renameFlag(f->name, newName);
         }
-    } else {
-        return;
     }
 }
 
 void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
 {
+
+    QString title;
+    QString inputValue;
+    QString oldName;
+
     auto array = getThingUsedHere(offset);
     if (array.isEmpty()) {
         return;
     }
 
     auto thingUsedHere = array.first();
-
-    RenameDialog dialog(mainWindow);
-
-    QString oldName;
     auto type = thingUsedHere.type;
 
     if (type == ThingUsedHere::Type::Address) {
         RVA offset = thingUsedHere.offset;
-        dialog.setWindowTitle(tr("Add flag at %1").arg(RAddressString(offset)));
-        dialog.setName("label." + QString::number(offset, 16));
+        title = tr("Add flag at %1").arg(RAddressString(offset));
+        inputValue = "label." + QString::number(offset, 16);
     } else {
         oldName = thingUsedHere.name;
-        dialog.setWindowTitle(tr("Rename %1").arg(oldName));
-        dialog.setName(oldName);
+        title = tr("Rename %1").arg(oldName);
+        inputValue = oldName;
     }
 
+    bool ok;
+    // Create dialog
+    QString newName = QInputDialog::getText(this, title,
+                            tr("Name:"), QLineEdit::Normal, inputValue, &ok);
 
-    if (dialog.exec()) {
-        QString newName = dialog.getName().trimmed();
-        if (!newName.isEmpty()) {
-            Core()->cmdRawAt(QString("an %1").arg(newName), offset);
+    // If user accepted
+    if (ok && !newName.isEmpty()) {
+        Core()->cmdRawAt(QString("an %1").arg(newName), offset);
 
-            if (type == ThingUsedHere::Type::Address || type == ThingUsedHere::Type::Flag) {
-                Core()->triggerFlagsChanged();
-            } else if (type == ThingUsedHere::Type::Var) {
-                Core()->triggerVarsChanged();
-            } else if (type == ThingUsedHere::Type::Function) {
-                Core()->triggerFunctionRenamed(oldName, newName);
-            }
+        if (type == ThingUsedHere::Type::Address || type == ThingUsedHere::Type::Flag) {
+            Core()->triggerFlagsChanged();
+        } else if (type == ThingUsedHere::Type::Var) {
+            Core()->triggerVarsChanged();
+        } else if (type == ThingUsedHere::Type::Function) {
+            Core()->triggerFunctionRenamed(oldName, newName);
         }
     }
 }
