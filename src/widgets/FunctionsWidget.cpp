@@ -3,7 +3,6 @@
 
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
-#include "dialogs/RenameDialog.h"
 #include "common/FunctionsTask.h"
 #include "common/TempConfig.h"
 #include "menus/AddressableItemContextMenu.h"
@@ -16,6 +15,7 @@
 #include <QShortcut>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QInputDialog>
 
 namespace {
 
@@ -526,18 +526,14 @@ void FunctionsWidget::onActionFunctionsRenameTriggered()
     FunctionDescription function = ui->treeView->selectionModel()->currentIndex().data(
                                        FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
 
+    bool ok;
     // Create dialog
-    RenameDialog r(this);
-
-    // Set function name in dialog
-    r.setName(function.name);
+    QString newName = QInputDialog::getText(this, tr("Rename function %1").arg(function.name),
+                            tr("Function name:"), QLineEdit::Normal, function.name, &ok);
     // If user accepted
-    if (r.exec()) {
-        // Get new function name
-        QString new_name = r.getName();
-
+    if (ok && !newName.isEmpty()) {
         // Rename function in r2 core
-        Core()->renameFunction(function.name, new_name);
+        Core()->renameFunction(function.name, newName);
 
         // Seek to new renamed function
         Core()->seekAndShow(function.offset);
