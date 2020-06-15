@@ -283,6 +283,8 @@ CUTTER_R2GHIDRA_STATIC {
     SOURCES += $$R2GHIDRA_SOURCE/cutter-plugin/R2GhidraDecompiler.cpp
     HEADERS += $$R2GHIDRA_SOURCE/cutter-plugin/R2GhidraDecompiler.h
     INCLUDEPATH += $$R2GHIDRA_SOURCE/cutter-plugin
+    LIBS += -L$$R2GHIDRA_INSTALL_PATH -lcore_ghidra -ldelayimp
+    QMAKE_LFLAGS += /delayload:core_ghidra.dll
 }
 
 QMAKE_SUBSTITUTES += CutterConfig.h.in

@@ -54,12 +54,14 @@ before_build:
 
 # Build config
 build_script:
-  - cmd: if defined QMAKE ( call prepare_r2.bat && call build.bat CUTTER_APPVEYOR_R2DEC=true CUTTER_R2GHIDRA_STATIC=true R2GHIDRA_SOURCE="%APPVEYOR_BUILD_FOLDER%/r2ghidra-dec" CUTTER_ENABLE_CRASH_REPORTS=true CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=true CUTTER_DEPS_DIR="%CUTTER_DEPS_DIR%" )
+  - cmd: if defined QMAKE ( call prepare_r2.bat )
+  - cmd: if defined QMAKE ( C:\msys64\usr\bin\bash -lc "export PATH=\"/c/msys64/usr/bin:$PATH\" && cd \"$APPVEYOR_BUILD_FOLDER\" && scripts/appveyor_r2ghidra.sh" )
+  - cmd: if defined QMAKE ( call build.bat CUTTER_APPVEYOR_R2DEC=true CUTTER_R2GHIDRA_STATIC=true R2GHIDRA_SOURCE="%APPVEYOR_BUILD_FOLDER%/r2ghidra-dec" R2GHIDRA_INSTALL_PATH="%APPVEYOR_BUILD_FOLDER%/r2_dist_%ARCH%/radare2/lib/plugins" CUTTER_ENABLE_CRASH_REPORTS=true CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=true CUTTER_DEPS_DIR="%CUTTER_DEPS_DIR%" )
   - cmd: if defined MESON ( python meson.py --release --dist=%ARTIFACT_PATH% --backend=%BACKEND% --python )
 
 after_build:
   - cmd: if defined QMAKE ( set "PATH=%CD%\r2_dist_%ARCH%\bin;%PATH%" && powershell scripts\bundle_r2dec.ps1 "%CD%\%ARTIFACT_PATH%" )
-  - cmd: if defined QMAKE ( C:\msys64\usr\bin\bash -lc "export PATH=\"/c/msys64/usr/bin:$PATH\" && cd \"$APPVEYOR_BUILD_FOLDER\" && scripts/appveyor_r2ghidra.sh" )
+  #- cmd: if defined QMAKE ( C:\msys64\usr\bin\bash -lc "export PATH=\"/c/msys64/usr/bin:$PATH\" && cd \"$APPVEYOR_BUILD_FOLDER\" && scripts/appveyor_r2ghidra.sh" )
   #- cmd: powershell scripts\bundle_openssl.ps1 %ARCH% "%CD%\%ARTIFACT_PATH%"
   - cmd: powershell scripts\bundle_python.ps1 %ARCH% "%CD%\%ARTIFACT_PATH%"
   - cmd: xcopy "%CUTTER_DEPS_DIR%\pyside\lib\site-packages" "%ARTIFACT_PATH%\python36\site-packages" /e /i /h
