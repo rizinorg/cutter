@@ -254,7 +254,7 @@
                 <item row="8" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout">
                   <item>
-                   <widget class="QLabel" name="label_3">
+                   <widget class="QLabel" name="relOffsetLabel">
                     <property name="text">
                      <string>Show offsets relative to:</string>
                     </property>
