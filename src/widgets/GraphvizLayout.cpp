@@ -176,6 +176,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
                 if (auto spl = ED_spl(e)) {
                     for (int i = 0; i < 1 && i < spl->size; i++) {
                         auto bz = spl->list[i];
+                        edge.polyline.clear();
                         edge.polyline.reserve(bz.size + 1);
                         for (int j = 0; j < bz.size; j++) {
                             edge.polyline.push_back(QPointF(bz.list[j].x, bz.list[j].y));

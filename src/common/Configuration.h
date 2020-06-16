@@ -43,6 +43,7 @@ private:
 #endif
     bool outputRedirectEnabled = true;
 
+    Configuration();
     // Colors
     void loadBaseThemeNative();
     void loadBaseThemeDark();
@@ -60,7 +61,6 @@ public:
     static const QHash<QString, QHash<ColorFlags, QColor>> cutterOptionColors;
 
     // Functions
-    Configuration();
     static Configuration *instance();
 
     void loadInitial();
@@ -129,16 +129,6 @@ public:
     // Asm Options
     void resetToDefaultAsmOptions();
 
-    // Graph
-    int getGraphBlockMaxChars() const
-    {
-        return s.value("graph.maxcols", 100).toInt();
-    }
-    void setGraphBlockMaxChars(int ch)
-    {
-        s.setValue("graph.maxcols", ch);
-    }
-
     QString getColorTheme() const     { return s.value("theme", "cutter").toString(); }
     void setColorTheme(const QString &theme);
     /**
@@ -179,6 +169,16 @@ public:
     bool getDecompilerAutoRefreshEnabled();
     void setDecompilerAutoRefreshEnabled(bool enabled);
 
+    // Graph
+    int getGraphBlockMaxChars() const
+    {
+        return s.value("graph.maxcols", 100).toInt();
+    }
+    void setGraphBlockMaxChars(int ch)
+    {
+        s.setValue("graph.maxcols", ch);
+    }
+
     /**
      * @brief Getters and setters for the transaparent option state and scale factor for bitmap graph exports.
      */
@@ -186,6 +186,9 @@ public:
     double getBitmapExportScaleFactor();
     void setBitmapTransparentState(bool inputValueGraph);
     void setBitmapExportScaleFactor(double inputValueGraph);
+    void setGraphSpacing(QPoint blockSpacing, QPoint edgeSpacing);
+    QPoint getGraphBlockSpacing();
+    QPoint getGraphEdgeSpacing();
 
     /**
      * @brief Enable or disable Cutter output redirection.

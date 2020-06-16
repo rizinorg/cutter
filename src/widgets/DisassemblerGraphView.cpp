@@ -215,8 +215,8 @@ DisassemblerGraphView::~DisassemblerGraphView()
 void DisassemblerGraphView::refreshView()
 {
     initFont();
+    setLayoutConfig(getLayoutConfig());
     loadCurrentGraph();
-    viewport()->update();
     emit viewRefreshed();
 }
 
@@ -355,7 +355,7 @@ void DisassemblerGraphView::loadCurrentGraph()
     cleanupEdges();
 
     if (!func["blocks"].toArray().isEmpty()) {
-        computeGraph(entry);
+        computeGraphPlacement();
     }
 }
 
@@ -877,6 +877,18 @@ void DisassemblerGraphView::seekInstruction(bool previous_instr)
     }
 }
 
+GraphLayout::LayoutConfig DisassemblerGraphView::getLayoutConfig()
+{
+    auto blockSpacing = Config()->getGraphBlockSpacing();
+    auto edgeSpacing = Config()->getGraphEdgeSpacing();
+    GraphLayout::LayoutConfig layoutConfig;
+    layoutConfig.blockHorizontalSpacing = blockSpacing.x();
+    layoutConfig.blockVerticalSpacing = blockSpacing.y();
+    layoutConfig.edgeHorizontalSpacing = edgeSpacing.x();
+    layoutConfig.edgeVerticalSpacing = edgeSpacing.y();
+    return layoutConfig;
+}
+
 void DisassemblerGraphView::nextInstr()
 {
     seekInstruction(false);
@@ -1161,7 +1173,9 @@ void DisassemblerGraphView::onActionUnhighlightBITriggered()
 void DisassemblerGraphView::updateLayout()
 {
     setGraphLayout(GraphView::makeGraphLayout(graphLayout, horizontalLayoutAction->isChecked()));
-    refreshView();
+    setLayoutConfig(getLayoutConfig());
+    computeGraphPlacement();
+    emit viewRefreshed();
     onSeekChanged(this->seekable->getOffset()); // try to keep the view on current block
 }
 

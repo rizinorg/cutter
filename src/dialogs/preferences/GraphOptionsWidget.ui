@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>557</width>
-    <height>175</height>
+    <width>403</width>
+    <height>296</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -65,43 +65,139 @@
     </layout>
    </item>
    <item>
-    <widget class="QWidget" name="widget" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+    <widget class="QCheckBox" name="graphOffsetCheckBox">
+     <property name="text">
+      <string>Show offsets (graph.offset)</string>
      </property>
-     <widget class="QCheckBox" name="graphOffsetCheckBox">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>208</width>
-        <height>24</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Show offsets (graph.offset)</string>
-      </property>
-     </widget>
-     <widget class="QCheckBox" name="checkTransparent">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>30</y>
-        <width>361</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Export Transparent Bitmap Graphs</string>
-      </property>
-     </widget>
     </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkTransparent">
+     <property name="text">
+      <string>Export Transparent Bitmap Graphs</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Layout</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Horizontal</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Block spacing</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Edge spacing</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="horizontalBlockSpacing">
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="singleStep">
+         <number>10</number>
+        </property>
+        <property name="value">
+         <number>10</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QSpinBox" name="verticalBlockSpacing">
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="singleStep">
+         <number>10</number>
+        </property>
+        <property name="value">
+         <number>40</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QSpinBox" name="horizontalEdgeSpacing">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
+        </property>
+        <property name="value">
+         <number>10</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QSpinBox" name="verticalEdgeSpacing">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="singleStep">
+         <number>5</number>
+        </property>
+        <property name="value">
+         <number>10</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Vertical</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>maxColsSpinBox</tabstop>
+  <tabstop>bitmapGraphScale</tabstop>
+  <tabstop>graphOffsetCheckBox</tabstop>
+  <tabstop>checkTransparent</tabstop>
+  <tabstop>horizontalBlockSpacing</tabstop>
+  <tabstop>verticalBlockSpacing</tabstop>
+  <tabstop>horizontalEdgeSpacing</tabstop>
+  <tabstop>verticalEdgeSpacing</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
