@@ -5,7 +5,6 @@
 #include <QFontDatabase>
 #include <QFile>
 #include <QApplication>
-#include <QLibraryInfo>
 
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
 #include <KSyntaxHighlighting/repository.h>
@@ -15,6 +14,7 @@
 
 #include "common/ColorThemeWorker.h"
 #include "common/SyntaxHighlighter.h"
+#include "common/ResourcePaths.h"
 
 /* Map with names of themes associated with its color palette
  * (Dark or Light), so for dark interface themes will be shown only Dark color themes
@@ -652,7 +652,7 @@ void Configuration::setConfig(const QString &key, const QVariant &value)
  */
 QStringList Configuration::getAvailableTranslations()
 {
-    const auto &trDirs = getTranslationsDirectories();
+    const auto &trDirs = Cutter::getTranslationsDirectories();
 
     QSet<QString> fileNamesSet;
     for (const auto &trDir : trDirs) {
@@ -702,21 +702,6 @@ bool Configuration::isFirstExecution()
         s.setValue("firstExecution", false);
         return true;
     }
-}
-
-QStringList Configuration::getTranslationsDirectories() const
-{
-    static const QString cutterTranslationPath = QCoreApplication::applicationDirPath() +
-                                                 QDir::separator()
-                                                 + QLatin1String("translations");
-
-    return {
-        cutterTranslationPath,
-        QLibraryInfo::location(QLibraryInfo::TranslationsPath),
-#ifdef Q_OS_MAC
-        QStringLiteral("%1/../Resources/translations").arg(QCoreApplication::applicationDirPath()),
-#endif // Q_OS_MAC
-    };
 }
 
 QString Configuration::getSelectedDecompiler()

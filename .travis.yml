@@ -11,10 +11,10 @@ branches:
 
 matrix:
   include:
-  - name: Linux QMake + Deploy
+  - name: Linux QMake
     os: linux
     dist: xenial
-    env: BUILD_SYSTEM=qmake DEPLOY=1
+    env: BUILD_SYSTEM=qmake
     addons:
       apt:
         packages:
@@ -23,24 +23,34 @@ matrix:
          - libgl1-mesa-dev
          - libxkbcommon-x11-dev
          - ninja-build/xenial-backports
-    before_install:
-      - pyenv global 3.7
-      - pip install meson
 
   - name: Linux CMake
     os: linux
-    env: BUILD_SYSTEM=cmake
+    env: BUILD_SYSTEM=cmake_nodep
     addons:
       apt:
         packages:
          - mesa-common-dev
          - ninja-build
          - libgraphviz-dev
-    before_install:
-      - pyenv global 3.7
-      - pip install meson
+         - qt5-default
+         - libqt5svg5-dev
+         - qttools5-dev
 
-  - name: Linux Ubuntu 16.04
+  - name: Linux CMake + Deploy
+    os: linux
+    env: BUILD_SYSTEM=cmake DEPLOY=1
+    dist: xenial
+    addons:
+      apt:
+        packages:
+         - mesa-common-dev
+         - libgl1-mesa-glx
+         - libgl1-mesa-dev
+         - libxkbcommon-x11-dev
+         - ninja-build/xenial-backports
+
+  - name: Linux Ubuntu 16.04 # test that Cutter can be built on an old distro using system libraries
     os: linux
     env: BUILD_SYSTEM=cmake_nodep PATH="/usr/bin:$PATH"
     dist: xenial
@@ -51,6 +61,8 @@ matrix:
          - libgraphviz-dev
          - qt5-default
          - libqt5svg5-dev
+         - qttools5-dev
+         - qttools5-dev-tools
          - cmake
     before_install:
       - pyenv install 3.5.2
@@ -62,11 +74,13 @@ matrix:
     os: osx
     osx_image: xcode10.3
     env: BUILD_SYSTEM=qmake DEPLOY=1
+    before_install: ~
 
   - name: macOS CMake
     os: osx
     osx_image: xcode10.3
     env: BUILD_SYSTEM=cmake
+    before_install: ~
 
   - name: Documentation + Deploy
     os: linux
@@ -112,6 +126,10 @@ addons:
     brewfile: scripts/Brewfile
     update: true
 
+before_install:
+  - pyenv global 3.7
+  - pip install meson
+
 install:
   - if [[ "$BUILD_SYSTEM" != "cmake_nodep" ]]; then
       scripts/fetch_deps.sh;
@@ -128,7 +146,7 @@ install:
 
 before_script:
   - cd radare2
-  - if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
+  - if [[ "$BUILD_SYSTEM" == "qmake" ]] || ([[ "$BUILD_SYSTEM" == "cmake" ]] && [[ "$TRAVIS_OS_NAME" == "linux" ]]) ; then
         if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
             INSTALL_TARGET=install sys/install.sh /usr;
         else
@@ -148,19 +166,21 @@ script:
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
                 CUTTER_ENABLE_CRASH_REPORTS=true
                 PREFIX=/usr
-                APPIMAGE=1
                 ../src &&
             make -j4;
         elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
             cmake
                 -DCMAKE_BUILD_TYPE=Release
+                -DCMAKE_PREFIX_PATH="$Qt5_ROOT"
                 -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.so.1.0"
                 -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m"
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON
-                -DCUTTER_USE_BUNDLED_RADARE2=ON
+                -DCUTTER_USE_BUNDLED_RADARE2=OFF
+                -DCUTTER_APPIMAGE_BUILD=ON
+                -DCMAKE_INSTALL_PREFIX=appdir/usr
                 ../src &&
             make -j4;
        elif [[ "$BUILD_SYSTEM" == "cmake_nodep" ]]; then
@@ -201,8 +221,8 @@ script:
 
 after_success:
   - export CUTTER_VERSION=$(python ../scripts/get_version.py)
-  - lrelease ../src/Cutter.pro
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      lrelease ../src/Cutter.pro &&
       mkdir -p Cutter.app/Contents/Resources/translations &&
       cp ../src/translations/*.qm Cutter.app/Contents/Resources/translations/ &&
       macdeployqt Cutter.app -executable=Cutter.app/Contents/MacOS/Cutter -libpath="../Frameworks" &&
@@ -231,20 +251,18 @@ after_success:
       hdiutil convert "${DMG_TMP_FILE}" -format UDZO -imagekey zlib-level=9 -o "${DMG_FILE}" &&
       export FILE_TO_UPLOAD="$DMG_FILE"
     ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      export VERSION=$CUTTER_VERSION
-      make INSTALL_ROOT=appdir install &&
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ $DEPLOY == 1 ]]; then
+      export VERSION=$CUTTER_VERSION &&
+      make install &&
       cp -r /usr/share/radare2 appdir/usr/share/ &&
-      mkdir -p appdir/usr/bin/translations &&
-      cp ../src/translations/*.qm appdir/usr/bin/translations/ &&
       "$TRAVIS_BUILD_DIR/scripts/appimage_embed_python.sh" appdir &&
       "$TRAVIS_BUILD_DIR/scripts/r2ghidra.sh" -DCMAKE_INSTALL_PREFIX="`pwd`/appdir/usr" -DBUILD_CUTTER_PLUGIN=ON -DCUTTER_SOURCE_DIR="$TRAVIS_BUILD_DIR" &&
       "$TRAVIS_BUILD_DIR/scripts/r2dec.sh" --prefix=`pwd`/appdir/usr &&
       wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/6/linuxdeployqt-6-x86_64.AppImage" &&
       chmod a+x linuxdeployqt*.AppImage &&
       rm -fv "$TRAVIS_BUILD_DIR/cutter-deps/qt/plugins/imageformats/libqjp2.so" &&
-      ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -unsupported-allow-new-glibc -bundle-non-qt-libs -no-strip -exclude-libs=libnss3.so,libnssutil3.so,libqjp2.so -ignore-glob=usr/lib/python3.6/**/* -verbose=2 &&
-      ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -unsupported-allow-new-glibc -appimage -no-strip -exclude-libs=libnss3.so,libnssutil3.so,libqjp2.so -ignore-glob=usr/lib/python3.6/**/* -verbose=2 &&
+      ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -executable=./appdir/usr/bin/python3 -bundle-non-qt-libs -no-strip -exclude-libs=libnss3.so,libnssutil3.so,libqjp2.so -ignore-glob=usr/lib/python3.6/**/* -verbose=2 &&
+      ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -executable=./appdir/usr/bin/python3 -appimage -no-strip -exclude-libs=libnss3.so,libnssutil3.so,libqjp2.so -ignore-glob=usr/lib/python3.6/**/* -verbose=2 &&
       find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq &&
       export APPIMAGE_FILE="Cutter-v$CUTTER_VERSION-x64.Linux.AppImage" &&
       mv Cutter-*-x86_64.AppImage "$APPIMAGE_FILE" &&

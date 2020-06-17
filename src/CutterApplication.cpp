@@ -4,6 +4,7 @@
 #include "plugins/PluginManager.h"
 #include "CutterConfig.h"
 #include "common/Decompiler.h"
+#include "common/ResourcePaths.h"
 
 #include <QApplication>
 #include <QFileOpenEvent>
@@ -255,7 +256,7 @@ bool CutterApplication::loadTranslations()
             QTranslator *trQtBase = new QTranslator;
             QTranslator *trQt = new QTranslator;
 
-            const QStringList &cutterTrPaths = Config()->getTranslationsDirectories();
+            const QStringList &cutterTrPaths = Cutter::getTranslationsDirectories();
 
             for (const auto &trPath : cutterTrPaths) {
                 if (trCutter && trCutter->load(it, QLatin1String("cutter"), QLatin1String("_"), trPath)) {
