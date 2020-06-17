@@ -16,6 +16,7 @@ option(CUTTER_USE_ADDITIONAL_RADARE2_PATHS "Search radare2 in additional paths w
 option(CUTTER_ENABLE_PYTHON "Enable Python integration. Requires Python >= ${CUTTER_PYTHON_MIN}." OFF)
 option(CUTTER_ENABLE_PYTHON_BINDINGS "Enable generating Python bindings with Shiboken2. Unused if CUTTER_ENABLE_PYTHON=OFF." OFF)
 option(CUTTER_ENABLE_CRASH_REPORTS "Enable crash report system. Unused if CUTTER_ENABLE_CRASH_REPORTS=OFF" OFF)
+option(CUTTER_APPIMAGE_BUILD "Enable Appimage specific changes. Doesn't cause building of Appimage itself." OFF)
 tri_option(CUTTER_ENABLE_KSYNTAXHIGHLIGHTING "Use KSyntaxHighlighting" AUTO)
 tri_option(CUTTER_ENABLE_GRAPHVIZ "Enable use of graphviz for graph layout" AUTO)
 option (option SHIBOKEN_EXTRA_OPTIONS "Extra options for shiboken generator")
@@ -241,6 +242,12 @@ if(TARGET KF5::SyntaxHighlighting)
     target_link_libraries(Cutter PRIVATE KF5::SyntaxHighlighting)
     target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_KSYNTAXHIGHLIGHTING)
 endif()
+
+if (CUTTER_APPIMAGE_BUILD)
+    target_compile_definitions(Cutter PRIVATE APPIMAGE)
+endif()
+
+include(Translations)
 
 # Install files
 install(TARGETS Cutter

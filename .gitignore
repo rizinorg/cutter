@@ -31,6 +31,7 @@ moc_*.h
 ui_*.h
 build*/
 cmake-build-*/
+/src-build/
 
 # QtCreator
 *.autosave
