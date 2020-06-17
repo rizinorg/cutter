@@ -7,13 +7,11 @@ ENV DEBIAN_FRONTEND noninteractive
 # Dependencies
 RUN apk add --no-cache \
         bash \
+        build-base \
         cmake \
         curl \
-        g++ \
-        gcc \
         git \
         linux-headers \
-        make \
         pkgconfig \
         python3-dev \
         qt5-qtbase \
