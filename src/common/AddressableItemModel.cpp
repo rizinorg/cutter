@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "AddressableItemModel.h"
 
 AddressableFilterProxyModel::AddressableFilterProxyModel(AddressableItemModelI *sourceModel,
