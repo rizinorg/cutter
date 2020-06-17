@@ -8,6 +8,7 @@
 
 #include <QJsonObject>
 #include <QJsonArray>
+#include <iostream>
 
 
 /**
