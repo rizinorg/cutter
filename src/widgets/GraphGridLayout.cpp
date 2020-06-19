@@ -35,6 +35,7 @@ one from all valid toposort orders. Example: for graph 1->4, 2->1, 2->3, 3->4 va
 4. assign node positions within grid using tree structure, child subtrees are placed side by side with parent on top
 5. perform edge routing
 6. calculate column and row pixel positions based on node sizes and amount edges between the rows
+7. [optional] layout compacting
 
 
 Contrary to many other layered graph drawing algorithm this implementation doesn't perform node reordering to minimize
@@ -121,6 +122,35 @@ Assignment order is chosen based on:
 * segment length - reduces crossing when segment endpoints have the same structure as valid parentheses expression
 * edge length - establishes some kind of order when single node is connected to many edges, typically a block
   with switch statement or block after switch statement.
+
+# Layout compacting
+
+Doing the layout within a grid causes minimal spacing to be limited by widest and tallest block within each column
+and row. One common case is block with function entrypoint being wider due to function name causing wide horizontal
+space between branching blocks. Another case is rows in two parallel columns being aligned.
+
+\image html layout_compacting.svg
+
+Both problems are mitigated by squishing graph. Compressing in each of the two direction is done separately.
+The process is defined as liner program. Each variable represents a position of edge segment or node in the
+direction being optimized.
+
+Following constraints are used
+- Keep the order with nearest segments.
+- If the node has two outgoing edges, one to the node on left side and other to the right, keep them on the corresponding side of node's center.
+- For all edges keep the node which is above above. This helps when vertical block spacing is set bigger than double edge spacing and
+edge shadows relationship between two blocks.
+- Equality constraint to keep relative position between nodes and and segments directly connected to them.
+- Equality constraint to keep the node centered when control flow merges
+In the vertical direction objective function minimizes y positions of nodes and lengths of vertical segments.
+In the horizontal direction objective function minimizes lengths of horizontal segments.
+
+In the resulting linear program all constraints beside x_i >= 0 consist of exactly two variables: either x_i - x_j <= c_k or
+x_i = x_j + c_k.
+
+Since it isn't necessary get perfect solution and to avoid worst case performance current implementation isn't
+using a general purpose linear programming solver. Each variable is changed until constraint is reached and afterwards
+variables are grouped and changed together.
 
 */
 
@@ -850,7 +880,7 @@ static void centerEdges(
 }
 
 /**
- * @brief Convert segment coordinates from arbitary range to continuous range starting at 0.
+ * @brief Convert segment coordinates from arbitrary range to continuous range starting at 0.
  * @param segments
  * @param leftSides
  * @param rightSides
@@ -973,7 +1003,7 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
 
 
     // Horizontal segments
-    // Use exact x coordinates obtained from vertical segment placment.
+    // Use exact x coordinates obtained from vertical segment placement.
     segments.clear();
     leftSides.clear();
     rightSides.clear();
@@ -1077,7 +1107,6 @@ void GraphGridLayout::convertToPixelCoordinates(
         auto &block = it.second;
         for (size_t i = 0; i < block.edges.size(); i++) {
             auto &resultEdge = block.edges[i];
-            const auto &target = (*state.blocks)[resultEdge.target];
             resultEdge.polyline.clear();
             resultEdge.polyline.push_back(QPointF(0, block.y + block.height));
 
@@ -1113,8 +1142,19 @@ void GraphGridLayout::connectEdgeEnds(GraphLayout::Graph &graph) const
     }
 }
 
+/// Either equality or inequality x_i <= x_j + c
 using Constraint = std::pair<std::pair<int, int>, int>;
 
+/**
+ * @brief Single pass of linear program optimizer.
+ * Changes variables until a constraint is hit, afterwards the two variables are changed together.
+ * @param n number of variables
+ * @param objectiveFunction coefficients for function \f$\sum c_i x_i\f$ which needs to be minimized
+ * @param inequalities inequality constraints \f$x_{e_i} - x_{f_i} \leq b_i\f$
+ * @param equalities equality constraints \f$x_{e_i} - x_{f_i} = b_i\f$
+ * @param solution input/output argument, returns results, needs to be initialized with a viable solution
+ * @param stickWhenNotMoving variable grouping strategy
+ */
 static void optimizeLinearProgramPass(
         size_t n,
         std::vector<int> objectiveFunction,
@@ -1124,7 +1164,7 @@ static void optimizeLinearProgramPass(
         bool stickWhenNotMoving)
 {
     std::vector<int> group(n);
-    std::iota(group.begin(), group.end(), 0);
+    std::iota(group.begin(), group.end(), 0); // initially each variable is in it's own group
     assert(n == objectiveFunction.size());
     assert(n == solution.size());
     std::vector<size_t> edgeCount(n);
@@ -1154,7 +1194,9 @@ static void optimizeLinearProgramPass(
         edgeCount[b]++;
     }
     std::vector<uint8_t> processed(n);
-    std::vector<int> groupRelativeMin(n, 0); // smallest variable in the group relative to main one
+    // Smallest variable value in the group relative to main one, this is used to maintain implicit x_i >= 0
+    // constraint
+    std::vector<int> groupRelativeMin(n, 0);
 
     auto joinSegmentGroups = [&](int a, int b) {
         a = getGroup(a);
@@ -1164,14 +1206,17 @@ static void optimizeLinearProgramPass(
         objectiveFunction[a] += objectiveFunction[b];
         int internalEdgeCount = 0;
         auto writeIt = edgePool.head(edges[b]);
+        // update inequalities and remove some of the constraints between variables that are now grouped
         for (auto it = edgePool.head(edges[b]); it; ++it) {
             auto &constraint = inequalities[*it];
             int other = constraint.first.first + constraint.first.second - b;
-            if (getGroup(other) == a) {
+            if (getGroup(other) == a) { // skip inequalities where both variables are now in the same group
                 internalEdgeCount++;
-                continue;;
+                continue;
             }
             *writeIt++ = *it;
+            // Modify the inequalities for the group being attached relative to the main variable in the group
+            // to which it is being attached.
             int diff = solution[a] - solution[b];
             if (b == constraint.first.first) {
                 constraint.first.first = a;
@@ -1187,22 +1232,29 @@ static void optimizeLinearProgramPass(
     };
 
     for (auto &equality : equalities) {
+        // process equalities, assumes that initial solution is viable solution and matches equality constraints
         int a = getGroup(equality.first.first);
         int b = getGroup(equality.first.second);
         if (a == b) {
             equality = {{0, 0}, 0};
             continue;
         }
+        // always join smallest group to bigger one
         if (edgeCount[a] > edgeCount[b]) {
             std::swap(a, b);
+            // Update the equality equation so that later variable values can be calculated by simply iterating through
+            // them without need to check which direction the group joining was done.
             std::swap(equality.first.first, equality.first.second);
             equality.second = -equality.second;
         }
         joinSegmentGroups(b, a);
         equality = {{a, b}, solution[a] - solution[b]};
         processed[a] = 1;
-        // asumes that initial solution is viable solution and matches equality constraints
     }
+
+    // Priority queue for processing groups starting with currently smallest one. Doing it this way should result in
+    // number of constraints within group doubling each time two groups are joined. That way each constraint is
+    // processed no more than log(n) times.
     std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<std::pair<int, int>>> queue;
     for (size_t i = 0; i < n; i++) {
         if (!processed[i]) {
@@ -1220,6 +1272,8 @@ static void optimizeLinearProgramPass(
         if (direction == 0) {
             continue;
         }
+        // Find the first constraint which will be hit by changing the variable in the desired direction defined
+        // by objective function.
         int limitingGroup = -1;
         int smallestMove = 0;
         if (direction < 0) {
@@ -1269,13 +1323,22 @@ static void optimizeLinearProgramPass(
                 queue.push({edgeCount[limitingGroup], limitingGroup});
             }
             equalities.push_back({{g, limitingGroup}, solution[g] - solution[limitingGroup]});
-        } // do nothing if limited by variable >= 0
+        } // else do nothing if limited by variable >= 0
     }
     for (auto it = equalities.rbegin(), end = equalities.rend(); it != end; ++it) {
         solution[it->first.first] = solution[it->first.second] + it->second;
     }
 }
 
+/**
+ * @brief Linear programming solver
+ * Does not guarantee optimal solution.
+ * @param n number of variables
+ * @param objectiveFunction coefficients for function \f$\sum c_i x_i\f$ which needs to be minimized
+ * @param inequalities inequality constraints \f$x_{e_i} - x_{f_i} \leq b_i\f$
+ * @param equalities equality constraints \f$x_{e_i} - x_{f_i} = b_i\f$
+ * @param solution input/output argument, returns results, needs to be initialized with a viable solution
+ */
 static void optimizeLinearProgram(
         size_t n,
         const std::vector<int> &objectiveFunction,
@@ -1317,19 +1380,20 @@ static Constraint createInequality(size_t a, int posA, size_t b, int posB, int m
  * @brief Create inequality constraints from segments which preserves their relative order on single axis.
  *
  * @param segments list of edge segments and block sides
- * @param positions initial element positions before optimiziation
+ * @param positions initial element positions before optimization
  * @param blockCount number of variables representing blocks, it is assumed that segments with
  * variableId < \a blockCount represent one side of block.
+ * @param variableGroup used to check if segments are part of the same edge and spacing can be reduced
  * @param blockSpacing minimal spacing between blocks
- * @param segmentSpacing minimal spacing betwen two edge segments, spacing may be less if values in \a positions
+ * @param segmentSpacing minimal spacing between two edge segments, spacing may be less if values in \a positions
  * are closer than this
- * @param inequalities output variable for resulting inequalites, values initiallly stored in it are not removed
+ * @param inequalities output variable for resulting inequalities, values initially stored in it are not removed
  */
 static void createInequalitiesFromSegments(
         std::vector<Segment> segments,
         const std::vector<int>& positions,
         const std::vector<size_t>& variableGroup,
-        size_t blockCount,
+        int blockCount,
         int blockSpacing,
         int segmentSpacing,
         std::vector<Constraint> &inequalities)
@@ -1374,7 +1438,7 @@ static void createInequalitiesFromSegments(
         }
         lastSegments.erase(startPos, it); // erase segments covered by current one
         lastSegments[segment.y0] = {segment.variableId, segment.x}; // current segment
-         // either current segment spliting previous one into two parts or partially covered segment
+         // either current segment splitting previous one into two parts or remaining part of partially covered segment
         lastSegments[segment.y1] = lastSegment;
     }
 }

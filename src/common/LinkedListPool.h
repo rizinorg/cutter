@@ -150,7 +150,7 @@ public:
      * @brief Split list and return first half.
      *
      * @param list The list that needs to be split.
-     * @param last Iterator to the first item that should not be included in returned list. Needs to be within \a list .
+     * @param end Iterator to the first item that should not be included in returned list. Needs to be within \a list .
      * @return Returns prefix of \a list.
      */
     List splitHead(const List &list, const ListIterator &end)

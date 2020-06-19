@@ -23,6 +23,10 @@ public:
                                  ut64 entry,
                                  int &width,
                                  int &height) const override;
+    void setTightSubtreePlacement(bool enabled) { tightSubtreePlacement = enabled; }
+    void setParentBetweenDirectChild(bool enabled) { parentBetweenDirectChild = enabled; }
+    void setverticalBlockAlignmentMiddle(bool enabled) { verticalBlockAlignmentMiddle = enabled; }
+    void setLayoutOptimization(bool enabled) { useLayoutOptimization = enabled; }
 private:
     LayoutType layoutType;
     /// false - use bounding box for smallest subtree when placing them side by side
@@ -31,6 +35,7 @@ private:
     bool parentBetweenDirectChild = false;
     /// false if blocks in rows should be aligned at top, true for middle alignment
     bool verticalBlockAlignmentMiddle = false;
+    bool useLayoutOptimization = false;
 
     struct GridBlock {
         ut64 id;
@@ -172,6 +177,10 @@ private:
      * @param graph
      */
     void connectEdgeEnds(Graph &graph) const;
+    /**
+     * @brief Reduce spacing between nodes and edges by pushing everything together ignoring the grid.
+     * @param state
+     */
     void optimizeLayout(LayoutState &state) const;
 };
 
