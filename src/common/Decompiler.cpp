@@ -57,14 +57,14 @@ void R2DecDecompiler::decompileAt(RVA addr)
             if (lineObject.isEmpty()) {
                 continue;
             }
-            RCodeAnnotation *annotationi = new RCodeAnnotation;
-            annotationi->start = codeString.length();
+            RCodeAnnotation annotationi = { 0 };
+            annotationi.start = codeString.length();
             codeString.append(lineObject["str"].toString() + "\n");
-            annotationi->end = codeString.length();
+            annotationi.end = codeString.length();
             bool ok;
-            annotationi->type = R_CODE_ANNOTATION_TYPE_OFFSET;
-            annotationi->offset.offset = lineObject["offset"].toVariant().toULongLong(&ok);
-            r_annotated_code_add_annotation(code, annotationi);
+            annotationi.type = R_CODE_ANNOTATION_TYPE_OFFSET;
+            annotationi.offset.offset = lineObject["offset"].toVariant().toULongLong(&ok);
+            r_annotated_code_add_annotation(code, &annotationi);
         }
 
         for (const auto &line : json["errors"].toArray()) {
