@@ -34,7 +34,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
     connect(Core(), SIGNAL(registersChanged()), this, SLOT(highlightPC()));
-    connect(mCtxMenu, SIGNAL(copy()), ui->textEdit, SLOT(copy()));
+    connect(mCtxMenu, &DecompilerContextMenu::copy, ui->textEdit, &QPlainTextEdit::copy);
 
     decompiledFunctionAddr = RVA_INVALID;
     decompilerWasBusy = false;
