@@ -261,6 +261,19 @@ void SearchWidget::refreshSearch()
     search_model->beginResetModel();
     search = Core()->getAllSearch(search_for, searchspace);
     search_model->endResetModel();
+    
+    // No Results Found Warning when search returns empty
+    // Warning Displays in the middle of the screen as a message box
+    // Warning also includes the searched phrase that resulted into an empyy search
+    if(search.isEmpty() && !search_for.isEmpty()){ 
+        QMessageBox msgBox;
+        QString warning="<b>";
+        warning.append("No Results Found:");
+        warning.append("</b><br>");
+        warning.append(search_for);
+        msgBox.setText(warning);
+        msgBox.exec();
+    }
 
     qhelpers::adjustColumns(ui->searchTreeView, 3, 0);
 }
