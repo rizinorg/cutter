@@ -281,8 +281,7 @@ void DecompilerWidget::cursorPositionChanged()
 {
     mCtxMenu->setCanCopy(ui->textEdit->textCursor().hasSelection());
     // Do not perform seeks along with the cursor while selecting multiple lines
-    if (!ui->textEdit->textCursor().selectedText().isEmpty())
-    {
+    if (!ui->textEdit->textCursor().selectedText().isEmpty()) {
         return;
     }
     size_t pos = ui->textEdit->textCursor().position();
@@ -405,7 +404,7 @@ void DecompilerWidget::highlightPC()
     if (!cursor.isNull()) {
         colorLine(createLineHighlightPC(cursor));
     }
-    
+
 }
 
 void DecompilerWidget::highlightBreakpoints()

@@ -5,7 +5,7 @@
 #include <QMenu>
 #include <QKeySequence>
 
-#include "common/IOModesController.h" 
+#include "common/IOModesController.h"
 /* I believe IOModesController
 won't be required, copied from the disassemblycontextmenu for now. */
 
@@ -31,7 +31,7 @@ public slots:
 
 private slots:
     void aboutToShowSlot();
-    
+
     void on_actionCopy_triggered();
 
 private:
@@ -44,7 +44,7 @@ private:
 
     QAction actionCopy;
     QAction *copySeparator;
-   
+
     void initAction(QAction *action, QString name, const char *slot = nullptr);
     void initAction(QAction *action, QString name, const char *slot, QKeySequence keySequence);
     void initAction(QAction *action, QString name, const char *slot, QList<QKeySequence> keySequence);

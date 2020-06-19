@@ -71,7 +71,7 @@ void DecompilerContextMenu::initAction(QAction *action, QString name, const char
 }
 
 void DecompilerContextMenu::initAction(QAction *action, QString name,
-                                        const char *slot, QKeySequence keySequence)
+                                       const char *slot, QKeySequence keySequence)
 {
     initAction(action, name, slot);
     if (keySequence.isEmpty()) {
@@ -82,7 +82,7 @@ void DecompilerContextMenu::initAction(QAction *action, QString name,
 }
 
 void DecompilerContextMenu::initAction(QAction *action, QString name,
-                                        const char *slot, QList<QKeySequence> keySequenceList)
+                                       const char *slot, QList<QKeySequence> keySequenceList)
 {
     initAction(action, name, slot);
     if (keySequenceList.empty()) {
