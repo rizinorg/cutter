@@ -19,7 +19,7 @@ public:
     };
 
     GraphGridLayout(LayoutType layoutType = LayoutType::Medium);
-    virtual void CalculateLayout(std::unordered_map<ut64, GraphBlock> &blocks,
+    virtual void CalculateLayout(Graph &blocks,
                                  ut64 entry,
                                  int &width,
                                  int &height) const override;
@@ -35,7 +35,7 @@ private:
     bool parentBetweenDirectChild = false;
     /// false if blocks in rows should be aligned at top, true for middle alignment
     bool verticalBlockAlignmentMiddle = false;
-    bool useLayoutOptimization = false;
+    bool useLayoutOptimization = true;
 
     struct GridBlock {
         ut64 id;
@@ -172,6 +172,13 @@ private:
      * @param height image height output argument
      */
     void convertToPixelCoordinates(LayoutState &state, int &width, int &height) const;
+    /**
+     * @brief Move the graph content to top left corner and update dimensions.
+     * @param graph
+     * @param width width after cropping
+     * @param height height after cropping
+     */
+    void cropToContent(Graph &graph, int &width, int &height) const;
     /**
      * @brief Connect edge ends to blocks by changing y.
      * @param graph

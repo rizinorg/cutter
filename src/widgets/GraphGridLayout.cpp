@@ -256,8 +256,7 @@ void GraphGridLayout::selectTree(GraphGridLayout::LayoutState &state)
     }
 }
 
-void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &blocks, ut64 entry,
-                                      int &width, int &height) const
+void GraphGridLayout::CalculateLayout(GraphLayout::Graph &blocks, ut64 entry, int &width, int &height) const
 {
     LayoutState layoutState;
     layoutState.blocks = &blocks;
@@ -310,7 +309,10 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
     routeEdges(layoutState);
 
     convertToPixelCoordinates(layoutState, width, height);
-    optimizeLayout(layoutState);
+    if (useLayoutOptimization) {
+        optimizeLayout(layoutState);
+        cropToContent(blocks, width, height);
+    }
 }
 
 void GraphGridLayout::findMergePoints(GraphGridLayout::LayoutState &state) const
@@ -1127,6 +1129,52 @@ void GraphGridLayout::convertToPixelCoordinates(
         }
     }
     connectEdgeEnds(*state.blocks);
+}
+
+void GraphGridLayout::cropToContent(GraphLayout::Graph &graph, int &width, int &height) const
+{
+    if (graph.empty()) {
+        width = std::max(1, layoutConfig.edgeHorizontalSpacing);
+        height = std::max(1, layoutConfig.edgeVerticalSpacing);
+        return;
+    }
+    const auto &anyBlock = graph.begin()->second;
+    int minPos[2] = {anyBlock.x, anyBlock.y};
+    int maxPos[2] = {anyBlock.x, anyBlock.y};
+
+    auto updateLimits = [&](int x, int y) {
+        minPos[0] = std::min(minPos[0] , x);
+        minPos[1] = std::min(minPos[1] , y);
+        maxPos[0] = std::max(maxPos[0] , x);
+        maxPos[1] = std::max(maxPos[1] , y);
+    };
+
+    for (const auto &blockIt : graph) {
+        auto &block = blockIt.second;
+        updateLimits(block.x, block.y);
+        updateLimits(block.x + block.width, block.y + block.height);
+        for (auto &edge : block.edges) {
+            for (auto &point: edge.polyline) {
+                updateLimits(point.x(), point.y());
+            }
+        }
+    }
+    minPos[0] -= layoutConfig.edgeHorizontalSpacing;
+    minPos[1] -= layoutConfig.edgeVerticalSpacing;
+    maxPos[0] += layoutConfig.edgeHorizontalSpacing;
+    maxPos[1] += layoutConfig.edgeVerticalSpacing;
+    for (auto &blockIt : graph) {
+        auto &block = blockIt.second;
+        block.x -= minPos[0];
+        block.y -= minPos[1];
+        for (auto &edge : block.edges) {
+            for (auto &point: edge.polyline) {
+                point -= QPointF(minPos[0], minPos[1]);
+            }
+        }
+    }
+    width = maxPos[0] - minPos[0];
+    height = maxPos[1] - minPos[1];
 }
 
 void GraphGridLayout::connectEdgeEnds(GraphLayout::Graph &graph) const
