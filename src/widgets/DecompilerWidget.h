@@ -15,14 +15,14 @@ class DecompilerWidget;
 class QTextEdit;
 class QSyntaxHighlighter;
 class QTextCursor;
-class DisassemblyContextMenu;
+class DecompilerContextMenu;
 struct DecompiledCodeTextLine;
 
 class DecompilerWidget : public MemoryDockWidget
 {
     Q_OBJECT
 protected:
-    DisassemblyContextMenu *mCtxMenu;
+    DecompilerContextMenu *mCtxMenu;
 
 public:
     explicit DecompilerWidget(MainWindow *main);
@@ -48,6 +48,8 @@ private:
     QSyntaxHighlighter *syntaxHighlighter;
     bool decompilerSelectionEnabled;
     bool autoRefreshEnabled;
+
+    QString curHighlightedWord;
 
     /**
      * True if doRefresh() was called, but the decompiler was still running

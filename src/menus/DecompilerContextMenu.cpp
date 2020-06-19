@@ -9,10 +9,19 @@
 #include <QApplication>
 #include <QPushButton>
 
-DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *MainWindow)
-    : QMenu(parent)
+DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWindow)
+    :   QMenu(parent),
+        offset(0),
+        canCopy(false),
+        mainWindow(mainWindow),
+        actionCopy(this)
 {
+    initAction(&actionCopy, tr("Copy"), SLOT(on_actionCopy_triggered()), getCopySequence());
+    addAction(&actionCopy);
+    addSeparator();
 
+    connect(this, &DecompilerContextMenu::aboutToShow,
+            this, &DecompilerContextMenu::aboutToShowSlot);
 }
 
 DecompilerContextMenu::~DecompilerContextMenu()
@@ -23,7 +32,7 @@ void DecompilerContextMenu::setOffset(RVA offset)
 {
     this->offset = offset;
 
-    this->actionSetFunctionVarTypes.setVisible(true);
+    // this->actionSetFunctionVarTypes.setVisible(true);
 }
 
 void DecompilerContextMenu::setCanCopy(bool enabled)
@@ -38,6 +47,12 @@ void DecompilerContextMenu::setCurHighlightedWord(const QString &text)
 
 void DecompilerContextMenu::aboutToShowSlot()
 {
+    actionCopy.setVisible(canCopy);
+}
+
+void DecompilerContextMenu::on_actionCopy_triggered()
+{
+    emit copy();
 }
 
 QKeySequence DecompilerContextMenu::getCopySequence() const
