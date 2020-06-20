@@ -7,6 +7,26 @@ Building
  that we provide pre-compiled binaries for Windows, Linux and macOS on
  our `release page. <https://github.com/radareorg/cutter/releases/latest>`_
 
+Get the Source
+--------------
+
+Make sure you've ``git`` installed in your system (`Installation guide <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_) and do the following:
+
+.. code-block:: sh
+
+   git clone --recurse-submodules https://github.com/radareorg/cutter
+
+This will clone the Cutter source and it's dependencies(radare2, etc.)
+under ``cutter`` and you should see the following dir structure:
+
+.. code-block:: sh
+
+    cutter/-|
+            |-docs/     # Cutter Documentation
+            |-radare2/  # radare2 submodule
+            |-src/      # Cutter Source Code
+
+Following sections assume that ``cutter`` is your working dir. (if not, do ``cd cutter``)
 
 Building on Linux
 -----------------
@@ -52,19 +72,10 @@ On Arch-based Linux distributions:
 Building steps
 ~~~~~~~~~~~~~~
 
-The official way to build Cutter on Linux is by using CMake.
-First, clone the repository with its dependencies:
-
-.. code-block:: sh
-
-   git clone --recurse-submodules https://github.com/radareorg/cutter
-
-
-Then invoke CMake to build Cutter and its dependency radare2.
+The recommended way to build Cutter on Linux is by using CMake. Simply invoke CMake to build Cutter and its dependency radare2.
 
 .. code:: sh
 
-   cd cutter
    mkdir build && cd build
    cmake -DCUTTER_USE_BUNDLED_RADARE2=ON ../src
    cmake --build .
@@ -73,7 +84,6 @@ If your operating system has a newer version of CMake (> v3.12) you can use this
 
 .. code:: sh
 
-   cd cutter
    cmake -S src -B build -DCUTTER_USE_BUNDLED_RADARE2=ON
    cmake --build build
 
@@ -85,7 +95,7 @@ If your operating system has a newer version of CMake (> v3.12) you can use this
    please look at the full list of `CMake Building Options`_.
 
 
-After the build process is complete, you should have the Cutter executable in the `build` folder.
+After the build process is complete, you should have the Cutter executable in the ``build`` folder.
 You can now execute Cutter like this:
 
 .. code:: sh
