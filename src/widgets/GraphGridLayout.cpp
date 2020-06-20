@@ -274,6 +274,7 @@ void GraphGridLayout::CalculateLayout(GraphLayout::Graph &blocks, ut64 entry, in
         layoutState.edge[blockIt.first].resize(blockIt.second.edges.size());
         for (size_t i = 0; i < blockIt.second.edges.size(); i++) {
             layoutState.edge[blockIt.first][i].dest = blockIt.second.edges[i].target;
+            blockIt.second.edges[i].arrow = GraphEdge::Down;
         }
     }
     for (const auto &edgeList : layoutState.edge) {
