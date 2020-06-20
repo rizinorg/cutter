@@ -4,9 +4,12 @@ on:
   push:
     branches:
     - master
+    # Decompiler Context Menu is being built on decompiler-refactoring
+    - 'decompiler-refactoring'
   pull_request:
     branches:
     - master
+    - 'decompiler-refactoring'
 
 jobs:
   build:
