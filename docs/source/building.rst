@@ -25,14 +25,25 @@ On Linux, you will need:
 * qt5
 * qt5-svg
 * pkgconf
+* curl*
+* python-setuptools*
+* KSyntaxHighlighter**
+* graphviz**
 
-On Debian-based Linux distributions, all of these packages can be installed with this single command:
+`*` Recommended while building with ``make/Cmake``.
+
+`**` Optional. If present, these add extra features to Cutter. See `CMake Building Options`_.
+
+On Debian-based Linux distributions, all of these essential packages can be installed with this single command:
 
 ::
 
    sudo apt install git build-essential cmake meson libzip-dev zlib1g-dev qt5-default libqt5svg5-dev qttools5-dev qttools5-dev-tools
 
-On Arch-based Linux distributions, build-essential should be replaced by base-devel:
+.. note::
+ For Ubuntu 18.04 and lower ``meson`` should be installed with ``pip install --upgrade --user meson``.
+
+On Arch-based Linux distributions:
 
 ::
 
