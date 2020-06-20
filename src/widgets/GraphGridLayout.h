@@ -28,7 +28,6 @@ public:
     void setverticalBlockAlignmentMiddle(bool enabled) { verticalBlockAlignmentMiddle = enabled; }
     void setLayoutOptimization(bool enabled) { useLayoutOptimization = enabled; }
 private:
-    LayoutType layoutType;
     /// false - use bounding box for smallest subtree when placing them side by side
     bool tightSubtreePlacement = false;
     /// true if code should try to place parent between direct children as much as possible

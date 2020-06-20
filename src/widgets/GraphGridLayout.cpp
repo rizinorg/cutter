@@ -157,7 +157,6 @@ variables are grouped and changed together.
 
 GraphGridLayout::GraphGridLayout(GraphGridLayout::LayoutType layoutType)
     : GraphLayout({})
-    , layoutType(layoutType)
 {
     switch (layoutType) {
     case LayoutType::Narrow:

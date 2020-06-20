@@ -103,6 +103,17 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
         {tr("Grid narrow"), GraphView::Layout::GridNarrow}
         , {tr("Grid medium"), GraphView::Layout::GridMedium}
         , {tr("Grid wide"), GraphView::Layout::GridWide}
+
+        , {tr("AAA"), GraphView::Layout::AAA}
+        , {tr("AAB"), GraphView::Layout::AAB}
+        , {tr("ABA"), GraphView::Layout::ABA}
+        , {tr("ABB"), GraphView::Layout::ABB}
+        , {tr("BAA"), GraphView::Layout::BAA}
+        , {tr("BAB"), GraphView::Layout::BAB}
+        , {tr("BBA"), GraphView::Layout::BBA}
+        , {tr("BBB"), GraphView::Layout::BBB}
+
+
 #ifdef CUTTER_ENABLE_GRAPHVIZ
         , {tr("Graphviz polyline"), GraphView::Layout::GraphvizPolyline}
         , {tr("Graphviz ortho"), GraphView::Layout::GraphvizOrtho}

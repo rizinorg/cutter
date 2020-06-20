@@ -42,6 +42,14 @@ public:
         GridNarrow
         , GridMedium
         , GridWide
+        , AAA
+        , AAB
+        , ABA
+        , ABB
+        , BAA
+        , BAB
+        , BBA
+        , BBB
 #ifdef CUTTER_ENABLE_GRAPHVIZ
         , GraphvizOrtho
         , GraphvizPolyline
