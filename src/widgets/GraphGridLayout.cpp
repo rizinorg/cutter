@@ -975,7 +975,7 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
     edgeOffsets.resize(edgeIndex);
     calculateSegmentOffsets(segments, edgeOffsets, state.edgeColumnWidth, rightSides, leftSides,
                             state.columnWidth, 2 * state.rows + 1, layoutConfig.edgeHorizontalSpacing);
-    centerEdges(edgeOffsets, state.edgeColumnWidth, segments, layoutConfig.blockHorizontalSpacing);
+    centerEdges(edgeOffsets, state.edgeColumnWidth, segments, layoutConfig.edgeHorizontalSpacing);
     edgeIndex = 0;
 
     auto copySegmentsToEdges = [&](bool col) {
