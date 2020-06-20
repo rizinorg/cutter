@@ -37,7 +37,6 @@ Requirements
 On Linux, you will need:
 
 * build-essential
-* git
 * cmake
 * meson
 * libzip-dev
@@ -58,7 +57,7 @@ On Debian-based Linux distributions, all of these essential packages can be inst
 
 ::
 
-   sudo apt install git build-essential cmake meson libzip-dev zlib1g-dev qt5-default libqt5svg5-dev qttools5-dev qttools5-dev-tools
+   sudo apt install build-essential cmake meson libzip-dev zlib1g-dev qt5-default libqt5svg5-dev qttools5-dev qttools5-dev-tools
 
 .. note::
  For Ubuntu 18.04 and lower ``meson`` should be installed with ``pip install --upgrade --user meson``.
@@ -67,7 +66,7 @@ On Arch-based Linux distributions:
 
 ::
 
-   sudo pacman -Syu git base-devel cmake meson qt5-base qt5-svg qt5-tools
+   sudo pacman -Syu base-devel cmake meson qt5-base qt5-svg qt5-tools
 
 Building steps
 ~~~~~~~~~~~~~~
