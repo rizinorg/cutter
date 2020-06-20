@@ -7,8 +7,8 @@ Building
  that we provide pre-compiled binaries for Windows, Linux and macOS on
  our `release page. <https://github.com/radareorg/cutter/releases/latest>`_
 
-Get the Source
---------------
+Getting the Source
+------------------
 
 Make sure you've ``git`` installed in your system (`Installation guide <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_) and do the following:
 
