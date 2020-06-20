@@ -116,7 +116,7 @@ matrix:
       script: bash scripts/deploy_docs.sh
       on:
         repo: radareorg/cutter
-        branch: 'decompiler-refactoring'
+        branch: 'master'
 
 
 sudo: required
