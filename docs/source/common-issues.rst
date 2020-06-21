@@ -1,4 +1,4 @@
-Common errors
+Common issues
 =============
 
 This page lists common issues encountered by users.
