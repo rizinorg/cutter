@@ -12,7 +12,6 @@
 DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWindow)
     :   QMenu(parent),
         offset(0),
-        canCopy(false),
         mainWindow(mainWindow),
         actionCopy(this)
 {
@@ -37,17 +36,11 @@ void DecompilerContextMenu::setOffset(RVA offset)
 
 void DecompilerContextMenu::setCanCopy(bool enabled)
 {
-    this->canCopy = enabled;
-}
-
-void DecompilerContextMenu::setCurHighlightedWord(const QString &text)
-{
-    this->curHighlightedWord = text;
+    actionCopy.setVisible(enabled);
 }
 
 void DecompilerContextMenu::aboutToShowSlot()
 {
-    actionCopy.setVisible(canCopy);
 }
 
 void DecompilerContextMenu::on_actionCopy_triggered()

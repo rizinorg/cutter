@@ -49,8 +49,6 @@ private:
     bool decompilerSelectionEnabled;
     bool autoRefreshEnabled;
 
-    QString curHighlightedWord;
-
     /**
      * True if doRefresh() was called, but the decompiler was still running
      * This means, after the decompiler has finished, it should be refreshed immediately.

@@ -62,7 +62,6 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
         // If no decompiler was previously chosen. set r2ghidra as default decompiler
         selectedDecompilerId = "r2ghidra";
     }
-    selectedDecompilerId = "r2ghidra"; //Hack: To make sure ghidra is loaded as default to avoid run errors.
     for (auto dec : decompilers) {
         ui->decompilerComboBox->addItem(dec->getName(), dec->getId());
         if (dec->getId() == selectedDecompilerId) {
@@ -349,7 +348,6 @@ void DecompilerWidget::updateSelection()
     ui->textEdit->setExtraSelections(extraSelections);
     // Highlight PC after updating the selected line
     highlightPC();
-    mCtxMenu->setCurHighlightedWord(searchString);
 }
 
 QString DecompilerWidget::getWindowTitle() const

@@ -5,10 +5,6 @@
 #include <QMenu>
 #include <QKeySequence>
 
-#include "common/IOModesController.h"
-/* I believe IOModesController
-won't be required, copied from the disassemblycontextmenu for now. */
-
 class DecompilerContextMenu : public QMenu
 {
     Q_OBJECT
@@ -23,11 +19,6 @@ signals:
 public slots:
     void setOffset(RVA offset);
     void setCanCopy(bool enabled);
-    /**
-     * @brief Sets the value of curHighlightedWord
-     * @param text The current highlighted word
-     */
-    void setCurHighlightedWord(const QString &text);
 
 private slots:
     void aboutToShowSlot();
@@ -38,8 +29,6 @@ private:
     QKeySequence getCopySequence() const;
 
     RVA offset;
-    bool canCopy;
-    QString curHighlightedWord; // The current highlighted word
     MainWindow *mainWindow;
 
     QAction actionCopy;
