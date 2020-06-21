@@ -23,7 +23,7 @@ public slots:
 private slots:
     void aboutToShowSlot();
 
-    void on_actionCopy_triggered();
+    void actionCopyTriggered();
 
 private:
     QKeySequence getCopySequence() const;
@@ -33,11 +33,9 @@ private:
 
     QAction actionCopy;
     QAction *copySeparator;
-
-    void initAction(QAction *action, QString name, const char *slot = nullptr);
-    void initAction(QAction *action, QString name, const char *slot, QKeySequence keySequence);
-    void initAction(QAction *action, QString name, const char *slot, QList<QKeySequence> keySequence);
-
+    
+    void setActionCopy();
+    
     // I left out the following part from RAnnotatedCode. Probably, we will be returning/passing annotations
     // from/to the function getThingUsedHere() and updateTargetMenuActions(). This block of comment will get removed in
     // future PRs.
