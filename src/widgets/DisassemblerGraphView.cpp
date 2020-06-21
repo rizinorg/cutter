@@ -38,6 +38,12 @@ const int DisassemblerGraphView::KEY_ZOOM_IN = Qt::Key_Plus + Qt::ControlModifie
 const int DisassemblerGraphView::KEY_ZOOM_OUT = Qt::Key_Minus + Qt::ControlModifier;
 const int DisassemblerGraphView::KEY_ZOOM_RESET = Qt::Key_Equal + Qt::ControlModifier;
 
+#ifndef NDEBUG
+#define GRAPH_GRID_DEBUG_MODES true
+#else
+#define GRAPH_GRID_DEBUG_MODES false
+#endif
+
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable,
                                              MainWindow *mainWindow, QList<QAction *> additionalMenuActions)
     : GraphView(parent),
@@ -104,15 +110,16 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
         , {tr("Grid medium"), GraphView::Layout::GridMedium}
         , {tr("Grid wide"), GraphView::Layout::GridWide}
 
-        , {tr("AAA"), GraphView::Layout::AAA}
-        , {tr("AAB"), GraphView::Layout::AAB}
-        , {tr("ABA"), GraphView::Layout::ABA}
-        , {tr("ABB"), GraphView::Layout::ABB}
-        , {tr("BAA"), GraphView::Layout::BAA}
-        , {tr("BAB"), GraphView::Layout::BAB}
-        , {tr("BBA"), GraphView::Layout::BBA}
-        , {tr("BBB"), GraphView::Layout::BBB}
-
+#if GRAPH_GRID_DEBUG_MODES
+        , {"GridAAA", GraphView::Layout::GridAAA}
+        , {"GridAAB", GraphView::Layout::GridAAB}
+        , {"GridABA", GraphView::Layout::GridABA}
+        , {"GridABB", GraphView::Layout::GridABB}
+        , {"GridBAA", GraphView::Layout::GridBAA}
+        , {"GridBAB", GraphView::Layout::GridBAB}
+        , {"GridBBA", GraphView::Layout::GridBBA}
+        , {"GridBBB", GraphView::Layout::GridBBB}
+#endif
 
 #ifdef CUTTER_ENABLE_GRAPHVIZ
         , {tr("Graphviz polyline"), GraphView::Layout::GraphvizPolyline}

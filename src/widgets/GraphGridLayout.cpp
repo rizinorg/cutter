@@ -162,14 +162,17 @@ GraphGridLayout::GraphGridLayout(GraphGridLayout::LayoutType layoutType)
     case LayoutType::Narrow:
         tightSubtreePlacement = true;
         parentBetweenDirectChild = false;
+        useLayoutOptimization = true;
         break;
     case LayoutType::Medium:
         tightSubtreePlacement = false;
-        parentBetweenDirectChild = false;
+        parentBetweenDirectChild = true;
+        useLayoutOptimization = true;
         break;
     case LayoutType::Wide:
         tightSubtreePlacement = false;
         parentBetweenDirectChild = true;
+        useLayoutOptimization = false;
         break;
     }
 }
