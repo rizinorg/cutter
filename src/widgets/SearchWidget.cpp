@@ -275,7 +275,7 @@ void SearchWidget::checkSearchResultEmpty()
         QString no_results_message="<b>";
         no_results_message.append(tr("No results found for:"));
         no_results_message.append("</b><br>");
-        no_results_message.append(CutterCore::ansiEscapeToHtml(ui->filterLineEdit->text()));
+        no_results_message.append(ui->filterLineEdit->text().toHtmlEscaped());
         QMessageBox::information(this, tr("No Results Found"), no_results_message);
     }
 }
