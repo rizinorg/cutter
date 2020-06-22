@@ -93,6 +93,7 @@ for:
     branches:
       only:
         - master
+        - 'decompiler-refactoring'
   -
     skip_non_tags: true
 
