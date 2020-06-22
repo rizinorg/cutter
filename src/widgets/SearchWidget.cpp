@@ -190,11 +190,13 @@ SearchWidget::SearchWidget(MainWindow *main) :
     QShortcut *enter_press = new QShortcut(QKeySequence(Qt::Key_Return), this);
     connect(enter_press, &QShortcut::activated, this, [this]() {
         refreshSearch();
+        checkSearchResultEmpty();
     });
     enter_press->setContext(Qt::WidgetWithChildrenShortcut);
 
     connect(ui->searchButton, &QAbstractButton::clicked, this, [this]() {
         refreshSearch();
+        checkSearchResultEmpty();
     });
 
     connect(ui->searchspaceCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
@@ -262,20 +264,20 @@ void SearchWidget::refreshSearch()
     search = Core()->getAllSearch(search_for, searchspace);
     search_model->endResetModel();
     
-    // No Results Found Warning when search returns empty
-    // Warning Displays in the middle of the screen as a message box
-    // Warning also includes the searched phrase that resulted into an empyy search
-    if(search.isEmpty() && !search_for.isEmpty()){ 
-        QMessageBox msgBox;
-        QString warning="<b>";
-        warning.append("No Results Found:");
-        warning.append("</b><br>");
-        warning.append(search_for);
-        msgBox.setText(warning);
-        msgBox.exec();
-    }
-
     qhelpers::adjustColumns(ui->searchTreeView, 3, 0);
+}
+
+// No Results Found information message when search returns empty
+// Called by &QShortcut::activated and &QAbstractButton::clicked signals
+void SearchWidget::checkSearchResultEmpty()
+{
+    if (search.isEmpty()){ 
+        QString no_results_message="<b>";
+        no_results_message.append(tr("No results found for:"));
+        no_results_message.append("</b><br>");
+        no_results_message.append(CutterCore::ansiEscapeToHtml(ui->filterLineEdit->text()));
+        QMessageBox::information(this, tr("No Results Found"), no_results_message);
+    }
 }
 
 void SearchWidget::setScrollMode()
