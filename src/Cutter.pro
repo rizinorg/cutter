@@ -333,6 +333,7 @@ SOURCES += \
     widgets/StringsWidget.cpp \
     widgets/SymbolsWidget.cpp \
     menus/DisassemblyContextMenu.cpp \
+    menus/DecompilerContextMenu.cpp \
     widgets/DisassemblyWidget.cpp \
     widgets/HexdumpWidget.cpp \
     common/Configuration.cpp \
@@ -483,6 +484,7 @@ HEADERS  += \
     widgets/StringsWidget.h \
     widgets/SymbolsWidget.h \
     menus/DisassemblyContextMenu.h \
+    menus/DecompilerContextMenu.h \
     widgets/DisassemblyWidget.h \
     widgets/HexdumpWidget.h \
     common/Configuration.h \

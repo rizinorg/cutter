@@ -1,6 +1,6 @@
 #include "DecompilerWidget.h"
 #include "ui_DecompilerWidget.h"
-#include "menus/DisassemblyContextMenu.h"
+#include "menus/DecompilerContextMenu.h"
 
 #include "common/Configuration.h"
 #include "common/Helpers.h"
@@ -17,7 +17,7 @@
 
 DecompilerWidget::DecompilerWidget(MainWindow *main) :
     MemoryDockWidget(MemoryWidgetType::Decompiler, main),
-    mCtxMenu(new DisassemblyContextMenu(this, main)),
+    mCtxMenu(new DecompilerContextMenu(this, main)),
     ui(new Ui::DecompilerWidget),
     code(Decompiler::makeWarning(tr("Choose an offset and refresh to get decompiled code")), &r_annotated_code_free)
 {
@@ -34,6 +34,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
     connect(Core(), SIGNAL(registersChanged()), this, SLOT(highlightPC()));
+    connect(mCtxMenu, &DecompilerContextMenu::copy, ui->textEdit, &QPlainTextEdit::copy);
 
     decompiledFunctionAddr = RVA_INVALID;
     decompilerWasBusy = false;
@@ -61,7 +62,6 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
         // If no decompiler was previously chosen. set r2ghidra as default decompiler
         selectedDecompilerId = "r2ghidra";
     }
-
     for (auto dec : decompilers) {
         ui->decompilerComboBox->addItem(dec->getName(), dec->getId());
         if (dec->getId() == selectedDecompilerId) {
@@ -278,12 +278,11 @@ void DecompilerWidget::connectCursorPositionChanged(bool disconnect)
 
 void DecompilerWidget::cursorPositionChanged()
 {
+    mCtxMenu->setCanCopy(ui->textEdit->textCursor().hasSelection());
     // Do not perform seeks along with the cursor while selecting multiple lines
-    if (!ui->textEdit->textCursor().selectedText().isEmpty())
-    {
+    if (!ui->textEdit->textCursor().selectedText().isEmpty()) {
         return;
     }
-
     size_t pos = ui->textEdit->textCursor().position();
     RVA offset = offsetForPosition(*code, pos);
     if (offset != RVA_INVALID && offset != Core()->getOffset()) {
@@ -349,7 +348,6 @@ void DecompilerWidget::updateSelection()
     ui->textEdit->setExtraSelections(extraSelections);
     // Highlight PC after updating the selected line
     highlightPC();
-    mCtxMenu->setCurHighlightedWord(searchString);
 }
 
 QString DecompilerWidget::getWindowTitle() const
@@ -404,7 +402,7 @@ void DecompilerWidget::highlightPC()
     if (!cursor.isNull()) {
         colorLine(createLineHighlightPC(cursor));
     }
-    
+
 }
 
 void DecompilerWidget::highlightBreakpoints()

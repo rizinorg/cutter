@@ -8,6 +8,7 @@ branches:
   - debug
   - /^v\d.*$/
   - /^deploy-test(-.*)?$/
+  - 'decompiler-refactoring'
 
 matrix:
   include:
@@ -123,7 +124,7 @@ matrix:
       script: bash scripts/deploy_docs.sh
       on:
         repo: radareorg/cutter
-        branch: master
+        branch: 'master'
 
 
 sudo: required
