@@ -16,13 +16,16 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         mainWindow(mainWindow),
         actionCopy(tr("Copy"), this),
         actionAddBreakpoint(tr("Add/remove breakpoint"), this),
-        actionAdvancedBreakpoint(tr("Advanced breakpoint"), this)
+        actionAdvancedBreakpoint(tr("Advanced breakpoint"), this),
+        actionContinueUntil(tr("Continue until line"), this),
+        actionSetPC(tr("Set PC"), this)
 {
     setActionCopy();
     addSeparator();
 
     addBreakpointMenu();
-
+    addDebugMenu();
+    
     connect(this, &DecompilerContextMenu::aboutToShow,
             this, &DecompilerContextMenu::aboutToShowSlot);
 }
@@ -45,6 +48,8 @@ void DecompilerContextMenu::setCanCopy(bool enabled)
 
 void DecompilerContextMenu::aboutToShowSlot()
 {
+    // Only show debug options if we are currently debugging
+    debugMenu->menuAction()->setVisible(Core()->currentlyDebugging);
     bool hasBreakpoint = Core()->breakpointIndexAt(offset) > -1;
     actionAddBreakpoint.setText(hasBreakpoint ?
                                      tr("Remove breakpoint") : tr("Add breakpoint"));
@@ -76,6 +81,17 @@ void DecompilerContextMenu::setActionAdvancedBreakpoint()
     actionAdvancedBreakpoint.setShortcut({Qt::CTRL + Qt::Key_F2});
     actionAdvancedBreakpoint.setShortcutContext(Qt::WidgetWithChildrenShortcut);
 }
+
+void DecompilerContextMenu::setActionContinueUntil()
+{
+    connect(&actionContinueUntil, &QAction::triggered, this, &DecompilerContextMenu::actionContinueUntilTriggered);
+}
+
+void DecompilerContextMenu::setActionSetPC()
+{
+    connect(&actionSetPC, &QAction::triggered, this, &DecompilerContextMenu::actionSetPCTriggered);
+}
+
 // Set up action responses
 
 void DecompilerContextMenu::actionCopyTriggered()
@@ -98,6 +114,17 @@ void DecompilerContextMenu::actionAdvancedBreakpointTriggered()
     }
 }
 
+void DecompilerContextMenu::actionContinueUntilTriggered()
+{
+    Core()->continueUntilDebug(RAddressString(offset));
+}
+
+void DecompilerContextMenu::actionSetPCTriggered()
+{
+    QString progCounterName = Core()->getRegisterName("PC");
+    Core()->setRegister(progCounterName, RAddressString(offset).toUpper());
+}
+
 // Set up menus
 
 void DecompilerContextMenu::addBreakpointMenu()
@@ -108,4 +135,14 @@ void DecompilerContextMenu::addBreakpointMenu()
     breakpointMenu->addAction(&actionAddBreakpoint);
     setActionAdvancedBreakpoint();
     breakpointMenu->addAction(&actionAdvancedBreakpoint);
+}
+
+void DecompilerContextMenu::addDebugMenu()
+{
+    debugMenu = addMenu(tr("Debug"));
+
+    setActionContinueUntil();
+    debugMenu->addAction(&actionContinueUntil);
+    setActionSetPC();
+    debugMenu->addAction(&actionSetPC);
 }
