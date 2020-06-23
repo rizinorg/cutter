@@ -147,8 +147,7 @@ static ut64 offsetForPosition(RAnnotatedCode &codeDecompiled, size_t pos)
     void *annotationi;
     r_vector_foreach(&codeDecompiled.annotations, annotationi) {
         RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
-        if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->start > pos
-                || annotation->end <= pos) {
+        if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->start > pos) {
             continue;
         }
         if (closestPos != SIZE_MAX && closestPos >= annotation->start) {

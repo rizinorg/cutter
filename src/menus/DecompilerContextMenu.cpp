@@ -56,7 +56,7 @@ void DecompilerContextMenu::aboutToShowSlot()
     actionAdvancedBreakpoint.setText(hasBreakpoint ?
                                      tr("Edit breakpoint") : tr("Advanced breakpoint"));
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
-    actionSetPC.setText("Set " + progCounterName + " here");
+    actionSetPC.setText(tr("Set %1 here").arg(progCounterName));
 }
 
 // Set up actions
