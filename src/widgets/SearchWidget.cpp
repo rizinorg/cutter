@@ -270,7 +270,7 @@ void SearchWidget::refreshSearch()
     search_model->beginResetModel();
     search = Core()->getAllSearch(search_for, searchspace);
     search_model->endResetModel();
-
+    
     qhelpers::adjustColumns(ui->searchTreeView, 3, 0);
 }
 
