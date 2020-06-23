@@ -8,6 +8,8 @@
 #include <QComboBox>
 #include <QShortcut>
 
+#include <iostream>
+
 namespace {
 
 static const int kMaxTooltipWidth = 500;
@@ -49,6 +51,9 @@ int SearchModel::columnCount(const QModelIndex &) const
     return Columns::COUNT;
 }
 
+// Used for search result display
+// Data is for string, hexstring, 32-bit value
+// Code is for asm code and ROP Gadgets
 QVariant SearchModel::data(const QModelIndex &index, int role) const
 {
     if (index.row() >= search->count())
@@ -102,6 +107,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
     }
 }
 
+// Used for header of search results
 QVariant SearchModel::headerData(int section, Qt::Orientation, int role) const
 {
     switch (role) {
@@ -135,11 +141,13 @@ SearchSortFilterProxyModel::SearchSortFilterProxyModel(SearchModel *source_model
 {
 }
 
+// if return false doesn't display actually found results
 bool SearchSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
     SearchDescription search = index.data(
                                    SearchModel::SearchDescriptionRole).value<SearchDescription>();
+    //return false;
     return search.code.contains(filterRegExp());
 }
 
@@ -162,7 +170,6 @@ bool SearchSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelI
     default:
         break;
     }
-
     return left_search.offset < right_search.offset;
 }
 
