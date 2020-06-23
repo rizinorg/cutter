@@ -12,7 +12,7 @@ class DecompilerContextMenu : public QMenu
 public:
     DecompilerContextMenu(QWidget *parent, MainWindow *mainWindow);
     ~DecompilerContextMenu();
-
+    
 signals:
     void copy();
 
@@ -32,7 +32,8 @@ private slots:
     void actionSetPCTriggered();
 
 private:
-    QKeySequence getCopySequence() const;
+    void setContextShortcutsForActions(DecompilerContextMenu *menu);
+    void setContextShortcutsForActions(QMenu *menu);
 
     RVA offset;
     MainWindow *mainWindow;

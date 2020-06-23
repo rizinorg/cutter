@@ -26,6 +26,8 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
     addBreakpointMenu();
     addDebugMenu();
     
+    setContextShortcutsForActions(this);
+
     connect(this, &DecompilerContextMenu::aboutToShow,
             this, &DecompilerContextMenu::aboutToShowSlot);
 }
@@ -44,6 +46,32 @@ void DecompilerContextMenu::setOffset(RVA offset)
 void DecompilerContextMenu::setCanCopy(bool enabled)
 {
     actionCopy.setVisible(enabled);
+}
+
+void DecompilerContextMenu::setContextShortcutsForActions(DecompilerContextMenu *menu)
+{
+    foreach (QAction *action, menu->actions()) {
+        if(action->isSeparator()){
+             //Do nothing
+        }else if (action->menu()){
+            setContextShortcutsForActions(action->menu());
+        }else{
+            action->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+        }
+    }
+}
+
+void DecompilerContextMenu::setContextShortcutsForActions(QMenu *menu)
+{
+    foreach (QAction *action, menu->actions()) {
+        if(action->isSeparator()){
+             //Do nothing
+        }else if (action->menu()){
+            setContextShortcutsForActions(action->menu());
+        }else{
+            action->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+        }
+    }
 }
 
 void DecompilerContextMenu::aboutToShowSlot()
@@ -65,21 +93,18 @@ void DecompilerContextMenu::setActionCopy(){
     connect(&actionCopy, &QAction::triggered, this, &DecompilerContextMenu::actionCopyTriggered);
     addAction(&actionCopy);
     actionCopy.setShortcut(QKeySequence::Copy);
-    actionCopy.setShortcutContext(Qt::WidgetWithChildrenShortcut);
 }
 
 void DecompilerContextMenu::setActionAddBreakpoint()
 {
     connect(&actionAddBreakpoint, &QAction::triggered, this, &DecompilerContextMenu::actionAddBreakpointTriggered);
     actionAddBreakpoint.setShortcuts({Qt::Key_F2, Qt::CTRL + Qt::Key_B});
-    actionAddBreakpoint.setShortcutContext(Qt::WidgetWithChildrenShortcut);
 }
 
 void DecompilerContextMenu::setActionAdvancedBreakpoint()
 {
     connect(&actionAdvancedBreakpoint, &QAction::triggered, this, &DecompilerContextMenu::actionAdvancedBreakpointTriggered);
     actionAdvancedBreakpoint.setShortcut({Qt::CTRL + Qt::Key_F2});
-    actionAdvancedBreakpoint.setShortcutContext(Qt::WidgetWithChildrenShortcut);
 }
 
 void DecompilerContextMenu::setActionContinueUntil()
