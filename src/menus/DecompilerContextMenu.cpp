@@ -48,25 +48,12 @@ void DecompilerContextMenu::setCanCopy(bool enabled)
     actionCopy.setVisible(enabled);
 }
 
-void DecompilerContextMenu::setShortcutContextInActions(DecompilerContextMenu *menu)
-{
-    foreach (QAction *action, menu->actions()) {
-        if(action->isSeparator()){
-             //Do nothing
-        }else if (action->menu()){
-            setShortcutContextInActions(action->menu());
-        }else{
-            action->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-        }
-    }
-}
-
 void DecompilerContextMenu::setShortcutContextInActions(QMenu *menu)
 {
-    foreach (QAction *action, menu->actions()) {
+    for(QAction *action: menu->actions()){
         if(action->isSeparator()){
              //Do nothing
-        }else if (action->menu()){
+        }else if(action->menu()){
             setShortcutContextInActions(action->menu());
         }else{
             action->setShortcutContext(Qt::WidgetWithChildrenShortcut);

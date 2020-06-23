@@ -32,7 +32,6 @@ private slots:
     void actionSetPCTriggered();
 
 private:
-    void setShortcutContextInActions(DecompilerContextMenu *menu);
     void setShortcutContextInActions(QMenu *menu);
 
     RVA offset;
