@@ -35,7 +35,7 @@
       <property name="styleSheet">
        <string notr="true">CutterTreeView::item
 {
-    padding-top: 1px;s
+    padding-top: 1px;
     padding-bottom: 1px;
 }</string>
       </property>
@@ -78,7 +78,6 @@
        </widget>
       </item>
       <item>
-<!--Change the string of this button from Search to Searching when searching-->
        <widget class="QPushButton" name="searchButton">
         <property name="text">
          <string>Search</string>
