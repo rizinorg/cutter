@@ -26,7 +26,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
     addBreakpointMenu();
     addDebugMenu();
     
-    setContextShortcutsForActions(this);
+    setShortcutContextInActions(this);
 
     connect(this, &DecompilerContextMenu::aboutToShow,
             this, &DecompilerContextMenu::aboutToShowSlot);
@@ -48,26 +48,26 @@ void DecompilerContextMenu::setCanCopy(bool enabled)
     actionCopy.setVisible(enabled);
 }
 
-void DecompilerContextMenu::setContextShortcutsForActions(DecompilerContextMenu *menu)
+void DecompilerContextMenu::setShortcutContextInActions(DecompilerContextMenu *menu)
 {
     foreach (QAction *action, menu->actions()) {
         if(action->isSeparator()){
              //Do nothing
         }else if (action->menu()){
-            setContextShortcutsForActions(action->menu());
+            setShortcutContextInActions(action->menu());
         }else{
             action->setShortcutContext(Qt::WidgetWithChildrenShortcut);
         }
     }
 }
 
-void DecompilerContextMenu::setContextShortcutsForActions(QMenu *menu)
+void DecompilerContextMenu::setShortcutContextInActions(QMenu *menu)
 {
     foreach (QAction *action, menu->actions()) {
         if(action->isSeparator()){
              //Do nothing
         }else if (action->menu()){
-            setContextShortcutsForActions(action->menu());
+            setShortcutContextInActions(action->menu());
         }else{
             action->setShortcutContext(Qt::WidgetWithChildrenShortcut);
         }
