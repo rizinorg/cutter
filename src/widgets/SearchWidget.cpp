@@ -272,11 +272,11 @@ void SearchWidget::refreshSearch()
 void SearchWidget::checkSearchResultEmpty()
 {
     if (search.isEmpty()){ 
-        QString no_results_message="<b>";
-        no_results_message.append(tr("No results found for:"));
-        no_results_message.append("</b><br>");
-        no_results_message.append(ui->filterLineEdit->text().toHtmlEscaped());
-        QMessageBox::information(this, tr("No Results Found"), no_results_message);
+        QString noResultsMessage="<b>";
+        noResultsMessage.append(tr("No results found for:"));
+        noResultsMessage.append("</b><br>");
+        noResultsMessage.append(ui->filterLineEdit->text().toHtmlEscaped());
+        QMessageBox::information(this, tr("No Results Found"), noResultsMessage);
     }
 }
 
