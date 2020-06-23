@@ -24,6 +24,9 @@ private slots:
     void aboutToShowSlot();
 
     void actionCopyTriggered();
+    
+    void actionAddBreakpointTriggered();
+    void actionAdvancedBreakpointTriggered();
 
 private:
     QKeySequence getCopySequence() const;
@@ -34,8 +37,18 @@ private:
     QAction actionCopy;
     QAction *copySeparator;
     
+    QMenu *breakpointMenu;
+    QAction actionAddBreakpoint;
+    QAction actionAdvancedBreakpoint;
+
+    // Set actions
     void setActionCopy();
-    
+    void setActionAddBreakpoint();
+    void setActionAdvancedBreakpoint();
+
+    // Add Menus
+    void addBreakpointMenu();
+
     // I left out the following part from RAnnotatedCode. Probably, we will be returning/passing annotations
     // from/to the function getThingUsedHere() and updateTargetMenuActions(). This block of comment will get removed in
     // future PRs.
