@@ -190,11 +190,13 @@ SearchWidget::SearchWidget(MainWindow *main) :
     QShortcut *enter_press = new QShortcut(QKeySequence(Qt::Key_Return), this);
     connect(enter_press, &QShortcut::activated, this, [this]() {
         refreshSearch();
+        checkSearchResultEmpty();
     });
     enter_press->setContext(Qt::WidgetWithChildrenShortcut);
 
     connect(ui->searchButton, &QAbstractButton::clicked, this, [this]() {
         refreshSearch();
+        checkSearchResultEmpty();
     });
 
     connect(ui->searchspaceCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
@@ -263,6 +265,19 @@ void SearchWidget::refreshSearch()
     search_model->endResetModel();
 
     qhelpers::adjustColumns(ui->searchTreeView, 3, 0);
+}
+
+// No Results Found information message when search returns empty
+// Called by &QShortcut::activated and &QAbstractButton::clicked signals
+void SearchWidget::checkSearchResultEmpty()
+{
+    if (search.isEmpty()){ 
+        QString noResultsMessage="<b>";
+        noResultsMessage.append(tr("No results found for:"));
+        noResultsMessage.append("</b><br>");
+        noResultsMessage.append(ui->filterLineEdit->text().toHtmlEscaped());
+        QMessageBox::information(this, tr("No Results Found"), noResultsMessage);
+    }
 }
 
 void SearchWidget::setScrollMode()

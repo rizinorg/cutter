@@ -81,6 +81,7 @@ private:
     QList<SearchDescription> search;
 
     void refreshSearch();
+    void checkSearchResultEmpty();
     void setScrollMode();
     void updatePlaceholderText(int index);
 };
