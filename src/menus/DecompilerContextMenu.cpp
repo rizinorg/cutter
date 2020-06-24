@@ -25,7 +25,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
 
     addBreakpointMenu();
     addDebugMenu();
-    
+
     setShortcutContextInActions(this);
 
     connect(this, &DecompilerContextMenu::aboutToShow,
@@ -50,12 +50,12 @@ void DecompilerContextMenu::setCanCopy(bool enabled)
 
 void DecompilerContextMenu::setShortcutContextInActions(QMenu *menu)
 {
-    for(QAction *action: menu->actions()){
-        if(action->isSeparator()){
-             //Do nothing
-        }else if(action->menu()){
+    for (QAction *action : menu->actions()) {
+        if (action->isSeparator()) {
+            //Do nothing
+        } else if (action->menu()) {
             setShortcutContextInActions(action->menu());
-        }else{
+        } else {
             action->setShortcutContext(Qt::WidgetWithChildrenShortcut);
         }
     }
@@ -67,7 +67,7 @@ void DecompilerContextMenu::aboutToShowSlot()
     debugMenu->menuAction()->setVisible(Core()->currentlyDebugging);
     bool hasBreakpoint = Core()->breakpointIndexAt(offset) > -1;
     actionAddBreakpoint.setText(hasBreakpoint ?
-                                     tr("Remove breakpoint") : tr("Add breakpoint"));
+                                tr("Remove breakpoint") : tr("Add breakpoint"));
     actionAdvancedBreakpoint.setText(hasBreakpoint ?
                                      tr("Edit breakpoint") : tr("Advanced breakpoint"));
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
@@ -76,7 +76,8 @@ void DecompilerContextMenu::aboutToShowSlot()
 
 // Set up actions
 
-void DecompilerContextMenu::setActionCopy(){
+void DecompilerContextMenu::setActionCopy()
+{
     connect(&actionCopy, &QAction::triggered, this, &DecompilerContextMenu::actionCopyTriggered);
     addAction(&actionCopy);
     actionCopy.setShortcut(QKeySequence::Copy);
@@ -84,19 +85,22 @@ void DecompilerContextMenu::setActionCopy(){
 
 void DecompilerContextMenu::setActionAddBreakpoint()
 {
-    connect(&actionAddBreakpoint, &QAction::triggered, this, &DecompilerContextMenu::actionAddBreakpointTriggered);
+    connect(&actionAddBreakpoint, &QAction::triggered, this,
+            &DecompilerContextMenu::actionAddBreakpointTriggered);
     actionAddBreakpoint.setShortcuts({Qt::Key_F2, Qt::CTRL + Qt::Key_B});
 }
 
 void DecompilerContextMenu::setActionAdvancedBreakpoint()
 {
-    connect(&actionAdvancedBreakpoint, &QAction::triggered, this, &DecompilerContextMenu::actionAdvancedBreakpointTriggered);
+    connect(&actionAdvancedBreakpoint, &QAction::triggered, this,
+            &DecompilerContextMenu::actionAdvancedBreakpointTriggered);
     actionAdvancedBreakpoint.setShortcut({Qt::CTRL + Qt::Key_F2});
 }
 
 void DecompilerContextMenu::setActionContinueUntil()
 {
-    connect(&actionContinueUntil, &QAction::triggered, this, &DecompilerContextMenu::actionContinueUntilTriggered);
+    connect(&actionContinueUntil, &QAction::triggered, this,
+            &DecompilerContextMenu::actionContinueUntilTriggered);
 }
 
 void DecompilerContextMenu::setActionSetPC()
