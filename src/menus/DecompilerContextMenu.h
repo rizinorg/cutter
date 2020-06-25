@@ -13,11 +13,14 @@ public:
     DecompilerContextMenu(QWidget *parent, MainWindow *mainWindow);
     ~DecompilerContextMenu();
 
+
 signals:
     void copy();
 
 public slots:
     void setOffset(RVA offset);
+    void setAvailableBreakpoints(QVector<RVA> offsetList);
+    void setFirstOffsetInLine(RVA firstOffset);
     void setCanCopy(bool enabled);
 
 private slots:
@@ -25,7 +28,7 @@ private slots:
 
     void actionCopyTriggered();
 
-    void actionAddBreakpointTriggered();
+    void actionToggleBreakpointTriggered();
     void actionAdvancedBreakpointTriggered();
 
     void actionContinueUntilTriggered();
@@ -33,15 +36,16 @@ private slots:
 
 private:
     void setShortcutContextInActions(QMenu *menu);
-
     RVA offset;
+    RVA firstOffsetInLine;
+    QVector<RVA> availableBreakpoints;
     MainWindow *mainWindow;
 
     QAction actionCopy;
     QAction *copySeparator;
 
     QMenu *breakpointMenu;
-    QAction actionAddBreakpoint;
+    QAction actionToggleBreakpoint;
     QAction actionAdvancedBreakpoint;
 
     QMenu *debugMenu;
@@ -51,7 +55,7 @@ private:
     // Set actions
     void setActionCopy();
 
-    void setActionAddBreakpoint();
+    void setActionToggleBreakpoint();
     void setActionAdvancedBreakpoint();
 
     void setActionContinueUntil();

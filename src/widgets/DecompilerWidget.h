@@ -56,7 +56,7 @@ private:
     bool decompilerWasBusy;
 
     RVA decompiledFunctionAddr;
-    std::unique_ptr<RAnnotatedCode, void (*)(RAnnotatedCode*)> code;
+    std::unique_ptr<RAnnotatedCode, void (*)(RAnnotatedCode *)> code;
     bool seekFromCursor = false;
 
     Decompiler *getCurrentDecompiler();
@@ -98,6 +98,17 @@ private:
      * It will also run when a breakpoint is added, removed or modified.
      */
     void highlightBreakpoints();
+
+    /**
+     * @brief This function is responsible for setting details regarding the breakpoints for
+     * every single line of decompiled code. This will set variable firstOffsetInLine and
+     * QVector<RVA> availableBreakpoints for the line that a cursor points to.
+     *
+     * @param codeDecompiled - A reference to the RAnnotatedCode for the function that is decompiled.
+     * @param startPos - Position of the character from where the corresponding line starts in the decompiled code.
+     * @param endPos - Position of the character at where the corresponding line ends in the decompiled code.
+     */
+    void setBreakpointInfo(RAnnotatedCode &codeDecompiled, size_t startPos, size_t endPos);
 
 };
 
