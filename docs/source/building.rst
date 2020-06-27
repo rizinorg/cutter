@@ -307,6 +307,17 @@ The workaround is to either add the `--disable-new-dtags` linker flag when compi
 
    cmake -DCMAKE_EXE_LINKER_FLAGS="-Wl,--disable-new-dtags"  ..
 
+* **r_*.h: No such file or directory**
+
+    r_util/r_annotated_code.h: No such file or directory
+
+If you face an error where some header file starting with ``r_`` is missing, you should check the **radare2** submodule and
+make sure it is in the sync with upstream **Cutter** repo. You can sync it with:
+
+::
+
+    git sumodule sync --recursive
+
 * **r_core development package not found**
 
 If you installed radare2 and still encounter this error, it could be that your
