@@ -166,8 +166,7 @@ void DecompilerContextMenu::actionToggleBreakpointTriggered()
 
 void DecompilerContextMenu::actionAdvancedBreakpointTriggered()
 {
-    int index = (this->availableBreakpoints.size() > 0) ? 0 : -1;
-    if (index >= 0) {
+    if (!availableBreakpoints.empty()) {
         // Edit the earliest breakpoint in the line
         BreakpointsDialog::editBreakpoint(Core()->getBreakpointAt(this->availableBreakpoints.first()),
                                           this);
