@@ -1,16 +1,16 @@
-Common issues
+Common Issues
 =============
 
 This page lists common issues encountered by users.
 
-AppImage crashes
+AppImage Crashes
 ----------------
 
 If the linux AppImage binary crashes upon startup, make sure your
 ``LD_LIBRARY_PATH`` environment variable is empty.
 `#579 <https://github.com/radareorg/cutter/issues/579>`__
 
-Keyboard layout issue
+Keyboard Layout Issue
 ---------------------
 
 Some people report that they have keyboard issues. Usually it is because

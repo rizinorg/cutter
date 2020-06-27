@@ -68,7 +68,7 @@ On Arch-based Linux distributions:
 
    sudo pacman -Syu base-devel cmake meson qt5-base qt5-svg qt5-tools
 
-Building steps
+Building Steps
 ~~~~~~~~~~~~~~
 
 The recommended way to build Cutter on Linux is by using CMake. Simply invoke CMake to build Cutter and its dependency radare2.
@@ -115,8 +115,8 @@ To compile Cutter it is necessary to have the following installed:
 * CMake
 * Qt
 
-Default way
-~~~~~~~~~~~
+Recommended Way
+~~~~~~~~~~~~~~~
 
 To build Cutter on Windows machines using CMake,
 you will have to make sure that the executables are available
@@ -214,7 +214,7 @@ If you want to manually use qmake, follow these steps:
    make
    cd ..
 
-Additional steps for macOS
+Additional Steps for macOS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 On macOS you will also have to copy the launcher bash script:
@@ -255,7 +255,7 @@ Or if one wants to explicitely disable an option:
 
 --------------
 
-Compiling Cutter with Breakpad support
+Compiling Cutter with Breakpad Support
 --------------------------------------
 
 If you want to build Cutter with crash handling system, you will want to first prepare Breakpad.
@@ -296,7 +296,7 @@ containing bin/, lib/, include/, etc.) and specify it to CMake using
    rm CMakeCache.txt # the cache may be polluted with unwanted libraries found before
    cmake -DCMAKE_PREFIX_PATH=/opt/Qt/5.9.1/gcc_64 ..
 
-* **R2 libr_????.so cannot be found when running Cutter**
+* **R2 libr_*.so cannot be found when running Cutter**
 
    ./Cutter: error while loading shared libraries: libr_lang.so: cannot open shared object file: No such file or directory
 

@@ -9,7 +9,7 @@ Cutter Development Guidelines
 Common Usage
 --------------
 
-CutterCore class
+CutterCore Class
 ~~~~~~~~~~~~~~~~
 
 This is the main class where every link with r2 is made. It is *unique*
@@ -21,7 +21,7 @@ Example:
 
    Core()->getOffset();
 
-Calling a radare2 command
+Calling a radare2 Command
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are multiple ways to call a radare2 command: 
@@ -49,7 +49,7 @@ Example:
 
    QJsonArray array = Core()->cmdj("pdj 1 @ main").array();
 
-Seek the current file
+Seek the Current File
 ~~~~~~~~~~~~~~~~~~~~~
 
 To modify radare2 seek use ``CutterCore::seek(const RVA offset)``. This
@@ -68,7 +68,7 @@ Example:
  Cutter also supports a silent seek which doesn't trigger the ``seekChanged`` event and doesn't add new entries to the seek history.
 
 
-Creating a widget
+Creating a Widget
 ~~~~~~~~~~~~~~~~~
 
 Make sure to connect the ``CutterCore::seekChanged(RVA offset)`` signal
@@ -178,7 +178,7 @@ Example:
 
    QObject *object = nullptr;
 
-Connecting signals
+Connecting Signals
 ~~~~~~~~~~~~~~~~~~
 
 To connect a signal to a slot, this is the preferred syntax:
@@ -190,16 +190,16 @@ To connect a signal to a slot, this is the preferred syntax:
 This syntax performs compile-time type checks and allows the use of lambda
 functions. Other approaches for connecting signals silently break at runtime.
 
-General coding advices
+General Coding Advices
 ----------------------
 
-Functions documentation
+Functions Documentation
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 You can find the classes documentation in the API Reference menu item.
 
-Updating the submodules
-~~~~~~~~~~~~~~~~~~~~~~~
+Updating the Git Submodules
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Git submodules play a major part in Cutter. This, because Cutter is powered
 by radare2, its parent project, and it tries to stay up-to-date with its
@@ -235,8 +235,8 @@ In order to update one submodule individually, use the following code:
    git commit -m "Update radare2 submodule"
 
 
-Useful resources to learn more about Qt development
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Useful Resources (Qt Development)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * `Signals & Slots <https://doc.qt.io/qt-5/signalsandslots.html>`__
 * `Model/View Programming <https://doc.qt.io/qt-5/model-view-programming.html>`__ - read this if you are going to work with list or table-like widgets

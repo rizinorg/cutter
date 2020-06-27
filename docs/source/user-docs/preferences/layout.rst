@@ -9,7 +9,7 @@ Use :doc:`../menus/menu-bar/view-menu` to :ref:`save<user-docs/menus/menu-bar/vi
 A named layout is never automatically modified. To modify a previously saved layout, instead of entering a new name, select
 an existing layout from list in Save Layout dialog.
 
-Layout manager
+Layout Manager
 -----------------------------------
 
 .. image:: ../../images/layout_manager.png

@@ -77,19 +77,19 @@ Re-type Local Variables
 
 **Shortcut:** :kbd:`Y`  
 
-Delete a comment
+Delete a Comment
 ----------------------------------------
 **Description:** Delete the comment at the current address. This option only available for addresses with user-defined comments. 
 
 **Steps:** Right click on an instruction with a user-defined comment and choose ``Delete comment``  
 
-Delete a flag
+Delete a Flag
 ----------------------------------------
 **Description:**   Delete the flag at the current location.
 
 **Steps:** Right click on a location with a flag and choose ``Delete flag``.  
 
-Undefine a function
+UnDefine a Function
 ----------------------------------------
 **Description:** Undefine the current function. This will remove the function and its associated meta-data. You can always re-define the function, but every change that was made to the previously defined function (e.g variable renaming) would not be restored.  
 
@@ -105,13 +105,13 @@ Define a function
 
 **Shortcut:** :kbd:`P`  
 
-Set structure offset
+Set Structure Offset
 ----------------------------------------
 **Description:** Present the current value is an offset in a structure. 
 
 **Steps:**  -> Structure offset  
 
-Link a type to address
+Link a Type to Address
 ----------------------------------------
 **Description:** You can link type, enum or structure to a specific address. Types, structures and enums can be defined in the Types widget.  
 

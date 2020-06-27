@@ -7,7 +7,7 @@ for crash handling.
 Crash Handling System is disabled by default to not interfere with developers while debugging.
 To enable this system, set the ``CUTTER_ENABLE_CRASH_REPORTS`` build option.
 
-Solution description
+Solution Description
 --------------------
 
 There are only 2 source files:

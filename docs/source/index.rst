@@ -9,8 +9,8 @@ reverse engineers.
 .. image:: images/screenshot.png
 
 
-Get Cutter
-----------
+Getting Cutter
+--------------
 
 Cutter is available for all platforms (Linux, OS X, Windows). You can
 download the latest release
@@ -21,11 +21,11 @@ download the latest release
 - Linux: use the AppImage file. Then just make it executable and run it: ``chmod +x Cutter-v1.11.0-x86_64.AppImage``
 
 
-Building from sources
+Building from Sources
 ---------------------
 
-To build Cutter on your local machine, please follow this guide:
-`Building from source <building.html>`__
+To build Cutter on your machine, please follow this guide:
+`Building from Source <building.html>`__
 
 Need help?
 ----------
