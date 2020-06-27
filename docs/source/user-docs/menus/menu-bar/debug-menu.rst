@@ -16,7 +16,7 @@ Start Emulation
 
 **Steps:** Debug -> Start emulation  
 
-Attach to process
+Attach to Process
 ----------------------------------------
 **Description:** Attach Cutter's debugger to a running process, instead of spawning a new process.  
 

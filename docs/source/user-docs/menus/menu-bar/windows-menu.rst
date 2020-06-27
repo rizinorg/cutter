@@ -59,19 +59,19 @@ Show Types
 
 **Steps:** Windows -> Types  
 
-Add a new instance of the Disassembly widget
+Add a new instance of the Disassembly Widget
 ----------------------------------------------
 **Description:** Create a new instance of the Disassembly widget in order to view one or multiple locations at the same time.   
 
 **Steps:** Windows -> Add Disassembly  
 
-Add a new instance of the Graph widget
+Add a new instance of the Graph Widget
 ----------------------------------------
 **Description:** Create a new instance of the Graph widget in order to view one or multiple locations at the same time. 
 
 **Steps:** Windows -> Add Graph  
 
-Add a new instance of the Hexdump widget
+Add a new instance of the Hexdump Widget
 -------------------------------------------
 **Description:** Create a new instance of the Hexdump widget in order to view one or multiple locations at the same time.   
 

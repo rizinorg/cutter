@@ -1,4 +1,4 @@
-Menu bar
+Menu Bar
 ========
 
 Depending on your desktop environment menu bar is located either at the top of window

@@ -56,7 +56,7 @@ Duplicate Bytes From Offset
 **Steps:** Right click on a byte and select ``Edit -> Duplicate from offset``. On the dialog that will open, specify the offset from which to copy, and how many bytes to copy.  
 
 
-Increment/Decrement bytes
+Increment/Decrement Bytes
 ----------------------------------------
 **Description:** Increment or decrement Byte, Word, Dword or Qword at the current location. The value to add or subtract from the location is specified by the user. If multiple bytes are selected, the function will apply on the start of the selection.
 

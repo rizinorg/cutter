@@ -75,8 +75,8 @@ Make sure to connect the ``CutterCore::seekChanged(RVA offset)`` signal
 so your widget refreshes its output when radare2 seek is modified
 (switching to another function, etc.).
 
-Coding style
--------------
+Coding Style
+------------
 
 In general, we follow `the official Qt guidelines <https://wiki.qt.io/Qt_Coding_Style>`__ to
 format the code. If in doubt, you can use `AStyle

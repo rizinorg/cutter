@@ -9,7 +9,7 @@ Add or Remove a Breakpoint
 
 **Shortcut:** :kbd:`F2`  
 
-Advanced Breakpoint dialog
+Advanced Breakpoint Dialog
 ----------------------------------------
 **Description:** Open the advanced breakpoint dialog. This dialog lets you define not only a regular breakpoint in this address, but also  an Hardware breakpoint, a conditional breakpoint, and more.
 
