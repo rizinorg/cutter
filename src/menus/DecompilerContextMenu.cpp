@@ -58,7 +58,7 @@ void DecompilerContextMenu::setupBreakpointsInLineMenu()
 {
     breakpointsInLineMenu->clear();
     for (auto curOffset : this->availableBreakpoints) {
-        QAction *action = new QAction(QString("0x%1").arg(curOffset, 8, 16, QLatin1Char('0')), this);
+        QAction *action = new QAction(RAddressString(curOffset), this);
         connect(action, &QAction::triggered, this, [this, curOffset] {
             BreakpointsDialog::editBreakpoint(Core()->getBreakpointAt(curOffset),
                                               this);
