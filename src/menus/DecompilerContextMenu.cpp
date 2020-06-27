@@ -149,11 +149,14 @@ void DecompilerContextMenu::actionToggleBreakpointTriggered()
 
 void DecompilerContextMenu::actionAdvancedBreakpointTriggered()
 {
-    int index = Core()->breakpointIndexAt(offset);
+    int index = (this->availableBreakpoints.size() > 0) ? 0 : -1;
     if (index >= 0) {
-        BreakpointsDialog::editBreakpoint(Core()->getBreakpointAt(offset), this);
+        // Edit the earliest breakpoint in the line
+        BreakpointsDialog::editBreakpoint(Core()->getBreakpointAt(this->availableBreakpoints.first()),
+                                          this);
     } else {
-        BreakpointsDialog::createNewBreakpoint(offset, this);
+        // Add a breakpoint to the earliest offset in the line
+        BreakpointsDialog::createNewBreakpoint(this->firstOffsetInLine, this);
     }
 }
 
