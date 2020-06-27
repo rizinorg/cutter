@@ -89,6 +89,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
 
     // refresh the widget when an action in this menu is triggered
     connect(mCtxMenu, &QMenu::triggered, this, &DecompilerWidget::refreshDecompiler);
+    connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::setInfoForBreakpoints);
     addActions(mCtxMenu->actions());
 
     ui->progressLabel->setVisible(false);
@@ -182,6 +183,17 @@ static size_t positionForOffset(RAnnotatedCode &codeDecompiled, ut64 offset)
     return closestPos;
 }
 
+void DecompilerWidget::setInfoForBreakpoints()
+{
+    // Get the range of the line
+    QTextCursor cursorForLine = ui->textEdit->textCursor();
+    cursorForLine.movePosition(QTextCursor::StartOfLine);
+    size_t startPos = cursorForLine.position();
+    cursorForLine.movePosition(QTextCursor::EndOfLine);
+    size_t endPos = cursorForLine.position();
+    gatherBreakpointInfo(*code, startPos, endPos);
+}
+
 void DecompilerWidget::gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size_t startPos,
                                             size_t endPos)
 {
@@ -251,6 +263,7 @@ void DecompilerWidget::doRefresh(RVA addr)
 void DecompilerWidget::refreshDecompiler()
 {
     doRefresh();
+    setInfoForBreakpoints();
 }
 
 QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
@@ -320,13 +333,8 @@ void DecompilerWidget::cursorPositionChanged()
 
     size_t pos = ui->textEdit->textCursor().position();
 
-    // Get the range of the line
-    QTextCursor cursorForLine = ui->textEdit->textCursor();
-    cursorForLine.movePosition(QTextCursor::StartOfLine);
-    size_t startPos = cursorForLine.position();
-    cursorForLine.movePosition(QTextCursor::EndOfLine);
-    size_t endPos = cursorForLine.position();
-    gatherBreakpointInfo(*code, startPos, endPos);
+
+    setInfoForBreakpoints();
 
     RVA offset = offsetForPosition(*code, pos);
     if (offset != RVA_INVALID && offset != Core()->getOffset()) {
