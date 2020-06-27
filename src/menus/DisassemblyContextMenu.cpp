@@ -102,7 +102,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
                SLOT(on_actionRenameUsedHere_triggered()), getRenameUsedHereSequence());
     addAction(&actionRenameUsedHere);
 
-    initAction(&actionSetFunctionVarTypes, tr("Re-type function local vars"),
+    initAction(&actionSetFunctionVarTypes, tr("Re-type Local Variables"),
                SLOT(on_actionSetFunctionVarTypes_triggered()), getRetypeSequence());
     addAction(&actionSetFunctionVarTypes);
 
@@ -860,7 +860,7 @@ void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
     RAnalFunction *fcn = Core()->functionIn(offset);
 
     if (!fcn) {
-        QMessageBox::critical(this, tr("Re-type function local vars"),
+        QMessageBox::critical(this, tr("Re-type Local Variables"),
                               tr("You must be in a function to define variable types."));
         return;
     }
