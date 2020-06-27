@@ -21,6 +21,7 @@ public slots:
     void setOffset(RVA offset);
     void setAvailableBreakpoints(QVector<RVA> offsetList);
     void setFirstOffsetInLine(RVA firstOffset);
+    void setupBreakpointsInLineMenu();
     void setCanCopy(bool enabled);
 
 private slots:
@@ -48,6 +49,8 @@ private:
     QAction actionToggleBreakpoint;
     QAction actionAdvancedBreakpoint;
 
+    QMenu *breakpointsInLineMenu;
+
     QMenu *debugMenu;
     QAction actionContinueUntil;
     QAction actionSetPC;
@@ -63,6 +66,7 @@ private:
 
     // Add Menus
     void addBreakpointMenu();
+    void addBreakpointsInLineMenu();
     void addDebugMenu();
     // I left out the following part from RAnnotatedCode. Probably, we will be returning/passing annotations
     // from/to the function getThingUsedHere() and updateTargetMenuActions(). This block of comment will get removed in

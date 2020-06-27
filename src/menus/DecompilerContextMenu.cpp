@@ -24,6 +24,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
     addSeparator();
 
     addBreakpointMenu();
+    addBreakpointsInLineMenu();
     addDebugMenu();
 
     setShortcutContextInActions(this);
@@ -53,6 +54,19 @@ void DecompilerContextMenu::setAvailableBreakpoints(QVector<RVA> offsetList)
     this->availableBreakpoints = offsetList;
 }
 
+void DecompilerContextMenu::setupBreakpointsInLineMenu()
+{
+    breakpointsInLineMenu->clear();
+    for (auto curOffset : this->availableBreakpoints) {
+        QAction *action = new QAction(QString("0x%1").arg(curOffset, 8, 16, QLatin1Char('0')), this);
+        connect(action, &QAction::triggered, this, [this, curOffset] {
+            BreakpointsDialog::editBreakpoint(Core()->getBreakpointAt(curOffset),
+                                              this);
+        });
+        breakpointsInLineMenu->addAction(action);
+    }
+}
+
 void DecompilerContextMenu::setCanCopy(bool enabled)
 {
     actionCopy.setVisible(enabled);
@@ -77,13 +91,16 @@ void DecompilerContextMenu::aboutToShowSlot()
     debugMenu->menuAction()->setVisible(Core()->currentlyDebugging);
 
     bool hasBreakpoint = !this->availableBreakpoints.isEmpty();
+    breakpointsInLineMenu->menuAction()->setVisible(hasBreakpoint);
     int numberOfBreakpoints = this->availableBreakpoints.size();
     if (numberOfBreakpoints == 0) {
         actionToggleBreakpoint.setText(tr("Add breakpoint"));
     } else if (numberOfBreakpoints == 1) {
         actionToggleBreakpoint.setText(tr("Remove breakpoint"));
+        breakpointsInLineMenu->setTitle(tr("Breakpoint in line"));
     } else {
         actionToggleBreakpoint.setText(tr("Remove all breakpoints"));
+        breakpointsInLineMenu->setTitle(tr("Breakpoints in line"));
     }
     actionAdvancedBreakpoint.setText(hasBreakpoint ?
                                      tr("Edit breakpoint") : tr("Advanced breakpoint"));
@@ -181,6 +198,11 @@ void DecompilerContextMenu::addBreakpointMenu()
     breakpointMenu->addAction(&actionToggleBreakpoint);
     setActionAdvancedBreakpoint();
     breakpointMenu->addAction(&actionAdvancedBreakpoint);
+}
+
+void DecompilerContextMenu::addBreakpointsInLineMenu()
+{
+    breakpointsInLineMenu = addMenu(tr("Breakpoints in line"));
 }
 
 void DecompilerContextMenu::addDebugMenu()
