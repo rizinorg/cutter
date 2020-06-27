@@ -12,13 +12,17 @@ reverse engineers.
 Getting Cutter
 --------------
 
-Cutter is available for all platforms (Linux, OS X, Windows). You can
-download the latest release
+Cutter is available for all major platforms. You can
+download the latest release from
 `here <https://github.com/radareorg/cutter/releases>`__.
 
-- OSX: Download the latest ``.dmg`` file.
-- Windows: Download the latest archive.
-- Linux: use the AppImage file. Then just make it executable and run it: ``chmod +x Cutter-v1.11.0-x86_64.AppImage``
+- **macOS**: Download the ``.dmg`` file and install it.
+- **Windows**: Download the ``.zip`` archive and extract it.
+- **Linux**: Download the ``.AppImage`` file and make it executable by doing:
+
+::
+
+    chmod +x Cutter*.AppImage
 
 
 Building from Sources
