@@ -34,10 +34,6 @@
 
 #include <cmath>
 
-const int DisassemblerGraphView::KEY_ZOOM_IN = Qt::Key_Plus + Qt::ControlModifier;
-const int DisassemblerGraphView::KEY_ZOOM_OUT = Qt::Key_Minus + Qt::ControlModifier;
-const int DisassemblerGraphView::KEY_ZOOM_RESET = Qt::Key_Equal + Qt::ControlModifier;
-
 #ifndef NDEBUG
 #define GRAPH_GRID_DEBUG_MODES true
 #else
@@ -46,8 +42,7 @@ const int DisassemblerGraphView::KEY_ZOOM_RESET = Qt::Key_Equal + Qt::ControlMod
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable,
                                              MainWindow *mainWindow, QList<QAction *> additionalMenuActions)
-    : GraphView(parent),
-      mFontMetrics(nullptr),
+    : CutterGraphView(parent),
       graphLayout(GraphView::Layout::GridMedium),
       blockMenu(new DisassemblyContextMenu(this, mainWindow)),
       contextMenu(new QMenu(this)),
@@ -67,12 +62,9 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(instructionChanged(RVA)), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshView()));
-    connect(Core(), SIGNAL(graphOptionsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(refreshCodeViews()), this, SLOT(refreshView()));
 
-    connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
-    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     connectSeekChanged(false);
 
     // ESC for previous
@@ -199,10 +191,6 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     blockMenu->addSeparator();
     blockMenu->addActions(contextMenu->actions());
 
-
-    initFont();
-    colorsUpdatedSlot();
-
     connect(blockMenu, &DisassemblyContextMenu::copy, this, &DisassemblerGraphView::copySelection);
 
     // Add header as widget to layout so it stretches to the layout width
@@ -232,8 +220,7 @@ DisassemblerGraphView::~DisassemblerGraphView()
 
 void DisassemblerGraphView::refreshView()
 {
-    initFont();
-    setLayoutConfig(getLayoutConfig());
+    CutterGraphView::refreshView();
     loadCurrentGraph();
     emit viewRefreshed();
 }
@@ -435,16 +422,6 @@ void DisassemblerGraphView::cleanupEdges()
     }
 }
 
-void DisassemblerGraphView::initFont()
-{
-    setFont(Config()->getFont());
-    QFontMetricsF metrics(font());
-    baseline = int(metrics.ascent());
-    charWidth = metrics.width('X');
-    charHeight = static_cast<int>(metrics.height());
-    charOffset = 0;
-    mFontMetrics.reset(new CachedFontMetrics<qreal>(font()));
-}
 
 void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive)
 {
@@ -721,33 +698,6 @@ void DisassemblerGraphView::showInstruction(GraphView::GraphBlock &block, RVA ad
     showRectangle(QRect(rect.x(), rect.y(), rect.width(), rect.height()), true);
 }
 
-// Public Slots
-
-void DisassemblerGraphView::colorsUpdatedSlot()
-{
-    disassemblyBackgroundColor = ConfigColor("gui.alt_background");
-    disassemblySelectedBackgroundColor = ConfigColor("gui.disass_selected");
-    mDisabledBreakpointColor = disassemblyBackgroundColor;
-    graphNodeColor = ConfigColor("gui.border");
-    backgroundColor = ConfigColor("gui.background");
-    disassemblySelectionColor = ConfigColor("lineHighlight");
-    PCSelectionColor = ConfigColor("highlightPC");
-
-    jmpColor = ConfigColor("graph.trufae");
-    brtrueColor = ConfigColor("graph.true");
-    brfalseColor = ConfigColor("graph.false");
-
-    mCommentColor = ConfigColor("comment");
-    initFont();
-    refreshView();
-}
-
-void DisassemblerGraphView::fontsUpdatedSlot()
-{
-    initFont();
-    refreshView();
-}
-
 DisassemblerGraphView::DisassemblyBlock *DisassemblerGraphView::blockForAddress(RVA addr)
 {
     for (auto &blockIt : disassembly_blocks) {
@@ -799,46 +749,6 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
     }
 }
 
-void DisassemblerGraphView::zoom(QPointF mouseRelativePos, double velocity)
-{
-    qreal newScale = getViewScale() * std::pow(1.25, velocity);
-    setZoom(mouseRelativePos, newScale);
-}
-
-void DisassemblerGraphView::setZoom(QPointF mouseRelativePos, double scale)
-{
-    mouseRelativePos.rx() *= size().width();
-    mouseRelativePos.ry() *= size().height();
-    mouseRelativePos /= getViewScale();
-
-    auto globalMouse = mouseRelativePos + getViewOffset();
-    mouseRelativePos *= getViewScale();
-    qreal newScale = scale;
-    newScale = std::max(newScale, 0.05);
-    mouseRelativePos /= newScale;
-    setViewScale(newScale);
-
-    // Adjusting offset, so that zooming will be approaching to the cursor.
-    setViewOffset(globalMouse.toPoint() - mouseRelativePos.toPoint());
-
-    viewport()->update();
-    emit viewZoomed();
-}
-
-void DisassemblerGraphView::zoomIn()
-{
-    zoom(QPointF(0.5, 0.5), 1);
-}
-
-void DisassemblerGraphView::zoomOut()
-{
-    zoom(QPointF(0.5, 0.5), -1);
-}
-
-void DisassemblerGraphView::zoomReset()
-{
-    setZoom(QPointF(0.5, 0.5), 1);
-}
 
 void DisassemblerGraphView::takeTrue()
 {
@@ -893,18 +803,6 @@ void DisassemblerGraphView::seekInstruction(bool previous_instr)
             break;
         }
     }
-}
-
-GraphLayout::LayoutConfig DisassemblerGraphView::getLayoutConfig()
-{
-    auto blockSpacing = Config()->getGraphBlockSpacing();
-    auto edgeSpacing = Config()->getGraphEdgeSpacing();
-    GraphLayout::LayoutConfig layoutConfig;
-    layoutConfig.blockHorizontalSpacing = blockSpacing.x();
-    layoutConfig.blockVerticalSpacing = blockSpacing.y();
-    layoutConfig.edgeHorizontalSpacing = edgeSpacing.x();
-    layoutConfig.edgeVerticalSpacing = edgeSpacing.y();
-    return layoutConfig;
 }
 
 void DisassemblerGraphView::nextInstr()
@@ -969,12 +867,6 @@ DisassemblerGraphView::Token *DisassemblerGraphView::getToken(Instr *instr, int 
     }
 
     return nullptr;
-}
-
-QPoint DisassemblerGraphView::getTextOffset(int line) const
-{
-    int padding = static_cast<int>(2 * charWidth);
-    return QPoint(padding, padding + line * charHeight);
 }
 
 QPoint DisassemblerGraphView::getInstructionOffset(const DisassemblyBlock &block, int line) const
@@ -1063,40 +955,6 @@ void DisassemblerGraphView::blockTransitionedTo(GraphView::GraphBlock *to)
         return;
     }
     seekLocal(to->entry);
-}
-
-bool DisassemblerGraphView::event(QEvent *event)
-{
-    switch (event->type()) {
-    case QEvent::ShortcutOverride: {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        int key = keyEvent->key() + keyEvent->modifiers();
-        if (key == KEY_ZOOM_OUT || key == KEY_ZOOM_RESET
-                || key == KEY_ZOOM_IN || (key == (KEY_ZOOM_IN | Qt::ShiftModifier))) {
-            event->accept();
-            return true;
-        }
-        break;
-    }
-    case QEvent::KeyPress: {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        int key = keyEvent->key() + keyEvent->modifiers();
-        if (key == KEY_ZOOM_IN || (key == (KEY_ZOOM_IN | Qt::ShiftModifier))) {
-            zoomIn();
-            return true;
-        } else if (key == KEY_ZOOM_OUT) {
-            zoomOut();
-            return true;
-        } else if (key == KEY_ZOOM_RESET) {
-            zoomReset();
-            return true;
-        }
-        break;
-    }
-    default:
-        break;
-    }
-    return GraphView::event(event);
 }
 
 
@@ -1251,50 +1109,6 @@ void DisassemblerGraphView::exportR2GraphvizGraph(QString filePath, QString type
     qWarning() << Core()->cmdRawAt(QString("agfw \"%1\"")
                                  .arg(filePath),
                                  currentFcnAddr);
-}
-
-void DisassemblerGraphView::mousePressEvent(QMouseEvent *event)
-{
-    GraphView::mousePressEvent(event);
-    emit graphMoved();
-}
-
-void DisassemblerGraphView::mouseMoveEvent(QMouseEvent *event)
-{
-    GraphView::mouseMoveEvent(event);
-    emit graphMoved();
-}
-
-void DisassemblerGraphView::wheelEvent(QWheelEvent *event)
-{
-    // when CTRL is pressed, we zoom in/out with mouse wheel
-    if (Qt::ControlModifier == event->modifiers()) {
-        const QPoint numDegrees = event->angleDelta() / 8;
-        if (!numDegrees.isNull()) {
-            int numSteps = numDegrees.y() / 15;
-
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-            QPointF relativeMousePos = event->pos();
-#else
-            QPointF relativeMousePos = event->position();
-#endif
-            relativeMousePos.rx() /= size().width();
-            relativeMousePos.ry() /= size().height();
-
-            zoom(relativeMousePos, numSteps);
-        }
-        event->accept();
-    } else {
-        // use mouse wheel for scrolling when CTRL is not pressed
-        GraphView::wheelEvent(event);
-    }
-    emit graphMoved();
-}
-
-void DisassemblerGraphView::resizeEvent(QResizeEvent *event)
-{
-    GraphView::resizeEvent(event);
-    emit resized();
 }
 
 void DisassemblerGraphView::paintEvent(QPaintEvent *event)

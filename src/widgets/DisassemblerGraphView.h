@@ -8,7 +8,7 @@
 #include <QShortcut>
 #include <QLabel>
 
-#include "widgets/GraphView.h"
+#include "widgets/CutterGraphView.h"
 #include "menus/DisassemblyContextMenu.h"
 #include "common/RichTextPainter.h"
 #include "common/CutterSeekable.h"
@@ -16,7 +16,7 @@
 class QTextEdit;
 class FallbackSyntaxHighlighter;
 
-class DisassemblerGraphView : public GraphView
+class DisassemblerGraphView : public CutterGraphView
 {
     Q_OBJECT
 
@@ -101,7 +101,6 @@ public:
                                                            GraphView::GraphBlock *to,
                                                            bool interactive) override;
     virtual void blockTransitionedTo(GraphView::GraphBlock *to) override;
-    virtual bool event(QEvent *event) override;
 
     void loadCurrentGraph();
     QString windowTitle;
@@ -126,16 +125,9 @@ public:
      */
     ut64 currentFcnAddr = RVA_INVALID; // TODO: make this less public
 public slots:
-    void refreshView();
-    void colorsUpdatedSlot();
-    void fontsUpdatedSlot();
-    void onSeekChanged(RVA addr);
-    void zoom(QPointF mouseRelativePos, double velocity);
-    void setZoom(QPointF mouseRelativePos, double scale);
-    void zoomIn();
-    void zoomOut();
-    void zoomReset();
+    void refreshView() override;
 
+    void onSeekChanged(RVA addr);
     void takeTrue();
     void takeFalse();
 
@@ -145,11 +137,6 @@ public slots:
     void copySelection();
 
 protected:
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void wheelEvent(QWheelEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
-
     void paintEvent(QPaintEvent *event) override;
     void blockContextMenuRequested(GraphView::GraphBlock &block, QContextMenuEvent *event,
                                    QPoint pos) override;
@@ -165,12 +152,6 @@ private:
     bool transition_dont_seek = false;
 
     Token *highlight_token;
-    // Font data
-    std::unique_ptr<CachedFontMetrics<qreal>> mFontMetrics;
-    qreal charWidth;
-    int charHeight;
-    int charOffset;
-    int baseline;
     bool emptyGraph;
     ut64 currentBlockAddress = RVA_INVALID;
 
@@ -182,11 +163,10 @@ private:
 
     void connectSeekChanged(bool disconnect);
 
-    void initFont();
     void prepareGraphNode(GraphBlock &block);
     void cleanupEdges();
     Token *getToken(Instr *instr, int x);
-    QPoint getTextOffset(int line) const;
+
     QPoint getInstructionOffset(const DisassemblyBlock &block, int line) const;
     RVA getAddrForMouseEvent(GraphBlock &block, QPoint *point);
     Instr *getInstrForMouseEvent(GraphBlock &block, QPoint *point, bool force = false);
@@ -203,33 +183,10 @@ private:
     DisassemblyBlock *blockForAddress(RVA addr);
     void seekLocal(RVA addr, bool update_viewport = true);
     void seekInstruction(bool previous_instr);
-    GraphLayout::LayoutConfig getLayoutConfig();
 
     CutterSeekable *seekable = nullptr;
     QList<QShortcut *> shortcuts;
     QList<RVA> breakpoints;
-
-    QColor disassemblyBackgroundColor;
-    QColor disassemblySelectedBackgroundColor;
-    QColor disassemblySelectionColor;
-    QColor PCSelectionColor;
-    QColor jmpColor;
-    QColor brtrueColor;
-    QColor brfalseColor;
-    QColor retShadowColor;
-    QColor indirectcallShadowColor;
-    QColor mAutoCommentColor;
-    QColor mAutoCommentBackgroundColor;
-    QColor mCommentColor;
-    QColor mCommentBackgroundColor;
-    QColor mLabelColor;
-    QColor mLabelBackgroundColor;
-    QColor graphNodeColor;
-    QColor mAddressColor;
-    QColor mAddressBackgroundColor;
-    QColor mCipColor;
-    QColor mBreakpointColor;
-    QColor mDisabledBreakpointColor;
 
     QAction actionExportGraph;
     QAction actionUnhighlight;
@@ -237,14 +194,7 @@ private:
 
     QLabel *emptyText = nullptr;
 
-    static const int KEY_ZOOM_IN;
-    static const int KEY_ZOOM_OUT;
-    static const int KEY_ZOOM_RESET;
 signals:
-    void viewRefreshed();
-    void viewZoomed();
-    void graphMoved();
-    void resized();
     void nameChanged(const QString &name);
 
 public:
