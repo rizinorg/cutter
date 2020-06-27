@@ -69,11 +69,11 @@ Rename Flag/Function/Variable
 
 **Shortcut:** :kbd:`Shift` + :kbd:`N`  
 
-Re-type function local variables  
+Re-type Local Variables
 ----------------------------------------
 **Description:** Rename or set the types of the function's variables and arguments.  
 
-**Steps:** Right click anywhere inside a function and then choose ``Re-type function local vars``.  
+**Steps:** Right click anywhere inside a function and then choose ``Re-type Local Variables``.
 
 **Shortcut:** :kbd:`Y`  
 
