@@ -86,6 +86,9 @@ void DecompilerContextMenu::setShortcutContextInActions(QMenu *menu)
 
 void DecompilerContextMenu::aboutToShowSlot()
 {
+
+    setupBreakpointsInLineMenu();
+
     // Only show debug options if we are currently debugging
     debugMenu->menuAction()->setVisible(Core()->currentlyDebugging);
 

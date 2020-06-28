@@ -220,7 +220,6 @@ void DecompilerWidget::gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size
     }
     std::sort(offsetList.begin(), offsetList.end());
     mCtxMenu->setAvailableBreakpoints(offsetList);
-    mCtxMenu->setupBreakpointsInLineMenu();
 }
 
 void DecompilerWidget::doRefresh(RVA addr)
