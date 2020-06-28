@@ -13,6 +13,7 @@
 DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWindow)
     :   QMenu(parent),
         offset(0),
+        isTogglingBreakpoints(false),
         mainWindow(mainWindow),
         actionCopy(tr("Copy"), this),
         actionToggleBreakpoint(tr("Add/remove breakpoint"), this),
@@ -82,6 +83,16 @@ void DecompilerContextMenu::setShortcutContextInActions(QMenu *menu)
             action->setShortcutContext(Qt::WidgetWithChildrenShortcut);
         }
     }
+}
+
+void DecompilerContextMenu::setIsTogglingBreakpoints(bool isToggling)
+{
+    this->isTogglingBreakpoints = isToggling;
+}
+
+bool DecompilerContextMenu::getIsTogglingBreakpoints()
+{
+    return this->isTogglingBreakpoints;
 }
 
 void DecompilerContextMenu::aboutToShowSlot()
@@ -158,10 +169,12 @@ void DecompilerContextMenu::actionCopyTriggered()
 void DecompilerContextMenu::actionToggleBreakpointTriggered()
 {
     if (!this->availableBreakpoints.isEmpty()) {
+        setIsTogglingBreakpoints(true);
         for (auto offsetToRemove : this->availableBreakpoints) {
             Core()->toggleBreakpoint(offsetToRemove);
         }
         this->availableBreakpoints.clear();
+        setIsTogglingBreakpoints(false);
         return;
     }
     if (this->firstOffsetInLine == RVA_MAX)

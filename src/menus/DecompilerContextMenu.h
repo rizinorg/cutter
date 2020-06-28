@@ -23,6 +23,9 @@ public slots:
     void setFirstOffsetInLine(RVA firstOffset);
     void setupBreakpointsInLineMenu();
     void setCanCopy(bool enabled);
+    void setIsTogglingBreakpoints(bool isToggling);
+
+    bool getIsTogglingBreakpoints();
 
 private slots:
     void aboutToShowSlot();
@@ -39,6 +42,7 @@ private:
     void setShortcutContextInActions(QMenu *menu);
     RVA offset;
     RVA firstOffsetInLine;
+    bool isTogglingBreakpoints;
     QVector<RVA> availableBreakpoints;
     MainWindow *mainWindow;
 
