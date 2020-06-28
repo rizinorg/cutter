@@ -18,7 +18,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         actionCopy(tr("Copy"), this),
         actionToggleBreakpoint(tr("Add/remove breakpoint"), this),
         actionAdvancedBreakpoint(tr("Advanced breakpoint"), this),
-        breakpointsInLineMenu(new QMenu()),
+        breakpointsInLineMenu(addMenu(tr("Offsets of breakpoints in line"))),
         actionContinueUntil(tr("Continue until line"), this),
         actionSetPC(tr("Set PC"), this)
 {
