@@ -113,14 +113,14 @@ void DecompilerContextMenu::aboutToShowSlot()
         actionToggleBreakpoint.setText(tr("Remove all breakpoints in line"));
     }
 
-    if(numberOfBreakpoints > 1){
+    if (numberOfBreakpoints > 1) {
         actionAdvancedBreakpoint.setMenu(breakpointsInLineMenu);
-    }else{
+    } else {
         actionAdvancedBreakpoint.setMenu(nullptr);
     }
     actionAdvancedBreakpoint.setText(hasBreakpoint ?
                                      tr("Edit breakpoint") : tr("Advanced breakpoint"));
-                                     
+
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText(tr("Set %1 here").arg(progCounterName));
 }

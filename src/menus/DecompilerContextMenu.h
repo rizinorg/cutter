@@ -13,19 +13,17 @@ public:
     DecompilerContextMenu(QWidget *parent, MainWindow *mainWindow);
     ~DecompilerContextMenu();
 
+    bool getIsTogglingBreakpoints();
 
 signals:
     void copy();
 
 public slots:
     void setOffset(RVA offset);
-    void setAvailableBreakpoints(QVector<RVA> offsetList);
-    void setFirstOffsetInLine(RVA firstOffset);
-    void setupBreakpointsInLineMenu();
     void setCanCopy(bool enabled);
-    void setIsTogglingBreakpoints(bool isToggling);
+    void setFirstOffsetInLine(RVA firstOffset);
+    void setAvailableBreakpoints(QVector<RVA> offsetList);
 
-    bool getIsTogglingBreakpoints();
 
 private slots:
     void aboutToShowSlot();
@@ -39,7 +37,7 @@ private slots:
     void actionSetPCTriggered();
 
 private:
-    void setShortcutContextInActions(QMenu *menu);
+    // Private variables
     RVA offset;
     RVA firstOffsetInLine;
     bool isTogglingBreakpoints;
@@ -58,6 +56,11 @@ private:
     QMenu *debugMenu;
     QAction actionContinueUntil;
     QAction actionSetPC;
+
+    // Private Functions
+    void setShortcutContextInActions(QMenu *menu);
+    void setupBreakpointsInLineMenu();
+    void setIsTogglingBreakpoints(bool isToggling);
 
     // Set actions
     void setActionCopy();

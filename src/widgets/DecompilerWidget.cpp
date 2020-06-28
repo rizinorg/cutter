@@ -185,7 +185,7 @@ static size_t positionForOffset(RAnnotatedCode &codeDecompiled, ut64 offset)
 
 void DecompilerWidget::setInfoForBreakpoints()
 {
-    if(mCtxMenu->getIsTogglingBreakpoints())
+    if (mCtxMenu->getIsTogglingBreakpoints())
         return;
     // Get the range of the line
     QTextCursor cursorForLine = ui->textEdit->textCursor();
