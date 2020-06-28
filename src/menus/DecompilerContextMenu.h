@@ -66,7 +66,6 @@ private:
 
     // Add Menus
     void addBreakpointMenu();
-    void addBreakpointsInLineMenu();
     void addDebugMenu();
     // I left out the following part from RAnnotatedCode. Probably, we will be returning/passing annotations
     // from/to the function getThingUsedHere() and updateTargetMenuActions(). This block of comment will get removed in
