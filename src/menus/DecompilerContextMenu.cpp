@@ -31,6 +31,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
     setActionAddComment();
     setActionDeleteComment();
 
+    addSeparator();
     addBreakpointMenu();
     addDebugMenu();
 
@@ -195,7 +196,7 @@ void DecompilerContextMenu::actionCopyTriggered()
 
 void DecompilerContextMenu::actionAddCommentTriggered()
 {
-    CommentsDialog::addOrEditComment(offset, this);
+    CommentsDialog::addOrEditComment(this->firstOffsetInLine, this);
 }
 
 void DecompilerContextMenu::actionDeleteCommentTriggered()
