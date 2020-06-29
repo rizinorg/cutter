@@ -2,6 +2,7 @@
 #include "dialogs/preferences/PreferencesDialog.h"
 #include "MainWindow.h"
 #include "dialogs/BreakpointsDialog.h"
+#include "dialogs/CommentsDialog.h"
 
 #include <QtCore>
 #include <QShortcut>
@@ -16,6 +17,8 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         isTogglingBreakpoints(false),
         mainWindow(mainWindow),
         actionCopy(tr("Copy"), this),
+        actionAddComment(tr("Add Comment"), this),
+        actionDeleteComment(tr("Delete comment"), this),
         actionToggleBreakpoint(tr("Add/remove breakpoint"), this),
         actionAdvancedBreakpoint(tr("Advanced breakpoint"), this),
         breakpointsInLineMenu(new QMenu(this)),
@@ -24,6 +27,9 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
 {
     setActionCopy();
     addSeparator();
+
+    setActionAddComment();
+    setActionDeleteComment();
 
     addBreakpointMenu();
     addDebugMenu();
@@ -97,6 +103,14 @@ bool DecompilerContextMenu::getIsTogglingBreakpoints()
 
 void DecompilerContextMenu::aboutToShowSlot()
 {
+    QString comment = Core()->cmdRawAt("CC.", offset);
+    if (comment.isEmpty()) {
+        actionDeleteComment.setVisible(false);
+        actionAddComment.setText(tr("Add Comment"));
+    } else {
+        actionDeleteComment.setVisible(true);
+        actionAddComment.setText(tr("Edit Comment"));
+    }
 
     setupBreakpointsInLineMenu();
 
@@ -134,6 +148,19 @@ void DecompilerContextMenu::setActionCopy()
     actionCopy.setShortcut(QKeySequence::Copy);
 }
 
+void DecompilerContextMenu::setActionAddComment()
+{
+    connect(&actionAddComment, &QAction::triggered, this, &DecompilerContextMenu::actionAddCommentTriggered);
+    addAction(&actionAddComment);
+    actionAddComment.setShortcut(Qt::Key_Semicolon);
+}
+
+void DecompilerContextMenu::setActionDeleteComment()
+{
+    connect(&actionDeleteComment, &QAction::triggered, this, &DecompilerContextMenu::actionDeleteCommentTriggered);
+    addAction(&actionDeleteComment);
+}
+
 void DecompilerContextMenu::setActionToggleBreakpoint()
 {
     connect(&actionToggleBreakpoint, &QAction::triggered, this,
@@ -164,6 +191,16 @@ void DecompilerContextMenu::setActionSetPC()
 void DecompilerContextMenu::actionCopyTriggered()
 {
     emit copy();
+}
+
+void DecompilerContextMenu::actionAddCommentTriggered()
+{
+    CommentsDialog::addOrEditComment(offset, this);
+}
+
+void DecompilerContextMenu::actionDeleteCommentTriggered()
+{
+    Core()->delComment(offset);
 }
 
 void DecompilerContextMenu::actionToggleBreakpointTriggered()
