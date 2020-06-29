@@ -19,7 +19,8 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     MemoryDockWidget(MemoryWidgetType::Decompiler, main),
     mCtxMenu(new DecompilerContextMenu(this, main)),
     ui(new Ui::DecompilerWidget),
-    code(Decompiler::makeWarning(tr("Choose an offset and refresh to get decompiled code")), &r_annotated_code_free)
+    code(Decompiler::makeWarning(tr("Choose an offset and refresh to get decompiled code")),
+         &r_annotated_code_free)
 {
     ui->setupUi(this);
 
@@ -77,7 +78,9 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
         ui->textEdit->setPlainText(tr("No Decompiler available."));
     }
 
-    connect(ui->decompilerComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &DecompilerWidget::decompilerSelected);
+    connect(ui->decompilerComboBox,
+            static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
+            &DecompilerWidget::decompilerSelected);
     connectCursorPositionChanged(false);
     connect(Core(), &CutterCore::seekChanged, this, &DecompilerWidget::seekChanged);
     ui->textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -86,6 +89,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
 
     // refresh the widget when an action in this menu is triggered
     connect(mCtxMenu, &QMenu::triggered, this, &DecompilerWidget::refreshDecompiler);
+    connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::setInfoForBreakpoints);
     addActions(mCtxMenu->actions());
 
     ui->progressLabel->setVisible(false);
@@ -179,6 +183,47 @@ static size_t positionForOffset(RAnnotatedCode &codeDecompiled, ut64 offset)
     return closestPos;
 }
 
+void DecompilerWidget::setInfoForBreakpoints()
+{
+    if (mCtxMenu->getIsTogglingBreakpoints())
+        return;
+    // Get the range of the line
+    QTextCursor cursorForLine = ui->textEdit->textCursor();
+    cursorForLine.movePosition(QTextCursor::StartOfLine);
+    size_t startPos = cursorForLine.position();
+    cursorForLine.movePosition(QTextCursor::EndOfLine);
+    size_t endPos = cursorForLine.position();
+    gatherBreakpointInfo(*code, startPos, endPos);
+}
+
+void DecompilerWidget::gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size_t startPos,
+                                            size_t endPos)
+{
+    RVA firstOffset = RVA_MAX;
+    void *annotationi;
+    r_vector_foreach(&codeDecompiled.annotations, annotationi) {
+        RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
+        if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET) {
+            continue;
+        }
+        if ((startPos <= annotation->start && annotation->start < endPos) || (startPos <= annotation->end
+                                                                              && annotation->end < endPos)) {
+            firstOffset = (annotation->offset.offset < firstOffset) ? annotation->offset.offset : firstOffset;
+        }
+    }
+    mCtxMenu->setFirstOffsetInLine(firstOffset);
+    QList<RVA> functionBreakpoints = Core()->getBreakpointsInFunction(decompiledFunctionAddr);
+    QVector<RVA> offsetList;
+    for (auto bpOffset : functionBreakpoints) {
+        size_t pos = positionForOffset(*code, bpOffset);
+        if (startPos <= pos && pos <= endPos) {
+            offsetList.push_back(bpOffset);
+        }
+    }
+    std::sort(offsetList.begin(), offsetList.end());
+    mCtxMenu->setAvailableBreakpoints(offsetList);
+}
+
 void DecompilerWidget::doRefresh(RVA addr)
 {
     if (!refreshDeferrer->attemptRefresh(nullptr)) {
@@ -219,6 +264,7 @@ void DecompilerWidget::doRefresh(RVA addr)
 void DecompilerWidget::refreshDecompiler()
 {
     doRefresh();
+    setInfoForBreakpoints();
 }
 
 QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
@@ -270,9 +316,11 @@ void DecompilerWidget::decompilerSelected()
 void DecompilerWidget::connectCursorPositionChanged(bool disconnect)
 {
     if (disconnect) {
-        QObject::disconnect(ui->textEdit, &QPlainTextEdit::cursorPositionChanged, this, &DecompilerWidget::cursorPositionChanged);
+        QObject::disconnect(ui->textEdit, &QPlainTextEdit::cursorPositionChanged, this,
+                            &DecompilerWidget::cursorPositionChanged);
     } else {
-        connect(ui->textEdit, &QPlainTextEdit::cursorPositionChanged, this, &DecompilerWidget::cursorPositionChanged);
+        connect(ui->textEdit, &QPlainTextEdit::cursorPositionChanged, this,
+                &DecompilerWidget::cursorPositionChanged);
     }
 }
 
@@ -283,7 +331,12 @@ void DecompilerWidget::cursorPositionChanged()
     if (!ui->textEdit->textCursor().selectedText().isEmpty()) {
         return;
     }
+
     size_t pos = ui->textEdit->textCursor().position();
+
+
+    setInfoForBreakpoints();
+
     RVA offset = offsetForPosition(*code, pos);
     if (offset != RVA_INVALID && offset != Core()->getOffset()) {
         seekFromCursor = true;
@@ -380,10 +433,11 @@ void DecompilerWidget::seekToReference()
 bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonDblClick
-        && (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
+            && (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
-        const QTextCursor& cursor = ui->textEdit->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
+        const QTextCursor &cursor = ui->textEdit->cursorForPosition(QPoint(mouseEvent->x(),
+                                                                           mouseEvent->y()));
         seekToReference();
         return true;
     }
@@ -410,7 +464,7 @@ void DecompilerWidget::highlightBreakpoints()
 
     QList<RVA> functionBreakpoints = Core()->getBreakpointsInFunction(decompiledFunctionAddr);
     QTextCursor cursor;
-    foreach(auto &bp, functionBreakpoints) {
+    for (auto &bp : functionBreakpoints) {
         if (bp == RVA_INVALID) {
             continue;;
         }

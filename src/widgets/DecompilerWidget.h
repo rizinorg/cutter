@@ -56,7 +56,7 @@ private:
     bool decompilerWasBusy;
 
     RVA decompiledFunctionAddr;
-    std::unique_ptr<RAnnotatedCode, void (*)(RAnnotatedCode*)> code;
+    std::unique_ptr<RAnnotatedCode, void (*)(RAnnotatedCode *)> code;
     bool seekFromCursor = false;
 
     Decompiler *getCurrentDecompiler();
@@ -98,7 +98,21 @@ private:
      * It will also run when a breakpoint is added, removed or modified.
      */
     void highlightBreakpoints();
+    /**
+     * @brief Finds the earliest offset and breakpoints within the specified range [startPos, endPos]
+     * in the specified RAnnotatedCode
+     *
+     * This function is supposed to be used for finding the earliest offset and breakpoints within the specified range
+     * [startPos, endPos]. This will set the value of the variables 'RVA firstOffsetInLine' and 'QVector<RVA> availableBreakpoints' in
+     * this->mCtxMenu.
+     *
+     * @param codeDecompiled - A reference to the RAnnotatedCode for the function that is decompiled.
+     * @param startPos - Position of the start of the range(inclusive).
+     * @param endPos - Position of the end of the range(inclusive).
+     */
+    void gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size_t startPos, size_t endPos);
 
+    void setInfoForBreakpoints();
 };
 
 #endif // DECOMPILERWIDGET_H
