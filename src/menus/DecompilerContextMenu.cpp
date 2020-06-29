@@ -151,14 +151,16 @@ void DecompilerContextMenu::setActionCopy()
 
 void DecompilerContextMenu::setActionAddComment()
 {
-    connect(&actionAddComment, &QAction::triggered, this, &DecompilerContextMenu::actionAddCommentTriggered);
+    connect(&actionAddComment, &QAction::triggered, this,
+            &DecompilerContextMenu::actionAddCommentTriggered);
     addAction(&actionAddComment);
     actionAddComment.setShortcut(Qt::Key_Semicolon);
 }
 
 void DecompilerContextMenu::setActionDeleteComment()
 {
-    connect(&actionDeleteComment, &QAction::triggered, this, &DecompilerContextMenu::actionDeleteCommentTriggered);
+    connect(&actionDeleteComment, &QAction::triggered, this,
+            &DecompilerContextMenu::actionDeleteCommentTriggered);
     addAction(&actionDeleteComment);
 }
 
@@ -196,7 +198,11 @@ void DecompilerContextMenu::actionCopyTriggered()
 
 void DecompilerContextMenu::actionAddCommentTriggered()
 {
-    CommentsDialog::addOrEditComment(this->firstOffsetInLine, this);
+    if (this->firstOffsetInLine == RVA_MAX) {
+        CommentsDialog::addOrEditComment(offset, this);
+    } else {
+        CommentsDialog::addOrEditComment(this->firstOffsetInLine, this);
+    }
 }
 
 void DecompilerContextMenu::actionDeleteCommentTriggered()

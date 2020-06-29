@@ -73,7 +73,7 @@ private:
 
     void setActionAddComment();
     void setActionDeleteComment();
-    
+
     void setActionToggleBreakpoint();
     void setActionAdvancedBreakpoint();
 
