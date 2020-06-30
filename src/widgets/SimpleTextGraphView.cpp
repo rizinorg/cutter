@@ -44,9 +44,6 @@ SimpleTextGraphView::SimpleTextGraphView(QWidget *parent, MainWindow *mainWindow
     connect(Core(), &CutterCore::refreshAll, this, &SimpleTextGraphView::refreshView);
     connect(Core(), &CutterCore::graphOptionsChanged, this, &SimpleTextGraphView::refreshView);
 
-    connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
-    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
-
     // Export Graph menu
     actionExportGraph.setText(tr("Export Graph"));
     connect(&actionExportGraph, SIGNAL(triggered(bool)), this, SLOT(on_actionExportGraph_triggered()));
@@ -81,12 +78,6 @@ SimpleTextGraphView::SimpleTextGraphView(QWidget *parent, MainWindow *mainWindow
         }
     }
     layoutMenu->addActions(layoutGroup->actions());
-
-
-    initFont();
-    colorsUpdatedSlot();
-
-    this->scale_thickness_multiplier = true;
 }
 
 SimpleTextGraphView::~SimpleTextGraphView()
@@ -104,145 +95,6 @@ void SimpleTextGraphView::refreshView()
     emit viewRefreshed();
 }
 
-void SimpleTextGraphView::loadCurrentGraph()
-{
-    /*
-    TempConfig tempConfig;
-    tempConfig.set("scr.color", COLOR_MODE_16M)
-    .set("asm.bb.line", false)
-    .set("asm.lines", false)
-    .set("asm.lines.fcn", false);
-
-    QJsonArray functions;
-    RAnalFunction *fcn = Core()->functionIn(seekable->getOffset());
-    if (fcn) {
-        currentFcnAddr = fcn->addr;
-        QJsonDocument functionsDoc = Core()->cmdj("agJ " + RAddressString(fcn->addr));
-        functions = functionsDoc.array();
-    }
-
-    disassembly_blocks.clear();
-    blocks.clear();
-
-    if (highlight_token) {
-        delete highlight_token;
-        highlight_token = nullptr;
-    }
-
-    emptyGraph = functions.isEmpty();
-    if (emptyGraph) {
-        // If there's no function to print, just add a message
-        if (!emptyText) {
-            emptyText = new QLabel(this);
-            emptyText->setText(tr("No function detected. Cannot display graph."));
-            emptyText->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-            layout()->addWidget(emptyText);
-            layout()->setAlignment(emptyText, Qt::AlignHCenter);
-        }
-        emptyText->setVisible(true);
-    } else if (emptyText) {
-        emptyText->setVisible(false);
-    }
-    // Refresh global "empty graph" variable so other widget know there is nothing to show here
-    Core()->setGraphEmpty(emptyGraph);
-
-    QJsonValue funcRef = functions.first();
-    QJsonObject func = funcRef.toObject();
-
-    windowTitle = tr("Graph");
-    QString funcName = func["name"].toString().trimmed();
-    if (emptyGraph) {
-        windowTitle += " (Empty)";
-    } else if (!funcName.isEmpty()) {
-        windowTitle += " (" + funcName + ")";
-    }
-    emit nameChanged(windowTitle);
-
-    RVA entry = func["offset"].toVariant().toULongLong();
-
-    setEntry(entry);
-    for (const QJsonValueRef &value : func["blocks"].toArray()) {
-        QJsonObject block = value.toObject();
-        RVA block_entry = block["offset"].toVariant().toULongLong();
-        RVA block_size = block["size"].toVariant().toULongLong();
-        RVA block_fail = block["fail"].toVariant().toULongLong();
-        RVA block_jump = block["jump"].toVariant().toULongLong();
-
-        DisassemblyBlock db;
-        GraphBlock gb;
-        gb.entry = block_entry;
-        db.entry = block_entry;
-        db.true_path = RVA_INVALID;
-        db.false_path = RVA_INVALID;
-        if (block_fail) {
-            db.false_path = block_fail;
-            gb.edges.emplace_back(block_fail);
-        }
-        if (block_jump) {
-            if (block_fail) {
-                db.true_path = block_jump;
-            }
-            gb.edges.emplace_back(block_jump);
-        }
-
-        QJsonObject switchOp = block["switchop"].toObject();
-        if (!switchOp.isEmpty()) {
-            QJsonArray caseArray = switchOp["cases"].toArray();
-            for (QJsonValue caseOpValue : caseArray) {
-                QJsonObject caseOp = caseOpValue.toObject();
-                bool ok;
-                RVA caseJump = caseOp["jump"].toVariant().toULongLong(&ok);
-                if (!ok) {
-                    continue;
-                }
-                gb.edges.emplace_back(caseJump);
-            }
-        }
-
-        QJsonArray opArray = block["ops"].toArray();
-        for (int opIndex = 0; opIndex < opArray.size(); opIndex++) {
-            QJsonObject op = opArray[opIndex].toObject();
-            Instr i;
-            i.addr = op["offset"].toVariant().toULongLong();
-
-            if (opIndex < opArray.size() - 1) {
-                // get instruction size from distance to next instruction ...
-                RVA nextOffset = opArray[opIndex + 1].toObject()["offset"].toVariant().toULongLong();
-                i.size = nextOffset - i.addr;
-            } else {
-                // or to the end of the block.
-                i.size = (block_entry + block_size) - i.addr;
-            }
-
-            QTextDocument textDoc;
-            textDoc.setHtml(CutterCore::ansiEscapeToHtml(op["text"].toString()));
-
-            i.plainText = textDoc.toPlainText();
-
-            RichTextPainter::List richText = RichTextPainter::fromTextDocument(textDoc);
-            //Colors::colorizeAssembly(richText, textDoc.toPlainText(), 0);
-
-            bool cropped;
-            int blockLength = Config()->getGraphBlockMaxChars() + Core()->getConfigb("asm.bytes") * 24 +
-                              Core()->getConfigb("asm.emu") * 10;
-            i.text = Text(RichTextPainter::cropped(richText, blockLength, "...", &cropped));
-            if (cropped)
-                i.fullText = richText;
-            else
-                i.fullText = Text();
-            db.instrs.push_back(i);
-        }
-        disassembly_blocks[db.entry] = db;
-        prepareGraphNode(gb);
-
-        addBlock(gb);
-    }
-    cleanupEdges();
-
-    if (!func["blocks"].toArray().isEmpty()) {
-        computeGraphPlacement();
-    }*/
-}
 
 
 void SimpleTextGraphView::prepareGraphNode(GraphBlock &block)
@@ -255,7 +107,7 @@ void SimpleTextGraphView::prepareGraphNode(GraphBlock &block)
     block.height = (height * charHeight) + extra;
 }
 
-void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive)
+void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool /*interactive*/)
 {
     QRectF blockRect(block.x, block.y, block.width, block.height);
 
@@ -277,8 +129,6 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
     // Draw basic block background
     p.drawRect(blockRect);
 
-    const int firstInstructionY = block.y + getTextOffset(0).y();
-
     // Stop rendering text when it's too small
     auto transform = p.combinedTransform();
     QRect screenChar = transform.mapRect(QRect(0, 0, charWidth, charHeight));
@@ -287,6 +137,7 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
         return;
     }
 
+    p.setPen(mLabelColor);
     // Render node text
     auto x = block.x + padding;
     int y = block.y + getTextOffset(0).y();

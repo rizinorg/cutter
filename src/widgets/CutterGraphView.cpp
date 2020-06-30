@@ -18,7 +18,7 @@ CutterGraphView::CutterGraphView(QWidget *parent)
     connect(Config(), &Configuration::fontsUpdated, this, &CutterGraphView::fontsUpdatedSlot);
 
     initFont();
-    colorsUpdatedSlot();
+    updateColors();
 }
 
 QPoint CutterGraphView::getTextOffset(int line) const
@@ -79,7 +79,7 @@ void CutterGraphView::zoomReset()
     setZoom(QPointF(0.5, 0.5), 1);
 }
 
-void CutterGraphView::colorsUpdatedSlot()
+void CutterGraphView::updateColors()
 {
     disassemblyBackgroundColor = ConfigColor("gui.alt_background");
     disassemblySelectedBackgroundColor = ConfigColor("gui.disass_selected");
@@ -94,7 +94,11 @@ void CutterGraphView::colorsUpdatedSlot()
     brfalseColor = ConfigColor("graph.false");
 
     mCommentColor = ConfigColor("comment");
-    initFont();
+}
+
+void CutterGraphView::colorsUpdatedSlot()
+{
+    updateColors();
     refreshView();
 }
 
@@ -155,6 +159,7 @@ void CutterGraphView::refreshView()
     initFont();
     setLayoutConfig(getLayoutConfig());
 }
+
 
 void CutterGraphView::wheelEvent(QWheelEvent *event)
 {

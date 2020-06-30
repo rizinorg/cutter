@@ -13,17 +13,9 @@
 #include "common/RichTextPainter.h"
 #include "common/CutterSeekable.h"
 
-class QTextEdit;
-class FallbackSyntaxHighlighter;
-
 class SimpleTextGraphView : public CutterGraphView
 {
     Q_OBJECT
-
-    struct BlockContent {
-        QString text;
-    };
-
 public:
     SimpleTextGraphView(QWidget *parent, MainWindow *mainWindow);
     ~SimpleTextGraphView() override;
@@ -31,8 +23,6 @@ public:
     virtual GraphView::EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from,
                                                            GraphView::GraphBlock *to,
                                                            bool interactive) override;
-
-    void loadCurrentGraph();
 
     enum class GraphExportType {
         Png, Jpeg, Svg, GVDot, GVJson,
@@ -44,12 +34,12 @@ public slots:
     void refreshView();
 protected:
     void paintEvent(QPaintEvent *event) override;
-
-private slots:
-    //void on_actionExportGraph_triggered();
     void updateLayout();
+    virtual void loadCurrentGraph() = 0;
 
-private:
+    struct BlockContent {
+        QString text;
+    };
     std::unordered_map<ut64, BlockContent> blockContent;
 
     GraphView::Layout graphLayout;

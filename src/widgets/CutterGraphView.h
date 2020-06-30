@@ -19,7 +19,7 @@ public:
 
 public slots:
     virtual void refreshView();
-    void colorsUpdatedSlot();
+    void updateColors();
     void fontsUpdatedSlot();
 
     void zoom(QPointF mouseRelativePos, double velocity);
@@ -71,6 +71,8 @@ protected:
     QColor mCipColor;
     QColor mBreakpointColor;
     QColor mDisabledBreakpointColor;
+private:
+    void colorsUpdatedSlot();
 };
 
 #endif // GRAPHVIEW_H

@@ -70,6 +70,7 @@
 #include "widgets/HexdumpWidget.h"
 #include "widgets/DecompilerWidget.h"
 #include "widgets/HexWidget.h"
+#include "widgets/R2GraphWidget.h"
 
 // Qt Headers
 #include <QApplication>
@@ -372,7 +373,8 @@ void MainWindow::initDocks()
         segmentsDock = new SegmentsWidget(this),
         symbolsDock = new SymbolsWidget(this),
         vTablesDock = new VTablesWidget(this),
-        zignaturesDock = new ZignaturesWidget(this)
+        zignaturesDock = new ZignaturesWidget(this),
+        new R2GraphWidget(this)
     };
 
     auto makeActionList = [this](QList<CutterDockWidget *> docks) {

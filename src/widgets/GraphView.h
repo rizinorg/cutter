@@ -96,6 +96,7 @@ public:
     void computeGraphPlacement();
 protected:
     std::unordered_map<ut64, GraphBlock> blocks;
+    /// image background color
     QColor backgroundColor = QColor(Qt::white);
 
     // Padding inside the block
@@ -159,11 +160,9 @@ private:
 
     QPoint offset = QPoint(0, 0);
 
-    ut64 entry;
+    ut64 entry = 0;
 
     std::unique_ptr<GraphLayout> graphLayoutSystem;
-
-    bool ready = false;
 
     // Scrolling data
     int scroll_base_x = 0;

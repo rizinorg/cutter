@@ -262,6 +262,12 @@ void GraphGridLayout::CalculateLayout(GraphLayout::Graph &blocks, ut64 entry, in
 {
     LayoutState layoutState;
     layoutState.blocks = &blocks;
+    if (blocks.empty()) {
+        return;
+    }
+    if (blocks.find(entry) == blocks.end()) {
+        entry = blocks.begin()->first;
+    }
 
     for (auto &it : blocks) {
         GridBlock block;
