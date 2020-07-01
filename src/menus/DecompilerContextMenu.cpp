@@ -104,14 +104,21 @@ bool DecompilerContextMenu::getIsTogglingBreakpoints()
 
 void DecompilerContextMenu::aboutToShowSlot()
 {
-    QString comment = Core()->cmdRawAt("CC.", offset);
-    if (comment.isEmpty()) {
+    if(this->firstOffsetInLine != RVA_MAX){
+        QString comment = Core()->cmdRawAt("CC.", offset);
+        actionAddComment.setVisible(true);
+        if (comment.isEmpty()) {
+            actionDeleteComment.setVisible(false);
+            actionAddComment.setText(tr("Add Comment"));
+        } else {
+            actionDeleteComment.setVisible(true);
+            actionAddComment.setText(tr("Edit Comment"));
+        }
+    }else{
+        actionAddComment.setVisible(false);
         actionDeleteComment.setVisible(false);
-        actionAddComment.setText(tr("Add Comment"));
-    } else {
-        actionDeleteComment.setVisible(true);
-        actionAddComment.setText(tr("Edit Comment"));
     }
+    
 
     setupBreakpointsInLineMenu();
 
@@ -198,11 +205,7 @@ void DecompilerContextMenu::actionCopyTriggered()
 
 void DecompilerContextMenu::actionAddCommentTriggered()
 {
-    if (this->firstOffsetInLine == RVA_MAX) {
-        CommentsDialog::addOrEditComment(offset, this);
-    } else {
-        CommentsDialog::addOrEditComment(this->firstOffsetInLine, this);
-    }
+    CommentsDialog::addOrEditComment(this->firstOffsetInLine, this);
 }
 
 void DecompilerContextMenu::actionDeleteCommentTriggered()
