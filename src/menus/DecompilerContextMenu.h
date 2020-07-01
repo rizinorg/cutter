@@ -27,6 +27,7 @@ public slots:
 
 private slots:
     void aboutToShowSlot();
+    void aboutToHideSlot();
 
     void actionCopyTriggered();
 

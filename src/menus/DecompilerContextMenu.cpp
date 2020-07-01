@@ -39,6 +39,8 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
 
     connect(this, &DecompilerContextMenu::aboutToShow,
             this, &DecompilerContextMenu::aboutToShowSlot);
+    connect(this, &DecompilerContextMenu::aboutToHide,
+            this, &DecompilerContextMenu::aboutToHideSlot);
 }
 
 DecompilerContextMenu::~DecompilerContextMenu()
@@ -102,9 +104,16 @@ bool DecompilerContextMenu::getIsTogglingBreakpoints()
     return this->isTogglingBreakpoints;
 }
 
+void DecompilerContextMenu::aboutToHideSlot()
+{
+    if (!actionAddComment.isVisible()) {
+        actionAddComment.setVisible(true);
+    }
+}
+
 void DecompilerContextMenu::aboutToShowSlot()
 {
-    if(this->firstOffsetInLine != RVA_MAX){
+    if (this->firstOffsetInLine != RVA_MAX) {
         QString comment = Core()->cmdRawAt("CC.", offset);
         actionAddComment.setVisible(true);
         if (comment.isEmpty()) {
@@ -114,11 +123,11 @@ void DecompilerContextMenu::aboutToShowSlot()
             actionDeleteComment.setVisible(true);
             actionAddComment.setText(tr("Edit Comment"));
         }
-    }else{
+    } else {
         actionAddComment.setVisible(false);
         actionDeleteComment.setVisible(false);
     }
-    
+
 
     setupBreakpointsInLineMenu();
 
