@@ -106,9 +106,7 @@ bool DecompilerContextMenu::getIsTogglingBreakpoints()
 
 void DecompilerContextMenu::aboutToHideSlot()
 {
-    if (!actionAddComment.isVisible()) {
-        actionAddComment.setVisible(true);
-    }
+    actionAddComment.setVisible(true);
 }
 
 void DecompilerContextMenu::aboutToShowSlot()
