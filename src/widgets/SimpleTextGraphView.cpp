@@ -46,7 +46,7 @@ SimpleTextGraphView::SimpleTextGraphView(QWidget *parent, MainWindow *mainWindow
 
     // Export Graph menu
     actionExportGraph.setText(tr("Export Graph"));
-    connect(&actionExportGraph, SIGNAL(triggered(bool)), this, SLOT(on_actionExportGraph_triggered()));
+    //connect(&actionExportGraph, SIGNAL(triggered(bool)), this, SLOT(on_actionExportGraph_triggered()));
 
     // Context menu that applies to everything
     contextMenu->addAction(&actionExportGraph);
@@ -93,18 +93,6 @@ void SimpleTextGraphView::refreshView()
     setLayoutConfig(getLayoutConfig());
     loadCurrentGraph();
     emit viewRefreshed();
-}
-
-
-
-void SimpleTextGraphView::prepareGraphNode(GraphBlock &block)
-{
-    auto &db = blockContent[block.entry];
-    int height = 1;
-    int width = mFontMetrics->width(db.text);
-    int extra = static_cast<int>(4 * charWidth + 4);
-    block.width = static_cast<int>(width + extra + charWidth);
-    block.height = (height * charHeight) + extra;
 }
 
 void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool /*interactive*/)
@@ -215,6 +203,17 @@ void SimpleTextGraphView::updateLayout()
     setLayoutConfig(getLayoutConfig());
     computeGraphPlacement();
     emit viewRefreshed();
+}
+
+void SimpleTextGraphView::addBlock(GraphLayout::GraphBlock block, const QString &content)
+{
+    blockContent[block.entry].text = content;
+    int height = 1;
+    int width = mFontMetrics->width(content);
+    int extra = static_cast<int>(4 * charWidth + 4);
+    block.width = static_cast<int>(width + extra + charWidth);
+    block.height = (height * charHeight) + extra;
+    GraphView::addBlock(std::move(block));
 }
 /*
 void SimpleTextGraphView::exportGraph(QString filePath, GraphExportType type)

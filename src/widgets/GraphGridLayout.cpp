@@ -498,7 +498,7 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
         if (block.row == 0) { // place all the roots first
             auto offset = -block.leftPosition;
             block.col += nextEmptyColumn + offset;
-            nextEmptyColumn = block.rightPosition + offset;
+            nextEmptyColumn = block.rightPosition + offset + nextEmptyColumn;
         }
     }
     // Visit all nodes top to bottom, converting relative positions to absolute.

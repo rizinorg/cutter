@@ -36,6 +36,8 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     void updateLayout();
     virtual void loadCurrentGraph() = 0;
+    using CutterGraphView::addBlock;
+    void addBlock(GraphLayout::GraphBlock block, const QString &content);
 
     struct BlockContent {
         QString text;
@@ -46,8 +48,6 @@ protected:
 
     QMenu *contextMenu;
     QAction* horizontalLayoutAction;
-
-    void prepareGraphNode(GraphBlock &block);
 
     QList<QShortcut *> shortcuts;
 

@@ -5,13 +5,26 @@
 
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
-#include "GenericR2GraphView.h"
+#include "widgets/SimpleTextGraphView.h"
 
 class MainWindow;
 
 namespace Ui {
 class R2GraphWidget;
 }
+
+class GenericR2GraphView : public SimpleTextGraphView
+{
+    Q_OBJECT
+public:
+    using SimpleTextGraphView::SimpleTextGraphView;
+    void setGraphCommand(QString cmd);
+protected:
+    void loadCurrentGraph() override;
+private:
+    QString graphCommand;
+};
+
 
 class R2GraphWidget : public CutterDockWidget
 {
@@ -24,6 +37,8 @@ public:
 private:
     std::unique_ptr<Ui::R2GraphWidget> ui;
     GenericR2GraphView *graphView;
+
+    void typeChanged();
 };
 
 #endif // R2_GRAPH_WIDGET_H

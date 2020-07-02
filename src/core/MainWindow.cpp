@@ -71,6 +71,7 @@
 #include "widgets/DecompilerWidget.h"
 #include "widgets/HexWidget.h"
 #include "widgets/R2GraphWidget.h"
+#include "widgets/CallGraph.h"
 
 // Qt Headers
 #include <QApplication>
@@ -374,7 +375,9 @@ void MainWindow::initDocks()
         symbolsDock = new SymbolsWidget(this),
         vTablesDock = new VTablesWidget(this),
         zignaturesDock = new ZignaturesWidget(this),
-        new R2GraphWidget(this)
+        new R2GraphWidget(this),
+        new CallGraphWidget(this, false),
+        new CallGraphWidget(this, true),
     };
 
     auto makeActionList = [this](QList<CutterDockWidget *> docks) {
