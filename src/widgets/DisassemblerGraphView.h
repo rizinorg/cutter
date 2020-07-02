@@ -111,13 +111,6 @@ public:
     using EdgeConfigurationMapping = std::map<std::pair<ut64, ut64>, EdgeConfiguration>;
     EdgeConfigurationMapping getEdgeConfigurations();
 
-    enum class GraphExportType {
-        Png, Jpeg, Svg, GVDot, GVJson,
-        GVGif, GVPng, GVJpeg, GVPostScript, GVSvg
-    };
-    void exportGraph(QString filePath, GraphExportType type);
-    void exportR2GraphvizGraph(QString filePath, QString type);
-
     /**
      * @brief keep the current addr of the fcn of Graph
      * Everytime overview updates its contents, it compares this value with the one in Graph
@@ -143,7 +136,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
 
 private slots:
-    void on_actionExportGraph_triggered();
+    void showExportDialog();
     void onActionHighlightBITriggered();
     void onActionUnhighlightBITriggered();
     void updateLayout();

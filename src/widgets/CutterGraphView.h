@@ -17,6 +17,16 @@ public:
     CutterGraphView(QWidget *parent);
     virtual bool event(QEvent *event) override;
 
+    enum class GraphExportType {
+        Png, Jpeg, Svg, GVDot, GVJson,
+        GVGif, GVPng, GVJpeg, GVPostScript, GVSvg,
+        R2Gml, R2SDBKeyValue, R2Json
+    };
+    void exportGraph(QString filePath, GraphExportType type, QString graphCommand, RVA addres);
+    void exportR2GraphvizGraph(QString filePath, QString type, QString graphCommand, RVA addres);
+    void exportR2TextGraph(QString filePath, QString graphCommand, RVA address);
+    void showExportGraphDialog(QString defaultName, QString graphCommand, RVA address);
+
 public slots:
     virtual void refreshView();
     void updateColors();
@@ -75,4 +85,4 @@ private:
     void colorsUpdatedSlot();
 };
 
-#endif // GRAPHVIEW_H
+#endif // CUTTER_GRAPHVIEW_H
