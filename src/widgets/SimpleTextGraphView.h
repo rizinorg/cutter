@@ -25,7 +25,7 @@ public:
                                                            bool interactive) override;
 
 public slots:
-    void refreshView();
+    void refreshView() override;
 protected:
     void paintEvent(QPaintEvent *event) override;
     virtual void loadCurrentGraph() = 0;

@@ -51,6 +51,10 @@ CutterGraphView::CutterGraphView(QWidget *parent)
 #ifdef CUTTER_ENABLE_GRAPHVIZ
         , {tr("Graphviz polyline"), GraphView::Layout::GraphvizPolyline}
         , {tr("Graphviz ortho"), GraphView::Layout::GraphvizOrtho}
+        , {tr("Graphviz sfdp"), GraphView::Layout::GraphvizSfdp}
+        , {tr("Graphviz neato"), GraphView::Layout::GraphvizNeato}
+        , {tr("Graphviz twopi"), GraphView::Layout::GraphvizTwoPi}
+        , {tr("Graphviz circo"), GraphView::Layout::GraphvizCirco}
 #endif
     };
     layoutMenu->addSeparator();
@@ -362,7 +366,7 @@ void CutterGraphView::showExportGraphDialog(QString defaultName, QString graphCo
         {tr("SVG (*.svg)"), "svg", QVariant::fromValue(GraphExportType::Svg)}
     };
 
-    bool r2GraphExports = !defaultName.isEmpty();
+    bool r2GraphExports = !graphCommand.isEmpty();
     if (r2GraphExports) {
         types.append({
             {tr("Graphviz dot (*.dot)"), "dot", QVariant::fromValue(GraphExportType::GVDot)},

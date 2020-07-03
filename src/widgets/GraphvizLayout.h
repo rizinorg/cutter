@@ -7,22 +7,26 @@
 class GraphvizLayout : public GraphLayout
 {
 public:
-    enum class LineType {
-        Ortho,
-        Polyline
+    enum class LayoutType {
+        DotOrtho,
+        DotPolyline,
+        Sfdp,
+        Neato,
+        TwoPi,
+        Circo,
     };
     enum class Direction {
         TB,
         LR
     };
-    GraphvizLayout(LineType lineType, Direction direction = Direction::TB);
+    GraphvizLayout(LayoutType layoutType, Direction direction = Direction::TB);
     virtual void CalculateLayout(std::unordered_map<ut64, GraphBlock> &blocks,
                                  ut64 entry,
                                  int &width,
                                  int &height) const override;
 private:
     Direction direction;
-    LineType lineType;
+    LayoutType layoutType;
 };
 
 #endif // GRAPHVIZLAYOUT_H

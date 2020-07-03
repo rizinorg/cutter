@@ -528,6 +528,15 @@ std::unique_ptr<GraphLayout> GraphView::makeGraphLayout(GraphView::Layout layout
 {
     std::unique_ptr<GraphLayout> result;
     bool needAdapter = true;
+
+#ifdef CUTTER_ENABLE_GRAPHVIZ
+    auto makeGraphvizLayout = [&](GraphvizLayout::LayoutType type) {
+        result.reset(new GraphvizLayout(type,
+                                        horizontal ? GraphvizLayout::Direction::LR : GraphvizLayout::Direction::TB));
+        needAdapter = false;
+    };
+    #endif
+
     switch (layout) {
     case Layout::GridNarrow:
         result.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Narrow));
@@ -557,14 +566,22 @@ std::unique_ptr<GraphLayout> GraphView::makeGraphLayout(GraphView::Layout layout
     }
 #ifdef CUTTER_ENABLE_GRAPHVIZ
     case Layout::GraphvizOrtho:
-        result.reset(new GraphvizLayout(GraphvizLayout::LineType::Ortho,
-                                        horizontal ? GraphvizLayout::Direction::LR : GraphvizLayout::Direction::TB));
-        needAdapter = false;
+        makeGraphvizLayout(GraphvizLayout::LayoutType::DotOrtho);
         break;
     case Layout::GraphvizPolyline:
-        result.reset(new GraphvizLayout(GraphvizLayout::LineType::Polyline,
-                                        horizontal ? GraphvizLayout::Direction::LR : GraphvizLayout::Direction::TB));
-        needAdapter = false;
+        makeGraphvizLayout(GraphvizLayout::LayoutType::DotPolyline);
+        break;
+    case Layout::GraphvizSfdp:
+        makeGraphvizLayout(GraphvizLayout::LayoutType::Sfdp);
+        break;
+    case Layout::GraphvizNeato:
+        makeGraphvizLayout(GraphvizLayout::LayoutType::Neato);
+        break;
+    case Layout::GraphvizTwoPi:
+        makeGraphvizLayout(GraphvizLayout::LayoutType::TwoPi);
+        break;
+    case Layout::GraphvizCirco:
+        makeGraphvizLayout(GraphvizLayout::LayoutType::Circo);
         break;
 #endif
     }

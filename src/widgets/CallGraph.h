@@ -12,6 +12,7 @@ class CallGraphView : public SimpleTextGraphView
     Q_OBJECT
 public:
     CallGraphView(QWidget *parent, MainWindow *main, bool global);
+    void showExportDialog() override;
 protected:
     void loadCurrentGraph() override;
     bool global;

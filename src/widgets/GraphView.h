@@ -53,6 +53,10 @@ public:
 #ifdef CUTTER_ENABLE_GRAPHVIZ
         , GraphvizOrtho
         , GraphvizPolyline
+        , GraphvizSfdp
+        , GraphvizNeato
+        , GraphvizTwoPi
+        , GraphvizCirco
 #endif
     };
     static std::unique_ptr<GraphLayout> makeGraphLayout(Layout layout, bool horizontal = false);
@@ -123,6 +127,14 @@ protected:
     virtual void wheelEvent(QWheelEvent *event) override;
     virtual EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to,
                                                 bool interactive = true);
+    /**
+     * @brief Called when user requested context menu for a block. Should open a block specific contextmenu.
+     * Typically triggered by right click.
+     * @param block - the block that was clicked on
+     * @param event - context menu event that triggered the callback, can be used to display context menu
+     * at correct position
+     * @param pos - mouse click position in logical coordinates of the drawing
+     */
     virtual void blockContextMenuRequested(GraphView::GraphBlock &block, QContextMenuEvent *event,
                                            QPoint pos);
 

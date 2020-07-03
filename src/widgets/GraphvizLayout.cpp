@@ -11,10 +11,10 @@
 
 #include <gvc.h>
 
-GraphvizLayout::GraphvizLayout(LineType lineType, Direction direction)
+GraphvizLayout::GraphvizLayout(LayoutType lineType, Direction direction)
     : GraphLayout({})
     , direction(direction)
-    , lineType(lineType)
+    , layoutType(lineType)
 {
 }
 
@@ -103,7 +103,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
     strc.reserve(2 * blocks.size());
     std::map<std::pair<ut64, ut64>, Agedge_t *> edges;
 
-    agsafeset(g, STR("splines"), lineType == LineType::Ortho ? STR("ortho") : STR("polyline"), STR(""));
+    agsafeset(g, STR("splines"), layoutType == LayoutType::DotOrtho ? STR("ortho") : STR("polyline"), STR(""));
     switch (direction) {
     case Direction::LR:
         agsafeset(g, STR("rankdir"), STR("LR"), STR(""));
@@ -154,7 +154,27 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
         setFloatingPointAttr(u, heightAatr, block.height / dpi);
     }
 
-    gvLayout(gvc, g, "dot");
+    const char *layoutEngine = "dot";
+    switch (layoutType) {
+    case LayoutType::DotOrtho:
+    case LayoutType::DotPolyline:
+        layoutEngine = "dot";
+        break;
+    case LayoutType::Sfdp:
+        layoutEngine = "sfdp";
+        break;
+    case LayoutType::Neato:
+        layoutEngine = "neato";
+        break;
+    case LayoutType::TwoPi:
+        layoutEngine = "twopi";
+        break;
+    case LayoutType::Circo:
+        layoutEngine = "circo";
+        break;
+    }
+
+    gvLayout(gvc, g, layoutEngine);
 
     for (auto &blockIt : blocks) {
         auto &block = blockIt.second;
@@ -198,7 +218,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
                             auto it = std::prev(edge.polyline.end());
                             QPointF direction = *it;
                             direction -= *(--it);
-                            edge.arrow = getArrowDirection(direction, lineType == LineType::Polyline);
+                            edge.arrow = getArrowDirection(direction, layoutType == LayoutType::DotPolyline);
 
                         } else {
                             edge.arrow = GraphEdge::Down;

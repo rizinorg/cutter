@@ -29,6 +29,11 @@ CallGraphView::CallGraphView(QWidget *parent, MainWindow *main, bool global)
 {
 }
 
+void CallGraphView::showExportDialog()
+{
+    showExportGraphDialog("graph", global ? "agC" : "agc", RVA_INVALID);
+}
+
 void CallGraphView::loadCurrentGraph()
 {
     blockContent.clear();
