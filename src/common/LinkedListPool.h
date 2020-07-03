@@ -24,30 +24,6 @@ class LinkedListPool
     };
 public:
     /**
-     * @brief Single list within LinkedListPool.
-     *
-     * List only refers to chain of elements. Copying it doesn't copy any element. Item data is owned by
-     * LinkedListPool.
-     *
-     * Use LinkedListPool::makeList to create non-empty list.
-     */
-    class List
-    {
-        IndexType head = 0;
-        IndexType tail = 0;
-        friend class LinkedListPool;
-        List(IndexType head, IndexType tail)
-            : head(head)
-            , tail(tail)
-        {}
-    public:
-        /**
-         * @brief Create an empty list
-         */
-        List() = default;
-    };
-
-    /**
      * @brief List iterator.
      *
      * Iterators don't get invalidated by adding items to list, but the items may be relocated.
@@ -73,6 +49,11 @@ public:
         {
             return pool->data[index].value;
         }
+        pointer operator->()
+        {
+            return &pool->data[index].value;
+        }
+
         ListIterator &operator++()
         {
             index = pool->data[index].next;
@@ -91,9 +72,38 @@ public:
         /**
          * @brief Test if iterator points to valid value.
          */
-        operator bool() const
+        explicit operator bool() const
         {
             return index;
+        }
+    };
+
+    /**
+     * @brief Single list within LinkedListPool.
+     *
+     * List only refers to chain of elements. Copying it doesn't copy any element. Item data is owned by
+     * LinkedListPool.
+     *
+     * Use LinkedListPool::makeList to create non-empty list.
+     */
+    class List
+    {
+        IndexType head = 0;
+        IndexType tail = 0;
+        friend class LinkedListPool;
+        List(IndexType head, IndexType tail)
+            : head(head)
+            , tail(tail)
+        {}
+    public:
+        /**
+         * @brief Create an empty list
+         */
+        List() = default;
+
+        bool isEmpty() const
+        {
+            return head == 0;
         }
     };
 
@@ -137,6 +147,29 @@ public:
     }
 
     /**
+     * @brief Split list and return first half.
+     *
+     * @param list The list that needs to be split.
+     * @param end Iterator to the first item that should not be included in returned list. Needs to be within \a list .
+     * @return Returns prefix of \a list.
+     */
+    List splitHead(const List &list, const ListIterator &end)
+    {
+        if (!end) {
+            return list;
+        }
+        if (end.index == list.head) {
+            return {};
+        }
+        auto last = list.head;
+        while (data[last].next != end.index) {
+            last = data[last].next;
+        }
+        data[last].next = 0;
+        return List {list.head, last};
+    }
+
+    /**
      * @brief Create list iterator from list.
      * @param list
      * @return Iterator pointing to the first item in the list.
@@ -153,6 +186,12 @@ public:
 
     List append(const List &head, const List &tail)
     {
+        if (head.isEmpty()) {
+            return tail;
+        }
+        if (tail.isEmpty()) {
+            return head;
+        }
         List result{head.head, tail.tail};
         data[head.tail].next = tail.head;
         return result;

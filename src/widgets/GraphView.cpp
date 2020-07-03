@@ -539,6 +539,23 @@ std::unique_ptr<GraphLayout> GraphView::makeGraphLayout(GraphView::Layout layout
     case Layout::GridWide:
         result.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Wide));
         break;
+    case Layout::GridAAA:
+    case Layout::GridAAB:
+    case Layout::GridABA:
+    case Layout::GridABB:
+    case Layout::GridBAA:
+    case Layout::GridBAB:
+    case Layout::GridBBA:
+    case Layout::GridBBB:
+    {
+        int options = static_cast<int>(layout) - static_cast<int>(Layout::GridAAA);
+        std::unique_ptr<GraphGridLayout> gridLayout(new GraphGridLayout());
+        gridLayout->setTightSubtreePlacement((options & 1) == 0);
+        gridLayout->setParentBetweenDirectChild((options & 2));
+        gridLayout->setLayoutOptimization((options & 4));
+        result = std::move(gridLayout);
+        break;
+    }
 #ifdef CUTTER_ENABLE_GRAPHVIZ
     case Layout::GraphvizOrtho:
         result.reset(new GraphvizLayout(GraphvizLayout::LineType::Ortho,

@@ -5,6 +5,7 @@
 #include <queue>
 #include <stack>
 #include <cassert>
+#include <queue>
 
 #include "common/BinaryTrees.h"
 
@@ -34,6 +35,7 @@ one from all valid toposort orders. Example: for graph 1->4, 2->1, 2->3, 3->4 va
 4. assign node positions within grid using tree structure, child subtrees are placed side by side with parent on top
 5. perform edge routing
 6. calculate column and row pixel positions based on node sizes and amount edges between the rows
+7. [optional] layout compacting
 
 
 Contrary to many other layered graph drawing algorithm this implementation doesn't perform node reordering to minimize
@@ -121,25 +123,56 @@ Assignment order is chosen based on:
 * edge length - establishes some kind of order when single node is connected to many edges, typically a block
   with switch statement or block after switch statement.
 
+# Layout compacting
+
+Doing the layout within a grid causes minimal spacing to be limited by widest and tallest block within each column
+and row. One common case is block with function entrypoint being wider due to function name causing wide horizontal
+space between branching blocks. Another case is rows in two parallel columns being aligned.
+
+\image html layout_compacting.svg
+
+Both problems are mitigated by squishing graph. Compressing in each of the two direction is done separately.
+The process is defined as liner program. Each variable represents a position of edge segment or node in the
+direction being optimized.
+
+Following constraints are used
+- Keep the order with nearest segments.
+- If the node has two outgoing edges, one to the node on left side and other to the right, keep them on the corresponding side of node's center.
+- For all edges keep the node which is above above. This helps when vertical block spacing is set bigger than double edge spacing and
+edge shadows relationship between two blocks.
+- Equality constraint to keep relative position between nodes and and segments directly connected to them.
+- Equality constraint to keep the node centered when control flow merges
+In the vertical direction objective function minimizes y positions of nodes and lengths of vertical segments.
+In the horizontal direction objective function minimizes lengths of horizontal segments.
+
+In the resulting linear program all constraints beside x_i >= 0 consist of exactly two variables: either x_i - x_j <= c_k or
+x_i = x_j + c_k.
+
+Since it isn't necessary get perfect solution and to avoid worst case performance current implementation isn't
+using a general purpose linear programming solver. Each variable is changed until constraint is reached and afterwards
+variables are grouped and changed together.
+
 */
 
 
 GraphGridLayout::GraphGridLayout(GraphGridLayout::LayoutType layoutType)
     : GraphLayout({})
-    , layoutType(layoutType)
 {
     switch (layoutType) {
     case LayoutType::Narrow:
         tightSubtreePlacement = true;
         parentBetweenDirectChild = false;
+        useLayoutOptimization = true;
         break;
     case LayoutType::Medium:
         tightSubtreePlacement = false;
-        parentBetweenDirectChild = false;
+        parentBetweenDirectChild = true;
+        useLayoutOptimization = true;
         break;
     case LayoutType::Wide:
         tightSubtreePlacement = false;
         parentBetweenDirectChild = true;
+        useLayoutOptimization = false;
         break;
     }
 }
@@ -225,8 +258,7 @@ void GraphGridLayout::selectTree(GraphGridLayout::LayoutState &state)
     }
 }
 
-void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &blocks, ut64 entry,
-                                      int &width, int &height) const
+void GraphGridLayout::CalculateLayout(GraphLayout::Graph &blocks, ut64 entry, int &width, int &height) const
 {
     LayoutState layoutState;
     layoutState.blocks = &blocks;
@@ -244,6 +276,7 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
         layoutState.edge[blockIt.first].resize(blockIt.second.edges.size());
         for (size_t i = 0; i < blockIt.second.edges.size(); i++) {
             layoutState.edge[blockIt.first][i].dest = blockIt.second.edges[i].target;
+            blockIt.second.edges[i].arrow = GraphEdge::Down;
         }
     }
     for (const auto &edgeList : layoutState.edge) {
@@ -279,6 +312,10 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
     routeEdges(layoutState);
 
     convertToPixelCoordinates(layoutState, width, height);
+    if (useLayoutOptimization) {
+        optimizeLayout(layoutState);
+        cropToContent(blocks, width, height);
+    }
 }
 
 void GraphGridLayout::findMergePoints(GraphGridLayout::LayoutState &state) const
@@ -318,6 +355,7 @@ void GraphGridLayout::findMergePoints(GraphGridLayout::LayoutState &state) const
             }
         }
         if (blocksGoingToMerge) {
+            block.mergeBlock = mergeBlock->id;
             state.grid_blocks[block.tree_edge[blockWithTreeEdge]].col = blockWithTreeEdge * 2 -
                                                                         (blocksGoingToMerge - 1);
         }
@@ -847,7 +885,7 @@ static void centerEdges(
 }
 
 /**
- * @brief Convert segment coordinates from arbitary range to continuous range starting at 0.
+ * @brief Convert segment coordinates from arbitrary range to continuous range starting at 0.
  * @param segments
  * @param leftSides
  * @param rightSides
@@ -939,7 +977,7 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
     edgeOffsets.resize(edgeIndex);
     calculateSegmentOffsets(segments, edgeOffsets, state.edgeColumnWidth, rightSides, leftSides,
                             state.columnWidth, 2 * state.rows + 1, layoutConfig.edgeHorizontalSpacing);
-    centerEdges(edgeOffsets, state.edgeColumnWidth, segments, layoutConfig.blockHorizontalSpacing);
+    centerEdges(edgeOffsets, state.edgeColumnWidth, segments, layoutConfig.edgeHorizontalSpacing);
     edgeIndex = 0;
 
     auto copySegmentsToEdges = [&](bool col) {
@@ -970,7 +1008,7 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
 
 
     // Horizontal segments
-    // Use exact x coordinates obtained from vertical segment placment.
+    // Use exact x coordinates obtained from vertical segment placement.
     segments.clear();
     leftSides.clear();
     rightSides.clear();
@@ -1074,7 +1112,6 @@ void GraphGridLayout::convertToPixelCoordinates(
         auto &block = it.second;
         for (size_t i = 0; i < block.edges.size(); i++) {
             auto &resultEdge = block.edges[i];
-            const auto &target = (*state.blocks)[resultEdge.target];
             resultEdge.polyline.clear();
             resultEdge.polyline.push_back(QPointF(0, block.y + block.height));
 
@@ -1092,8 +1129,559 @@ void GraphGridLayout::convertToPixelCoordinates(
                     resultEdge.polyline.push_back(QPointF(0, y));
                 }
             }
-            resultEdge.polyline.back().setY(target.y);
         }
     }
+    connectEdgeEnds(*state.blocks);
+}
+
+void GraphGridLayout::cropToContent(GraphLayout::Graph &graph, int &width, int &height) const
+{
+    if (graph.empty()) {
+        width = std::max(1, layoutConfig.edgeHorizontalSpacing);
+        height = std::max(1, layoutConfig.edgeVerticalSpacing);
+        return;
+    }
+    const auto &anyBlock = graph.begin()->second;
+    int minPos[2] = {anyBlock.x, anyBlock.y};
+    int maxPos[2] = {anyBlock.x, anyBlock.y};
+
+    auto updateLimits = [&](int x, int y) {
+        minPos[0] = std::min(minPos[0] , x);
+        minPos[1] = std::min(minPos[1] , y);
+        maxPos[0] = std::max(maxPos[0] , x);
+        maxPos[1] = std::max(maxPos[1] , y);
+    };
+
+    for (const auto &blockIt : graph) {
+        auto &block = blockIt.second;
+        updateLimits(block.x, block.y);
+        updateLimits(block.x + block.width, block.y + block.height);
+        for (auto &edge : block.edges) {
+            for (auto &point: edge.polyline) {
+                updateLimits(point.x(), point.y());
+            }
+        }
+    }
+    minPos[0] -= layoutConfig.edgeHorizontalSpacing;
+    minPos[1] -= layoutConfig.edgeVerticalSpacing;
+    maxPos[0] += layoutConfig.edgeHorizontalSpacing;
+    maxPos[1] += layoutConfig.edgeVerticalSpacing;
+    for (auto &blockIt : graph) {
+        auto &block = blockIt.second;
+        block.x -= minPos[0];
+        block.y -= minPos[1];
+        for (auto &edge : block.edges) {
+            for (auto &point: edge.polyline) {
+                point -= QPointF(minPos[0], minPos[1]);
+            }
+        }
+    }
+    width = maxPos[0] - minPos[0];
+    height = maxPos[1] - minPos[1];
+}
+
+void GraphGridLayout::connectEdgeEnds(GraphLayout::Graph &graph) const
+{
+    for (auto &it : graph) {
+        auto &block = it.second;
+        for (size_t i = 0; i < block.edges.size(); i++) {
+            auto &resultEdge = block.edges[i];
+            const auto &target = graph[resultEdge.target];
+            resultEdge.polyline[0].ry() = block.y + block.height;
+            resultEdge.polyline.back().ry() = target.y;
+        }
+    }
+}
+
+/// Either equality or inequality x_i <= x_j + c
+using Constraint = std::pair<std::pair<int, int>, int>;
+
+/**
+ * @brief Single pass of linear program optimizer.
+ * Changes variables until a constraint is hit, afterwards the two variables are changed together.
+ * @param n number of variables
+ * @param objectiveFunction coefficients for function \f$\sum c_i x_i\f$ which needs to be minimized
+ * @param inequalities inequality constraints \f$x_{e_i} - x_{f_i} \leq b_i\f$
+ * @param equalities equality constraints \f$x_{e_i} - x_{f_i} = b_i\f$
+ * @param solution input/output argument, returns results, needs to be initialized with a viable solution
+ * @param stickWhenNotMoving variable grouping strategy
+ */
+static void optimizeLinearProgramPass(
+        size_t n,
+        std::vector<int> objectiveFunction,
+        std::vector<Constraint> inequalities,
+        std::vector<Constraint> equalities,
+        std::vector<int> &solution,
+        bool stickWhenNotMoving)
+{
+    std::vector<int> group(n);
+    std::iota(group.begin(), group.end(), 0); // initially each variable is in it's own group
+    assert(n == objectiveFunction.size());
+    assert(n == solution.size());
+    std::vector<size_t> edgeCount(n);
+
+    LinkedListPool<size_t> edgePool(inequalities.size() * 2);
+
+    std::vector<decltype(edgePool)::List> edges(n);
+
+    auto getGroup = [&](int v) {
+        while (group[v] != v) {
+            group[v] = group[group[v]];
+            v = group[v];
+        }
+        return v;
+    };
+    auto joinGroup = [&](int a, int b) {
+        group[getGroup(b)] = getGroup(a);
+    };
+
+    for (auto &constraint : inequalities) {
+        int a = constraint.first.first;
+        int b = constraint.first.second;
+        size_t index = &constraint - &inequalities.front();
+        edges[a] = edgePool.append(edges[a], edgePool.makeList(index));
+        edges[b] = edgePool.append(edges[b], edgePool.makeList(index));
+        edgeCount[a]++;
+        edgeCount[b]++;
+    }
+    std::vector<uint8_t> processed(n);
+    // Smallest variable value in the group relative to main one, this is used to maintain implicit x_i >= 0
+    // constraint
+    std::vector<int> groupRelativeMin(n, 0);
+
+    auto joinSegmentGroups = [&](int a, int b) {
+        a = getGroup(a);
+        b = getGroup(b);
+        joinGroup(a, b);
+        edgeCount[a] += edgeCount[b];
+        objectiveFunction[a] += objectiveFunction[b];
+        int internalEdgeCount = 0;
+        auto writeIt = edgePool.head(edges[b]);
+        // update inequalities and remove some of the constraints between variables that are now grouped
+        for (auto it = edgePool.head(edges[b]); it; ++it) {
+            auto &constraint = inequalities[*it];
+            int other = constraint.first.first + constraint.first.second - b;
+            if (getGroup(other) == a) { // skip inequalities where both variables are now in the same group
+                internalEdgeCount++;
+                continue;
+            }
+            *writeIt++ = *it;
+            // Modify the inequalities for the group being attached relative to the main variable in the group
+            // to which it is being attached.
+            int diff = solution[a] - solution[b];
+            if (b == constraint.first.first) {
+                constraint.first.first = a;
+                constraint.second += diff;
+            } else {
+                constraint.first.second = a;
+                constraint.second -= diff;
+            }
+        }
+        edges[a] = edgePool.append(edges[a], edgePool.splitHead(edges[b], writeIt));
+        edgeCount[a] -= internalEdgeCount;
+        groupRelativeMin[a] = std::min(groupRelativeMin[a], groupRelativeMin[b] + solution[b]- solution[a]);
+    };
+
+    for (auto &equality : equalities) {
+        // process equalities, assumes that initial solution is viable solution and matches equality constraints
+        int a = getGroup(equality.first.first);
+        int b = getGroup(equality.first.second);
+        if (a == b) {
+            equality = {{0, 0}, 0};
+            continue;
+        }
+        // always join smallest group to bigger one
+        if (edgeCount[a] > edgeCount[b]) {
+            std::swap(a, b);
+            // Update the equality equation so that later variable values can be calculated by simply iterating through
+            // them without need to check which direction the group joining was done.
+            std::swap(equality.first.first, equality.first.second);
+            equality.second = -equality.second;
+        }
+        joinSegmentGroups(b, a);
+        equality = {{a, b}, solution[a] - solution[b]};
+        processed[a] = 1;
+    }
+
+    // Priority queue for processing groups starting with currently smallest one. Doing it this way should result in
+    // number of constraints within group doubling each time two groups are joined. That way each constraint is
+    // processed no more than log(n) times.
+    std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<std::pair<int, int>>> queue;
+    for (size_t i = 0; i < n; i++) {
+        if (!processed[i]) {
+            queue.push({edgeCount[i], i});
+        }
+    }
+    while (!queue.empty()) {
+        int g = queue.top().second;
+        int size = queue.top().first;
+        queue.pop();
+        if (size != edgeCount[g] || processed[g]) {
+            continue;
+        }
+        int direction = objectiveFunction[g];
+        if (direction == 0) {
+            continue;
+        }
+        // Find the first constraint which will be hit by changing the variable in the desired direction defined
+        // by objective function.
+        int limitingGroup = -1;
+        int smallestMove = 0;
+        if (direction < 0) {
+            smallestMove = INT_MAX;
+            for (auto it = edgePool.head(edges[g]); it; ++it) {
+                auto &inequality = inequalities[*it];
+                if (g == inequality.first.second) {
+                    continue;
+                }
+                int other = inequality.first.second;
+                if (getGroup(other) == g) {
+                    continue;
+                }
+                int move = solution[other] + inequality.second - solution[g];
+                if (move < smallestMove) {
+                    smallestMove = move;
+                    limitingGroup = other;
+                }
+            }
+        } else {
+            smallestMove = -solution[g] - groupRelativeMin[g]; // keep all variables >= 0
+            for (auto it = edgePool.head(edges[g]); it; ++it) {
+                auto &inequality = inequalities[*it];
+                if (g == inequality.first.first) {
+                    continue;
+                }
+                int other = inequality.first.first;
+                if (getGroup(other) == g) {
+                    continue;
+                }
+                int move = solution[other] - inequality.second - solution[g];
+                if (move > smallestMove) {
+                    smallestMove = move;
+                    limitingGroup = other;
+                }
+            }
+        }
+        assert(smallestMove != INT_MAX);
+        solution[g] += smallestMove;
+        if (smallestMove == 0 && stickWhenNotMoving == false) {
+            continue;
+        }
+        processed[g] = 1;
+        if (limitingGroup != -1) {
+            joinSegmentGroups(limitingGroup, g);
+            if (!processed[limitingGroup]) {
+                queue.push({edgeCount[limitingGroup], limitingGroup});
+            }
+            equalities.push_back({{g, limitingGroup}, solution[g] - solution[limitingGroup]});
+        } // else do nothing if limited by variable >= 0
+    }
+    for (auto it = equalities.rbegin(), end = equalities.rend(); it != end; ++it) {
+        solution[it->first.first] = solution[it->first.second] + it->second;
+    }
+}
+
+/**
+ * @brief Linear programming solver
+ * Does not guarantee optimal solution.
+ * @param n number of variables
+ * @param objectiveFunction coefficients for function \f$\sum c_i x_i\f$ which needs to be minimized
+ * @param inequalities inequality constraints \f$x_{e_i} - x_{f_i} \leq b_i\f$
+ * @param equalities equality constraints \f$x_{e_i} - x_{f_i} = b_i\f$
+ * @param solution input/output argument, returns results, needs to be initialized with a viable solution
+ */
+static void optimizeLinearProgram(
+        size_t n,
+        const std::vector<int> &objectiveFunction,
+        std::vector<Constraint> inequalities,
+        const std::vector<Constraint> &equalities,
+        std::vector<int> &solution)
+{
+    // Remove redundant inequalities
+    std::sort(inequalities.begin(), inequalities.end());
+    auto uniqueEnd = std::unique(inequalities.begin(), inequalities.end(),
+                                 [](const Constraint &a, const Constraint &b){
+        return a.first == b.first;
+    });
+    inequalities.erase(uniqueEnd, inequalities.end());
+
+
+    static const int ITERATIONS = 1;
+    for (int i = 0; i < ITERATIONS; i++) {
+        optimizeLinearProgramPass(n, objectiveFunction, inequalities, equalities, solution, true);
+        //optimizeLinearProgramPass(n, objectiveFunction, inequalities, equalities, solution, false);
+    }
+}
+
+namespace {
+    struct Segment {
+        int x;
+        int variableId;
+        int y0, y1;
+    };
+}
+
+static Constraint createInequality(size_t a, int posA, size_t b, int posB, int minSpacing, const std::vector<int> &positions)
+{
+    minSpacing = std::min(minSpacing, posB - posA);
+    return  {{a, b}, posB - positions[b] - (posA - positions[a]) - minSpacing};
+}
+
+/**
+ * @brief Create inequality constraints from segments which preserves their relative order on single axis.
+ *
+ * @param segments list of edge segments and block sides
+ * @param positions initial element positions before optimization
+ * @param blockCount number of variables representing blocks, it is assumed that segments with
+ * variableId < \a blockCount represent one side of block.
+ * @param variableGroup used to check if segments are part of the same edge and spacing can be reduced
+ * @param blockSpacing minimal spacing between blocks
+ * @param segmentSpacing minimal spacing between two edge segments, spacing may be less if values in \a positions
+ * are closer than this
+ * @param inequalities output variable for resulting inequalities, values initially stored in it are not removed
+ */
+static void createInequalitiesFromSegments(
+        std::vector<Segment> segments,
+        const std::vector<int>& positions,
+        const std::vector<size_t>& variableGroup,
+        int blockCount,
+        int blockSpacing,
+        int segmentSpacing,
+        std::vector<Constraint> &inequalities)
+{
+    // map used as binary search tree y_position -> segment{variableId, x_position}
+    // It is used to maintain which segment was last seen in the range y_position..
+    std::map<int, std::pair<int, int>> lastSegments;
+    lastSegments[-1] = {-1, -1};
+
+    std::sort(segments.begin(), segments.end(), [](const Segment &a, const Segment &b) {
+       return a.x < b.x;
+    });
+    for (auto &segment : segments) {
+        auto startPos = lastSegments.lower_bound(segment.y0);
+        --startPos; // should never be lastSegment.begin() because map is initialized with segment at pos -1
+        auto lastSegment = startPos->second;
+        auto it = startPos;
+        while (it != lastSegments.end() && it->first <= segment.y1) {
+            int prevSegmentVariable = it->second.first;
+            int prevSegmentPos = it->second.second;
+            if (prevSegmentVariable != -1) {
+                int minSpacing = segmentSpacing;
+                if (prevSegmentVariable < blockCount && segment.variableId < blockCount) {
+                    // no need to add inequality between two sides of block
+                    if (prevSegmentVariable == segment.variableId) {
+                        ++it;
+                        continue;
+                    }
+                    minSpacing = blockSpacing;
+                } else if (variableGroup[prevSegmentVariable] == variableGroup[segment.variableId]) {
+                    minSpacing = 0;
+                }
+                inequalities.push_back(createInequality(prevSegmentVariable, prevSegmentPos,
+                                                        segment.variableId, segment.x,
+                                                        minSpacing, positions));
+            }
+            lastSegment = it->second;
+            ++it;
+        }
+        if (startPos->first < segment.y0) {
+            startPos++;
+        }
+        lastSegments.erase(startPos, it); // erase segments covered by current one
+        lastSegments[segment.y0] = {segment.variableId, segment.x}; // current segment
+         // either current segment splitting previous one into two parts or remaining part of partially covered segment
+        lastSegments[segment.y1] = lastSegment;
+    }
+}
+
+void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
+{
+    std::unordered_map<uint64_t, int> blockMapping;
+    size_t blockIndex = 0;
+    for (auto &blockIt : *state.blocks) {
+        blockMapping[blockIt.first] = blockIndex++;
+    }
+    std::vector<size_t> variableGroups(blockMapping.size());
+    std::iota(variableGroups.begin(), variableGroups.end(), 0);
+
+    std::vector<int> objectiveFunction;
+    std::vector<Constraint> inequalities;
+    std::vector<Constraint> equalities;
+    std::vector<int> solution;
+
+    auto addObjective = [&](size_t a, int posA, size_t b, int posB) {
+        objectiveFunction.resize(std::max(objectiveFunction.size(), std::max(a, b) + 1));
+        if (posA < posB) {
+            objectiveFunction[b] += 1;
+            objectiveFunction[a] -= 1;
+        } else {
+            objectiveFunction[a] += 1;
+            objectiveFunction[b] -= 1;
+        }
+    };
+    auto addInequality = [&](size_t a, int posA, size_t b, int posB, int minSpacing) {
+        inequalities.push_back(createInequality(a, posA, b, posB, minSpacing, solution));
+    };
+    auto addBlockSegmentEquality = [&](ut64 blockId, int edgeVariable, int edgeVariablePos) {
+        int blockPos = (*state.blocks)[blockId].x;
+        int blockVariable = blockMapping[blockId];
+        equalities.push_back({{blockVariable, edgeVariable}, blockPos - edgeVariablePos});
+    };
+    auto setViableSolution = [&](size_t variable, int value) {
+        solution.resize(std::max(solution.size(), variable + 1));
+        solution[variable] = value;
+    };
+
+    auto copyVariablesToPositions = [&](const std::vector<int> &solution, bool horizontal = false) {
+        size_t variableIndex = blockMapping.size();
+        for (auto &blockIt : *state.blocks) {
+            auto &block = blockIt.second;
+            for (auto &edge : blockIt.second.edges) {
+                for (int i = 1 + int(horizontal); i < edge.polyline.size(); i += 2) {
+                    int x = solution[variableIndex++];
+                    if (horizontal) {
+                        edge.polyline[i].ry() = x;
+                        edge.polyline[i - 1].ry() = x;
+                    } else {
+                        edge.polyline[i].rx() = x;
+                        edge.polyline[i - 1].rx() = x;
+                    }
+                }
+            }
+            int blockVariable = blockMapping[blockIt.first];
+            (horizontal ? block.y : block.x) = solution[blockVariable];
+        }
+    };
+
+    std::vector<Segment> segments;
+    segments.reserve(state.blocks->size() * 2 + state.blocks->size() * 2);
+    size_t variableIndex = state.blocks->size();
+    size_t edgeIndex = 0;
+    // horizontal segments
+
+
+    objectiveFunction.assign(blockMapping.size(), 1);
+    for (auto &blockIt : *state.blocks) {
+        auto &block = blockIt.second;
+        int blockVariable = blockMapping[blockIt.first];
+        for (auto &edge : block.edges) {
+            auto &targetBlock = (*state.blocks)[edge.target];
+            if (block.y < targetBlock.y) {
+                int spacing = block.height + layoutConfig.blockVerticalSpacing;
+                inequalities.push_back({{blockVariable, blockMapping[edge.target]}, -spacing});
+            }
+            if (edge.polyline.size() < 3) {
+                continue;
+            }
+            for (int i = 2; i < edge.polyline.size(); i += 2) {
+                int y0 = edge.polyline[i - 1].x();
+                int y1 = edge.polyline[i].x();
+                if (y0 > y1) {
+                    std::swap(y0, y1);
+                }
+                int x = edge.polyline[i].y();
+                segments.push_back({x, int(variableIndex), y0, y1});
+                variableGroups.push_back(blockMapping.size() + edgeIndex);
+                setViableSolution(variableIndex, x);
+                if (i > 2) {
+                    int prevX = edge.polyline[i - 2].y();
+                    addObjective(variableIndex, x, variableIndex - 1, prevX);
+                }
+                variableIndex++;
+            }
+            edgeIndex++;
+        }
+        segments.push_back({block.y, blockVariable, block.x, block.x + block.width});
+        segments.push_back({block.y + block.height, blockVariable, block.x, block.x + block.width});
+        setViableSolution(blockVariable, block.y);
+    }
+
+    createInequalitiesFromSegments(std::move(segments), solution, variableGroups, blockMapping.size(),
+        layoutConfig.blockVerticalSpacing, layoutConfig.edgeVerticalSpacing, inequalities);
+
+    objectiveFunction.resize(solution.size());
+    optimizeLinearProgram(solution.size(), objectiveFunction, inequalities, equalities, solution);
+    for (auto v : solution) {
+        assert(v >= 0);
+    }
+    copyVariablesToPositions(solution, true);
+    connectEdgeEnds(*state.blocks);
+
+    // vertical segments
+    variableGroups.resize(blockMapping.size());
+    solution.clear();
+    equalities.clear();
+    inequalities.clear();
+    objectiveFunction.clear();
+    segments.clear();
+    variableIndex = blockMapping.size();
+    edgeIndex = 0;
+    for (auto &blockIt : *state.blocks) {
+        auto &block = blockIt.second;
+        for (auto &edge : block.edges) {
+            if (edge.polyline.size() < 2) {
+                continue;
+            }
+            size_t firstEdgeVariable = variableIndex;
+            for (int i = 1; i < edge.polyline.size(); i += 2) {
+                int y0 = edge.polyline[i - 1].y();
+                int y1 = edge.polyline[i].y();
+                if (y0 > y1) {
+                    std::swap(y0, y1);
+                }
+                int x = edge.polyline[i].x();
+                segments.push_back({x, int(variableIndex), y0, y1});
+                variableGroups.push_back(blockMapping.size() + edgeIndex);
+                setViableSolution(variableIndex, x);
+                if (i > 2) {
+                    int prevX = edge.polyline[i - 2].x();
+                    addObjective(variableIndex, x, variableIndex - 1, prevX);
+                }
+                variableIndex++;
+            }
+            size_t lastEdgeVariableIndex = variableIndex - 1;
+            addBlockSegmentEquality(blockIt.first, firstEdgeVariable, edge.polyline[1].x());
+            addBlockSegmentEquality(edge.target, lastEdgeVariableIndex, segments.back().x);
+            edgeIndex++;
+        }
+        int blockVariable = blockMapping[blockIt.first];
+        segments.push_back({block.x, blockVariable, block.y, block.y + block.height});
+        segments.push_back({block.x + block.width, blockVariable, block.y, block.y + block.height});
+        setViableSolution(blockVariable, block.x);
+    }
+
+    createInequalitiesFromSegments(std::move(segments), solution, variableGroups, blockMapping.size(),
+        layoutConfig.blockHorizontalSpacing, layoutConfig.edgeHorizontalSpacing, inequalities);
+
+    objectiveFunction.resize(solution.size());
+    // horizontal centering constraints
+    for (auto &blockIt : *state.blocks) {
+        auto &block = blockIt.second;
+        int blockVariable = blockMapping[blockIt.first];
+        if (block.edges.size() == 2) {
+            auto &blockLeft = (*state.blocks)[block.edges[0].target];
+            auto &blockRight = (*state.blocks)[block.edges[1].target];
+            auto middle = block.x + block.width / 2;
+            if (blockLeft.x + blockLeft.width < middle && blockRight.x > middle) {
+                addInequality(blockMapping[block.edges[0].target], blockLeft.x + blockLeft.width,
+                              blockVariable, middle,
+                              layoutConfig.blockHorizontalSpacing / 2);
+                addInequality(blockVariable, middle,
+                              blockMapping[block.edges[1].target], blockRight.x,
+                              layoutConfig.blockHorizontalSpacing / 2);
+                auto &gridBlock = state.grid_blocks[blockIt.first];
+                if (gridBlock.mergeBlock) {
+                    auto &mergeBlock = (*state.blocks)[gridBlock.mergeBlock];
+                    if (mergeBlock.x + mergeBlock.width / 2 == middle) {
+                        equalities.push_back({{blockVariable, blockMapping[gridBlock.mergeBlock]},
+                                              block.x - mergeBlock.x});
+                    }
+                }
+            }
+        }
+    }
+
+    optimizeLinearProgram(solution.size(), objectiveFunction, inequalities, equalities, solution);
+    copyVariablesToPositions(solution);
 }
 

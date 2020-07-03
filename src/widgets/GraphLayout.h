@@ -33,7 +33,7 @@ public:
 
     struct LayoutConfig {
         int blockVerticalSpacing = 40;
-        int blockHorizontalSpacing = 10;
+        int blockHorizontalSpacing = 20;
         int edgeVerticalSpacing = 10;
         int edgeHorizontalSpacing = 10;
     };

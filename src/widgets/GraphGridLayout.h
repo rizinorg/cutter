@@ -19,18 +19,22 @@ public:
     };
 
     GraphGridLayout(LayoutType layoutType = LayoutType::Medium);
-    virtual void CalculateLayout(std::unordered_map<ut64, GraphBlock> &blocks,
+    virtual void CalculateLayout(Graph &blocks,
                                  ut64 entry,
                                  int &width,
                                  int &height) const override;
+    void setTightSubtreePlacement(bool enabled) { tightSubtreePlacement = enabled; }
+    void setParentBetweenDirectChild(bool enabled) { parentBetweenDirectChild = enabled; }
+    void setverticalBlockAlignmentMiddle(bool enabled) { verticalBlockAlignmentMiddle = enabled; }
+    void setLayoutOptimization(bool enabled) { useLayoutOptimization = enabled; }
 private:
-    LayoutType layoutType;
     /// false - use bounding box for smallest subtree when placing them side by side
     bool tightSubtreePlacement = false;
     /// true if code should try to place parent between direct children as much as possible
     bool parentBetweenDirectChild = false;
     /// false if blocks in rows should be aligned at top, true for middle alignment
     bool verticalBlockAlignmentMiddle = false;
+    bool useLayoutOptimization = true;
 
     struct GridBlock {
         ut64 id;
@@ -46,6 +50,8 @@ private:
         int col = 0;
         /// Row in which the block is
         int row = 0;
+
+        ut64 mergeBlock = 0;
 
         int lastRowLeft; //!< left side of subtree last row
         int lastRowRight; //!< right side of subtree last row
@@ -165,6 +171,23 @@ private:
      * @param height image height output argument
      */
     void convertToPixelCoordinates(LayoutState &state, int &width, int &height) const;
+    /**
+     * @brief Move the graph content to top left corner and update dimensions.
+     * @param graph
+     * @param width width after cropping
+     * @param height height after cropping
+     */
+    void cropToContent(Graph &graph, int &width, int &height) const;
+    /**
+     * @brief Connect edge ends to blocks by changing y.
+     * @param graph
+     */
+    void connectEdgeEnds(Graph &graph) const;
+    /**
+     * @brief Reduce spacing between nodes and edges by pushing everything together ignoring the grid.
+     * @param state
+     */
+    void optimizeLayout(LayoutState &state) const;
 };
 
 #endif // GRAPHGRIDLAYOUT_H

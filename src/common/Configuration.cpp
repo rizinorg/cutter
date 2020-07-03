@@ -752,7 +752,7 @@ void Configuration::setGraphSpacing(QPoint blockSpacing, QPoint edgeSpacing)
 
 QPoint Configuration::getGraphBlockSpacing()
 {
-    return s.value("graph.blockSpacing", QPoint(10, 40)).value<QPoint>();
+    return s.value("graph.blockSpacing", QPoint(20, 40)).value<QPoint>();
 }
 
 QPoint Configuration::getGraphEdgeSpacing()
