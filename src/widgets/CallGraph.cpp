@@ -63,11 +63,11 @@ void CallGraphView::loadCurrentGraph()
 
         addBlock(std::move(layoutBlock), name);
     }
-    for (auto it = idMapping.keyValueBegin(), end = idMapping.keyValueEnd(); it != end; ++it) {
-        if (blocks.find(it->second) == blocks.end()) {
+    for (auto it = idMapping.begin(), end = idMapping.end(); it != end; ++it) {
+        if (blocks.find(it.value()) == blocks.end()) {
             GraphLayout::GraphBlock block;
-            block.entry = it->second;
-            addBlock(std::move(block), it->first);
+            block.entry = it.value();
+            addBlock(std::move(block), it.key());
         }
     }
 

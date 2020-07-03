@@ -24,12 +24,6 @@ public:
                                                            GraphView::GraphBlock *to,
                                                            bool interactive) override;
 
-    enum class GraphExportType {
-        Png, Jpeg, Svg, GVDot, GVJson,
-        GVGif, GVPng, GVJpeg, GVPostScript, GVSvg
-    };
-    //void exportGraph(QString filePath, GraphExportType type);
-    //void exportR2GraphvizGraph(QString filePath, QString type);
 public slots:
     void refreshView();
 protected:
@@ -50,8 +44,6 @@ protected:
     QAction* horizontalLayoutAction;
 
     QList<QShortcut *> shortcuts;
-
-    QAction actionExportGraph;
 };
 
 #endif // SIMPLE_TEXT_GRAPHVIEW_H

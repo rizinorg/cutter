@@ -25,18 +25,13 @@
 SimpleTextGraphView::SimpleTextGraphView(QWidget *parent, MainWindow *mainWindow)
     : CutterGraphView(parent),
       graphLayout(GraphView::Layout::GridMedium),
-      contextMenu(new QMenu(this)),
-      actionExportGraph(this)
+      contextMenu(new QMenu(this))
 {
     // Signals that require a refresh all
     connect(Core(), &CutterCore::refreshAll, this, &SimpleTextGraphView::refreshView);
     connect(Core(), &CutterCore::graphOptionsChanged, this, &SimpleTextGraphView::refreshView);
 
-    // Export Graph menu
-    actionExportGraph.setText(tr("Export Graph"));
-
     // Context menu that applies to everything
-    contextMenu->addAction(&actionExportGraph);
     static const std::pair<QString, GraphView::Layout> LAYOUT_CONFIG[] = {
         {tr("Grid narrow"), GraphView::Layout::GridNarrow}
         , {tr("Grid medium"), GraphView::Layout::GridMedium}
