@@ -24,42 +24,22 @@
 
 SimpleTextGraphView::SimpleTextGraphView(QWidget *parent, MainWindow *mainWindow)
     : CutterGraphView(parent),
-      graphLayout(GraphView::Layout::GridMedium),
-      contextMenu(new QMenu(this))
+      contextMenu(new QMenu(this)),
+      copyAction(tr("Copy"), this)
 {
     // Signals that require a refresh all
     connect(Core(), &CutterCore::refreshAll, this, &SimpleTextGraphView::refreshView);
     connect(Core(), &CutterCore::graphOptionsChanged, this, &SimpleTextGraphView::refreshView);
 
-    // Context menu that applies to everything
-    static const std::pair<QString, GraphView::Layout> LAYOUT_CONFIG[] = {
-        {tr("Grid narrow"), GraphView::Layout::GridNarrow}
-        , {tr("Grid medium"), GraphView::Layout::GridMedium}
-        , {tr("Grid wide"), GraphView::Layout::GridWide}
-#ifdef CUTTER_ENABLE_GRAPHVIZ
-        , {tr("Graphviz polyline"), GraphView::Layout::GraphvizPolyline}
-        , {tr("Graphviz ortho"), GraphView::Layout::GraphvizOrtho}
-#endif
-    };
-    auto layoutMenu = contextMenu->addMenu(tr("Layout"));
-    horizontalLayoutAction = layoutMenu->addAction(tr("Horizontal"));
-    horizontalLayoutAction->setCheckable(true);
-    layoutMenu->addSeparator();
-    connect(horizontalLayoutAction, &QAction::toggled, this, &SimpleTextGraphView::updateLayout);
-    QActionGroup *layoutGroup = new QActionGroup(layoutMenu);
-    for (auto &item : LAYOUT_CONFIG) {
-        auto action = layoutGroup->addAction(item.first);
-        action->setCheckable(true);
-        GraphView::Layout layout = item.second;
-        connect(action, &QAction::triggered, this, [this, layout]() {
-            this->graphLayout = layout;
-            updateLayout();
-        });
-        if (layout == this->graphLayout) {
-            action->setChecked(true);
-        }
-    }
-    layoutMenu->addActions(layoutGroup->actions());
+    copyAction.setShortcut(QKeySequence::StandardKey::Copy);
+    copyAction.setShortcutContext(Qt::WidgetShortcut);
+    connect(&copyAction, &QAction::triggered, this, &SimpleTextGraphView::copyBlockText);
+
+    contextMenu->addAction(&copyAction);
+    contextMenu->addAction(&actionExportGraph);
+    contextMenu->addMenu(layoutMenu);
+
+    addAction(&copyAction);
 }
 
 SimpleTextGraphView::~SimpleTextGraphView()
@@ -77,7 +57,7 @@ void SimpleTextGraphView::refreshView()
     emit viewRefreshed();
 }
 
-void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool /*interactive*/)
+void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive)
 {
     QRectF blockRect(block.x, block.y, block.width, block.height);
 
@@ -94,8 +74,13 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
     p.setPen(QColor(0, 0, 0, 0));
     p.setBrush(QColor(0, 0, 0, 100));
     p.setPen(QPen(graphNodeColor, 1));
-    p.setBrush(disassemblyBackgroundColor);
 
+    bool blockSelected = interactive && (block.entry == selectedBlock);
+    if (blockSelected) {
+        p.setBrush(disassemblySelectedBackgroundColor);
+    } else {
+        p.setBrush(disassemblyBackgroundColor);
+    }
     // Draw basic block background
     p.drawRect(blockRect);
 
@@ -115,15 +100,26 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
     y += charHeight;
 }
 
-GraphView::EdgeConfiguration SimpleTextGraphView::edgeConfiguration(GraphView::GraphBlock & /*from*/,
-                                                                      GraphView::GraphBlock * /*to*/,
-                                                                      bool /*interactive*/)
+GraphView::EdgeConfiguration SimpleTextGraphView::edgeConfiguration(GraphView::GraphBlock &from,
+                                                                      GraphView::GraphBlock *to,
+                                                                      bool interactive)
 {
     EdgeConfiguration ec;
     ec.color = jmpColor;
     ec.start_arrow = false;
     ec.end_arrow = true;
+    if (interactive && (selectedBlock == from.entry || selectedBlock == to->entry)) {
+        ec.width_scale = 2.0;
+    }
     return ec;
+}
+
+void SimpleTextGraphView::setBlockSelectionEnabled(bool value)
+{
+    enableBlockSelection = value;
+    if (!value) {
+        selectedBlock = NO_BLOCK_SELECTED;
+    }
 }
 
 void SimpleTextGraphView::addBlock(GraphLayout::GraphBlock block, const QString &content)
@@ -137,14 +133,28 @@ void SimpleTextGraphView::addBlock(GraphLayout::GraphBlock block, const QString 
     GraphView::addBlock(std::move(block));
 }
 
+void SimpleTextGraphView::copyBlockText()
+{
+    auto blockIt = blockContent.find(selectedBlock);
+    if (blockIt != blockContent.end()) {
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setText(blockIt->second.text);
+    }
+}
+
 void SimpleTextGraphView::contextMenuEvent(QContextMenuEvent *event)
 {
     GraphView::contextMenuEvent(event);
     if (!event->isAccepted()) {
-        QMenu menu(this);
-        menu.addAction(&actionExportGraph);
-        menu.addMenu(layoutMenu);
-        menu.exec(event->globalPos());
+        contextMenu->exec(event->globalPos());
+    }
+}
+
+void SimpleTextGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos)
+{
+    if ((event->button() == Qt::LeftButton || event->button() == Qt::RightButton) && enableBlockSelection) {
+        selectedBlock = block.entry;
+        viewport()->update();
     }
 }
 

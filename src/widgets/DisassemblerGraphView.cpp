@@ -29,12 +29,6 @@
 
 #include <cmath>
 
-#ifndef NDEBUG
-#define GRAPH_GRID_DEBUG_MODES true
-#else
-#define GRAPH_GRID_DEBUG_MODES false
-#endif
-
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable,
                                              MainWindow *mainWindow, QList<QAction *> additionalMenuActions)
     : CutterGraphView(parent),

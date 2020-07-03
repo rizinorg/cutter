@@ -15,6 +15,12 @@ static const int KEY_ZOOM_RESET = Qt::Key_Equal + Qt::ControlModifier;
 
 static const uint64_t BITMPA_EXPORT_WARNING_SIZE = 32 * 1024 * 1024;
 
+#ifndef NDEBUG
+#define GRAPH_GRID_DEBUG_MODES true
+#else
+#define GRAPH_GRID_DEBUG_MODES false
+#endif
+
 CutterGraphView::CutterGraphView(QWidget *parent)
     : GraphView(parent)
     , mFontMetrics(nullptr)

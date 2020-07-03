@@ -24,14 +24,17 @@ public:
                                                            GraphView::GraphBlock *to,
                                                            bool interactive) override;
 
+    void setBlockSelectionEnabled(bool value);
 public slots:
     void refreshView() override;
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
+    void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos) override;
+
     virtual void loadCurrentGraph() = 0;
     using CutterGraphView::addBlock;
     void addBlock(GraphLayout::GraphBlock block, const QString &content);
-    void contextMenuEvent(QContextMenuEvent *event) override;
 
 
     struct BlockContent {
@@ -39,12 +42,15 @@ protected:
     };
     std::unordered_map<ut64, BlockContent> blockContent;
 
-    GraphView::Layout graphLayout;
-
-    QMenu *contextMenu;
-    QAction* horizontalLayoutAction;
-
     QList<QShortcut *> shortcuts;
+    QMenu *contextMenu;
+    QAction copyAction;
+
+    static const ut64 NO_BLOCK_SELECTED = RVA_INVALID;
+    ut64 selectedBlock = RVA_INVALID;
+    bool enableBlockSelection = true;
+private:
+    void copyBlockText();
 };
 
 #endif // SIMPLE_TEXT_GRAPHVIEW_H
