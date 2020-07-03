@@ -13,6 +13,8 @@ static const int KEY_ZOOM_IN = Qt::Key_Plus + Qt::ControlModifier;
 static const int KEY_ZOOM_OUT = Qt::Key_Minus + Qt::ControlModifier;
 static const int KEY_ZOOM_RESET = Qt::Key_Equal + Qt::ControlModifier;
 
+static const uint64_t BITMPA_EXPORT_WARNING_SIZE = 32 * 1024 * 1024;
+
 CutterGraphView::CutterGraphView(QWidget *parent)
     : GraphView(parent)
     , mFontMetrics(nullptr)
@@ -335,6 +337,20 @@ void CutterGraphView::exportR2TextGraph(QString filePath, QString graphCommand, 
     fileOut << Core()->cmdRaw(QString("%0 0x%1").arg(graphCommand).arg(address, 0, 16));
 }
 
+bool CutterGraphView::graphIsBitamp(CutterGraphView::GraphExportType type)
+{
+    switch (type) {
+    case GraphExportType::Png:
+    case GraphExportType::Jpeg:
+    case GraphExportType::GVGif:
+    case GraphExportType::GVPng:
+    case GraphExportType::GVJpeg:
+        return true;
+    default:
+        return false;
+    }
+}
+
 
 Q_DECLARE_METATYPE(CutterGraphView::GraphExportType);
 
@@ -380,7 +396,22 @@ void CutterGraphView::showExportGraphDialog(QString defaultName, QString graphCo
         qWarning() << "Bad selected type, should not happen.";
         return;
     }
+    auto exportType = selectedType.data.value<GraphExportType>();
+
+    if (graphIsBitamp(exportType)) {
+        uint64_t bitmapSize = uint64_t(width) * uint64_t(height);
+        if (bitmapSize > BITMPA_EXPORT_WARNING_SIZE) {
+            auto answer = QMessageBox::question(this,
+                tr("Graph Export"),
+                tr("Do you really want to export %1 x %2 = %3 pixel bitmap image? Consider using different format.")
+                    .arg(width).arg(height).arg(bitmapSize));
+           if (answer != QMessageBox::Yes) {
+               return;
+           }
+        }
+    }
+
     QString filePath = dialog.selectedFiles().first();
-    exportGraph(filePath, selectedType.data.value<GraphExportType>(), graphCommand, address);
+    exportGraph(filePath, exportType, graphCommand, address);
 
 }

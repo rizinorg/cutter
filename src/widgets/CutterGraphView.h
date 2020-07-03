@@ -25,6 +25,7 @@ public:
     void exportGraph(QString filePath, GraphExportType type, QString graphCommand, RVA addres);
     void exportR2GraphvizGraph(QString filePath, QString type, QString graphCommand, RVA addres);
     void exportR2TextGraph(QString filePath, QString graphCommand, RVA address);
+    static bool graphIsBitamp(GraphExportType type);
     /**
      * @brief Show export graph dialog.
      * @param defaultName - default file name in the export dialog

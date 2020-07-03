@@ -73,4 +73,3 @@ void CallGraphView::loadCurrentGraph()
 
     computeGraphPlacement();
 }
-

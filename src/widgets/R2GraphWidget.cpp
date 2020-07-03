@@ -66,7 +66,7 @@ void GenericR2GraphView::loadCurrentGraph()
     }
 
     QJsonDocument functionsDoc = Core()->cmdj(QString("%1j").arg(graphCommand));
-    auto nodes = functionsDoc["nodes"].toArray();
+    auto nodes = functionsDoc.object()["nodes"].toArray();
 
     for (const QJsonValueRef &value : nodes) {
         QJsonObject block = value.toObject();
