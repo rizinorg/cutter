@@ -126,14 +126,6 @@ GraphView::EdgeConfiguration SimpleTextGraphView::edgeConfiguration(GraphView::G
     return ec;
 }
 
-void SimpleTextGraphView::updateLayout()
-{
-    setGraphLayout(GraphView::makeGraphLayout(graphLayout, horizontalLayoutAction->isChecked()));
-    setLayoutConfig(getLayoutConfig());
-    computeGraphPlacement();
-    emit viewRefreshed();
-}
-
 void SimpleTextGraphView::addBlock(GraphLayout::GraphBlock block, const QString &content)
 {
     blockContent[block.entry].text = content;
@@ -143,6 +135,17 @@ void SimpleTextGraphView::addBlock(GraphLayout::GraphBlock block, const QString 
     block.width = static_cast<int>(width + extra + charWidth);
     block.height = (height * charHeight) + extra;
     GraphView::addBlock(std::move(block));
+}
+
+void SimpleTextGraphView::contextMenuEvent(QContextMenuEvent *event)
+{
+    GraphView::contextMenuEvent(event);
+    if (!event->isAccepted()) {
+        QMenu menu(this);
+        menu.addAction(&actionExportGraph);
+        menu.addMenu(layoutMenu);
+        menu.exec(event->globalPos());
+    }
 }
 
 void SimpleTextGraphView::paintEvent(QPaintEvent *event)

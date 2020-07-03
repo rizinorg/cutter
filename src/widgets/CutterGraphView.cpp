@@ -16,6 +16,8 @@ static const int KEY_ZOOM_RESET = Qt::Key_Equal + Qt::ControlModifier;
 CutterGraphView::CutterGraphView(QWidget *parent)
     : GraphView(parent)
     , mFontMetrics(nullptr)
+    , actionExportGraph(tr("Export Graph"), this)
+    , graphLayout(GraphView::Layout::GridMedium)
 {
     connect(Core(), &CutterCore::graphOptionsChanged, this, &CutterGraphView::refreshView);
     connect(Config(), &Configuration::colorsUpdated, this, &CutterGraphView::colorsUpdatedSlot);
@@ -23,6 +25,49 @@ CutterGraphView::CutterGraphView(QWidget *parent)
 
     initFont();
     updateColors();
+
+    connect(&actionExportGraph, &QAction::triggered, this, &CutterGraphView::showExportDialog);
+
+    layoutMenu = new QMenu(tr("Layout"), this);
+    horizontalLayoutAction = layoutMenu->addAction(tr("Horizontal"));
+    horizontalLayoutAction->setCheckable(true);
+
+    static const std::pair<QString, GraphView::Layout> LAYOUT_CONFIG[] = {
+        {tr("Grid narrow"), GraphView::Layout::GridNarrow}
+        , {tr("Grid medium"), GraphView::Layout::GridMedium}
+        , {tr("Grid wide"), GraphView::Layout::GridWide}
+#if GRAPH_GRID_DEBUG_MODES
+        , {"GridAAA", GraphView::Layout::GridAAA}
+        , {"GridAAB", GraphView::Layout::GridAAB}
+        , {"GridABA", GraphView::Layout::GridABA}
+        , {"GridABB", GraphView::Layout::GridABB}
+        , {"GridBAA", GraphView::Layout::GridBAA}
+        , {"GridBAB", GraphView::Layout::GridBAB}
+        , {"GridBBA", GraphView::Layout::GridBBA}
+        , {"GridBBB", GraphView::Layout::GridBBB}
+#endif
+#ifdef CUTTER_ENABLE_GRAPHVIZ
+        , {tr("Graphviz polyline"), GraphView::Layout::GraphvizPolyline}
+        , {tr("Graphviz ortho"), GraphView::Layout::GraphvizOrtho}
+#endif
+    };
+    layoutMenu->addSeparator();
+    connect(horizontalLayoutAction, &QAction::toggled, this, &CutterGraphView::updateLayout);
+    QActionGroup *layoutGroup = new QActionGroup(layoutMenu);
+    for (auto &item : LAYOUT_CONFIG) {
+        auto action = layoutGroup->addAction(item.first);
+        action->setCheckable(true);
+        GraphView::Layout layout = item.second;
+        if (layout == this->graphLayout) {
+            action->setChecked(true);
+        }
+        connect(action, &QAction::triggered, this, [this, layout]() {
+            this->graphLayout = layout;
+            updateLayout();
+        });
+
+    }
+    layoutMenu->addActions(layoutGroup->actions());
 }
 
 QPoint CutterGraphView::getTextOffset(int line) const
@@ -83,6 +128,11 @@ void CutterGraphView::zoomReset()
     setZoom(QPointF(0.5, 0.5), 1);
 }
 
+void CutterGraphView::showExportDialog()
+{
+    showExportGraphDialog("graph", "", RVA_INVALID);
+}
+
 void CutterGraphView::updateColors()
 {
     disassemblyBackgroundColor = ConfigColor("gui.alt_background");
@@ -116,6 +166,14 @@ GraphLayout::LayoutConfig CutterGraphView::getLayoutConfig()
     layoutConfig.edgeHorizontalSpacing = edgeSpacing.x();
     layoutConfig.edgeVerticalSpacing = edgeSpacing.y();
     return layoutConfig;
+}
+
+void CutterGraphView::updateLayout()
+{
+    setGraphLayout(GraphView::makeGraphLayout(graphLayout, horizontalLayoutAction->isChecked()));
+    setLayoutConfig(getLayoutConfig());
+    computeGraphPlacement();
+    emit viewRefreshed();
 }
 
 void CutterGraphView::fontsUpdatedSlot()

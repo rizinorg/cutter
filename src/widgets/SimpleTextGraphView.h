@@ -28,10 +28,11 @@ public slots:
     void refreshView();
 protected:
     void paintEvent(QPaintEvent *event) override;
-    void updateLayout();
     virtual void loadCurrentGraph() = 0;
     using CutterGraphView::addBlock;
     void addBlock(GraphLayout::GraphBlock block, const QString &content);
+    void contextMenuEvent(QContextMenuEvent *event) override;
+
 
     struct BlockContent {
         QString text;

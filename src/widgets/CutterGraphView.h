@@ -25,7 +25,14 @@ public:
     void exportGraph(QString filePath, GraphExportType type, QString graphCommand, RVA addres);
     void exportR2GraphvizGraph(QString filePath, QString type, QString graphCommand, RVA addres);
     void exportR2TextGraph(QString filePath, QString graphCommand, RVA address);
-    void showExportGraphDialog(QString defaultName, QString graphCommand, RVA address);
+    /**
+     * @brief Show export graph dialog.
+     * @param defaultName - default file name in the export dialog
+     * @param graphCommand - R2 graph commmand with type for example afC. Leave empty for non-r2 graphs. In such case
+     * only direct image export will be available.
+     * @param address - object address if relevant for \p graphCommand
+     */
+    void showExportGraphDialog(QString defaultName, QString graphCommand = "", RVA address = RVA_INVALID);
 
 public slots:
     virtual void refreshView();
@@ -37,6 +44,8 @@ public slots:
     void zoomIn();
     void zoomOut();
     void zoomReset();
+
+    virtual void showExportDialog();
 signals:
     void viewRefreshed();
     void viewZoomed();
@@ -51,6 +60,7 @@ protected:
     void initFont();
     QPoint getTextOffset(int line) const;
     GraphLayout::LayoutConfig getLayoutConfig();
+    virtual void updateLayout();
 
     // Font data
     std::unique_ptr<CachedFontMetrics<qreal>> mFontMetrics;
@@ -81,6 +91,12 @@ protected:
     QColor mCipColor;
     QColor mBreakpointColor;
     QColor mDisabledBreakpointColor;
+
+    QAction actionExportGraph;
+
+    GraphView::Layout graphLayout;
+    QMenu *layoutMenu;
+    QAction* horizontalLayoutAction;
 private:
     void colorsUpdatedSlot();
 };

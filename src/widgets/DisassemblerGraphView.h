@@ -134,12 +134,12 @@ protected:
     void blockContextMenuRequested(GraphView::GraphBlock &block, QContextMenuEvent *event,
                                    QPoint pos) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
+    void updateLayout() override;
 
 private slots:
-    void showExportDialog();
+    void showExportDialog() override;
     void onActionHighlightBITriggered();
     void onActionUnhighlightBITriggered();
-    void updateLayout();
 
 private:
     bool transition_dont_seek = false;
@@ -148,11 +148,8 @@ private:
     bool emptyGraph;
     ut64 currentBlockAddress = RVA_INVALID;
 
-    GraphView::Layout graphLayout;
-
     DisassemblyContextMenu *blockMenu;
     QMenu *contextMenu;
-    QAction* horizontalLayoutAction;
 
     void connectSeekChanged(bool disconnect);
 
@@ -181,7 +178,6 @@ private:
     QList<QShortcut *> shortcuts;
     QList<RVA> breakpoints;
 
-    QAction actionExportGraph;
     QAction actionUnhighlight;
     QAction actionUnhighlightInstruction;
 
