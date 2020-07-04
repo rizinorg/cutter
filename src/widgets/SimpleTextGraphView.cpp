@@ -61,7 +61,7 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
 {
     QRectF blockRect(block.x, block.y, block.width, block.height);
 
-    const qreal padding = 2 * charWidth;
+    const qreal padding =  charWidth;
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
@@ -95,9 +95,8 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
     p.setPen(mLabelColor);
     // Render node text
     auto x = block.x + padding;
-    int y = block.y + getTextOffset(0).y();
+    int y = block.y +  padding + p.fontMetrics().ascent();
     p.drawText(QPoint(x, y), content.text);
-    y += charHeight;
 }
 
 GraphView::EdgeConfiguration SimpleTextGraphView::edgeConfiguration(GraphView::GraphBlock &from,
@@ -127,8 +126,8 @@ void SimpleTextGraphView::addBlock(GraphLayout::GraphBlock block, const QString 
     blockContent[block.entry].text = content;
     int height = 1;
     int width = mFontMetrics->width(content);
-    int extra = static_cast<int>(4 * charWidth + 4);
-    block.width = static_cast<int>(width + extra + charWidth);
+    int extra = static_cast<int>(2 * charWidth);
+    block.width = static_cast<int>(width + extra);
     block.height = (height * charHeight) + extra;
     GraphView::addBlock(std::move(block));
 }
@@ -150,7 +149,7 @@ void SimpleTextGraphView::contextMenuEvent(QContextMenuEvent *event)
     }
 }
 
-void SimpleTextGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos)
+void SimpleTextGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint /*pos*/)
 {
     if ((event->button() == Qt::LeftButton || event->button() == Qt::RightButton) && enableBlockSelection) {
         selectedBlock = block.entry;
