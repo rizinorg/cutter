@@ -58,7 +58,6 @@ void GraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, Q
     Q_UNUSED(block);
     Q_UNUSED(event);
     Q_UNUSED(pos);
-    qWarning() << "Block clicked not overridden!";
 }
 
 void GraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos)
@@ -66,7 +65,6 @@ void GraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *ev
     Q_UNUSED(block);
     Q_UNUSED(event);
     Q_UNUSED(pos);
-    qWarning() << "Block double clicked not overridden!";
 }
 
 void GraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos)
@@ -509,6 +507,11 @@ GraphView::GraphBlock *GraphView::getBlockContaining(QPoint p)
 QPoint GraphView::viewToLogicalCoordinates(QPoint p)
 {
     return p / current_scale + offset;
+}
+
+QPoint GraphView::logicalToViewCoordinates(QPoint p)
+{
+    return (p - offset) * current_scale;
 }
 
 void GraphView::setGraphLayout(std::unique_ptr<GraphLayout> layout)

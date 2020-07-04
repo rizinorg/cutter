@@ -25,6 +25,7 @@
 SimpleTextGraphView::SimpleTextGraphView(QWidget *parent, MainWindow *mainWindow)
     : CutterGraphView(parent),
       contextMenu(new QMenu(this)),
+      addressableItemContextMenu(this, mainWindow),
       copyAction(tr("Copy"), this)
 {
     // Signals that require a refresh all
@@ -39,6 +40,12 @@ SimpleTextGraphView::SimpleTextGraphView(QWidget *parent, MainWindow *mainWindow
     contextMenu->addAction(&actionExportGraph);
     contextMenu->addMenu(layoutMenu);
 
+    addressableItemContextMenu.insertAction(addressableItemContextMenu.actions().first(), &copyAction);
+    addressableItemContextMenu.addSeparator();
+    addressableItemContextMenu.addAction(&actionExportGraph);
+    addressableItemContextMenu.addMenu(layoutMenu);
+
+    addActions(addressableItemContextMenu.actions());
     addAction(&copyAction);
 }
 
@@ -92,7 +99,7 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
         return;
     }
 
-    p.setPen(mLabelColor);
+    p.setPen(palette().color(QPalette::WindowText));
     // Render node text
     auto x = block.x + padding;
     int y = block.y +  padding + p.fontMetrics().ascent();
@@ -121,15 +128,23 @@ void SimpleTextGraphView::setBlockSelectionEnabled(bool value)
     }
 }
 
-void SimpleTextGraphView::addBlock(GraphLayout::GraphBlock block, const QString &content)
+void SimpleTextGraphView::addBlock(GraphLayout::GraphBlock block, const QString &text, RVA address)
 {
-    blockContent[block.entry].text = content;
+    auto &content = blockContent[block.entry];
+    content.text = text;
+    content.address = address;
+
     int height = 1;
-    int width = mFontMetrics->width(content);
+    int width = mFontMetrics->width(text);
     int extra = static_cast<int>(2 * charWidth);
     block.width = static_cast<int>(width + extra);
     block.height = (height * charHeight) + extra;
     GraphView::addBlock(std::move(block));
+}
+
+void SimpleTextGraphView::enableAddresses(bool enabled)
+{
+    haveAddresses = enabled;
 }
 
 void SimpleTextGraphView::copyBlockText()
@@ -144,8 +159,45 @@ void SimpleTextGraphView::copyBlockText()
 void SimpleTextGraphView::contextMenuEvent(QContextMenuEvent *event)
 {
     GraphView::contextMenuEvent(event);
+    if (!event->isAccepted() &&
+        event->reason() !=  QContextMenuEvent::Mouse &&
+        enableBlockSelection && selectedBlock != NO_BLOCK_SELECTED) {
+        auto blockIt = blocks.find(selectedBlock);
+        if (blockIt != blocks.end()) {
+            blockContextMenuRequested(blockIt->second, event, {});
+        }
+
+    }
     if (!event->isAccepted()) {
         contextMenu->exec(event->globalPos());
+    }
+}
+
+void SimpleTextGraphView::blockContextMenuRequested(GraphView::GraphBlock &block,
+                                                    QContextMenuEvent *event, QPoint /*pos*/)
+{
+    if (haveAddresses) {
+        const auto &content = blockContent[block.entry];
+        addressableItemContextMenu.setTarget(content.address, content.text);
+        QPoint pos = event->globalPos();
+
+        if (event->reason() != QContextMenuEvent::Mouse) {
+            QPoint blockPosition(block.x + block.width / 2, block.y + block.height / 2);
+            blockPosition = logicalToViewCoordinates(blockPosition);
+            if (viewport()->rect().contains(blockPosition)) {
+               pos = mapToGlobal(blockPosition);
+            }
+        }
+        addressableItemContextMenu.exec(pos);
+        event->accept();
+    }
+
+}
+
+void SimpleTextGraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint /*pos*/)
+{
+    if (haveAddresses) {
+        QToolTip::showText(event->globalPos(), RAddressString(blockContent[block.entry].address));
     }
 }
 
@@ -153,6 +205,8 @@ void SimpleTextGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent
 {
     if ((event->button() == Qt::LeftButton || event->button() == Qt::RightButton) && enableBlockSelection) {
         selectedBlock = block.entry;
+        const auto &content = blockContent[block.entry];
+        addressableItemContextMenu.setTarget(content.address, content.text);
         viewport()->update();
     }
 }

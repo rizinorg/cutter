@@ -87,6 +87,7 @@ public:
      */
     GraphView::GraphBlock *getBlockContaining(QPoint p);
     QPoint viewToLogicalCoordinates(QPoint p);
+    QPoint logicalToViewCoordinates(QPoint p);
 
     void setGraphLayout(std::unique_ptr<GraphLayout> layout);
     GraphLayout& getGraphLayout() const { return *graphLayoutSystem; }
@@ -133,7 +134,7 @@ protected:
      * @param block - the block that was clicked on
      * @param event - context menu event that triggered the callback, can be used to display context menu
      * at correct position
-     * @param pos - mouse click position in logical coordinates of the drawing
+     * @param pos - mouse click position in logical coordinates of the drawing, set only if event reason is mouse
      */
     virtual void blockContextMenuRequested(GraphView::GraphBlock &block, QContextMenuEvent *event,
                                            QPoint pos);

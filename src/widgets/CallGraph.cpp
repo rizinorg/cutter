@@ -27,6 +27,7 @@ CallGraphView::CallGraphView(QWidget *parent, MainWindow *main, bool global)
     : SimpleTextGraphView(parent, main)
     , global(global)
 {
+    enableAddresses(true);
 }
 
 void CallGraphView::showExportDialog()
@@ -66,13 +67,14 @@ void CallGraphView::loadCurrentGraph()
             layoutBlock.edges.emplace_back(targetId);
         }
 
-        addBlock(std::move(layoutBlock), name);
+        // it would be good if address came directly from json instead of having to lookup by name
+        addBlock(std::move(layoutBlock), name, Core()->num(name));
     }
     for (auto it = idMapping.begin(), end = idMapping.end(); it != end; ++it) {
         if (blocks.find(it.value()) == blocks.end()) {
             GraphLayout::GraphBlock block;
             block.entry = it.value();
-            addBlock(std::move(block), it.key());
+            addBlock(std::move(block), it.key(), Core()->num(it.key()));
         }
     }
 
