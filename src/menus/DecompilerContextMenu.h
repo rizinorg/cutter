@@ -27,8 +27,12 @@ public slots:
 
 private slots:
     void aboutToShowSlot();
+    void aboutToHideSlot();
 
     void actionCopyTriggered();
+
+    void actionAddCommentTriggered();
+    void actionDeleteCommentTriggered();
 
     void actionToggleBreakpointTriggered();
     void actionAdvancedBreakpointTriggered();
@@ -47,6 +51,9 @@ private:
     QAction actionCopy;
     QAction *copySeparator;
 
+    QAction actionAddComment;
+    QAction actionDeleteComment;
+
     QMenu *breakpointMenu;
     QAction actionToggleBreakpoint;
     QAction actionAdvancedBreakpoint;
@@ -64,6 +71,9 @@ private:
 
     // Set actions
     void setActionCopy();
+
+    void setActionAddComment();
+    void setActionDeleteComment();
 
     void setActionToggleBreakpoint();
     void setActionAdvancedBreakpoint();
