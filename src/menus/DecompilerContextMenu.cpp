@@ -112,7 +112,7 @@ void DecompilerContextMenu::aboutToHideSlot()
 void DecompilerContextMenu::aboutToShowSlot()
 {
     if (this->firstOffsetInLine != RVA_MAX) {
-        QString comment = Core()->cmdRawAt("CC.", offset);
+        QString comment = Core()->cmdRawAt("CC.", this->firstOffsetInLine);
         actionAddComment.setVisible(true);
         if (comment.isEmpty()) {
             actionDeleteComment.setVisible(false);
@@ -217,7 +217,7 @@ void DecompilerContextMenu::actionAddCommentTriggered()
 
 void DecompilerContextMenu::actionDeleteCommentTriggered()
 {
-    Core()->delComment(offset);
+    Core()->delComment(this->firstOffsetInLine);
 }
 
 void DecompilerContextMenu::actionToggleBreakpointTriggered()
