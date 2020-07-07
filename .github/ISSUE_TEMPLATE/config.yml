@@ -1,0 +1,10 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: Questions Telegram
+    url: https://t.me/r2cutter
+    about: Please ask questions about Cutter here or one of the other community channels, not in the issue tracker.
+
+  - name: Questions IRC
+    url: https://webchat.freenode.net/#cutter
+    about: "#cutter on irc.freenode.net"
