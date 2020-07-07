@@ -47,6 +47,7 @@ SimpleTextGraphView::SimpleTextGraphView(QWidget *parent, MainWindow *mainWindow
 
     addActions(addressableItemContextMenu.actions());
     addAction(&copyAction);
+    enableAddresses(haveAddresses);
 }
 
 SimpleTextGraphView::~SimpleTextGraphView()
@@ -60,8 +61,30 @@ void SimpleTextGraphView::refreshView()
 {
     initFont();
     setLayoutConfig(getLayoutConfig());
+    saveCurrentBlock();
     loadCurrentGraph();
+    if (blocks.find(selectedBlock) == blocks.end()) {
+        selectedBlock = NO_BLOCK_SELECTED;
+    }
+    restoreCurrentBlock();
     emit viewRefreshed();
+}
+
+void SimpleTextGraphView::selectBlockWithId(ut64 blockId)
+{
+    if (!enableBlockSelection) {
+        return;
+    }
+    auto contentIt = blockContent.find(blockId);
+    if (contentIt != blockContent.end()) {
+        selectedBlock = blockId;
+        if (haveAddresses) {
+            addressableItemContextMenu.setTarget(contentIt->second.address, contentIt->second.text);
+        }
+        viewport()->update();
+    } else {
+        selectedBlock = NO_BLOCK_SELECTED;
+    }
 }
 
 void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive)
@@ -145,6 +168,15 @@ void SimpleTextGraphView::addBlock(GraphLayout::GraphBlock block, const QString 
 void SimpleTextGraphView::enableAddresses(bool enabled)
 {
     haveAddresses = enabled;
+    if (!enabled){
+        addressableItemContextMenu.clearTarget();
+        // Clearing addreassable item context menu disables all the actions inside it including extra ones added
+        // by SimpleTextGraphView. Re-enable them because they are in the regular context menu as well and shouldn't be
+        // disabled.
+        for (auto action : contextMenu->actions()) {
+            action->setEnabled(true);
+        }
+    };
 }
 
 void SimpleTextGraphView::copyBlockText()
@@ -166,10 +198,10 @@ void SimpleTextGraphView::contextMenuEvent(QContextMenuEvent *event)
         if (blockIt != blocks.end()) {
             blockContextMenuRequested(blockIt->second, event, {});
         }
-
     }
     if (!event->isAccepted()) {
         contextMenu->exec(event->globalPos());
+        event->accept();
     }
 }
 
@@ -204,10 +236,17 @@ void SimpleTextGraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEven
 void SimpleTextGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint /*pos*/)
 {
     if ((event->button() == Qt::LeftButton || event->button() == Qt::RightButton) && enableBlockSelection) {
-        selectedBlock = block.entry;
-        const auto &content = blockContent[block.entry];
-        addressableItemContextMenu.setTarget(content.address, content.text);
-        viewport()->update();
+        selectBlockWithId(block.entry);
+    }
+}
+
+void SimpleTextGraphView::restoreCurrentBlock()
+{
+    if (enableBlockSelection) {
+        auto blockIt = blocks.find(selectedBlock);
+        if (blockIt != blocks.end()) {
+            showBlock(blockIt->second, true);
+        }
     }
 }
 

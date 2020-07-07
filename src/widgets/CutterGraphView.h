@@ -58,6 +58,9 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
+    virtual void saveCurrentBlock();
+    virtual void restoreCurrentBlock();
+
     void initFont();
     QPoint getTextOffset(int line) const;
     GraphLayout::LayoutConfig getLayoutConfig();

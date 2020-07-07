@@ -432,7 +432,8 @@ SOURCES += \
     widgets/CutterGraphView.cpp \
     widgets/SimpleTextGraphView.cpp \
     widgets/R2GraphWidget.cpp \
-    widgets/CallGraph.cpp
+    widgets/CallGraph.cpp \
+    widgets/AddressableDockWidget.cpp
 
 GRAPHVIZ_SOURCES = \
     widgets/GraphvizLayout.cpp
@@ -591,7 +592,8 @@ HEADERS  += \
     widgets/CutterGraphView.h \
     widgets/SimpleTextGraphView.h \
     widgets/R2GraphWidget.h \
-    widgets/CallGraph.h
+    widgets/CallGraph.h \
+    widgets/AddressableDockWidget.h
 
 GRAPHVIZ_HEADERS = widgets/GraphvizLayout.h
 

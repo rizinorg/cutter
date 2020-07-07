@@ -134,8 +134,7 @@ protected:
     void blockContextMenuRequested(GraphView::GraphBlock &block, QContextMenuEvent *event,
                                    QPoint pos) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
-    void updateLayout() override;
-
+    void restoreCurrentBlock() override;
 private slots:
     void showExportDialog() override;
     void onActionHighlightBITriggered();
@@ -154,7 +153,6 @@ private:
     void connectSeekChanged(bool disconnect);
 
     void prepareGraphNode(GraphBlock &block);
-    void cleanupEdges();
     Token *getToken(Instr *instr, int x);
 
     QPoint getInstructionOffset(const DisassemblyBlock &block, int line) const;

@@ -300,7 +300,7 @@ void DisassemblerGraphView::loadCurrentGraph()
 
         addBlock(gb);
     }
-    cleanupEdges();
+    cleanupEdges(blocks);
 
     if (!func["blocks"].toArray().isEmpty()) {
         computeGraphPlacement();
@@ -345,26 +345,6 @@ void DisassemblerGraphView::prepareGraphNode(GraphBlock &block)
     block.width = static_cast<int>(width + extra + charWidth);
     block.height = (height * charHeight) + extra;
 }
-
-void DisassemblerGraphView::cleanupEdges()
-{
-    for (auto &blockIt : blocks) {
-        auto &block = blockIt.second;
-        auto outIt = block.edges.begin();
-        std::unordered_set<ut64> seenEdges;
-        for (auto it = block.edges.begin(), end = block.edges.end(); it != end; ++it) {
-            // remove edges going  to different functions
-            // and remove duplicate edges, common in switch statements
-            if (blocks.find(it->target) != blocks.end() &&
-                    seenEdges.find(it->target) == seenEdges.end()) {
-                *outIt++ = *it;
-                seenEdges.insert(it->target);
-            }
-        }
-        block.edges.erase(outIt, block.edges.end());
-    }
-}
-
 
 void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive)
 {
@@ -687,7 +667,7 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
     if (db) {
         // This is a local address! We animated to it.
         transition_dont_seek = true;
-        showBlock(&blocks[db->entry], !switchFunction);
+        showBlock(blocks[db->entry], !switchFunction);
         showInstruction(blocks[db->entry], addr);
     }
 }
@@ -953,9 +933,8 @@ void DisassemblerGraphView::onActionUnhighlightBITriggered()
     Config()->colorsUpdated();
 }
 
-void DisassemblerGraphView::updateLayout()
+void DisassemblerGraphView::restoreCurrentBlock()
 {
-    CutterGraphView::updateLayout();
     onSeekChanged(this->seekable->getOffset()); // try to keep the view on current block
 }
 

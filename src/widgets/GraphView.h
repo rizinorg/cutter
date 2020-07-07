@@ -73,7 +73,6 @@ public:
     ~GraphView() override;
 
     void showBlock(GraphBlock &block, bool anywhere = false);
-    void showBlock(GraphBlock *block, bool anywhere = false);
     /**
      * @brief Move view so that area is visible.
      * @param rect Rectangle to show
@@ -99,6 +98,12 @@ public:
     void saveAsSvg(QString path);
 
     void computeGraphPlacement();
+
+    /**
+     * @brief Remove duplicate edges and edges without target in graph.
+     * @param graph
+     */
+    static void cleanupEdges(GraphLayout::Graph &graph);
 protected:
     std::unordered_map<ut64, GraphBlock> blocks;
     /// image background color

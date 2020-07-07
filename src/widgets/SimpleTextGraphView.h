@@ -27,12 +27,15 @@ public:
     void setBlockSelectionEnabled(bool value);
 public slots:
     void refreshView() override;
+    void selectBlockWithId(ut64 blockId);
 protected:
     void paintEvent(QPaintEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
     void blockContextMenuRequested(GraphView::GraphBlock &block, QContextMenuEvent *event, QPoint pos) override;
     void blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos)override;
     void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos) override;
+
+    void restoreCurrentBlock() override;
 
     virtual void loadCurrentGraph() = 0;
     using CutterGraphView::addBlock;

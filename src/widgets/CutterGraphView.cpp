@@ -183,8 +183,10 @@ GraphLayout::LayoutConfig CutterGraphView::getLayoutConfig()
 void CutterGraphView::updateLayout()
 {
     setGraphLayout(GraphView::makeGraphLayout(graphLayout, horizontalLayoutAction->isChecked()));
+    saveCurrentBlock();
     setLayoutConfig(getLayoutConfig());
     computeGraphPlacement();
+    restoreCurrentBlock();
     emit viewRefreshed();
 }
 
@@ -267,6 +269,14 @@ void CutterGraphView::resizeEvent(QResizeEvent *event)
     emit resized();
 }
 
+void CutterGraphView::saveCurrentBlock()
+{
+}
+
+void CutterGraphView::restoreCurrentBlock()
+{
+}
+
 
 void CutterGraphView::mousePressEvent(QMouseEvent *event)
 {
@@ -344,7 +354,7 @@ void CutterGraphView::exportR2TextGraph(QString filePath, QString graphCommand, 
         return;
     }
     QTextStream fileOut(&file);
-    fileOut << Core()->cmdRaw(QString("%0 0x%1").arg(graphCommand).arg(address, 0, 16));
+    fileOut << Core()->cmdRawAt(QString("%0").arg(graphCommand), address);
 }
 
 bool CutterGraphView::graphIsBitamp(CutterGraphView::GraphExportType type)

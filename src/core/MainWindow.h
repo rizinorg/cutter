@@ -52,6 +52,8 @@ class GraphWidget;
 class HexdumpWidget;
 class DecompilerWidget;
 class OverviewWidget;
+class R2GraphWidget;
+class CallGraphWidget;
 
 namespace Ui {
 class MainWindow;
@@ -260,15 +262,18 @@ private:
     ClassesWidget      *classesDock = nullptr;
     ResourcesWidget    *resourcesDock = nullptr;
     VTablesWidget      *vTablesDock = nullptr;
-    CutterDockWidget        *stackDock = nullptr;
-    CutterDockWidget        *threadsDock = nullptr;
-    CutterDockWidget        *processesDock = nullptr;
-    CutterDockWidget        *registersDock = nullptr;
-    CutterDockWidget        *backtraceDock = nullptr;
-    CutterDockWidget        *memoryMapDock = nullptr;
+    CutterDockWidget   *stackDock = nullptr;
+    CutterDockWidget   *threadsDock = nullptr;
+    CutterDockWidget   *processesDock = nullptr;
+    CutterDockWidget   *registersDock = nullptr;
+    CutterDockWidget   *backtraceDock = nullptr;
+    CutterDockWidget   *memoryMapDock = nullptr;
     NewFileDialog      *newFileDialog = nullptr;
-    CutterDockWidget        *breakpointDock = nullptr;
-    CutterDockWidget        *registerRefsDock = nullptr;
+    CutterDockWidget   *breakpointDock = nullptr;
+    CutterDockWidget   *registerRefsDock = nullptr;
+    R2GraphWidget      *r2GraphDock = nullptr;
+    CallGraphWidget    *callGraphDock = nullptr;
+    CallGraphWidget    *globalCallGraphDock = nullptr;
 
     QMenu *disassemblyContextMenuExtensions = nullptr;
     QMenu *addressableContextMenuExtensions = nullptr;

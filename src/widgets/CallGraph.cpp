@@ -7,11 +7,13 @@
 #include <QJsonObject>
 
 CallGraphWidget::CallGraphWidget(MainWindow *main, bool global)
-    : CutterDockWidget(main)
+    : AddressableDockWidget(main)
     , graphView(new CallGraphView(this, main, global))
+    , global(global)
 {
     setObjectName(main->getUniqueObjectName("CallGraphWidget"));
-    this->setWindowTitle(global ? tr("Global Callgraph") : tr("Callgraph"));
+    this->setWindowTitle(getWindowTitle());
+    connect(seekable, &CutterSeekable::seekableSeekChanged, this, &CallGraphWidget::onSeekChanged);
 
     setWidget(graphView);
     connect(Core(), &CutterCore::refreshAll, this, [this]() {
@@ -23,6 +25,18 @@ CallGraphWidget::~CallGraphWidget()
 {
 }
 
+QString CallGraphWidget::getWindowTitle() const
+{
+    return global ? tr("Global Callgraph") : tr("Callgraph");
+}
+
+void CallGraphWidget::onSeekChanged(RVA address)
+{
+    if (auto function = Core()->functionIn(address)) {
+        graphView->showAddress(function->addr);
+    }
+}
+
 CallGraphView::CallGraphView(QWidget *parent, MainWindow *main, bool global)
     : SimpleTextGraphView(parent, main)
     , global(global)
@@ -32,7 +46,21 @@ CallGraphView::CallGraphView(QWidget *parent, MainWindow *main, bool global)
 
 void CallGraphView::showExportDialog()
 {
-    showExportGraphDialog("graph", global ? "agC" : "agc", RVA_INVALID);
+    showExportGraphDialog("graph", global ? "agC" : "agc", address);
+}
+
+void CallGraphView::showAddress(RVA address)
+{
+    if (global) {
+        auto addressMappingIt = addressMapping.find(address);
+        if (addressMappingIt != addressMapping.end()) {
+            selectBlockWithId(addressMappingIt->second);
+            showBlock(blocks[addressMappingIt->second]);
+        }
+    } else if (address != this->address) {
+        this->address = address;
+        refreshView();
+    }
 }
 
 void CallGraphView::loadCurrentGraph()
@@ -40,7 +68,7 @@ void CallGraphView::loadCurrentGraph()
     blockContent.clear();
     blocks.clear();
 
-    QJsonDocument functionsDoc = Core()->cmdj(global ? "agCj" : "agcj");
+    QJsonDocument functionsDoc = Core()->cmdj(global ? "agCj" : QString("agcj @ %1").arg(address));
     auto nodes = functionsDoc.array();
 
     QHash<QString, uint64_t> idMapping;
@@ -76,6 +104,14 @@ void CallGraphView::loadCurrentGraph()
             block.entry = it.value();
             addBlock(std::move(block), it.key(), Core()->num(it.key()));
         }
+    }
+    if (blockContent.empty() && !global) {
+        addBlock({}, RAddressString(address), address);
+    }
+
+    addressMapping.clear();
+    for (auto &it : blockContent) {
+        addressMapping[it.second.address] = it.first;
     }
 
     computeGraphPlacement();

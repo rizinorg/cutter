@@ -92,5 +92,7 @@ void GenericR2GraphView::loadCurrentGraph()
         addBlock(std::move(layoutBlock), content);
     }
 
+    cleanupEdges(blocks);
+
     computeGraphPlacement();
 }

@@ -135,6 +135,25 @@ void GraphView::computeGraphPlacement()
     viewport()->update();
 }
 
+void GraphView::cleanupEdges(GraphLayout::Graph &graph)
+{
+    for (auto &blockIt : graph) {
+        auto &block = blockIt.second;
+        auto outIt = block.edges.begin();
+        std::unordered_set<ut64> seenEdges;
+        for (auto it = block.edges.begin(), end = block.edges.end(); it != end; ++it) {
+            // remove edges going  to different functions
+            // and remove duplicate edges, common in switch statements
+            if (graph.find(it->target) != graph.end() &&
+                    seenEdges.find(it->target) == seenEdges.end()) {
+                *outIt++ = *it;
+                seenEdges.insert(it->target);
+            }
+        }
+        block.edges.erase(outIt, block.edges.end());
+    }
+}
+
 void GraphView::beginMouseDrag(QMouseEvent *event)
 {
     scroll_base_x = event->x();
@@ -453,13 +472,8 @@ void GraphView::centerY(bool emitSignal)
 
 void GraphView::showBlock(GraphBlock &block, bool anywhere)
 {
-    showBlock(&block, anywhere);
-}
-
-void GraphView::showBlock(GraphBlock *block, bool anywhere)
-{
-    showRectangle(QRect(block->x, block->y, block->width, block->height), anywhere);
-    blockTransitionedTo(block);
+    showRectangle(QRect(block.x, block.y, block.width, block.height), anywhere);
+    blockTransitionedTo(&block);
 }
 
 void GraphView::showRectangle(const QRect &block, bool anywhere)
