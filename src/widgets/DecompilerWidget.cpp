@@ -435,9 +435,7 @@ bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::MouseButtonDblClick
             && (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-
-        const QTextCursor &cursor = ui->textEdit->cursorForPosition(QPoint(mouseEvent->x(),
-                                                                           mouseEvent->y()));
+        ui->textEdit->cursorForPosition(mouseEvent->pos());
         seekToReference();
         return true;
     }
@@ -445,9 +443,7 @@ bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
             && (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->button() == Qt::RightButton) {
-            const QTextCursor &cursor = ui->textEdit->cursorForPosition(QPoint(mouseEvent->x(),
-                                                                               mouseEvent->y()));
-            ui->textEdit->setTextCursor(cursor);
+            ui->textEdit->setTextCursor(ui->textEdit->cursorForPosition(mouseEvent->pos()));
             return true;
         }
     }
