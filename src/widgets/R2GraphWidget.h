@@ -6,6 +6,7 @@
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
 #include "widgets/SimpleTextGraphView.h"
+#include "common/RefreshDeferrer.h"
 
 class MainWindow;
 
@@ -13,15 +14,19 @@ namespace Ui {
 class R2GraphWidget;
 }
 
+class R2GraphWidget;
+
 class GenericR2GraphView : public SimpleTextGraphView
 {
     Q_OBJECT
 public:
-    using SimpleTextGraphView::SimpleTextGraphView;
+    GenericR2GraphView(R2GraphWidget *parent, MainWindow *main);
     void setGraphCommand(QString cmd);
+    void refreshView() override;
 protected:
     void loadCurrentGraph() override;
 private:
+    RefreshDeferrer refreshDeferrer;
     QString graphCommand;
 };
 

@@ -596,6 +596,11 @@ void MainWindow::finalizeOpen()
     // Add fortune message
     core->message("\n" + core->cmdRaw("fo"));
 
+    // hide all docks before showing window to avoid false positive for refreshDeferrer
+    for (auto dockWidget : dockWidgets) {
+        dockWidget->hide();
+    }
+
     QSettings settings;
     auto geometry = settings.value("geometry").toByteArray();
     if (!geometry.isEmpty()) {

@@ -28,10 +28,6 @@ SimpleTextGraphView::SimpleTextGraphView(QWidget *parent, MainWindow *mainWindow
       addressableItemContextMenu(this, mainWindow),
       copyAction(tr("Copy"), this)
 {
-    // Signals that require a refresh all
-    connect(Core(), &CutterCore::refreshAll, this, &SimpleTextGraphView::refreshView);
-    connect(Core(), &CutterCore::graphOptionsChanged, this, &SimpleTextGraphView::refreshView);
-
     copyAction.setShortcut(QKeySequence::StandardKey::Copy);
     copyAction.setShortcutContext(Qt::WidgetShortcut);
     connect(&copyAction, &QAction::triggered, this, &SimpleTextGraphView::copyBlockText);

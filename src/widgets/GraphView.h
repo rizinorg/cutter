@@ -124,7 +124,7 @@ protected:
      * @param block
      * @param interactive - can be used for disabling elemnts during export
      */
-    virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive = true);
+    virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive = true) = 0;
     virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos);
     virtual void blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos);
     virtual void blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos);

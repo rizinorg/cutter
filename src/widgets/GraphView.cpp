@@ -45,13 +45,6 @@ GraphView::~GraphView()
 }
 
 // Callbacks
-void GraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive)
-{
-    Q_UNUSED(p)
-    Q_UNUSED(block)
-    Q_UNUSED(interactive)
-    qWarning() << "Draw block not overriden!";
-}
 
 void GraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos)
 {
@@ -87,7 +80,6 @@ bool GraphView::helpEvent(QHelpEvent *event)
 void GraphView::blockTransitionedTo(GraphView::GraphBlock *to)
 {
     Q_UNUSED(to);
-    qWarning() << "blockTransitionedTo not overridden!";
 }
 
 GraphView::EdgeConfiguration GraphView::edgeConfiguration(GraphView::GraphBlock &from,

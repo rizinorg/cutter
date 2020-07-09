@@ -51,9 +51,25 @@ void R2GraphWidget::typeChanged()
     }
 }
 
+GenericR2GraphView::GenericR2GraphView(R2GraphWidget *parent, MainWindow *main)
+    : SimpleTextGraphView(parent, main)
+    , refreshDeferrer(nullptr, this)
+{
+    refreshDeferrer.registerFor(parent);
+    connect(&refreshDeferrer, &RefreshDeferrer::refreshNow, this, &GenericR2GraphView::refreshView);
+}
+
 void GenericR2GraphView::setGraphCommand(QString cmd)
 {
     graphCommand = cmd;
+}
+
+void GenericR2GraphView::refreshView()
+{
+    if (!refreshDeferrer.attemptRefresh(nullptr)) {
+        return;
+    }
+    SimpleTextGraphView::refreshView();
 }
 
 void GenericR2GraphView::loadCurrentGraph()

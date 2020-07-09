@@ -16,9 +16,6 @@ CallGraphWidget::CallGraphWidget(MainWindow *main, bool global)
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &CallGraphWidget::onSeekChanged);
 
     setWidget(graphView);
-    connect(Core(), &CutterCore::refreshAll, this, [this]() {
-        graphView->refreshView();
-    });
 }
 
 CallGraphWidget::~CallGraphWidget()
@@ -37,11 +34,15 @@ void CallGraphWidget::onSeekChanged(RVA address)
     }
 }
 
-CallGraphView::CallGraphView(QWidget *parent, MainWindow *main, bool global)
+CallGraphView::CallGraphView(CutterDockWidget *parent, MainWindow *main, bool global)
     : SimpleTextGraphView(parent, main)
     , global(global)
+    , refreshDeferrer(nullptr, this)
 {
     enableAddresses(true);
+    refreshDeferrer.registerFor(parent);
+    connect(&refreshDeferrer, &RefreshDeferrer::refreshNow, this, &CallGraphView::refreshView);
+    connect(Core(), &CutterCore::refreshAll, this, &SimpleTextGraphView::refreshView);
 }
 
 void CallGraphView::showExportDialog()
@@ -61,6 +62,14 @@ void CallGraphView::showAddress(RVA address)
         this->address = address;
         refreshView();
     }
+}
+
+void CallGraphView::refreshView()
+{
+    if (!refreshDeferrer.attemptRefresh(nullptr)) {
+        return;
+    }
+    SimpleTextGraphView::refreshView();
 }
 
 void CallGraphView::loadCurrentGraph()
