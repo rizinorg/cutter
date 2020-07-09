@@ -21,8 +21,10 @@ protected:
     RVA address = RVA_INVALID;
     std::unordered_map<RVA, ut64> addressMapping;
     void loadCurrentGraph() override;
+    void restoreCurrentBlock() override;
 private:
     RefreshDeferrer refreshDeferrer;
+    RVA lastLoadedAddress = RVA_INVALID;
 };
 
 

@@ -124,6 +124,7 @@ void GraphView::computeGraphPlacement()
 {
     graphLayoutSystem->CalculateLayout(blocks, entry, width, height);
     setCacheDirty();
+    clampViewOffset();
     viewport()->update();
 }
 

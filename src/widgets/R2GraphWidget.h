@@ -28,6 +28,7 @@ protected:
 private:
     RefreshDeferrer refreshDeferrer;
     QString graphCommand;
+    QString lastShownCommand;
 };
 
 

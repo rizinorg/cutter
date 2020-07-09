@@ -111,4 +111,10 @@ void GenericR2GraphView::loadCurrentGraph()
     cleanupEdges(blocks);
 
     computeGraphPlacement();
+
+    if (graphCommand != lastShownCommand) {
+        selectedBlock = NO_BLOCK_SELECTED;
+        lastShownCommand = graphCommand;
+        center();
+    }
 }

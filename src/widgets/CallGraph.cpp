@@ -125,3 +125,14 @@ void CallGraphView::loadCurrentGraph()
 
     computeGraphPlacement();
 }
+
+void CallGraphView::restoreCurrentBlock()
+{
+    if (!global && lastLoadedAddress != address) {
+        selectedBlock = NO_BLOCK_SELECTED;
+        lastLoadedAddress = address;
+        center();
+    } else {
+        SimpleTextGraphView::restoreCurrentBlock();
+    }
+}
