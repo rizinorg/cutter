@@ -16,6 +16,24 @@ class R2GraphWidget;
 
 class R2GraphWidget;
 
+/**
+ * @brief Generic graph view for r2 graphs.
+ * Not all r2 graph commands output the same kind of json. Only those that have following format
+ * @code{.json}
+ * { "nodes": [
+ *      {
+ *          "id": 0,
+ *          "tittle": "node_0_tittle",
+ *          "body": "".
+ *          "out_nodes": [1, 2, 3]
+ *      },
+ *      ...
+ * ]}
+ * @endcode
+ * Id don't have to be sequential. Simple text label is displayed containing concatenation of
+ * label and body. No r2 builtin graph uses both. Duplicate edges and edges with target id
+ * not present in the list of nodes are removed.
+ */
 class GenericR2GraphView : public SimpleTextGraphView
 {
     Q_OBJECT

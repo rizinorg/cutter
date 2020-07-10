@@ -408,10 +408,10 @@ void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale, b
 
 void GraphView::saveAsBitmap(QString path, const char *format, double scaler, bool transparent)
 {
-    QImage image(width*scaler, height*scaler, QImage::Format_ARGB32);
-    if(transparent){
+    QImage image(width * scaler, height * scaler, QImage::Format_ARGB32);
+    if (transparent) {
         image.fill(qRgba(0, 0, 0, 0));
-    }else{
+    } else {
         image.fill(backgroundColor);
     }
     QPainter p;
@@ -545,7 +545,7 @@ std::unique_ptr<GraphLayout> GraphView::makeGraphLayout(GraphView::Layout layout
                                         horizontal ? GraphvizLayout::Direction::LR : GraphvizLayout::Direction::TB));
         needAdapter = false;
     };
-    #endif
+#endif
 
     switch (layout) {
     case Layout::GridNarrow:
@@ -564,8 +564,7 @@ std::unique_ptr<GraphLayout> GraphView::makeGraphLayout(GraphView::Layout layout
     case Layout::GridBAA:
     case Layout::GridBAB:
     case Layout::GridBBA:
-    case Layout::GridBBB:
-    {
+    case Layout::GridBBB: {
         int options = static_cast<int>(layout) - static_cast<int>(Layout::GridAAA);
         std::unique_ptr<GraphGridLayout> gridLayout(new GraphGridLayout());
         gridLayout->setTightSubtreePlacement((options & 1) == 0);

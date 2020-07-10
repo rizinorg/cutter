@@ -12,7 +12,7 @@ R2GraphWidget::R2GraphWidget(MainWindow *main)
 {
     ui->setupUi(this);
     ui->verticalLayout->addWidget(graphView);
-    connect(ui->refreshButton, &QPushButton::pressed, this, [this](){
+    connect(ui->refreshButton, &QPushButton::pressed, this, [this]() {
         graphView->refreshView();
     });
     struct GraphType {

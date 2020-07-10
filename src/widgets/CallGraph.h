@@ -7,7 +7,9 @@
 #include "common/RefreshDeferrer.h"
 
 class MainWindow;
-
+/**
+ * @brief Graphview displaying either global or function callgraph.
+ */
 class CallGraphView : public SimpleTextGraphView
 {
     Q_OBJECT
@@ -17,9 +19,9 @@ public:
     void showAddress(RVA address);
     void refreshView() override;
 protected:
-    bool global;
-    RVA address = RVA_INVALID;
-    std::unordered_map<RVA, ut64> addressMapping;
+    bool global; ///< is this a global or function callgraph
+    RVA address = RVA_INVALID; ///< function address if this is not a global callgraph
+    std::unordered_map<RVA, ut64> addressMapping; ///< mapping from addresses to block id
     void loadCurrentGraph() override;
     void restoreCurrentBlock() override;
 private:

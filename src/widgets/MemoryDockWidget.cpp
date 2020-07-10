@@ -11,7 +11,7 @@ MemoryDockWidget::MemoryDockWidget(MemoryWidgetType type, MainWindow *parent)
     , mType(type)
 {
     if (parent) {
-        parent->addMemoryDockWidget(this); //TODO:
+        parent->addMemoryDockWidget(this);
     }
 }
 

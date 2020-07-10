@@ -821,7 +821,7 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
 }
 
 void DisassemblerGraphView::blockContextMenuRequested(GraphView::GraphBlock &block,
-                                                      QContextMenuEvent *event, QPoint pos)
+                                                      QContextMenuEvent *event, QPoint /*pos*/)
 {
     const RVA offset = this->seekable->getOffset();
     actionUnhighlight.setVisible(Core()->getBBHighlighter()->getBasicBlock(block.entry));

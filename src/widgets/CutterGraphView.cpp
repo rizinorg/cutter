@@ -290,7 +290,8 @@ void CutterGraphView::mouseMoveEvent(QMouseEvent *event)
     emit graphMoved();
 }
 
-void CutterGraphView::exportGraph(QString filePath, GraphExportType type, QString graphCommand, RVA address)
+void CutterGraphView::exportGraph(QString filePath, GraphExportType type, QString graphCommand,
+                                  RVA address)
 {
     bool graphTransparent = Config()->getBitmapTransparentState();
     double graphScaleFactor = Config()->getBitmapExportScaleFactor();
@@ -339,7 +340,8 @@ void CutterGraphView::exportGraph(QString filePath, GraphExportType type, QStrin
     }
 }
 
-void CutterGraphView::exportR2GraphvizGraph(QString filePath, QString type, QString graphCommand, RVA address)
+void CutterGraphView::exportR2GraphvizGraph(QString filePath, QString type, QString graphCommand,
+                                            RVA address)
 {
     TempConfig tempConfig;
     tempConfig.set("graph.gv.format", type);
@@ -422,12 +424,12 @@ void CutterGraphView::showExportGraphDialog(QString defaultName, QString graphCo
         uint64_t bitmapSize = uint64_t(width) * uint64_t(height);
         if (bitmapSize > BITMPA_EXPORT_WARNING_SIZE) {
             auto answer = QMessageBox::question(this,
-                tr("Graph Export"),
-                tr("Do you really want to export %1 x %2 = %3 pixel bitmap image? Consider using different format.")
-                    .arg(width).arg(height).arg(bitmapSize));
-           if (answer != QMessageBox::Yes) {
-               return;
-           }
+                                                tr("Graph Export"),
+                                                tr("Do you really want to export %1 x %2 = %3 pixel bitmap image? Consider using different format.")
+                                                .arg(width).arg(height).arg(bitmapSize));
+            if (answer != QMessageBox::Yes) {
+                return;
+            }
         }
     }
 

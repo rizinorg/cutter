@@ -13,6 +13,9 @@
 #include "common/RichTextPainter.h"
 #include "common/CutterSeekable.h"
 
+/**
+ * @brief Graphview with nodes containing simple plaintext labels.
+ */
 class SimpleTextGraphView : public CutterGraphView
 {
     Q_OBJECT
@@ -24,22 +27,40 @@ public:
                                                            GraphView::GraphBlock *to,
                                                            bool interactive) override;
 
+    /**
+     * @brief Enable or disable block selection.
+     * Selecting a block highlights it and allows copying the label. Enabled by default.
+     * @param value
+     */
     void setBlockSelectionEnabled(bool value);
 public slots:
     void refreshView() override;
+    /**
+     * @brief Select a given block. Requires block selection to be enabled.
+     */
     void selectBlockWithId(ut64 blockId);
 protected:
     void paintEvent(QPaintEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
-    void blockContextMenuRequested(GraphView::GraphBlock &block, QContextMenuEvent *event, QPoint pos) override;
+    void blockContextMenuRequested(GraphView::GraphBlock &block, QContextMenuEvent *event,
+                                   QPoint pos) override;
     void blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos)override;
     void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos) override;
 
     void restoreCurrentBlock() override;
 
+    /**
+     * @brief Load the graph to be displayed.
+     * Needs to cleanup the old graph and use addBlock() to create new nodes.
+     */
     virtual void loadCurrentGraph() = 0;
-    using CutterGraphView::addBlock;
     void addBlock(GraphLayout::GraphBlock block, const QString &content, RVA address = RVA_INVALID);
+    /**
+     * @brief Enable or disable address interactions for nodes.
+     * If enabled node addresses need to be specified when calling addBlock(). Adds address related
+     * items to the node context menu. By default disabled.
+     * @param enabled
+     */
     void enableAddresses(bool enabled);
 
     struct BlockContent {
@@ -54,7 +75,7 @@ protected:
     QAction copyAction;
 
     static const ut64 NO_BLOCK_SELECTED = RVA_INVALID;
-    ut64 selectedBlock = RVA_INVALID;
+    ut64 selectedBlock = NO_BLOCK_SELECTED;
     bool enableBlockSelection = true;
     bool haveAddresses = false;
 private:

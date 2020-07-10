@@ -89,12 +89,13 @@ public:
     QPoint logicalToViewCoordinates(QPoint p);
 
     void setGraphLayout(std::unique_ptr<GraphLayout> layout);
-    GraphLayout& getGraphLayout() const { return *graphLayoutSystem; }
-    void setLayoutConfig(const GraphLayout::LayoutConfig& config);
+    GraphLayout &getGraphLayout() const { return *graphLayoutSystem; }
+    void setLayoutConfig(const GraphLayout::LayoutConfig &config);
 
     void paint(QPainter &p, QPoint offset, QRect area, qreal scale = 1.0, bool interactive = true);
 
-    void saveAsBitmap(QString path, const char *format = nullptr, double scaler = 1.0, bool transparent = false);
+    void saveAsBitmap(QString path, const char *format = nullptr, double scaler = 1.0,
+                      bool transparent = false);
     void saveAsSvg(QString path);
 
     void computeGraphPlacement();
