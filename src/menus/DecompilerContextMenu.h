@@ -16,7 +16,7 @@ public:
     ~DecompilerContextMenu();
 
     bool getIsTogglingBreakpoints();
-    void setAnnotationsHere(RCodeAnnotation &annotations);
+    void setAnnotationHere(RCodeAnnotation &annotation);
 
 signals:
     void copy();
@@ -53,14 +53,14 @@ private:
     QVector<RVA> availableBreakpoints;
     MainWindow *mainWindow;
 
-    RCodeAnnotation annotationsHere;
+    RCodeAnnotation annotationHere;
 
     QAction actionCopy;
     QAction *copySeparator;
 
     QAction actionAddComment;
     QAction actionDeleteComment;
-    
+
     QAction actionRenameThingHere;
 
     QMenu *breakpointMenu;

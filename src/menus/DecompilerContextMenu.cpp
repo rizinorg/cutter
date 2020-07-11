@@ -51,9 +51,9 @@ DecompilerContextMenu::~DecompilerContextMenu()
 {
 }
 
-void DecompilerContextMenu::setAnnotationsHere(RCodeAnnotation &annotation)
+void DecompilerContextMenu::setAnnotationHere(RCodeAnnotation &annotation)
 {
-    this->annotationsHere = annotation;
+    this->annotationHere = annotation;
 }
 
 void DecompilerContextMenu::setOffset(RVA offset)
@@ -162,19 +162,13 @@ void DecompilerContextMenu::aboutToShowSlot()
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText(tr("Set %1 here").arg(progCounterName));
 
-
-    //Function Rename
-    // for(auto annotation: annotationsHere){
-    //     if(annotation.type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME){
-
-    //     }
-    // }
-    if (annotationsHere.type == R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT) { // To be considered as invalid
+    if (annotationHere.type == R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT) { // To be considered as invalid
         actionRenameThingHere.setVisible(false);
     } else {
         actionRenameThingHere.setVisible(true);
-        QString nameOfFunctionAtCursor(annotationsHere.function_name.name);
-        actionRenameThingHere.setText(tr("Rename function %1").arg(QString(annotationsHere.function_name.name)));
+        QString nameOfFunctionAtCursor(annotationHere.function_name.name);
+        actionRenameThingHere.setText(tr("Rename function %1").arg(QString(
+                                                                       annotationHere.function_name.name)));
     }
 }
 
@@ -254,22 +248,23 @@ void DecompilerContextMenu::actionDeleteCommentTriggered()
 
 void DecompilerContextMenu::actionRenameThingHereTriggered()
 {
-    if(this->annotationsHere.type == R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT) {
+    // Invalid annotations for this purpose have the type for syntax highlight
+    if (this->annotationHere.type == R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT) {
         return;
     }
     RenameDialog dialog(mainWindow);
-    auto type = this->annotationsHere.type;
+    auto type = this->annotationHere.type;
     if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
-        QString currentName(this->annotationsHere.function_name.name);
+        QString currentName(this->annotationHere.function_name.name);
         dialog.setWindowTitle(tr("Rename function %1").arg(currentName));
         dialog.setName(currentName);
     }
     if (dialog.exec()) {
         QString newName = dialog.getName();
-        if(!newName.isEmpty()){
-            if(type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME){
-                RAnalFunction *fcn = Core()->functionIn(this->annotationsHere.function_name.offset);
-                Core()->renameFunction(this->annotationsHere.function_name.offset, newName, fcn->name);
+        if (!newName.isEmpty()) {
+            if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
+                RAnalFunction *fcn = Core()->functionIn(this->annotationHere.function_name.offset);
+                Core()->renameFunction(this->annotationHere.function_name.offset, newName, fcn->name);
             }
         }
     }
