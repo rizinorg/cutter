@@ -57,6 +57,10 @@ jobs:
         export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
         source scripts/prepare_breakpad_linux.sh
         export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+        cd radare2
+        git pull origin decompiler-refactoring
+        git checkout decompiler-refactoring
+        cd ..
         mkdir build
         cd build
         cmake \
@@ -79,6 +83,10 @@ jobs:
         export PATH=/usr/local/opt/llvm/bin:$PATH
         source scripts/prepare_breakpad_macos.sh
         export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+        cd radare2
+        git pull origin decompiler-refactoring
+        git checkout decompiler-refactoring
+        cd ..
         mkdir build
         cd build
         cmake \
