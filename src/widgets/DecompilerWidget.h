@@ -113,6 +113,8 @@ private:
     void gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size_t startPos, size_t endPos);
 
     void setInfoForBreakpoints();
+
+    void setAnnotationsAtCursor(size_t pos);
 };
 
 #endif // DECOMPILERWIDGET_H

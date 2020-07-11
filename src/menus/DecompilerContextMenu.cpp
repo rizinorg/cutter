@@ -47,6 +47,11 @@ DecompilerContextMenu::~DecompilerContextMenu()
 {
 }
 
+void DecompilerContextMenu::setAnnotationsHere(QVector<RCodeAnnotation> &annotations)
+{
+    this->annotationsHere = annotations;
+}
+
 void DecompilerContextMenu::setOffset(RVA offset)
 {
     this->offset = offset;

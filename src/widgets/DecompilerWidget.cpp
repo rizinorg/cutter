@@ -305,6 +305,22 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
     }
 }
 
+void DecompilerWidget::setAnnotationsAtCursor(size_t pos)
+{
+    QVector<RCodeAnnotation> annotationsAtPos;
+    void *annotationi;
+    r_vector_foreach(&this->code->annotations, annotationi) {
+        RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
+        if (annotation->type == R_CODE_ANNOTATION_TYPE_OFFSET ||
+            annotation->type == R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT ||
+            annotation->start > pos || annotation->end <= pos) {
+            continue;
+        }
+        annotationsAtPos.push_back(*annotation);
+    }
+    mCtxMenu->setAnnotationsHere(annotationsAtPos);
+}
+
 void DecompilerWidget::decompilerSelected()
 {
     Config()->setSelectedDecompiler(ui->decompilerComboBox->currentData().toString());
@@ -333,7 +349,7 @@ void DecompilerWidget::cursorPositionChanged()
     }
 
     size_t pos = ui->textEdit->textCursor().position();
-
+    setAnnotationsAtCursor(pos);
 
     setInfoForBreakpoints();
 
