@@ -33,7 +33,7 @@ environment:
       DEPLOY: false
 
 install:
-  - cmd: if defined QMAKE ( git clone --depth 1 --recurse-submodules https://github.com/radareorg/r2ghidra-dec.git %APPVEYOR_BUILD_FOLDER%/r2ghidra-dec )
+  - cmd: if defined QMAKE ( git clone --depth 1 --single-branch --branch decompiler-refactoring --recurse-submodules https://github.com/radareorg/r2ghidra-dec.git %APPVEYOR_BUILD_FOLDER%/r2ghidra-dec )
   - ps: $env:path = ($env:path -split ";").Where({!($_ -like "*Microsoft SQL Server*")}) -join ";"
   - cmd: C:\msys64\usr\bin\bash -lc "cd $APPVEYOR_BUILD_FOLDER && scripts/fetch_deps.sh"
   - cmd: set "CUTTER_DEPS_DIR=%APPVEYOR_BUILD_FOLDER%\cutter-deps"
@@ -54,6 +54,10 @@ before_build:
 
 # Build config
 build_script:
+  - cmd: if defined QMAKE ( cd radare2 )
+  - cmd: if defined QMAKE ( git pull origin decompiler-refactoring )
+  - cmd: if defined QMAKE ( git checkout decompiler-refactoring )
+  - cmd: if defined QMAKE ( cd .. )
   - cmd: if defined QMAKE ( call prepare_r2.bat )
   - cmd: if defined QMAKE ( C:\msys64\usr\bin\bash -lc "export PATH=\"/c/msys64/usr/bin:$PATH\" && cd \"$APPVEYOR_BUILD_FOLDER\" && scripts/appveyor_r2ghidra.sh" )
   - cmd: if defined QMAKE ( call build.bat CUTTER_APPVEYOR_R2DEC=true CUTTER_R2GHIDRA_STATIC=true R2GHIDRA_SOURCE="%APPVEYOR_BUILD_FOLDER%/r2ghidra-dec" R2GHIDRA_INSTALL_PATH="%APPVEYOR_BUILD_FOLDER%/r2_dist_%ARCH%/radare2/lib/plugins" CUTTER_ENABLE_CRASH_REPORTS=true CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=true CUTTER_DEPS_DIR="%CUTTER_DEPS_DIR%" )
