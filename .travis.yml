@@ -147,6 +147,8 @@ install:
 
 before_script:
   - cd radare2
+  - git pull origin decompiler-refactoring
+  - git checkout decompiler-refactoring
   - if [[ "$BUILD_SYSTEM" == "qmake" ]] || ([[ "$BUILD_SYSTEM" == "cmake" ]] && [[ "$TRAVIS_OS_NAME" == "linux" ]]) ; then
         if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
             INSTALL_TARGET=install sys/install.sh /usr;
