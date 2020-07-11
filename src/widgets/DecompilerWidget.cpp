@@ -96,8 +96,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     doRefresh(RVA_INVALID);
 
     connect(Core(), &CutterCore::refreshAll, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), static_cast<void(CutterCore::*)()>(&CutterCore::functionRenamed), this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), static_cast<void(CutterCore::*)(const QString&, const QString&)>(&CutterCore::functionRenamed), this, &DecompilerWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::functionRenamed, this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::varsChanged, this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::functionsChanged, this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::flagsChanged, this, &DecompilerWidget::doAutoRefresh);
