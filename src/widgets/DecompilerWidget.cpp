@@ -96,7 +96,8 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     doRefresh(RVA_INVALID);
 
     connect(Core(), &CutterCore::refreshAll, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::functionRenamed, this, &DecompilerWidget::doAutoRefresh);
+    connect(Core(), static_cast<void(CutterCore::*)()>(&CutterCore::functionRenamed), this, &DecompilerWidget::doAutoRefresh);
+    connect(Core(), static_cast<void(CutterCore::*)(const QString&, const QString&)>(&CutterCore::functionRenamed), this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::varsChanged, this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::functionsChanged, this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::flagsChanged, this, &DecompilerWidget::doAutoRefresh);
@@ -307,7 +308,8 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
 
 void DecompilerWidget::setAnnotationsAtCursor(size_t pos)
 {
-    QVector<RCodeAnnotation> annotationsAtPos;
+    RCodeAnnotation annotationsAtPos = {};
+    annotationsAtPos.type = R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT;
     void *annotationi;
     r_vector_foreach(&this->code->annotations, annotationi) {
         RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
@@ -316,7 +318,8 @@ void DecompilerWidget::setAnnotationsAtCursor(size_t pos)
             annotation->start > pos || annotation->end <= pos) {
             continue;
         }
-        annotationsAtPos.push_back(*annotation);
+        annotationsAtPos = *annotation;
+        break;
     }
     mCtxMenu->setAnnotationsHere(annotationsAtPos);
 }

@@ -3,6 +3,7 @@
 #include "MainWindow.h"
 #include "dialogs/BreakpointsDialog.h"
 #include "dialogs/CommentsDialog.h"
+#include "dialogs/RenameDialog.h"
 
 #include <QtCore>
 #include <QShortcut>
@@ -19,6 +20,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         actionCopy(tr("Copy"), this),
         actionAddComment(tr("Add Comment"), this),
         actionDeleteComment(tr("Delete comment"), this),
+        actionRenameThingHere(tr("Rename function at cursor"), this),
         actionToggleBreakpoint(tr("Add/remove breakpoint"), this),
         actionAdvancedBreakpoint(tr("Advanced breakpoint"), this),
         breakpointsInLineMenu(new QMenu(this)),
@@ -30,6 +32,8 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
 
     setActionAddComment();
     setActionDeleteComment();
+
+    setActionRenameThingHere();
 
     addSeparator();
     addBreakpointMenu();
@@ -47,9 +51,9 @@ DecompilerContextMenu::~DecompilerContextMenu()
 {
 }
 
-void DecompilerContextMenu::setAnnotationsHere(QVector<RCodeAnnotation> &annotations)
+void DecompilerContextMenu::setAnnotationsHere(RCodeAnnotation &annotation)
 {
-    this->annotationsHere = annotations;
+    this->annotationsHere = annotation;
 }
 
 void DecompilerContextMenu::setOffset(RVA offset)
@@ -157,6 +161,21 @@ void DecompilerContextMenu::aboutToShowSlot()
 
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText(tr("Set %1 here").arg(progCounterName));
+
+
+    //Function Rename
+    // for(auto annotation: annotationsHere){
+    //     if(annotation.type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME){
+
+    //     }
+    // }
+    if (annotationsHere.type == R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT) { // To be considered as invalid
+        actionRenameThingHere.setVisible(false);
+    } else {
+        actionRenameThingHere.setVisible(true);
+        QString nameOfFunctionAtCursor(annotationsHere.function_name.name);
+        actionRenameThingHere.setText(tr("Rename function %1").arg(QString(annotationsHere.function_name.name)));
+    }
 }
 
 // Set up actions
@@ -181,6 +200,14 @@ void DecompilerContextMenu::setActionDeleteComment()
     connect(&actionDeleteComment, &QAction::triggered, this,
             &DecompilerContextMenu::actionDeleteCommentTriggered);
     addAction(&actionDeleteComment);
+}
+
+void DecompilerContextMenu::setActionRenameThingHere()
+{
+    actionRenameThingHere.setShortcut({Qt::SHIFT + Qt::Key_N});
+    connect(&actionRenameThingHere, &QAction::triggered, this,
+            &DecompilerContextMenu::actionRenameThingHereTriggered);
+    addAction(&actionRenameThingHere);
 }
 
 void DecompilerContextMenu::setActionToggleBreakpoint()
@@ -223,6 +250,28 @@ void DecompilerContextMenu::actionAddCommentTriggered()
 void DecompilerContextMenu::actionDeleteCommentTriggered()
 {
     Core()->delComment(this->firstOffsetInLine);
+}
+
+void DecompilerContextMenu::actionRenameThingHereTriggered()
+{
+    if(this->annotationsHere.type == R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT) {
+        return;
+    }
+    RenameDialog dialog(mainWindow);
+    auto type = this->annotationsHere.type;
+    if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
+        QString currentName(this->annotationsHere.function_name.name);
+        dialog.setWindowTitle(tr("Rename function %1").arg(currentName));
+        dialog.setName(currentName);
+    }
+    if (dialog.exec()) {
+        QString newName = dialog.getName();
+        if(!newName.isEmpty()){
+            if(type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME){
+                Core()->renameFunction(this->annotationsHere.function_name.offset, newName);
+            }
+        }
+    }
 }
 
 void DecompilerContextMenu::actionToggleBreakpointTriggered()

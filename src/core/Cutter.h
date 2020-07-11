@@ -144,6 +144,7 @@ public:
 
     /* Functions methods */
     void renameFunction(const QString &oldName, const QString &newName);
+    void renameFunction(const RVA offset, const QString &newName);
     void delFunction(RVA addr);
     void renameFlag(QString old_name, QString new_name);
 
@@ -625,6 +626,7 @@ signals:
     void refreshAll();
 
     void functionRenamed(const QString &prev_name, const QString &new_name);
+    void functionRenamed();
     void varsChanged();
     void functionsChanged();
     void flagsChanged();
