@@ -435,13 +435,18 @@ bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::MouseButtonDblClick
             && (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-
-        const QTextCursor &cursor = ui->textEdit->cursorForPosition(QPoint(mouseEvent->x(),
-                                                                           mouseEvent->y()));
+        ui->textEdit->setTextCursor(ui->textEdit->cursorForPosition(mouseEvent->pos()));
         seekToReference();
         return true;
     }
-
+    if (event->type() == QEvent::MouseButtonPress
+            && (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        if (mouseEvent->button() == Qt::RightButton) {
+            ui->textEdit->setTextCursor(ui->textEdit->cursorForPosition(mouseEvent->pos()));
+            return true;
+        }
+    }
     return MemoryDockWidget::eventFilter(obj, event);
 }
 
