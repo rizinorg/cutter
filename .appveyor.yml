@@ -50,10 +50,6 @@ install:
 
 before_build:
   - cmd: git submodule update --init
-  - cmd: cd radare2
-  - cmd: git pull origin decompiler-refactoring
-  - cmd: git checkout decompiler-refactoring
-  - cmd: cd ..
   - scripts\prepare_breakpad.bat
 
 # Build config
