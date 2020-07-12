@@ -3582,9 +3582,9 @@ void CutterCore::triggerVarsChanged()
     emit varsChanged();
 }
 
-void CutterCore::triggerFunctionRenamed(const QString &prevName, const QString &newName)
+void CutterCore::triggerFunctionRenamed(const RVA offset, const QString &newName)
 {
-    emit functionRenamed(prevName, newName);
+    emit functionRenamed(offset, newName);
 }
 
 void CutterCore::loadPDB(const QString &file)

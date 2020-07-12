@@ -846,12 +846,13 @@ void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
     if (ok && !newName.isEmpty()) {
         Core()->cmdRawAt(QString("an %1").arg(newName), offset);
 
-        if (type == ThingUsedHere::Type::Address || type == ThingUsedHere::Type::Flag) {
-            Core()->triggerFlagsChanged();
-        } else if (type == ThingUsedHere::Type::Var) {
-            Core()->triggerVarsChanged();
-        } else if (type == ThingUsedHere::Type::Function) {
-            Core()->triggerFunctionRenamed(oldName, newName);
+            if (type == ThingUsedHere::Type::Address || type == ThingUsedHere::Type::Flag) {
+                Core()->triggerFlagsChanged();
+            } else if (type == ThingUsedHere::Type::Var) {
+                Core()->triggerVarsChanged();
+            } else if (type == ThingUsedHere::Type::Function) {
+                Core()->triggerFunctionRenamed(thingUsedHere.offset, newName);
+            }
         }
     }
 }

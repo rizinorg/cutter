@@ -17,6 +17,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         offset(0),
         isTogglingBreakpoints(false),
         mainWindow(mainWindow),
+        annotationHere(nullptr),
         actionCopy(tr("Copy"), this),
         actionAddComment(tr("Add Comment"), this),
         actionDeleteComment(tr("Delete comment"), this),

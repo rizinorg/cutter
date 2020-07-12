@@ -576,7 +576,7 @@ public:
 
     /* Signals related */
     void triggerVarsChanged();
-    void triggerFunctionRenamed(const QString &prevName, const QString &newName);
+    void triggerFunctionRenamed(const RVA offset, const QString &newName);
     void triggerRefreshAll();
     void triggerAsmOptionsChanged();
     void triggerGraphOptionsChanged();
