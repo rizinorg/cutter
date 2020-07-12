@@ -645,12 +645,6 @@ bool CutterCore::mapFile(QString path, RVA mapaddr)
     return true;
 }
 
-void CutterCore::renameFunction(const QString &oldName, const QString &newName)
-{
-    cmdRaw("afn " + newName + " " + oldName);
-    emit functionRenamed(oldName, newName);
-}
-
 void CutterCore::renameFunction(const RVA offset, const QString &newName)
 {
     cmdRaw("afn " + newName + " " + RAddressString(offset));
