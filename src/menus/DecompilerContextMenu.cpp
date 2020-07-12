@@ -51,7 +51,7 @@ DecompilerContextMenu::~DecompilerContextMenu()
 {
 }
 
-void DecompilerContextMenu::setAnnotationHere(RCodeAnnotation &annotation)
+void DecompilerContextMenu::setAnnotationHere(RCodeAnnotation *annotation)
 {
     this->annotationHere = annotation;
 }
@@ -162,13 +162,12 @@ void DecompilerContextMenu::aboutToShowSlot()
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText(tr("Set %1 here").arg(progCounterName));
 
-    if (annotationHere.type == R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT) { // To be considered as invalid
+    if (!annotationHere) { // To be considered as invalid
         actionRenameThingHere.setVisible(false);
     } else {
         actionRenameThingHere.setVisible(true);
-        QString nameOfFunctionAtCursor(annotationHere.function_name.name);
         actionRenameThingHere.setText(tr("Rename function %1").arg(QString(
-                                                                       annotationHere.function_name.name)));
+                                                                       annotationHere->function_name.name)));
     }
 }
 
@@ -248,14 +247,13 @@ void DecompilerContextMenu::actionDeleteCommentTriggered()
 
 void DecompilerContextMenu::actionRenameThingHereTriggered()
 {
-    // Invalid annotations for this purpose have the type for syntax highlight
-    if (this->annotationHere.type == R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT) {
+    if (!annotationHere)
         return;
-    }
+
     RenameDialog dialog(mainWindow);
-    auto type = this->annotationHere.type;
+    auto type = annotationHere->type;
     if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
-        QString currentName(this->annotationHere.function_name.name);
+        QString currentName(annotationHere->function_name.name);
         dialog.setWindowTitle(tr("Rename function %1").arg(currentName));
         dialog.setName(currentName);
     }
@@ -263,7 +261,7 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
         QString newName = dialog.getName();
         if (!newName.isEmpty()) {
             if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
-                Core()->renameFunction(this->annotationHere.function_name.offset, newName);
+                Core()->renameFunction(annotationHere->function_name.offset, newName);
             }
         }
     }

@@ -310,8 +310,7 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
 
 void DecompilerWidget::setAnnotationsAtCursor(size_t pos)
 {
-    RCodeAnnotation annotationAtPos = {};
-    annotationAtPos.type = R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT;
+    RCodeAnnotation *annotationAtPos = nullptr;
     void *annotationi;
     r_vector_foreach(&this->code->annotations, annotationi) {
         RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
@@ -320,7 +319,7 @@ void DecompilerWidget::setAnnotationsAtCursor(size_t pos)
                 annotation->start > pos || annotation->end <= pos) {
             continue;
         }
-        annotationAtPos = *annotation;
+        annotationAtPos = annotation;
         break;
     }
     mCtxMenu->setAnnotationHere(annotationAtPos);
