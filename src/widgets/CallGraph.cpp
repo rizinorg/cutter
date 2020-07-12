@@ -47,7 +47,13 @@ CallGraphView::CallGraphView(CutterDockWidget *parent, MainWindow *main, bool gl
 
 void CallGraphView::showExportDialog()
 {
-    showExportGraphDialog("graph", global ? "agC" : "agc", address);
+    QString defaultName;
+    if (global) {
+        defaultName = "global_callgraph";
+    } else {
+        defaultName = QString("callgraph_%1").arg(RAddressString(address));
+    }
+    showExportGraphDialog(defaultName, global ? "agC" : "agc", address);
 }
 
 void CallGraphView::showAddress(RVA address)
