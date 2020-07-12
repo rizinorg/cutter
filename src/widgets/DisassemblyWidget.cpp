@@ -150,8 +150,8 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), SIGNAL(functionRenamed(const QString &, const QString &)), this,
             SLOT(refreshDisasm()));
-    connect(Core(), SIGNAL(functionRenamed(const RVA, const QString &)), this,
-            SLOT(refreshDisasm()));
+    QObject::connect<void(CutterCore::*)(const RVA, const QString &), void(DisassemblyWidget::*)()>
+            (Core(), &CutterCore::functionRenamed, this, &DisassemblyWidget::refreshDisasm);
     connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), &CutterCore::instructionChanged, this, [this](RVA offset) {
