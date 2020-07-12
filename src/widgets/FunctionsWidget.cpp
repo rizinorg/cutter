@@ -38,8 +38,6 @@ FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *i
 
 {
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(seekChanged(RVA)));
-    connect(Core(), SIGNAL(functionRenamed(const QString &, const QString &)), this,
-            SLOT(functionRenamed(QString, QString)));
     QObject::connect<void(CutterCore::*)(const RVA, const QString &), void(FunctionModel::*)(const RVA, const QString &)>
     (Core(), &CutterCore::functionRenamed, this, &FunctionModel::functionRenamed);
 }
@@ -334,17 +332,6 @@ bool FunctionModel::updateCurrentIndex()
     currentIndex = index;
 
     return changed;
-}
-
-void FunctionModel::functionRenamed(const QString &prev_name, const QString &new_name)
-{
-    for (int i = 0; i < functions->count(); i++) {
-        FunctionDescription &function = (*functions)[i];
-        if (function.name == prev_name) {
-            function.name = new_name;
-            emit dataChanged(index(i, 0), index(i, columnCount() - 1));
-        }
-    }
 }
 
 void FunctionModel::functionRenamed(const RVA offset, const QString &new_name)
