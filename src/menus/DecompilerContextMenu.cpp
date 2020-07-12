@@ -263,8 +263,7 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
         QString newName = dialog.getName();
         if (!newName.isEmpty()) {
             if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
-                RAnalFunction *fcn = Core()->functionIn(this->annotationHere.function_name.offset);
-                Core()->renameFunction(this->annotationHere.function_name.offset, newName, fcn->name);
+                Core()->renameFunction(this->annotationHere.function_name.offset, newName);
             }
         }
     }

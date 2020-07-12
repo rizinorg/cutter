@@ -96,7 +96,10 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     doRefresh(RVA_INVALID);
 
     connect(Core(), &CutterCore::refreshAll, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::functionRenamed, this, &DecompilerWidget::doAutoRefresh);
+    QObject::connect<void(CutterCore::*)(const QString &, const QString &)>(Core(),
+                                                                            &CutterCore::functionRenamed, this, &DecompilerWidget::doAutoRefresh);
+    QObject::connect<void(CutterCore::*)(const RVA, const QString &)>(Core(),
+                                                                      &CutterCore::functionRenamed, this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::varsChanged, this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::functionsChanged, this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::flagsChanged, this, &DecompilerWidget::doAutoRefresh);

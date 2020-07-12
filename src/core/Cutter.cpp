@@ -651,10 +651,10 @@ void CutterCore::renameFunction(const QString &oldName, const QString &newName)
     emit functionRenamed(oldName, newName);
 }
 
-void CutterCore::renameFunction(const RVA offset, const QString &newName, const QString &oldName)
+void CutterCore::renameFunction(const RVA offset, const QString &newName)
 {
     cmdRaw("afn " + newName + " " + RAddressString(offset));
-    emit functionRenamed(oldName, newName);
+    emit functionRenamed(offset, newName);
 }
 
 void CutterCore::delFunction(RVA addr)
