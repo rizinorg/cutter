@@ -81,6 +81,10 @@ matrix:
     osx_image: xcode11
     env: BUILD_SYSTEM=cmake
     before_install: ~
+    addons:
+      homebrew:
+        brewfile: scripts/Brewfile
+        update: true # updating brew to get slightly newer meson, 0.54 doesn't work on macOS.
 
   - name: Documentation + Deploy
     os: linux

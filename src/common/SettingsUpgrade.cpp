@@ -28,7 +28,7 @@ static bool migrateSettingsPre18(QSettings &newSettings)
     return true;
 }
 
-#define CUTTER_SETTINGS_VERSION_CURRENT 3
+#define CUTTER_SETTINGS_VERSION_CURRENT 4
 #define CUTTER_SETTINGS_VERSION_KEY     "version"
 
 /*
@@ -103,6 +103,18 @@ static void migrateSettingsTo3(QSettings &settings) {
     settings.remove("unsync");
 }
 
+static void migrateSettingsTo4(QSettings &settings) {
+    auto renameAsmOption = [&](QString oldName, QString newName) {
+          if (settings.contains(oldName)) {
+              auto value = settings.value(oldName);
+              settings.remove(oldName);
+              settings.setValue(newName, value);
+          }
+    };
+    renameAsmOption("asm.var.subonly", "asm.sub.varonly");
+    renameAsmOption("asm.bytespace", "asm.bytes.space");
+}
+
 void Cutter::initializeSettings()
 {
     QSettings::setDefaultFormat(QSettings::IniFormat);
@@ -126,6 +138,8 @@ void Cutter::initializeSettings()
                     migrateSettingsTo2(settings); break;
                 case 3:
                     migrateSettingsTo3(settings); break;
+                case 4:
+                    migrateSettingsTo4(settings); break;
                 default:
                     break;
                 }
