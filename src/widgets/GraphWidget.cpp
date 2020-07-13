@@ -58,8 +58,7 @@ GraphWidget::GraphWidget(MainWindow *main) :
         main->toggleOverview(true, this);
     });
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &GraphWidget::prepareHeader);
-    QObject::connect<void(CutterCore::*)(const RVA, const QString &)>(Core(),
-                                                                      &CutterCore::functionRenamed, this, &GraphWidget::prepareHeader);
+    connect(Core(), &CutterCore::functionRenamed, this, &GraphWidget::prepareHeader);
     graphView->installEventFilter(this);
 }
 

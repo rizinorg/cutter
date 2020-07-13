@@ -38,8 +38,7 @@ FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *i
 
 {
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(seekChanged(RVA)));
-    QObject::connect<void(CutterCore::*)(const RVA, const QString &), void(FunctionModel::*)(const RVA, const QString &)>
-    (Core(), &CutterCore::functionRenamed, this, &FunctionModel::functionRenamed);
+    connect(Core(), &CutterCore::functionRenamed, this, &FunctionModel::functionRenamed);
 }
 
 QModelIndex FunctionModel::index(int row, int column, const QModelIndex &parent) const

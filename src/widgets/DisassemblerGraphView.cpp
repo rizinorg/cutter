@@ -61,8 +61,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     // Signals that require a refresh all
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshView()));
-    QObject::connect<void(CutterCore::*)(const RVA, const QString &)>(Core(),
-                                                                      &CutterCore::functionRenamed, this, &DisassemblerGraphView::refreshView);
+    connect(Core(), &CutterCore::functionRenamed, this, &DisassemblerGraphView::refreshView);
     connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(instructionChanged(RVA)), this, SLOT(refreshView()));
