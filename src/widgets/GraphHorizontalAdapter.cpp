@@ -49,6 +49,7 @@ void GraphHorizontalAdapter::setLayoutConfig(const GraphLayout::LayoutConfig &co
 {
     GraphLayout::setLayoutConfig(config);
     swapLayoutConfigDirection();
+    layout->setLayoutConfig(config);
 }
 
 void GraphHorizontalAdapter::swapLayoutConfigDirection()

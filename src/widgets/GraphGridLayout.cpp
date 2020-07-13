@@ -830,13 +830,11 @@ void calculateSegmentOffsets(
  * @param segmentOffsets offsets relative to the left side edge column.
  * @param edgeColumnWidth widths of edge columns
  * @param segments either all horizontal or all vertical edge segments
- * @param minSpacing spacing between segments
  */
 static void centerEdges(
     std::vector<int> &segmentOffsets,
     const std::vector<int> &edgeColumnWidth,
-    const std::vector<EdgeSegment> &segments,
-    int minSpacing)
+    const std::vector<EdgeSegment> &segments)
 {
     /* Split segments in each edge column into non intersecting chunks. Center each chunk separately.
      *
@@ -870,18 +868,19 @@ static void centerEdges(
 
     auto it = events.begin();
     while (it != events.end()) {
+        int left, right;
+        left = right = segmentOffsets[it->index];
         auto chunkStart = it++;
         int activeSegmentCount = 1;
-        int chunkWidth = 0;
+
         while (activeSegmentCount > 0) {
             activeSegmentCount += it->start ? 1 : -1;
-            chunkWidth = std::max(chunkWidth, segmentOffsets[it->index]);
+            int offset = segmentOffsets[it->index];
+            left = std::min(left, offset);
+            right = std::max(right, offset);
             it++;
         }
-        // leftMost segment position includes padding on the left side so add it on the right side as well
-        chunkWidth += minSpacing;
-
-        int spacing = (std::max(edgeColumnWidth[chunkStart->x], minSpacing) - chunkWidth) / 2;
+        int spacing = (edgeColumnWidth[chunkStart->x] - (right - left)) / 2 - left;
         for (auto segment = chunkStart; segment != it; segment++) {
             if (segment->start) {
                 segmentOffsets[segment->index] += spacing;
@@ -983,7 +982,7 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
     edgeOffsets.resize(edgeIndex);
     calculateSegmentOffsets(segments, edgeOffsets, state.edgeColumnWidth, rightSides, leftSides,
                             state.columnWidth, 2 * state.rows + 1, layoutConfig.edgeHorizontalSpacing);
-    centerEdges(edgeOffsets, state.edgeColumnWidth, segments, layoutConfig.edgeHorizontalSpacing);
+    centerEdges(edgeOffsets, state.edgeColumnWidth, segments);
     edgeIndex = 0;
 
     auto copySegmentsToEdges = [&](bool col) {
@@ -991,7 +990,22 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
         for (auto &edgeListIt : state.edge) {
             for (auto &edge : edgeListIt.second) {
                 for (size_t j = col ? 1 : 2; j < edge.points.size(); j += 2) {
-                    edge.points[j].offset = edgeOffsets[edgeIndex++];
+                    int offset = edgeOffsets[edgeIndex++];
+                    if (col) {
+                        GraphBlock *block = nullptr;
+                        if (j == 1) {
+                            block = &(*state.blocks)[edgeListIt.first];
+                        } else if (j + 1 == edge.points.size()) {
+                            block = &(*state.blocks)[edge.dest];
+                        }
+                        if (block) {
+                            int blockWidth = block->width;
+                            int edgeColumWidth = state.edgeColumnWidth[edge.points[j].col];
+                            offset = std::max(-blockWidth / 2 +  edgeColumWidth/ 2, offset);
+                            offset = std::min(edgeColumWidth / 2 + std::min(blockWidth, edgeColumWidth) / 2,  offset);
+                        }
+                    }
+                    edge.points[j].offset = offset;
                 }
             }
         }
@@ -1209,7 +1223,7 @@ using Constraint = std::pair<std::pair<int, int>, int>;
  * @param objectiveFunction coefficients for function \f$\sum c_i x_i\f$ which needs to be minimized
  * @param inequalities inequality constraints \f$x_{e_i} - x_{f_i} \leq b_i\f$
  * @param equalities equality constraints \f$x_{e_i} - x_{f_i} = b_i\f$
- * @param solution input/output argument, returns results, needs to be initialized with a viable solution
+ * @param solution input/output argument, returns results, needs to be initialized with a feasible solution
  * @param stickWhenNotMoving variable grouping strategy
  */
 static void optimizeLinearProgramPass(
@@ -1289,7 +1303,7 @@ static void optimizeLinearProgramPass(
     };
 
     for (auto &equality : equalities) {
-        // process equalities, assumes that initial solution is viable solution and matches equality constraints
+        // process equalities, assumes that initial solution is feasible solution and matches equality constraints
         int a = getGroup(equality.first.first);
         int b = getGroup(equality.first.second);
         if (a == b) {
@@ -1369,6 +1383,11 @@ static void optimizeLinearProgramPass(
             }
         }
         assert(smallestMove != INT_MAX);
+        if (smallestMove == INT_MAX) {
+            // Unbound variable, this means that linear program wasn't set up correctly.
+            // Better don't change it instead of stretching the graph to infinity.
+            smallestMove = 0;
+        }
         solution[g] += smallestMove;
         if (smallestMove == 0 && stickWhenNotMoving == false) {
             continue;
@@ -1394,7 +1413,7 @@ static void optimizeLinearProgramPass(
  * @param objectiveFunction coefficients for function \f$\sum c_i x_i\f$ which needs to be minimized
  * @param inequalities inequality constraints \f$x_{e_i} - x_{f_i} \leq b_i\f$
  * @param equalities equality constraints \f$x_{e_i} - x_{f_i} = b_i\f$
- * @param solution input/output argument, returns results, needs to be initialized with a viable solution
+ * @param solution input/output argument, returns results, needs to be initialized with a feasible solution
  */
 static void optimizeLinearProgram(
         size_t n,
@@ -1533,12 +1552,15 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
         int blockVariable = blockMapping[blockId];
         equalities.push_back({{blockVariable, edgeVariable}, blockPos - edgeVariablePos});
     };
-    auto setViableSolution = [&](size_t variable, int value) {
+    auto setFeasibleSolution = [&](size_t variable, int value) {
         solution.resize(std::max(solution.size(), variable + 1));
         solution[variable] = value;
     };
 
     auto copyVariablesToPositions = [&](const std::vector<int> &solution, bool horizontal = false) {
+        for (auto v : solution) {
+            assert(v >= 0);
+        }
         size_t variableIndex = blockMapping.size();
         for (auto &blockIt : *state.blocks) {
             auto &block = blockIt.second;
@@ -1588,7 +1610,7 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
                 int x = edge.polyline[i].y();
                 segments.push_back({x, int(variableIndex), y0, y1});
                 variableGroups.push_back(blockMapping.size() + edgeIndex);
-                setViableSolution(variableIndex, x);
+                setFeasibleSolution(variableIndex, x);
                 if (i > 2) {
                     int prevX = edge.polyline[i - 2].y();
                     addObjective(variableIndex, x, variableIndex - 1, prevX);
@@ -1599,7 +1621,7 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
         }
         segments.push_back({block.y, blockVariable, block.x, block.x + block.width});
         segments.push_back({block.y + block.height, blockVariable, block.x, block.x + block.width});
-        setViableSolution(blockVariable, block.y);
+        setFeasibleSolution(blockVariable, block.y);
     }
 
     createInequalitiesFromSegments(std::move(segments), solution, variableGroups, blockMapping.size(),
@@ -1607,9 +1629,6 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
 
     objectiveFunction.resize(solution.size());
     optimizeLinearProgram(solution.size(), objectiveFunction, inequalities, equalities, solution);
-    for (auto v : solution) {
-        assert(v >= 0);
-    }
     copyVariablesToPositions(solution, true);
     connectEdgeEnds(*state.blocks);
 
@@ -1638,7 +1657,7 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
                 int x = edge.polyline[i].x();
                 segments.push_back({x, int(variableIndex), y0, y1});
                 variableGroups.push_back(blockMapping.size() + edgeIndex);
-                setViableSolution(variableIndex, x);
+                setFeasibleSolution(variableIndex, x);
                 if (i > 2) {
                     int prevX = edge.polyline[i - 2].x();
                     addObjective(variableIndex, x, variableIndex - 1, prevX);
@@ -1653,7 +1672,7 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
         int blockVariable = blockMapping[blockIt.first];
         segments.push_back({block.x, blockVariable, block.y, block.y + block.height});
         segments.push_back({block.x + block.width, blockVariable, block.y, block.y + block.height});
-        setViableSolution(blockVariable, block.x);
+        setFeasibleSolution(blockVariable, block.x);
     }
 
     createInequalitiesFromSegments(std::move(segments), solution, variableGroups, blockMapping.size(),
