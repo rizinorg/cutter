@@ -255,17 +255,31 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
     auto type = annotationHere->type;
     if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
         QString currentName(annotationHere->function_name.name);
-        dialog.setWindowTitle(tr("Rename function %1").arg(currentName));
-        dialog.setName(currentName);
-    }
-    if (dialog.exec()) {
-        QString newName = dialog.getName();
-        if (!newName.isEmpty()) {
-            if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
-                Core()->renameFunction(annotationHere->function_name.offset, newName);
+        RVA func_addr = annotationHere->function_name.offset;
+        RAnalFunction *func = Core()->functionAt(func_addr);
+        if (func == NULL) {
+            RenameDialog dialog(mainWindow);
+            dialog.setWindowTitle(tr("Define this function at %1").arg(RAddressString(func_addr)));
+            dialog.setPlaceholderText(tr("Function name"));
+            if (dialog.exec()) {
+                QString function_name = dialog.getName();
+                Core()->createFunctionAt(func_addr, function_name);
+            }
+        } else {
+            dialog.setWindowTitle(tr("Rename function %1").arg(currentName));
+            dialog.setName(currentName);
+            if (dialog.exec()) {
+                QString newName = dialog.getName();
+                if (!newName.isEmpty()) {
+                    if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
+                        Core()->renameFunction(func_addr, newName);
+                    }
+                }
             }
         }
+        
     }
+    
 }
 
 void DecompilerContextMenu::actionToggleBreakpointTriggered()
