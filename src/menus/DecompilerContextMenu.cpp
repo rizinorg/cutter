@@ -248,9 +248,9 @@ void DecompilerContextMenu::actionDeleteCommentTriggered()
 
 void DecompilerContextMenu::actionRenameThingHereTriggered()
 {
-    if (!annotationHere)
+    if (!annotationHere) {
         return;
-
+    }
     RenameDialog dialog(mainWindow);
     auto type = annotationHere->type;
     if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
