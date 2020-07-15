@@ -532,7 +532,7 @@ void FunctionsWidget::onActionFunctionsRenameTriggered()
     // If user accepted
     if (ok && !newName.isEmpty()) {
         // Rename function in r2 core
-        Core()->renameFunction(function.offset, new_name);
+        Core()->renameFunction(function.offset, newName);
 
         // Seek to new renamed function
         Core()->seekAndShow(function.offset);
