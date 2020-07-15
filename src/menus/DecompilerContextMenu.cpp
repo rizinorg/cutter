@@ -3,7 +3,6 @@
 #include "MainWindow.h"
 #include "dialogs/BreakpointsDialog.h"
 #include "dialogs/CommentsDialog.h"
-#include "dialogs/RenameDialog.h"
 
 #include <QtCore>
 #include <QShortcut>
@@ -11,6 +10,7 @@
 #include <QClipboard>
 #include <QApplication>
 #include <QPushButton>
+#include <QInputDialog>
 
 DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWindow)
     :   QMenu(parent),
@@ -251,35 +251,27 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
     if (!annotationHere) {
         return;
     }
-    RenameDialog dialog(mainWindow);
+    bool ok;
     auto type = annotationHere->type;
     if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
         QString currentName(annotationHere->function_name.name);
         RVA func_addr = annotationHere->function_name.offset;
         RAnalFunction *func = Core()->functionAt(func_addr);
         if (func == NULL) {
-            RenameDialog dialog(mainWindow);
-            dialog.setWindowTitle(tr("Define this function at %1").arg(RAddressString(func_addr)));
-            dialog.setPlaceholderText(tr("Function name"));
-            if (dialog.exec()) {
-                QString function_name = dialog.getName();
+            QString function_name = QInputDialog::getText(this, tr("Define this function at %2").arg(RAddressString(func_addr)),
+                                            tr("Function name:"), QLineEdit::Normal, currentName, &ok);
+            if (ok && !function_name.isEmpty()) {
                 Core()->createFunctionAt(func_addr, function_name);
             }
         } else {
-            dialog.setWindowTitle(tr("Rename function %1").arg(currentName));
-            dialog.setName(currentName);
-            if (dialog.exec()) {
-                QString newName = dialog.getName();
-                if (!newName.isEmpty()) {
-                    if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
-                        Core()->renameFunction(func_addr, newName);
-                    }
-                }
-            }
+            QString newName = QInputDialog::getText(this, tr("Rename function %2").arg(currentName),
+                                                tr("Function name:"), QLineEdit::Normal, currentName, &ok);
+            if (ok && !newName.isEmpty()) {
+               Core()->renameFunction(func_addr, newName);
+            }    
         }
         
     }
-    
 }
 
 void DecompilerContextMenu::actionToggleBreakpointTriggered()
