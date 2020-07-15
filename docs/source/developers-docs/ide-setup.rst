@@ -22,6 +22,10 @@ On a rolling-release distro or a somewhat recent version of traditional distro l
 Windows
 -------
 
+Assuming you have a sufficiently powerful computer a nice way of getting and configuring Qt for Cutter is to use `vcpkg <https://github.com/Microsoft/vcpkg>`_.
+For a quick test the exact versions of libraries used by Cutter release packages can be obtained from `cutter-deps <https://github.com/radareorg/cutter-deps/releases>`_ but they don't contain debug
+versions of libraries so they are not suitable for more serious Cutter development on Windows.
+
 Qt Creator
 ----------
 QT Creator is an open source IDE made by same developers as Qt.
@@ -34,7 +38,9 @@ Pros and Cons
 
 - builtin help for Qt API
 - builtin .ui file editor (Qt Designer - visual form editor)
+- builtin helper for displaying Qt types in the debugger
 - Viewing source files that are not directly part of the project (R2 source code) is somewhat inconvenient.
+- The simplest way of installing on non-linux operating systems require login with Qt account
 
 Project setup
 ~~~~~~~~~~~~~
@@ -51,7 +57,7 @@ Instructions made based on Qt Creator 4.12.4 the steps might slightly differ bet
 
 Either in "Projects/Code Style/C++" or "Tools/Options/C++/Code Style" select "Qt [built-in]". It should be selected by default unless you have used QTCreator for other projects. Cutter Coding style is almost identical to Qt one. This will help with using correct indentation type and basic formatting without running code formatter.
 
-To configure AStyle for formatting a file go to "Tools/Options/Beautifier/Artistic Style". If necessary specify the path to astyle executable. "Use file *.astylerc defined in project files" doesn't seem to be working reliably so it is necessary to use "Use specific config file" option. Cutter astyle configuration is stored in "cutter/src/Cutter.astylerc".
+To configure AStyle for formatting a file go to "Tools/Options/Beautifier/Artistic Style". If necessary specify the path to astyle executable. "Use file \*.astylerc defined in project files" doesn't seem to be working reliably so it is necessary to use "Use specific config file" option. Cutter astyle configuration is stored in "cutter/src/Cutter.astylerc".
 
 Changing CMake configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -85,13 +91,15 @@ Project setup
 - In the kit selection choose "[Unspecified]" unless you have more specific needs.
 - If you see error "CMakeList.txt" was not found in the root of folder cutter" chose "Locate" and specify the path to `cutter/src/CMakeLists.txt`
 - `Ctrl+Shift+P`/`CMake: Edit CMake Cache`, find the line ``CUTTER_USE_BUNDLED_RADARE2:BOOL=OFF`` and change it to ON.
+- Download Qt type visualizer for VS debugger from
+
 
 Changing CMake configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 After the first configuration `Ctrl+Shift+P`/`CMake: Edit CMake Cache` opens a text editor with all CMake options. Cutter specific ones mostly start with "CUTTER".
 
-Building, Running, Debuging
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Building, Running, Debugging
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Build and running commands are available in the bar at bottom left and in "Ctrl-Shift-P" menu named "CMake: Build F7", "CMake: Run Without Debugging Shift+F5", and "CMake: Debug Ctrl+F5".
 Shortcuts can be viewed in the "Ctrl-Shift-P" menu. They don't match default VSCode ones since the depend on tasks.json.
 
@@ -126,7 +134,7 @@ Changing CMake configuration
 Editing Qt .ui files
 ~~~~~~~~~~~~~~~~~~~~
 Default CLion behavior for opening .ui files is `somewhat buggy <https://youtrack.jetbrains.com/issue/CPP-17197>`_. Double clicking the file does nothing, but it can be opened by dragging it to text editor side.
-This can be somewhat improved by changing `file association <https://www.jetbrains.com/help/clion/creating-and-registering-file-types.html>`_. Open `File/Settings/Editor/File Types` and change to change type association of *.ui files from "Qt UI Designer Form" to either "XML" or "Files Opened in Associated Applications".
+This can be somewhat improved by changing `file association <https://www.jetbrains.com/help/clion/creating-and-registering-file-types.html>`_. Open `File/Settings/Editor/File Types` and change to change type association of \*.ui files from "Qt UI Designer Form" to either "XML" or "Files Opened in Associated Applications".
 First one will open it within CLion as XML file and the second will use the operating system configuration.
 
 Visual Studio
@@ -138,8 +146,8 @@ Older VS versions can be used but CMake integration isn't as good. With those it
 project CMake project using command-line or cmake-gui and opening the generated Visual Studio project instead of opening
 CMake project directly.
 
-Visual Studio supports many different languages and use-cases. Full installation takes a lot of space. During installation
-select only components relevant for Desktop C++ development. Don't worry too much about missing something.
+Visual Studio supports many different languages and use-cases. Full installation takes a lot of space. To keep the size minimal during installation
+select only component called "Desktop development with C++". Don't worry too much about missing something.
 Additional components can be later added or removed through the VS installer which also serves as an updater and package manager for Visual Studio components.
 
 Pros and Cons
@@ -150,6 +158,20 @@ Pros and Cons
 
 Project setup
 ~~~~~~~~~~~~~
+- Open folder in which you cloned Cutter source using Visual Studio
+- Open CMake settings configurator using either `Project/CMake Settins` or clicking `Open the CMake Settings Editor` in overview page.
+- Check `CUTTER_USE_BUNDLED_RADARE2` options
+- If you are using vcpkg Visual Studio should detect it automatically. List of CMake options in the configurator should have some referring to VCPKG. If they are not there specify the path to vcpkg toolchain file in the "CMake toolchain file" field.
+- If you are not using VCPKG configure path to Qt as mentioned in :ref:`windows CMake instructions<Windows CMake instructions>`. You can specify the CMake flag in "CMake command arguments:" field.
+- To Ensure that VS debugger can display Qt types in a readable way it is recommended to install `Qt Visual Studio Tools <https://marketplace.visualstudio.com/items?itemName=TheQtCompany.QtVisualStudioTools-19123>`_ plugin. It will create a `Documents/Visual Studio 2019/Visualizers/qt5.natvis` file. Once qt5.natvis has been created you can uninstall the plugin.
 
 Changing CMake configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Open `Project/CMake Settings`. CMake options can be modified either in graphical table editor, as a command-line flag or by switching to JSON view.
+
+Editing Qt .ui files and Qt integration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+By default Visual Studio will open .ui files as xml text document. You can configure to open it using QT Designer by right clicking and selecting `Open With...`.
+
+There is a  Qt plugin for Visual Studio from Qt. It isn't very useful for Cutter development since it is aimed more at helping with Qt integration into Visual Studio projects.
+It doesn't do much for CMake based projects. The biggest benefit is that it automatically installs qt5.natvis file for more readable displaying of Qt types in debugger.

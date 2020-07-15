@@ -115,6 +115,7 @@ To compile Cutter it is necessary to have the following installed:
 * CMake
 * Qt
 
+.. _Windows CMake instructions:
 Default way
 ~~~~~~~~~~~
 
