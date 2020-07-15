@@ -3,17 +3,15 @@ Development environment setup
 
 This page contains recommendations and tips on how to better setup different IDEs for Cutter development.
 
-.. toctree::
-   :maxdepth: 2
+.. contents::
 
 General advice
 --------------
 Everyone has their own preferences for their favorite IDE or code editor.
 There are no strict requirements for using a specific one for Cutter development.
-
 Any IDE with good CMake integration should work well.
 
-For most development builds it is recommended to use CUTTER_USE_BUNDLED_RADARE2=ON Cmake option. It is the easiest way of ensuring that compatible r2 version is used and dealing with multiple r2 versions when working with multiple Cutter branches. On Linux in case of multiple r2 versions without CUTTER_USE_BUNDLED_RADARE2 PKG_CONFIG_PATH environment variable can be used to select desired radare2 installation.
+For most development builds unless you are working on packaging issues it is recommended to use CUTTER_USE_BUNDLED_RADARE2=ON Cmake option. It is the easiest way of ensuring that compatible r2 version is used and dealing with multiple r2 versions when working with multiple Cutter branches. On Linux in case of multiple r2 versions without CUTTER_USE_BUNDLED_RADARE2 PKG_CONFIG_PATH environment variable can be used to select desired radare2 installation.
 
 Qt Creator has a builtin visual form editor but not having it in other IDEs is not a major problem. It is also available as standalone tool called Qt Designer and you can configure the file associations so that .ui files are opened using it. Depending on the .ui file and changes you want to make it is sometimes easier to perform them by editing the .ui file as a text file. .ui files are XML files. Most code editors should have some support for XML highlighting and possibly block folding.
 
@@ -53,7 +51,7 @@ Instructions made based on Qt Creator 4.12.4 the steps might slightly differ bet
 
 Either in "Projects/Code Style/C++" or "Tools/Options/C++/Code Style" select "Qt [built-in]". It should be selected by default unless you have used QTCreator for other projects. Cutter Coding style is almost identical to Qt one. This will help with using correct indentation type and basic formatting without running code formatter.
 
-To configure AStyle for formatting a file go to "Tools/Options/Beautifier/Artistic Style". If necessary specify the path to astyle executable. "Use file *.astylerc defined in project files" doesn't seem to be working reliably so it is necesarry to use "Use specific config file" option. Cutter astyle configuration is stored in "cutter/src/Cutter.astylerc".
+To configure AStyle for formatting a file go to "Tools/Options/Beautifier/Artistic Style". If necessary specify the path to astyle executable. "Use file *.astylerc defined in project files" doesn't seem to be working reliably so it is necessary to use "Use specific config file" option. Cutter astyle configuration is stored in "cutter/src/Cutter.astylerc".
 
 Changing CMake configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -65,12 +63,12 @@ Double clicking a .ui file in a file list opens it inside a visual editor. If yo
 
 VSCode
 -------
-VSCode is an open source code editor made by Microsoft.
+`VSCode <https://github.com/Microsoft/vscode>`_ is an open source code editor made by Microsoft.
 
 Pros and Cons
 ~~~~~~~~~~~~~
 
-- Many plugins to help with different tasks. Can be used for different kind of projects.
+- Large amount of plugins
 - Good fallback mechanism for files that are not directly part of project.
 
 Recommended plugins
@@ -92,8 +90,66 @@ Changing CMake configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 After the first configuration `Ctrl+Shift+P`/`CMake: Edit CMake Cache` opens a text editor with all CMake options. Cutter specific ones mostly start with "CUTTER".
 
+Building, Running, Debuging
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Build and running commands are available in the bar at bottom left and in "Ctrl-Shift-P" menu named "CMake: Build F7", "CMake: Run Without Debugging Shift+F5", and "CMake: Debug Ctrl+F5".
+Shortcuts can be viewed in the "Ctrl-Shift-P" menu. They don't match default VSCode ones since the depend on tasks.json.
+
+Running and debuging launches the executable without any arguments. Command line arguments can be passed to the debug
+executable by creating a `.vscode/launch.json` configuration. Read `documentation <https://code.visualstudio.com/docs/cpp/launch-json-reference>`_  for more information. Instead of creating launch.json it can be created from template: "Ctrl-Shift-P/Debug: Select and Start Debugging/Add configuration../C,C++: (gdb) Launch".
+
+
+
 CLion
 -----
+`CLion <https://www.jetbrains.com/clion/>`_ is a C and C++ IDE from the popular software development tool maker - JetBrains.
+
+
+Pros and Cons
+~~~~~~~~~~~~~
+
+- Medium amount of plugins, many first-party plugins made by JetBrains for their IntelliJ based IDE family
+- There is no free version
+- Takes some time to analyze the files after opening a project. Switching between .cpp and corresponding .h file may for the first time may take a few seconds.
+
+Project setup
+~~~~~~~~~~~~~
+- `File/Open` select the folder in which you cloned Cutter
+- `File/Settings/Build,Execution,Deployment/CMake` in the `CMake Options` field enter ``-DCUTTER_USE_BUNDLED_RADARE2=ON``
+- Open src/CMakeLists.txt using project file list on the left side of screen
+- A yellow bar with message "CMake project is not loaded" should appear, click "Load CMake project"
+
+Changing CMake configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`File/Settings/Build,Execution,Deployment/CMake` CMake options are specified the same way as on command--line ``-DOPTION_NAME=VALUE``.
+
+Editing Qt .ui files
+~~~~~~~~~~~~~~~~~~~~
+Default CLion behavior for opening .ui files is `somewhat buggy <https://youtrack.jetbrains.com/issue/CPP-17197>`_. Double clicking the file does nothing, but it can be opened by dragging it to text editor side.
+This can be somewhat improved by changing `file association <https://www.jetbrains.com/help/clion/creating-and-registering-file-types.html>`_. Open `File/Settings/Editor/File Types` and change to change type association of *.ui files from "Qt UI Designer Form" to either "XML" or "Files Opened in Associated Applications".
+First one will open it within CLion as XML file and the second will use the operating system configuration.
 
 Visual Studio
 -------------
+Visual Studio Community edition is available for free and can be used for contributing to open source projects.
+
+It is recommended to use the latest Visual Studio version 2019 because it has best CMake integration.
+Older VS versions can be used but CMake integration isn't as good. With those it might be better to generate Visual Studio
+project CMake project using command-line or cmake-gui and opening the generated Visual Studio project instead of opening
+CMake project directly.
+
+Visual Studio supports many different languages and use-cases. Full installation takes a lot of space. During installation
+select only components relevant for Desktop C++ development. Don't worry too much about missing something.
+Additional components can be later added or removed through the VS installer which also serves as an updater and package manager for Visual Studio components.
+
+Pros and Cons
+~~~~~~~~~~~~~
+- good debugger
+- medium amount of plugins
+- completely closed source
+
+Project setup
+~~~~~~~~~~~~~
+
+Changing CMake configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
