@@ -144,7 +144,7 @@ public:
     QStringList autocomplete(const QString &cmd, RLinePromptType promptType, size_t limit = 4096);
 
     /* Functions methods */
-    void renameFunction(const QString &oldName, const QString &newName);
+    void renameFunction(const RVA offset, const QString &newName);
     void delFunction(RVA addr);
     void renameFlag(QString old_name, QString new_name);
 
@@ -588,7 +588,7 @@ public:
 
     /* Signals related */
     void triggerVarsChanged();
-    void triggerFunctionRenamed(const QString &prevName, const QString &newName);
+    void triggerFunctionRenamed(const RVA offset, const QString &newName);
     void triggerRefreshAll();
     void triggerAsmOptionsChanged();
     void triggerGraphOptionsChanged();
@@ -637,7 +637,7 @@ public:
 signals:
     void refreshAll();
 
-    void functionRenamed(const QString &prev_name, const QString &new_name);
+    void functionRenamed(const RVA offset, const QString &new_name);
     void varsChanged();
     void functionsChanged();
     void flagsChanged();

@@ -284,7 +284,8 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
     ui->progressLabel->setVisible(false);
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
     updateRefreshButton();
-
+    
+    mCtxMenu->setAnnotationHere(nullptr);
     this->code.reset(codeDecompiled);
     QString codeString = QString::fromUtf8(this->code->code);
     if (codeString.isEmpty()) {
@@ -303,6 +304,23 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
         decompilerWasBusy = false;
         doAutoRefresh();
     }
+}
+
+void DecompilerWidget::setAnnotationsAtCursor(size_t pos)
+{
+    RCodeAnnotation *annotationAtPos = nullptr;
+    void *annotationi;
+    r_vector_foreach(&this->code->annotations, annotationi) {
+        RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
+        if (annotation->type == R_CODE_ANNOTATION_TYPE_OFFSET ||
+                annotation->type == R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT ||
+                annotation->start > pos || annotation->end <= pos) {
+            continue;
+        }
+        annotationAtPos = annotation;
+        break;
+    }
+    mCtxMenu->setAnnotationHere(annotationAtPos);
 }
 
 void DecompilerWidget::decompilerSelected()
@@ -333,7 +351,7 @@ void DecompilerWidget::cursorPositionChanged()
     }
 
     size_t pos = ui->textEdit->textCursor().position();
-
+    setAnnotationsAtCursor(pos);
 
     setInfoForBreakpoints();
 

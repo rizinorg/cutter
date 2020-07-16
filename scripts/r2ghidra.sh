@@ -5,7 +5,7 @@ SCRIPTPATH=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
 cd "$SCRIPTPATH/.."
 
 if [[ ! -d r2ghidra-dec ]]; then
-    git clone --depth 1 --recurse-submodules https://github.com/radareorg/r2ghidra-dec.git || exit 1
+    git clone --depth 1 --branch decompiler-refactoring --recurse-submodules https://github.com/radareorg/r2ghidra-dec.git || exit 1
 fi
 cd r2ghidra-dec || exit 1
 
