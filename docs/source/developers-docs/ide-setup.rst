@@ -109,6 +109,20 @@ Shortcuts can be viewed in the :kbd:`Ctrl-Shift-P` menu. They don't match defaul
 Running and debugging launches the executable without any arguments. Command line arguments can be passed to the debug
 executable by creating a ``.vscode/launch.json`` configuration. Read `documentation <https://code.visualstudio.com/docs/cpp/launch-json-reference>`_  for more information. Instead of creating ``launch.json`` it can be created from template: :kbd:`Ctrl-Shift-P`/``Debug: Select and Start Debugging/Add configuration../C,C++: (gdb) Launch``.
 
+To setup gdb pretty printers for Qt types on Linux download scripts from `Kdevelop <https://github.com/KDE/kdevelop/tree/master/plugins/gdb/printers>`_. In the ``~/.gdbinit`` file add following code
+
+
+.. code-block:: python
+
+    python
+    import sys
+
+    sys.path.insert(0, '/path/to/folder/with/pretty_printer_scripts')
+    from qt import register_qt_printers
+    register_qt_printers (None)
+
+    end
+    set print pretty 1
 
 
 CLion
