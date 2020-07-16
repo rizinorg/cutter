@@ -83,6 +83,8 @@ private:
     // Set actions
     void setActionCopy();
 
+    void setActionShowInSubmenu();
+
     void setActionAddComment();
     void setActionDeleteComment();
 

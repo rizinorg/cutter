@@ -19,6 +19,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         mainWindow(mainWindow),
         annotationHere(nullptr),
         actionCopy(tr("Copy"), this),
+        actionShowInSubmenu(tr("Show in"), this),
         actionAddComment(tr("Add Comment"), this),
         actionDeleteComment(tr("Delete comment"), this),
         actionRenameThingHere(tr("Rename function at cursor"), this),
@@ -30,6 +31,8 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
 {
     setActionCopy();
     addSeparator();
+
+    setActionShowInSubmenu();
 
     setActionAddComment();
     setActionDeleteComment();
@@ -172,6 +175,11 @@ void DecompilerContextMenu::aboutToShowSlot()
                                                             annotationHere->reference.name)));
         }
     }
+
+    if (actionShowInSubmenu.menu() != nullptr) {
+        actionShowInSubmenu.menu()->deleteLater();
+    }
+    actionShowInSubmenu.setMenu(mainWindow->createShowInMenu(this, offset));
 }
 
 // Set up actions
@@ -181,6 +189,11 @@ void DecompilerContextMenu::setActionCopy()
     connect(&actionCopy, &QAction::triggered, this, &DecompilerContextMenu::actionCopyTriggered);
     addAction(&actionCopy);
     actionCopy.setShortcut(QKeySequence::Copy);
+}
+
+void DecompilerContextMenu::setActionShowInSubmenu()
+{
+    addAction(&actionShowInSubmenu);
 }
 
 void DecompilerContextMenu::setActionAddComment()
