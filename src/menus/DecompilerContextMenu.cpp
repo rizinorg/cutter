@@ -33,6 +33,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
     addSeparator();
 
     setActionShowInSubmenu();
+    copySeparator = addSeparator();
 
     setActionAddComment();
     setActionDeleteComment();
@@ -165,7 +166,7 @@ void DecompilerContextMenu::aboutToShowSlot()
 
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText(tr("Set %1 here").arg(progCounterName));
-
+    copySeparator->setVisible(true);
     if (!annotationHere) { // To be considered as invalid
         actionRenameThingHere.setVisible(false);
     } else {
@@ -180,6 +181,7 @@ void DecompilerContextMenu::aboutToShowSlot()
         actionShowInSubmenu.menu()->deleteLater();
     }
     actionShowInSubmenu.setMenu(mainWindow->createShowInMenu(this, offset));
+    updateTargetMenuActions();
 }
 
 // Set up actions
@@ -349,4 +351,38 @@ void DecompilerContextMenu::addDebugMenu()
     debugMenu->addAction(&actionContinueUntil);
     setActionSetPC();
     debugMenu->addAction(&actionSetPC);
+}
+
+void DecompilerContextMenu::updateTargetMenuActions()
+{
+    for (auto action : showTargetMenuActions) {
+        removeAction(action);
+        auto menu = action->menu();
+        if (menu) {
+            menu->deleteLater();
+        }
+        action->deleteLater();
+    }
+    showTargetMenuActions.clear();
+    if(annotationHere){
+        QString name;
+        if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
+            name = tr("%1 (used here)").arg(RAddressString(annotationHere->reference.offset));
+        } else if(annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
+            name = tr("%1 (%2)").arg(QString(annotationHere->reference.name), RAddressString(annotationHere->reference.offset));
+        }
+        auto action = new QAction(name, this);
+        showTargetMenuActions.append(action);
+        auto menu = mainWindow->createShowInMenu(this, annotationHere->reference.offset);
+        action->setMenu(menu);
+        QAction *copyAddress = new QAction(tr("Copy address"), menu);
+        RVA offsetHere = annotationHere->reference.offset;
+        connect(copyAddress, &QAction::triggered, copyAddress, [offsetHere]() {
+            QClipboard *clipboard = QApplication::clipboard();
+            clipboard->setText(RAddressString(offsetHere));
+        });
+        menu->addSeparator();
+        menu->addAction(copyAddress);
+        insertActions(copySeparator, showTargetMenuActions);
+    }
 }

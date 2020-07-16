@@ -59,6 +59,7 @@ private:
     QAction *copySeparator;
 
     QAction actionShowInSubmenu;
+    QList<QAction*> showTargetMenuActions;
 
     QAction actionAddComment;
     QAction actionDeleteComment;
@@ -117,6 +118,7 @@ private:
     // QVector<ThingUsedHere> getThingUsedHere(RVA offset);
 
     // void updateTargetMenuActions(const QVector<ThingUsedHere> &targets);
+    void updateTargetMenuActions();
 };
 
 #endif // DECOMPILERCONTEXTMENU_H
