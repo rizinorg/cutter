@@ -10,15 +10,18 @@
 #include <QClipboard>
 #include <QApplication>
 #include <QPushButton>
+#include <QInputDialog>
 
 DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWindow)
     :   QMenu(parent),
         offset(0),
         isTogglingBreakpoints(false),
         mainWindow(mainWindow),
+        annotationHere(nullptr),
         actionCopy(tr("Copy"), this),
         actionAddComment(tr("Add Comment"), this),
         actionDeleteComment(tr("Delete comment"), this),
+        actionRenameThingHere(tr("Rename function at cursor"), this),
         actionToggleBreakpoint(tr("Add/remove breakpoint"), this),
         actionAdvancedBreakpoint(tr("Advanced breakpoint"), this),
         breakpointsInLineMenu(new QMenu(this)),
@@ -30,6 +33,8 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
 
     setActionAddComment();
     setActionDeleteComment();
+
+    setActionRenameThingHere();
 
     addSeparator();
     addBreakpointMenu();
@@ -45,6 +50,11 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
 
 DecompilerContextMenu::~DecompilerContextMenu()
 {
+}
+
+void DecompilerContextMenu::setAnnotationHere(RCodeAnnotation *annotation)
+{
+    this->annotationHere = annotation;
 }
 
 void DecompilerContextMenu::setOffset(RVA offset)
@@ -152,6 +162,14 @@ void DecompilerContextMenu::aboutToShowSlot()
 
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText(tr("Set %1 here").arg(progCounterName));
+
+    if (!annotationHere) { // To be considered as invalid
+        actionRenameThingHere.setVisible(false);
+    } else {
+        actionRenameThingHere.setVisible(true);
+        actionRenameThingHere.setText(tr("Rename function %1").arg(QString(
+                                                                       annotationHere->function_name.name)));
+    }
 }
 
 // Set up actions
@@ -176,6 +194,14 @@ void DecompilerContextMenu::setActionDeleteComment()
     connect(&actionDeleteComment, &QAction::triggered, this,
             &DecompilerContextMenu::actionDeleteCommentTriggered);
     addAction(&actionDeleteComment);
+}
+
+void DecompilerContextMenu::setActionRenameThingHere()
+{
+    actionRenameThingHere.setShortcut({Qt::SHIFT + Qt::Key_N});
+    connect(&actionRenameThingHere, &QAction::triggered, this,
+            &DecompilerContextMenu::actionRenameThingHereTriggered);
+    addAction(&actionRenameThingHere);
 }
 
 void DecompilerContextMenu::setActionToggleBreakpoint()
@@ -218,6 +244,34 @@ void DecompilerContextMenu::actionAddCommentTriggered()
 void DecompilerContextMenu::actionDeleteCommentTriggered()
 {
     Core()->delComment(this->firstOffsetInLine);
+}
+
+void DecompilerContextMenu::actionRenameThingHereTriggered()
+{
+    if (!annotationHere) {
+        return;
+    }
+    bool ok;
+    auto type = annotationHere->type;
+    if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
+        QString currentName(annotationHere->function_name.name);
+        RVA func_addr = annotationHere->function_name.offset;
+        RAnalFunction *func = Core()->functionAt(func_addr);
+        if (func == NULL) {
+            QString function_name = QInputDialog::getText(this, tr("Define this function at %2").arg(RAddressString(func_addr)),
+                                            tr("Function name:"), QLineEdit::Normal, currentName, &ok);
+            if (ok && !function_name.isEmpty()) {
+                Core()->createFunctionAt(func_addr, function_name);
+            }
+        } else {
+            QString newName = QInputDialog::getText(this, tr("Rename function %2").arg(currentName),
+                                                tr("Function name:"), QLineEdit::Normal, currentName, &ok);
+            if (ok && !newName.isEmpty()) {
+               Core()->renameFunction(func_addr, newName);
+            }    
+        }
+        
+    }
 }
 
 void DecompilerContextMenu::actionToggleBreakpointTriggered()

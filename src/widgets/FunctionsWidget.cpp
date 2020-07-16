@@ -38,8 +38,7 @@ FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *i
 
 {
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(seekChanged(RVA)));
-    connect(Core(), SIGNAL(functionRenamed(const QString &, const QString &)), this,
-            SLOT(functionRenamed(QString, QString)));
+    connect(Core(), &CutterCore::functionRenamed, this, &FunctionModel::functionRenamed);
 }
 
 QModelIndex FunctionModel::index(int row, int column, const QModelIndex &parent) const
@@ -334,11 +333,11 @@ bool FunctionModel::updateCurrentIndex()
     return changed;
 }
 
-void FunctionModel::functionRenamed(const QString &prev_name, const QString &new_name)
+void FunctionModel::functionRenamed(const RVA offset, const QString &new_name)
 {
     for (int i = 0; i < functions->count(); i++) {
         FunctionDescription &function = (*functions)[i];
-        if (function.name == prev_name) {
+        if (function.offset == offset) {
             function.name = new_name;
             emit dataChanged(index(i, 0), index(i, columnCount() - 1));
         }
@@ -533,7 +532,7 @@ void FunctionsWidget::onActionFunctionsRenameTriggered()
     // If user accepted
     if (ok && !newName.isEmpty()) {
         // Rename function in r2 core
-        Core()->renameFunction(function.name, newName);
+        Core()->renameFunction(function.offset, newName);
 
         // Seek to new renamed function
         Core()->seekAndShow(function.offset);

@@ -800,7 +800,7 @@ void DisassemblyContextMenu::on_actionRename_triggered()
         QString newName = QInputDialog::getText(this, tr("Rename function %2").arg(fcn->name),
                                             tr("Function name:"), QLineEdit::Normal, fcn->name, &ok);
         if (ok && !newName.isEmpty()) {
-            Core()->renameFunction(fcn->name, newName);
+            Core()->renameFunction(fcn->addr, newName);
         }
     } else if (f) {
         // Renaming flag
@@ -845,13 +845,12 @@ void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
     // If user accepted
     if (ok && !newName.isEmpty()) {
         Core()->cmdRawAt(QString("an %1").arg(newName), offset);
-
         if (type == ThingUsedHere::Type::Address || type == ThingUsedHere::Type::Flag) {
             Core()->triggerFlagsChanged();
         } else if (type == ThingUsedHere::Type::Var) {
             Core()->triggerVarsChanged();
         } else if (type == ThingUsedHere::Type::Function) {
-            Core()->triggerFunctionRenamed(oldName, newName);
+            Core()->triggerFunctionRenamed(thingUsedHere.offset, newName);
         }
     }
 }
@@ -1014,7 +1013,7 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
 
         if (dialog.exec()) {
             QString new_name = dialog.getNameText();
-            Core()->renameFunction(fcn->name, new_name);
+            Core()->renameFunction(fcn->addr, new_name);
             QString new_start_addr = dialog.getStartAddrText();
             fcn->addr = Core()->math(new_start_addr);
             QString new_stack_size = dialog.getStackSizeText();

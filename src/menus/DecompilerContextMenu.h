@@ -5,6 +5,8 @@
 #include <QMenu>
 #include <QKeySequence>
 
+#include <r_util/r_annotated_code.h>
+
 class DecompilerContextMenu : public QMenu
 {
     Q_OBJECT
@@ -14,6 +16,7 @@ public:
     ~DecompilerContextMenu();
 
     bool getIsTogglingBreakpoints();
+    void setAnnotationHere(RCodeAnnotation *annotation);
 
 signals:
     void copy();
@@ -34,6 +37,8 @@ private slots:
     void actionAddCommentTriggered();
     void actionDeleteCommentTriggered();
 
+    void actionRenameThingHereTriggered();
+
     void actionToggleBreakpointTriggered();
     void actionAdvancedBreakpointTriggered();
 
@@ -48,11 +53,15 @@ private:
     QVector<RVA> availableBreakpoints;
     MainWindow *mainWindow;
 
+    RCodeAnnotation *annotationHere;
+
     QAction actionCopy;
     QAction *copySeparator;
 
     QAction actionAddComment;
     QAction actionDeleteComment;
+
+    QAction actionRenameThingHere;
 
     QMenu *breakpointMenu;
     QAction actionToggleBreakpoint;
@@ -74,6 +83,8 @@ private:
 
     void setActionAddComment();
     void setActionDeleteComment();
+
+    void setActionRenameThingHere();
 
     void setActionToggleBreakpoint();
     void setActionAdvancedBreakpoint();
