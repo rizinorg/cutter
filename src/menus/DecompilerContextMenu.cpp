@@ -23,6 +23,8 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         actionAddComment(tr("Add Comment"), this),
         actionDeleteComment(tr("Delete comment"), this),
         actionRenameThingHere(tr("Rename function at cursor"), this),
+        actionAddFlag(tr("Add flag"), this),
+        actionDeleteFlag(tr("Delete flag"), this),
         actionToggleBreakpoint(tr("Add/remove breakpoint"), this),
         actionAdvancedBreakpoint(tr("Advanced breakpoint"), this),
         breakpointsInLineMenu(new QMenu(this)),
@@ -170,10 +172,13 @@ void DecompilerContextMenu::aboutToShowSlot()
     if (!annotationHere) { // To be considered as invalid
         actionRenameThingHere.setVisible(false);
     } else {
-        actionRenameThingHere.setVisible(true);
         if (annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
+            actionRenameThingHere.setVisible(true);
             actionRenameThingHere.setText(tr("Rename function %1").arg(QString(
                                                             annotationHere->reference.name)));
+        }
+        if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
+            actionRenameThingHere.setText(tr("Rename flag at %1").arg(RAddressString(annotationHere->reference.offset)));
         }
     }
 
@@ -268,6 +273,7 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
     if (!annotationHere) {
         return;
     }
+    RCore *core = Core()->core();
     bool ok;
     auto type = annotationHere->type;
     if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
@@ -288,6 +294,14 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
             }    
         }
         
+    } else if (type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE || type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
+        RVA var_addr = annotationHere->reference.offset;
+        RFlagItem *f = r_flag_get_i(core->flags, var_addr);
+        QString newName = QInputDialog::getText(this, tr("Rename %2").arg(f->name),
+                                            tr("Flag name:"), QLineEdit::Normal, f->name, &ok);
+        if (ok && !newName.isEmpty()) {
+            Core()->renameFlag(f->name, newName);
+        }
     }
 }
 

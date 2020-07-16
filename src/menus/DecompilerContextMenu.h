@@ -60,11 +60,13 @@ private:
 
     QAction actionShowInSubmenu;
     QList<QAction*> showTargetMenuActions;
-
+    
     QAction actionAddComment;
     QAction actionDeleteComment;
 
     QAction actionRenameThingHere;
+    QAction actionAddFlag;
+    QAction actionDeleteFlag;
 
     QMenu *breakpointMenu;
     QAction actionToggleBreakpoint;
