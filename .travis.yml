@@ -72,13 +72,13 @@ matrix:
 
   - name: macOS QMake + Deploy
     os: osx
-    osx_image: xcode10.3
+    osx_image: xcode11
     env: BUILD_SYSTEM=qmake DEPLOY=1
     before_install: ~
 
   - name: macOS CMake
     os: osx
-    osx_image: xcode10.3
+    osx_image: xcode11
     env: BUILD_SYSTEM=cmake
     before_install: ~
 
@@ -124,7 +124,7 @@ dist: bionic
 addons:
   homebrew:
     brewfile: scripts/Brewfile
-    update: true
+    # update: true
 
 before_install:
   - pyenv global 3.7
