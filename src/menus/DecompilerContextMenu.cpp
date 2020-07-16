@@ -167,8 +167,10 @@ void DecompilerContextMenu::aboutToShowSlot()
         actionRenameThingHere.setVisible(false);
     } else {
         actionRenameThingHere.setVisible(true);
-        actionRenameThingHere.setText(tr("Rename function %1").arg(QString(
-                                                                       annotationHere->function_name.name)));
+        if (annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
+            actionRenameThingHere.setText(tr("Rename function %1").arg(QString(
+                                                            annotationHere->reference.name)));
+        }
     }
 }
 
@@ -254,8 +256,8 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
     bool ok;
     auto type = annotationHere->type;
     if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
-        QString currentName(annotationHere->function_name.name);
-        RVA func_addr = annotationHere->function_name.offset;
+        QString currentName(annotationHere->reference.name);
+        RVA func_addr = annotationHere->reference.offset;
         RAnalFunction *func = Core()->functionAt(func_addr);
         if (func == NULL) {
             QString function_name = QInputDialog::getText(this, tr("Define this function at %2").arg(RAddressString(func_addr)),

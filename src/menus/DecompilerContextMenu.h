@@ -58,6 +58,8 @@ private:
     QAction actionCopy;
     QAction *copySeparator;
 
+    QAction actionShowInSubmenu;
+
     QAction actionAddComment;
     QAction actionDeleteComment;
 
