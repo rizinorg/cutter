@@ -28,6 +28,12 @@ jobs:
     - name: apt dependencies
       if: contains(matrix.os, 'ubuntu')
       run: |
+        if [[ "${{ matrix.os }}" = "ubuntu-18.04" ]]
+        then
+          # github action VMs currently have broken package list causing install to fail, run update to refresh it
+          # remove this once fixed
+          sudo apt-get update
+        fi
         sudo apt-get install libgraphviz-dev mesa-common-dev
         if [[ "${{ matrix.os }}" = "ubuntu-16.04" ]]
         then
