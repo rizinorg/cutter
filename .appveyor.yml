@@ -33,7 +33,7 @@ environment:
       DEPLOY: false
 
 install:
-  - cmd: if defined QMAKE ( git clone --depth 1 --recurse-submodules https://github.com/radareorg/r2ghidra-dec.git %APPVEYOR_BUILD_FOLDER%/r2ghidra-dec )
+  - cmd: if defined QMAKE ( git clone --depth 1 --branch decompiler-refactoring --recurse-submodules https://github.com/radareorg/r2ghidra-dec.git %APPVEYOR_BUILD_FOLDER%/r2ghidra-dec )
   - ps: $env:path = ($env:path -split ";").Where({!($_ -like "*Microsoft SQL Server*")}) -join ";"
   - cmd: C:\msys64\usr\bin\bash -lc "cd $APPVEYOR_BUILD_FOLDER && scripts/fetch_deps.sh"
   - cmd: set "CUTTER_DEPS_DIR=%APPVEYOR_BUILD_FOLDER%\cutter-deps"
