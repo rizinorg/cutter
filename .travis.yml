@@ -124,7 +124,7 @@ dist: bionic
 addons:
   homebrew:
     brewfile: scripts/Brewfile
-    update: true
+    # update: true
 
 before_install:
   - pyenv global 3.7
