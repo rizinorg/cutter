@@ -427,7 +427,12 @@ SOURCES += \
     dialogs/LayoutManager.cpp \
     common/CutterLayout.cpp \
     widgets/GraphHorizontalAdapter.cpp \
-    common/ResourcePaths.cpp
+    common/ResourcePaths.cpp \
+    widgets/CutterGraphView.cpp \
+    widgets/SimpleTextGraphView.cpp \
+    widgets/R2GraphWidget.cpp \
+    widgets/CallGraph.cpp \
+    widgets/AddressableDockWidget.cpp
 
 GRAPHVIZ_SOURCES = \
     widgets/GraphvizLayout.cpp
@@ -581,7 +586,12 @@ HEADERS  += \
     common/BinaryTrees.h \
     common/LinkedListPool.h \
     widgets/GraphHorizontalAdapter.h \
-    common/ResourcePaths.h
+    common/ResourcePaths.h \
+    widgets/CutterGraphView.h \
+    widgets/SimpleTextGraphView.h \
+    widgets/R2GraphWidget.h \
+    widgets/CallGraph.h \
+    widgets/AddressableDockWidget.h
 
 GRAPHVIZ_HEADERS = widgets/GraphvizLayout.h
 
@@ -648,7 +658,8 @@ FORMS    += \
     widgets/ColorPicker.ui \
     dialogs/preferences/ColorThemeEditDialog.ui \
     widgets/ListDockWidget.ui \
-    dialogs/LayoutManager.ui
+    dialogs/LayoutManager.ui \
+    widgets/R2GraphWidget.ui
 
 RESOURCES += \
     resources.qrc \

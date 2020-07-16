@@ -45,20 +45,12 @@ GraphView::~GraphView()
 }
 
 // Callbacks
-void GraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive)
-{
-    Q_UNUSED(p)
-    Q_UNUSED(block)
-    Q_UNUSED(interactive)
-    qWarning() << "Draw block not overriden!";
-}
 
 void GraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos)
 {
     Q_UNUSED(block);
     Q_UNUSED(event);
     Q_UNUSED(pos);
-    qWarning() << "Block clicked not overridden!";
 }
 
 void GraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos)
@@ -66,7 +58,6 @@ void GraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *ev
     Q_UNUSED(block);
     Q_UNUSED(event);
     Q_UNUSED(pos);
-    qWarning() << "Block double clicked not overridden!";
 }
 
 void GraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos)
@@ -89,7 +80,6 @@ bool GraphView::helpEvent(QHelpEvent *event)
 void GraphView::blockTransitionedTo(GraphView::GraphBlock *to)
 {
     Q_UNUSED(to);
-    qWarning() << "blockTransitionedTo not overridden!";
 }
 
 GraphView::EdgeConfiguration GraphView::edgeConfiguration(GraphView::GraphBlock &from,
@@ -134,8 +124,27 @@ void GraphView::computeGraphPlacement()
 {
     graphLayoutSystem->CalculateLayout(blocks, entry, width, height);
     setCacheDirty();
-    ready = true;
+    clampViewOffset();
     viewport()->update();
+}
+
+void GraphView::cleanupEdges(GraphLayout::Graph &graph)
+{
+    for (auto &blockIt : graph) {
+        auto &block = blockIt.second;
+        auto outIt = block.edges.begin();
+        std::unordered_set<ut64> seenEdges;
+        for (auto it = block.edges.begin(), end = block.edges.end(); it != end; ++it) {
+            // remove edges going  to different functions
+            // and remove duplicate edges, common in switch statements
+            if (graph.find(it->target) != graph.end() &&
+                    seenEdges.find(it->target) == seenEdges.end()) {
+                *outIt++ = *it;
+                seenEdges.insert(it->target);
+            }
+        }
+        block.edges.erase(outIt, block.edges.end());
+    }
 }
 
 void GraphView::beginMouseDrag(QMouseEvent *event)
@@ -399,10 +408,10 @@ void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale, b
 
 void GraphView::saveAsBitmap(QString path, const char *format, double scaler, bool transparent)
 {
-    QImage image(width*scaler, height*scaler, QImage::Format_ARGB32);
-    if(transparent){
+    QImage image(width * scaler, height * scaler, QImage::Format_ARGB32);
+    if (transparent) {
         image.fill(qRgba(0, 0, 0, 0));
-    }else{
+    } else {
         image.fill(backgroundColor);
     }
     QPainter p;
@@ -456,13 +465,8 @@ void GraphView::centerY(bool emitSignal)
 
 void GraphView::showBlock(GraphBlock &block, bool anywhere)
 {
-    showBlock(&block, anywhere);
-}
-
-void GraphView::showBlock(GraphBlock *block, bool anywhere)
-{
-    showRectangle(QRect(block->x, block->y, block->width, block->height), anywhere);
-    blockTransitionedTo(block);
+    showRectangle(QRect(block.x, block.y, block.width, block.height), anywhere);
+    blockTransitionedTo(&block);
 }
 
 void GraphView::showRectangle(const QRect &block, bool anywhere)
@@ -512,6 +516,11 @@ QPoint GraphView::viewToLogicalCoordinates(QPoint p)
     return p / current_scale + offset;
 }
 
+QPoint GraphView::logicalToViewCoordinates(QPoint p)
+{
+    return (p - offset) * current_scale;
+}
+
 void GraphView::setGraphLayout(std::unique_ptr<GraphLayout> layout)
 {
     graphLayoutSystem = std::move(layout);
@@ -529,6 +538,15 @@ std::unique_ptr<GraphLayout> GraphView::makeGraphLayout(GraphView::Layout layout
 {
     std::unique_ptr<GraphLayout> result;
     bool needAdapter = true;
+
+#ifdef CUTTER_ENABLE_GRAPHVIZ
+    auto makeGraphvizLayout = [&](GraphvizLayout::LayoutType type) {
+        result.reset(new GraphvizLayout(type,
+                                        horizontal ? GraphvizLayout::Direction::LR : GraphvizLayout::Direction::TB));
+        needAdapter = false;
+    };
+#endif
+
     switch (layout) {
     case Layout::GridNarrow:
         result.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Narrow));
@@ -546,8 +564,7 @@ std::unique_ptr<GraphLayout> GraphView::makeGraphLayout(GraphView::Layout layout
     case Layout::GridBAA:
     case Layout::GridBAB:
     case Layout::GridBBA:
-    case Layout::GridBBB:
-    {
+    case Layout::GridBBB: {
         int options = static_cast<int>(layout) - static_cast<int>(Layout::GridAAA);
         std::unique_ptr<GraphGridLayout> gridLayout(new GraphGridLayout());
         gridLayout->setTightSubtreePlacement((options & 1) == 0);
@@ -558,14 +575,22 @@ std::unique_ptr<GraphLayout> GraphView::makeGraphLayout(GraphView::Layout layout
     }
 #ifdef CUTTER_ENABLE_GRAPHVIZ
     case Layout::GraphvizOrtho:
-        result.reset(new GraphvizLayout(GraphvizLayout::LineType::Ortho,
-                                        horizontal ? GraphvizLayout::Direction::LR : GraphvizLayout::Direction::TB));
-        needAdapter = false;
+        makeGraphvizLayout(GraphvizLayout::LayoutType::DotOrtho);
         break;
     case Layout::GraphvizPolyline:
-        result.reset(new GraphvizLayout(GraphvizLayout::LineType::Polyline,
-                                        horizontal ? GraphvizLayout::Direction::LR : GraphvizLayout::Direction::TB));
-        needAdapter = false;
+        makeGraphvizLayout(GraphvizLayout::LayoutType::DotPolyline);
+        break;
+    case Layout::GraphvizSfdp:
+        makeGraphvizLayout(GraphvizLayout::LayoutType::Sfdp);
+        break;
+    case Layout::GraphvizNeato:
+        makeGraphvizLayout(GraphvizLayout::LayoutType::Neato);
+        break;
+    case Layout::GraphvizTwoPi:
+        makeGraphvizLayout(GraphvizLayout::LayoutType::TwoPi);
+        break;
+    case Layout::GraphvizCirco:
+        makeGraphvizLayout(GraphvizLayout::LayoutType::Circo);
         break;
 #endif
     }

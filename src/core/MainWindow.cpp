@@ -69,6 +69,8 @@
 #include "widgets/HexdumpWidget.h"
 #include "widgets/DecompilerWidget.h"
 #include "widgets/HexWidget.h"
+#include "widgets/R2GraphWidget.h"
+#include "widgets/CallGraph.h"
 
 // Qt Headers
 #include <QApplication>
@@ -371,7 +373,10 @@ void MainWindow::initDocks()
         segmentsDock = new SegmentsWidget(this),
         symbolsDock = new SymbolsWidget(this),
         vTablesDock = new VTablesWidget(this),
-        zignaturesDock = new ZignaturesWidget(this)
+        zignaturesDock = new ZignaturesWidget(this),
+        r2GraphDock = new R2GraphWidget(this),
+        callGraphDock = new CallGraphWidget(this, false),
+        globalCallGraphDock = new CallGraphWidget(this, true),
     };
 
     auto makeActionList = [this](QList<CutterDockWidget *> docks) {
@@ -589,6 +594,11 @@ void MainWindow::finalizeOpen()
     refreshAll();
     // Add fortune message
     core->message("\n" + core->cmdRaw("fo"));
+
+    // hide all docks before showing window to avoid false positive for refreshDeferrer
+    for (auto dockWidget : dockWidgets) {
+        dockWidget->hide();
+    }
 
     QSettings settings;
     auto geometry = settings.value("geometry").toByteArray();
@@ -822,6 +832,9 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, memoryMapDock);
     tabifyDockWidget(dashboardDock, breakpointDock);
     tabifyDockWidget(dashboardDock, registerRefsDock);
+    tabifyDockWidget(dashboardDock, r2GraphDock);
+    tabifyDockWidget(dashboardDock, callGraphDock);
+    tabifyDockWidget(dashboardDock, globalCallGraphDock);
     for (const auto &it : dockWidgets) {
         // Check whether or not current widgets is graph, hexdump or disasm
         if (isExtraMemoryWidget(it)) {
@@ -923,10 +936,26 @@ void MainWindow::showMemoryWidget(MemoryWidgetType type)
 QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address)
 {
     QMenu *menu = new QMenu(parent);
+    // Memory dock widgets
     for (auto &dock : dockWidgets) {
         if (auto memoryWidget = qobject_cast<MemoryDockWidget *>(dock)) {
             QAction *action = new QAction(memoryWidget->windowTitle(), menu);
-            connect(action, &QAction::triggered, this, [this, memoryWidget, address]() {
+            connect(action, &QAction::triggered, this, [memoryWidget, address]() {
+                memoryWidget->getSeekable()->seek(address);
+                memoryWidget->raiseMemoryWidget();
+            });
+            menu->addAction(action);
+        }
+    }
+    menu->addSeparator();
+    // Rest of the AddressableDockWidgets that weren't added already
+    for (auto &dock : dockWidgets) {
+        if (auto memoryWidget = qobject_cast<AddressableDockWidget *>(dock)) {
+            if (qobject_cast<MemoryDockWidget *>(dock)) {
+                continue;
+            }
+            QAction *action = new QAction(memoryWidget->windowTitle(), menu);
+            connect(action, &QAction::triggered, this, [memoryWidget, address]() {
                 memoryWidget->getSeekable()->seek(address);
                 memoryWidget->raiseMemoryWidget();
             });
