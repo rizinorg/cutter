@@ -69,7 +69,7 @@ public:
     QString name(const QModelIndex &index) const override;
 private slots:
     void seekChanged(RVA addr);
-    void functionRenamed(const QString &prev_name, const QString &new_name);
+    void functionRenamed(const RVA offset, const QString &new_name);
 };
 
 
