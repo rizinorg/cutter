@@ -130,6 +130,7 @@ void DecompilerContextMenu::aboutToHideSlot()
 void DecompilerContextMenu::aboutToShowSlot()
 {
     if (this->firstOffsetInLine != RVA_MAX) {
+        actionShowInSubmenu.setVisible(true);
         QString comment = Core()->cmdRawAt("CC.", this->firstOffsetInLine);
         actionAddComment.setVisible(true);
         if (comment.isEmpty()) {
@@ -140,6 +141,7 @@ void DecompilerContextMenu::aboutToShowSlot()
             actionAddComment.setText(tr("Edit Comment"));
         }
     } else {
+        actionShowInSubmenu.setVisible(false);
         actionAddComment.setVisible(false);
         actionDeleteComment.setVisible(false);
     }
@@ -170,10 +172,12 @@ void DecompilerContextMenu::aboutToShowSlot()
 
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText(tr("Set %1 here").arg(progCounterName));
-    copySeparator->setVisible(true);
+    
     if (!annotationHere) { // To be considered as invalid
         actionRenameThingHere.setVisible(false);
+        copySeparator->setVisible(false);
     } else {
+        copySeparator->setVisible(true);
         if (annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
             actionRenameThingHere.setVisible(true);
             actionRenameThingHere.setText(tr("Rename function %1").arg(QString(
