@@ -13,15 +13,14 @@ Any IDE with good CMake integration should work well.
 
 For most development builds, unless you are working on packaging issues, it is recommended to use ``CUTTER_USE_BUNDLED_RADARE2=ON`` Cmake option. It is the easiest way to ensure that a compatible r2 version is used, and helps you deal with different versions of radare2 when working with multiple Cutter branches. On Linux, in case you have multiple r2 versions without ``CUTTER_USE_BUNDLED_RADARE2``, the ``PKG_CONFIG_PATH`` environment variable can be used to select the desired radare2 installation.
 
-While Qt Creator has a builtin visual form and widget editor, not having it in other IDEs is not a major problem. It is also available as a standalone tool called Qt Designer and you can configure the file associations so that ``.ui`` files are opened using it. Depending on the ``.ui`` file and changes you want to make, it is sometimes easier to perform them by editing the ``.ui`` file as a text file. Essentially, ``.ui`` files are XML files. Most code editors should have some support for XML highlighting and possibly block folding.
+While `Qt Creator`_ has a builtin visual form and widget editor, not having it in other IDEs is not a major problem. It is also available as a standalone tool called Qt Designer and you can configure the file associations so that ``.ui`` files are opened using it. Depending on the ``.ui`` file and changes you want to make, it is sometimes easier to perform them by editing the ``.ui`` file as a text file. Essentially, ``.ui`` files are XML files. Most code editors should have some support for XML highlighting and possibly block folding.
 
 The following instructions and recommendations assume that you have already download Cutter source and obtained required dependencies as described in :doc:`../building`
 
 Linux
 -----
 
-On a rolling-release distribution or a somewhat recent version of traditional distribution like Ubuntu 18.04 it should be possible to get all the dependencies from official repository. There might
-be some problems with PySide2 and Shiboken2 but it can be easily disabled and isnt' necessary for most work on Cutter. Don't try to install PySide using pip.
+On a rolling-release distribution or a somewhat recent version of traditional distributions like Ubuntu 18.04, it should be possible to get all the dependencies from the official repository. There might be some problems with PySide2 and Shiboken2 but it can be easily disabled and isn't necessary for most work on Cutter. Don't try to install PySide using pip.
 
 Windows
 -------
@@ -48,7 +47,7 @@ Pros and Cons
 
 Project setup
 ~~~~~~~~~~~~~
-Instructions made based on Qt Creator 4.12.4 the steps might slightly differ between the versions.
+The following instructions were made based on version 4.12.4 of Qt Creator. The steps might slightly differ between the versions.
 
 - Go to ``File/Open File or Project..`` and select ``cutter/src/CMakeList.txt``
 - Select kit and press ``Configure Project``
@@ -94,12 +93,13 @@ Project setup
 - In the kit selection choose ``[Unspecified]`` unless you have more specific needs.
 - If you see the following error: "CMakeList.txt was not found in the root of folder cutter", choose ``Locate`` and specify the path to ``cutter/src/CMakeLists.txt``
 - :kbd:`Ctrl-Shift-P`/``CMake: Edit CMake Cache``, find the line ``CUTTER_USE_BUNDLED_RADARE2:BOOL=OFF`` and change it to ON.
-- Download Qt type visualizer for VS debugger from
-
 
 Changing CMake configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 After the first configuration :kbd:`Ctrl-Shift-P`/``CMake: Edit CMake Cache`` opens a text editor with all CMake options. Cutter specific ones mostly start with "CUTTER".
+
+
+.. _vscode-debug-setup:
 
 Building, Running, Debugging
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -148,10 +148,15 @@ Changing CMake configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Go to ``File/Settings/Build,Execution,Deployment/CMake``. CMake options are specified the same way as on command-line ``-DOPTION_NAME=VALUE``.
 
+Building, Running, Debugging
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Follow the `Clion documentation <https://www.jetbrains.com/help/clion/qt-tutorial.html#debug-renderers>`_ for how to configure Qt type debugger renderers. If you are using MSVC toolchain
+it can use ``qt5.natvis``. In rest of the cases you can use ``.gdbinit`` or ``..ldbinit`` based approach similar to one described for :ref:`VSCode setup<vscode-debug-setup>`
+
 Editing Qt .ui files
 ~~~~~~~~~~~~~~~~~~~~
 Default CLion behavior for opening .ui files is `somewhat buggy <https://youtrack.jetbrains.com/issue/CPP-17197>`_. Double clicking the file does nothing, but it can be opened by dragging it to text editor side.
-This can be somewhat improved by changing `file association <https://www.jetbrains.com/help/clion/creating-and-registering-file-types.html>`_. Open ``File/Settings/Editor/File Types`` and change to change type association of \*.ui files from "Qt UI Designer Form" to either "XML" or "Files Opened in Associated Applications".
+This can be somewhat improved by changing `file association <https://www.jetbrains.com/help/clion/creating-and-registering-file-types.html>`_. Open ``File/Settings/Editor/File Types`` and change type association of \*.ui files from "Qt UI Designer Form" to either "XML" or "Files Opened in Associated Applications".
 First one will open it within CLion as XML file and the second will use the operating system configuration.
 
 Visual Studio
@@ -172,14 +177,15 @@ Pros and Cons
 - good debugger
 - medium amount of plugins
 - completely closed source
+- Windows only
 
 Project setup
 ~~~~~~~~~~~~~
 - Open folder in which you cloned Cutter source using Visual Studio
 - Open CMake settings configurator using either ``Project/CMake Settings`` or by clicking ``Open the CMake Settings Editor`` in the overview page.
 - Check `CUTTER_USE_BUNDLED_RADARE2` options
-- If you are using vcpkg, Visual Studio should detect it automatically. The list of CMake options in the configurator should have some referring to VCPKG. If they are not there, specify the path to vcpkg toolchain file in the "CMake toolchain file" field.
-- If you are not using VCPKG, configure the path to Qt as mentioned in :ref:`windows CMake instructions<building:Building on Windows>`. You can specify the CMake flag in "CMake command arguments:" field.
+- If you are using vcpkg, Visual Studio should detect it automatically. The list of CMake options in the configurator should have some referring to vcpkg. If they are not there, specify the path to vcpkg toolchain file in the "CMake toolchain file" field.
+- If you are not using vcpkg, configure the path to Qt as mentioned in :ref:`windows CMake instructions<building:Building on Windows>`. You can specify the CMake flag in "CMake command arguments:" field.
 - To Ensure that VS debugger can display Qt types in a readable way, it is recommended to install `Qt Visual Studio Tools <https://marketplace.visualstudio.com/items?itemName=TheQtCompany.QtVisualStudioTools2019>`_ plugin. It will create a ``Documents/Visual Studio 2019/Visualizers/qt5.natvis`` file. Once ``qt5.natvis`` has been created you can uninstall the plugin.
 
 Changing CMake configuration
