@@ -49,17 +49,17 @@ Project setup
 ~~~~~~~~~~~~~
 The following instructions were made based on version 4.12.4 of Qt Creator. The steps might slightly differ between the versions.
 
-- Go to ``File/Open File or Project..`` and select ``cutter/src/CMakeList.txt``
-- Select kit and press ``Configure Project``
+- Go to :menuselection:`File --> Open File or Project..` and select :file:`cutter/src/CMakeList.txt`
+- Select kit and press :guilabel:`Configure Project`
 - Configuration step might fail due to r2 not being found, that's normal
-- Click ``Projects`` button with wrench icon on the left side of the screen
-- Click ``Add/Boolean`` in the CMake section
+- Click :guilabel:`Projects` button with wrench icon on the left side of the screen
+- Click :menuselection:`Add --> Boolean` in the CMake section
 - Enter ``CUTTER_USE_BUNDLED_RADARE2`` as key name and change the value to ON. In earlier Qt Creator versions it is necessary to do this during the initial kit selection and configuration step.
-- Click ``Apply Configuration Changes``. The configuration should succeed now. In case of errors inspect the output log.
+- Click :guilabel:`Apply Configuration Changes`:. The configuration should succeed now. In case of errors inspect the output log.
 
-Either in ``Projects/Code Style/C++`` or ``Tools/Options/C++/Code Style`` select ``Qt [built-in]``. It should be selected by default unless you have used Qt Creator for other projects. Cutter Coding style is almost identical to Qt one. This will help with using correct indentation type and basic formatting without running code formatter.
+Either in :menuselection:`Projects --> Code Style --> C++` or :menuselection:`Tools --> Options --> C++ --> Code Style` select :guilabel:`Qt [built-in]`. It should be selected by default unless you have used Qt Creator for other projects. Cutter Coding style is almost identical to Qt one. This will help with using correct indentation type and basic formatting without running code formatter.
 
-To configure AStyle for formatting a file go to ``Tools/Options/Beautifier/Artistic Style``. If necessary, specify the path to astyle executable. The ``Use file \*.astylerc defined in project files`` option doesn't seem to be working reliably so it is necessary to use ``Use specific config file`` option. Cutter astyle configuration is stored in ``cutter/src/Cutter.astylerc``.
+To configure AStyle for formatting a file go to :menuselection:`Tools --> Options --> Beautifier --> Artistic Style`. If necessary, specify the path to astyle executable. The :guilabel:`Use file \*.astylerc defined in project files` option doesn't seem to be working reliably so it is necessary to use :guilabel:`Use specific config file` option. Cutter astyle configuration is stored in :file:`cutter/src/Cutter.astylerc`.
 
 Changing CMake configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -67,7 +67,7 @@ Click on the "Projects" button on the left side of the screen and then select "B
 
 Editing Qt .ui files
 ~~~~~~~~~~~~~~~~~~~~
-Double clicking a ``.ui`` file in a file list opens it inside a visual editor. If you want to make changes that are easier to do by editing ``.ui`` file as text - right click the file and select "Open With/Plain Text Editor". Switching from visual form editor back to code editor mode will open the ``.ui`` file in read-only mode with the following warning "This file can only be edited in Design mode". To edit use the same steps as described before.
+Double clicking a ``.ui`` file in a file list opens it inside a visual editor. If you want to make changes that are easier to do by editing ``.ui`` file as text - right click the file and select :menuselection:`Open With --> Plain Text Editor`. Switching from visual form editor back to code editor mode will open the ``.ui`` file in read-only mode with the following warning "This file can only be edited in Design mode". To edit use the same steps as described before.
 
 VSCode
 -------
@@ -87,29 +87,29 @@ Recommended plugins
 
 Project setup
 ~~~~~~~~~~~~~
-- ``File/Open Folder`` select the folder in which you cloned Cutter
+- :menuselection:`File --> Open Folder` select the folder in which you cloned Cutter
 - If the recommend plugins are already installed, in the corner you will see a popup asking you "Would you like to configure project 'cutter'? Source: CMake Tools (Extension)". Click Yes.
-- If you initially dismissed the configuration window or didn't have the plugins installed yet - open command pallet using :kbd:`Ctrl-Shift-P` and select ``Cmake: Configure``
-- In the kit selection choose ``[Unspecified]`` unless you have more specific needs.
-- If you see the following error: "CMakeList.txt was not found in the root of folder cutter", choose ``Locate`` and specify the path to ``cutter/src/CMakeLists.txt``
-- :kbd:`Ctrl-Shift-P`/``CMake: Edit CMake Cache``, find the line ``CUTTER_USE_BUNDLED_RADARE2:BOOL=OFF`` and change it to ON.
+- If you initially dismissed the configuration window or didn't have the plugins installed yet - open command pallet using :kbd:`Ctrl-Shift-P` and select :guilabel:`Cmake: Configure`
+- In the kit selection choose :guilabel:`[Unspecified]` unless you have more specific needs.
+- If you see the following error: "CMakeList.txt was not found in the root of folder cutter", choose :guilabel:`Locate` and specify the path to :file:`cutter/src/CMakeLists.txt`
+- :kbd:`Ctrl-Shift-P`/:guilabel:`CMake: Edit CMake Cache`, find the line ``CUTTER_USE_BUNDLED_RADARE2:BOOL=OFF`` and change it to ON.
 
 Changing CMake configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-After the first configuration :kbd:`Ctrl-Shift-P`/``CMake: Edit CMake Cache`` opens a text editor with all CMake options. Cutter specific ones mostly start with "CUTTER".
+After the first configuration :kbd:`Ctrl-Shift-P`/:guilabel:`CMake: Edit CMake Cache` opens a text editor with all CMake options. Cutter specific ones mostly start with "CUTTER".
 
 
 .. _vscode-debug-setup:
 
 Building, Running, Debugging
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Build and running commands are available in the bar at the bottom left and in the Command Palette` menu (:kbd:`Ctrl-Shift-P`) named ``CMake: Build F7``, ``CMake: Run Without Debugging Shift+F5``, and ``CMake: Debug Ctrl+F5``.
-Shortcuts can be viewed in the :kbd:`Ctrl-Shift-P` menu. They don't match default VS Code ones since those depend on ``tasks.json``.
+Build and running commands are available in the bar at the bottom left and in the Command Palette menu (:kbd:`Ctrl-Shift-P`) named ``CMake: Build F7``, ``CMake: Run Without Debugging Shift+F5``, and ``CMake Debug Ctrl + F5``.
+Shortcuts can be viewed in the :kbd:`Ctrl-Shift-P` menu. They don't match default VS Code ones since those depend on :file:`tasks.json``.
 
 Running and debugging launches the executable without any arguments. Command line arguments can be passed to the debug
-executable by creating a ``.vscode/launch.json`` configuration. Read the `documentation <https://code.visualstudio.com/docs/cpp/launch-json-reference>`_  for more information. Instead of creating ``launch.json`` it can be created from template: :kbd:`Ctrl-Shift-P`/``Debug: Select and Start Debugging/Add configuration../C,C++: (gdb) Launch``.
+executable by creating a ``.vscode/launch.json`` configuration. Read the `documentation <https://code.visualstudio.com/docs/cpp/launch-json-reference>`_  for more information. Instead of creating :file:`launch.json` manually it can be created from template: :kbd:`Ctrl-Shift-P`/:menuselection:`Debug: Select and Start Debugging --> Add configuration.. --> C,C++: (gdb) Launch`.
 
-To setup gdb pretty printers for Qt types on Linux, download the scripts from `Kdevelop <https://github.com/KDE/kdevelop/tree/master/plugins/gdb/printers>`_. In the ``~/.gdbinit`` file add the following code:
+To setup gdb pretty printers for Qt types on Linux, download the scripts from `Kdevelop <https://github.com/KDE/kdevelop/tree/master/plugins/gdb/printers>`_. In the :file:`~/.gdbinit` file add the following code:
 
 
 .. code-block:: python
@@ -139,24 +139,24 @@ Pros and Cons
 
 Project setup
 ~~~~~~~~~~~~~
-- Go to ``File/Open`` and select the folder in which you cloned Cutter
-- Go to ``File/Settings/Build, Execution, Deployment/CMake``. In the ``CMake Options`` field enter ``-DCUTTER_USE_BUNDLED_RADARE2=ON``
-- Open ``cutter/src/CMakeLists.txt`` using project file list on the left side of the screen
-- A yellow bar with message "CMake project is not loaded" should appear, click "Load CMake project"
+- Go to :menuselection:`File --> Open` and select the folder in which you cloned Cutter
+- Go to :menuselection:`File --> Settings --> Build, Execution, Deployment --> CMake`. In the :guilabel:`CMake Options` field enter ``-DCUTTER_USE_BUNDLED_RADARE2=ON``
+- Open :file:`cutter/src/CMakeLists.txt` using project file list on the left side of the screen
+- A yellow bar with message :guilabel:`CMake project is not loaded` should appear, click :guilabel:`Load CMake project`
 
 Changing CMake configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Go to ``File/Settings/Build,Execution,Deployment/CMake``. CMake options are specified the same way as on command-line ``-DOPTION_NAME=VALUE``.
+Go to :menuselection:`File --> Settings --> Build,Execution,Deployment --> CMake`. CMake options are specified the same way as on command-line ``-DOPTION_NAME=VALUE``.
 
 Building, Running, Debugging
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Follow the `Clion documentation <https://www.jetbrains.com/help/clion/qt-tutorial.html#debug-renderers>`_ for how to configure Qt type debugger renderers. If you are using MSVC toolchain
-it can use ``qt5.natvis``. In rest of the cases you can use ``.gdbinit`` or ``..ldbinit`` based approach similar to one described for :ref:`VSCode setup<vscode-debug-setup>`
+it can use :file:`qt5.natvis`. In rest of the cases you can use ``.gdbinit`` or ``..ldbinit`` based approach similar to one described for :ref:`VSCode setup<vscode-debug-setup>`
 
 Editing Qt .ui files
 ~~~~~~~~~~~~~~~~~~~~
 Default CLion behavior for opening .ui files is `somewhat buggy <https://youtrack.jetbrains.com/issue/CPP-17197>`_. Double clicking the file does nothing, but it can be opened by dragging it to text editor side.
-This can be somewhat improved by changing `file association <https://www.jetbrains.com/help/clion/creating-and-registering-file-types.html>`_. Open ``File/Settings/Editor/File Types`` and change type association of \*.ui files from "Qt UI Designer Form" to either "XML" or "Files Opened in Associated Applications".
+This can be somewhat improved by changing `file association <https://www.jetbrains.com/help/clion/creating-and-registering-file-types.html>`_. Open :menuselection:`File --> Settings --> Editor --> File Types` and change type association of \*.ui files from :guilabel:`Qt UI Designer Form` to either "XML" or :guilabel:`Files Opened in Associated Applications`.
 First one will open it within CLion as XML file and the second will use the operating system configuration.
 
 Visual Studio
@@ -165,7 +165,7 @@ Visual Studio Community edition is available for free and can be used for contri
 
 It is recommended to use the latest Visual Studio version 2019 because it has the best CMake integration.
 Older VS versions can be used but CMake integration isn't as good. With those, it might be better to generate Visual Studio
-project from CMake project using the command-line or ``cmake-gui`` and opening the generated Visual Studio project instead of opening the
+project from CMake project using the command-line or :command:`cmake-gui` and opening the generated Visual Studio project instead of opening the
 CMake project directly.
 
 Visual Studio supports many different languages and use-cases. Full installation takes a lot of space. To keep the size minimal during installation
@@ -182,19 +182,19 @@ Pros and Cons
 Project setup
 ~~~~~~~~~~~~~
 - Open folder in which you cloned Cutter source using Visual Studio
-- Open CMake settings configurator using either ``Project/CMake Settings`` or by clicking ``Open the CMake Settings Editor`` in the overview page.
-- Check `CUTTER_USE_BUNDLED_RADARE2` options
-- If you are using vcpkg, Visual Studio should detect it automatically. The list of CMake options in the configurator should have some referring to vcpkg. If they are not there, specify the path to vcpkg toolchain file in the "CMake toolchain file" field.
-- If you are not using vcpkg, configure the path to Qt as mentioned in :ref:`windows CMake instructions<building:Building on Windows>`. You can specify the CMake flag in "CMake command arguments:" field.
-- To Ensure that VS debugger can display Qt types in a readable way, it is recommended to install `Qt Visual Studio Tools <https://marketplace.visualstudio.com/items?itemName=TheQtCompany.QtVisualStudioTools2019>`_ plugin. It will create a ``Documents/Visual Studio 2019/Visualizers/qt5.natvis`` file. Once ``qt5.natvis`` has been created you can uninstall the plugin.
+- Open CMake settings configurator using either :menuselection:`Project --> CMake Settings` or by clicking :guilabel:`Open the CMake Settings Editor` in the overview page.
+- Check ``CUTTER_USE_BUNDLED_RADARE2`` option
+- If you are using vcpkg, Visual Studio should detect it automatically. The list of CMake options in the configurator should have some referring to vcpkg. If they are not there, specify the path to vcpkg toolchain file in the :guilabel:`CMake toolchain file` field.
+- If you are not using vcpkg, configure the path to Qt as mentioned in :ref:`windows CMake instructions<building:Building on Windows>`. You can specify the CMake flag in :guilabel:`CMake command arguments:` field.
+- To Ensure that VS debugger can display Qt types in a readable way, it is recommended to install `Qt Visual Studio Tools <https://marketplace.visualstudio.com/items?itemName=TheQtCompany.QtVisualStudioTools2019>`_ plugin. It will create a :file:`Documents/Visual Studio 2019/Visualizers/qt5.natvis` file. Once :file:`qt5.natvis` has been created you can uninstall the plugin.
 
 Changing CMake configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Open ``Project/CMake Settings``. CMake options can be modified either in graphical table editor, as a command-line flag or by switching to JSON view.
+Open :menuselection:`Project --> CMake Settings`. CMake options can be modified either in graphical table editor, as a command-line flag or by switching to JSON view.
 
 Editing Qt .ui files and Qt integration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-By default Visual Studio will open ``.ui`` files as XML text documents. You can configure to open it using Qt Designer by right clicking and selecting ``Open With...``.
+By default Visual Studio will open ``.ui`` files as XML text documents. You can configure to open it using Qt Designer by right clicking and selecting :guilabel:`Open With...`.
 
 There is a  Qt plugin for Visual Studio from Qt. It isn't very useful for Cutter development since it is aimed more at helping with Qt integration into Visual Studio projects.
-It doesn't do much for CMake based projects. The biggest benefit is that it automatically installs ``qt5.natvis`` file for more readable displaying of Qt types in the debugger.
+It doesn't do much for CMake based projects. The biggest benefit is that it automatically installs :file:`qt5.natvis` file for more readable displaying of Qt types in the debugger.
