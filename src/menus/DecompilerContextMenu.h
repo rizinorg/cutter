@@ -38,6 +38,7 @@ private slots:
     void actionDeleteCommentTriggered();
 
     void actionRenameThingHereTriggered();
+    void actionDeleteNameTriggered();
 
     void actionToggleBreakpointTriggered();
     void actionAdvancedBreakpointTriggered();
@@ -65,8 +66,7 @@ private:
     QAction actionDeleteComment;
 
     QAction actionRenameThingHere;
-    QAction actionAddFlag;
-    QAction actionDeleteFlag;
+    QAction actionDeleteName;
 
     QMenu *breakpointMenu;
     QAction actionToggleBreakpoint;
@@ -92,6 +92,7 @@ private:
     void setActionDeleteComment();
 
     void setActionRenameThingHere();
+    void setActionDeleteName();
 
     void setActionToggleBreakpoint();
     void setActionAdvancedBreakpoint();

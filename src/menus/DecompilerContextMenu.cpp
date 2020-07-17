@@ -23,8 +23,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         actionAddComment(tr("Add Comment"), this),
         actionDeleteComment(tr("Delete comment"), this),
         actionRenameThingHere(tr("Rename function at cursor"), this),
-        actionAddFlag(tr("Add flag"), this),
-        actionDeleteFlag(tr("Delete flag"), this),
+        actionDeleteName(tr("Delete <name>"), this),
         actionToggleBreakpoint(tr("Add/remove breakpoint"), this),
         actionAdvancedBreakpoint(tr("Advanced breakpoint"), this),
         breakpointsInLineMenu(new QMenu(this)),
@@ -41,6 +40,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
     setActionDeleteComment();
 
     setActionRenameThingHere();
+    setActionDeleteName();
 
     addSeparator();
     addBreakpointMenu();
@@ -124,6 +124,7 @@ void DecompilerContextMenu::aboutToHideSlot()
 {
     actionAddComment.setVisible(true);
     actionRenameThingHere.setVisible(true);
+    actionDeleteName.setVisible(false);
 }
 
 void DecompilerContextMenu::aboutToShowSlot()
@@ -182,8 +183,8 @@ void DecompilerContextMenu::aboutToShowSlot()
             RFlagItem *flagDetails = r_flag_get_i(Core()->core()->flags, annotationHere->reference.offset);
             if (flagDetails) {
                 actionRenameThingHere.setText(tr("Rename %1").arg(QString(flagDetails->name)));
-                // actionDeleteFlag.setText("Remove %1".arg(QString(flagDetails->name)))
-                // actionDeleteFlag.setVisible(true);
+                actionDeleteName.setText(tr("Remove %1").arg(QString(flagDetails->name)));
+                actionDeleteName.setVisible(true);
             } else {
                 actionRenameThingHere.setText(tr("Add name"));
             }
@@ -232,6 +233,13 @@ void DecompilerContextMenu::setActionRenameThingHere()
     connect(&actionRenameThingHere, &QAction::triggered, this,
             &DecompilerContextMenu::actionRenameThingHereTriggered);
     addAction(&actionRenameThingHere);
+}
+
+void DecompilerContextMenu::setActionDeleteName()
+{
+    connect(&actionDeleteName, &QAction::triggered, this, &DecompilerContextMenu::actionDeleteNameTriggered);
+    addAction(&actionDeleteName);
+    actionDeleteName.setVisible(false);
 }
 
 void DecompilerContextMenu::setActionToggleBreakpoint()
@@ -307,18 +315,23 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
         RFlagItem *flagDetails = r_flag_get_i(core->flags, var_addr);
         if (flagDetails) {
             QString newName = QInputDialog::getText(this, tr("Rename %2").arg(flagDetails->name),
-                                            tr("Flag name:"), QLineEdit::Normal, flagDetails->name, &ok);
+                                            tr("Enter name"), QLineEdit::Normal, flagDetails->name, &ok);
             if (ok && !newName.isEmpty()) {
                 Core()->renameFlag(flagDetails->name, newName);
             }
         } else {
-            QString newName = QInputDialog::getText(this, tr("Add name"), tr("Flag name:"), QLineEdit::Normal, QString(), &ok);
+            QString newName = QInputDialog::getText(this, tr("Add name"), tr("Enter name"), QLineEdit::Normal, QString(), &ok);
             if (ok && !newName.isEmpty()) {
                 Core()->addFlag(var_addr, newName, newName.length());
             }
         }
         
     }
+}
+
+void DecompilerContextMenu::actionDeleteNameTriggered()
+{
+    Core()->delFlag(annotationHere->reference.offset);
 }
 
 void DecompilerContextMenu::actionToggleBreakpointTriggered()
