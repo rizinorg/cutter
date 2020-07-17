@@ -60,8 +60,8 @@ private:
     QAction *copySeparator;
 
     QAction actionShowInSubmenu;
-    QList<QAction*> showTargetMenuActions;
-    
+    QList<QAction *> showTargetMenuActions;
+
     QAction actionAddComment;
     QAction actionDeleteComment;
 

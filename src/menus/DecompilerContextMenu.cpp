@@ -172,7 +172,7 @@ void DecompilerContextMenu::aboutToShowSlot()
 
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText(tr("Set %1 here").arg(progCounterName));
-    
+
     if (!annotationHere) { // To be considered as invalid
         actionRenameThingHere.setVisible(false);
         copySeparator->setVisible(false);
@@ -181,9 +181,10 @@ void DecompilerContextMenu::aboutToShowSlot()
         if (annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
             actionRenameThingHere.setVisible(true);
             actionRenameThingHere.setText(tr("Rename function %1").arg(QString(
-                                                            annotationHere->reference.name)));
+                                                                           annotationHere->reference.name)));
         }
-        if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
+        if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
+                || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
             RFlagItem *flagDetails = r_flag_get_i(Core()->core()->flags, annotationHere->reference.offset);
             if (flagDetails) {
                 actionRenameThingHere.setText(tr("Rename %1").arg(QString(flagDetails->name)));
@@ -241,7 +242,8 @@ void DecompilerContextMenu::setActionRenameThingHere()
 
 void DecompilerContextMenu::setActionDeleteName()
 {
-    connect(&actionDeleteName, &QAction::triggered, this, &DecompilerContextMenu::actionDeleteNameTriggered);
+    connect(&actionDeleteName, &QAction::triggered, this,
+            &DecompilerContextMenu::actionDeleteNameTriggered);
     addAction(&actionDeleteName);
     actionDeleteName.setVisible(false);
 }
@@ -301,35 +303,38 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
         RVA func_addr = annotationHere->reference.offset;
         RAnalFunction *func = Core()->functionAt(func_addr);
         if (func == NULL) {
-            QString function_name = QInputDialog::getText(this, tr("Define this function at %2").arg(RAddressString(func_addr)),
-                                            tr("Function name:"), QLineEdit::Normal, currentName, &ok);
+            QString function_name = QInputDialog::getText(this,
+                                                          tr("Define this function at %2").arg(RAddressString(func_addr)),
+                                                          tr("Function name:"), QLineEdit::Normal, currentName, &ok);
             if (ok && !function_name.isEmpty()) {
                 Core()->createFunctionAt(func_addr, function_name);
             }
         } else {
             QString newName = QInputDialog::getText(this, tr("Rename function %2").arg(currentName),
-                                                tr("Function name:"), QLineEdit::Normal, currentName, &ok);
+                                                    tr("Function name:"), QLineEdit::Normal, currentName, &ok);
             if (ok && !newName.isEmpty()) {
-               Core()->renameFunction(func_addr, newName);
-            }    
+                Core()->renameFunction(func_addr, newName);
+            }
         }
-        
-    } else if (type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE || type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
+
+    } else if (type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
+               || type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
         RVA var_addr = annotationHere->reference.offset;
         RFlagItem *flagDetails = r_flag_get_i(core->flags, var_addr);
         if (flagDetails) {
             QString newName = QInputDialog::getText(this, tr("Rename %2").arg(flagDetails->name),
-                                            tr("Enter name"), QLineEdit::Normal, flagDetails->name, &ok);
+                                                    tr("Enter name"), QLineEdit::Normal, flagDetails->name, &ok);
             if (ok && !newName.isEmpty()) {
                 Core()->renameFlag(flagDetails->name, newName);
             }
         } else {
-            QString newName = QInputDialog::getText(this, tr("Add name"), tr("Enter name"), QLineEdit::Normal, QString(), &ok);
+            QString newName = QInputDialog::getText(this, tr("Add name"), tr("Enter name"), QLineEdit::Normal,
+                                                    QString(), &ok);
             if (ok && !newName.isEmpty()) {
                 Core()->addFlag(var_addr, newName, newName.length());
             }
         }
-        
+
     }
 }
 
@@ -411,12 +416,14 @@ void DecompilerContextMenu::updateTargetMenuActions()
         action->deleteLater();
     }
     showTargetMenuActions.clear();
-    if(annotationHere){
+    if (annotationHere) {
         QString name;
-        if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
+        if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
+                || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
             name = tr("%1 (used here)").arg(RAddressString(annotationHere->reference.offset));
-        } else if(annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
-            name = tr("%1 (%2)").arg(QString(annotationHere->reference.name), RAddressString(annotationHere->reference.offset));
+        } else if (annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
+            name = tr("%1 (%2)").arg(QString(annotationHere->reference.name),
+                                     RAddressString(annotationHere->reference.offset));
         }
         auto action = new QAction(name, this);
         showTargetMenuActions.append(action);
