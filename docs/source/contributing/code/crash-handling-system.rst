@@ -24,9 +24,9 @@ memory state as it was at the moment of the crash.
 
 Then the crash dialog is shown:
 
-.. image :: images/crash-dialog.png
+.. image :: /images/crash-dialog.png
 
 If the user chooses to create a crash dump, the prepared dump is moved to the directory specified by user.
 And then the success dialog is shown:
 
-.. image :: images/success-dump-dialog.png
+.. image :: /images/success-dump-dialog.png

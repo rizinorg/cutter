@@ -11,6 +11,7 @@ Cutter is an advanced reverse engineering platform that is powered by radare2. T
    :titlesonly:
    :glob:
 
+   user-docs/shortcuts
    user-docs/command-line
    user-docs/menus
    user-docs/preferences

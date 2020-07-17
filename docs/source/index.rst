@@ -47,11 +47,10 @@ to learn how you can help improve the project!
    :maxdepth: 2
    :caption: Contents:
 
-   shortcuts
+   user-docs
+   contributing
    building
    common-errors
-   developers-docs
-   user-docs
    plugins
    api
 

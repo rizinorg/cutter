@@ -104,6 +104,15 @@ html_logo = '../../src/img/cutter.ico'
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ['static']
 
+html_js_files = [
+    'cutter.js',
+]
+
+html_css_files = [
+    'cutter.css',
+    'admonitions.css'
+]
+
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 #

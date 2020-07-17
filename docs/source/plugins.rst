@@ -15,7 +15,7 @@ Loading and Overview
 Plugins are loaded from an OS-dependent user-level directory.
 To get the location of this directory and a list of currently loaded plugins, navigate to Edit -> Preferences -> Plugins.
 
-.. image:: plugins/preferences-plugins.png
+.. image:: contributing/plugins/preferences-plugins.png
 
 The plugins directory contains two subdirectories, ``native`` and ``python`` for C++ and Python plugins respectively,
 which will be created automatically by Cutter.
@@ -32,4 +32,4 @@ Creating Plugins
 .. toctree::
    :glob:
 
-   plugins/*
+   contributing/plugins/*
