@@ -47,7 +47,6 @@ R2GraphWidget::R2GraphWidget(MainWindow *main)
         graphView->setGraphCommand(ui->customCommand->text());
         graphView->refreshView();
     });
-    ui->customCommand->setVisible(false);
 }
 
 R2GraphWidget::~R2GraphWidget()
@@ -58,12 +57,14 @@ void R2GraphWidget::typeChanged()
 {
     auto currentData = ui->graphType->currentData();
     if (currentData.isNull()) {
-        ui->customCommand->setVisible(true);
+        ui->customCommand->setEnabled(true);
+        ui->customCommand->clear();
         graphView->setGraphCommand(ui->customCommand->text());
         ui->customCommand->setFocus();
     } else {
-        ui->customCommand->setVisible(false);
+        ui->customCommand->setEnabled(false);
         auto command = QString("ag%1").arg(currentData.toChar());
+        ui->customCommand->setText(command);
         graphView->setGraphCommand(command);
         graphView->refreshView();
     }
