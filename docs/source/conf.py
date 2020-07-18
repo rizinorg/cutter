@@ -76,6 +76,7 @@ pygments_style = 'rainbow_dash'
 
 
 autosectionlabel_prefix_document = True
+autosectionlabel_maxdepth = 2
 
 # -- Options for Breathe -----------------------------------------------------
 
