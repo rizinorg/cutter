@@ -143,7 +143,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
                SLOT(on_actionXRefs_triggered()), getXRefSequence());
     addAction(&actionXRefs);
 
-    initAction(&actionXRefsForVariables, tr("X-Refs for var"),
+    initAction(&actionXRefsForVariables, tr("X-Refs for local variables"),
                 SLOT(on_actionXRefsForVariables_triggered()), QKeySequence({Qt::SHIFT + Qt::Key_X}));
     addAction(&actionXRefsForVariables);
 

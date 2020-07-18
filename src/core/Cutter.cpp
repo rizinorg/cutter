@@ -3449,7 +3449,6 @@ QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, boo
     } else {
         xrefsArray = cmdj("afvRj").array();
     }
-
     for (const QJsonValue &value : xrefsArray) {
         QJsonObject xrefObject = value.toObject();
         QString name = xrefObject[RJsonKey::name].toString();
@@ -3466,7 +3465,6 @@ QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, boo
                 } else {
                     xref.to_str = RAddressString(addr);
                 }
-                // xref.to_str = Core()->cmdRaw(QString("fd %1").arg(xref.to)).trimmed();
                 xrefList << xref;
             }
         }

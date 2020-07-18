@@ -174,7 +174,6 @@ void XrefsDialog::fillRefsForVariable(QString nameOfVariable, RVA offset)
     setWindowTitle(tr("X-Refs for %1").arg(nameOfVariable));
     updateLabelsForVariables(nameOfVariable);
 
-
     toModel.readForVariable(nameOfVariable, true, offset);
     fromModel.readForVariable(nameOfVariable, false, offset);
     
@@ -225,7 +224,6 @@ void XrefModel::readForVariable(QString nameOfVariable, bool write, RVA offset)
     xrefs = Core()->getXRefsForVariable(nameOfVariable, write);
     endResetModel();
 }
-
 
 int XrefModel::rowCount(const QModelIndex &parent) const
 {
