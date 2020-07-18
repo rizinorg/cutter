@@ -138,6 +138,11 @@ void XrefsDialog::updateLabels(QString name)
     ui->label_xFrom->setText(tr("X-Refs from %1:").arg(name));
 }
 
+void XrefsDialog::updateLabelsForVariables(QString name){
+    ui->label_xTo->setText(tr("X-Refs write to %1:").arg(name));
+    ui->label_xFrom->setText(tr("X-Refs read to %1:").arg(name));
+}
+
 void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function)
 {
     TempConfig tempConfig;
@@ -150,6 +155,29 @@ void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function
     toModel.readForOffset(addr, true, whole_function);
     fromModel.readForOffset(addr, false, whole_function);
 
+    // Adjust columns to content
+    qhelpers::adjustColumns(ui->fromTreeWidget, fromModel.columnCount(), 0);
+    qhelpers::adjustColumns(ui->toTreeWidget, toModel.columnCount(), 0);
+
+    // Automatically select the first line
+    if (!qhelpers::selectFirstItem(ui->toTreeWidget)) {
+        qhelpers::selectFirstItem(ui->fromTreeWidget);
+    }
+}
+
+void XrefsDialog::fillRefsForVariable(QString nameOfVariable, RVA offset)
+{
+    TempConfig tempConfig;
+    tempConfig.set("scr.html", false);
+    tempConfig.set("scr.color", COLOR_MODE_DISABLED);
+
+    setWindowTitle(tr("X-Refs for %1").arg(nameOfVariable));
+    updateLabelsForVariables(nameOfVariable);
+
+
+    toModel.readForVariable(nameOfVariable, true, offset);
+    fromModel.readForVariable(nameOfVariable, false, offset);
+    
     // Adjust columns to content
     qhelpers::adjustColumns(ui->fromTreeWidget, fromModel.columnCount(), 0);
     qhelpers::adjustColumns(ui->toTreeWidget, toModel.columnCount(), 0);
@@ -187,6 +215,15 @@ void XrefModel::readForOffset(RVA offset, bool to, bool whole_function)
     xrefs = Core()->getXRefs(offset, to, whole_function);
     endResetModel();
 }
+
+void XrefModel::readForVariable(QString nameOfVariable, bool write, RVA offset)
+{
+    beginResetModel();
+    this->to = write;
+    xrefs = Core()->getXRefsForVariable(nameOfVariable, write);
+    endResetModel();
+}
+
 
 int XrefModel::rowCount(const QModelIndex &parent) const
 {

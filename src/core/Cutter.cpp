@@ -28,6 +28,7 @@ Q_GLOBAL_STATIC(CutterCore, uniqueInstance)
 
 namespace RJsonKey {
     R_JSON_KEY(addr);
+    R_JSON_KEY(addrs);
     R_JSON_KEY(addr_end);
     R_JSON_KEY(arrow);
     R_JSON_KEY(baddr);
@@ -3437,6 +3438,39 @@ BlockStatistics CutterCore::getBlockStatistics(unsigned int blocksCount)
     }
 
     return blockStats;
+}
+
+QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, bool write)
+{
+    QList<XrefDescription> xrefList = QList<XrefDescription>();
+    QJsonArray xrefsArray;
+    if (write) {
+        xrefsArray = cmdj("afvWj").array();
+    } else {
+        xrefsArray = cmdj("afvRj").array();
+    }
+
+    for (const QJsonValue &value : xrefsArray) {
+        QJsonObject xrefObject = value.toObject();
+        QString name = xrefObject[RJsonKey::name].toString();
+        if (name == variableName) {
+            QJsonArray addressArray = xrefObject[RJsonKey::addrs].toArray();
+            for (const QJsonValue &address : addressArray) {
+                XrefDescription xref;
+                RVA addr = address.toVariant().toULongLong();
+                xref.from = addr;
+                xref.to = addr;
+                if (write) {
+                    xref.from_str = RAddressString(addr);
+                } else {
+                    xref.to_str = RAddressString(addr);
+                }
+                // xref.to_str = Core()->cmdRaw(QString("fd %1").arg(xref.to)).trimmed();
+                xrefList << xref;
+            }
+        }
+    }
+    return xrefList;
 }
 
 QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_function,

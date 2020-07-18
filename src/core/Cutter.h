@@ -566,6 +566,7 @@ public:
     QVector<RegisterRefValueDescription> getRegisterRefValues();
     QList<VariableDescription> getVariables(RVA at);
 
+    QList<XrefDescription> getXRefsForVariable(QString variableName, bool to);
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString());
 

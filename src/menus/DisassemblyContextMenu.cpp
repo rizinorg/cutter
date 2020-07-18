@@ -143,8 +143,9 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
                SLOT(on_actionXRefs_triggered()), getXRefSequence());
     addAction(&actionXRefs);
 
-    initAction(&actionXRefsForVariables, tr("X-Refs for var")),
-                SLOT(on_actionXRefsForVariables_triggered(), {Qt::SHIFT + Qt::Key_X});
+    initAction(&actionXRefsForVariables, tr("X-Refs for var"),
+                SLOT(on_actionXRefsForVariables_triggered()));
+    addAction(&actionXRefsForVariables);
 
     initAction(&actionDisplayOptions, tr("Show Options"),
                SLOT(on_actionDisplayOptions_triggered()), getDisplayOptionsSequence());
@@ -886,7 +887,9 @@ void DisassemblyContextMenu::on_actionXRefs_triggered()
 
 void DisassemblyContextMenu::on_actionXRefsForVariables_triggered()
 {
-    
+    XrefsDialog dialog(mainWindow, nullptr);
+    dialog.fillRefsForVariable(curHighlightedWord, offset);
+    dialog.exec();
 }
 
 void DisassemblyContextMenu::on_actionDisplayOptions_triggered()
