@@ -29,6 +29,7 @@ public slots:
 
 private slots:
     void aboutToShowSlot();
+    void aboutToHideSlot();
 
     void on_actionEditFunction_triggered();
     void on_actionEditInstruction_triggered();

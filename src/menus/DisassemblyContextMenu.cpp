@@ -170,6 +170,8 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 
     connect(this, &DisassemblyContextMenu::aboutToShow,
             this, &DisassemblyContextMenu::aboutToShowSlot);
+    connect(this, &DisassemblyContextMenu::aboutToHide,
+            this, &DisassemblyContextMenu::aboutToHideSlot);
 }
 
 DisassemblyContextMenu::~DisassemblyContextMenu()
@@ -564,6 +566,23 @@ void DisassemblyContextMenu::aboutToShowSlot()
             pluginAction->setData(QVariant::fromValue(offset));
         }
     }
+
+    QList<VariableDescription> variables = Core()->getVariables(offset);
+    bool isLocalVar = false;
+    for (const VariableDescription &var : variables) {
+        if (var.name == curHighlightedWord) {
+            isLocalVar = true;
+        }
+    }
+    actionXRefsForVariables.setVisible(isLocalVar);
+    if (isLocalVar) {
+        actionXRefsForVariables.setText(tr("X-Refs for %1").arg(curHighlightedWord));
+    }
+}
+
+void DisassemblyContextMenu::aboutToHideSlot()
+{
+    actionXRefsForVariables.setVisible(true);
 }
 
 QKeySequence DisassemblyContextMenu::getCopySequence() const
@@ -887,9 +906,14 @@ void DisassemblyContextMenu::on_actionXRefs_triggered()
 
 void DisassemblyContextMenu::on_actionXRefsForVariables_triggered()
 {
-    XrefsDialog dialog(mainWindow, nullptr);
-    dialog.fillRefsForVariable(curHighlightedWord, offset);
-    dialog.exec();
+    QList<VariableDescription> variables = Core()->getVariables(offset);
+    for (const VariableDescription &var : variables) {
+        if (var.name == curHighlightedWord) {
+            XrefsDialog dialog(mainWindow, nullptr);
+            dialog.fillRefsForVariable(curHighlightedWord, offset);
+            dialog.exec();
+        }
+    }
 }
 
 void DisassemblyContextMenu::on_actionDisplayOptions_triggered()
