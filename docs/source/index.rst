@@ -48,6 +48,7 @@ to learn how you can help improve the project!
    :caption: Contents:
 
    user-docs
+   Developer documentation <contributing/code/development-guidelines> 
    contributing
    building
    common-errors

@@ -2,6 +2,10 @@
 Cutter Development Guidelines
 ===============================
 
+.. note::
+   New to Cutter development? Check out our `tutorial for new developers <getting-started.html>`_.
+
+
 Common Usage
 --------------
 
