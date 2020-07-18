@@ -29,11 +29,25 @@ R2GraphWidget::R2GraphWidget(MainWindow *main)
         {'R', tr("agR - Global references graph")},
         {'x', tr("agx - Cross references graph")},
         {'g', tr("agg - Custom graph")},
+        {' ', tr("User command")},
     };
     for (auto &graphType : types) {
-        ui->graphType->addItem(graphType.label, graphType.commandChar);
+        if (graphType.commandChar != ' ') {
+            ui->graphType->addItem(graphType.label, graphType.commandChar);
+        } else {
+            ui->graphType->addItem(graphType.label, QVariant());
+        }
+
     }
-    connect(ui->graphType, &QComboBox::currentTextChanged, this, &R2GraphWidget::typeChanged);
+    connect<void(QComboBox::*)(int)>(ui->graphType, &QComboBox::currentIndexChanged, this, &R2GraphWidget::typeChanged);
+    connect(ui->customCommand, &QLineEdit::textEdited, this, [this](){
+        graphView->setGraphCommand(ui->customCommand->text());
+    });
+    connect(ui->customCommand, &QLineEdit::returnPressed, this, [this](){
+        graphView->setGraphCommand(ui->customCommand->text());
+        graphView->refreshView();
+    });
+    ui->customCommand->setVisible(false);
 }
 
 R2GraphWidget::~R2GraphWidget()
@@ -44,10 +58,14 @@ void R2GraphWidget::typeChanged()
 {
     auto currentData = ui->graphType->currentData();
     if (currentData.isNull()) {
-        graphView->setGraphCommand(ui->graphType->currentText());
+        ui->customCommand->setVisible(true);
+        graphView->setGraphCommand(ui->customCommand->text());
+        ui->customCommand->setFocus();
     } else {
+        ui->customCommand->setVisible(false);
         auto command = QString("ag%1").arg(currentData.toChar());
         graphView->setGraphCommand(command);
+        graphView->refreshView();
     }
 }
 
