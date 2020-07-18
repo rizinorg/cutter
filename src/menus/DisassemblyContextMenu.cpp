@@ -910,7 +910,7 @@ void DisassemblyContextMenu::on_actionXRefsForVariables_triggered()
     for (const VariableDescription &var : variables) {
         if (var.name == curHighlightedWord) {
             XrefsDialog dialog(mainWindow, nullptr);
-            dialog.fillRefsForVariable(curHighlightedWord, offset);
+            dialog.fillRefsForVariable(curHighlightedWord);
             dialog.exec();
         }
     }

@@ -19,7 +19,8 @@ public:
 
     XrefModel(QObject *parent = nullptr);
     void readForOffset(RVA offset, bool to, bool whole_function);
-    void readForVariable(QString nameOfVariable, bool write, RVA offset);
+    void readForVariable(QString nameOfVariable, bool write);
+    
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
@@ -48,7 +49,7 @@ public:
     ~XrefsDialog();
 
     void fillRefsForAddress(RVA addr, QString name, bool whole_function);
-    void fillRefsForVariable(QString nameOfVariable, RVA offset);
+    void fillRefsForVariable(QString nameOfVariable);
 
 private slots:
     QString normalizeAddr(const QString &addr) const;
