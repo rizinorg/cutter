@@ -39,6 +39,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
         actionRenameUsedHere(this),
         actionSetFunctionVarTypes(this),
         actionXRefs(this),
+        actionXRefsForVariables(this),
         actionDisplayOptions(this),
         actionDeleteComment(this),
         actionDeleteFlag(this),
@@ -141,6 +142,9 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     initAction(&actionXRefs, tr("Show X-Refs"),
                SLOT(on_actionXRefs_triggered()), getXRefSequence());
     addAction(&actionXRefs);
+
+    initAction(&actionXRefsForVariables, tr("X-Refs for var")),
+                SLOT(on_actionXRefsForVariables_triggered(), {Qt::SHIFT + Qt::Key_X});
 
     initAction(&actionDisplayOptions, tr("Show Options"),
                SLOT(on_actionDisplayOptions_triggered()), getDisplayOptionsSequence());
@@ -878,6 +882,11 @@ void DisassemblyContextMenu::on_actionXRefs_triggered()
     XrefsDialog dialog(mainWindow, nullptr);
     dialog.fillRefsForAddress(offset, RAddressString(offset), false);
     dialog.exec();
+}
+
+void DisassemblyContextMenu::on_actionXRefsForVariables_triggered()
+{
+    
 }
 
 void DisassemblyContextMenu::on_actionDisplayOptions_triggered()

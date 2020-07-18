@@ -46,6 +46,7 @@ private slots:
     void on_actionRenameUsedHere_triggered();
     void on_actionSetFunctionVarTypes_triggered();
     void on_actionXRefs_triggered();
+    void on_actionXRefsForVariables_triggered();
     void on_actionDisplayOptions_triggered();
 
     void on_actionDeleteComment_triggered();
@@ -131,6 +132,7 @@ private:
     QAction actionRenameUsedHere;
     QAction actionSetFunctionVarTypes;
     QAction actionXRefs;
+    QAction actionXRefsForVariables;
     QAction actionDisplayOptions;
 
     QAction actionDeleteComment;
