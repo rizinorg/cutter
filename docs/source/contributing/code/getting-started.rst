@@ -66,7 +66,7 @@ Work on your feature or bug-fix
 If you are experienced with such tasks, go ahead - we leave this in your hands. Otherwise, we recommend you come up with a plan for things that need to be done to solve this bug or implement this feature. Discuss your plan in the relevant issue on GitHub.
 
 .. important::
-   Before starting coding, make sure to get yourself familiar with our comprehensive documentation for our `coding style, conventions, and guidelines <contributing/code/development-guidelines.html>`_.
+   Before starting coding, make sure to get yourself familiar with our comprehensive documentation for our `coding style, conventions, and guidelines <development-guidelines.html>`_.
 
 
 If you don't know how to implement something, check if any of the existing code implements similar behavior in the same widget or similar widgets. If you do copy an existing code consider why it did things the way it did, the same factors might not apply in your case or the old code was poorly written from the first place.

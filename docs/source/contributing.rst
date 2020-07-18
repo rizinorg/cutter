@@ -6,7 +6,7 @@ So you like Cutter and want to get involved? Great! This part in the documentati
 .. tip::
    **Need help?** Our community strives to be friendly, open, and accessible for new contributors. If you have any difficulties getting involved or finding answers to you questions, please `come and ask your questions on our Telegram or IRC groups <https://cutter.re/#community>`_.
 
-   We know that set up to work on Cutter and finding issues that are good fit for your skills can be a challenge. We're always looking for ways to improve this process: making Cutter more open, accessible, and easier to participate with. If you're having any trouble following this documentation, or hit a barrier you can't get around, please contact us.
+   We know that set up to work on Cutter and finding issues that are a good fit for your skills can be a challenge. We're always looking for ways to improve this process: making Cutter more open, accessible, and easier to participate with. If you're having any trouble following this documentation or hit a barrier you can't get around, please contact us.
 
 ---------
 
