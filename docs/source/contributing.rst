@@ -1,7 +1,7 @@
 Contributing to Cutter
 =======================
 
-So you like Cutter and want to get involved? Great! This part in the documentation will help and guide you through everything you need to know when contributing to Cutter. Welcome, we're delighted to see you!
+So you like Cutter and want to get involved? Great! This part of the documentation will help and guide you through everything you need to know when contributing to Cutter. Welcome, we're delighted to see you!
 
 .. tip::
    **Need help?** Our community strives to be friendly, open, and accessible for new contributors. If you have any difficulties getting involved or finding answers to you questions, please `come and ask your questions on our Telegram or IRC groups <https://cutter.re/#community>`_.
