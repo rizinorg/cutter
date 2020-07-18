@@ -144,7 +144,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     addAction(&actionXRefs);
 
     initAction(&actionXRefsForVariables, tr("X-Refs for var"),
-                SLOT(on_actionXRefsForVariables_triggered()));
+                SLOT(on_actionXRefsForVariables_triggered()), QKeySequence({Qt::SHIFT + Qt::Key_X}));
     addAction(&actionXRefsForVariables);
 
     initAction(&actionDisplayOptions, tr("Show Options"),

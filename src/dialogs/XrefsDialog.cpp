@@ -139,8 +139,8 @@ void XrefsDialog::updateLabels(QString name)
 }
 
 void XrefsDialog::updateLabelsForVariables(QString name){
-    ui->label_xTo->setText(tr("X-Refs write to %1:").arg(name));
-    ui->label_xFrom->setText(tr("X-Refs read to %1:").arg(name));
+    ui->label_xTo->setText(tr("Writes to %1").arg(name));
+    ui->label_xFrom->setText(tr("Reads for %1").arg(name));
 }
 
 void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function)
@@ -198,6 +198,8 @@ QString XrefModel::xrefTypeString(const QString &type)
         return QStringLiteral("Data");
     } else if (type == "STRING") {
         return QStringLiteral("String");
+    } else if (type == "LOCAL_VAR") {
+        return QStringLiteral("Local Var");
     }
     return type;
 }
