@@ -3,7 +3,6 @@ Development environment setup
 
 This page contains recommendations and tips on how to better setup different IDEs for Cutter development.
 
-.. contents::
 
 General advice
 --------------

@@ -68,10 +68,6 @@ div.footer a {
     color: #888;
 }
 
-div.related {
-    display: none;
-}
-
 div.sphinxsidebar a {
     color: #444;
     text-decoration: none;
