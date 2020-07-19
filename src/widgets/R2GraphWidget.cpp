@@ -19,16 +19,16 @@ R2GraphWidget::R2GraphWidget(MainWindow *main)
         QChar commandChar;
         QString label;
     } types[] = {
-        {'a', tr("aga - Data reference graph")},
-        {'A', tr("agA - Global data references graph")},
+        {'a', tr("Data reference graph (aga)")},
+        {'A', tr("Global data references graph (agA)")},
         // {'c', tr("c - Function callgraph")},
         // {'C', tr("C - Global callgraph")},
         // {'f', tr("f - Basic blocks function graph")},
-        {'i', tr("agi - Imports graph")},
-        {'r', tr("agr - References graph")},
-        {'R', tr("agR - Global references graph")},
-        {'x', tr("agx - Cross references graph")},
-        {'g', tr("agg - Custom graph")},
+        {'i', tr("Imports graph (agi)")},
+        {'r', tr("References graph (agr)")},
+        {'R', tr("Global references graph (agR)")},
+        {'x', tr("Cross references graph (agx)")},
+        {'g', tr("Custom graph (agg)")},
         {' ', tr("User command")},
     };
     for (auto &graphType : types) {
@@ -47,6 +47,8 @@ R2GraphWidget::R2GraphWidget(MainWindow *main)
         graphView->setGraphCommand(ui->customCommand->text());
         graphView->refreshView();
     });
+    ui->customCommand->hide();
+    typeChanged();
 }
 
 R2GraphWidget::~R2GraphWidget()
@@ -57,14 +59,12 @@ void R2GraphWidget::typeChanged()
 {
     auto currentData = ui->graphType->currentData();
     if (currentData.isNull()) {
-        ui->customCommand->setEnabled(true);
-        ui->customCommand->clear();
+        ui->customCommand->setVisible(true);
         graphView->setGraphCommand(ui->customCommand->text());
         ui->customCommand->setFocus();
     } else {
-        ui->customCommand->setEnabled(false);
+        ui->customCommand->setVisible(false);
         auto command = QString("ag%1").arg(currentData.toChar());
-        ui->customCommand->setText(command);
         graphView->setGraphCommand(command);
         graphView->refreshView();
     }
