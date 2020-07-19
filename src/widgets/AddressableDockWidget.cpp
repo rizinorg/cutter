@@ -20,13 +20,6 @@ AddressableDockWidget::AddressableDockWidget(MainWindow *parent)
     setContextMenuPolicy(Qt::ContextMenuPolicy::DefaultContextMenu);
 }
 
-void AddressableDockWidget::raiseMemoryWidget()
-{
-    show();
-    raise();
-    widgetToFocusOnRaise()->setFocus(Qt::FocusReason::TabFocusReason);
-}
-
 QVariantMap AddressableDockWidget::serializeViewProprties()
 {
     auto result = CutterDockWidget::serializeViewProprties();

@@ -612,16 +612,9 @@ void MainWindow::finalizeOpen()
     Config()->adjustColorThemeDarkness();
     setViewLayout(getViewLayout(LAYOUT_DEFAULT));
 
+
     // Set focus to disasm or graph widget
-
-    // Use for loop to cover cases when main disasm/graph
-    // (MainWindow::disassemblyDock and MainWindow::graphDock)
-    // widgets are invisible but extra ones are visible
-
-    // Graph with function in it has focus priority over DisasmWidget
-    // if there are both graph and disasm.
-    // Otherwise Disasm has focus priority over Graph
-
+    // Graph with function in it has focus priority over DisasmWidget.
     // If there are no graph/disasm widgets focus on MainWindow
 
     setFocus();
@@ -629,20 +622,17 @@ void MainWindow::finalizeOpen()
     for (auto dockWidget : dockWidgets) {
         const QString className = dockWidget->metaObject()->className();
         auto graphWidget = qobject_cast<GraphWidget *>(dockWidget);
-        if (graphWidget && !dockWidget->visibleRegion().isNull()) {
+        if (graphWidget && dockWidget->isVisibleToUser()) {
             graphContainsFunc = !graphWidget->getGraphView()->getBlocks().empty();
             if (graphContainsFunc) {
-                dockWidget->widget()->setFocus();
+                dockWidget->raiseMemoryWidget();
                 break;
             }
         }
         auto disasmWidget = qobject_cast<DisassemblyWidget *>(dockWidget);
-        if (disasmWidget && !dockWidget->visibleRegion().isNull()) {
-            if (!graphContainsFunc) {
-                disasmWidget->setFocus();
-            } else {
-                break;
-            }
+        if (disasmWidget && dockWidget->isVisibleToUser()) {
+            disasmWidget->raiseMemoryWidget();
+            // continue looping in case there is a graph wiget
         }
     }
 }
@@ -1378,6 +1368,8 @@ void MainWindow::setViewLayout(const CutterLayout &layout)
     for (auto dock : dockWidgets) {
         dock->ignoreVisibilityStatus(false);
     }
+    lastSyncMemoryWidget = nullptr;
+    lastMemoryWidget = nullptr;
 }
 
 void MainWindow::loadLayouts(QSettings &settings)

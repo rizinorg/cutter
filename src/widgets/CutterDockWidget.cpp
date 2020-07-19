@@ -49,6 +49,13 @@ void CutterDockWidget::ignoreVisibilityStatus(bool ignore)
     updateIsVisibleToUser();
 }
 
+void CutterDockWidget::raiseMemoryWidget()
+{
+    show();
+    raise();
+    widgetToFocusOnRaise()->setFocus(Qt::FocusReason::TabFocusReason);
+}
+
 void CutterDockWidget::toggleDockWidget(bool show)
 {
     if (!show) {
