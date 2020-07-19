@@ -68,10 +68,6 @@ div.footer a {
     color: #888;
 }
 
-div.related {
-    display: none;
-}
-
 div.sphinxsidebar a {
     color: #444;
     text-decoration: none;
@@ -359,7 +355,7 @@ code.descname {
     font-size: 14px;
 }
 
-@media screen and (max-width: 875px) {
+@media screen and (max-width: 1050px) {
     body {
         margin: 0;
         padding: 20px 30px;

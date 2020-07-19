@@ -3,7 +3,6 @@ Development environment setup
 
 This page contains recommendations and tips on how to better setup different IDEs for Cutter development.
 
-.. contents::
 
 General advice
 --------------
@@ -15,7 +14,7 @@ For most development builds, unless you are working on packaging issues, it is r
 
 While `Qt Creator`_ has a builtin visual form and widget editor, not having it in other IDEs is not a major problem. It is also available as a standalone tool called Qt Designer and you can configure the file associations so that ``.ui`` files are opened using it. Depending on the ``.ui`` file and changes you want to make, it is sometimes easier to perform them by editing the ``.ui`` file as a text file. Essentially, ``.ui`` files are XML files. Most code editors should have some support for XML highlighting and possibly block folding.
 
-The following instructions and recommendations assume that you have already download Cutter source and obtained required dependencies as described in :doc:`../building`
+The following instructions and recommendations assume that you have already download Cutter source and obtained required dependencies as described in :doc:`/building`.
 
 Linux
 -----

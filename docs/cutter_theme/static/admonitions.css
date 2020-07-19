@@ -1,0 +1,106 @@
+/* Admonition styles */
+div.admonition {
+    padding: 8px 35px 8px 0px;
+    margin-bottom: 20px;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    border: 1px solid ;
+    color: #3a87ad;
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+
+    -webkit-border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+  }
+  
+  div.admonition p {
+    margin: 0.5em 1em 0.5em 1em;
+    padding: 0;
+  }
+  
+  div.admonition pre {
+    margin: 0.4em 1em 0.4em 1em;
+  }
+  
+  div.admonition p.admonition-title {
+    margin: 0;
+    padding: 0.1em 0 0.1em 0.5em;
+    font-weight: bold;
+  }
+  
+  div.admonition ul, div.admonition ol {
+    margin: 0.1em 0.5em 0.5em 3em;
+    padding: 0;
+  }
+  
+  /* -- danger, error -- */
+  div.danger,
+  div.error {
+    color: #b94a48;
+    background-color: #f2dede;
+    border-color: #eed3d7;
+  }
+  
+  
+  /* -- warning, caution, attention -- */
+  div.warning,
+  div.caution,
+  div.attention {
+    color: #c09853;
+    background-color: #fcf8e3;
+    border: 1px solid #fbeed5;
+  }
+  
+  /* -- note, important -- */
+  div.note,
+  div.important {
+    color: #468847;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+  }
+  
+  /* -- hint, tip -- */
+  div.hint,
+  div.tip {
+    color: #3a87ad;
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+  }
+  
+  div.danger p.admonition-title:before,
+  div.error p.admonition-title:before,
+  div.warning p.admonition-title:before,
+  div.caution p.admonition-title:before,
+  div.attention p.admonition-title:before,
+  div.important p.admonition-title:before,
+  div.note p.admonition-title:before,
+  div.hint p.admonition-title:before,
+  div.tip p.admonition-title:before
+  {
+    display: inline-block;
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  div.danger p.admonition-title:before,
+  div.error p.admonition-title:before {
+    content: "\f06a\00a0";
+  }
+  div.warning p.admonition-title:before,
+  div.caution p.admonition-title:before,
+  div.attention p.admonition-title:before {
+    content: "\f071\00a0";
+  }
+  div.important p.admonition-title:before,
+  div.note p.admonition-title:before {
+    content: "\f05a\00a0";
+  }
+  div.hint p.admonition-title:before,
+  div.tip p.admonition-title:before {
+    content: "\f0eb\00a0";
+  }
+  

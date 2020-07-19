@@ -1,24 +1,19 @@
-Developer documentation
-=======================
 
-This page shows some hints about the coding conventions.
+Cutter Development Guidelines
+===============================
 
-.. toctree::
-   :maxdepth: 2
-   :glob:
-
-   developers-docs/*
-   crash-handling-system
+.. note::
+   New to Cutter development? Check out our :doc:`tutorial for new developers <getting-started>`.
 
 
-Cutter coding advices
----------------------
+Common Usage
+--------------
 
 CutterCore class
 ~~~~~~~~~~~~~~~~
 
 This is the main class where every link with r2 is made. It is *unique*
-accross the whole process. To access it, simply call ``Core()``.
+across the whole process. To access it, simply call ``Core()``.
 
 Example:
 
@@ -35,7 +30,8 @@ There are multiple ways to call a radare2 command:
   This is the command we used to fetch structured data from radare2.
   
 - ``CutterCore::cmdRaw(<command>)`` - Executes a single radare2 command 
- without going through radare2 shell functionality like output redirects, grep, and multiple command parsing.
+  without going through radare2 shell functionality like output redirects, grep, and multiple command parsing.
+
 The command then returns its output. This should be used when a command doesn't have output or the output should be handled as-is. If possible, using the json variation with ``cmdj`` is always preferred.
   
 - ``CutterCore::cmdRawAt(<command>, <address>)`` - Executes a single radare2 command in a given address and returns the output. This helps avoiding weird strings concatenation like ``cmd("ph " + hash + " @ " + QString::num(address))``.
@@ -80,7 +76,7 @@ so your widget refreshes its output when radare2 seek is modified
 (switching to another function, etc.).
 
 Coding style
-------------
+-------------
 
 In general, we follow `the official Qt guidelines <https://wiki.qt.io/Qt_Coding_Style>`__ to
 format the code. If in doubt, you can use `AStyle
