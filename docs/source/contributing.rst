@@ -8,10 +8,7 @@ So you like Cutter and want to get involved? Great! This part of the documentati
 
    We know that set up to work on Cutter and finding issues that are a good fit for your skills can be a challenge. We're always looking for ways to improve this process: making Cutter more open, accessible, and easier to participate with. If you're having any trouble following this documentation or hit a barrier you can't get around, please contact us.
 
----------
-
-How do you want to help?
--------------------------------
+.. rubric:: How do you want to help?
 
 .. raw:: html
 
@@ -20,10 +17,13 @@ How do you want to help?
    <a class="btn btn-outline-success btn-lg m-2" role="button" href="contributing/plugins/getting-started.html">Plugins</a>
    <a class="btn btn-outline-info btn-lg m-2" role="button" href="contributing/translations/getting-started.html">Translations</a>
 
+---------
 
 .. toctree::
-   :maxdepth: 3
-   :hidden:
-   :glob:
+   :maxdepth: 2
+   :titlesonly:
 
-   contributing/*/*
+   contributing/code
+   Contributing Documentation <contributing/docs/getting-started>
+   contributing/translations/getting-started
+   contributing/plugins/getting-started

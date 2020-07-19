@@ -13,7 +13,7 @@ The first step before starting to add code to Cutter is to build it on your envi
   If you are facing issues with building Cutter on your environment, make sure you didn't miss anything in the documentation. Specifically, check the :ref:`Building:Troubleshooting` section.
 
 .. tip::
-  If you need help configuring your development environment, make sure to read our `instructions, recommendations and tips <ide-setup.html>`_ for setting up a Cutter development environment for popular IDEs.
+  If you need help configuring your development environment, make sure to read our :doc:`instructions, recommendations and tips <ide-setup>` for setting up a Cutter development environment for popular IDEs.
 
 
 
@@ -94,8 +94,3 @@ More Information
 .. important::
     We're always in the process of improving the information on this page for newcomers to the Cutter. Please help us by suggesting improvements and tell us about the information that this page lacks.
 
-.. toctree::
-   :maxdepth: 2
-   :glob:
-
-   *

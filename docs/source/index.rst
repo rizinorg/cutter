@@ -40,16 +40,16 @@ Want to help the project?
 -------------------------
 
 If you want to contribute to Cutter, take a look
-`here <https://github.com/radareorg/cutter/blob/master/CONTRIBUTING.md>`__
+`here <contributing>`_
 to learn how you can help improve the project!
 
 .. toctree::
-   :maxdepth: 2
    :caption: Contents:
+   :maxdepth: 3
 
    user-docs
    contributing
-   Developer documentation <contributing/code/development-guidelines> 
+   Developer documentation <contributing/code>
    building
    common-errors
    plugins
