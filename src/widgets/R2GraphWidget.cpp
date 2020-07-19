@@ -19,21 +19,36 @@ R2GraphWidget::R2GraphWidget(MainWindow *main)
         QChar commandChar;
         QString label;
     } types[] = {
-        {'a', tr("aga - Data reference graph")},
-        {'A', tr("agA - Global data references graph")},
+        {'a', tr("Data reference graph (aga)")},
+        {'A', tr("Global data references graph (agA)")},
         // {'c', tr("c - Function callgraph")},
         // {'C', tr("C - Global callgraph")},
         // {'f', tr("f - Basic blocks function graph")},
-        {'i', tr("agi - Imports graph")},
-        {'r', tr("agr - References graph")},
-        {'R', tr("agR - Global references graph")},
-        {'x', tr("agx - Cross references graph")},
-        {'g', tr("agg - Custom graph")},
+        {'i', tr("Imports graph (agi)")},
+        {'r', tr("References graph (agr)")},
+        {'R', tr("Global references graph (agR)")},
+        {'x', tr("Cross references graph (agx)")},
+        {'g', tr("Custom graph (agg)")},
+        {' ', tr("User command")},
     };
     for (auto &graphType : types) {
-        ui->graphType->addItem(graphType.label, graphType.commandChar);
+        if (graphType.commandChar != ' ') {
+            ui->graphType->addItem(graphType.label, graphType.commandChar);
+        } else {
+            ui->graphType->addItem(graphType.label, QVariant());
+        }
+
     }
-    connect(ui->graphType, &QComboBox::currentTextChanged, this, &R2GraphWidget::typeChanged);
+    connect<void(QComboBox::*)(int)>(ui->graphType, &QComboBox::currentIndexChanged, this, &R2GraphWidget::typeChanged);
+    connect(ui->customCommand, &QLineEdit::textEdited, this, [this](){
+        graphView->setGraphCommand(ui->customCommand->text());
+    });
+    connect(ui->customCommand, &QLineEdit::returnPressed, this, [this](){
+        graphView->setGraphCommand(ui->customCommand->text());
+        graphView->refreshView();
+    });
+    ui->customCommand->hide();
+    typeChanged();
 }
 
 R2GraphWidget::~R2GraphWidget()
@@ -44,10 +59,14 @@ void R2GraphWidget::typeChanged()
 {
     auto currentData = ui->graphType->currentData();
     if (currentData.isNull()) {
-        graphView->setGraphCommand(ui->graphType->currentText());
+        ui->customCommand->setVisible(true);
+        graphView->setGraphCommand(ui->customCommand->text());
+        ui->customCommand->setFocus();
     } else {
+        ui->customCommand->setVisible(false);
         auto command = QString("ag%1").arg(currentData.toChar());
         graphView->setGraphCommand(command);
+        graphView->refreshView();
     }
 }
 

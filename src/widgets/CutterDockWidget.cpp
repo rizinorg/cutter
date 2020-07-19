@@ -43,6 +43,12 @@ void CutterDockWidget::deserializeViewProperties(const QVariantMap &)
 {
 }
 
+void CutterDockWidget::ignoreVisibilityStatus(bool ignore)
+{
+    this->ignoreVisibility = ignore;
+    updateIsVisibleToUser();
+}
+
 void CutterDockWidget::toggleDockWidget(bool show)
 {
     if (!show) {
@@ -61,7 +67,7 @@ QWidget *CutterDockWidget::widgetToFocusOnRaise()
 void CutterDockWidget::updateIsVisibleToUser()
 {
     // Check if the user can actually see the widget.
-    bool visibleToUser = isVisible() && !visibleRegion().isEmpty();
+    bool visibleToUser = isVisible() && !visibleRegion().isEmpty() && !ignoreVisibility;
     if (visibleToUser == isVisibleToUserCurrent) {
         return;
     }
