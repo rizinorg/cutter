@@ -18,6 +18,7 @@ How do you want to help?
    <a class="btn btn-outline-primary btn-lg m-2" role="button" href="contributing/code/getting-started.html">Code</a>
    <a class="btn btn-outline-warning btn-lg m-2" role="button" href="contributing/docs/getting-started.html">Documentation</a>
    <a class="btn btn-outline-success btn-lg m-2" role="button" href="contributing/plugins/getting-started.html">Plugins</a>
+   <a class="btn btn-outline-info btn-lg m-2" role="button" href="contributing/translations/getting-started.html">Translations</a>
 
 
 .. toctree::
