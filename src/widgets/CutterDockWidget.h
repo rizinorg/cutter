@@ -86,6 +86,12 @@ public:
      * @see CutterDockWidget#serializeViewProprties
      */
     virtual void deserializeViewProperties(const QVariantMap &properties);
+    /**
+     * @brief Ignore visibility status.
+     * Useful for temporary ignoring visibility changes while this information is unreliable.
+     * @param ignored - set to true for enabling ignoring mode
+     */
+    void ignoreVisibilityStatus(bool ignored);
 signals:
     void becameVisibleToUser();
     void closed();
@@ -105,6 +111,7 @@ private:
     bool isTransient = false;
 
     bool isVisibleToUserCurrent = false;
+    bool ignoreVisibility = false;
     void updateIsVisibleToUser();
 };
 

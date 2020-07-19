@@ -1351,6 +1351,7 @@ void MainWindow::setViewLayout(const CutterLayout &layout)
             dock->deserializeViewProperties({}); // call with empty properties to reset the widget
             newDocks.push_back(dock);
         }
+        dock->ignoreVisibilityStatus(true);
     }
 
     if (!isDefault) {
@@ -1372,6 +1373,10 @@ void MainWindow::setViewLayout(const CutterLayout &layout)
         } else {
             showZenDocks();
         }
+    }
+
+    for (auto dock : dockWidgets) {
+        dock->ignoreVisibilityStatus(false);
     }
 }
 
