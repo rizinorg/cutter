@@ -29,6 +29,7 @@ public:
     ~TempConfig();
 
     TempConfig &set(const QString &key, const QString &value);
+    TempConfig &set(const QString &key, const char *value);
     TempConfig &set(const QString &key, int value);
     TempConfig &set(const QString &key, bool value);
 

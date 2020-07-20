@@ -287,6 +287,8 @@ public:
     QString itoa(ut64 num, int rdx = 16);
 
     /* Config functions */
+    void setConfig(const char *k, const char *v);
+    void setConfig(const QString &k, const char *v);
     void setConfig(const char *k, const QString &v);
     void setConfig(const QString &k, const QString &v) { setConfig(k.toUtf8().constData(), v); }
     void setConfig(const char *k, int v);

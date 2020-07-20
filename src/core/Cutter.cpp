@@ -956,6 +956,18 @@ QString CutterCore::itoa(ut64 num, int rdx)
     return QString::number(num, rdx);
 }
 
+void CutterCore::setConfig(const char *k, const char *v)
+{
+    CORE_LOCK();
+    r_config_set(core->config, k, v);
+}
+
+void CutterCore::setConfig(const QString &k, const char *v)
+{
+    CORE_LOCK();
+    r_config_set(core->config, k.toUtf8().constData(), v);
+}
+
 void CutterCore::setConfig(const char *k, const QString &v)
 {
     CORE_LOCK();

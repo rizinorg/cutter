@@ -34,6 +34,16 @@ TempConfig &TempConfig::set(const QString &key, const QString &value)
     return *this;
 }
 
+TempConfig &TempConfig::set(const QString &key, const char *value)
+{
+    if (!resetValues.contains(key)) {
+        resetValues[key] = Core()->getConfig(key);
+    }
+
+    Core()->setConfig(key, value);
+    return *this;
+}
+
 TempConfig &TempConfig::set(const QString &key, int value)
 {
     if (!resetValues.contains(key)) {
