@@ -956,6 +956,18 @@ QString CutterCore::itoa(ut64 num, int rdx)
     return QString::number(num, rdx);
 }
 
+void CutterCore::setConfig(const char *k, const char *v)
+{
+    CORE_LOCK();
+    r_config_set(core->config, k, v);
+}
+
+void CutterCore::setConfig(const QString &k, const char *v)
+{
+    CORE_LOCK();
+    r_config_set(core->config, k.toUtf8().constData(), v);
+}
+
 void CutterCore::setConfig(const char *k, const QString &v)
 {
     CORE_LOCK();
@@ -3397,7 +3409,15 @@ BlockStatistics CutterCore::getBlockStatistics(unsigned int blocksCount)
         return blockStats;
     }
 
-    QJsonObject statsObj = cmdj("p-j " + QString::number(blocksCount)).object();
+    QJsonObject statsObj;
+
+    // User TempConfig here to set the search boundaries to all sections. This makes sure
+    // that the Visual Navbar will show all the relevant addresses.
+    {
+        TempConfig tempConfig;
+        tempConfig.set("search.in", "bin.sections");
+        statsObj = cmdj("p-j " + QString::number(blocksCount)).object();
+    }
 
     blockStats.from = statsObj[RJsonKey::from].toVariant().toULongLong();
     blockStats.to = statsObj[RJsonKey::to].toVariant().toULongLong();
