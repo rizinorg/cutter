@@ -220,7 +220,7 @@
                 <item row="19" column="1" colspan="2">
                  <widget class="QCheckBox" name="bytespaceCheckBox">
                   <property name="text">
-                   <string>Separate bytes with whitespace (asm.bytespace)</string>
+                   <string>Separate bytes with whitespace (asm.bytes.space)</string>
                   </property>
                  </widget>
                 </item>
@@ -479,7 +479,7 @@
              <item>
               <widget class="QCheckBox" name="varsubOnlyCheckBox">
                <property name="text">
-                <string>Substitute entire variable expressions with names (asm.var.subonly)</string>
+                <string>Substitute entire variable expressions with names (asm.sub.varonly)</string>
                </property>
               </widget>
              </item>
