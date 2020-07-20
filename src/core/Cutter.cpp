@@ -3409,7 +3409,15 @@ BlockStatistics CutterCore::getBlockStatistics(unsigned int blocksCount)
         return blockStats;
     }
 
-    QJsonObject statsObj = cmdj("p-j " + QString::number(blocksCount)).object();
+    QJsonObject statsObj;
+
+    // User TempConfig here to set the search boundaries to all sections. This makes sure
+    // that the Visual Navbar will show all the relevant addresses.
+    {
+        TempConfig tempConfig;
+        tempConfig.set("search.in", "bin.sections");
+        statsObj = cmdj("p-j " + QString::number(blocksCount)).object();
+    }
 
     blockStats.from = statsObj[RJsonKey::from].toVariant().toULongLong();
     blockStats.to = statsObj[RJsonKey::to].toVariant().toULongLong();
