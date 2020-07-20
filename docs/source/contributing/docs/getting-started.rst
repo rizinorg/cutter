@@ -23,11 +23,9 @@ The following sections suggest ways you can contribute to Cutter's documentation
 User documentation
 ^^^^^^^^^^^^^^^^^^^
 
-.. note::
-  The source for this documentation is available at <https://github.com/radareorg/cutter/tree/master/docs> and generated and pushed directly on the website at <https://cutter.re/docs>.
-  The source for website and blog is available at <http://github.org/radareorg/cutter.re>.
 
-
+The source for this documentation is available in the `Cutter's repository <https://github.com/radareorg/cutter/tree/master/docs>`_ and generated and pushed directly on the website at `/docs <https://cutter.re/docs>`_.
+The source for website and blog are available on the `Cutter.re's repository <http://github.org/radareorg/cutter.re>`_ .
 The documentation for users describes how to use Cutter and what the different features in Cutter do. The possibilities for contributing are endless since there are so many features that weren't even described on our docs yet. To contribute to our user documentation, all you need to do is pick a subject, widget, or functionality and document it. Describe the different visual components, how to use them, and what this feature even does.
 
 Common Errors and Troubleshooting
