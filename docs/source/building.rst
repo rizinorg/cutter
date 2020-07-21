@@ -312,11 +312,11 @@ The workaround is to either add the `--disable-new-dtags` linker flag when compi
     r_util/r_annotated_code.h: No such file or directory
 
 If you face an error where some header file starting with ``r_`` is missing, you should check the **radare2** submodule and
-make sure it is in the sync with upstream **Cutter** repo. You can sync it with:
+make sure it is in the sync with upstream **Cutter** repo. Simply run:
 
 ::
 
-    git sumodule sync --recursive
+    git sumodule update
 
 * **r_core development package not found**
 
