@@ -27,9 +27,9 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
     ui->logoSvgWidget->load(Config()->getLogoFile());
 
     // Fill the plugins combo
-    asm_plugins = core->getAsmPluginNames();
-    for (const auto &plugin : asm_plugins) {
-        ui->archComboBox->addItem(plugin, plugin);
+    asmPlugins = core->getRAsmPluginDescriptions();
+    for (const auto &plugin : asmPlugins) {
+        ui->archComboBox->addItem(plugin.name, plugin.name);
     }
 
     setTooltipWithConfigHelp(ui->archComboBox,"asm.arch");
@@ -103,15 +103,23 @@ void InitialOptionsDialog::updateCPUComboBox()
     QString currentText = ui->cpuComboBox->lineEdit()->text();
     ui->cpuComboBox->clear();
 
-    QString cmd = "e asm.cpu=?";
-
     QString arch = getSelectedArch();
-    if (!arch.isNull()) {
-        cmd += " @a:" + arch;
+    QStringList cpus;
+    if (!arch.isEmpty()) {
+        auto pluginDescr = std::find_if(asmPlugins.begin(), asmPlugins.end(), [&](const RAsmPluginDescription &plugin) {
+            return plugin.name == arch;
+        });
+        if (pluginDescr != asmPlugins.end()) {
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+            cpus = pluginDescr->cpus.split(",", Qt::SkipEmptyParts);
+#else
+            cpus = pluginDescr->cpus.split(",", QString::SkipEmptyParts);
+#endif
+        }
     }
 
     ui->cpuComboBox->addItem("");
-    ui->cpuComboBox->addItems(core->cmdList(cmd));
+    ui->cpuComboBox->addItems(cpus);
 
     ui->cpuComboBox->lineEdit()->setText(currentText);
 }

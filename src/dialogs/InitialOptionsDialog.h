@@ -46,7 +46,7 @@ private:
     QString analysisDescription(int level);
     QString shellcode;
     int analLevel;
-    QStringList asm_plugins;
+    QList<RAsmPluginDescription> asmPlugins;
 
 
     void updateCPUComboBox();
