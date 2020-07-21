@@ -44,7 +44,7 @@ Want to help the project?
 -------------------------
 
 If you want to contribute to Cutter, take a look
-`here <contributing>`_
+`here <contributing.html>`_
 to learn how you can help improve the project!
 
 .. toctree::
