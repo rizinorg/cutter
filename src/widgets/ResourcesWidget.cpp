@@ -1,5 +1,6 @@
 #include "common/Helpers.h"
 #include "ResourcesWidget.h"
+#include "ui_ListDockWidget.h"
 #include "core/MainWindow.h"
 #include <QVBoxLayout>
 
@@ -105,6 +106,8 @@ ResourcesWidget::ResourcesWidget(MainWindow *main, QAction *action) :
     filterModel = new AddressableFilterProxyModel(model, this);
     filterModel->setSortRole(Qt::EditRole);
     setModels(filterModel);
+
+    ui->treeView->sortByColumn(0, Qt::AscendingOrder);
 
     showCount(false);
 
