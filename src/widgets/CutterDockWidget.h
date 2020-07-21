@@ -92,6 +92,8 @@ public:
      * @param ignored - set to true for enabling ignoring mode
      */
     void ignoreVisibilityStatus(bool ignored);
+
+    void raiseMemoryWidget();
 signals:
     void becameVisibleToUser();
     void closed();

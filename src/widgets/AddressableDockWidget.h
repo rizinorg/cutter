@@ -17,8 +17,6 @@ public:
 
     CutterSeekable *getSeekable() const;
 
-    void raiseMemoryWidget();
-
     QVariantMap serializeViewProprties() override;
     void deserializeViewProperties(const QVariantMap &properties) override;
 public slots:
