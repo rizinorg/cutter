@@ -20,13 +20,13 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Cutter'
-copyright = '2019, The Cutter Developers'
+copyright = '2020, The Cutter Developers'
 author = 'The Cutter Developers'
 
 # The short X.Y version
-version = '1.10'
+version = '1.11'
 # The full version, including alpha/beta/rc tags
-release = '1.10.3'
+release = '1.11.0-rc1'
 
 
 # -- General configuration ---------------------------------------------------
