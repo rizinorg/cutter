@@ -113,7 +113,7 @@ void InitialOptionsDialog::updateCPUComboBox()
 #if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
             cpus = pluginDescr->cpus.split(",", Qt::SkipEmptyParts);
 #else
-            cpus = pluginDescr->cpus.split(",", Qt::SkipEmptyParts);
+            cpus = pluginDescr->cpus.split(",", QString::SkipEmptyParts);
 #endif
         }
     }
