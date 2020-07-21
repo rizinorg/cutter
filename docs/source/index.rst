@@ -55,7 +55,6 @@ to learn how you can help improve the project!
    contributing
    Developer documentation <contributing/code>
    building
-   common-issues
    plugins
    api
 

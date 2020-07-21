@@ -17,4 +17,5 @@ The documentation for users is still on its early stages and will be improved ov
    user-docs/command-line
    user-docs/menus
    user-docs/preferences
+   user-docs/common-issues
 
