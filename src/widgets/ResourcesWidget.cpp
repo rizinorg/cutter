@@ -41,6 +41,23 @@ QVariant ResourcesModel::data(const QModelIndex &index, int role) const
         default:
             return QVariant();
         }
+    case Qt::EditRole:
+        switch (index.column()) {
+        case NAME:
+            return res.name;
+        case VADDR:
+            return res.vaddr;
+        case INDEX:
+            return res.index;
+        case TYPE:
+            return res.type;
+        case SIZE:
+            return res.size;
+        case LANG:
+            return res.lang;
+        default:
+            return QVariant();
+        }
     case Qt::UserRole:
         return QVariant::fromValue(res);
     default:
@@ -86,6 +103,7 @@ ResourcesWidget::ResourcesWidget(MainWindow *main, QAction *action) :
 
     model = new ResourcesModel(&resources, this);
     filterModel = new AddressableFilterProxyModel(model, this);
+    filterModel->setSortRole(Qt::EditRole);
     setModels(filterModel);
 
     showCount(false);
