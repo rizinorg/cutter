@@ -233,7 +233,7 @@ void DecompilerContextMenu::setActionDeleteComment()
 
 void DecompilerContextMenu::setActionRenameThingHere()
 {
-    actionRenameThingHere.setShortcut({Qt::SHIFT + Qt::Key_N});
+    actionRenameThingHere.setShortcut({Qt::Key_N});
     connect(&actionRenameThingHere, &QAction::triggered, this,
             &DecompilerContextMenu::actionRenameThingHereTriggered);
     addAction(&actionRenameThingHere);
