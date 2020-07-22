@@ -295,7 +295,7 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
     if (!annotationHere) {
         return;
     }
-    RCore *core = Core()->core();
+    RCoreLocked core = Core()->core();
     bool ok;
     auto type = annotationHere->type;
     if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
