@@ -173,7 +173,7 @@ void DecompilerContextMenu::aboutToShowSlot()
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText(tr("Set %1 here").arg(progCounterName));
 
-    if (!annotationHere) { // To be considered as invalid
+    if (!annotationHere || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) { // To be considered as invalid
         actionRenameThingHere.setVisible(false);
         copySeparator->setVisible(false);
     } else {
@@ -183,8 +183,7 @@ void DecompilerContextMenu::aboutToShowSlot()
             actionRenameThingHere.setText(tr("Rename function %1").arg(QString(
                                                                            annotationHere->reference.name)));
         }
-        if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
-                || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
+        if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE) {
             RFlagItem *flagDetails = r_flag_get_i(Core()->core()->flags, annotationHere->reference.offset);
             if (flagDetails) {
                 actionRenameThingHere.setText(tr("Rename %1").arg(QString(flagDetails->name)));
@@ -317,8 +316,7 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
             }
         }
 
-    } else if (type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
-               || type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
+    } else if (type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE) {
         RVA var_addr = annotationHere->reference.offset;
         RFlagItem *flagDetails = r_flag_get_i(core->flags, var_addr);
         if (flagDetails) {
@@ -331,7 +329,7 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
             QString newName = QInputDialog::getText(this, tr("Add name"), tr("Enter name"), QLineEdit::Normal,
                                                     QString(), &ok);
             if (ok && !newName.isEmpty()) {
-                Core()->addFlag(var_addr, newName, newName.length());
+                Core()->addFlag(var_addr, newName, 1);
             }
         }
 
@@ -416,11 +414,18 @@ void DecompilerContextMenu::updateTargetMenuActions()
         action->deleteLater();
     }
     showTargetMenuActions.clear();
+    RCoreLocked core = Core()->core();
     if (annotationHere) {
         QString name;
         if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
                 || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
-            name = tr("%1 (used here)").arg(RAddressString(annotationHere->reference.offset));
+            RVA var_addr = annotationHere->reference.offset;
+            RFlagItem *flagDetails = r_flag_get_i(core->flags, var_addr);
+            if (flagDetails) {
+                name = tr("Show %1 in").arg(flagDetails->name);
+            } else {
+                name = tr("Show %1 (addr here)").arg(RAddressString(annotationHere->reference.offset));
+            }
         } else if (annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
             name = tr("%1 (%2)").arg(QString(annotationHere->reference.name),
                                      RAddressString(annotationHere->reference.offset));
