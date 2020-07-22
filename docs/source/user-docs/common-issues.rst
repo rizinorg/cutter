@@ -6,7 +6,7 @@ This page lists common issues encountered by users.
 AppImage Crashes
 ----------------
 
-If the linux AppImage binary crashes upon startup, make sure your
+If the Linux AppImage binary crashes upon startup, make sure your
 ``LD_LIBRARY_PATH`` environment variable is empty.
 `#579 <https://github.com/radareorg/cutter/issues/579>`__
 

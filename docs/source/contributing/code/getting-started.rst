@@ -7,7 +7,7 @@ The following section in our documentation is *not* intended to be comprehensive
 
 Clone and compile Cutter
 -------------------------
-The first step before starting to add code to Cutter is to build it on your environment. Whether it is Linux, Windows, or macOS, we have you covered and detailed the instructions to compile Cutter on our :doc:`/building`. Once you are done and Cutter was built successfully, test that it works correctly and continue to the next steps.
+The first step before starting to add code to Cutter is to build it on your environment. Whether it is Linux, Windows, or macOS, we have you covered and detailed the instructions to compile Cutter on our :doc:`/building`. Once you are done and Cutter is built successfully, test that it works correctly and continue to the next steps.
 
 .. tip::
   If you are facing issues with building Cutter on your environment, make sure you didn't miss anything in the documentation. Specifically, check the :ref:`Building:Troubleshooting` section.

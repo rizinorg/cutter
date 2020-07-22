@@ -42,7 +42,7 @@ Disassembly View Shortcuts
 +-------------+----------------------------------+
 | Shortcut    | Function                         |
 +=============+==================================+
-| Esc         | Seek to previous position        |
+| Esc         | Seek to the previous position    |
 +-------------+----------------------------------+
 | Space       | Switch to disassembly graph view |
 +-------------+----------------------------------+

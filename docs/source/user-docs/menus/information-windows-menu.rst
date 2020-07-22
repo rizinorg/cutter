@@ -45,7 +45,7 @@ Show Imports
 
 Show Relocations
 ----------------------------------------
-**Description:** Show the Relocations widget, displaying list of relocation information.  
+**Description:** Show the Relocations widget, displaying a list of relocation information.  
 
 **Steps:** Windows -> Info... -> Relocs  
 

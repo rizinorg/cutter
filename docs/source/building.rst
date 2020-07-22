@@ -134,14 +134,14 @@ Note that the paths below may vary depending on your version of Qt and Visual St
 
 Click ``Configure`` and select your version of Visual Studio from the list,
 for example ``Visual Studio 14 2015``.
-After configuration is done, click ``Generate`` and you can open
+After the configuration is done, click ``Generate`` and you can open
 ``Cutter.sln`` to compile the code as usual.
 
 
 Building with Meson
 ~~~~~~~~~~~~~~~~~~~
 
-There is another way to compile Cutter on Windows, if the one above does
+There is another way to compile Cutter on Windows if the one above does
 not work or does not suit your needs.
 
 Additional requirements:
@@ -240,13 +240,13 @@ Note that there are some major building options available:
 * ``CUTTER_ENABLE_CRASH_REPORTS`` is used to compile Cutter with crash handling system enabled (Breakpad).
 
 These options can be enabled or disabled from the command line arguments passed to CMake.
-For example, in order to build Cutter with support for Python plugins, you can run this command:
+For example, to build Cutter with support for Python plugins, you can run this command:
 
 ::
 
    cmake -B build -DCUTTER_ENABLE_PYTHON=ON -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
 
-Or if one wants to explicitely disable an option:
+Or if one wants to explicitly disable an option:
 
 ::
 
@@ -286,7 +286,7 @@ Troubleshooting
 
 Depending on how Qt installed (Distribution packages or using the Qt
 installer application), CMake may not be able to find it by itself if it
-is not in a common place. If that is the case, double check that the
+is not in a common place. If that is the case, double-check that the
 correct Qt version is installed. Locate its prefix (a directory
 containing bin/, lib/, include/, etc.) and specify it to CMake using
 ``CMAKE_PREFIX_PATH`` in the above process, e.g.:

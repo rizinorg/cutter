@@ -32,16 +32,16 @@ There are multiple ways to call a radare2 command:
 - ``CutterCore::cmdRaw(<command>)`` - Executes a single radare2 command 
   without going through radare2 shell functionality like output redirects, grep, and multiple command parsing.
 
-The command then returns its output. This should be used when a command doesn't have output or the output should be handled as-is. If possible, using the json variation with ``cmdj`` is always preferred.
+The command then returns its output. This should be used when a command doesn't have output or the output should be handled as-is. If possible, using the JSON variation with ``cmdj`` is always preferred.
   
 - ``CutterCore::cmdRawAt(<command>, <address>)`` - Executes a single radare2 command in a given address and returns the output. This helps avoiding weird strings concatenation like ``cmd("ph " + hash + " @ " + QString::num(address))``.
   
 - ``CutterCore::cmd()`` - *(Discouraged)* Only use it when ``cmdj`` or ``cmdRaw`` cannot be used. This is used for complex commands using concatenation of several commands (``px 5; pd 7; afl;``), for grepping (``pd 5~call``). for commands inside commands (``?e `afn.```) and so on.
-  This is also used when the output is complex and does not parsed correctly in ``cmdRaw``.
+  This is also used when the output is complex and does not get parsed correctly in ``cmdRaw``.
   Make sure to carefully sanitize user-controlled variables that are passed to the command, to avoid unexpected command injections. 
 
 Generally, if one needs to retrieve information from a radare2 command, it
-is preferred to use the json API.
+is preferred to use the JSON API.
 
 Example:
 
@@ -135,7 +135,7 @@ If you need something in the source file (.cpp) that is not a class member,
 then add the include in the source file.
 
 The includes must be ordered from local to global. That is, first include
-any local header file (with doublequotes like `#include "common/Helpers.h"`.
+any local header file (with double quotes like `#include "common/Helpers.h"`.
 Then, after an empty newline, include Qt definitions like
 `#include <QShortcut>`.
 Finally, include the standard C++ headers you need.
@@ -196,7 +196,7 @@ General Coding Advices
 Functions Documentation
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-You can find the classes documentation in the API Reference menu item.
+You can find the class documentation in the API Reference menu item.
 
 Updating the Git Submodules
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -205,7 +205,7 @@ Git submodules play a major part in Cutter. This, because Cutter is powered
 by radare2, its parent project, and it tries to stay up-to-date with its
 recent version, which allows us to implement new features, and enjoy bug
 fixes and performance improvements on radare2. Often, we need to update
-the radare2 submodule or others, in order to push the most recent
+the radare2 submodule or the others, to push the most recent
 version of them to Cutter.
 
 You can view the list of all the submodules from the cutter root folder with:
@@ -239,5 +239,5 @@ Useful Resources (Qt Development)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * `Signals & Slots <https://doc.qt.io/qt-5/signalsandslots.html>`__
-* `Model/View Programming <https://doc.qt.io/qt-5/model-view-programming.html>`__ - read this if you are going to work with list or table-like widgets
+* `Model/View Programming <https://doc.qt.io/qt-5/model-view-programming.html>`__ - read this if you are going to work with a list or table-like widgets
 * `QAction <https://doc.qt.io/qt-5/qaction.html#details>`__
