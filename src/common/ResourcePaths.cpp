@@ -52,7 +52,6 @@ QStringList Cutter::locateAll(QStandardPaths::StandardLocation type, const QStri
     for (auto path : standardLocations(type)) {
         QString filePath = path + QLatin1Char('/') + fileName;
         bool exists = false;
-        qDebug() << "checking " << filePath;
         if (options & QStandardPaths::LocateDirectory) {
             exists = QDir(filePath).exists();
         } else {
