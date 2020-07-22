@@ -16,6 +16,8 @@ How can you help?
 
 The following sections suggest ways you can contribute to Cutter's documentation. The list isn't complete as the possibilities are limitless.
 
+The source for this documentation is available in the `docs directory <https://github.com/radareorg/cutter/tree/master/docs>`_ on Cutter's repository. When the docs are updated, they are generated and pushed directly to the website at <https://cutter.re/docs>. The source for the website and blog are available on the `cutter.re's repository <https://github.com/radareorg/cutter.re>`_ and are served from the ``gh-pages`` branch.
+
 
 .. tip::
   Document what you wished to see. If you are a user of Cutter, try to think what things you would want to see documented when you started using the project. Sometimes, the best contributions are coming from your own needs.
