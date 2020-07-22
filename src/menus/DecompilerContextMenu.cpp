@@ -432,7 +432,7 @@ void DecompilerContextMenu::updateTargetMenuActions()
         }
         auto action = new QAction(name, this);
         showTargetMenuActions.append(action);
-        auto menu = mainWindow->createShowInMenu(this, annotationHere->reference.offset);
+        auto menu = mainWindow->createShowInMenu(this, annotationHere->reference.offset, annotationHere->type);
         action->setMenu(menu);
         QAction *copyAddress = new QAction(tr("Copy address"), menu);
         RVA offsetHere = annotationHere->reference.offset;

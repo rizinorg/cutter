@@ -923,12 +923,18 @@ void MainWindow::showMemoryWidget(MemoryWidgetType type)
     memoryDockWidget->raiseMemoryWidget();
 }
 
-QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address)
+QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address, RCodeAnnotationType typeOfAnnotation)
 {
     QMenu *menu = new QMenu(parent);
     // Memory dock widgets
     for (auto &dock : dockWidgets) {
         if (auto memoryWidget = qobject_cast<MemoryDockWidget *>(dock)) {
+            if ((typeOfAnnotation == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE
+                    || typeOfAnnotation == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE)
+                    && (memoryWidget->getType() == MemoryWidgetType::Graph
+                        || memoryWidget->getType() == MemoryWidgetType::Decompiler)) {
+                continue;
+            }
             QAction *action = new QAction(memoryWidget->windowTitle(), menu);
             connect(action, &QAction::triggered, this, [memoryWidget, address]() {
                 memoryWidget->getSeekable()->seek(address);
@@ -961,7 +967,10 @@ QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address)
         menu->addAction(action);
     };
     createAddNewWidgetAction(tr("New disassembly"), MemoryWidgetType::Disassembly);
-    createAddNewWidgetAction(tr("New graph"), MemoryWidgetType::Graph);
+    if (typeOfAnnotation != R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE
+            && typeOfAnnotation != R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE) {
+        createAddNewWidgetAction(tr("New graph"), MemoryWidgetType::Graph);
+    }
     createAddNewWidgetAction(tr("New hexdump"), MemoryWidgetType::Hexdump);
 
     return menu;

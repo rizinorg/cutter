@@ -122,7 +122,7 @@ public:
     void showMemoryWidget();
     void showMemoryWidget(MemoryWidgetType type);
 
-    QMenu *createShowInMenu(QWidget *parent, RVA address);
+    QMenu *createShowInMenu(QWidget *parent, RVA address, RCodeAnnotationType typeOfAnnotation = R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT);
     void setCurrentMemoryWidget(MemoryDockWidget* memoryWidget);
     MemoryDockWidget* getLastMemoryWidget();
 
