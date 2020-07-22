@@ -28,8 +28,7 @@ download the latest release from
 Building from Sources
 ---------------------
 
-To build Cutter on your machine, please follow this guide:
-`Building from Source <building.html>`__
+To build Cutter on your machine, please follow this guide: :doc:`Building from Source </building>`.
 
 Need help?
 ----------
@@ -43,9 +42,7 @@ You can contact the *Cutter* developers and community on:
 Want to help the project?
 -------------------------
 
-If you want to contribute to Cutter, take a look
-`here <contributing.html>`_
-to learn how you can help improve the project!
+If you want to contribute to Cutter, take a look at our :doc:`Contribution Guidelines </contributing>` to learn how you can help improve the project!
 
 .. toctree::
    :caption: Contents:
