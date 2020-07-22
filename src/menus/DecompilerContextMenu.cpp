@@ -424,7 +424,7 @@ void DecompilerContextMenu::updateTargetMenuActions()
             if (flagDetails) {
                 name = tr("Show %1 in").arg(flagDetails->name);
             } else {
-                name = tr("Show %1 (addr here)").arg(RAddressString(annotationHere->reference.offset));
+                name = tr("Show %1 in").arg(RAddressString(annotationHere->reference.offset));
             }
         } else if (annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
             name = tr("%1 (%2)").arg(QString(annotationHere->reference.name),
