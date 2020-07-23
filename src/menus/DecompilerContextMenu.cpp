@@ -97,6 +97,7 @@ void DecompilerContextMenu::setupBreakpointsInLineMenu()
 void DecompilerContextMenu::setCanCopy(bool enabled)
 {
     actionCopy.setVisible(enabled);
+    actionCopyInstructionAddress.setVisible(!enabled);
 }
 
 void DecompilerContextMenu::setShortcutContextInActions(QMenu *menu)
@@ -237,10 +238,12 @@ void DecompilerContextMenu::setActionCopy() // Set all three copy actions
     connect(&actionCopyInstructionAddress, &QAction::triggered, this,
             &DecompilerContextMenu::actionCopyInstructionAddressTriggered);
     addAction(&actionCopyInstructionAddress);
+    actionCopyInstructionAddress.setShortcut(QKeySequence::Copy);
 
     connect(&actionCopyReferenceAddress, &QAction::triggered, this,
             &DecompilerContextMenu::actionCopyReferenceAddressTriggered);
     addAction(&actionCopyReferenceAddress);
+    actionCopyReferenceAddress.setShortcut({Qt::CTRL + Qt::SHIFT + Qt::Key_C});
 }
 
 void DecompilerContextMenu::setActionShowInSubmenu()
