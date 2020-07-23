@@ -199,7 +199,8 @@ void DecompilerContextMenu::aboutToShowSlot()
             }
         }
     }
-    actionCopyInstructionAddress.setText(tr("Copy instruction address (%1)").arg(RAddressString(offset)));
+    actionCopyInstructionAddress.setText(tr("Copy instruction address (%1)").arg(RAddressString(
+                                                                                     offset)));
     bool isReference = false;
     if (annotationHere) {
         isReference = (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
@@ -210,9 +211,12 @@ void DecompilerContextMenu::aboutToShowSlot()
         actionCopyReferenceAddress.setVisible(true);
         RVA referenceAddr = annotationHere->reference.offset;
         RFlagItem *flagDetails = r_flag_get_i(Core()->core()->flags, referenceAddr);
-        if (flagDetails) {
-            actionCopyReferenceAddress.setText(tr("Copy address of %1 (%2)").arg(flagDetails->name,
-                                                                                 RAddressString(referenceAddr)));
+        if (annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
+            actionCopyReferenceAddress.setText(tr("Copy address of %1 (%2)").arg
+                                               (QString(annotationHere->reference.name), RAddressString(referenceAddr)));
+        } else if (flagDetails) {
+            actionCopyReferenceAddress.setText(tr("Copy address of %1 (%2)").arg
+                                               (flagDetails->name, RAddressString(referenceAddr)));
         } else {
             actionCopyReferenceAddress.setText(tr("Copy address (%1)").arg(RAddressString(referenceAddr)));
         }
