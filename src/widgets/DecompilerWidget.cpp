@@ -438,7 +438,6 @@ void DecompilerWidget::colorsUpdatedSlot()
 void DecompilerWidget::showDisasContextMenu(const QPoint &pt)
 {
     mCtxMenu->exec(ui->textEdit->mapToGlobal(pt));
-    doRefresh();
 }
 
 void DecompilerWidget::seekToReference()
