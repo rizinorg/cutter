@@ -19,8 +19,8 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         mainWindow(mainWindow),
         annotationHere(nullptr),
         actionCopy(tr("Copy"), this),
-        actionCopyInstructionAddress(tr("Copy instruction address <address>"), this),
-        actionCopyReferenceAddress(tr("Copy address of [flag] <address>"), this),
+        actionCopyInstructionAddress(tr("Copy instruction address (<address>)"), this),
+        actionCopyReferenceAddress(tr("Copy address of [flag] (<address>)"), this),
         actionShowInSubmenu(tr("Show in"), this),
         actionAddComment(tr("Add Comment"), this),
         actionDeleteComment(tr("Delete comment"), this),
@@ -199,7 +199,7 @@ void DecompilerContextMenu::aboutToShowSlot()
             }
         }
     }
-    actionCopyInstructionAddress.setText(tr("Copy instruction address %1").arg(RAddressString(offset)));
+    actionCopyInstructionAddress.setText(tr("Copy instruction address (%1)").arg(RAddressString(offset)));
     bool isReference = false;
     if (annotationHere) {
         isReference = (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
@@ -214,7 +214,7 @@ void DecompilerContextMenu::aboutToShowSlot()
             actionCopyReferenceAddress.setText(tr("Copy address of %1 (%2)").arg(flagDetails->name,
                                                                                  RAddressString(referenceAddr)));
         } else {
-            actionCopyReferenceAddress.setText(tr("Copy address %1").arg(RAddressString(referenceAddr)));
+            actionCopyReferenceAddress.setText(tr("Copy address (%1)").arg(RAddressString(referenceAddr)));
         }
     } else {
         actionCopyReferenceAddress.setVisible(false);
