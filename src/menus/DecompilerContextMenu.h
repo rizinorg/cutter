@@ -33,6 +33,8 @@ private slots:
     void aboutToHideSlot();
 
     void actionCopyTriggered();
+    void actionCopyInstructionAddressTriggered();
+    void actionCopyReferenceAddressTriggered();
 
     void actionAddCommentTriggered();
     void actionDeleteCommentTriggered();
@@ -57,6 +59,8 @@ private:
     RCodeAnnotation *annotationHere;
 
     QAction actionCopy;
+    QAction actionCopyInstructionAddress;
+    QAction actionCopyReferenceAddress;
     QAction *copySeparator;
 
     QAction actionShowInSubmenu;

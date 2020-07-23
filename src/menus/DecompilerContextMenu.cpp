@@ -19,6 +19,8 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         mainWindow(mainWindow),
         annotationHere(nullptr),
         actionCopy(tr("Copy"), this),
+        actionCopyInstructionAddress(tr("Copy instruction address <address>"), this),
+        actionCopyReferenceAddress(tr("Copy address of [flag] <address>"), this),
         actionShowInSubmenu(tr("Show in"), this),
         actionAddComment(tr("Add Comment"), this),
         actionDeleteComment(tr("Delete comment"), this),
@@ -30,7 +32,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         actionContinueUntil(tr("Continue until line"), this),
         actionSetPC(tr("Set PC"), this)
 {
-    setActionCopy();
+    setActionCopy(); // Sets all three copy actions
     addSeparator();
 
     setActionShowInSubmenu();
@@ -173,7 +175,9 @@ void DecompilerContextMenu::aboutToShowSlot()
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText(tr("Set %1 here").arg(progCounterName));
 
-    if (!annotationHere || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) { // To be considered as invalid
+    if (!annotationHere
+            || annotationHere->type ==
+            R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) { // To be considered as invalid
         actionRenameThingHere.setVisible(false);
         copySeparator->setVisible(false);
     } else {
@@ -194,7 +198,25 @@ void DecompilerContextMenu::aboutToShowSlot()
             }
         }
     }
-
+    actionCopyInstructionAddress.setText(tr("Copy instruction address %1").arg(RAddressString(offset)));
+    bool isReference = false;
+    if (annotationHere) {
+        isReference == (R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
+                        || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE
+                        || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME);
+    }
+    if (isReference) {
+        RVA referenceAddr = annotationHere->reference.offset;
+        RFlagItem *flagDetails = r_flag_get_i(Core()->core()->flags, referenceAddr);
+        if (flagDetails) {
+            actionCopyReferenceAddress.setText(tr("Copy address of %1 (%2)").arg(flagDetails->name,
+                                                                                 RAddressString(referenceAddr)));
+        } else {
+            actionCopyReferenceAddress.setText(tr("Copy address %1").arg(RAddressString(referenceAddr)));
+        }
+    } else {
+        actionCopyReferenceAddress.setVisible(false);
+    }
     if (actionShowInSubmenu.menu() != nullptr) {
         actionShowInSubmenu.menu()->deleteLater();
     }
@@ -204,11 +226,20 @@ void DecompilerContextMenu::aboutToShowSlot()
 
 // Set up actions
 
-void DecompilerContextMenu::setActionCopy()
+
+void DecompilerContextMenu::setActionCopy() // Set all three copy actions
 {
     connect(&actionCopy, &QAction::triggered, this, &DecompilerContextMenu::actionCopyTriggered);
     addAction(&actionCopy);
     actionCopy.setShortcut(QKeySequence::Copy);
+
+    connect(&actionCopyInstructionAddress, &QAction::triggered, this,
+            &DecompilerContextMenu::actionCopyInstructionAddressTriggered);
+    addAction(&actionCopyInstructionAddress);
+
+    connect(&actionCopyReferenceAddress, &QAction::triggered, this,
+            &DecompilerContextMenu::actionCopyReferenceAddressTriggered);
+    addAction(&actionCopyReferenceAddress);
 }
 
 void DecompilerContextMenu::setActionShowInSubmenu()
@@ -277,6 +308,18 @@ void DecompilerContextMenu::setActionSetPC()
 void DecompilerContextMenu::actionCopyTriggered()
 {
     emit copy();
+}
+
+void DecompilerContextMenu::actionCopyInstructionAddressTriggered()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(RAddressString(offset));
+}
+
+void DecompilerContextMenu::actionCopyReferenceAddressTriggered()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(RAddressString(annotationHere->reference.offset));
 }
 
 void DecompilerContextMenu::actionAddCommentTriggered()
@@ -415,7 +458,9 @@ void DecompilerContextMenu::updateTargetMenuActions()
     }
     showTargetMenuActions.clear();
     RCoreLocked core = Core()->core();
-    if (annotationHere) {
+    if (annotationHere && (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
+                           || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE
+                           || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME)) {
         QString name;
         if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
                 || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
@@ -432,16 +477,9 @@ void DecompilerContextMenu::updateTargetMenuActions()
         }
         auto action = new QAction(name, this);
         showTargetMenuActions.append(action);
-        auto menu = mainWindow->createShowInMenu(this, annotationHere->reference.offset, annotationHere->type);
+        auto menu = mainWindow->createShowInMenu(this, annotationHere->reference.offset,
+                                                 annotationHere->type);
         action->setMenu(menu);
-        QAction *copyAddress = new QAction(tr("Copy address"), menu);
-        RVA offsetHere = annotationHere->reference.offset;
-        connect(copyAddress, &QAction::triggered, copyAddress, [offsetHere]() {
-            QClipboard *clipboard = QApplication::clipboard();
-            clipboard->setText(RAddressString(offsetHere));
-        });
-        menu->addSeparator();
-        menu->addAction(copyAddress);
         insertActions(copySeparator, showTargetMenuActions);
     }
 }
