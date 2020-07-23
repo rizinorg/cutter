@@ -27,6 +27,10 @@ matrix:
   - name: Linux CMake
     os: linux
     env: BUILD_SYSTEM=cmake_nodep
+    before_install:
+      - ls $(pyenv root)/versions
+      - pyenv global 3.7
+      - pip3 install meson
     addons:
       apt:
         packages:
@@ -96,10 +100,10 @@ matrix:
          - libgraphviz-dev
     before_install:
       - pyenv global 3.7
-      - pip install -U sphinx
-      - pip install -U breathe
-      - pip install -U sphinx-rtd-theme
-      - pip install -U recommonmark
+      - pip3 install -U sphinx
+      - pip3 install -U breathe
+      - pip3 install -U sphinx-rtd-theme
+      - pip3 install -U recommonmark
     install: ~
     before_script: ~
     after_success: ~
@@ -131,8 +135,9 @@ addons:
     # update: true
 
 before_install:
-  - pyenv global 3.7
-  - pip install meson
+  - ls $(pyenv root)/versions
+  - pyenv global 3.7.1
+  - pip3 install meson
 
 install:
   - if [[ "$BUILD_SYSTEM" != "cmake_nodep" ]]; then
