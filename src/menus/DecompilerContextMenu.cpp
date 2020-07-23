@@ -201,11 +201,12 @@ void DecompilerContextMenu::aboutToShowSlot()
     actionCopyInstructionAddress.setText(tr("Copy instruction address %1").arg(RAddressString(offset)));
     bool isReference = false;
     if (annotationHere) {
-        isReference == (R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
-                        || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE
-                        || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME);
+        isReference = (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
+                       || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE
+                       || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME);
     }
     if (isReference) {
+        actionCopyReferenceAddress.setVisible(true);
         RVA referenceAddr = annotationHere->reference.offset;
         RFlagItem *flagDetails = r_flag_get_i(Core()->core()->flags, referenceAddr);
         if (flagDetails) {
