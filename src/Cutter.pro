@@ -18,7 +18,10 @@ TRANSLATIONS += translations/cutter_ar.ts \
                 translations/cutter_es.ts \
                 translations/cutter_fa.ts \
                 translations/cutter_fr.ts \
+                translations/cutter_he.ts \
+                translations/cutter_hi.ts \
                 translations/cutter_it.ts \
+                translations/cutter_ja.ts \
                 translations/cutter_nl.ts \
                 translations/cutter_pt.ts \
                 translations/cutter_ro.ts \
