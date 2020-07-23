@@ -87,8 +87,6 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(ui->textEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showDisasContextMenu(const QPoint &)));
 
-    // refresh the widget when an action in this menu is triggered
-    connect(mCtxMenu, &QMenu::triggered, this, &DecompilerWidget::refreshDecompiler);
     connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::setInfoForBreakpoints);
     addActions(mCtxMenu->actions());
 
