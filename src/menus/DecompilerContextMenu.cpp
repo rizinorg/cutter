@@ -201,7 +201,11 @@ void DecompilerContextMenu::aboutToShowSlot()
                 actionDeleteName.setText(tr("Remove %1").arg(QString(flagDetails->name)));
                 actionDeleteName.setVisible(true);
             } else {
-                actionRenameThingHere.setText(tr("Add name"));
+                if (QString(r_config_get(Core()->core()->config, "r2ghidra.rawptr")) == tr("true")) {
+                    actionRenameThingHere.setText(tr("Add name"));
+                } else {
+                    actionRenameThingHere.setText(tr("Rename %1").arg(curHighlightedWord));
+                }
             }
         }
     }
@@ -383,10 +387,18 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
                 Core()->renameFlag(flagDetails->name, newName);
             }
         } else {
-            QString newName = QInputDialog::getText(this, tr("Add name"), tr("Enter name"), QLineEdit::Normal,
-                                                    QString(), &ok);
-            if (ok && !newName.isEmpty()) {
-                Core()->addFlag(var_addr, newName, 1);
+            if (QString(r_config_get(Core()->core()->config, "r2ghidra.rawptr")) == tr("true")) {
+                QString newName = QInputDialog::getText(this, tr("Add name"), tr("Enter name"), QLineEdit::Normal,
+                                                        QString(), &ok);
+                if (ok && !newName.isEmpty()) {
+                    Core()->addFlag(var_addr, newName, 1);
+                }
+            } else {
+            QString newName = QInputDialog::getText(this, tr("Rename %2").arg(curHighlightedWord),
+                                                    tr("Enter name"), QLineEdit::Normal, curHighlightedWord, &ok);
+                if (ok && !newName.isEmpty()) {
+                    Core()->addFlag(var_addr, newName, 1);
+                }
             }
         }
 
