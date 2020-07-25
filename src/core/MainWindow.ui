@@ -651,7 +651,7 @@
   </action>
   <action name="actionRun_Script">
    <property name="text">
-    <string>Run Script</string>
+    <string>Run radare2 script</string>
    </property>
   </action>
   <action name="actionReset_settings">
