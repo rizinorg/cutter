@@ -14,6 +14,7 @@
 
 DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWindow)
     :   QMenu(parent),
+        curHighlightedWord(QString()),
         offset(0),
         isTogglingBreakpoints(false),
         mainWindow(mainWindow),
@@ -63,6 +64,11 @@ DecompilerContextMenu::~DecompilerContextMenu()
 void DecompilerContextMenu::setAnnotationHere(RCodeAnnotation *annotation)
 {
     this->annotationHere = annotation;
+}
+
+void DecompilerContextMenu::setCurHighlightedWord(QString word)
+{
+    this->curHighlightedWord = word;
 }
 
 void DecompilerContextMenu::setOffset(RVA offset)

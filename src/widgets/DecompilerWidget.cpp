@@ -412,6 +412,7 @@ void DecompilerWidget::updateSelection()
     // Highlight all the words in the document same as the current one
     cursor.select(QTextCursor::WordUnderCursor);
     QString searchString = cursor.selectedText();
+    mCtxMenu->setCurHighlightedWord(searchString);
     extraSelections.append(createSameWordsSelections(ui->textEdit, searchString));
 
     ui->textEdit->setExtraSelections(extraSelections);

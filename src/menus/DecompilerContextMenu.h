@@ -22,6 +22,7 @@ signals:
     void copy();
 
 public slots:
+    void setCurHighlightedWord(QString word);
     void setOffset(RVA offset);
     void setCanCopy(bool enabled);
     void setFirstOffsetInLine(RVA firstOffset);
@@ -50,6 +51,7 @@ private slots:
 
 private:
     // Private variables
+    QString curHighlightedWord;
     RVA offset;
     RVA firstOffsetInLine;
     bool isTogglingBreakpoints;
