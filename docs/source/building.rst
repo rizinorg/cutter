@@ -337,7 +337,7 @@ You can also try:
 
 -  ``PKG_CONFIG_PATH=$HOME/bin/prefix/radare2/lib/pkgconfig qmake``
 -  ``PKG_CONFIG_PATH=$HOME/cutter/radare2/pkgcfg qmake`` (for a newer
-   version and if radare2 was installed like the submodule)
+   version and if the radare2 submodule is being built and used)
 
 .. image:: images/cutter_path_settings.png
 
