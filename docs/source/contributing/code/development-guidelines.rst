@@ -37,7 +37,7 @@ The command then returns its output. This should be used when a command doesn't 
 - ``CutterCore::cmdRawAt(<command>, <address>)`` - Executes a single radare2 command in a given address and returns the output. This helps avoiding weird strings concatenation like ``cmd("ph " + hash + " @ " + QString::num(address))``.
   
 - ``CutterCore::cmd()`` - *(Discouraged)* Only use it when ``cmdj`` or ``cmdRaw`` cannot be used. This is used for complex commands using concatenation of several commands (``px 5; pd 7; afl;``), for grepping (``pd 5~call``). for commands inside commands (``?e `afn.```) and so on.
-  This is also used when the output is complex and does not get parsed correctly in ``cmdRaw``.
+  This is also used when the output is complex and is not parsed correctly in ``cmdRaw``.
   Make sure to carefully sanitize user-controlled variables that are passed to the command, to avoid unexpected command injections. 
 
 Generally, if one needs to retrieve information from a radare2 command, it
@@ -205,8 +205,8 @@ Git submodules play a major part in Cutter. This, because Cutter is powered
 by radare2, its parent project, and it tries to stay up-to-date with its
 recent version, which allows us to implement new features, and enjoy bug
 fixes and performance improvements on radare2. Often, we need to update
-the radare2 submodule or the others, to push the most recent
-version of them to Cutter.
+the radare2 submodule or the others, to push their most recent
+version to Cutter.
 
 You can view the list of all the submodules from the cutter root folder with:
 

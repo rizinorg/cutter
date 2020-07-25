@@ -9,6 +9,6 @@ Continue Until Line
 
 Set Program Counter (PC)
 ----------------------------------------
-**Description:** Set the Program Counter of the debugger to the current offset. For example, on a Intel 64bit program, Cutter will set the value of the RIP register to the current address.  *This option is only available on Debug or Emulation modes*.  
+**Description:** Set the Program Counter of the debuggee to the current offset. For example, on an Intel 64bit program, Cutter will set the value of the RIP register to the current address.  *This option is only available on Debug or Emulation modes*.  
 
 **Steps:** While in Debug or Emulation modes, right-click and address and choose ``Debug -> Set PC``.

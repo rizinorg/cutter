@@ -1,4 +1,4 @@
-CommandLine Options
+Command-line Options
 ====================
 
 Synopsis

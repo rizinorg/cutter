@@ -89,7 +89,7 @@ Delete a Flag
 
 **Steps:** Right-click on a location with a flag and choose ``Delete flag``.  
 
-UnDefine a Function
+Undefine a Function
 ----------------------------------------
 **Description:** Undefine the current function. This will remove the function and its associated meta-data. You can always re-define the function, but every change that was made to the previously defined function (e.g variable renaming) would not be restored.  
 

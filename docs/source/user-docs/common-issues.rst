@@ -8,7 +8,7 @@ AppImage Crashes
 
 If the Linux AppImage binary crashes upon startup, make sure your
 ``LD_LIBRARY_PATH`` environment variable is empty.
-`#579 <https://github.com/radareorg/cutter/issues/579>`__
+For a detailed explanation, see the issue `#579 <https://github.com/radareorg/cutter/issues/579>`__
 
 Keyboard Layout Issue
 ---------------------
