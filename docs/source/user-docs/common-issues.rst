@@ -17,3 +17,10 @@ Some people report that they have keyboard issues. Usually it is because
 the Xorg layout is wrong. You can check it with: ``setxkbmap -query``
 Most of the time using ``setxkbmap us`` solves the issue, but it might
 not be enough and require a more advanced Xorg configuration.
+
+Initial Analysis takes a long time
+
+As background analysis feature is not implemented in Cutter (yet), opening a large
+binary will take a while to perform initial analysis and Cutter may seem unresponsive.
+We recommend you use the analysis slider and try different analysis options to find
+a balance for both useful analysis and time taken.
