@@ -165,7 +165,7 @@ void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function
     }
 }
 
-void XrefsDialog::fillRefsForVariable(QString nameOfVariable)
+void XrefsDialog::fillRefsForVariable(QString nameOfVariable, RVA offset)
 {
     TempConfig tempConfig;
     tempConfig.set("scr.html", false);
@@ -174,8 +174,8 @@ void XrefsDialog::fillRefsForVariable(QString nameOfVariable)
     setWindowTitle(tr("X-Refs for %1").arg(nameOfVariable));
     updateLabelsForVariables(nameOfVariable);
 
-    toModel.readForVariable(nameOfVariable, true);
-    fromModel.readForVariable(nameOfVariable, false);
+    toModel.readForVariable(nameOfVariable, true, offset);
+    fromModel.readForVariable(nameOfVariable, false, offset);
     
     // Adjust columns to content
     qhelpers::adjustColumns(ui->fromTreeWidget, fromModel.columnCount(), 0);
@@ -217,11 +217,11 @@ void XrefModel::readForOffset(RVA offset, bool to, bool whole_function)
     endResetModel();
 }
 
-void XrefModel::readForVariable(QString nameOfVariable, bool write)
+void XrefModel::readForVariable(QString nameOfVariable, bool write, RVA offset)
 {
     beginResetModel();
     this->to = write;
-    xrefs = Core()->getXRefsForVariable(nameOfVariable, write);
+    xrefs = Core()->getXRefsForVariable(nameOfVariable, write, offset);
     endResetModel();
 }
 

@@ -3440,8 +3440,10 @@ BlockStatistics CutterCore::getBlockStatistics(unsigned int blocksCount)
     return blockStats;
 }
 
-QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, bool write)
+QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, bool write, RVA offset)
 {
+    RVA oldOffset = getOffset();
+    seekSilent(offset);
     QList<XrefDescription> xrefList = QList<XrefDescription>();
     QJsonArray xrefsArray;
     if (write) {
@@ -3469,6 +3471,7 @@ QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, boo
             }
         }
     }
+    seekSilent(oldOffset);
     return xrefList;
 }
 
