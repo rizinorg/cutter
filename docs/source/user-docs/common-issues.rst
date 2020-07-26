@@ -19,6 +19,7 @@ Most of the time using ``setxkbmap us`` solves the issue, but it might
 not be enough and require a more advanced Xorg configuration.
 
 Initial Analysis takes a long time
+----------------------------------
 
 As background analysis feature is not implemented in Cutter (yet), opening a large
 binary will take a while to perform initial analysis and Cutter may seem unresponsive.
