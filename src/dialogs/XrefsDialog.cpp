@@ -140,7 +140,7 @@ void XrefsDialog::updateLabels(QString name)
 
 void XrefsDialog::updateLabelsForVariables(QString name){
     ui->label_xTo->setText(tr("Writes to %1").arg(name));
-    ui->label_xFrom->setText(tr("Reads for %1").arg(name));
+    ui->label_xFrom->setText(tr("Reads from %1").arg(name));
 }
 
 void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function)
