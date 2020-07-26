@@ -206,6 +206,7 @@ private:
     void addBreakpointMenu();
     void addDebugMenu();
 
+    bool isHighlightedWordLocalVar();
     struct ThingUsedHere {
         QString name;
         RVA offset;

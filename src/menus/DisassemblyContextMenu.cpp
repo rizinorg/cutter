@@ -567,13 +567,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
         }
     }
 
-    QList<VariableDescription> variables = Core()->getVariables(offset);
-    bool isLocalVar = false;
-    for (const VariableDescription &var : variables) {
-        if (var.name == curHighlightedWord) {
-            isLocalVar = true;
-        }
-    }
+    bool isLocalVar = isHighlightedWordLocalVar();
     actionXRefsForVariables.setVisible(isLocalVar);
     if (isLocalVar) {
         actionXRefsForVariables.setText(tr("X-Refs for %1").arg(curHighlightedWord));
@@ -906,13 +900,10 @@ void DisassemblyContextMenu::on_actionXRefs_triggered()
 
 void DisassemblyContextMenu::on_actionXRefsForVariables_triggered()
 {
-    QList<VariableDescription> variables = Core()->getVariables(offset);
-    for (const VariableDescription &var : variables) {
-        if (var.name == curHighlightedWord) {
-            XrefsDialog dialog(mainWindow, nullptr);
-            dialog.fillRefsForVariable(curHighlightedWord, offset);
-            dialog.exec();
-        }
+    if (isHighlightedWordLocalVar()) {
+        XrefsDialog dialog(mainWindow, nullptr);
+        dialog.fillRefsForVariable(curHighlightedWord, offset);
+        dialog.exec();
     }
 }
 
@@ -1116,4 +1107,15 @@ void DisassemblyContextMenu::initAction(QAction *action, QString name,
     }
     action->setShortcuts(keySequenceList);
     action->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+}
+
+bool DisassemblyContextMenu::isHighlightedWordLocalVar()
+{
+    QList<VariableDescription> variables = Core()->getVariables(offset);
+    for (const VariableDescription &var : variables) {
+        if (var.name == curHighlightedWord) {
+            return true;
+        }
+    }
+    return false;
 }
