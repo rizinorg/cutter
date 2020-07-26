@@ -174,9 +174,12 @@ void XrefsDialog::fillRefsForVariable(QString nameOfVariable, RVA offset)
     setWindowTitle(tr("X-Refs for %1").arg(nameOfVariable));
     updateLabelsForVariables(nameOfVariable);
 
+    // Initialize Model
     toModel.readForVariable(nameOfVariable, true, offset);
     fromModel.readForVariable(nameOfVariable, false, offset);
-    
+    // Hide irrelevant column 1: which shows type
+    ui->fromTreeWidget->hideColumn(1);
+    ui->toTreeWidget->hideColumn(1);
     // Adjust columns to content
     qhelpers::adjustColumns(ui->fromTreeWidget, fromModel.columnCount(), 0);
     qhelpers::adjustColumns(ui->toTreeWidget, toModel.columnCount(), 0);
@@ -197,8 +200,6 @@ QString XrefModel::xrefTypeString(const QString &type)
         return QStringLiteral("Data");
     } else if (type == "STRING") {
         return QStringLiteral("String");
-    } else if (type == "LOCAL_VAR") {
-        return QStringLiteral("Local Var");
     }
     return type;
 }

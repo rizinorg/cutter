@@ -3458,7 +3458,6 @@ QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, boo
             QJsonArray addressArray = xrefObject[RJsonKey::addrs].toArray();
             for (const QJsonValue &address : addressArray) {
                 XrefDescription xref;
-                xref.type = tr("LOCAL_VAR");
                 RVA addr = address.toVariant().toULongLong();
                 xref.from = addr;
                 xref.to = addr;
