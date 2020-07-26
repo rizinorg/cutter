@@ -48,6 +48,12 @@ public:
     ~XrefsDialog();
 
     void fillRefsForAddress(RVA addr, QString name, bool whole_function);
+    /**
+     * @brief Initializes toModel and fromModel with the details about the references to the specified
+     * local variable 'nameOfVariable'.
+     * @param nameOfVarible Name of the local variable for which the references are being initialized.
+     * @param offset An offset in the function in which the specified local variable exist.
+     */
     void fillRefsForVariable(QString nameOfVariable, RVA offset);
 
 private slots:

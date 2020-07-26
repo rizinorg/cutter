@@ -566,8 +566,17 @@ public:
     QList<QJsonObject> getRegisterRefs(int depth = 6);
     QVector<RegisterRefValueDescription> getRegisterRefValues();
     QList<VariableDescription> getVariables(RVA at);
-
-    QList<XrefDescription> getXRefsForVariable(QString variableName, bool to, RVA offset);
+    /**
+     * @brief Fetches all the writes or reads to the specified local variable 'variableName'
+     * in the function in which the specified offset is a part of.
+     * @param variableName Name of the local variable.
+     * @param findWrites If this is true, then locations at which modification happen to the specified
+     * local variable is fetched. Else, the locations at which the local is variable is read is fetched.
+     * @param offset An offset in the function in which the specified local variable exist.
+     * @return A list of XrefDescriptions that contains details of all the writes or reads that happen to the
+     * variable 'variableName'.
+     */
+    QList<XrefDescription> getXRefsForVariable(QString variableName, bool findWrites, RVA offset);
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString());
 

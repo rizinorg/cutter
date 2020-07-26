@@ -3452,11 +3452,11 @@ BlockStatistics CutterCore::getBlockStatistics(unsigned int blocksCount)
     return blockStats;
 }
 
-QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, bool write, RVA offset)
+QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, bool findWrites, RVA offset)
 {
     QList<XrefDescription> xrefList = QList<XrefDescription>();
     QJsonArray xrefsArray;
-    if (write) {
+    if (findWrites) {
         xrefsArray = cmdjAt("afvWj", offset).array();
     } else {
         xrefsArray = cmdjAt("afvRj", offset).array();
@@ -3471,7 +3471,7 @@ QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, boo
                 RVA addr = address.toVariant().toULongLong();
                 xref.from = addr;
                 xref.to = addr;
-                if (write) {
+                if (findWrites) {
                     xref.from_str = RAddressString(addr);
                 } else {
                     xref.to_str = RAddressString(addr);
