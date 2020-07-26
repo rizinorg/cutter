@@ -477,6 +477,18 @@ QJsonDocument CutterCore::cmdj(const char *str)
     return doc;
 }
 
+QJsonDocument CutterCore::cmdjAt(const char *str, RVA address)
+{
+    QJsonDocument res;
+    RVA oldOffset = getOffset();
+    seekSilent(address);
+
+    res = cmdj(str);
+
+    seekSilent(oldOffset);
+    return res;
+}
+
 QString CutterCore::cmdTask(const QString &str)
 {
     R2Task task(str);
@@ -3442,14 +3454,12 @@ BlockStatistics CutterCore::getBlockStatistics(unsigned int blocksCount)
 
 QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, bool write, RVA offset)
 {
-    RVA oldOffset = getOffset();
-    seekSilent(offset);
     QList<XrefDescription> xrefList = QList<XrefDescription>();
     QJsonArray xrefsArray;
     if (write) {
-        xrefsArray = cmdj("afvWj").array();
+        xrefsArray = cmdjAt("afvWj", offset).array();
     } else {
-        xrefsArray = cmdj("afvRj").array();
+        xrefsArray = cmdjAt("afvRj", offset).array();
     }
     for (const QJsonValue &value : xrefsArray) {
         QJsonObject xrefObject = value.toObject();
@@ -3470,7 +3480,6 @@ QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, boo
             }
         }
     }
-    seekSilent(oldOffset);
     return xrefList;
 }
 
