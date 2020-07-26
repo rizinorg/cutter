@@ -201,7 +201,7 @@ void DecompilerContextMenu::aboutToShowSlot()
                 actionDeleteName.setText(tr("Remove %1").arg(QString(flagDetails->name)));
                 actionDeleteName.setVisible(true);
             } else {
-                if (QString(r_config_get(Core()->core()->config, "r2ghidra.rawptr")) == tr("true")) {
+                if (Core()->getConfig("r2ghidra.rawptr")== "true") {
                     actionRenameThingHere.setText(tr("Add name"));
                 } else {
                     actionRenameThingHere.setText(tr("Rename %1").arg(curHighlightedWord));
@@ -387,7 +387,7 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
                 Core()->renameFlag(flagDetails->name, newName);
             }
         } else {
-            if (QString(r_config_get(Core()->core()->config, "r2ghidra.rawptr")) == tr("true")) {
+            if (Core()->getConfig("r2ghidra.rawptr") == "true") {
                 QString newName = QInputDialog::getText(this, tr("Add name"), tr("Enter name"), QLineEdit::Normal,
                                                         QString(), &ok);
                 if (ok && !newName.isEmpty()) {
