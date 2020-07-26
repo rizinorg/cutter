@@ -1,4 +1,4 @@
-Command line options
+Command-line Options
 ====================
 
 Synopsis
@@ -16,7 +16,7 @@ Options
 
 .. option:: -h, --help
 
-   Displays help on commandline options.
+   Displays help on command-line options.
 
 .. option:: --help-all
 
@@ -28,7 +28,7 @@ Options
 
 .. option:: -A, --analysis <level>
 
-   When opening a file automatically perform analysis at given level. Requires
+   When opening a file automatically perform analysis at a given level. Requires
    :option:`<filename>` to be specified. Following levels are available:
 
    **0**
@@ -60,12 +60,12 @@ Options
 
 .. option:: --pythonhome <PYTHONHOME>
 
-   PYTHONHOME to use for embedded python interpreter
+   PYTHONHOME to use for the embedded python interpreter
 
 .. option:: --no-output-redirect
 
-   Disable output redirection. Some of the output in console widget will not
-   be visible. Use this option when debuging a crash or freeze and output
+   Disable output redirection. Some of the output in the console widget will not
+   be visible. Use this option when debugging a crash or freeze and output
    redirection is causing some messages to be lost.
 
 .. option:: --no-plugins

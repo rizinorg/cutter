@@ -68,7 +68,7 @@ On Arch-based Linux distributions:
 
    sudo pacman -Syu base-devel cmake meson qt5-base qt5-svg qt5-tools
 
-Building steps
+Building Steps
 ~~~~~~~~~~~~~~
 
 The recommended way to build Cutter on Linux is by using CMake. Simply invoke CMake to build Cutter and its dependency radare2.
@@ -115,8 +115,8 @@ To compile Cutter it is necessary to have the following installed:
 * CMake
 * Qt
 
-Default way
-~~~~~~~~~~~
+Recommended Way
+~~~~~~~~~~~~~~~
 
 To build Cutter on Windows machines using CMake,
 you will have to make sure that the executables are available
@@ -134,14 +134,14 @@ Note that the paths below may vary depending on your version of Qt and Visual St
 
 Click ``Configure`` and select your version of Visual Studio from the list,
 for example ``Visual Studio 14 2015``.
-After configuration is done, click ``Generate`` and you can open
+After the configuration is done, click ``Generate`` and you can open
 ``Cutter.sln`` to compile the code as usual.
 
 
 Building with Meson
 ~~~~~~~~~~~~~~~~~~~
 
-There is another way to compile Cutter on Windows, if the one above does
+There is another way to compile Cutter on Windows if the one above does
 not work or does not suit your needs.
 
 Additional requirements:
@@ -214,7 +214,7 @@ If you want to manually use qmake, follow these steps:
    make
    cd ..
 
-Additional steps for macOS
+Additional Steps for macOS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 On macOS you will also have to copy the launcher bash script:
@@ -240,13 +240,13 @@ Note that there are some major building options available:
 * ``CUTTER_ENABLE_CRASH_REPORTS`` is used to compile Cutter with crash handling system enabled (Breakpad).
 
 These options can be enabled or disabled from the command line arguments passed to CMake.
-For example, in order to build Cutter with support for Python plugins, you can run this command:
+For example, to build Cutter with support for Python plugins, you can run this command:
 
 ::
 
    cmake -B build -DCUTTER_ENABLE_PYTHON=ON -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
 
-Or if one wants to explicitely disable an option:
+Or if one wants to explicitly disable an option:
 
 ::
 
@@ -255,7 +255,7 @@ Or if one wants to explicitely disable an option:
 
 --------------
 
-Compiling Cutter with Breakpad support
+Compiling Cutter with Breakpad Support
 --------------------------------------
 
 If you want to build Cutter with crash handling system, you will want to first prepare Breakpad.
@@ -280,13 +280,13 @@ so it contains ``$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig``. For this simply run
 Troubleshooting
 ---------------
 
-* Cmake can't find Qt
+* **Cmake can't find Qt**
 
     Cmake: qt development package not found
 
 Depending on how Qt installed (Distribution packages or using the Qt
 installer application), CMake may not be able to find it by itself if it
-is not in a common place. If that is the case, double check that the
+is not in a common place. If that is the case, double-check that the
 correct Qt version is installed. Locate its prefix (a directory
 containing bin/, lib/, include/, etc.) and specify it to CMake using
 ``CMAKE_PREFIX_PATH`` in the above process, e.g.:
@@ -296,7 +296,7 @@ containing bin/, lib/, include/, etc.) and specify it to CMake using
    rm CMakeCache.txt # the cache may be polluted with unwanted libraries found before
    cmake -DCMAKE_PREFIX_PATH=/opt/Qt/5.9.1/gcc_64 ..
 
-* R2 libr_***.so cannot be found when running Cutter
+* **Radare2's libr_*.so cannot be found when running Cutter**
 
    ./Cutter: error while loading shared libraries: libr_lang.so: cannot open shared object file: No such file or directory
 
@@ -307,3 +307,48 @@ The workaround is to either add the `--disable-new-dtags` linker flag when compi
 
    cmake -DCMAKE_EXE_LINKER_FLAGS="-Wl,--disable-new-dtags"  ..
 
+* **r_*.h: No such file or directory**
+
+    r_util/r_annotated_code.h: No such file or directory
+
+If you face an error where some header file starting with ``r_`` is missing, you should check the **radare2** submodule and
+make sure it is in sync with upstream **Cutter** repo. Simply run:
+
+::
+
+   git submodule update --init --recursive
+
+* **r_core development package not found**
+
+If you installed radare2 and still encounter this error, it could be that your
+``PATH`` environment variable is set improperly (doesn’t contain
+``/usr/local/bin``). You can fix this by adding the radare2 installation dir to
+your ``PATH`` variable.
+
+macOS specific solutions:
+
+On macOS, that can also be, for example, due to ``Qt Creator.app``
+being copied over to ``/Applications``. To fix this, append
+``:/usr/local/bin`` to the ``PATH`` variable within the *Build
+Environment* section in Qt Creator. See the screenshot below should you
+encounter any problems.
+
+You can also try:
+
+-  ``PKG_CONFIG_PATH=$HOME/bin/prefix/radare2/lib/pkgconfig qmake``
+-  ``PKG_CONFIG_PATH=$HOME/cutter/radare2/pkgcfg qmake`` (for a newer
+   version and if the radare2 submodule is being built and used)
+
+.. image:: images/cutter_path_settings.png
+
+You can also install radare2 into ``/usr/lib/pkgconfig/`` and then
+add a variable ``PKG_CONFIG_PATH`` with the value ``/usr/lib/pkgconfig/``.
+
+* **macOS libjpeg error**
+
+On macOS, Qt5 apps fail to build on QtCreator if you have the ``libjpeg``
+installed with brew. Run this command to work around the issue:
+
+::
+
+   sudo mv /usr/local/lib/libjpeg.dylib /usr/local/lib/libjpeg.dylib.not-found

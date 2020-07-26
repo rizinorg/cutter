@@ -30,7 +30,7 @@ The documentation for users describes how to use Cutter and what the different f
 Common Errors and Troubleshooting
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As our community gets bigger, more and more people are using and installing Cutter on different setups. Naturally, different environments might cause different issues. This section in our docs aims to go over the most popular issues and errors that our users face and explain what causes these issues and how to solve them.
+As our community gets bigger, more and more people are using, installing or building Cutter on different setups. Naturally, different environments might cause different issues. The :ref:`common issues<user-docs/common-issues:Common Issues>` section in our docs aims to go over the most popular issues that you might face while using Cutter and the :ref:`building errors troubleshooting<building:Troubleshooting>` section goes over common errors that you might face while building Cutter from sources. These docs sections also explain what causes these issues and how to solve them.
 
 If you know of such a common issue, whether you faced it yourself or noticed it on our community chats, it will be very helpful if you could document it and possible solutions for it.
 

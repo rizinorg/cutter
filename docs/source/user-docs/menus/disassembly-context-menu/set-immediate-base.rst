@@ -1,50 +1,50 @@
 Set Immediate Base
 ==============================
 
-Set immediate base to Binary
+Set Immediate Base to Binary
 ----------------------------------------
 **Description:** Set the immediate value of the operand to a Binary representation.
 
-**Steps:** Right click on an immediate base of instruction and choose ``Set Immediate Base to... -> Binary``  
+**Steps:** Right-click on an immediate base of instruction and choose ``Set Immediate Base to... -> Binary``  
 
-Set immediate base to Octal
+Set Immediate Base to Octal
 ----------------------------------------
 **Description:** Set the immediate value of the operand to an Octal representation.
 
-**Steps:** Right click on an immediate base of instruction and choose ``Set Immediate Base to... -> Octal``  
+**Steps:** Right-click on an immediate base of instruction and choose ``Set Immediate Base to... -> Octal``  
 
-Set immediate base to Decimal
+Set Immediate Base to Decimal
 ----------------------------------------
 **Description:** Set the immediate value of the operand to a Decimal representation.
 
-**Steps:** Right click on an immediate base of instruction and choose ``Set Immediate Base to... -> Decimal``  
+**Steps:** Right-click on an immediate base of instruction and choose ``Set Immediate Base to... -> Decimal``  
 
-Set immediate base to Hexadecimal
+Set Immediate Base to Hexadecimal
 ----------------------------------------
 **Description:** Set the immediate value of the operand to Hexadecimal.  
 
-**Steps:** Right click on an immediate base of instruction and choose ``Set Immediate Base to... -> Hexadecimal``  
+**Steps:** Right-click on an immediate base of instruction and choose ``Set Immediate Base to... -> Hexadecimal``  
 
-Set immediate base to Network Port
+Set Immediate Base to Network Port
 ----------------------------------------
 **Description:** Set the immediate value of the operand to a Network Port  
 
-**Steps:** Right click on an immediate base of instruction and choose ``Set Immediate Base to... -> Network Port``  
+**Steps:** Right-click on an immediate base of instruction and choose ``Set Immediate Base to... -> Network Port``  
 
-Set immediate base to IP Address
+Set Immediate Base to IP Address
 ----------------------------------------
 **Description:** Set the immediate value of the operand to an IP Address  
 
-**Steps:** Right click on an immediate base of instruction and choose ``Set Immediate Base to... -> IP Address``  
+**Steps:** Right-click on an immediate base of instruction and choose ``Set Immediate Base to... -> IP Address``  
 
-Set immediate base to Syscall
+Set Immediate Base to Syscall
 ----------------------------------------
 **Description:** Set the immediate value of the operand to Syscall  
 
-**Steps:** Right click on an immediate base of instruction and choose ``Set Immediate Base to... -> Syscall``  
+**Steps:** Right-click on an immediate base of instruction and choose ``Set Immediate Base to... -> Syscall``  
 
-Set immediate base to String
+Set Immediate Base to String
 ----------------------------------------
 **Description:** Set the immediate value of the operand to String   
 
-**Steps:** Right click on an immediate base of instruction and choose ``Set Immediate Base to... -> String``
+**Steps:** Right-click on an immediate base of instruction and choose ``Set Immediate Base to... -> String``

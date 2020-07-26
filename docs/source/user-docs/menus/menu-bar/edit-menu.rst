@@ -1,13 +1,13 @@
 Edit Menu
 ==============================
 
-Show Search widget
+Show Search Widget
 ----------------------------------------
 **Description:** Show the Search widget  
 
 **Steps:** Edit -> Search  
 
-Go back
+Go Back
 ----------------------------------------
 **Description:** Seek backward to your previous location.  
 

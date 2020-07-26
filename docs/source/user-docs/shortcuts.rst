@@ -3,7 +3,7 @@ Shortcuts
 
 This page regroups the common shortcuts available in Cutter.
 
-Global shortcuts
+Global Shortcuts
 ----------------
 
 +------------+---------------------+
@@ -16,7 +16,7 @@ Global shortcuts
 | Ctrl/Cmd+R | Refresh contents    |
 +------------+---------------------+
 
-Widget shortcuts
+Widget Shortcuts
 ----------------
 
 +-----------+---------+
@@ -35,14 +35,14 @@ Widget shortcuts
 | :         | Console |
 +-----------+---------+
 
-Disassembly view shortcuts
+Disassembly View Shortcuts
 --------------------------
 *Most of these shortcuts are also applied to Disassembly Graph view*
 
 +-------------+----------------------------------+
 | Shortcut    | Function                         |
 +=============+==================================+
-| Esc         | Seek to previous position        |
+| Esc         | Seek to the previous position    |
 +-------------+----------------------------------+
 | Space       | Switch to disassembly graph view |
 +-------------+----------------------------------+
@@ -77,7 +77,7 @@ Disassembly view shortcuts
 | Ctrl/Cmd+=  | Reset zoom                       |
 +-------------+----------------------------------+
 
-Graph view shortcuts
+Graph View Shortcuts
 --------------------
 
 +---------------------+-----------------------------------+
@@ -105,7 +105,7 @@ Graph view shortcuts
 +---------------------+-----------------------------------+
 
 
-Debug shortcuts
+Debug Shortcuts
 ---------------
 
 +-----------------+------------------------------------------+

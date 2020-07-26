@@ -9,7 +9,7 @@ Cutter Development Guidelines
 Common Usage
 --------------
 
-CutterCore class
+CutterCore Class
 ~~~~~~~~~~~~~~~~
 
 This is the main class where every link with r2 is made. It is *unique*
@@ -21,7 +21,7 @@ Example:
 
    Core()->getOffset();
 
-Calling a radare2 command
+Calling a radare2 Command
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are multiple ways to call a radare2 command: 
@@ -32,16 +32,16 @@ There are multiple ways to call a radare2 command:
 - ``CutterCore::cmdRaw(<command>)`` - Executes a single radare2 command 
   without going through radare2 shell functionality like output redirects, grep, and multiple command parsing.
 
-The command then returns its output. This should be used when a command doesn't have output or the output should be handled as-is. If possible, using the json variation with ``cmdj`` is always preferred.
+The command then returns its output. This should be used when a command doesn't have output or the output should be handled as-is. If possible, using the JSON variation with ``cmdj`` is always preferred.
   
 - ``CutterCore::cmdRawAt(<command>, <address>)`` - Executes a single radare2 command in a given address and returns the output. This helps avoiding weird strings concatenation like ``cmd("ph " + hash + " @ " + QString::num(address))``.
   
 - ``CutterCore::cmd()`` - *(Discouraged)* Only use it when ``cmdj`` or ``cmdRaw`` cannot be used. This is used for complex commands using concatenation of several commands (``px 5; pd 7; afl;``), for grepping (``pd 5~call``). for commands inside commands (``?e `afn.```) and so on.
-  This is also used when the output is complex and does not parsed correctly in ``cmdRaw``.
+  This is also used when the output is complex and is not parsed correctly in ``cmdRaw``.
   Make sure to carefully sanitize user-controlled variables that are passed to the command, to avoid unexpected command injections. 
 
 Generally, if one needs to retrieve information from a radare2 command, it
-is preferred to use the json API.
+is preferred to use the JSON API.
 
 Example:
 
@@ -49,7 +49,7 @@ Example:
 
    QJsonArray array = Core()->cmdj("pdj 1 @ main").array();
 
-Seek the current file
+Seek the Current File
 ~~~~~~~~~~~~~~~~~~~~~
 
 To modify radare2 seek use ``CutterCore::seek(const RVA offset)``. This
@@ -68,15 +68,15 @@ Example:
  Cutter also supports a silent seek which doesn't trigger the ``seekChanged`` event and doesn't add new entries to the seek history.
 
 
-Creating a widget
+Creating a Widget
 ~~~~~~~~~~~~~~~~~
 
 Make sure to connect the ``CutterCore::seekChanged(RVA offset)`` signal
 so your widget refreshes its output when radare2 seek is modified
 (switching to another function, etc.).
 
-Coding style
--------------
+Coding Style
+------------
 
 In general, we follow `the official Qt guidelines <https://wiki.qt.io/Qt_Coding_Style>`__ to
 format the code. If in doubt, you can use `AStyle
@@ -135,7 +135,7 @@ If you need something in the source file (.cpp) that is not a class member,
 then add the include in the source file.
 
 The includes must be ordered from local to global. That is, first include
-any local header file (with doublequotes like `#include "common/Helpers.h"`.
+any local header file (with double quotes like `#include "common/Helpers.h"`.
 Then, after an empty newline, include Qt definitions like
 `#include <QShortcut>`.
 Finally, include the standard C++ headers you need.
@@ -178,7 +178,7 @@ Example:
 
    QObject *object = nullptr;
 
-Connecting signals
+Connecting Signals
 ~~~~~~~~~~~~~~~~~~
 
 To connect a signal to a slot, this is the preferred syntax:
@@ -190,23 +190,23 @@ To connect a signal to a slot, this is the preferred syntax:
 This syntax performs compile-time type checks and allows the use of lambda
 functions. Other approaches for connecting signals silently break at runtime.
 
-General coding advices
+General Coding Advices
 ----------------------
 
-Functions documentation
+Functions Documentation
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-You can find the classes documentation in the API Reference menu item.
+You can find the class documentation in the API Reference menu item.
 
-Updating the submodules
-~~~~~~~~~~~~~~~~~~~~~~~
+Updating the Git Submodules
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Git submodules play a major part in Cutter. This, because Cutter is powered
 by radare2, its parent project, and it tries to stay up-to-date with its
 recent version, which allows us to implement new features, and enjoy bug
 fixes and performance improvements on radare2. Often, we need to update
-the radare2 submodule or others, in order to push the most recent
-version of them to Cutter.
+the radare2 submodule or the others, to push their most recent
+version to Cutter.
 
 You can view the list of all the submodules from the cutter root folder with:
 
@@ -235,9 +235,9 @@ In order to update one submodule individually, use the following code:
    git commit -m "Update radare2 submodule"
 
 
-Useful resources to learn more about Qt development
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Useful Resources (Qt Development)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * `Signals & Slots <https://doc.qt.io/qt-5/signalsandslots.html>`__
-* `Model/View Programming <https://doc.qt.io/qt-5/model-view-programming.html>`__ - read this if you are going to work with list or table-like widgets
+* `Model/View Programming <https://doc.qt.io/qt-5/model-view-programming.html>`__ - read this if you are going to work with a list or table-like widgets
 * `QAction <https://doc.qt.io/qt-5/qaction.html#details>`__

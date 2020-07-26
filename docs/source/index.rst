@@ -9,23 +9,26 @@ reverse engineers.
 .. image:: images/screenshot.png
 
 
-Get Cutter
-----------
+Getting Cutter
+--------------
 
-Cutter is available for all platforms (Linux, OS X, Windows). You can
-download the latest release
+Cutter is available for all major platforms. You can
+download the latest release from
 `here <https://github.com/radareorg/cutter/releases>`__.
 
-- OSX: Download the latest ``.dmg`` file.
-- Windows: Download the latest archive.
-- Linux: use the AppImage file. Then just make it executable and run it: ``chmod +x Cutter-v1.11.0-x86_64.AppImage``
+- **macOS**: Download the ``.dmg`` file and install it.
+- **Windows**: Download the ``.zip`` archive and extract it.
+- **Linux**: Download the ``.AppImage`` file and make it executable by doing:
+
+::
+
+    chmod +x Cutter*.AppImage
 
 
-Building from sources
+Building from Sources
 ---------------------
 
-To build Cutter on your local machine, please follow this guide:
-`Building from source <building.html>`__
+To build Cutter on your machine, please follow this guide: :doc:`Building from Source </building>`.
 
 Need help?
 ----------
@@ -39,9 +42,7 @@ You can contact the *Cutter* developers and community on:
 Want to help the project?
 -------------------------
 
-If you want to contribute to Cutter, take a look
-`here <contributing>`_
-to learn how you can help improve the project!
+If you want to contribute to Cutter, take a look at our :doc:`Contribution Guidelines </contributing>` to learn how you can help improve the project!
 
 .. toctree::
    :caption: Contents:
@@ -51,7 +52,6 @@ to learn how you can help improve the project!
    contributing
    Developer documentation <contributing/code>
    building
-   common-errors
    plugins
    api
 

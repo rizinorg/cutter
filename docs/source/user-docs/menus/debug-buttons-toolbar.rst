@@ -1,19 +1,19 @@
 Debug Buttons Toolbar
 ==============================
 
-Continue Until Main 
+Continue until Main 
 ----------------------------------------
 **Description:** Continue the execution of the program until the Main function is reached.  
 
 **Steps:**  Continue until main  
 
-Continue Until Call
+Continue until Call
 ----------------------------------------
 **Description:** Continue the execution of the program until a function call is reached.  
 
 **Steps:**  Continue until call  
 
-Continue Until Syscall
+Continue until Syscall
 ----------------------------------------
 **Description:** Continue the execution of the program until a Syscall is reached.  
 

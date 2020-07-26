@@ -1,4 +1,4 @@
-Getting started with Python Plugins
+Getting Started with Python Plugins
 ===================================
 
 This article provides a step-by-step guide on how to write a simple Python plugin for Cutter.
