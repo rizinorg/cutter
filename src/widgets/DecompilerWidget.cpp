@@ -413,6 +413,13 @@ void DecompilerWidget::updateSelection()
     cursor.select(QTextCursor::WordUnderCursor);
     QString searchString = cursor.selectedText();
     mCtxMenu->setCurHighlightedWord(searchString);
+    // if (searchString.empty()) {
+    //     mCtxMenu->setCurHighlightedWord(searchString);
+    // } else {
+    //     cursor.select(QTextCursor::LineUnderCursor);
+    //     mCtxMenu->setCurHighlightedWord(cursor.selectedText());
+    // }
+    
     extraSelections.append(createSameWordsSelections(ui->textEdit, searchString));
 
     ui->textEdit->setExtraSelections(extraSelections);
