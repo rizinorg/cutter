@@ -32,6 +32,7 @@ public slots:
 
     void highlightPC();
 private slots:
+    void copyLine();
     void fontsUpdatedSlot();
     void colorsUpdatedSlot();
     void refreshDecompiler();

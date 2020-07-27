@@ -12,6 +12,7 @@
 #include <QTextEdit>
 #include <QPlainTextEdit>
 #include <QTextBlock>
+#include <QClipboard>
 #include <QObject>
 #include <QTextBlockUserData>
 
@@ -36,6 +37,10 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
     connect(Core(), SIGNAL(registersChanged()), this, SLOT(highlightPC()));
     connect(mCtxMenu, &DecompilerContextMenu::copy, ui->textEdit, &QPlainTextEdit::copy);
+    connect(mCtxMenu, &DecompilerContextMenu::copyLine, this, &DecompilerWidget::copyLine);
+    connect(ui->textEdit, &QPlainTextEdit::selectionChanged, this, [this]() {
+        mCtxMenu->setCanCopy(ui->textEdit->textCursor().hasSelection());
+    });
 
     decompiledFunctionAddr = RVA_INVALID;
     decompilerWasBusy = false;
@@ -432,6 +437,12 @@ QString DecompilerWidget::getWindowTitle() const
     return tr("Decompiler");
 }
 
+void DecompilerWidget::copyLine()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(QString("How Are You???!!!!"));
+}
+
 void DecompilerWidget::fontsUpdatedSlot()
 {
     setupFonts();
@@ -465,7 +476,7 @@ bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::MouseButtonPress
             && (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-        if (mouseEvent->button() == Qt::RightButton) {
+        if (mouseEvent->button() == Qt::RightButton && !ui->textEdit->textCursor().hasSelection()) {
             ui->textEdit->setTextCursor(ui->textEdit->cursorForPosition(mouseEvent->pos()));
             return true;
         }

@@ -19,6 +19,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         isTogglingBreakpoints(false),
         mainWindow(mainWindow),
         annotationHere(nullptr),
+        canCopy(false),
         actionCopy(tr("Copy"), this),
         actionCopyInstructionAddress(tr("Copy instruction address (<address>)"), this),
         actionCopyReferenceAddress(tr("Copy address of [flag] (<address>)"), this),
@@ -104,6 +105,7 @@ void DecompilerContextMenu::setCanCopy(bool enabled)
 {
     // actionCopy.setVisible(enabled);
     // actionCopyInstructionAddress.setVisible(!enabled);
+    canCopy = enabled;
     if (enabled) {
         actionCopy.setText("Copy");
     } else {
@@ -330,7 +332,12 @@ void DecompilerContextMenu::setActionSetPC()
 
 void DecompilerContextMenu::actionCopyTriggered()
 {
-    emit copy();
+    if (canCopy) {
+        emit copy();
+    } else {
+        // return;
+        emit copyLine();
+    }
 }
 
 void DecompilerContextMenu::actionCopyInstructionAddressTriggered()

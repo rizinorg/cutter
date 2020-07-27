@@ -20,6 +20,7 @@ public:
 
 signals:
     void copy();
+    void copyLine();
 
 public slots:
     void setCurHighlightedWord(QString word);
@@ -60,6 +61,7 @@ private:
 
     RCodeAnnotation *annotationHere;
 
+    bool canCopy;
     QAction actionCopy;
     QAction actionCopyInstructionAddress;
     QAction actionCopyReferenceAddress;
