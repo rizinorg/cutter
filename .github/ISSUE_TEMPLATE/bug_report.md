@@ -9,7 +9,7 @@ about: Create a report to help us improve
 * Cutter version:
 * Obtained from:
   - [x] Built from source
-  - [ ] Downloaded from release
+  - [ ] Downloaded release from Cutter website or GitHub 
   - [ ] Distribution repository
 * File format:
 
