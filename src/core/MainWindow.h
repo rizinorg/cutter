@@ -121,8 +121,8 @@ public:
     QString getUniqueObjectName(const QString &widgetType) const;
     void showMemoryWidget();
     void showMemoryWidget(MemoryWidgetType type);
-
-    QMenu *createShowInMenu(QWidget *parent, RVA address, RCodeAnnotationType typeOfAnnotation = R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT);
+    enum class AddressTypeHint { Function, Data, Unknown };
+    QMenu *createShowInMenu(QWidget *parent, RVA address, AddressTypeHint addressType = AddressTypeHint::Function);
     void setCurrentMemoryWidget(MemoryDockWidget* memoryWidget);
     MemoryDockWidget* getLastMemoryWidget();
 

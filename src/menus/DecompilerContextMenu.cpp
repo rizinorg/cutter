@@ -252,7 +252,6 @@ void DecompilerContextMenu::setActionCopy() // Set all three copy actions
     connect(&actionCopyInstructionAddress, &QAction::triggered, this,
             &DecompilerContextMenu::actionCopyInstructionAddressTriggered);
     addAction(&actionCopyInstructionAddress);
-    // actionCopyInstructionAddress.setShortcut(QKeySequence::Copy);
 
     connect(&actionCopyReferenceAddress, &QAction::triggered, this,
             &DecompilerContextMenu::actionCopyReferenceAddressTriggered);
@@ -495,8 +494,10 @@ void DecompilerContextMenu::updateTargetMenuActions()
                            || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE
                            || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME)) {
         QString name;
+        QMenu *menu;
         if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
                 || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
+            menu = mainWindow->createShowInMenu(this, annotationHere->reference.offset, MainWindow::AddressTypeHint::Data);
             RVA var_addr = annotationHere->reference.offset;
             RFlagItem *flagDetails = r_flag_get_i(core->flags, var_addr);
             if (flagDetails) {
@@ -505,13 +506,13 @@ void DecompilerContextMenu::updateTargetMenuActions()
                 name = tr("Show %1 in").arg(RAddressString(annotationHere->reference.offset));
             }
         } else if (annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
+            menu = mainWindow->createShowInMenu(this, annotationHere->reference.offset,
+                                                MainWindow::AddressTypeHint::Function);
             name = tr("%1 (%2)").arg(QString(annotationHere->reference.name),
                                      RAddressString(annotationHere->reference.offset));
         }
         auto action = new QAction(name, this);
         showTargetMenuActions.append(action);
-        auto menu = mainWindow->createShowInMenu(this, annotationHere->reference.offset,
-                                                 annotationHere->type);
         action->setMenu(menu);
         insertActions(copySeparator, showTargetMenuActions);
     }
