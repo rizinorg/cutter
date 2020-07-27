@@ -418,13 +418,6 @@ void DecompilerWidget::updateSelection()
     cursor.select(QTextCursor::WordUnderCursor);
     QString searchString = cursor.selectedText();
     mCtxMenu->setCurHighlightedWord(searchString);
-    // if (searchString.empty()) {
-    //     mCtxMenu->setCurHighlightedWord(searchString);
-    // } else {
-    //     cursor.select(QTextCursor::LineUnderCursor);
-    //     mCtxMenu->setCurHighlightedWord(cursor.selectedText());
-    // }
-    
     extraSelections.append(createSameWordsSelections(ui->textEdit, searchString));
 
     ui->textEdit->setExtraSelections(extraSelections);
@@ -435,12 +428,6 @@ void DecompilerWidget::updateSelection()
 QString DecompilerWidget::getWindowTitle() const
 {
     return tr("Decompiler");
-}
-
-void DecompilerWidget::copyLine()
-{
-    QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(QString("How Are You???!!!!"));
 }
 
 void DecompilerWidget::fontsUpdatedSlot()
@@ -524,4 +511,12 @@ bool DecompilerWidget::colorLine(QTextEdit::ExtraSelection extraSelection)
     extraSelections.append(extraSelection);
     ui->textEdit->setExtraSelections(extraSelections);
     return true;
+}
+
+void DecompilerWidget::copyLine()
+{
+    QTextCursor cursor = ui->textEdit->textCursor();
+    cursor.select(QTextCursor::LineUnderCursor);
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(cursor.selectedText());
 }

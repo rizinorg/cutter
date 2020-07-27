@@ -103,14 +103,7 @@ void DecompilerContextMenu::setupBreakpointsInLineMenu()
 
 void DecompilerContextMenu::setCanCopy(bool enabled)
 {
-    // actionCopy.setVisible(enabled);
-    // actionCopyInstructionAddress.setVisible(!enabled);
     canCopy = enabled;
-    if (enabled) {
-        actionCopy.setText("Copy");
-    } else {
-        actionCopy.setText("Copy this line");
-    }
 }
 
 void DecompilerContextMenu::setShortcutContextInActions(QMenu *menu)
@@ -334,8 +327,10 @@ void DecompilerContextMenu::actionCopyTriggered()
 {
     if (canCopy) {
         emit copy();
+    } else if(!curHighlightedWord.isEmpty()) {
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setText(curHighlightedWord);
     } else {
-        // return;
         emit copyLine();
     }
 }
