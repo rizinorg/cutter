@@ -201,7 +201,7 @@ void DecompilerContextMenu::aboutToShowSlot()
                 actionDeleteName.setText(tr("Remove %1").arg(QString(flagDetails->name)));
                 actionDeleteName.setVisible(true);
             } else {
-                if (Core()->getConfig("r2ghidra.rawptr")== "true") {
+                if (Core()->getConfig("r2ghidra.rawptr") == "true") {
                     actionRenameThingHere.setText(tr("Add name"));
                 } else {
                     actionRenameThingHere.setText(tr("Rename %1").arg(curHighlightedWord));
@@ -327,7 +327,7 @@ void DecompilerContextMenu::actionCopyTriggered()
 {
     if (canCopy) {
         emit copy();
-    } else if(!curHighlightedWord.isEmpty()) {
+    } else if (!curHighlightedWord.isEmpty()) {
         QClipboard *clipboard = QApplication::clipboard();
         clipboard->setText(curHighlightedWord);
     } else {
@@ -401,8 +401,8 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
                     Core()->addFlag(var_addr, newName, 1);
                 }
             } else {
-            QString newName = QInputDialog::getText(this, tr("Rename %2").arg(curHighlightedWord),
-                                                    tr("Enter name"), QLineEdit::Normal, curHighlightedWord, &ok);
+                QString newName = QInputDialog::getText(this, tr("Rename %2").arg(curHighlightedWord),
+                                                        tr("Enter name"), QLineEdit::Normal, curHighlightedWord, &ok);
                 if (ok && !newName.isEmpty()) {
                     Core()->addFlag(var_addr, newName, 1);
                 }
