@@ -9,6 +9,7 @@ EditStringDialog::EditStringDialog(QWidget *parent)
     ui->spinBox_size->setMinimum(0);
     ui->lineEdit_address->setMinimumWidth(150);
     ui->pushButton_ok->setFocus();
+    ui->pushButton_ok->setDefault(true);
     ui->comboBox_type->addItems({"Auto", "ASCII/Latin1", "UTF-8"});
     connect(ui->checkBox_autoSize, &QCheckBox::toggled, ui->spinBox_size, &QSpinBox::setDisabled);
 }
