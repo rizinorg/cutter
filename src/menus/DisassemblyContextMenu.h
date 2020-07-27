@@ -89,6 +89,7 @@ private:
     QKeySequence getCopyAddressSequence() const;
     QKeySequence getSetToCodeSequence() const;
     QKeySequence getSetAsStringSequence() const;
+    QKeySequence getSetAsStringAdvanced() const;
     QKeySequence getSetToDataSequence() const;
     QKeySequence getSetToDataExSequence() const;
     QKeySequence getAddFlagSequence() const;

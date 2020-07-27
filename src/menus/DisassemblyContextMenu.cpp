@@ -248,7 +248,7 @@ void DisassemblyContextMenu::addSetAsMenu()
     initAction(&actionSetAsStringRemove, tr("Remove"),
                SLOT(on_actionSetAsStringRemove_triggered()));
     initAction(&actionSetAsStringAdvanced, tr("Advanced"),
-               SLOT(on_actionSetAsStringAdvanced_triggered()));
+               SLOT(on_actionSetAsStringAdvanced_triggered()), getSetAsStringAdvanced());
 
 
     setAsString->addAction(&actionSetAsStringAuto);
@@ -604,6 +604,10 @@ QKeySequence DisassemblyContextMenu::getSetAsStringSequence() const
     return {Qt::Key_A};
 }
 
+QKeySequence DisassemblyContextMenu::getSetAsStringAdvanced() const
+{
+	return {Qt::SHIFT + Qt::Key_A};
+}
 
 QKeySequence DisassemblyContextMenu::getSetToDataSequence() const
 {
