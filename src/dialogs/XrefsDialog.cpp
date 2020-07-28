@@ -146,10 +146,6 @@ void XrefsDialog::updateLabelsForVariables(QString name)
 
 void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function)
 {
-    TempConfig tempConfig;
-    tempConfig.set("scr.html", false);
-    tempConfig.set("scr.color", COLOR_MODE_DISABLED);
-
     setWindowTitle(tr("X-Refs for %1").arg(name));
     updateLabels(name);
 
@@ -168,10 +164,6 @@ void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function
 
 void XrefsDialog::fillRefsForVariable(QString nameOfVariable, RVA offset)
 {
-    TempConfig tempConfig;
-    tempConfig.set("scr.html", false);
-    tempConfig.set("scr.color", COLOR_MODE_DISABLED);
-
     setWindowTitle(tr("X-Refs for %1").arg(nameOfVariable));
     updateLabelsForVariables(nameOfVariable);
 
