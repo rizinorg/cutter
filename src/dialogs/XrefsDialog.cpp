@@ -138,18 +138,41 @@ void XrefsDialog::updateLabels(QString name)
     ui->label_xFrom->setText(tr("X-Refs from %1:").arg(name));
 }
 
+void XrefsDialog::updateLabelsForVariables(QString name)
+{
+    ui->label_xTo->setText(tr("Writes to %1").arg(name));
+    ui->label_xFrom->setText(tr("Reads from %1").arg(name));
+}
+
 void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function)
 {
-    TempConfig tempConfig;
-    tempConfig.set("scr.html", false);
-    tempConfig.set("scr.color", COLOR_MODE_DISABLED);
-
     setWindowTitle(tr("X-Refs for %1").arg(name));
     updateLabels(name);
 
     toModel.readForOffset(addr, true, whole_function);
     fromModel.readForOffset(addr, false, whole_function);
 
+    // Adjust columns to content
+    qhelpers::adjustColumns(ui->fromTreeWidget, fromModel.columnCount(), 0);
+    qhelpers::adjustColumns(ui->toTreeWidget, toModel.columnCount(), 0);
+
+    // Automatically select the first line
+    if (!qhelpers::selectFirstItem(ui->toTreeWidget)) {
+        qhelpers::selectFirstItem(ui->fromTreeWidget);
+    }
+}
+
+void XrefsDialog::fillRefsForVariable(QString nameOfVariable, RVA offset)
+{
+    setWindowTitle(tr("X-Refs for %1").arg(nameOfVariable));
+    updateLabelsForVariables(nameOfVariable);
+
+    // Initialize Model
+    toModel.readForVariable(nameOfVariable, true, offset);
+    fromModel.readForVariable(nameOfVariable, false, offset);
+    // Hide irrelevant column 1: which shows type
+    ui->fromTreeWidget->hideColumn(XrefModel::Columns::TYPE);
+    ui->toTreeWidget->hideColumn(XrefModel::Columns::TYPE);
     // Adjust columns to content
     qhelpers::adjustColumns(ui->fromTreeWidget, fromModel.columnCount(), 0);
     qhelpers::adjustColumns(ui->toTreeWidget, toModel.columnCount(), 0);
@@ -185,6 +208,14 @@ void XrefModel::readForOffset(RVA offset, bool to, bool whole_function)
     beginResetModel();
     this->to = to;
     xrefs = Core()->getXRefs(offset, to, whole_function);
+    endResetModel();
+}
+
+void XrefModel::readForVariable(QString nameOfVariable, bool write, RVA offset)
+{
+    beginResetModel();
+    this->to = write;
+    xrefs = Core()->getXRefsForVariable(nameOfVariable, write, offset);
     endResetModel();
 }
 
