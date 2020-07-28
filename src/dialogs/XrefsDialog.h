@@ -7,7 +7,7 @@
 #include "common/Highlighter.h"
 #include "core/Cutter.h"
 #include "common/AddressableItemModel.h"
-
+ 
 class XrefModel: public AddressableItemModel<QAbstractListModel>
 {
 private:
