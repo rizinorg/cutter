@@ -122,7 +122,7 @@ public:
     void showMemoryWidget();
     void showMemoryWidget(MemoryWidgetType type);
     enum class AddressTypeHint { Function, Data, Unknown };
-    QMenu *createShowInMenu(QWidget *parent, RVA address, AddressTypeHint addressType = AddressTypeHint::Function);
+    QMenu *createShowInMenu(QWidget *parent, RVA address, AddressTypeHint addressType = AddressTypeHint::Unknown);
     void setCurrentMemoryWidget(MemoryDockWidget* memoryWidget);
     MemoryDockWidget* getLastMemoryWidget();
 
