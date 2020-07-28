@@ -17,7 +17,7 @@ Release Procedure
 4. Create a tag v1.11.0-rc1
     #. ``git tag v1.11.0-rc1``
     #. ``git tag push origin v1.11.0-rc1``
-5. Create a github release, mark it as pre-release save draft, set the tag to v1.11.0-rc1
+5. Create a GitHub release, mark it as pre-release save draft, set the tag to v1.11.0-rc1
 6. Wait for packages to build
 7. On all operating systems do the `Basic testing procedure`_ to ensure nothing badly broken.
 8. If any major problems are found fix them. If a release branch is used fix them in master and cherry pick into release branch. If the amount of changes is sufficiently large repeat from step 3. increasing rc number by one.
@@ -25,6 +25,8 @@ Release Procedure
 10. Create tag
 11. Create release
     * Fill the release notes, preparing release notes can be started earlier. Compare current master or release branch against previous release to find all the changes. Choose the most important ones. Don't duplicate the commit log. Release notes should be a summary for people who don't want to read whole commit log. Group related changes.
+12. Announcement
+13. Close milestone if there was one
 
 
 Basic testing procedure
