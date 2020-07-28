@@ -171,8 +171,8 @@ void XrefsDialog::fillRefsForVariable(QString nameOfVariable, RVA offset)
     toModel.readForVariable(nameOfVariable, true, offset);
     fromModel.readForVariable(nameOfVariable, false, offset);
     // Hide irrelevant column 1: which shows type
-    ui->fromTreeWidget->hideColumn(1);
-    ui->toTreeWidget->hideColumn(1);
+    ui->fromTreeWidget->hideColumn(XrefModel::Columns::TYPE);
+    ui->toTreeWidget->hideColumn(XrefModel::Columns::TYPE);
     // Adjust columns to content
     qhelpers::adjustColumns(ui->fromTreeWidget, fromModel.columnCount(), 0);
     qhelpers::adjustColumns(ui->toTreeWidget, toModel.columnCount(), 0);
