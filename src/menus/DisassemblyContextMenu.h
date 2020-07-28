@@ -206,6 +206,12 @@ private:
     void addBreakpointMenu();
     void addDebugMenu();
 
+    /**
+     * @brief Checks if the currently highlighted word in the disassembly widget
+     * is a local variable or function paramter.
+     * @return Return true if the highlighted word is the name of a local variable or function parameter,
+     * return false otherwise.
+     */
     bool isHighlightedWordLocalVar();
     struct ThingUsedHere {
         QString name;

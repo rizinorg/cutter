@@ -138,7 +138,8 @@ void XrefsDialog::updateLabels(QString name)
     ui->label_xFrom->setText(tr("X-Refs from %1:").arg(name));
 }
 
-void XrefsDialog::updateLabelsForVariables(QString name){
+void XrefsDialog::updateLabelsForVariables(QString name)
+{
     ui->label_xTo->setText(tr("Writes to %1").arg(name));
     ui->label_xFrom->setText(tr("Reads from %1").arg(name));
 }
