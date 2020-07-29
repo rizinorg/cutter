@@ -196,11 +196,7 @@ void DecompilerContextMenu::aboutToShowSlot()
                 actionDeleteName.setText(tr("Remove %1").arg(QString(flagDetails->name)));
                 actionDeleteName.setVisible(true);
             } else {
-                if (Config()->getSelectedDecompiler() == "r2ghidra" && Core()->getConfig("r2ghidra.rawptr") == "false") {
-                    actionRenameThingHere.setText(tr("Rename %1").arg(curHighlightedWord));
-                } else {
-                    actionRenameThingHere.setText(tr("Add name"));
-                }
+                actionRenameThingHere.setText(tr("Add name to %1").arg(curHighlightedWord));
             }
         }
     }
@@ -381,19 +377,10 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
                 Core()->renameFlag(flagDetails->name, newName);
             }
         } else {
-            if (Config()->getSelectedDecompiler() == "r2ghidra" && Core()->getConfig("r2ghidra.rawptr") == "false") {
-                QString newName = QInputDialog::getText(this, tr("Rename %2").arg(curHighlightedWord),
-                                                        tr("Enter name"), QLineEdit::Normal, curHighlightedWord, &ok);
-                if (ok && !newName.isEmpty()) {
-                    Core()->addFlag(var_addr, newName, 1);
-                }
-                
-            } else {
-                QString newName = QInputDialog::getText(this, tr("Add name"), tr("Enter name"), QLineEdit::Normal,
-                                                        QString(), &ok);
-                if (ok && !newName.isEmpty()) {
-                    Core()->addFlag(var_addr, newName, 1);
-                }
+            QString newName = QInputDialog::getText(this, tr("Add name to %2").arg(curHighlightedWord),
+                                                    tr("Enter name"), QLineEdit::Normal, curHighlightedWord, &ok);
+            if (ok && !newName.isEmpty()) {
+                Core()->addFlag(var_addr, newName, 1);
             }
         }
 
