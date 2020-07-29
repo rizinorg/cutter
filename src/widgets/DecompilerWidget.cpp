@@ -36,8 +36,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
     connect(Core(), SIGNAL(registersChanged()), this, SLOT(highlightPC()));
-    connect(mCtxMenu, &DecompilerContextMenu::copy, ui->textEdit, &QPlainTextEdit::copy);
-    connect(mCtxMenu, &DecompilerContextMenu::copyLine, this, &DecompilerWidget::copyLine);
+    connect(mCtxMenu, &DecompilerContextMenu::copy, this, &DecompilerWidget::copy);
     connect(ui->textEdit, &QPlainTextEdit::selectionChanged, this, [this]() {
         mCtxMenu->setCanCopy(ui->textEdit->textCursor().hasSelection());
     });
@@ -513,10 +512,19 @@ bool DecompilerWidget::colorLine(QTextEdit::ExtraSelection extraSelection)
     return true;
 }
 
-void DecompilerWidget::copyLine()
+void DecompilerWidget::copy()
 {
-    QTextCursor cursor = ui->textEdit->textCursor();
-    cursor.select(QTextCursor::LineUnderCursor);
-    QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(cursor.selectedText());
+    if (ui->textEdit->textCursor().hasSelection()) {
+        ui->textEdit->copy();
+    } else {
+        QTextCursor cursor = ui->textEdit->textCursor();
+        QClipboard *clipboard = QApplication::clipboard();
+        cursor.select(QTextCursor::WordUnderCursor);
+        if (!cursor.selectedText().isEmpty()) {
+            clipboard->setText(cursor.selectedText());
+        } else {
+            cursor.select(QTextCursor::LineUnderCursor);
+            clipboard->setText(cursor.selectedText());
+        }
+    }
 }

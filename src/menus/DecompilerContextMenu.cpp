@@ -325,14 +325,7 @@ void DecompilerContextMenu::setActionSetPC()
 
 void DecompilerContextMenu::actionCopyTriggered()
 {
-    if (canCopy) {
-        emit copy();
-    } else if (!curHighlightedWord.isEmpty()) {
-        QClipboard *clipboard = QApplication::clipboard();
-        clipboard->setText(curHighlightedWord);
-    } else {
-        emit copyLine();
-    }
+    emit copy();
 }
 
 void DecompilerContextMenu::actionCopyInstructionAddressTriggered()

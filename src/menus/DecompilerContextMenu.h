@@ -20,7 +20,6 @@ public:
 
 signals:
     void copy();
-    void copyLine();
 
 public slots:
     void setCurHighlightedWord(QString word);
