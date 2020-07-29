@@ -24,7 +24,6 @@ signals:
 public slots:
     void setCurHighlightedWord(QString word);
     void setOffset(RVA offset);
-    void setCanCopy(bool enabled);
     void setFirstOffsetInLine(RVA firstOffset);
     void setAvailableBreakpoints(QVector<RVA> offsetList);
 
@@ -60,7 +59,6 @@ private:
 
     RCodeAnnotation *annotationHere;
 
-    bool canCopy;
     QAction actionCopy;
     QAction actionCopyInstructionAddress;
     QAction actionCopyReferenceAddress;

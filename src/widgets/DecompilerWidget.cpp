@@ -37,9 +37,6 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
     connect(Core(), SIGNAL(registersChanged()), this, SLOT(highlightPC()));
     connect(mCtxMenu, &DecompilerContextMenu::copy, this, &DecompilerWidget::copy);
-    connect(ui->textEdit, &QPlainTextEdit::selectionChanged, this, [this]() {
-        mCtxMenu->setCanCopy(ui->textEdit->textCursor().hasSelection());
-    });
 
     decompiledFunctionAddr = RVA_INVALID;
     decompilerWasBusy = false;
@@ -346,7 +343,6 @@ void DecompilerWidget::connectCursorPositionChanged(bool disconnect)
 
 void DecompilerWidget::cursorPositionChanged()
 {
-    mCtxMenu->setCanCopy(ui->textEdit->textCursor().hasSelection());
     // Do not perform seeks along with the cursor while selecting multiple lines
     if (!ui->textEdit->textCursor().selectedText().isEmpty()) {
         return;

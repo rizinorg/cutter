@@ -20,7 +20,6 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         isTogglingBreakpoints(false),
         mainWindow(mainWindow),
         annotationHere(nullptr),
-        canCopy(false),
         actionCopy(tr("Copy"), this),
         actionCopyInstructionAddress(tr("Copy instruction address (<address>)"), this),
         actionCopyReferenceAddress(tr("Copy address of [flag] (<address>)"), this),
@@ -100,11 +99,6 @@ void DecompilerContextMenu::setupBreakpointsInLineMenu()
                                               this);
         });
     }
-}
-
-void DecompilerContextMenu::setCanCopy(bool enabled)
-{
-    canCopy = enabled;
 }
 
 void DecompilerContextMenu::setShortcutContextInActions(QMenu *menu)
