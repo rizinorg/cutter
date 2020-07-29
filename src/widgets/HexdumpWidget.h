@@ -13,8 +13,6 @@
 #include "MemoryDockWidget.h"
 #include "common/CutterSeekable.h"
 #include "common/Highlighter.h"
-#include "common/HexAsciiHighlighter.h"
-#include "common/HexHighlighter.h"
 #include "common/SvgIconEngine.h"
 #include "HexWidget.h"
 

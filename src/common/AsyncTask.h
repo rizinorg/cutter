@@ -2,6 +2,8 @@
 #ifndef ASYNCTASK_H
 #define ASYNCTASK_H
 
+#include "core/CutterCommon.h"
+
 #include <QRunnable>
 #include <QThreadPool>
 #include <QMutex>
@@ -11,7 +13,7 @@
 
 class AsyncTaskManager;
 
-class AsyncTask : public QObject, public QRunnable
+class CUTTER_EXPORT  AsyncTask : public QObject, public QRunnable
 {
     Q_OBJECT
 

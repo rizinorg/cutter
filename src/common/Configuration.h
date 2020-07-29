@@ -30,7 +30,7 @@ struct CutterInterfaceTheme {
 };
 
 
-class Configuration : public QObject
+class CUTTER_EXPORT Configuration : public QObject
 {
     Q_OBJECT
 private:

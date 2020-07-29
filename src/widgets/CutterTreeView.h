@@ -1,6 +1,8 @@
 #ifndef CUTTERTREEVIEW_H
 #define CUTTERTREEVIEW_H
 
+#include "core/CutterCommon.h"
+
 #include <memory>
 #include <QAbstractItemView>
 #include <QTreeView>
@@ -9,7 +11,7 @@ namespace Ui {
 class CutterTreeView;
 }
 
-class CutterTreeView : public QTreeView
+class CUTTER_EXPORT CutterTreeView : public QTreeView
 {
     Q_OBJECT
 

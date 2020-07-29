@@ -9,7 +9,7 @@
 /* Disassembly/Graph/Hexdump/Decompiler view priority */
 enum class MemoryWidgetType { Disassembly, Graph, Hexdump, Decompiler };
 
-class MemoryDockWidget : public AddressableDockWidget
+class CUTTER_EXPORT MemoryDockWidget : public AddressableDockWidget
 {
     Q_OBJECT
 public:

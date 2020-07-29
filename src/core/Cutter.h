@@ -33,7 +33,7 @@ class R2TaskDialog;
 
 class RCoreLocked;
 
-class CutterCore: public QObject
+class CUTTER_EXPORT CutterCore: public QObject
 {
     Q_OBJECT
 
@@ -719,7 +719,7 @@ private:
     QVector<QString> getCutterRCFilePaths() const;
 };
 
-class RCoreLocked
+class CUTTER_EXPORT RCoreLocked
 {
     CutterCore * const core;
 

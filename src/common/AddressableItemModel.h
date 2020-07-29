@@ -6,9 +6,9 @@
 #include <QSortFilterProxyModel>
 #include <QAbstractItemModel>
 
-#include <core/CutterCommon.h>
+#include "core/CutterCommon.h"
 
-class AddressableItemModelI
+class CUTTER_EXPORT AddressableItemModelI
 {
 public:
     virtual RVA address(const QModelIndex &index) const = 0;
@@ -22,7 +22,7 @@ public:
 };
 
 template <class ParentModel = QAbstractItemModel>
-class AddressableItemModel : public ParentModel, public AddressableItemModelI
+class CUTTER_EXPORT  AddressableItemModel : public ParentModel, public AddressableItemModelI
 {
     static_assert (std::is_base_of<QAbstractItemModel, ParentModel>::value,
                    "ParentModel needs to inherit from QAbstractItemModel");
@@ -32,7 +32,7 @@ public:
     QAbstractItemModel *asItemModel() { return this; }
 };
 
-class AddressableFilterProxyModel : public AddressableItemModel<QSortFilterProxyModel>
+class CUTTER_EXPORT AddressableFilterProxyModel : public AddressableItemModel<QSortFilterProxyModel>
 {
     using ParentClass = AddressableItemModel<QSortFilterProxyModel>;
 public:

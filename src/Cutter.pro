@@ -310,8 +310,6 @@ SOURCES += \
     dialogs/XrefsDialog.cpp \
     core/MainWindow.cpp \
     common/Helpers.cpp \
-    common/HexAsciiHighlighter.cpp \
-    common/HexHighlighter.cpp \
     common/Highlighter.cpp \
     common/MdHighlighter.cpp \
     common/DirectionalComboBox.cpp \
@@ -459,8 +457,6 @@ HEADERS  += \
     dialogs/NativeDebugDialog.h \
     dialogs/XrefsDialog.h \
     common/Helpers.h \
-    common/HexAsciiHighlighter.h \
-    common/HexHighlighter.h \
     core/MainWindow.h \
     common/Highlighter.h \
     common/MdHighlighter.h \

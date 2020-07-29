@@ -21,7 +21,7 @@ class ListDockWidget;
 }
 
 
-class ListDockWidget : public CutterDockWidget
+class CUTTER_EXPORT ListDockWidget : public CutterDockWidget
 {
     Q_OBJECT
 

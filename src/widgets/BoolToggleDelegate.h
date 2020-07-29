@@ -1,9 +1,11 @@
 #ifndef BOOLTOGGGLEDELEGATE_H
 #define BOOLTOGGGLEDELEGATE_H
 
+#include "core/CutterCommon.h"
+
 #include <QStyledItemDelegate>
 
-class BoolTogggleDelegate : public QStyledItemDelegate
+class CUTTER_EXPORT BoolTogggleDelegate : public QStyledItemDelegate
 {
 public:
     BoolTogggleDelegate(QObject *parent = nullptr);
