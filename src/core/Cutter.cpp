@@ -114,6 +114,7 @@ static void updateOwnedCharPtr(char *&variable, const QString &newValue)
 RCoreLocked::RCoreLocked(CutterCore *core)
     : core(core)
 {
+    cout << "Test";
     core->coreMutex.lock();
     assert(core->coreLockDepth >= 0);
     core->coreLockDepth++;
