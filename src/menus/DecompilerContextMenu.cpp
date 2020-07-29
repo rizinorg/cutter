@@ -3,6 +3,7 @@
 #include "MainWindow.h"
 #include "dialogs/BreakpointsDialog.h"
 #include "dialogs/CommentsDialog.h"
+#include "common/Configuration.h"
 
 #include <QtCore>
 #include <QShortcut>
@@ -201,10 +202,10 @@ void DecompilerContextMenu::aboutToShowSlot()
                 actionDeleteName.setText(tr("Remove %1").arg(QString(flagDetails->name)));
                 actionDeleteName.setVisible(true);
             } else {
-                if (Core()->getConfig("r2ghidra.rawptr") == "true") {
-                    actionRenameThingHere.setText(tr("Add name"));
-                } else {
+                if (Config()->getSelectedDecompiler() == "r2ghidra" && Core()->getConfig("r2ghidra.rawptr") == "false") {
                     actionRenameThingHere.setText(tr("Rename %1").arg(curHighlightedWord));
+                } else {
+                    actionRenameThingHere.setText(tr("Add name"));
                 }
             }
         }
@@ -393,15 +394,16 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
                 Core()->renameFlag(flagDetails->name, newName);
             }
         } else {
-            if (Core()->getConfig("r2ghidra.rawptr") == "true") {
-                QString newName = QInputDialog::getText(this, tr("Add name"), tr("Enter name"), QLineEdit::Normal,
-                                                        QString(), &ok);
+            if (Config()->getSelectedDecompiler() == "r2ghidra" && Core()->getConfig("r2ghidra.rawptr") == "false") {
+                QString newName = QInputDialog::getText(this, tr("Rename %2").arg(curHighlightedWord),
+                                                        tr("Enter name"), QLineEdit::Normal, curHighlightedWord, &ok);
                 if (ok && !newName.isEmpty()) {
                     Core()->addFlag(var_addr, newName, 1);
                 }
+                
             } else {
-                QString newName = QInputDialog::getText(this, tr("Rename %2").arg(curHighlightedWord),
-                                                        tr("Enter name"), QLineEdit::Normal, curHighlightedWord, &ok);
+                QString newName = QInputDialog::getText(this, tr("Add name"), tr("Enter name"), QLineEdit::Normal,
+                                                        QString(), &ok);
                 if (ok && !newName.isEmpty()) {
                     Core()->addFlag(var_addr, newName, 1);
                 }
