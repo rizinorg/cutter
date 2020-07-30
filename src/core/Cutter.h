@@ -644,7 +644,7 @@ signals:
     void commentsChanged();
     void registersChanged();
     void instructionChanged(RVA offset);
-    void breakpointsChanged();
+    void breakpointsChanged(RVA offset);
     void refreshCodeViews();
     void stackChanged();
     /**
