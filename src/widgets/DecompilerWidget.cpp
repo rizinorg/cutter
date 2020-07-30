@@ -92,8 +92,9 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(ui->textEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showDisasContextMenu(const QPoint &)));
 
-    connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::setInfoForBreakpoints);
+    // connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::setInfoForBreakpoints);
     connect(Core(), &CutterCore::breakpointsChanged, this, [this] {
+        setInfoForBreakpoints();
         QTextCursor cursor = ui->textEdit->textCursor();
         cursor.select(QTextCursor::Document);
         cursor.setCharFormat(QTextCharFormat());
@@ -115,7 +116,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(Core(), &CutterCore::functionsChanged, this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::flagsChanged, this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::commentsChanged, this, &DecompilerWidget::doAutoRefresh);
-    // connect(Core(), &CutterCore::instructionChanged, this, &DecompilerWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::instructionChanged, this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::refreshCodeViews, this, &DecompilerWidget::doAutoRefresh);
 
     // Esc to seek backward
