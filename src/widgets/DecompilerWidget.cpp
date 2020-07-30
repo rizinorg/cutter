@@ -15,6 +15,8 @@
 #include <QClipboard>
 #include <QObject>
 #include <QTextBlockUserData>
+#include <QScrollBar>
+#include <QAbstractSlider>
 
 DecompilerWidget::DecompilerWidget(MainWindow *main) :
     MemoryDockWidget(MemoryWidgetType::Decompiler, main),
@@ -252,6 +254,7 @@ void DecompilerWidget::doRefresh(RVA addr)
 
     // Clear all selections since we just refreshed
     ui->textEdit->setExtraSelections({});
+    previousFunctionAddr = decompiledFunctionAddr;
     decompiledFunctionAddr = Core()->getFunctionStart(addr);
     dec->decompileAt(addr);
     if (dec->isRunning()) {
@@ -282,6 +285,13 @@ QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
 
 void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
 {
+    bool isDisplayReset = false;
+    if (previousFunctionAddr == decompiledFunctionAddr) {
+        scrollerHorizontal = ui->textEdit->horizontalScrollBar()->sliderPosition();
+        scrollerVertical = ui->textEdit->verticalScrollBar()->sliderPosition();
+        isDisplayReset = true;
+    }
+
     ui->progressLabel->setVisible(false);
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
     updateRefreshButton();
@@ -304,6 +314,11 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
     if (decompilerWasBusy) {
         decompilerWasBusy = false;
         doAutoRefresh();
+    }
+
+    if (isDisplayReset) {
+        ui->textEdit->horizontalScrollBar()->setSliderPosition(scrollerHorizontal);
+        ui->textEdit->verticalScrollBar()->setSliderPosition(scrollerVertical);
     }
 }
 
