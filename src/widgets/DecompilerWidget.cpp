@@ -12,6 +12,7 @@
 #include <QTextEdit>
 #include <QPlainTextEdit>
 #include <QTextBlock>
+#include <QClipboard>
 #include <QObject>
 #include <QTextBlockUserData>
 
@@ -35,7 +36,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(Config(), &Configuration::fontsUpdated, this, &DecompilerWidget::fontsUpdatedSlot);
     connect(Config(), &Configuration::colorsUpdated, this, &DecompilerWidget::colorsUpdatedSlot);
     connect(Core(), &CutterCore::registersChanged, this, &DecompilerWidget::highlightPC);
-    connect(mCtxMenu, &DecompilerContextMenu::copy, ui->textEdit, &QPlainTextEdit::copy);
+    connect(mCtxMenu, &DecompilerContextMenu::copy, this, &DecompilerWidget::copy);
 
     decompiledFunctionAddr = RVA_INVALID;
     decompilerWasBusy = false;
@@ -87,8 +88,6 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(ui->textEdit, &QWidget::customContextMenuRequested,
             this, &DecompilerWidget::showDisasContextMenu);
 
-    // refresh the widget when an action in this menu is triggered
-    connect(mCtxMenu, &QMenu::triggered, this, &DecompilerWidget::refreshDecompiler);
     connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::setInfoForBreakpoints);
     addActions(mCtxMenu->actions());
 
@@ -284,7 +283,7 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
     ui->progressLabel->setVisible(false);
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
     updateRefreshButton();
-    
+
     mCtxMenu->setAnnotationHere(nullptr);
     this->code.reset(codeDecompiled);
     QString codeString = QString::fromUtf8(this->code->code);
@@ -344,7 +343,6 @@ void DecompilerWidget::connectCursorPositionChanged(bool disconnect)
 
 void DecompilerWidget::cursorPositionChanged()
 {
-    mCtxMenu->setCanCopy(ui->textEdit->textCursor().hasSelection());
     // Do not perform seeks along with the cursor while selecting multiple lines
     if (!ui->textEdit->textCursor().selectedText().isEmpty()) {
         return;
@@ -414,6 +412,7 @@ void DecompilerWidget::updateSelection()
     // Highlight all the words in the document same as the current one
     cursor.select(QTextCursor::WordUnderCursor);
     QString searchString = cursor.selectedText();
+    mCtxMenu->setCurHighlightedWord(searchString);
     extraSelections.append(createSameWordsSelections(ui->textEdit, searchString));
 
     ui->textEdit->setExtraSelections(extraSelections);
@@ -438,7 +437,6 @@ void DecompilerWidget::colorsUpdatedSlot()
 void DecompilerWidget::showDisasContextMenu(const QPoint &pt)
 {
     mCtxMenu->exec(ui->textEdit->mapToGlobal(pt));
-    doRefresh();
 }
 
 void DecompilerWidget::seekToReference()
@@ -460,7 +458,7 @@ bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::MouseButtonPress
             && (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-        if (mouseEvent->button() == Qt::RightButton) {
+        if (mouseEvent->button() == Qt::RightButton && !ui->textEdit->textCursor().hasSelection()) {
             ui->textEdit->setTextCursor(ui->textEdit->cursorForPosition(mouseEvent->pos()));
             return true;
         }
@@ -508,4 +506,21 @@ bool DecompilerWidget::colorLine(QTextEdit::ExtraSelection extraSelection)
     extraSelections.append(extraSelection);
     ui->textEdit->setExtraSelections(extraSelections);
     return true;
+}
+
+void DecompilerWidget::copy()
+{
+    if (ui->textEdit->textCursor().hasSelection()) {
+        ui->textEdit->copy();
+    } else {
+        QTextCursor cursor = ui->textEdit->textCursor();
+        QClipboard *clipboard = QApplication::clipboard();
+        cursor.select(QTextCursor::WordUnderCursor);
+        if (!cursor.selectedText().isEmpty()) {
+            clipboard->setText(cursor.selectedText());
+        } else {
+            cursor.select(QTextCursor::LineUnderCursor);
+            clipboard->setText(cursor.selectedText());
+        }
+    }
 }
