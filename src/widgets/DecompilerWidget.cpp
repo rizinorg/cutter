@@ -22,13 +22,13 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     MemoryDockWidget(MemoryWidgetType::Decompiler, main),
     mCtxMenu(new DecompilerContextMenu(this, main)),
     ui(new Ui::DecompilerWidget),
-    code(Decompiler::makeWarning(tr("Choose an offset and refresh to get decompiled code")),
-         &r_annotated_code_free),
+    decompilerWasBusy(false),
     scrollerHorizontal(0),
     scrollerVertical(0),
     previousFunctionAddr(RVA_INVALID),
     decompiledFunctionAddr(RVA_INVALID),
-    decompilerWasBusy(false)
+    code(Decompiler::makeWarning(tr("Choose an offset and refresh to get decompiled code")),
+         &r_annotated_code_free)
 {
     ui->setupUi(this);
 
@@ -92,19 +92,19 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(ui->textEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showDisasContextMenu(const QPoint &)));
 
-    // connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::setInfoForBreakpoints);
-    connect(Core(), &CutterCore::breakpointsChanged, this, [this] {
-        setInfoForBreakpoints();
-        QTextCursor cursor = ui->textEdit->textCursor();
-        cursor.select(QTextCursor::Document);
-        cursor.setCharFormat(QTextCharFormat());
-        cursor.setBlockFormat(QTextBlockFormat());
-        cursor.clearSelection();
-        ui->textEdit->setExtraSelections({});
-        highlightPC();
-        highlightBreakpoints();
-        updateSelection();
-    });
+    connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::updateBreakpoints);
+    // connect(Core(), &CutterCore::breakpointsChanged, this, [this] {
+    //     setInfoForBreakpoints();
+    //     QTextCursor cursor = ui->textEdit->textCursor();
+    //     cursor.select(QTextCursor::Document);
+    //     cursor.setCharFormat(QTextCharFormat());
+    //     cursor.setBlockFormat(QTextBlockFormat());
+    //     cursor.clearSelection();
+    //     ui->textEdit->setExtraSelections({});
+    //     highlightPC();
+    //     highlightBreakpoints();
+    //     updateSelection();
+    // });
     addActions(mCtxMenu->actions());
 
     ui->progressLabel->setVisible(false);
@@ -196,6 +196,20 @@ static size_t positionForOffset(RAnnotatedCode &codeDecompiled, ut64 offset)
         closestOffset = annotation->offset.offset;
     }
     return closestPos;
+}
+
+void DecompilerWidget::updateBreakpoints()
+{
+    setInfoForBreakpoints();
+    QTextCursor cursor = ui->textEdit->textCursor();
+    cursor.select(QTextCursor::Document);
+    cursor.setCharFormat(QTextCharFormat());
+    cursor.setBlockFormat(QTextBlockFormat());
+    cursor.clearSelection();
+    ui->textEdit->setExtraSelections({});
+    highlightPC();
+    highlightBreakpoints();
+    updateSelection();
 }
 
 void DecompilerWidget::setInfoForBreakpoints()
@@ -329,8 +343,8 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
     }
 
     if (isDisplayReset) {
-        // ui->textEdit->horizontalScrollBar()->setSliderPosition(scrollerHorizontal);
-        // ui->textEdit->verticalScrollBar()->setSliderPosition(scrollerVertical);
+        ui->textEdit->horizontalScrollBar()->setSliderPosition(scrollerHorizontal);
+        ui->textEdit->verticalScrollBar()->setSliderPosition(scrollerVertical);
     }
 }
 

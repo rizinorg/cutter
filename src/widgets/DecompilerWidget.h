@@ -116,6 +116,7 @@ private:
      */
     void gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size_t startPos, size_t endPos);
 
+    void updateBreakpoints();
     void setInfoForBreakpoints();
 
     void setAnnotationsAtCursor(size_t pos);
