@@ -93,18 +93,6 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
             this, SLOT(showDisasContextMenu(const QPoint &)));
 
     connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::updateBreakpoints);
-    // connect(Core(), &CutterCore::breakpointsChanged, this, [this] {
-    //     setInfoForBreakpoints();
-    //     QTextCursor cursor = ui->textEdit->textCursor();
-    //     cursor.select(QTextCursor::Document);
-    //     cursor.setCharFormat(QTextCharFormat());
-    //     cursor.setBlockFormat(QTextBlockFormat());
-    //     cursor.clearSelection();
-    //     ui->textEdit->setExtraSelections({});
-    //     highlightPC();
-    //     highlightBreakpoints();
-    //     updateSelection();
-    // });
     addActions(mCtxMenu->actions());
 
     ui->progressLabel->setVisible(false);
