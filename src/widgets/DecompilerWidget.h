@@ -56,6 +56,9 @@ private:
      */
     bool decompilerWasBusy;
 
+    int scrollerHorizontal;
+    int scrollerVertical;
+    RVA previousFunctionAddr;
     RVA decompiledFunctionAddr;
     std::unique_ptr<RAnnotatedCode, void (*)(RAnnotatedCode *)> code;
     bool seekFromCursor = false;

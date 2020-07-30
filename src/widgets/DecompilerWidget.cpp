@@ -21,7 +21,12 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     mCtxMenu(new DecompilerContextMenu(this, main)),
     ui(new Ui::DecompilerWidget),
     code(Decompiler::makeWarning(tr("Choose an offset and refresh to get decompiled code")),
-         &r_annotated_code_free)
+         &r_annotated_code_free),
+    scrollerHorizontal(0),
+    scrollerVertical(0),
+    previousFunctionAddr(RVA_INVALID),
+    decompiledFunctionAddr(RVA_INVALID),
+    decompilerWasBusy(false)
 {
     ui->setupUi(this);
 
@@ -37,9 +42,6 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
     connect(Core(), SIGNAL(registersChanged()), this, SLOT(highlightPC()));
     connect(mCtxMenu, &DecompilerContextMenu::copy, this, &DecompilerWidget::copy);
-
-    decompiledFunctionAddr = RVA_INVALID;
-    decompilerWasBusy = false;
 
     connect(ui->refreshButton, &QAbstractButton::clicked, this, [this]() {
         doRefresh();
