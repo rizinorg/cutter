@@ -3,6 +3,7 @@
 #include "MainWindow.h"
 #include "dialogs/BreakpointsDialog.h"
 #include "dialogs/CommentsDialog.h"
+#include "dialogs/XrefsDialog.h"
 #include "common/Configuration.h"
 
 #include <QtCore>
@@ -26,9 +27,9 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         actionShowInSubmenu(tr("Show in"), this),
         actionAddComment(tr("Add Comment"), this),
         actionDeleteComment(tr("Delete comment"), this),
-        actionXRefs(tr("Show X-Refs"), this),
         actionRenameThingHere(tr("Rename function at cursor"), this),
         actionDeleteName(tr("Delete <name>"), this),
+        actionXRefs(tr("Show X-Refs"), this),
         actionToggleBreakpoint(tr("Add/remove breakpoint"), this),
         actionAdvancedBreakpoint(tr("Advanced breakpoint"), this),
         breakpointsInLineMenu(new QMenu(this)),
@@ -132,6 +133,7 @@ void DecompilerContextMenu::aboutToHideSlot()
     actionAddComment.setVisible(true);
     actionRenameThingHere.setVisible(true);
     actionDeleteName.setVisible(false);
+    actionXRefs.setVisible(true);
 }
 
 void DecompilerContextMenu::aboutToShowSlot()
@@ -225,6 +227,7 @@ void DecompilerContextMenu::aboutToShowSlot()
             actionCopyReferenceAddress.setText(tr("Copy address (%1)").arg(RAddressString(referenceAddr)));
         }
     } else {
+        actionXRefs.setVisible(false);
         actionCopyReferenceAddress.setVisible(false);
     }
     if (actionShowInSubmenu.menu() != nullptr) {
@@ -404,7 +407,18 @@ void DecompilerContextMenu::actionDeleteNameTriggered()
 
 void DecompilerContextMenu::actionXRefsTriggered()
 {
-
+    bool isReference = false;
+    if (annotationHere) {
+        isReference = (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
+                       || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE
+                       || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME);
+    }
+    if (!isReference) {
+        return;
+    }
+    XrefsDialog dialog(mainWindow, nullptr);
+    dialog.fillRefsForAddress(annotationHere->reference.offset, RAddressString(annotationHere->reference.offset), false);
+    dialog.exec();
 }
 
 void DecompilerContextMenu::actionToggleBreakpointTriggered()
