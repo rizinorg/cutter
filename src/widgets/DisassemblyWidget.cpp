@@ -156,6 +156,11 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
             refreshDisasm();
         }
     });
+    connect(Core(), &CutterCore::breakpointsChanged, this, [this](RVA offset) {
+        if (offset >= topOffset && offset <= bottomOffset) {
+            refreshDisasm();
+        }
+    });
     connect(Core(), SIGNAL(refreshCodeViews()), this, SLOT(refreshDisasm()));
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
