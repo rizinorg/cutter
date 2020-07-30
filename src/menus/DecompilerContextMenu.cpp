@@ -26,6 +26,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         actionShowInSubmenu(tr("Show in"), this),
         actionAddComment(tr("Add Comment"), this),
         actionDeleteComment(tr("Delete comment"), this),
+        actionXRefs(tr("Show X-Refs"), this),
         actionRenameThingHere(tr("Rename function at cursor"), this),
         actionDeleteName(tr("Delete <name>"), this),
         actionToggleBreakpoint(tr("Add/remove breakpoint"), this),
@@ -42,6 +43,8 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
 
     setActionAddComment();
     setActionDeleteComment();
+
+    setActionXRefs();
 
     setActionRenameThingHere();
     setActionDeleteName();
@@ -270,6 +273,13 @@ void DecompilerContextMenu::setActionDeleteComment()
     addAction(&actionDeleteComment);
 }
 
+void DecompilerContextMenu::setActionXRefs()
+{
+    connect(&actionXRefs, &QAction::triggered, this, &DecompilerContextMenu::actionXRefsTriggered);
+    addAction(&actionXRefs);
+    actionXRefs.setShortcut(Qt::Key_X);
+}
+
 void DecompilerContextMenu::setActionRenameThingHere()
 {
     actionRenameThingHere.setShortcut({Qt::Key_N});
@@ -390,6 +400,11 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
 void DecompilerContextMenu::actionDeleteNameTriggered()
 {
     Core()->delFlag(annotationHere->reference.offset);
+}
+
+void DecompilerContextMenu::actionXRefsTriggered()
+{
+
 }
 
 void DecompilerContextMenu::actionToggleBreakpointTriggered()
