@@ -94,56 +94,15 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
 
     connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::setInfoForBreakpoints);
     connect(Core(), &CutterCore::breakpointsChanged, this, [this] {
-        // ui->textEdit->setPlainText(this->code->code);
-        // highlightPC();
-        // highlightBreakpoints();
-        // connectCursorPositionChanged(true);
-        // ui->textEdit->setPlainText(this->code->code);
-        // connectCursorPositionChanged(false);
-
-
         QTextCursor cursor = ui->textEdit->textCursor();
         cursor.select(QTextCursor::Document);
         cursor.setCharFormat(QTextCharFormat());
         cursor.setBlockFormat(QTextBlockFormat());
         cursor.clearSelection();
-        // ui->textEdit->setTextCursor(cursor);
         ui->textEdit->setExtraSelections({});
-        // updateCursorPosition();
         highlightPC();
         highlightBreakpoints();
-        // ui->textEdit->setCurrentCharFormat(QTextCharFormat());
-
-
-        // if (!cursor.isNull()) {
-        //     // Use a Block formatting since these lines are not updated frequently as selections and PC
-        //     QTextBlockFormat f;
-        //     f.setBackground(ConfigColor("gui.breakpoint_background"));
-        //     cursor.setBlockFormat(f);
-        // }
-        // cursor.select(QTextCursor::Document);
-        // cursor.setCharFormat(QTextCharFormat());
-        // cursor.clearSelection();
-        // ui->textEdit->setTextCursor(cursor);
-        // // ui->textE
-        // // ui->textEdit->clear
-        // ui->textEdit->setExtraSelections({});
-        // // updateCursorPosition();
-        // highlightPC();
-        // highlightBreakpoints();
-
-        /* Working code. Probably not what we want.
-        scrollerHorizontal = ui->textEdit->horizontalScrollBar()->sliderPosition();
-        scrollerVertical = ui->textEdit->verticalScrollBar()->sliderPosition();
-        connectCursorPositionChanged(true);
-        ui->textEdit->setPlainText(QString::fromUtf8(this->code->code));
-        connectCursorPositionChanged(false);
-        updateCursorPosition();
-        highlightPC();
-        highlightBreakpoints();
-        ui->textEdit->horizontalScrollBar()->setSliderPosition(scrollerHorizontal);
-        ui->textEdit->verticalScrollBar()->setSliderPosition(scrollerVertical);
-        */
+        updateSelection();
     });
     addActions(mCtxMenu->actions());
 
