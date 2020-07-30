@@ -22,8 +22,8 @@ signals:
     void copy();
 
 public slots:
+    void setCurHighlightedWord(QString word);
     void setOffset(RVA offset);
-    void setCanCopy(bool enabled);
     void setFirstOffsetInLine(RVA firstOffset);
     void setAvailableBreakpoints(QVector<RVA> offsetList);
 
@@ -33,11 +33,14 @@ private slots:
     void aboutToHideSlot();
 
     void actionCopyTriggered();
+    void actionCopyInstructionAddressTriggered();
+    void actionCopyReferenceAddressTriggered();
 
     void actionAddCommentTriggered();
     void actionDeleteCommentTriggered();
 
     void actionRenameThingHereTriggered();
+    void actionDeleteNameTriggered();
 
     void actionToggleBreakpointTriggered();
     void actionAdvancedBreakpointTriggered();
@@ -47,6 +50,7 @@ private slots:
 
 private:
     // Private variables
+    QString curHighlightedWord;
     RVA offset;
     RVA firstOffsetInLine;
     bool isTogglingBreakpoints;
@@ -56,12 +60,18 @@ private:
     RCodeAnnotation *annotationHere;
 
     QAction actionCopy;
+    QAction actionCopyInstructionAddress;
+    QAction actionCopyReferenceAddress;
     QAction *copySeparator;
+
+    QAction actionShowInSubmenu;
+    QList<QAction *> showTargetMenuActions;
 
     QAction actionAddComment;
     QAction actionDeleteComment;
 
     QAction actionRenameThingHere;
+    QAction actionDeleteName;
 
     QMenu *breakpointMenu;
     QAction actionToggleBreakpoint;
@@ -81,10 +91,13 @@ private:
     // Set actions
     void setActionCopy();
 
+    void setActionShowInSubmenu();
+
     void setActionAddComment();
     void setActionDeleteComment();
 
     void setActionRenameThingHere();
+    void setActionDeleteName();
 
     void setActionToggleBreakpoint();
     void setActionAdvancedBreakpoint();
@@ -113,6 +126,7 @@ private:
     // QVector<ThingUsedHere> getThingUsedHere(RVA offset);
 
     // void updateTargetMenuActions(const QVector<ThingUsedHere> &targets);
+    void updateTargetMenuActions();
 };
 
 #endif // DECOMPILERCONTEXTMENU_H
