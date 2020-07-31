@@ -401,12 +401,13 @@ void DecompilerContextMenu::actionDeleteNameTriggered()
 
 void DecompilerContextMenu::actionXRefsTriggered()
 {
-    if (annotationHere && is_annotation_reference(annotationHere)) {
+    if (!annotationHere || !is_annotation_reference(annotationHere)) {
         return;
     }
     XrefsDialog dialog(mainWindow, nullptr);
-    dialog.fillRefsForAddress(annotationHere->reference.offset,
-                              RAddressString(annotationHere->reference.offset), false);
+    QString displayString = (annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) ? QString(
+                                annotationHere->reference.name) : RAddressString(annotationHere->reference.offset);
+    dialog.fillRefsForAddress(annotationHere->reference.offset, displayString, false);
     dialog.exec();
 }
 
