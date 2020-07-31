@@ -193,7 +193,6 @@ void DecompilerWidget::updateBreakpoints()
     cursor.select(QTextCursor::Document);
     cursor.setCharFormat(QTextCharFormat());
     cursor.setBlockFormat(QTextBlockFormat());
-    cursor.clearSelection();
     ui->textEdit->setExtraSelections({});
     highlightPC();
     highlightBreakpoints();
