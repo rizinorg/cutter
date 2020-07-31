@@ -207,12 +207,12 @@ void DecompilerContextMenu::aboutToShowSlot()
     }
     actionCopyInstructionAddress.setText(tr("Copy instruction address (%1)").arg(RAddressString(
                                                                                      offset)));
-    bool isReference = false;
-    if (annotationHere) {
-        isReference = (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
-                       || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE
-                       || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME);
-    }
+    bool isReference = (annotationHere && is_annotation_reference(annotationHere));
+    // if (annotationHere) {
+    //     isReference = (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
+    //                    || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE
+    //                    || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME);
+    // }
     if (isReference) {
         actionCopyReferenceAddress.setVisible(true);
         RVA referenceAddr = annotationHere->reference.offset;
@@ -407,12 +407,12 @@ void DecompilerContextMenu::actionDeleteNameTriggered()
 
 void DecompilerContextMenu::actionXRefsTriggered()
 {
-    bool isReference = false;
-    if (annotationHere) {
-        isReference = (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
-                       || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE
-                       || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME);
-    }
+    bool isReference = (annotationHere && is_annotation_reference(annotationHere));;
+    // if (annotationHere) {
+    //     isReference = (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
+    //                    || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE
+    //                    || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME);
+    // }
     if (!isReference) {
         return;
     }
