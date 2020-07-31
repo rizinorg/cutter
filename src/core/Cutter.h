@@ -395,7 +395,6 @@ public:
     void addBreakpoint(const BreakpointDescription &config);
     void updateBreakpoint(int index, const BreakpointDescription &config);
     void toggleBreakpoint(RVA addr);
-    void toggleBreakpoint(QString addr);
     void delBreakpoint(RVA addr);
     void delAllBreakpoints();
     void enableBreakpoint(RVA addr);

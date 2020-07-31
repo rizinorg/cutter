@@ -2071,11 +2071,6 @@ void CutterCore::toggleBreakpoint(RVA addr)
     emit breakpointsChanged(addr);
 }
 
-void CutterCore::toggleBreakpoint(QString addr)
-{
-    toggleBreakpoint(addr.toULongLong());
-}
-
 void CutterCore::addBreakpoint(const BreakpointDescription &config)
 {
     CORE_LOCK();
