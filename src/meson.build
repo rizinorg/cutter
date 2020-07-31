@@ -16,6 +16,7 @@ if get_option('enable_python')
 endif
 
 add_project_arguments(feature_define_args, language: 'cpp')
+add_project_arguments('-DCUTTER_SOURCE_BUILD', language: 'cpp')
 
 parse_cmd = [py3_exe, join_paths(meson.current_source_dir(), '../scripts/meson_parse_qmake.py')]
 configure_qmake_cmd = [py3_exe, join_paths(meson.current_source_dir(), '../scripts/meson_configure_qmake_in.py')]
