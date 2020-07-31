@@ -428,7 +428,12 @@ void DecompilerContextMenu::actionRetypeFunctionVariablesTriggered()
     } else if (!variablePresentInR2()) {
         QMessageBox::critical(this, tr("Re-type local variable %1").arg(QString(
                                                                             annotationHere->variable.name)),
-                              tr("This is a Ghidra generated variable and it is not yet present in radare2. Work is in progress for improving the mapping of variables between Ghidra and radare2. When it is finished, you will be able to retype all local variables. Please come back later and thank you for your patience.\n\nNote: You will be able to rename all variables that you can find in the disassembly."));
+                              tr("This is a Ghidra generated variable and it is not yet present in radare2. "
+                                 "Work is in progress for improving the mapping of variables between Ghidra and radare2. "
+                                 "When it is finished, you will be able to retype all local variables. "
+                                 "Please come back later and thank you for your patience."
+                                 "\n\n"
+                                 "Note: You will be able to rename all variables that you can find in the disassembly."));
         return;
     }
     EditVariablesDialog dialog(Core()->getOffset(), QString(annotationHere->variable.name), this);
