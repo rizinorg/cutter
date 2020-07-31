@@ -42,6 +42,8 @@ private slots:
     void actionRenameThingHereTriggered();
     void actionDeleteNameTriggered();
 
+    void actionRetypeFunctionVariablesTriggered();
+
     void actionXRefsTriggered();
 
     void actionToggleBreakpointTriggered();
@@ -75,6 +77,8 @@ private:
     QAction actionRenameThingHere;
     QAction actionDeleteName;
 
+    QAction actionRetypeFunctionVariables;
+
     QAction actionXRefs;
 
     QMenu *breakpointMenu;
@@ -104,6 +108,8 @@ private:
 
     void setActionRenameThingHere();
     void setActionDeleteName();
+
+    void setActionRetypeFunctionVariables();
 
     void setActionToggleBreakpoint();
     void setActionAdvancedBreakpoint();

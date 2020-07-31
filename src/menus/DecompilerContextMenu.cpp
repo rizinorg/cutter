@@ -3,6 +3,7 @@
 #include "MainWindow.h"
 #include "dialogs/BreakpointsDialog.h"
 #include "dialogs/CommentsDialog.h"
+#include "dialogs/EditVariablesDialog.h"
 #include "dialogs/XrefsDialog.h"
 #include "common/Configuration.h"
 
@@ -29,6 +30,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         actionDeleteComment(tr("Delete comment"), this),
         actionRenameThingHere(tr("Rename function at cursor"), this),
         actionDeleteName(tr("Delete <name>"), this),
+        actionRetypeFunctionVariables(tr("Re-type Local Variables"), this),
         actionXRefs(tr("Show X-Refs"), this),
         actionToggleBreakpoint(tr("Add/remove breakpoint"), this),
         actionAdvancedBreakpoint(tr("Advanced breakpoint"), this),
@@ -49,6 +51,8 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
 
     setActionRenameThingHere();
     setActionDeleteName();
+
+    setActionRetypeFunctionVariables();
 
     addSeparator();
     addBreakpointMenu();
@@ -133,6 +137,7 @@ void DecompilerContextMenu::aboutToHideSlot()
     actionAddComment.setVisible(true);
     actionRenameThingHere.setVisible(true);
     actionDeleteName.setVisible(false);
+    actionRetypeFunctionVariables.setVisible(true);
     actionXRefs.setVisible(true);
 }
 
@@ -229,6 +234,12 @@ void DecompilerContextMenu::aboutToShowSlot()
     }
     actionShowInSubmenu.setMenu(mainWindow->createShowInMenu(this, offset));
     updateTargetMenuActions();
+
+    bool isFunctionVariable = (annotationHere && (annotationHere->type == R_CODE_ANNOTATION_TYPE_LOCAL_VARIABLE
+                            || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_PARAMETER));
+    if (!isFunctionVariable) {
+        actionRetypeFunctionVariables.setVisible(false);
+    }
 }
 
 // Set up actions
@@ -291,6 +302,14 @@ void DecompilerContextMenu::setActionDeleteName()
             &DecompilerContextMenu::actionDeleteNameTriggered);
     addAction(&actionDeleteName);
     actionDeleteName.setVisible(false);
+}
+
+void DecompilerContextMenu::setActionRetypeFunctionVariables()
+{
+    connect(&actionRetypeFunctionVariables, &QAction::triggered, this,
+            &DecompilerContextMenu::actionRetypeFunctionVariablesTriggered);
+    addAction(&actionRetypeFunctionVariables);
+    actionRetypeFunctionVariables.setShortcut(Qt::Key_Y);
 }
 
 void DecompilerContextMenu::setActionToggleBreakpoint()
@@ -397,6 +416,17 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
 void DecompilerContextMenu::actionDeleteNameTriggered()
 {
     Core()->delFlag(annotationHere->reference.offset);
+}
+
+void DecompilerContextMenu::actionRetypeFunctionVariablesTriggered()
+{
+    bool isFunctionVariable = (annotationHere && (annotationHere->type == R_CODE_ANNOTATION_TYPE_LOCAL_VARIABLE
+                            || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_PARAMETER));
+    if (!isFunctionVariable) {
+        return;
+    }
+    EditVariablesDialog dialog(Core()->getOffset(), QString(annotationHere->variable.name), this);
+    dialog.exec();
 }
 
 void DecompilerContextMenu::actionXRefsTriggered()
