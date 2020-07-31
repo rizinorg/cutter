@@ -120,25 +120,11 @@ private:
     // Add Menus
     void addBreakpointMenu();
     void addDebugMenu();
-    // I left out the following part from RAnnotatedCode. Probably, we will be returning/passing annotations
-    // from/to the function getThingUsedHere() and updateTargetMenuActions(). This block of comment will get removed in
-    // future PRs.
-    //
-    // struct ThingUsedHere {
-    //     QString name;
-    //     RVA offset;
-    //     enum class Type {
-    //         Var,
-    //         Function,
-    //         Flag,
-    //         Address
-    //     };
-    //     Type type;
-    // };
-    // QVector<ThingUsedHere> getThingUsedHere(RVA offset);
 
-    // void updateTargetMenuActions(const QVector<ThingUsedHere> &targets);
     void updateTargetMenuActions();
+
+    bool isFunctionVariable();
+    bool variablePresentInR2();
 };
 
 #endif // DECOMPILERCONTEXTMENU_H

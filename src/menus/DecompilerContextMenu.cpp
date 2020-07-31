@@ -138,6 +138,7 @@ void DecompilerContextMenu::aboutToHideSlot()
     actionRenameThingHere.setVisible(true);
     actionDeleteName.setVisible(false);
     actionRetypeFunctionVariables.setVisible(true);
+    actionRetypeFunctionVariables.setEnabled(true);
     actionXRefs.setVisible(true);
 }
 
@@ -235,10 +236,12 @@ void DecompilerContextMenu::aboutToShowSlot()
     actionShowInSubmenu.setMenu(mainWindow->createShowInMenu(this, offset));
     updateTargetMenuActions();
 
-    bool isFunctionVariable = (annotationHere && (annotationHere->type == R_CODE_ANNOTATION_TYPE_LOCAL_VARIABLE
-                            || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_PARAMETER));
-    if (!isFunctionVariable) {
+    if (!isFunctionVariable()) {
         actionRetypeFunctionVariables.setVisible(false);
+    } else {
+        if (!variablePresentInR2()) {
+            actionRetypeFunctionVariables.setDisabled(true);
+        }
     }
 }
 
@@ -420,9 +423,7 @@ void DecompilerContextMenu::actionDeleteNameTriggered()
 
 void DecompilerContextMenu::actionRetypeFunctionVariablesTriggered()
 {
-    bool isFunctionVariable = (annotationHere && (annotationHere->type == R_CODE_ANNOTATION_TYPE_LOCAL_VARIABLE
-                            || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_PARAMETER));
-    if (!isFunctionVariable) {
+    if (!isFunctionVariable() || !variablePresentInR2()) {
         return;
     }
     EditVariablesDialog dialog(Core()->getOffset(), QString(annotationHere->variable.name), this);
@@ -542,4 +543,22 @@ void DecompilerContextMenu::updateTargetMenuActions()
         action->setMenu(menu);
         insertActions(copySeparator, showTargetMenuActions);
     }
+}
+
+bool DecompilerContextMenu::isFunctionVariable()
+{
+    return (annotationHere && (annotationHere->type == R_CODE_ANNOTATION_TYPE_LOCAL_VARIABLE
+                            || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_PARAMETER));
+}
+
+bool DecompilerContextMenu::variablePresentInR2()
+{
+    QString variableName(annotationHere->variable.name);
+    QList<VariableDescription> variables = Core()->getVariables(offset);
+    for (const VariableDescription &var : variables) {
+        if (var.name == variableName) {
+            return true;
+        }
+    }
+    return false;
 }
