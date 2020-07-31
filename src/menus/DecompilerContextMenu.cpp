@@ -423,7 +423,12 @@ void DecompilerContextMenu::actionDeleteNameTriggered()
 
 void DecompilerContextMenu::actionRetypeFunctionVariablesTriggered()
 {
-    if (!isFunctionVariable() || !variablePresentInR2()) {
+    if (!isFunctionVariable()) {
+        return;
+    } else if (!variablePresentInR2()) {
+        QMessageBox::critical(this, tr("Re-type local variable %1").arg(QString(
+                                                                            annotationHere->variable.name)),
+                              tr("This is a Ghidra generated variable and it is not yet present in radare2. Work is in progress for improving the mapping of variables between Ghidra and radare2. When it is finished, you will be able to retype all local variables. Please come back later and thank you for your patience.\n\nNote: You will be able to rename all variables that you can find in the disassembly."));
         return;
     }
     EditVariablesDialog dialog(Core()->getOffset(), QString(annotationHere->variable.name), this);
@@ -548,7 +553,7 @@ void DecompilerContextMenu::updateTargetMenuActions()
 bool DecompilerContextMenu::isFunctionVariable()
 {
     return (annotationHere && (annotationHere->type == R_CODE_ANNOTATION_TYPE_LOCAL_VARIABLE
-                            || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_PARAMETER));
+                               || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_PARAMETER));
 }
 
 bool DecompilerContextMenu::variablePresentInR2()
