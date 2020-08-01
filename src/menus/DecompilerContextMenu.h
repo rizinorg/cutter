@@ -42,7 +42,7 @@ private slots:
     void actionRenameThingHereTriggered();
     void actionDeleteNameTriggered();
 
-    void actionRetypeFunctionVariablesTriggered();
+    void actionEditFunctionVariablesTriggered();
 
     void actionXRefsTriggered();
 
@@ -77,7 +77,7 @@ private:
     QAction actionRenameThingHere;
     QAction actionDeleteName;
 
-    QAction actionRetypeFunctionVariables;
+    QAction actionEditFunctionVariables;
 
     QAction actionXRefs;
 
@@ -109,7 +109,7 @@ private:
     void setActionRenameThingHere();
     void setActionDeleteName();
 
-    void setActionRetypeFunctionVariables();
+    void setActionEditFunctionVariables();
 
     void setActionToggleBreakpoint();
     void setActionAdvancedBreakpoint();
