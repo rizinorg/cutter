@@ -101,6 +101,7 @@ jobs:
       if: contains(matrix.os, 'windows-latest')
       shell: bash
       run: |
+        pip install ninja
         scripts/fetch_deps.sh
         export PATH=$PWD/cutter-deps/qt/bin:$PATH
         mkdir build
