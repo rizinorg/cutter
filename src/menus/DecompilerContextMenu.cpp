@@ -30,7 +30,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         actionDeleteComment(tr("Delete comment"), this),
         actionRenameThingHere(tr("Rename function at cursor"), this),
         actionDeleteName(tr("Delete <name>"), this),
-        actionRetypeFunctionVariables(tr("Re-type Local Variables"), this),
+        actionRetypeFunctionVariables(tr("Edit variable <name of variable>"), this),
         actionXRefs(tr("Show X-Refs"), this),
         actionToggleBreakpoint(tr("Add/remove breakpoint"), this),
         actionAdvancedBreakpoint(tr("Advanced breakpoint"), this),
@@ -136,6 +136,7 @@ void DecompilerContextMenu::aboutToHideSlot()
 {
     actionAddComment.setVisible(true);
     actionRenameThingHere.setVisible(true);
+    actionRenameThingHere.setEnabled(true);
     actionDeleteName.setVisible(false);
     actionRetypeFunctionVariables.setVisible(true);
     actionRetypeFunctionVariables.setEnabled(true);
@@ -196,11 +197,9 @@ void DecompilerContextMenu::aboutToShowSlot()
     } else {
         copySeparator->setVisible(true);
         if (annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
-            actionRenameThingHere.setVisible(true);
             actionRenameThingHere.setText(tr("Rename function %1").arg(QString(
                                                                            annotationHere->reference.name)));
-        }
-        if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE) {
+        } else if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE) {
             RFlagItem *flagDetails = r_flag_get_i(Core()->core()->flags, annotationHere->reference.offset);
             if (flagDetails) {
                 actionRenameThingHere.setText(tr("Rename %1").arg(QString(flagDetails->name)));
@@ -239,8 +238,11 @@ void DecompilerContextMenu::aboutToShowSlot()
     if (!isFunctionVariable()) {
         actionRetypeFunctionVariables.setVisible(false);
     } else {
+        actionRetypeFunctionVariables.setText(tr("Edit variable %1").arg(QString(annotationHere->variable.name)));
+        actionRenameThingHere.setText(tr("Rename var %1").arg(QString(annotationHere->variable.name)));
         if (!variablePresentInR2()) {
             actionRetypeFunctionVariables.setDisabled(true);
+            actionRenameThingHere.setDisabled(true);
         }
     }
 }
@@ -413,6 +415,8 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
             }
         }
 
+    } else if (isFunctionVariable()) {
+        actionRetypeFunctionVariablesTriggered();
     }
 }
 
