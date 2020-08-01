@@ -676,6 +676,11 @@ void CutterCore::renameFlag(QString old_name, QString new_name)
     emit flagsChanged();
 }
 
+void CutterCore::renameFunctionVariable(QString newName, QString oldName, RVA offset){
+    cmdRawAt(QString("afvn %1 %2").arg(newName).arg(oldName), offset);
+    emit refreshCodeViews();
+}
+
 void CutterCore::delFlag(RVA addr)
 {
     cmdRawAt("f-", addr);

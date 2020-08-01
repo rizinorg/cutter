@@ -16,7 +16,7 @@ EditVariablesDialog::EditVariablesDialog(RVA offset, QString initialVar, QWidget
     connect(ui->dropdownLocalVars, SIGNAL(currentIndexChanged(int)), SLOT(updateFields()));
 
     QString fcnName = Core()->cmdRawAt("afn.", offset).trimmed();
-    setWindowTitle(tr("Set Variable Types for Function: %1").arg(fcnName));
+    setWindowTitle(tr("Edit Variables in Function: %1").arg(fcnName));
 
     variables = Core()->getVariables(offset);
     int currentItemIndex = -1;

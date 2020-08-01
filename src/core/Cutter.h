@@ -147,6 +147,15 @@ public:
     void renameFunction(const RVA offset, const QString &newName);
     void delFunction(RVA addr);
     void renameFlag(QString old_name, QString new_name);
+    /**
+     * @brief Renames the specified local variable in a function that covers the
+     * specified offset by the specified new name.
+     * @param newName Specifies the name to which the current name of the variable
+     * should be renamed.
+     * @param oldName Specifies the current name of the function variable.
+     * @param offset Specifies an offset that is in the function.
+     */
+    void renameFunctionVariable(QString newName, QString oldName, RVA offset);
 
     /**
      * @param addr

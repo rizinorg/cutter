@@ -239,7 +239,7 @@ void DecompilerContextMenu::aboutToShowSlot()
         actionRetypeFunctionVariables.setVisible(false);
     } else {
         actionRetypeFunctionVariables.setText(tr("Edit variable %1").arg(QString(annotationHere->variable.name)));
-        actionRenameThingHere.setText(tr("Rename var %1").arg(QString(annotationHere->variable.name)));
+        actionRenameThingHere.setText(tr("Rename variable %1").arg(QString(annotationHere->variable.name)));
         if (!variablePresentInR2()) {
             actionRetypeFunctionVariables.setDisabled(true);
             actionRenameThingHere.setDisabled(true);
@@ -414,9 +414,18 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
                 Core()->addFlag(var_addr, newName, 1);
             }
         }
-
     } else if (isFunctionVariable()) {
-        actionRetypeFunctionVariablesTriggered();
+        if (!variablePresentInR2()) {
+            // Show can't rename this variable dialog
+            actionRetypeFunctionVariablesTriggered();
+            return;
+        }
+        QString oldName(annotationHere->variable.name);
+        QString newName = QInputDialog::getText(this, tr("Rename %2").arg(oldName),
+                                                    tr("Enter name"), QLineEdit::Normal, oldName, &ok);
+        if (ok && !newName.isEmpty()) {
+            Core()->renameFunctionVariable(newName, oldName, offset);
+        }
     }
 }
 
@@ -430,14 +439,10 @@ void DecompilerContextMenu::actionRetypeFunctionVariablesTriggered()
     if (!isFunctionVariable()) {
         return;
     } else if (!variablePresentInR2()) {
-        QMessageBox::critical(this, tr("Re-type local variable %1").arg(QString(
+        QMessageBox::critical(this, tr("Edit local variable %1").arg(QString(
                                                                             annotationHere->variable.name)),
-                              tr("This is a Ghidra generated variable and it is not yet present in radare2. "
-                                 "Work is in progress for improving the mapping of variables between Ghidra and radare2. "
-                                 "When it is finished, you will be able to retype all local variables. "
-                                 "Please come back later and thank you for your patience."
-                                 "\n\n"
-                                 "Note: You will be able to rename all variables that you can find in the disassembly."));
+                              tr("Can't edit this variable. "
+                                 "Only local variables defined in disassembly can be renamed "));
         return;
     }
     EditVariablesDialog dialog(Core()->getOffset(), QString(annotationHere->variable.name), this);
