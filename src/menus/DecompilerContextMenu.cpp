@@ -141,6 +141,7 @@ void DecompilerContextMenu::aboutToHideSlot()
     actionRetypeFunctionVariables.setVisible(true);
     actionRetypeFunctionVariables.setEnabled(true);
     actionXRefs.setVisible(true);
+    setToolTipsVisible(false);
 }
 
 void DecompilerContextMenu::aboutToShowSlot()
@@ -243,6 +244,7 @@ void DecompilerContextMenu::aboutToShowSlot()
         if (!variablePresentInR2()) {
             actionRetypeFunctionVariables.setDisabled(true);
             actionRenameThingHere.setDisabled(true);
+            setToolTipsVisible(true);
         }
     }
 }
@@ -299,6 +301,8 @@ void DecompilerContextMenu::setActionRenameThingHere()
     connect(&actionRenameThingHere, &QAction::triggered, this,
             &DecompilerContextMenu::actionRenameThingHereTriggered);
     addAction(&actionRenameThingHere);
+    actionRenameThingHere.setToolTip(tr("Can't edit this variable."
+                                        "<br>Only local variables defined in disassembly can be renamed."));
 }
 
 void DecompilerContextMenu::setActionDeleteName()
@@ -315,6 +319,8 @@ void DecompilerContextMenu::setActionRetypeFunctionVariables()
             &DecompilerContextMenu::actionRetypeFunctionVariablesTriggered);
     addAction(&actionRetypeFunctionVariables);
     actionRetypeFunctionVariables.setShortcut(Qt::Key_Y);
+    actionRetypeFunctionVariables.setToolTip(tr("Can't edit this variable."
+                                                "<br>Only local variables defined in disassembly can be renamed."));
 }
 
 void DecompilerContextMenu::setActionToggleBreakpoint()
