@@ -1,14 +1,14 @@
 #ifndef CUTTERWIDGET_H
 #define CUTTERWIDGET_H
 
-#include "CutterCommon.h"
+#include "core/CutterCommon.h"
 #include "common/RefreshDeferrer.h"
 
 #include <QDockWidget>
 
 class MainWindow;
 
-class CutterDockWidget : public QDockWidget
+class CUTTER_EXPORT CutterDockWidget : public QDockWidget
 {
     Q_OBJECT
 

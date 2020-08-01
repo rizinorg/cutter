@@ -11,7 +11,7 @@
 /**
  * Implements a decompiler that can be registered using CutterCore::registerDecompiler()
  */
-class Decompiler: public QObject
+class CUTTER_EXPORT Decompiler: public QObject
 {
     Q_OBJECT
 

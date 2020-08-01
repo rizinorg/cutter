@@ -2,6 +2,8 @@
 #ifndef QUICKFILTERVIEW_H
 #define QUICKFILTERVIEW_H
 
+#include "core/CutterCommon.h"
+
 #include <memory>
 
 #include <QWidget>
@@ -10,7 +12,7 @@ namespace Ui {
 class QuickFilterView;
 }
 
-class QuickFilterView : public QWidget
+class CUTTER_EXPORT QuickFilterView : public QWidget
 {
     Q_OBJECT
 

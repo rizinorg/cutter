@@ -5,7 +5,7 @@
 #include "common/AsyncTask.h"
 #include "core/Cutter.h"
 
-class CommandTask : public AsyncTask
+class CUTTER_EXPORT  CommandTask : public AsyncTask
 {
 Q_OBJECT
 

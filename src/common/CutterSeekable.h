@@ -4,7 +4,7 @@
 
 class MainWindow;
 
-class CutterSeekable : public QObject
+class CUTTER_EXPORT  CutterSeekable : public QObject
 {
     Q_OBJECT
 

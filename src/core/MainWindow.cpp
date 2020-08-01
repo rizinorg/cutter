@@ -4,7 +4,6 @@
 // Common Headers
 #include "common/BugReporting.h"
 #include "common/Highlighter.h"
-#include "common/HexAsciiHighlighter.h"
 #include "common/Helpers.h"
 #include "common/SvgIconEngine.h"
 #include "common/ProgressIndicator.h"

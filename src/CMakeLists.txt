@@ -172,6 +172,7 @@ endif()
 add_executable(Cutter MACOSX_BUNDLE ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES} ${BINDINGS_SOURCE})
 set_target_properties(Cutter PROPERTIES
         ENABLE_EXPORTS ON
+        CXX_VISIBILITY_PRESET hidden
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist")
 target_compile_definitions(Cutter PRIVATE CUTTER_SOURCE_BUILD)
 

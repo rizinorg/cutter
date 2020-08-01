@@ -7,7 +7,7 @@ class MainWindow;
 #include "core/Cutter.h"
 #include "widgets/CutterDockWidget.h"
 
-class CutterPlugin 
+class CUTTER_EXPORT CutterPlugin
 {
 public:
     virtual ~CutterPlugin() = default;

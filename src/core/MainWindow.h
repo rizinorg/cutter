@@ -225,7 +225,6 @@ private:
     QString filename;
     std::unique_ptr<Ui::MainWindow> ui;
     Highlighter *highlighter;
-    AsciiHighlighter *hex_highlighter;
     VisualNavbar *visualNavbar;
     Omnibar *omnibar;
     ProgressIndicator *tasksProgressIndicator;

@@ -60,6 +60,8 @@ equals(CUTTER_APPVEYOR_R2DEC, true)             CONFIG += CUTTER_APPVEYOR_R2DEC
 !defined(CUTTER_R2GHIDRA_STATIC, var)           CUTTER_R2GHIDRA_STATIC=false
 equals(CUTTER_R2GHIDRA_STATIC, true)            CONFIG += CUTTER_R2GHIDRA_STATIC
 
+DEFINES += CUTTER_SOURCE_BUILD
+
 CUTTER_ENABLE_CRASH_REPORTS {
     message("Crash report support enabled.")
     DEFINES += CUTTER_ENABLE_CRASH_REPORTS
@@ -310,8 +312,6 @@ SOURCES += \
     dialogs/XrefsDialog.cpp \
     core/MainWindow.cpp \
     common/Helpers.cpp \
-    common/HexAsciiHighlighter.cpp \
-    common/HexHighlighter.cpp \
     common/Highlighter.cpp \
     common/MdHighlighter.cpp \
     common/DirectionalComboBox.cpp \
@@ -459,8 +459,6 @@ HEADERS  += \
     dialogs/NativeDebugDialog.h \
     dialogs/XrefsDialog.h \
     common/Helpers.h \
-    common/HexAsciiHighlighter.h \
-    common/HexHighlighter.h \
     core/MainWindow.h \
     common/Highlighter.h \
     common/MdHighlighter.h \

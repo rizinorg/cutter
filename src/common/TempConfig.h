@@ -2,6 +2,8 @@
 #ifndef TEMPCONFIG_H
 #define TEMPCONFIG_H
 
+#include "core/CutterCommon.h"
+
 #include <QString>
 #include <QVariant>
 
@@ -22,7 +24,7 @@
  * }
  * \endcode
  */
-class TempConfig
+class CUTTER_EXPORT TempConfig
 {
 public:
     TempConfig() = default;
