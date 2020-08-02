@@ -15,11 +15,18 @@
 #include <QClipboard>
 #include <QObject>
 #include <QTextBlockUserData>
+#include <QScrollBar>
+#include <QAbstractSlider>
 
 DecompilerWidget::DecompilerWidget(MainWindow *main) :
     MemoryDockWidget(MemoryWidgetType::Decompiler, main),
     mCtxMenu(new DecompilerContextMenu(this, main)),
     ui(new Ui::DecompilerWidget),
+    decompilerWasBusy(false),
+    scrollerHorizontal(0),
+    scrollerVertical(0),
+    previousFunctionAddr(RVA_INVALID),
+    decompiledFunctionAddr(RVA_INVALID),
     code(Decompiler::makeWarning(tr("Choose an offset and refresh to get decompiled code")),
          &r_annotated_code_free)
 {
@@ -37,9 +44,6 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(Config(), &Configuration::colorsUpdated, this, &DecompilerWidget::colorsUpdatedSlot);
     connect(Core(), &CutterCore::registersChanged, this, &DecompilerWidget::highlightPC);
     connect(mCtxMenu, &DecompilerContextMenu::copy, this, &DecompilerWidget::copy);
-
-    decompiledFunctionAddr = RVA_INVALID;
-    decompilerWasBusy = false;
 
     connect(ui->refreshButton, &QAbstractButton::clicked, this, [this]() {
         doRefresh();
@@ -88,7 +92,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(ui->textEdit, &QWidget::customContextMenuRequested,
             this, &DecompilerWidget::showDisasContextMenu);
 
-    connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::setInfoForBreakpoints);
+    connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::updateBreakpoints);
     addActions(mCtxMenu->actions());
 
     ui->progressLabel->setVisible(false);
@@ -182,6 +186,19 @@ static size_t positionForOffset(RAnnotatedCode &codeDecompiled, ut64 offset)
     return closestPos;
 }
 
+void DecompilerWidget::updateBreakpoints()
+{
+    setInfoForBreakpoints();
+    QTextCursor cursor = ui->textEdit->textCursor();
+    cursor.select(QTextCursor::Document);
+    cursor.setCharFormat(QTextCharFormat());
+    cursor.setBlockFormat(QTextBlockFormat());
+    ui->textEdit->setExtraSelections({});
+    highlightPC();
+    highlightBreakpoints();
+    updateSelection();
+}
+
 void DecompilerWidget::setInfoForBreakpoints()
 {
     if (mCtxMenu->getIsTogglingBreakpoints())
@@ -250,6 +267,7 @@ void DecompilerWidget::doRefresh(RVA addr)
 
     // Clear all selections since we just refreshed
     ui->textEdit->setExtraSelections({});
+    previousFunctionAddr = decompiledFunctionAddr;
     decompiledFunctionAddr = Core()->getFunctionStart(addr);
     dec->decompileAt(addr);
     if (dec->isRunning()) {
@@ -280,6 +298,13 @@ QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
 
 void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
 {
+    bool isDisplayReset = false;
+    if (previousFunctionAddr == decompiledFunctionAddr) {
+        scrollerHorizontal = ui->textEdit->horizontalScrollBar()->sliderPosition();
+        scrollerVertical = ui->textEdit->verticalScrollBar()->sliderPosition();
+        isDisplayReset = true;
+    }
+
     ui->progressLabel->setVisible(false);
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
     updateRefreshButton();
@@ -302,6 +327,11 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
     if (decompilerWasBusy) {
         decompilerWasBusy = false;
         doAutoRefresh();
+    }
+
+    if (isDisplayReset) {
+        ui->textEdit->horizontalScrollBar()->setSliderPosition(scrollerHorizontal);
+        ui->textEdit->verticalScrollBar()->setSliderPosition(scrollerVertical);
     }
 }
 
