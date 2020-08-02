@@ -150,8 +150,8 @@ FlagsWidget::FlagsWidget(MainWindow *main) :
 
     flags_model = new FlagsModel(&flags, this);
     flags_proxy_model = new FlagsSortFilterProxyModel(flags_model, this);
-    connect(ui->filterLineEdit, SIGNAL(textChanged(const QString &)), flags_proxy_model,
-            SLOT(setFilterWildcard(const QString &)));
+    connect(ui->filterLineEdit, &QLineEdit::textChanged,
+            flags_proxy_model, &QSortFilterProxyModel::setFilterWildcard);
     ui->flagsTreeView->setMainWindow(mainWindow);
     ui->flagsTreeView->setModel(flags_proxy_model);
     ui->flagsTreeView->sortByColumn(FlagsModel::OFFSET, Qt::AscendingOrder);

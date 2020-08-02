@@ -35,9 +35,9 @@ XrefsDialog::XrefsDialog(MainWindow *main, QWidget *parent) :
     setupPreviewFont();
 
     // Highlight current line
-    connect(ui->previewTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
-    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(setupPreviewFont()));
-    connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(setupPreviewColors()));
+    connect(ui->previewTextEdit, &QPlainTextEdit::cursorPositionChanged, this, &XrefsDialog::highlightCurrentLine);
+    connect(Config(), &Configuration::fontsUpdated, this, &XrefsDialog::setupPreviewFont);
+    connect(Config(), &Configuration::colorsUpdated, this, &XrefsDialog::setupPreviewColors);
 
     connect(ui->toTreeWidget->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &XrefsDialog::onToTreeWidgetItemSelectionChanged);

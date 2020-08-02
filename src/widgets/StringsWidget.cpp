@@ -156,7 +156,7 @@ StringsWidget::StringsWidget(MainWindow *main) :
         toggleDockWidget(true);
     });
 
-    connect(ui->actionCopy_String, SIGNAL(triggered()), this, SLOT(on_actionCopy()));
+    connect(ui->actionCopy_String, &QAction::triggered, this, &StringsWidget::on_actionCopy);
 
     ui->actionFilter->setShortcut(QKeySequence::Find);
 
@@ -172,8 +172,8 @@ StringsWidget::StringsWidget(MainWindow *main) :
     auto menu = ui->stringsTreeView->getItemContextMenu();
     menu->addAction(ui->actionCopy_String);
 
-    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxyModel,
-            SLOT(setFilterWildcard(const QString &)));
+    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged,
+            proxyModel, &QSortFilterProxyModel::setFilterWildcard);
 
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this, [this] {
         tree->showItemsNumber(proxyModel->rowCount());

@@ -16,7 +16,7 @@ R2TaskDialog::R2TaskDialog(R2Task::Ptr task, QWidget *parent)
         close();
     });
 
-    connect(&timer, SIGNAL(timeout()), this, SLOT(updateProgressTimer()));
+    connect(&timer, &QTimer::timeout, this, &R2TaskDialog::updateProgressTimer);
     timer.setInterval(1000);
     timer.setSingleShot(false);
     timer.start();

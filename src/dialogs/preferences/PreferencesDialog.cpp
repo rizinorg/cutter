@@ -65,12 +65,10 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
         c.addItem(*ui->configCategories, *ui->configPanel);
     }
 
-    connect(ui->configCategories,
-            SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
-            this, SLOT(changePage(QTreeWidgetItem *, QTreeWidgetItem *)));
-    connect(ui->saveButtons,
-            SIGNAL(accepted()),
-            this, SLOT(close()));
+    connect(ui->configCategories, &QTreeWidget::currentItemChanged,
+            this, &PreferencesDialog::changePage);
+    connect(ui->saveButtons, &QDialogButtonBox::accepted,
+            this, &QWidget::close);
 
     QTreeWidgetItem *defitem = ui->configCategories->topLevelItem(0);
     ui->configCategories->setCurrentItem(defitem, 0);

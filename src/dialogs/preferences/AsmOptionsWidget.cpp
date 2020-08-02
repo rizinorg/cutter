@@ -142,9 +142,9 @@ void AsmOptionsWidget::resetToDefault()
 
 void AsmOptionsWidget::triggerAsmOptionsChanged()
 {
-    disconnect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(updateAsmOptionsFromVars()));
+    disconnect(Core(), &CutterCore::asmOptionsChanged, this, &AsmOptionsWidget::updateAsmOptionsFromVars);
     Core()->triggerAsmOptionsChanged();
-    connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(updateAsmOptionsFromVars()));
+    connect(Core(), &CutterCore::asmOptionsChanged, this, &AsmOptionsWidget::updateAsmOptionsFromVars);
 }
 
 void AsmOptionsWidget::on_cmtcolSpinBox_valueChanged(int value)

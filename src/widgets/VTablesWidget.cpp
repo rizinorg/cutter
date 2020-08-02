@@ -153,8 +153,8 @@ VTablesWidget::VTablesWidget(MainWindow *main) :
     connect(search_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
     search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxy,
-            SLOT(setFilterWildcard(const QString &)));
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, proxy,
+            &QSortFilterProxyModel::setFilterWildcard);
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->vTableTreeView, SLOT(setFocus()));
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {

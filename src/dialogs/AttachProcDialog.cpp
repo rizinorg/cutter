@@ -198,12 +198,12 @@ AttachProcDialog::AttachProcDialog(QWidget *parent) :
 
     // focus on filter line
     ui->filterLineEdit->setFocus();
-    connect(ui->filterLineEdit, SIGNAL(textChanged(const QString &)), processProxyModel,
-            SLOT(setFilterWildcard(const QString &)));
+    connect(ui->filterLineEdit, &QLineEdit::textChanged, processProxyModel,
+            &QSortFilterProxyModel::setFilterWildcard);
 
     // Update the processes every 'updateIntervalMs' seconds
     timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(updateModelData()));
+    connect(timer, &QTimer::timeout, this, &AttachProcDialog::updateModelData);
     timer->start(updateIntervalMs);
 }
 

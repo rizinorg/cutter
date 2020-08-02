@@ -31,9 +31,9 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     setupFonts();
     colorsUpdatedSlot();
 
-    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
-    connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
-    connect(Core(), SIGNAL(registersChanged()), this, SLOT(highlightPC()));
+    connect(Config(), &Configuration::fontsUpdated, this, &DecompilerWidget::fontsUpdatedSlot);
+    connect(Config(), &Configuration::colorsUpdated, this, &DecompilerWidget::colorsUpdatedSlot);
+    connect(Core(), &CutterCore::registersChanged, this, &DecompilerWidget::highlightPC);
 
     decompiledFunctionAddr = RVA_INVALID;
     decompilerWasBusy = false;
@@ -81,8 +81,8 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connectCursorPositionChanged(false);
     connect(Core(), &CutterCore::seekChanged, this, &DecompilerWidget::seekChanged);
     ui->textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->textEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(showDisasContextMenu(const QPoint &)));
+    connect(ui->textEdit, &QWidget::customContextMenuRequested,
+            this, &DecompilerWidget::showDisasContextMenu);
 
     // refresh the widget when an action in this menu is triggered
     connect(mCtxMenu, &QMenu::triggered, this, &DecompilerWidget::refreshDecompiler);

@@ -147,8 +147,8 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main) :
     connect(search_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
     search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), registerRefProxyModel,
-            SLOT(setFilterWildcard(const QString &)));
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged,
+            registerRefProxyModel, &QSortFilterProxyModel::setFilterWildcard);
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->registerRefTreeView, SLOT(setFocus()));
     setScrollMode();
     connect(Core(), &CutterCore::refreshAll, this, &RegisterRefsWidget::refreshRegisterRef);

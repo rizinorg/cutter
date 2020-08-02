@@ -40,9 +40,8 @@ StackWidget::StackWidget(MainWindow *main) :
     connect(Core(), &CutterCore::registersChanged, this, &StackWidget::updateContents);
     connect(Core(), &CutterCore::stackChanged, this, &StackWidget::updateContents);
     connect(Config(), &Configuration::fontsUpdated, this, &StackWidget::fontsUpdatedSlot);
-    connect(viewStack, SIGNAL(doubleClicked(const QModelIndex &)), this,
-            SLOT(onDoubleClicked(const QModelIndex &)));
-    connect(viewStack, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
+    connect(viewStack, &QAbstractItemView::doubleClicked, this, &StackWidget::onDoubleClicked);
+    connect(viewStack, &QWidget::customContextMenuRequested, this, &StackWidget::customMenuRequested);
     connect(editAction, &QAction::triggered, this, &StackWidget::editStack);
     connect(viewStack->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &StackWidget::onCurrentChanged);
