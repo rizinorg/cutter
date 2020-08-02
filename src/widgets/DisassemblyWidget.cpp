@@ -151,11 +151,8 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     connect(Core(), &CutterCore::functionRenamed, this, [this]() {refreshDisasm();});
     connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshDisasm()));
-    connect(Core(), &CutterCore::instructionChanged, this, [this](RVA offset) {
-        if (offset >= topOffset && offset <= bottomOffset) {
-            refreshDisasm();
-        }
-    });
+    connect(Core(), &CutterCore::instructionChanged, this, &DisassemblyWidget::refreshIfInRange);
+    connect(Core(), &CutterCore::breakpointsChanged, this, &DisassemblyWidget::refreshIfInRange);
     connect(Core(), SIGNAL(refreshCodeViews()), this, SLOT(refreshDisasm()));
 
     connect(Config(), &Configuration::fontsUpdated, this, &DisassemblyWidget::fontsUpdatedSlot);
@@ -247,6 +244,13 @@ QFontMetrics DisassemblyWidget::getFontMetrics()
 QList<DisassemblyLine> DisassemblyWidget::getLines()
 {
     return lines;
+}
+
+void DisassemblyWidget::refreshIfInRange(RVA offset)
+{
+    if (offset >= topOffset && offset <= bottomOffset) {
+        refreshDisasm();
+    }
 }
 
 void DisassemblyWidget::refreshDisasm(RVA offset)

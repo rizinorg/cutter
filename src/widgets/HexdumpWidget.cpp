@@ -88,6 +88,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main) :
     connect(Core(), &CutterCore::refreshAll, this, [this]() { refresh(); });
     connect(Core(), &CutterCore::refreshCodeViews, this, [this]() { refresh(); });
     connect(Core(), &CutterCore::instructionChanged, this, [this]() { refresh(); });
+    connect(Core(), &CutterCore::breakpointsChanged, this, [this]() { refresh(); });
     connect(Core(), &CutterCore::stackChanged, this, [this]() { refresh(); });
     connect(Core(), &CutterCore::registersChanged, this, [this]() { refresh(); });
 
