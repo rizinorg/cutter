@@ -56,6 +56,9 @@ private:
      */
     bool decompilerWasBusy;
 
+    int scrollerHorizontal;
+    int scrollerVertical;
+    RVA previousFunctionAddr;
     RVA decompiledFunctionAddr;
     std::unique_ptr<RAnnotatedCode, void (*)(RAnnotatedCode *)> code;
     bool seekFromCursor = false;
@@ -113,6 +116,7 @@ private:
      */
     void gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size_t startPos, size_t endPos);
 
+    void updateBreakpoints();
     void setInfoForBreakpoints();
 
     void setAnnotationsAtCursor(size_t pos);

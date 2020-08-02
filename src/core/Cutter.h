@@ -392,11 +392,9 @@ public:
     void stepOverDebug();
     void stepOutDebug();
 
-    void addBreakpoint(QString addr);
     void addBreakpoint(const BreakpointDescription &config);
     void updateBreakpoint(int index, const BreakpointDescription &config);
     void toggleBreakpoint(RVA addr);
-    void toggleBreakpoint(QString addr);
     void delBreakpoint(RVA addr);
     void delAllBreakpoints();
     void enableBreakpoint(RVA addr);
@@ -644,7 +642,7 @@ signals:
     void commentsChanged();
     void registersChanged();
     void instructionChanged(RVA offset);
-    void breakpointsChanged();
+    void breakpointsChanged(RVA offset);
     void refreshCodeViews();
     void stackChanged();
     /**

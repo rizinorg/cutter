@@ -47,6 +47,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(instructionChanged(RVA)), this, SLOT(refreshView()));
+    connect(Core(), &CutterCore::breakpointsChanged, this, &DisassemblerGraphView::refreshView);
     connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(refreshCodeViews()), this, SLOT(refreshView()));

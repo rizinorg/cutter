@@ -2068,23 +2068,7 @@ void CutterCore::setDebugPlugin(QString plugin)
 void CutterCore::toggleBreakpoint(RVA addr)
 {
     cmdRaw(QString("dbs %1").arg(addr));
-    emit instructionChanged(addr);
-    emit breakpointsChanged();
-}
-
-void CutterCore::toggleBreakpoint(QString addr)
-{
-    cmdRaw("dbs " + addr);
-    emit instructionChanged(addr.toULongLong());
-    emit breakpointsChanged();
-}
-
-
-void CutterCore::addBreakpoint(QString addr)
-{
-    cmdRaw("db " + addr);
-    emit instructionChanged(addr.toULongLong());
-    emit breakpointsChanged();
+    emit breakpointsChanged(addr);
 }
 
 void CutterCore::addBreakpoint(const BreakpointDescription &config)
@@ -2138,8 +2122,7 @@ void CutterCore::addBreakpoint(const BreakpointDescription &config)
     if (!config.command.isEmpty()) {
         updateOwnedCharPtr(breakpoint->data, config.command);
     }
-    emit instructionChanged(breakpoint->addr);
-    emit breakpointsChanged();
+    emit breakpointsChanged(breakpoint->addr);
 }
 
 void CutterCore::updateBreakpoint(int index, const BreakpointDescription &config)
@@ -2157,8 +2140,7 @@ void CutterCore::updateBreakpoint(int index, const BreakpointDescription &config
 void CutterCore::delBreakpoint(RVA addr)
 {
     cmdRaw("db- " + RAddressString(addr));
-    emit instructionChanged(addr);
-    emit breakpointsChanged();
+    emit breakpointsChanged(addr);
 }
 
 void CutterCore::delAllBreakpoints()
@@ -2170,15 +2152,13 @@ void CutterCore::delAllBreakpoints()
 void CutterCore::enableBreakpoint(RVA addr)
 {
     cmdRaw("dbe " + RAddressString(addr));
-    emit instructionChanged(addr);
-    emit breakpointsChanged();
+    emit breakpointsChanged(addr);
 }
 
 void CutterCore::disableBreakpoint(RVA addr)
 {
     cmdRaw("dbd " + RAddressString(addr));
-    emit instructionChanged(addr);
-    emit breakpointsChanged();
+    emit breakpointsChanged(addr);
 }
 
 void CutterCore::setBreakpointTrace(int index, bool enabled)
