@@ -44,7 +44,7 @@ class XrefsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit XrefsDialog(MainWindow *main, QWidget *parent);
+    explicit XrefsDialog(MainWindow *main, QWidget *parent, bool hideXrefFrom=false);
     ~XrefsDialog();
 
     void fillRefsForAddress(RVA addr, QString name, bool whole_function);
@@ -78,6 +78,7 @@ private:
     void updateLabels(QString name);
     void updateLabelsForVariables(QString name);
     void updatePreview(RVA addr);
+    void hideXrefFromSection();
 };
 
 #endif // XREFSDIALOG_H

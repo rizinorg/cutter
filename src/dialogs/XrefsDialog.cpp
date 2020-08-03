@@ -8,7 +8,7 @@
 
 #include <QJsonArray>
 
-XrefsDialog::XrefsDialog(MainWindow *main, QWidget *parent) :
+XrefsDialog::XrefsDialog(MainWindow *main, QWidget *parent, bool hideXrefFrom) :
     QDialog(parent),
     addr(0),
     toModel(this),
@@ -52,6 +52,10 @@ XrefsDialog::XrefsDialog(MainWindow *main, QWidget *parent) :
 
     connect(ui->toTreeWidget, &QAbstractItemView::doubleClicked, this, &QWidget::close);
     connect(ui->fromTreeWidget, &QAbstractItemView::doubleClicked, this, &QWidget::close);
+
+    if (hideXrefFrom) {
+        hideXrefFromSection();
+    }
 }
 
 XrefsDialog::~XrefsDialog() { }
@@ -142,6 +146,12 @@ void XrefsDialog::updateLabelsForVariables(QString name)
 {
     ui->label_xTo->setText(tr("Writes to %1").arg(name));
     ui->label_xFrom->setText(tr("Reads from %1").arg(name));
+}
+
+void XrefsDialog::hideXrefFromSection()
+{
+    ui->label_xFrom->hide();
+    ui->fromTreeWidget->hide();
 }
 
 void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function)
