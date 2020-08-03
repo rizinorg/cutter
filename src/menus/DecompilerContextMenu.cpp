@@ -302,8 +302,8 @@ void DecompilerContextMenu::setActionRenameThingHere()
     connect(&actionRenameThingHere, &QAction::triggered, this,
             &DecompilerContextMenu::actionRenameThingHereTriggered);
     addAction(&actionRenameThingHere);
-    actionRenameThingHere.setToolTip(tr("Can't rename this variable."
-                                        "<br>Only local variables defined in disassembly can be renamed."));
+    actionRenameThingHere.setToolTip(tr("Can't rename this variable.<br>"
+                                        "Only local variables defined in disassembly can be renamed."));
 }
 
 void DecompilerContextMenu::setActionDeleteName()
@@ -320,8 +320,8 @@ void DecompilerContextMenu::setActionEditFunctionVariables()
             &DecompilerContextMenu::actionEditFunctionVariablesTriggered);
     addAction(&actionEditFunctionVariables);
     actionEditFunctionVariables.setShortcut(Qt::Key_Y);
-    actionEditFunctionVariables.setToolTip(tr("Can't edit this variable."
-                                              "<br>Only local variables defined in disassembly can be edited."));
+    actionEditFunctionVariables.setToolTip(tr("Can't edit this variable.<br>"
+                                              "Only local variables defined in disassembly can be edited."));
 }
 
 void DecompilerContextMenu::setActionToggleBreakpoint()
