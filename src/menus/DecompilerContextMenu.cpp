@@ -207,7 +207,7 @@ void DecompilerContextMenu::aboutToShowSlot()
     }
     actionCopyInstructionAddress.setText(tr("Copy instruction address (%1)").arg(RAddressString(
                                                                                      offset)));
-    if (annotationHere && is_annotation_reference(annotationHere)) {
+    if (annotationHere && r_annotation_is_reference(annotationHere)) {
         actionCopyReferenceAddress.setVisible(true);
         RVA referenceAddr = annotationHere->reference.offset;
         RFlagItem *flagDetails = r_flag_get_i(Core()->core()->flags, referenceAddr);
@@ -401,7 +401,7 @@ void DecompilerContextMenu::actionDeleteNameTriggered()
 
 void DecompilerContextMenu::actionXRefsTriggered()
 {
-    if (!annotationHere || !is_annotation_reference(annotationHere)) {
+    if (!annotationHere || !r_annotation_is_reference(annotationHere)) {
         return;
     }
     XrefsDialog dialog(mainWindow, nullptr);
