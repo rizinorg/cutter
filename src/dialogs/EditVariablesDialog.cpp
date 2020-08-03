@@ -9,13 +9,15 @@
 
 EditVariablesDialog::EditVariablesDialog(RVA offset, QString initialVar, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::EditVariablesDialog)
+    ui(new Ui::EditVariablesDialog),
+    offsetInFunction(RVA_INVALID)
 {
     ui->setupUi(this);
     connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(applyFields()));
     connect(ui->dropdownLocalVars, SIGNAL(currentIndexChanged(int)), SLOT(updateFields()));
 
     QString fcnName = Core()->cmdRawAt("afn.", offset).trimmed();
+    offsetInFunction = offset;
     setWindowTitle(tr("Edit Variables in Function: %1").arg(fcnName));
 
     variables = Core()->getVariables(offset);
@@ -62,7 +64,7 @@ void EditVariablesDialog::applyFields()
             .replace(QLatin1Char('\\'), QLatin1Char('_'))
             .replace(QLatin1Char('/'), QLatin1Char('_'));
     if (newName != desc.name) {
-        Core()->cmdRaw(QString("afvn %1 %2").arg(newName).arg(desc.name));
+        Core()->renameFunctionVariable(newName, desc.name, offsetInFunction);
     }
 
     // Refresh the views to reflect the changes to vars

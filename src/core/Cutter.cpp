@@ -677,7 +677,12 @@ void CutterCore::renameFlag(QString old_name, QString new_name)
 }
 
 void CutterCore::renameFunctionVariable(QString newName, QString oldName, RVA offset){
-    cmdRawAt(QString("afvn %1 %2").arg(newName).arg(oldName), offset);
+    CORE_LOCK();
+    RAnalFunction *function = r_anal_get_function_at(core->anal, offset);
+    RAnalVar *variable = r_anal_function_get_var_byname(function, oldName.toUtf8().data());
+    if (variable) {
+        r_anal_var_rename(variable, newName.toUtf8().constData(), true);
+    }
     emit refreshCodeViews();
 }
 
