@@ -169,9 +169,9 @@ void MainWindow::initUI()
 
     // G and S goes to goto entry
     QShortcut *goto_shortcut = new QShortcut(QKeySequence(Qt::Key_G), this);
-    connect(goto_shortcut, SIGNAL(activated()), this->omnibar, SLOT(setFocus()));
+    connect(goto_shortcut, &QShortcut::activated, this->omnibar, [this](){ this->omnibar->setFocus(); });
     QShortcut *seek_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this);
-    connect(seek_shortcut, SIGNAL(activated()), this->omnibar, SLOT(setFocus()));
+    connect(seek_shortcut, &QShortcut::activated, this->omnibar, [this](){ this->omnibar->setFocus(); });
     QShortcut *seek_to_func_end_shortcut = new QShortcut(QKeySequence(Qt::Key_Dollar), this);
     connect(seek_to_func_end_shortcut, &QShortcut::activated, this, &MainWindow::seekToFunctionLastInstruction);
     QShortcut *seek_to_func_start_shortcut = new QShortcut(QKeySequence(Qt::Key_AsciiCircum), this);
@@ -184,8 +184,7 @@ void MainWindow::initUI()
     connect(ui->actionZoomOut, &QAction::triggered, this, &MainWindow::onZoomOut);
     connect(ui->actionZoomReset, &QAction::triggered, this, &MainWindow::onZoomReset);
 
-    connect(core, SIGNAL(projectSaved(bool, const QString &)), this, SLOT(projectSaved(bool,
-                                                                                       const QString &)));
+    connect(core, &CutterCore::projectSaved, this, &MainWindow::projectSaved);
 
     connect(core, &CutterCore::toggleDebugView, this, &MainWindow::toggleDebugView);
 
@@ -319,7 +318,7 @@ void MainWindow::initToolBar()
     this->visualNavbar->setMovable(false);
     addToolBarBreak(Qt::TopToolBarArea);
     addToolBar(visualNavbar);
-    QObject::connect(configuration, &Configuration::colorsUpdated, [this]() {
+    QObject::connect(configuration, &Configuration::colorsUpdated, this, [this]() {
         this->visualNavbar->updateGraphicsScene();
     });
     QObject::connect(configuration, &Configuration::interfaceThemeChanged, this, &MainWindow::chooseThemeIcons);
@@ -619,7 +618,6 @@ void MainWindow::finalizeOpen()
     setFocus();
     bool graphContainsFunc = false;
     for (auto dockWidget : dockWidgets) {
-        const QString className = dockWidget->metaObject()->className();
         auto graphWidget = qobject_cast<GraphWidget *>(dockWidget);
         if (graphWidget && dockWidget->isVisibleToUser()) {
             graphContainsFunc = !graphWidget->getGraphView()->getBlocks().empty();
