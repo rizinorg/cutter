@@ -576,8 +576,7 @@ void DecompilerContextMenu::updateTargetMenuActions()
 
 bool DecompilerContextMenu::isFunctionVariable()
 {
-    return (annotationHere && (annotationHere->type == R_CODE_ANNOTATION_TYPE_LOCAL_VARIABLE
-                               || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_PARAMETER));
+    return (annotationHere && r_annotation_is_variable(annotationHere));
 }
 
 bool DecompilerContextMenu::variablePresentInR2()
