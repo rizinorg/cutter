@@ -57,23 +57,23 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     // ESC for previous
     QShortcut *shortcut_escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     shortcut_escape->setContext(Qt::WidgetShortcut);
-    connect(shortcut_escape, SIGNAL(activated()), seekable, SLOT(seekPrev()));
+    connect(shortcut_escape, &QShortcut::activated, seekable, &CutterSeekable::seekPrev);
 
     // Branch shortcuts
     QShortcut *shortcut_take_true = new QShortcut(QKeySequence(Qt::Key_T), this);
     shortcut_take_true->setContext(Qt::WidgetShortcut);
-    connect(shortcut_take_true, SIGNAL(activated()), this, SLOT(takeTrue()));
+    connect(shortcut_take_true, &QShortcut::activated, this, &DisassemblerGraphView::takeTrue);
     QShortcut *shortcut_take_false = new QShortcut(QKeySequence(Qt::Key_F), this);
     shortcut_take_false->setContext(Qt::WidgetShortcut);
-    connect(shortcut_take_false, SIGNAL(activated()), this, SLOT(takeFalse()));
+    connect(shortcut_take_false, &QShortcut::activated, this, &DisassemblerGraphView::takeFalse);
 
     // Navigation shortcuts
     QShortcut *shortcut_next_instr = new QShortcut(QKeySequence(Qt::Key_J), this);
     shortcut_next_instr->setContext(Qt::WidgetShortcut);
-    connect(shortcut_next_instr, SIGNAL(activated()), this, SLOT(nextInstr()));
+    connect(shortcut_next_instr, &QShortcut::activated, this, &DisassemblerGraphView::nextInstr);
     QShortcut *shortcut_prev_instr = new QShortcut(QKeySequence(Qt::Key_K), this);
     shortcut_prev_instr->setContext(Qt::WidgetShortcut);
-    connect(shortcut_prev_instr, SIGNAL(activated()), this, SLOT(prevInstr()));
+    connect(shortcut_prev_instr, &QShortcut::activated, this, &DisassemblerGraphView::prevInstr);
     shortcuts.append(shortcut_escape);
     shortcuts.append(shortcut_next_instr);
     shortcuts.append(shortcut_prev_instr);

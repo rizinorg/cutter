@@ -27,7 +27,7 @@ Dashboard::Dashboard(MainWindow *main) :
 {
     ui->setupUi(this);
 
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(updateContents()));
+    connect(Core(), &CutterCore::refreshAll, this, &Dashboard::updateContents);
 }
 
 Dashboard::~Dashboard() {}

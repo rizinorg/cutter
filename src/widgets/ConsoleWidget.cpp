@@ -101,25 +101,25 @@ ConsoleWidget::ConsoleWidget(MainWindow *main) :
 
     // Set console output context menu
     ui->outputTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->outputTextEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(showCustomContextMenu(const QPoint &)));
+    connect(ui->outputTextEdit, &QWidget::customContextMenuRequested,
+            this, &ConsoleWidget::showCustomContextMenu);
 
     // Esc clears r2InputLineEdit and debugeeInputLineEdit (like OmniBar)
     QShortcut *r2_clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), ui->r2InputLineEdit);
-    connect(r2_clear_shortcut, SIGNAL(activated()), this, SLOT(clear()));
+    connect(r2_clear_shortcut, &QShortcut::activated, this, &ConsoleWidget::clear);
     r2_clear_shortcut->setContext(Qt::WidgetShortcut);
 
     QShortcut *debugee_clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), ui->debugeeInputLineEdit);
-    connect(debugee_clear_shortcut, SIGNAL(activated()), this, SLOT(clear()));
+    connect(debugee_clear_shortcut, &QShortcut::activated, this, &ConsoleWidget::clear);
     debugee_clear_shortcut->setContext(Qt::WidgetShortcut);
 
     // Up and down arrows show history
     historyUpShortcut = new QShortcut(QKeySequence(Qt::Key_Up), ui->r2InputLineEdit);
-    connect(historyUpShortcut, SIGNAL(activated()), this, SLOT(historyPrev()));
+    connect(historyUpShortcut, &QShortcut::activated, this, &ConsoleWidget::historyPrev);
     historyUpShortcut->setContext(Qt::WidgetShortcut);
 
     historyDownShortcut = new QShortcut(QKeySequence(Qt::Key_Down), ui->r2InputLineEdit);
-    connect(historyDownShortcut, SIGNAL(activated()), this, SLOT(historyNext()));
+    connect(historyDownShortcut, &QShortcut::activated, this, &ConsoleWidget::historyNext);
     historyDownShortcut->setContext(Qt::WidgetShortcut);
 
     QShortcut *completionShortcut = new QShortcut(QKeySequence(Qt::Key_Tab), ui->r2InputLineEdit);
@@ -481,5 +481,5 @@ void ConsoleWidget::redirectOutput()
     pipeSocket->connectToServer(QIODevice::ReadOnly);
 #endif
 
-    connect(pipeSocket, SIGNAL(readyRead()), this, SLOT(processQueuedOutput()));
+    connect(pipeSocket, &QIODevice::readyRead, this, &ConsoleWidget::processQueuedOutput);
 }

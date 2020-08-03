@@ -42,11 +42,11 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
     addWidget(this->graphicsView);
     //addWidget(addsCombo);
 
-    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
-    connect(Core(), SIGNAL(registersChanged()), this, SLOT(drawPCCursor()));
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(fetchAndPaintData()));
-    connect(Core(), SIGNAL(functionsChanged()), this, SLOT(fetchAndPaintData()));
-    connect(Core(), SIGNAL(flagsChanged()), this, SLOT(fetchAndPaintData()));
+    connect(Core(), &CutterCore::seekChanged, this, &VisualNavbar::on_seekChanged);
+    connect(Core(), &CutterCore::registersChanged, this, &VisualNavbar::drawPCCursor);
+    connect(Core(), &CutterCore::refreshAll, this, &VisualNavbar::fetchAndPaintData);
+    connect(Core(), &CutterCore::functionsChanged, this, &VisualNavbar::fetchAndPaintData);
+    connect(Core(), &CutterCore::flagsChanged, this, &VisualNavbar::fetchAndPaintData);
 
     graphicsScene = new QGraphicsScene(this);
 

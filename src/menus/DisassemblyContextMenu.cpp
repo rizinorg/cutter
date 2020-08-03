@@ -128,8 +128,8 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     addSetBitsMenu();
 
     structureOffsetMenu = addMenu(tr("Structure offset"));
-    connect(structureOffsetMenu, SIGNAL(triggered(QAction*)),
-            this, SLOT(on_actionStructureOffsetMenu_triggered(QAction*)));
+    connect(structureOffsetMenu, &QMenu::triggered,
+            this, &DisassemblyContextMenu::on_actionStructureOffsetMenu_triggered);
 
     initAction(&actionLinkType, tr("Link Type to Address"),
                SLOT(on_actionLinkType_triggered()), getLinkTypeSequence());

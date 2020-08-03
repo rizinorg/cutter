@@ -24,7 +24,7 @@ AsyncTaskDialog::AsyncTaskDialog(AsyncTask::Ptr task, QWidget *parent)
 
     updateLog(task->getLog());
 
-    connect(&timer, SIGNAL(timeout()), this, SLOT(updateProgressTimer()));
+    connect(&timer, &QTimer::timeout, this, &AsyncTaskDialog::updateProgressTimer);
     timer.setInterval(1000);
     timer.setSingleShot(false);
     timer.start();

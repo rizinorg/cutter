@@ -13,7 +13,7 @@ OverviewWidget::OverviewWidget(MainWindow *main) :
     setWidget(graphView);
     targetGraphWidget = nullptr;
 
-    connect(graphView, SIGNAL(mouseMoved()), this, SLOT(updateTargetView()));
+    connect(graphView, &OverviewView::mouseMoved, this, &OverviewWidget::updateTargetView);
 
     graphDataRefreshDeferrer = createRefreshDeferrer([this]() {
         updateGraphData();

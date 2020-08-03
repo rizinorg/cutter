@@ -12,8 +12,7 @@ EditInstructionDialog::EditInstructionDialog(InstructionEditMode editMode, QWidg
     ui->instructionLabel->setWordWrap(true);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
-    connect(ui->lineEdit, SIGNAL(textEdited(const QString &)), this,
-            SLOT(updatePreview(const QString &)));
+    connect(ui->lineEdit, &QLineEdit::textEdited, this, &EditInstructionDialog::updatePreview);
 }
 
 EditInstructionDialog::~EditInstructionDialog() {}

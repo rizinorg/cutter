@@ -114,7 +114,7 @@ ResourcesWidget::ResourcesWidget(MainWindow *main) :
     // Configure widget
     this->setWindowTitle(tr("Resources"));
 
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshResources()));
+    connect(Core(), &CutterCore::refreshAll, this, &ResourcesWidget::refreshResources);
 }
 
 void ResourcesWidget::refreshResources()

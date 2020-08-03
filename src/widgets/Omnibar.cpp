@@ -20,7 +20,7 @@ Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
     this->setTextMargins(10, 0, 0, 0);
     this->setClearButtonEnabled(true);
 
-    connect(this, SIGNAL(returnPressed()), this, SLOT(on_gotoEntry_returnPressed()));
+    connect(this, &QLineEdit::returnPressed, this, &Omnibar::on_gotoEntry_returnPressed);
 
     // Esc clears omnibar
     QShortcut *clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);

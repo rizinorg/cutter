@@ -10,7 +10,7 @@
 OverviewView::OverviewView(QWidget *parent)
     : GraphView(parent)
 {
-    connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
+    connect(Config(), &Configuration::colorsUpdated, this, &OverviewView::colorsUpdatedSlot);
     colorsUpdatedSlot();
 }
 

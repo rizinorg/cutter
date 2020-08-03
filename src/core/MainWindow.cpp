@@ -165,7 +165,7 @@ void MainWindow::initUI()
 
     // Period goes to command entry
     QShortcut *cmd_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
-    connect(cmd_shortcut, SIGNAL(activated()), consoleDock, SLOT(focusInputLineEdit()));
+    connect(cmd_shortcut, &QShortcut::activated, consoleDock, &ConsoleWidget::focusInputLineEdit);
 
     // G and S goes to goto entry
     QShortcut *goto_shortcut = new QShortcut(QKeySequence(Qt::Key_G), this);
@@ -173,26 +173,26 @@ void MainWindow::initUI()
     QShortcut *seek_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this);
     connect(seek_shortcut, SIGNAL(activated()), this->omnibar, SLOT(setFocus()));
     QShortcut *seek_to_func_end_shortcut = new QShortcut(QKeySequence(Qt::Key_Dollar), this);
-    connect(seek_to_func_end_shortcut, SIGNAL(activated()), SLOT(seekToFunctionLastInstruction()));
+    connect(seek_to_func_end_shortcut, &QShortcut::activated, this, &MainWindow::seekToFunctionLastInstruction);
     QShortcut *seek_to_func_start_shortcut = new QShortcut(QKeySequence(Qt::Key_AsciiCircum), this);
-    connect(seek_to_func_start_shortcut, SIGNAL(activated()), SLOT(seekToFunctionStart()));
+    connect(seek_to_func_start_shortcut, &QShortcut::activated, this, &MainWindow::seekToFunctionStart);
 
     QShortcut *refresh_shortcut = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
-    connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshAll()));
+    connect(refresh_shortcut, &QShortcut::activated, this, &MainWindow::refreshAll);
 
-    connect(ui->actionZoomIn, SIGNAL(triggered()), this, SLOT(onZoomIn()));
-    connect(ui->actionZoomOut, SIGNAL(triggered()), this, SLOT(onZoomOut()));
-    connect(ui->actionZoomReset, SIGNAL(triggered()), this, SLOT(onZoomReset()));
+    connect(ui->actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomIn);
+    connect(ui->actionZoomOut, &QAction::triggered, this, &MainWindow::onZoomOut);
+    connect(ui->actionZoomReset, &QAction::triggered, this, &MainWindow::onZoomReset);
 
     connect(core, SIGNAL(projectSaved(bool, const QString &)), this, SLOT(projectSaved(bool,
                                                                                        const QString &)));
 
     connect(core, &CutterCore::toggleDebugView, this, &MainWindow::toggleDebugView);
 
-    connect(core, SIGNAL(newMessage(const QString &)),
-            this->consoleDock, SLOT(addOutput(const QString &)));
-    connect(core, SIGNAL(newDebugMessage(const QString &)),
-            this->consoleDock, SLOT(addDebugOutput(const QString &)));
+    connect(core, &CutterCore::newMessage,
+            this->consoleDock, &ConsoleWidget::addOutput);
+    connect(core, &CutterCore::newDebugMessage,
+            this->consoleDock, &ConsoleWidget::addDebugOutput);
 
     connect(core, &CutterCore::showMemoryWidgetRequested,
             this, static_cast<void(MainWindow::*)()>(&MainWindow::showMemoryWidget));

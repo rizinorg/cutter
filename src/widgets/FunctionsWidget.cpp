@@ -37,9 +37,9 @@ FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *i
       currentIndex(-1)
 
 {
-    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(seekChanged(RVA)));
-    connect(Core(), SIGNAL(functionRenamed(const QString &, const QString &)), this,
-            SLOT(functionRenamed(QString, QString)));
+    connect(Core(), &CutterCore::seekChanged, this, &FunctionModel::seekChanged);
+    connect(Core(), &CutterCore::functionRenamed,
+            this, &FunctionModel::functionRenamed);
 }
 
 QModelIndex FunctionModel::index(int row, int column, const QModelIndex &parent) const
@@ -435,7 +435,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main) :
     setObjectName("FunctionsWidget");
 
     setTooltipStylesheet();
-    connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(setTooltipStylesheet()));
+    connect(Config(), &Configuration::colorsUpdated, this, &FunctionsWidget::setTooltipStylesheet);
 
     QFontInfo font_info = ui->treeView->fontInfo();
     QFont default_font = QFont(font_info.family(), font_info.pointSize());
@@ -476,8 +476,8 @@ FunctionsWidget::FunctionsWidget(MainWindow *main) :
     // Use a custom context menu on the dock title bar
     actionHorizontal.setChecked(true);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(showTitleContextMenu(const QPoint &)));
+    connect(this, &QWidget::customContextMenuRequested,
+            this, &FunctionsWidget::showTitleContextMenu);
 
     connect(Core(), &CutterCore::functionsChanged, this, &FunctionsWidget::refreshTree);
     connect(Core(), &CutterCore::codeRebased, this, &FunctionsWidget::refreshTree);
