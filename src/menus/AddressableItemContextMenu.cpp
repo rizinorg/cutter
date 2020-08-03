@@ -85,7 +85,7 @@ void AddressableItemContextMenu::onActionCopyAddress()
 void AddressableItemContextMenu::onActionShowXrefs()
 {
     emit xrefsTriggered();
-    XrefsDialog dialog(mainWindow, nullptr);
+    XrefsDialog dialog(mainWindow, nullptr, true);
     QString tmpName = name;
     if (name.isEmpty()) {
         name = RAddressString(offset);

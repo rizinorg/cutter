@@ -8,7 +8,7 @@
 
 #include <QJsonArray>
 
-XrefsDialog::XrefsDialog(MainWindow *main, QWidget *parent) :
+XrefsDialog::XrefsDialog(MainWindow *main, QWidget *parent, bool hideXrefFrom) :
     QDialog(parent),
     addr(0),
     toModel(this),
@@ -52,6 +52,10 @@ XrefsDialog::XrefsDialog(MainWindow *main, QWidget *parent) :
 
     connect(ui->toTreeWidget, &QAbstractItemView::doubleClicked, this, &QWidget::close);
     connect(ui->fromTreeWidget, &QAbstractItemView::doubleClicked, this, &QWidget::close);
+
+    if (hideXrefFrom) {
+        hideXrefFromSection();
+    }
 }
 
 XrefsDialog::~XrefsDialog() { }
@@ -134,8 +138,8 @@ void XrefsDialog::updatePreview(RVA addr)
 
 void XrefsDialog::updateLabels(QString name)
 {
-    ui->label_xTo->setText(tr("X-Refs to %1:").arg(name));
-    ui->label_xFrom->setText(tr("X-Refs from %1:").arg(name));
+    ui->label_xTo->setText(tr("X-Refs to %1 (%2 results):").arg(name).arg(toModel.rowCount()));
+    ui->label_xFrom->setText(tr("X-Refs from %1 (%2 results):").arg(name).arg(fromModel.rowCount()));
 }
 
 void XrefsDialog::updateLabelsForVariables(QString name)
@@ -144,13 +148,20 @@ void XrefsDialog::updateLabelsForVariables(QString name)
     ui->label_xFrom->setText(tr("Reads from %1").arg(name));
 }
 
+void XrefsDialog::hideXrefFromSection()
+{
+    ui->label_xFrom->hide();
+    ui->fromTreeWidget->hide();
+}
+
 void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function)
 {
     setWindowTitle(tr("X-Refs for %1").arg(name));
-    updateLabels(name);
 
     toModel.readForOffset(addr, true, whole_function);
     fromModel.readForOffset(addr, false, whole_function);
+
+    updateLabels(name);
 
     // Adjust columns to content
     qhelpers::adjustColumns(ui->fromTreeWidget, fromModel.columnCount(), 0);
