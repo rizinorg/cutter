@@ -20,7 +20,7 @@ If you already got radare2 then
 
 .. code-block:: sh
 
-   git clone --recurse-submodules https://github.com/radareorg/cutter
+   git clone  https://github.com/radareorg/cutter
 
 This will clone the Cutter source and it's dependencies(radare2, etc.)
 under **cutter** and you should see the following dir structure:
@@ -72,7 +72,7 @@ On Arch-based Linux distributions:
 
 ::
 
-   sudo pacman -Syu base-devel cmake meson qt5-base qt5-svg qt5-tools
+   sudo pacman -Syu --needed base-devel cmake meson qt5-base qt5-svg qt5-tools
 
 Building Steps
 ~~~~~~~~~~~~~~
@@ -92,6 +92,8 @@ If your operating system has a newer version of CMake (> v3.12) you can use this
    cmake -S src -B build -DCUTTER_USE_BUNDLED_RADARE2=ON
    cmake --build build
 
+.. note::
+If you want to install radare separately then you can skip ``-DCUTTER_USE_BUNDLED_RADARE2=ON``
 
 .. note::
 
