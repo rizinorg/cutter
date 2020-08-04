@@ -16,11 +16,6 @@ Make sure you've ``git`` installed in your system (`Installation guide <https://
 
    git clone --recurse-submodules https://github.com/radareorg/cutter
 
-If you already got radare2 then
-
-.. code-block:: sh
-
-   git clone  https://github.com/radareorg/cutter
 
 This will clone the Cutter source and it's dependencies(radare2, etc.)
 under **cutter** and you should see the following dir structure:
