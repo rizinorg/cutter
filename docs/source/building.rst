@@ -16,6 +16,7 @@ Make sure you've ``git`` installed in your system (`Installation guide <https://
 
    git clone --recurse-submodules https://github.com/radareorg/cutter
 
+
 This will clone the Cutter source and it's dependencies(radare2, etc.)
 under **cutter** and you should see the following dir structure:
 
@@ -66,7 +67,7 @@ On Arch-based Linux distributions:
 
 ::
 
-   sudo pacman -Syu base-devel cmake meson qt5-base qt5-svg qt5-tools
+   sudo pacman -Syu --needed base-devel cmake meson qt5-base qt5-svg qt5-tools
 
 Building Steps
 ~~~~~~~~~~~~~~
@@ -86,6 +87,8 @@ If your operating system has a newer version of CMake (> v3.12) you can use this
    cmake -S src -B build -DCUTTER_USE_BUNDLED_RADARE2=ON
    cmake --build build
 
+.. note::
+If you want to use Cutter with another version of radare2 you can omit ``-DCUTTER_USE_BUNDLED_RADARE2=ON``. Note that using a version of radare2 which isn't the version Cutter is using can cause issues and the compilation might fail.
 
 .. note::
 
