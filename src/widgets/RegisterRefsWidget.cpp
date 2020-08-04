@@ -149,14 +149,16 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main) :
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged,
             registerRefProxyModel, &QSortFilterProxyModel::setFilterWildcard);
-    connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->registerRefTreeView, SLOT(setFocus()));
+    connect(ui->quickFilterView, &QuickFilterView::filterClosed, ui->registerRefTreeView, [this](){
+        ui->registerRefTreeView->setFocus();
+    });
     setScrollMode();
     connect(Core(), &CutterCore::refreshAll, this, &RegisterRefsWidget::refreshRegisterRef);
     connect(Core(), &CutterCore::registersChanged, this, &RegisterRefsWidget::refreshRegisterRef);
-    connect(actionCopyValue, &QAction::triggered, [ = ] () {
+    connect(actionCopyValue, &QAction::triggered, this, [this] () {
         copyClip(RegisterRefModel::ValueColumn);
     });
-    connect(actionCopyRef, &QAction::triggered, [ = ] () {
+    connect(actionCopyRef, &QAction::triggered, this, [this] () {
         copyClip(RegisterRefModel::RefColumn);
     });
     ui->registerRefTreeView->setContextMenuPolicy(Qt::CustomContextMenu);

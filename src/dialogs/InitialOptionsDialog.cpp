@@ -91,7 +91,7 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
 
     connect(ui->scriptCheckBox, &QCheckBox::stateChanged, this, &InitialOptionsDialog::updateScriptLayout);
 
-    connect(ui->cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(ui->cancelButton, &QPushButton::clicked, this, &InitialOptionsDialog::reject);
 
     ui->programLineEdit->setText(main->getFilename());
 }

@@ -158,7 +158,7 @@ FlagsWidget::FlagsWidget(MainWindow *main) :
 
     // Ctrl-F to move the focus to the Filter search box
     QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
-    connect(searchShortcut, SIGNAL(activated()), ui->filterLineEdit, SLOT(setFocus()));
+    connect(searchShortcut, &QShortcut::activated, ui->filterLineEdit, [this]() { ui->filterLineEdit->setFocus(); });
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     // Esc to clear the filter entry

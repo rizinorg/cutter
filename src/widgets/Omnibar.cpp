@@ -24,7 +24,7 @@ Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
 
     // Esc clears omnibar
     QShortcut *clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    connect(clear_shortcut, SIGNAL(activated()), this, SLOT(clear()));
+    connect(clear_shortcut, &QShortcut::activated, this, &Omnibar::clear);
     clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
 }
 

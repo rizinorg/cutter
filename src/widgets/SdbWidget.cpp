@@ -16,7 +16,7 @@ SdbWidget::SdbWidget(MainWindow *main) :
 
     path.clear();
 
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(reload()));
+    connect(Core(), &CutterCore::refreshAll, this, [this](){ reload(); });
     reload();
 }
 

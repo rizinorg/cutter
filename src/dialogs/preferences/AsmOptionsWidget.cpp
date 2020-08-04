@@ -64,7 +64,7 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
                 &AsmOptionsWidget::asmComboBoxChanged);
     connect(ui->offsetCheckBox, &QCheckBox::toggled, this, &AsmOptionsWidget::offsetCheckBoxToggled);
     connect(ui->relOffsetCheckBox, &QCheckBox::toggled, this, &AsmOptionsWidget::relOffCheckBoxToggled);
-    connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(updateAsmOptionsFromVars()));
+    connect(Core(), &CutterCore::asmOptionsChanged, this, &AsmOptionsWidget::updateAsmOptionsFromVars);
     updateAsmOptionsFromVars();
 }
 

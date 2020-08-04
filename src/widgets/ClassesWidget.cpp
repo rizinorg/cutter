@@ -590,7 +590,8 @@ ClassesWidget::ClassesWidget(MainWindow *main) :
 
     ui->classSourceCombo->setCurrentIndex(1);
 
-    connect(ui->classSourceCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(refreshClasses()));
+    connect<void(QComboBox::*)(int)>(ui->classSourceCombo, &QComboBox::currentIndexChanged,
+                                     this, &ClassesWidget::refreshClasses);
     connect(ui->classesTreeView, &QTreeView::customContextMenuRequested, this, &ClassesWidget::showContextMenu);
 
     refreshClasses();
