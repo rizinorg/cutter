@@ -415,7 +415,7 @@ void HexWidget::paintEvent(QPaintEvent *event)
     if (xOffset > 0)
         painter.translate(QPoint(-xOffset, 0));
 
-    if (event->rect() == cursor.screenPos) {
+    if (event->rect() == cursor.screenPos.toAlignedRect()) {
         /* Cursor blink */
         drawCursor(painter);
         return;
@@ -640,7 +640,7 @@ void HexWidget::onCursorBlinked()
     if (!cursorEnabled)
         return;
     cursor.blink();
-    QRect cursorRect(cursor.screenPos.x(), cursor.screenPos.y(), cursor.screenPos.width(), cursor.screenPos.height());
+    QRect cursorRect = cursor.screenPos.toAlignedRect();
     viewport()->update(cursorRect.translated(-horizontalScrollBar()->value(), 0));
 }
 
