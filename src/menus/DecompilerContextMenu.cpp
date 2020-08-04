@@ -3,6 +3,7 @@
 #include "MainWindow.h"
 #include "dialogs/BreakpointsDialog.h"
 #include "dialogs/CommentsDialog.h"
+#include "dialogs/XrefsDialog.h"
 #include "common/Configuration.h"
 
 #include <QtCore>
@@ -28,6 +29,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
         actionDeleteComment(tr("Delete comment"), this),
         actionRenameThingHere(tr("Rename function at cursor"), this),
         actionDeleteName(tr("Delete <name>"), this),
+        actionXRefs(tr("Show X-Refs"), this),
         actionToggleBreakpoint(tr("Add/remove breakpoint"), this),
         actionAdvancedBreakpoint(tr("Advanced breakpoint"), this),
         breakpointsInLineMenu(new QMenu(this)),
@@ -42,6 +44,8 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
 
     setActionAddComment();
     setActionDeleteComment();
+
+    setActionXRefs();
 
     setActionRenameThingHere();
     setActionDeleteName();
@@ -129,6 +133,7 @@ void DecompilerContextMenu::aboutToHideSlot()
     actionAddComment.setVisible(true);
     actionRenameThingHere.setVisible(true);
     actionDeleteName.setVisible(false);
+    actionXRefs.setVisible(true);
 }
 
 void DecompilerContextMenu::aboutToShowSlot()
@@ -202,13 +207,7 @@ void DecompilerContextMenu::aboutToShowSlot()
     }
     actionCopyInstructionAddress.setText(tr("Copy instruction address (%1)").arg(RAddressString(
                                                                                      offset)));
-    bool isReference = false;
-    if (annotationHere) {
-        isReference = (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
-                       || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE
-                       || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME);
-    }
-    if (isReference) {
+    if (annotationHere && r_annotation_is_reference(annotationHere)) {
         actionCopyReferenceAddress.setVisible(true);
         RVA referenceAddr = annotationHere->reference.offset;
         RFlagItem *flagDetails = r_flag_get_i(Core()->core()->flags, referenceAddr);
@@ -222,6 +221,7 @@ void DecompilerContextMenu::aboutToShowSlot()
             actionCopyReferenceAddress.setText(tr("Copy address (%1)").arg(RAddressString(referenceAddr)));
         }
     } else {
+        actionXRefs.setVisible(false);
         actionCopyReferenceAddress.setVisible(false);
     }
     if (actionShowInSubmenu.menu() != nullptr) {
@@ -268,6 +268,13 @@ void DecompilerContextMenu::setActionDeleteComment()
     connect(&actionDeleteComment, &QAction::triggered, this,
             &DecompilerContextMenu::actionDeleteCommentTriggered);
     addAction(&actionDeleteComment);
+}
+
+void DecompilerContextMenu::setActionXRefs()
+{
+    connect(&actionXRefs, &QAction::triggered, this, &DecompilerContextMenu::actionXRefsTriggered);
+    addAction(&actionXRefs);
+    actionXRefs.setShortcut(Qt::Key_X);
 }
 
 void DecompilerContextMenu::setActionRenameThingHere()
@@ -392,6 +399,18 @@ void DecompilerContextMenu::actionDeleteNameTriggered()
     Core()->delFlag(annotationHere->reference.offset);
 }
 
+void DecompilerContextMenu::actionXRefsTriggered()
+{
+    if (!annotationHere || !r_annotation_is_reference(annotationHere)) {
+        return;
+    }
+    XrefsDialog dialog(mainWindow, nullptr);
+    QString displayString = (annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) ? QString(
+                                annotationHere->reference.name) : RAddressString(annotationHere->reference.offset);
+    dialog.fillRefsForAddress(annotationHere->reference.offset, displayString, false);
+    dialog.exec();
+}
+
 void DecompilerContextMenu::actionToggleBreakpointTriggered()
 {
     if (!this->availableBreakpoints.isEmpty()) {
@@ -473,7 +492,8 @@ void DecompilerContextMenu::updateTargetMenuActions()
         QMenu *menu;
         if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
                 || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
-            menu = mainWindow->createShowInMenu(this, annotationHere->reference.offset, MainWindow::AddressTypeHint::Data);
+            menu = mainWindow->createShowInMenu(this, annotationHere->reference.offset,
+                                                MainWindow::AddressTypeHint::Data);
             RVA var_addr = annotationHere->reference.offset;
             RFlagItem *flagDetails = r_flag_get_i(core->flags, var_addr);
             if (flagDetails) {
