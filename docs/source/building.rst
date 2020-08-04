@@ -93,7 +93,7 @@ If your operating system has a newer version of CMake (> v3.12) you can use this
    cmake --build build
 
 .. note::
-If you want to install radare separately or you already have it then you can skip ``-DCUTTER_USE_BUNDLED_RADARE2=ON``
+If you want to use Cutter with another version of radare2 you can omit ``-DCUTTER_USE_BUNDLED_RADARE2=ON``. Note that using a version of radare2 which isn't the version Cutter is using can cause issues and the compilation might fail.
 
 .. note::
 
