@@ -269,6 +269,7 @@ void DecompilerWidget::doRefresh(RVA addr)
     ui->textEdit->setExtraSelections({});
     previousFunctionAddr = decompiledFunctionAddr;
     decompiledFunctionAddr = Core()->getFunctionStart(addr);
+    mCtxMenu->setDecompiledFunctionAddress(decompiledFunctionAddr);
     dec->decompileAt(addr);
     if (dec->isRunning()) {
         ui->progressLabel->setVisible(true);

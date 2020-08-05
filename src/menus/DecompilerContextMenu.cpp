@@ -19,6 +19,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
     :   QMenu(parent),
         curHighlightedWord(QString()),
         offset(0),
+        decompiledFunctionAddress(RVA_INVALID),
         isTogglingBreakpoints(false),
         mainWindow(mainWindow),
         annotationHere(nullptr),
@@ -85,6 +86,11 @@ void DecompilerContextMenu::setOffset(RVA offset)
     this->offset = offset;
 
     // this->actionSetFunctionVarTypes.setVisible(true);
+}
+
+void DecompilerContextMenu::setDecompiledFunctionAddress(RVA functionAddr)
+{
+    this->decompiledFunctionAddress = functionAddr;
 }
 
 void DecompilerContextMenu::setFirstOffsetInLine(RVA firstOffset)
@@ -434,7 +440,7 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
         QString newName = QInputDialog::getText(this, tr("Rename %2").arg(oldName),
                                                 tr("Enter name"), QLineEdit::Normal, oldName, &ok);
         if (ok && !newName.isEmpty()) {
-            Core()->renameFunctionVariable(newName, oldName, offset);
+            Core()->renameFunctionVariable(newName, oldName, decompiledFunctionAddress);
         }
     }
 }
@@ -455,7 +461,7 @@ void DecompilerContextMenu::actionEditFunctionVariablesTriggered()
                                  "Only local variables defined in disassembly can be edited."));
         return;
     }
-    EditVariablesDialog dialog(offset, QString(annotationHere->variable.name), this);
+    EditVariablesDialog dialog(decompiledFunctionAddress, QString(annotationHere->variable.name), this);
     dialog.exec();
 }
 
