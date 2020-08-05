@@ -7,6 +7,7 @@ Most configuration is done using the Preferences dialog. It can be opened by cli
    :maxdepth: 1
    :glob:
 
+   preferences/analysis
    preferences/initialization-script
    preferences/layout
    preferences/*

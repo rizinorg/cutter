@@ -1,14 +1,12 @@
 #include "AnalOptionsWidget.h"
 #include "ui_AnalOptionsWidget.h"
 
-#include "common/AsyncTask.h"
-#include "common/AnalTask.h"
-#include "dialogs/AsyncTaskDialog.h"
-
 #include "PreferencesDialog.h"
 
 #include "common/Helpers.h"
 #include "common/Configuration.h"
+
+#include "core/MainWindow.h"
 
 AnalOptionsWidget::AnalOptionsWidget(PreferencesDialog *dialog)
     : QDialog(dialog),
@@ -33,7 +31,9 @@ AnalOptionsWidget::AnalOptionsWidget(PreferencesDialog *dialog)
         connect(confCheckbox.checkBox, &QCheckBox::stateChanged, this, [this, val, &cb]() { checkboxEnabler(&cb, val); });
     }
 
-    connect(ui->analyzePushButton, &QPushButton::clicked, this, &AnalOptionsWidget::analyze);
+    ui->analyzePushButton->setToolTip("Analyze the program using radare2's \"aaa\" command");
+    auto *mainWindow = new MainWindow(this);
+    connect(ui->analyzePushButton, &QPushButton::clicked, mainWindow, &MainWindow::on_actionAnalyze_triggered);
     updateAnalOptionsFromVars();
 }
 
@@ -51,26 +51,6 @@ void AnalOptionsWidget::checkboxEnabler(QCheckBox *checkBox, const QString &conf
 }
 
 /**
- * @brief A signal that creates an AsyncTask to re-analyze the current file
- */
-void AnalOptionsWidget::analyze()
-{
-    AnalTask *analTask = new AnalTask();
-    InitialOptions options;
-    options.analCmd = { {"aaa", "Auto analysis"} };
-    analTask->setOptions(options);
-    AsyncTask::Ptr analTaskPtr(analTask);
-
-    AsyncTaskDialog *taskDialog = new AsyncTaskDialog(analTaskPtr);
-    taskDialog->setInterruptOnClose(true);
-    taskDialog->setAttribute(Qt::WA_DeleteOnClose);
-    taskDialog->show();
-    connect(analTask, &AnalTask::finished, this, &AnalOptionsWidget::refreshAll);
-
-    Core()->getAsyncTaskManager()->start(analTaskPtr);
-}
-
-/**
  * @brief A signal to display the options in the dialog according to the current anal.* configuration
  */
 void AnalOptionsWidget::updateAnalOptionsFromVars()
@@ -78,12 +58,4 @@ void AnalOptionsWidget::updateAnalOptionsFromVars()
     for (ConfigCheckbox &confCheckbox : checkboxes) {
         qhelpers::setCheckedWithoutSignals(confCheckbox.checkBox, Core()->getConfigb(confCheckbox.config));
     }
-}
-
-/**
- * @brief A signal to refresh all the views after the analysis has finished
- */
-void AnalOptionsWidget::refreshAll()
-{
-    Core()->triggerRefreshAll();
 }

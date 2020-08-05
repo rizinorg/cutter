@@ -75,6 +75,7 @@
     <addaction name="actionMap"/>
     <addaction name="separator"/>
     <addaction name="actionImportPDB"/>
+    <addaction name="actionAnalyze"/>
     <addaction name="separator"/>
     <addaction name="menuSetMode"/>
     <addaction name="actionCommitChanges"/>
@@ -741,7 +742,7 @@
   </action>
   <action name="actionAnalyze">
    <property name="text">
-    <string>Analyze</string>
+    <string>Analyze Program</string>
    </property>
   </action>
   <action name="actionExport_as_code">

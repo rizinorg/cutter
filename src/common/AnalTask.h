@@ -17,7 +17,7 @@ public:
     explicit AnalTask();
     ~AnalTask();
 
-    QString getTitle() override                     { return tr("Initial Analysis"); }
+    QString getTitle() override;
 
     void setOptions(const InitialOptions &options)	{ this->options = options; }
 

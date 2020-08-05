@@ -147,7 +147,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Analyze (aaa)</string>
+      <string>Analyze program</string>
      </property>
     </widget>
    </item>

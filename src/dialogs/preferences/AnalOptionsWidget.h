@@ -30,8 +30,6 @@ private:
 
 private slots:
     void updateAnalOptionsFromVars();
-    void analyze();
-    static void refreshAll();
     static void checkboxEnabler(QCheckBox *checkbox, const QString &config);
 };
 

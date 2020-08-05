@@ -21,11 +21,17 @@ void AnalTask::interrupt()
     r_cons_singleton()->context->breaked = true;
 }
 
+QString AnalTask::getTitle() {
+    // If no file is loaded we consider it's Initial Analysis
+    QJsonArray openedFiles = Core()->getOpenedFiles();
+    if (!openedFiles.size()) {
+        return tr("Initial Analysis");
+    }
+    return tr("Analyzing Program");
+}
+
 void AnalTask::runTask()
 {
-    log(tr("Loading the file..."));
-    openFailed = false;
-
     int perms = R_PERM_RX;
     if (options.writeEnabled) {
         perms |= R_PERM_W;
@@ -39,6 +45,8 @@ void AnalTask::runTask()
     // Do not reload the file if already loaded
     QJsonArray openedFiles = Core()->getOpenedFiles();
     if (!openedFiles.size() && options.filename.length()) {
+        log(tr("Loading the file..."));
+        openFailed = false;
         bool fileLoaded = Core()->loadFile(options.filename,
                                            options.binLoadAddr,
                                            options.mapAddr,

@@ -2,6 +2,7 @@
 #include "ui_MainWindow.h"
 
 // Common Headers
+#include "common/AnalTask.h"
 #include "common/BugReporting.h"
 #include "common/Highlighter.h"
 #include "common/HexAsciiHighlighter.h"
@@ -245,6 +246,10 @@ void MainWindow::initUI()
 
     enableDebugWidgetsMenu(false);
     readSettings();
+
+    // Display tooltip for the Analyze Program action
+    ui->actionAnalyze->setToolTip("Analyze the program using radare2's \"aaa\" command");
+    ui->menuFile->setToolTipsVisible(true);
 }
 
 void MainWindow::initToolBar()
@@ -1582,9 +1587,24 @@ void MainWindow::on_actionRefresh_Panels_triggered()
     this->refreshAll();
 }
 
+/**
+ * @brief A signal that creates an AsyncTask to re-analyze the current file
+ */
 void MainWindow::on_actionAnalyze_triggered()
 {
-    // TODO: implement this, but do NOT open InitialOptionsDialog!!
+    auto *analTask = new AnalTask();
+    InitialOptions options;
+    options.analCmd = { {"aaa", "Auto analysis"} };
+    analTask->setOptions(options);
+    AsyncTask::Ptr analTaskPtr(analTask);
+
+    auto *taskDialog = new AsyncTaskDialog(analTaskPtr);
+    taskDialog->setInterruptOnClose(true);
+    taskDialog->setAttribute(Qt::WA_DeleteOnClose);
+    taskDialog->show();
+    connect(analTask, &AnalTask::finished, this, &MainWindow::refreshAll);
+
+    Core()->getAsyncTaskManager()->start(analTaskPtr);
 }
 
 void MainWindow::on_actionImportPDB_triggered()
