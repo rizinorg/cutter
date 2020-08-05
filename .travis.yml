@@ -40,6 +40,7 @@ matrix:
          - qt5-default
          - libqt5svg5-dev
          - qttools5-dev
+         - libgvc6
 
   - name: Linux CMake + Deploy
     os: linux
@@ -53,6 +54,7 @@ matrix:
          - libgl1-mesa-dev
          - libxkbcommon-x11-dev
          - ninja-build/xenial-backports
+         - libgvc6
 
   - name: Linux Ubuntu 16.04 # test that Cutter can be built on an old distro using system libraries
     os: linux
