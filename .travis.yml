@@ -187,6 +187,7 @@ script:
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON
+                -DCUTTER_ENABLE_GRAPHVIZ=ON
                 -DCUTTER_USE_BUNDLED_RADARE2=OFF
                 -DCUTTER_APPIMAGE_BUILD=ON
                 -DCMAKE_INSTALL_PREFIX=appdir/usr
