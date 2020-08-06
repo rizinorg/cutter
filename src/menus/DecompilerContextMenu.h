@@ -112,7 +112,7 @@ private:
     /**
      * @brief Sets the shortcut context in all the action contained
      * in the specified QMenu to Qt::WidgetWithChildrenShortcut.
-     * 
+     *
      * @param menu - QMenu specified
      */
     void setShortcutContextInActions(QMenu *menu);
@@ -151,23 +151,23 @@ private:
     void updateTargetMenuActions();
 
     /**
-     * @brief Check if annotationHere is a reference(function name, 
+     * @brief Check if annotationHere is a reference(function name,
      * global variable, constant variable with address).
-     * 
+     *
      * @return True if annotationHere is a reference, otherwise false.
      */
     bool isReference();
     /**
      * @brief Check if annotationHere is a function variable
      * (local variable or function parameter).
-     * 
+     *
      * @return True if annotationHere is a function variable, otherwise false.
      */
     bool isFunctionVariable();
     /**
      * @brief Check if the function variable annotated by annotationHere is
      * present in radare2.
-     * 
+     *
      * @return True if the variable is present, otherwise false
      */
     bool variablePresentInR2();

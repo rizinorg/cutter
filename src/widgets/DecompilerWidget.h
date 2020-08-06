@@ -34,7 +34,7 @@ public slots:
 private slots:
     /**
      * @brief Copy to clipboard what's needed depending on the state of text widget.
-     * 
+     *
      * @note If something is selected in the text widget, copy selection.
      *       If something is highlighted, copy highlighted word.
      *       Otherwise, copy the line under cursor.
@@ -78,7 +78,7 @@ private:
 
     /**
      * @brief Enable/Disable auto refresh as per the specified boolean value
-     * 
+     *
      * @param enabled
      */
     void setAutoRefresh(bool enabled);
@@ -88,7 +88,7 @@ private:
     void doAutoRefresh();
     /**
      * @brief Decompile the function that contains the specified offset.
-     * 
+     *
      * @param addr Specified offset/offset in sync.
      */
     void doRefresh(RVA addr = Core()->getOffset());
@@ -103,11 +103,11 @@ private:
     void updateSelection();
     /**
      * @brief Connect/Disconnect SIGNAL-SLOT connection that deals with changes in cursor position.
-     * 
+     *
      * If the argument is true, then disconnect the SIGNAL-SLOT connection
      * that changes the view as cursor position gets changed in the text widget.
      * Otherwise, connect the corresponding signal with slot.
-     * 
+     *
      * @param disconnect
      */
     void connectCursorPositionChanged(bool disconnect);
@@ -123,10 +123,10 @@ private:
      * @brief Event filter that intercept the following events:
      *     1. Double click
      *     2. Right click
-     * 
+     *
      * @param obj
      * @param event
-     * @return 
+     * @return
      */
     bool eventFilter(QObject *obj, QEvent *event) override;
 
@@ -170,10 +170,10 @@ private:
     void gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size_t startPos, size_t endPos);
     /**
      * @brief Finds the offset that's closest to the specified position in the decompiled code.
-     * 
+     *
      * @note If no annotations that covers the specified position is found, the first offset in the line
      * containing specified position will be returned
-     * 
+     *
      * @param pos - Position of the decompiled code.
      * @return Offset for the specified position/first offset in line.
      */
@@ -181,7 +181,7 @@ private:
     /**
      * @brief Find the start position of the annotation with the offset that's closest to
      * the specified offset
-     * 
+     *
      * @param offset
      * @return Position found or SIZE_MAX
      */
@@ -195,9 +195,9 @@ private:
      */
     void setInfoForBreakpoints();
     /**
-     * @brief Find the context-related annotation covering the specified position. 
+     * @brief Find the context-related annotation covering the specified position.
      * If found, set the variable annotationHere in the decompiler context menu.
-     * 
+     *
      * @param pos Position of cursor in the decompiled code.
      */
     void setAnnotationsAtCursor(size_t pos);
