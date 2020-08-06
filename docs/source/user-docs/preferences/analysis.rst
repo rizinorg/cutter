@@ -21,6 +21,6 @@ Analysis Dialog
 - `anal.types.verbose`
 - `anal.verbose`
 
-Clicking on the `Analyze Program` button will trigger an analysis of the current binary with radare2's `aaa`, taking also into account the configured values of the analysis options above.
+Clicking on the "Analyze Program" button will trigger an analysis of the current binary with radare2's ``aaa`` command, taking into account the configured values of the analysis options above.
 
 **Steps to open:** ``Edit -> Preferences -> Analysis``
