@@ -52,7 +52,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Show RAnal warnings (anal.verbose)</string>
+          <string>Show verbose information when performing analysis (anal.verbose)</string>
          </property>
         </widget>
         <widget class="QCheckBox" name="pushRetCheckBox">
@@ -104,7 +104,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Continue analysis after each function (anal.hasnext)</string>
+          <string>Search for new functions following already defined functions (anal.hasnext)</string>
          </property>
         </widget>
         <widget class="QCheckBox" name="jmpRefCheckbox">

@@ -39,20 +39,11 @@ AnalOptionsWidget::AnalOptionsWidget(PreferencesDialog *dialog)
 
 AnalOptionsWidget::~AnalOptionsWidget() {}
 
-/**
- * @brief A generic signal to handle the simple cases where a checkbox is toggled
- * while it's only responsible for a single independent boolean configuration eval.
- * @param checkBox - The checkbox which is responsible for the signal
- * @param config - the configuration string to be toggled
- */
 void AnalOptionsWidget::checkboxEnabler(QCheckBox *checkBox, const QString &config)
 {
     Config()->setConfig(config, checkBox->isChecked());
 }
 
-/**
- * @brief A signal to display the options in the dialog according to the current anal.* configuration
- */
 void AnalOptionsWidget::updateAnalOptionsFromVars()
 {
     for (ConfigCheckbox &confCheckbox : checkboxes) {
