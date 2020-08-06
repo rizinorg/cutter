@@ -31,10 +31,8 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
          &r_annotated_code_free)
 {
     ui->setupUi(this);
-
     syntaxHighlighter = Config()->createSyntaxHighlighter(ui->textEdit->document());
-
-    // Event filter to intercept double clicks in the textbox
+    // Event filter to intercept double click and right click in the textbox
     ui->textEdit->viewport()->installEventFilter(this);
 
     setupFonts();
@@ -48,11 +46,9 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(ui->refreshButton, &QAbstractButton::clicked, this, [this]() {
         doRefresh();
     });
-
     refreshDeferrer = createRefreshDeferrer([this]() {
         doRefresh();
     });
-
     autoRefreshEnabled = Config()->getDecompilerAutoRefreshEnabled();
     ui->autoRefreshCheckBox->setChecked(autoRefreshEnabled);
     setAutoRefresh(autoRefreshEnabled);
@@ -75,17 +71,13 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
         }
         connect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
     }
-
     decompilerSelectionEnabled = decompilers.size() > 1;
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
-
     if (decompilers.isEmpty()) {
         ui->textEdit->setPlainText(tr("No Decompiler available."));
     }
 
-    connect(ui->decompilerComboBox,
-            static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
-            &DecompilerWidget::decompilerSelected);
+    connect(ui->decompilerComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &DecompilerWidget::decompilerSelected);
     connectCursorPositionChanged(false);
     connect(Core(), &CutterCore::seekChanged, this, &DecompilerWidget::seekChanged);
     ui->textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -245,26 +237,21 @@ void DecompilerWidget::doRefresh(RVA addr)
     if (!refreshDeferrer->attemptRefresh(nullptr)) {
         return;
     }
-
     if (ui->decompilerComboBox->currentIndex() < 0) {
         return;
     }
-
     Decompiler *dec = getCurrentDecompiler();
     if (!dec) {
         return;
     }
-
     if (dec->isRunning()) {
         decompilerWasBusy = true;
         return;
     }
-
     if (addr == RVA_INVALID) {
         ui->textEdit->setPlainText(tr("Click Refresh to generate Decompiler from current offset."));
         return;
     }
-
     // Clear all selections since we just refreshed
     ui->textEdit->setExtraSelections({});
     previousFunctionAddr = decompiledFunctionAddr;
@@ -291,7 +278,6 @@ QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
     if (pos == SIZE_MAX || pos == 0) {
         return QTextCursor();
     }
-
     QTextCursor cursor = ui->textEdit->textCursor();
     cursor.setPosition(pos);
     return cursor;
@@ -381,7 +367,6 @@ void DecompilerWidget::cursorPositionChanged()
 
     size_t pos = ui->textEdit->textCursor().position();
     setAnnotationsAtCursor(pos);
-
     setInfoForBreakpoints();
 
     RVA offset = offsetForPosition(pos);
@@ -399,7 +384,6 @@ void DecompilerWidget::seekChanged()
     if (seekFromCursor) {
         return;
     }
-
     if (autoRefreshEnabled) {
         auto fcnAddr = Core()->getFunctionStart(Core()->getOffset());
         if (fcnAddr == RVA_INVALID || fcnAddr != decompiledFunctionAddr) {
@@ -407,7 +391,6 @@ void DecompilerWidget::seekChanged()
             return;
         }
     }
-
     updateCursorPosition();
 }
 
@@ -520,7 +503,6 @@ void DecompilerWidget::highlightBreakpoints()
         if (bp == RVA_INVALID) {
             continue;;
         }
-
         cursor = getCursorForAddress(bp);
         if (!cursor.isNull()) {
             // Use a Block formatting since these lines are not updated frequently as selections and PC
