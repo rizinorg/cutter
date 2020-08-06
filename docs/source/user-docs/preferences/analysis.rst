@@ -12,7 +12,7 @@ Analysis Dialog
     :alt: Analysis dialog
 
 
-**Description:** The Analysis dialog allows setting some radare2's `anal.*` options. The supported options are the following: 
+**Description:** The Analysis dialog allows setting some radare2's analysis options. The supported options are the following: 
 - `anal.autoname`
 - `anal.hasnext`
 - `anal.jmp.ref`
