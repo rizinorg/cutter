@@ -1,7 +1,7 @@
 Analysis Options
 ================
 
-Cutter will use the underlying radare2 `anal.*` options to analyze a binary. These options are usually 
+Cutter will use the underlying radare2 analysis options to analyze a binary. These options are usually 
 configured when the binary is first loaded. However, they can be later changed using the Analysis 
 dialog, and a new analysis that takes these options into account can then be performed.
 
