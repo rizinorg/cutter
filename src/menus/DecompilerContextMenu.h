@@ -126,6 +126,7 @@ private:
 
     void updateTargetMenuActions();
 
+    bool isReference();
     bool isFunctionVariable();
     bool variablePresentInR2();
 };

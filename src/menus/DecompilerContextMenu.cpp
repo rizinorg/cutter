@@ -224,7 +224,7 @@ void DecompilerContextMenu::aboutToShowSlot()
     }
     actionCopyInstructionAddress.setText(tr("Copy instruction address (%1)").arg(RAddressString(
                                                                                      offset)));
-    if (annotationHere && r_annotation_is_reference(annotationHere)) {
+    if (isReference()) {
         actionCopyReferenceAddress.setVisible(true);
         RVA referenceAddr = annotationHere->reference.offset;
         RFlagItem *flagDetails = r_flag_get_i(Core()->core()->flags, referenceAddr);
@@ -472,7 +472,7 @@ void DecompilerContextMenu::actionEditFunctionVariablesTriggered()
 
 void DecompilerContextMenu::actionXRefsTriggered()
 {
-    if (!annotationHere || !r_annotation_is_reference(annotationHere)) {
+    if (!isReference()) {
         return;
     }
     XrefsDialog dialog(mainWindow, nullptr);
@@ -556,9 +556,7 @@ void DecompilerContextMenu::updateTargetMenuActions()
     }
     showTargetMenuActions.clear();
     RCoreLocked core = Core()->core();
-    if (annotationHere && (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
-                           || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE
-                           || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME)) {
+    if (isReference()) {
         QString name;
         QMenu *menu;
         if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
@@ -583,6 +581,11 @@ void DecompilerContextMenu::updateTargetMenuActions()
         action->setMenu(menu);
         insertActions(copySeparator, showTargetMenuActions);
     }
+}
+
+bool DecompilerContextMenu::isReference()
+{
+    return (annotationHere && r_annotation_is_reference(annotationHere));
 }
 
 bool DecompilerContextMenu::isFunctionVariable()
