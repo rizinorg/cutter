@@ -77,7 +77,9 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
         ui->textEdit->setPlainText(tr("No Decompiler available."));
     }
 
-    connect(ui->decompilerComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &DecompilerWidget::decompilerSelected);
+    connect(ui->decompilerComboBox,
+            static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
+            &DecompilerWidget::decompilerSelected);
     connectCursorPositionChanged(false);
     connect(Core(), &CutterCore::seekChanged, this, &DecompilerWidget::seekChanged);
     ui->textEdit->setContextMenuPolicy(Qt::CustomContextMenu);

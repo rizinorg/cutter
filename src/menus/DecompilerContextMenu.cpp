@@ -197,7 +197,8 @@ void DecompilerContextMenu::aboutToShowSlot()
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText(tr("Set %1 here").arg(progCounterName));
 
-    if (!annotationHere || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) { // If constant, don't show rename and targeted show-in
+    if (!annotationHere
+            || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) { // If constant, don't show rename and targeted show-in
         actionRenameThingHere.setVisible(false);
         copySeparator->setVisible(false);
     } else {
