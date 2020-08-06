@@ -24,6 +24,7 @@ signals:
 public slots:
     void setCurHighlightedWord(QString word);
     void setOffset(RVA offset);
+    void setDecompiledFunctionAddress(RVA functionAddr);
     void setFirstOffsetInLine(RVA firstOffset);
     void setAvailableBreakpoints(QVector<RVA> offsetList);
 
@@ -42,6 +43,8 @@ private slots:
     void actionRenameThingHereTriggered();
     void actionDeleteNameTriggered();
 
+    void actionEditFunctionVariablesTriggered();
+
     void actionXRefsTriggered();
 
     void actionToggleBreakpointTriggered();
@@ -54,6 +57,7 @@ private:
     // Private variables
     QString curHighlightedWord;
     RVA offset;
+    RVA decompiledFunctionAddress;
     RVA firstOffsetInLine;
     bool isTogglingBreakpoints;
     QVector<RVA> availableBreakpoints;
@@ -74,6 +78,8 @@ private:
 
     QAction actionRenameThingHere;
     QAction actionDeleteName;
+
+    QAction actionEditFunctionVariables;
 
     QAction actionXRefs;
 
@@ -105,6 +111,8 @@ private:
     void setActionRenameThingHere();
     void setActionDeleteName();
 
+    void setActionEditFunctionVariables();
+
     void setActionToggleBreakpoint();
     void setActionAdvancedBreakpoint();
 
@@ -114,25 +122,11 @@ private:
     // Add Menus
     void addBreakpointMenu();
     void addDebugMenu();
-    // I left out the following part from RAnnotatedCode. Probably, we will be returning/passing annotations
-    // from/to the function getThingUsedHere() and updateTargetMenuActions(). This block of comment will get removed in
-    // future PRs.
-    //
-    // struct ThingUsedHere {
-    //     QString name;
-    //     RVA offset;
-    //     enum class Type {
-    //         Var,
-    //         Function,
-    //         Flag,
-    //         Address
-    //     };
-    //     Type type;
-    // };
-    // QVector<ThingUsedHere> getThingUsedHere(RVA offset);
 
-    // void updateTargetMenuActions(const QVector<ThingUsedHere> &targets);
     void updateTargetMenuActions();
+
+    bool isFunctionVariable();
+    bool variablePresentInR2();
 };
 
 #endif // DECOMPILERCONTEXTMENU_H
