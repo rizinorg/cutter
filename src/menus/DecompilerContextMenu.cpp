@@ -17,11 +17,11 @@
 
 DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWindow)
     :   QMenu(parent),
+        mainWindow(mainWindow),
         curHighlightedWord(QString()),
         offset(0),
         decompiledFunctionAddress(RVA_INVALID),
         isTogglingBreakpoints(false),
-        mainWindow(mainWindow),
         annotationHere(nullptr),
         actionCopy(tr("Copy"), this),
         actionCopyInstructionAddress(tr("Copy instruction address (<address>)"), this),
@@ -48,10 +48,10 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
     setActionAddComment();
     setActionDeleteComment();
 
-    setActionXRefs();
-
     setActionRenameThingHere();
     setActionDeleteName();
+
+    setActionXRefs();
 
     setActionEditFunctionVariables();
 
@@ -73,29 +73,27 @@ DecompilerContextMenu::~DecompilerContextMenu()
 
 void DecompilerContextMenu::setAnnotationHere(RCodeAnnotation *annotation)
 {
-    this->annotationHere = annotation;
+    annotationHere = annotation;
 }
 
 void DecompilerContextMenu::setCurHighlightedWord(QString word)
 {
-    this->curHighlightedWord = word;
+    curHighlightedWord = word;
 }
 
-void DecompilerContextMenu::setOffset(RVA offset)
+void DecompilerContextMenu::setOffset(RVA newOffset)
 {
-    this->offset = offset;
-
-    // this->actionSetFunctionVarTypes.setVisible(true);
+    offset = newOffset;
 }
 
 void DecompilerContextMenu::setDecompiledFunctionAddress(RVA functionAddr)
 {
-    this->decompiledFunctionAddress = functionAddr;
+    decompiledFunctionAddress = functionAddr;
 }
 
 void DecompilerContextMenu::setFirstOffsetInLine(RVA firstOffset)
 {
-    this->firstOffsetInLine = firstOffset;
+    firstOffsetInLine = firstOffset;
 }
 
 RVA DecompilerContextMenu::getFirstOffsetInLine()
@@ -105,7 +103,7 @@ RVA DecompilerContextMenu::getFirstOffsetInLine()
 
 void DecompilerContextMenu::setAvailableBreakpoints(QVector<RVA> offsetList)
 {
-    this->availableBreakpoints = offsetList;
+    availableBreakpoints = offsetList;
 }
 
 void DecompilerContextMenu::setupBreakpointsInLineMenu()
@@ -135,12 +133,12 @@ void DecompilerContextMenu::setShortcutContextInActions(QMenu *menu)
 
 void DecompilerContextMenu::setIsTogglingBreakpoints(bool isToggling)
 {
-    this->isTogglingBreakpoints = isToggling;
+    isTogglingBreakpoints = isToggling;
 }
 
 bool DecompilerContextMenu::getIsTogglingBreakpoints()
 {
-    return this->isTogglingBreakpoints;
+    return isTogglingBreakpoints;
 }
 
 void DecompilerContextMenu::aboutToHideSlot()
@@ -174,7 +172,6 @@ void DecompilerContextMenu::aboutToShowSlot()
         actionDeleteComment.setVisible(false);
     }
 
-
     setupBreakpointsInLineMenu();
 
     // Only show debug options if we are currently debugging
@@ -189,7 +186,6 @@ void DecompilerContextMenu::aboutToShowSlot()
     } else {
         actionToggleBreakpoint.setText(tr("Remove all breakpoints in line"));
     }
-
     if (numberOfBreakpoints > 1) {
         actionAdvancedBreakpoint.setMenu(breakpointsInLineMenu);
     } else {
@@ -201,9 +197,7 @@ void DecompilerContextMenu::aboutToShowSlot()
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText(tr("Set %1 here").arg(progCounterName));
 
-    if (!annotationHere
-            || annotationHere->type ==
-            R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) { // To be considered as invalid
+    if (!annotationHere || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) { // If constant, don't show rename and targeted show-in
         actionRenameThingHere.setVisible(false);
         copySeparator->setVisible(false);
     } else {
@@ -262,7 +256,6 @@ void DecompilerContextMenu::aboutToShowSlot()
 }
 
 // Set up actions
-
 
 void DecompilerContextMenu::setActionCopy() // Set all three copy actions
 {
@@ -391,7 +384,7 @@ void DecompilerContextMenu::actionDeleteCommentTriggered()
 
 void DecompilerContextMenu::actionRenameThingHereTriggered()
 {
-    if (!annotationHere) {
+    if (!annotationHere || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
         return;
     }
     RCoreLocked core = Core()->core();
@@ -415,7 +408,6 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
                 Core()->renameFunction(func_addr, newName);
             }
         }
-
     } else if (type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE) {
         RVA var_addr = annotationHere->reference.offset;
         RFlagItem *flagDetails = r_flag_get_i(core->flags, var_addr);

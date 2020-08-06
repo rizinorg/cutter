@@ -23,7 +23,7 @@ signals:
 
 public slots:
     void setCurHighlightedWord(QString word);
-    void setOffset(RVA offset);
+    void setOffset(RVA newOffset);
     void setDecompiledFunctionAddress(RVA functionAddr);
     void setFirstOffsetInLine(RVA firstOffset);
     RVA getFirstOffsetInLine();
@@ -56,13 +56,13 @@ private slots:
 
 private:
     // Private variables
+    MainWindow *mainWindow;
     QString curHighlightedWord;
     RVA offset;
     RVA decompiledFunctionAddress;
     RVA firstOffsetInLine;
     bool isTogglingBreakpoints;
     QVector<RVA> availableBreakpoints;
-    MainWindow *mainWindow;
 
     RCodeAnnotation *annotationHere;
 
