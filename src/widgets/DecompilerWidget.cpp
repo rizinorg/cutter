@@ -84,7 +84,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(Core(), &CutterCore::seekChanged, this, &DecompilerWidget::seekChanged);
     ui->textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->textEdit, &QWidget::customContextMenuRequested,
-            this, &DecompilerWidget::showDisasContextMenu);
+            this, &DecompilerWidget::showDecompilerContextMenu);
 
     connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::updateBreakpoints);
     addActions(mCtxMenu->actions());
@@ -450,7 +450,7 @@ void DecompilerWidget::colorsUpdatedSlot()
 {
 }
 
-void DecompilerWidget::showDisasContextMenu(const QPoint &pt)
+void DecompilerWidget::showDecompilerContextMenu(const QPoint &pt)
 {
     mCtxMenu->exec(ui->textEdit->mapToGlobal(pt));
 }

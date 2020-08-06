@@ -28,7 +28,7 @@ public:
     explicit DecompilerWidget(MainWindow *main);
     ~DecompilerWidget();
 public slots:
-    void showDisasContextMenu(const QPoint &pt);
+    void showDecompilerContextMenu(const QPoint &pt);
 
     void highlightPC();
 private slots:
@@ -62,7 +62,7 @@ private:
     bool autoRefreshEnabled;
 
     /**
-     * True if doRefresh() was called, but the decompiler was still running
+     * True if doRefresh() was called, but the decompiler was still running.
      * This means, after the decompiler has finished, it should be refreshed immediately.
      */
     bool decompilerWasBusy;
