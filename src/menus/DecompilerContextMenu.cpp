@@ -98,6 +98,11 @@ void DecompilerContextMenu::setFirstOffsetInLine(RVA firstOffset)
     this->firstOffsetInLine = firstOffset;
 }
 
+RVA DecompilerContextMenu::getFirstOffsetInLine()
+{
+    return firstOffsetInLine;
+}
+
 void DecompilerContextMenu::setAvailableBreakpoints(QVector<RVA> offsetList)
 {
     this->availableBreakpoints = offsetList;

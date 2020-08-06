@@ -115,7 +115,9 @@ private:
      * @param endPos - Position of the end of the range(inclusive).
      */
     void gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size_t startPos, size_t endPos);
-
+    ut64 offsetForPosition(size_t pos);
+    size_t positionForOffset(ut64 offset);
+    
     void updateBreakpoints();
     void setInfoForBreakpoints();
 

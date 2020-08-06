@@ -26,6 +26,7 @@ public slots:
     void setOffset(RVA offset);
     void setDecompiledFunctionAddress(RVA functionAddr);
     void setFirstOffsetInLine(RVA firstOffset);
+    RVA getFirstOffsetInLine();
     void setAvailableBreakpoints(QVector<RVA> offsetList);
 
 
