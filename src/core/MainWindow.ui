@@ -130,6 +130,7 @@
     </property>
     <addaction name="actionAbout"/>
     <addaction name="actionIssue"/>
+    <addaction name="actionDocumentation"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
