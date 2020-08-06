@@ -1576,6 +1576,13 @@ void MainWindow::on_actionIssue_triggered()
     openIssue();
 }
 
+void MainWindow::on_actionDocumentation_triggered()
+{
+    QString url;
+    url = "https://cutter.re/docs/user-docs.html";
+    QDesktopServices::openUrl(QUrl(url, QUrl::TolerantMode));
+}
+
 void MainWindow::on_actionRefresh_Panels_triggered()
 {
     this->refreshAll();
