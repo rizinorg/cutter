@@ -98,7 +98,12 @@ private:
      */
     void setupFonts();
     /**
-     * @brief Update highlights in the text widget
+     * @brief Update highlights in the text widget.
+     * 
+     * These include respective highlights for:
+     *     - Line under cursor
+     *     - Word under cursor
+     *     - Program Counter(PC) while debugging
      */
     void updateSelection();
     /**

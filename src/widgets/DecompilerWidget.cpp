@@ -145,9 +145,9 @@ ut64 DecompilerWidget::offsetForPosition(size_t pos)
 {
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = mCtxMenu->getFirstOffsetInLine();
-    void *annotationi;
-    r_vector_foreach(&code->annotations, annotationi) {
-        RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
+    void *iter;
+    r_vector_foreach(&code->annotations, iter) {
+        RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
         if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->start > pos
                 || annotation->end <= pos) {
             continue;
@@ -165,9 +165,9 @@ size_t DecompilerWidget::positionForOffset(ut64 offset)
 {
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = UT64_MAX;
-    void *annotationi;
-    r_vector_foreach(&code->annotations, annotationi) {
-        RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
+    void *iter;
+    r_vector_foreach(&code->annotations, iter) {
+        RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
         if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->offset.offset > offset) {
             continue;
         }
@@ -210,9 +210,9 @@ void DecompilerWidget::gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size
                                             size_t endPos)
 {
     RVA firstOffset = RVA_MAX;
-    void *annotationi;
-    r_vector_foreach(&codeDecompiled.annotations, annotationi) {
-        RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
+    void *iter;
+    r_vector_foreach(&codeDecompiled.annotations, iter) {
+        RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
         if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET) {
             continue;
         }
@@ -327,9 +327,9 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
 void DecompilerWidget::setAnnotationsAtCursor(size_t pos)
 {
     RCodeAnnotation *annotationAtPos = nullptr;
-    void *annotationi;
-    r_vector_foreach(&this->code->annotations, annotationi) {
-        RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
+    void *iter;
+    r_vector_foreach(&this->code->annotations, iter) {
+        RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
         if (annotation->type == R_CODE_ANNOTATION_TYPE_OFFSET ||
                 annotation->type == R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT ||
                 annotation->start > pos || annotation->end <= pos) {

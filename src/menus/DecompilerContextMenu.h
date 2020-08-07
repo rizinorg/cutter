@@ -61,7 +61,7 @@ private:
     RVA offset;
     RVA decompiledFunctionAddress;
     /**
-     * First offset in the line under cursor in the decompiler widget.
+     * Lowest offset among all offsets present in the line under cursor in the decompiler widget.
      */
     RVA firstOffsetInLine;
     /**
@@ -70,12 +70,12 @@ private:
      */
     bool isTogglingBreakpoints;
     /**
-     * List of the offsets of all the breakpoints that are present in the line under cursor.
+     * List of the offsets of all the breakpoints (enabled and disabled) that are present in the line under cursor.
      */
     QVector<RVA> availableBreakpoints;
     /**
      * Context-related annotation for the data under cursor in the decompiler widget.
-     * If such an annotation doesn't exist, it's value is nullptr.
+     * If such an annotation doesn't exist, its value is nullptr.
      */
     RCodeAnnotation *annotationHere;
 
@@ -110,7 +110,7 @@ private:
 
     // Private Functions
     /**
-     * @brief Sets the shortcut context in all the action contained
+     * @brief Sets the shortcut context in all the actions contained
      * in the specified QMenu to Qt::WidgetWithChildrenShortcut.
      *
      * @param menu - QMenu specified
@@ -145,14 +145,17 @@ private:
     void addDebugMenu();
 
     /**
-     * @brief Updates targeted show in menu if annotationHere
-     * represents a reference.
+     * @brief Updates targeted "show in" menu.
+     * 
+     * Removes all actions from the existing targeted "show in" menu. If annotationHere
+     * represents a reference, insert actions compatible with the type of reference
+     * in the targeted "Show in" menu.
      */
     void updateTargetMenuActions();
 
     /**
-     * @brief Check if annotationHere is a reference(function name,
-     * global variable, constant variable with address).
+     * @brief Check if annotationHere is a reference (function name,
+     * global variable, constant variable with an address).
      *
      * @return True if annotationHere is a reference, otherwise false.
      */
