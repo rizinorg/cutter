@@ -178,17 +178,40 @@ Example:
 
    QObject *object = nullptr;
 
-Connecting Signals
-~~~~~~~~~~~~~~~~~~
+Connecting Qt Signals
+~~~~~~~~~~~~~~~~~~~~~
 
-To connect a signal to a slot, this is the preferred syntax:
+Use one of the following methods for connecting signals to slots:
 
 .. code:: cpp
 
-   connect(sender, &QObject::destroyed, this, &MyObject::objectDestroyed);
+   // typically you will make connection in the constructor to a member of current class
+   connect(this->ui->button1, &QPushButton::clicked,
+           this, &MyObject::buttonClicked); // Good
+
+   // you can also connect directly other object slots
+   connect(checkbox, &QCheckBox::toggled, widget, &QWidget::setEnabled); // Good
+
+   // use lambda for passing extra arguments
+   connect(button1, &QPushButton::clicked, this, [this](){ foo(getBar()); }); // Good
 
 This syntax performs compile-time type checks and allows the use of lambda
-functions. Other approaches for connecting signals silently break at runtime.
+functions. Other approaches for connecting signals can silently break at runtime.
+
+Don't use the older macro based syntax or automatic name based connections.
+
+.. code:: cpp
+
+   // SIGNAL and SLOT macros
+   connect(sender, SIGNAL(clicked), this, SLOT(buttonClicked)); // BAD
+
+   // automatic name based connection
+   slot:
+      void on_actionNew_triggered(); // BAD
+
+   // 3 argument connect without receiver object
+   connect(sender, &SomeObject::signal, [this](){ this->foo(getBar()); }); // BAD
+
 
 General Coding Advices
 ----------------------
