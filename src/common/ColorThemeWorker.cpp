@@ -122,26 +122,27 @@ QString ColorThemeWorker::save(const QJsonDocument &theme, const QString &themeN
     }
 
     QJsonObject obj = theme.object();
-    QString line;
-    QColor::NameFormat format;
     for (auto it = obj.constBegin(); it != obj.constEnd(); it++) {
-        if (cutterSpecificOptions.contains(it.key())) {
-            line = "#~%1 %2\n";
-            format = QColor::HexArgb;
-        } else {
-            line = "ec %1 %2\n";
-            format = QColor::HexRgb;
-        }
+
         QJsonArray arr = it.value().toArray();
+        QColor color;
         if (arr.isEmpty()) {
-            fOut.write(line.arg(it.key())
-                       .arg(it.value().toVariant().value<QColor>().name(format)).toUtf8());
+            color = it.value().toVariant().value<QColor>();
         } else if (arr.size() == 4) {
-            fOut.write(line.arg(it.key())
-                       .arg(QColor(arr[0].toInt(), arr[1].toInt(), arr[2].toInt(), arr[3].toInt()).name(format)).toUtf8());
+            color = QColor(arr[0].toInt(), arr[1].toInt(), arr[2].toInt(), arr[3].toInt());
         } else if (arr.size() == 3) {
-            fOut.write(line.arg(it.key())
-                       .arg(QColor(arr[0].toInt(), arr[1].toInt(), arr[2].toInt()).name(format)).toUtf8());
+            color = QColor(arr[0].toInt(), arr[1].toInt(), arr[2].toInt());
+        } else {
+            continue;
+        }
+        if (cutterSpecificOptions.contains(it.key())) {
+            fOut.write(QString("#~%1 rgb:%2\n")
+                       .arg(it.key(), color.name(QColor::HexArgb).remove('#'))
+                       .toUtf8());
+        } else {
+            fOut.write(QString("ec %1 rgb:%2\n")
+                       .arg(it.key(), color.name(QColor::HexRgb).remove('#'))
+                       .toUtf8());
         }
     }
 
