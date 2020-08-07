@@ -46,8 +46,11 @@ private slots:
     void decompilerSelected();
     void cursorPositionChanged();
     /**
-     * @brief When the synced seek is changed, this refreshes the decompiler
-     * if needed
+     * @brief When the synced seek is changed, this refreshes the decompiler widget if needed.
+     * 
+     * Decompiler widget is not refreshed in the following two cases
+     *     - Seek changed to an offset contained in the decompiled function.
+     *     - Auto-refresh is disabled.
      */
     void seekChanged();
     void decompilationFinished(RAnnotatedCode *code);
@@ -83,11 +86,19 @@ private:
      */
     void setAutoRefresh(bool enabled);
     /**
-     * @brief Do refersh if the auto refresh is enabled
+     * @brief Calls the function doRefresh() if auto-refresh is enabled.
      */
     void doAutoRefresh();
     /**
-     * @brief Decompile the function that contains the specified offset.
+     * @brief Refreshes the decompiler.
+     * 
+     * - This does the following if the specified offset is valid
+     *     - Decompile function that contains the specified offset.
+     *     - Clears all selections stored for highlighting purposes.
+     *     - Reset previousFunctionAddr with the current function's address
+     *       and decompiledFunctionAddr with the address of the function that
+     *       was decompiled.
+     * - If the offset is invalid, error message is shown in the text widget.
      *
      * @param addr Specified offset/offset in sync.
      */
