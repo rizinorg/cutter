@@ -216,7 +216,7 @@ void DecompilerWidget::gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size
         if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET) {
             continue;
         }
-        if ((startPos <= annotation->start && annotation->start < endPos) || (startPos <= annotation->end
+        if ((startPos <= annotation->start && annotation->start < endPos) || (startPos < annotation->end
                                                                               && annotation->end < endPos)) {
             firstOffset = (annotation->offset.offset < firstOffset) ? annotation->offset.offset : firstOffset;
         }
