@@ -144,11 +144,11 @@ private:
     void addDebugMenu();
 
     /**
-     * @brief Updates targeted "show in" menu.
+     * @brief Updates targeted "Show in" menu.
      * 
      * Removes all actions from the existing targeted "show in" menu. If annotationHere
-     * represents a reference, insert actions compatible with the type of reference
-     * in the targeted "Show in" menu.
+     * represents an item that has an address assigned to it, insert actions compatible with the
+     * type of this item in the targeted "Show in" menu.
      */
     void updateTargetMenuActions();
 
