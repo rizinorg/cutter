@@ -26,6 +26,6 @@ private slots:
     void updateDebugPlugin();
     void updateStackAddr();
     void updateStackSize();
-    void on_pluginComboBox_currentIndexChanged(const QString &index);
+    void onDebugPluginChanged(const QString &index);
     void on_esilBreakOnInvalid_toggled(bool checked);
 };
