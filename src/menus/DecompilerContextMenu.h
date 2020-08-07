@@ -17,6 +17,7 @@ public:
 
     bool getIsTogglingBreakpoints();
     void setAnnotationHere(RCodeAnnotation *annotation);
+    RVA getFirstOffsetInLine();
 
 signals:
     void copy();
@@ -26,9 +27,7 @@ public slots:
     void setOffset(RVA newOffset);
     void setDecompiledFunctionAddress(RVA functionAddr);
     void setFirstOffsetInLine(RVA firstOffset);
-    RVA getFirstOffsetInLine();
     void setAvailableBreakpoints(QVector<RVA> offsetList);
-
 
 private slots:
     void aboutToShowSlot();
