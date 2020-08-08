@@ -112,6 +112,7 @@ macx {
 
 unix:exists(/usr/local/include/libr)|bsd:exists(/usr/local/include/libr) {
     INCLUDEPATH += /usr/local/include/libr
+    INCLUDEPATH += /usr/local/include/libr/sdb
 }
 unix {
     QMAKE_LFLAGS += -rdynamic # Export dynamic symbols for plugins
