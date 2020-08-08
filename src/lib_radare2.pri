@@ -1,13 +1,8 @@
 win32 {
     DEFINES += _CRT_NONSTDC_NO_DEPRECATE
     DEFINES += _CRT_SECURE_NO_WARNINGS
-    !contains(QT_ARCH, x86_64) {
-        LIBS += -L"$$PWD/../r2_dist_x86/radare2/lib"
-        R2_INCLUDEPATH += "$$PWD/../r2_dist_x86/include"
-    } else {
-        LIBS += -L"$$PWD/../r2_dist_x64/radare2/lib"
-        R2_INCLUDEPATH += "$$PWD/../r2_dist_x64/include"
-    }
+    LIBS += -L"$$PWD/../r2_dist/lib"
+    R2_INCLUDEPATH += "$$PWD/../r2_dist/include/libr"
     INCLUDEPATH += $$R2_INCLUDEPATH
 
     LIBS += \
