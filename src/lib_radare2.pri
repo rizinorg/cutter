@@ -47,18 +47,21 @@ win32 {
             } else {
                 LIBS += -L$$R2PREFIX/lib
                 R2_INCLUDEPATH += $$R2PREFIX/include/libr
+                R2_INCLUDEPATH += $$R2PREFIX/include/libr/sdb
                 USE_PKGCONFIG = 0
             }
         }
         macx {
             LIBS += -L$$R2PREFIX/lib
             R2_INCLUDEPATH += $$R2PREFIX/include/libr
+            R2_INCLUDEPATH += $$R2PREFIX/include/libr/sdb
             USE_PKGCONFIG = 0
         }
         bsd {
             !exists($$PKG_CONFIG_PATH/r_core.pc) {
                 LIBS += -L$$R2PREFIX/lib
                 R2_INCLUDEPATH += $$R2PREFIX/include/libr
+                R2_INCLUDEPATH += $$R2PREFIX/include/libr/sdb
                 USE_PKGCONFIG = 0
             }
         }
