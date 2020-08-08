@@ -3,6 +3,7 @@ win32 {
     DEFINES += _CRT_SECURE_NO_WARNINGS
     LIBS += -L"$$PWD/../r2_dist/lib"
     R2_INCLUDEPATH += "$$PWD/../r2_dist/include/libr"
+    R2_INCLUDEPATH += "$$PWD/../r2_dist/include/libr/sdb"
     INCLUDEPATH += $$R2_INCLUDEPATH
 
     LIBS += \
