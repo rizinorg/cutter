@@ -94,6 +94,7 @@ for:
     branches:
       only:
         - master
+        - /\d*\.\d*/
   -
     skip_non_tags: true
 
