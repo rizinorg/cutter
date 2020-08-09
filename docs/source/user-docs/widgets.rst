@@ -3,7 +3,7 @@ Widgets
 
 Cutter UI consists of several widgets (views) such as Disassembly, Decompiler, and Hexdump.
 These widgets provide their own functionality, context menus and synchronization with
-other widgets to help user get all sort of analysis done conveniently and quickly.
+other widgets to help users get all sorts of analyses done conveniently and quickly.
 
 These are some of the widgets you can find in Cutter:
 
@@ -32,9 +32,9 @@ HexDump Widget
 Search Widget
 ------------------
 
-.. image:: ../images/widgets/search.gif
+.. image:: ../images/widgets/search.png
 
 Strings Widget
 ------------------
 
-.. image:: ../images/widgets/strings.gif
+.. image:: ../images/widgets/strings.png
