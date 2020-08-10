@@ -12,3 +12,9 @@ Report an Issue
 **Description:** Quickly report an issue to Cutter's GitHub repository. Clicking this option will navigate your browser to the new-issue page in Cutter's GitHub repository. It will also automatically fill relevant information inside the issue template.    
 
 **Steps:** Help -> Report an issue
+
+Documention
+---------------------------------------
+**Description** Cutter Documention page. This will redirect you to our documentation page on your browser. Strongly suggest to read the docs in any doubts.
+
+**Steps:** Help -> Documention

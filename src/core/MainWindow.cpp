@@ -231,6 +231,7 @@ void MainWindow::initUI()
   
     connect(ui->actionSaveLayout, &QAction::triggered, this, &MainWindow::saveNamedLayout);
     connect(ui->actionManageLayouts, &QAction::triggered, this, &MainWindow::manageLayouts);
+    connect(ui->actionDocumentation, &QAction::triggered, this, &MainWindow::documentation_triggered);
 
     /* Setup plugins interfaces */
     for (auto &plugin : Plugins()->getPlugins()) {
@@ -1574,11 +1575,9 @@ void MainWindow::on_actionIssue_triggered()
     openIssue();
 }
 
-void MainWindow::on_actionDocumentation_triggered()
+void MainWindow::documentation_triggered()
 {
-    QString url;
-    url = "https://cutter.re/docs/user-docs.html";
-    QDesktopServices::openUrl(QUrl(url, QUrl::TolerantMode));
+    QDesktopServices::openUrl(QUrl("https://cutter.re/docs/user-docs.html", QUrl::TolerantMode));
 }
 
 void MainWindow::on_actionRefresh_Panels_triggered()
