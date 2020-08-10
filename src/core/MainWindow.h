@@ -150,6 +150,8 @@ public slots:
 
     void on_actionTabs_triggered();
 
+    void on_actionAnalyze_triggered();
+
     void lockUnlock_Docks(bool what);
 
     void on_actionRun_Script_triggered();
@@ -191,8 +193,6 @@ private slots:
     void on_actionRefresh_contents_triggered();
 
     void on_actionPreferences_triggered();
-
-    void on_actionAnalyze_triggered();
 
     void on_actionImportPDB_triggered();
 

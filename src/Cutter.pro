@@ -435,7 +435,8 @@ SOURCES += \
     widgets/SimpleTextGraphView.cpp \
     widgets/R2GraphWidget.cpp \
     widgets/CallGraph.cpp \
-    widgets/AddressableDockWidget.cpp
+    widgets/AddressableDockWidget.cpp \
+    dialogs/preferences/AnalOptionsWidget.cpp
 
 GRAPHVIZ_SOURCES = \
     widgets/GraphvizLayout.cpp
@@ -592,7 +593,8 @@ HEADERS  += \
     widgets/SimpleTextGraphView.h \
     widgets/R2GraphWidget.h \
     widgets/CallGraph.h \
-    widgets/AddressableDockWidget.h
+    widgets/AddressableDockWidget.h \
+    dialogs/preferences/AnalOptionsWidget.h
 
 GRAPHVIZ_HEADERS = widgets/GraphvizLayout.h
 
@@ -660,7 +662,8 @@ FORMS    += \
     dialogs/preferences/ColorThemeEditDialog.ui \
     widgets/ListDockWidget.ui \
     dialogs/LayoutManager.ui \
-    widgets/R2GraphWidget.ui
+    widgets/R2GraphWidget.ui \
+    dialogs/preferences/AnalOptionsWidget.ui
 
 RESOURCES += \
     resources.qrc \

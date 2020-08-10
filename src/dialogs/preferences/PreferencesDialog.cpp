@@ -7,6 +7,7 @@
 #include "DebugOptionsWidget.h"
 #include "PluginsOptionsWidget.h"
 #include "InitializationFileEditor.h"
+#include "AnalOptionsWidget.h"
 
 #include "PreferenceCategory.h"
 
@@ -57,6 +58,11 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
             tr("Initialization Script"),
             new InitializationFileEditor(this),
             QIcon(":/img/icons/initialization.svg")
+        },
+        {
+            tr("Analysis"),
+            new AnalOptionsWidget(this),
+            QIcon(":/img/icons/cog_light.svg")
         }
     };
 
@@ -119,6 +125,7 @@ void PreferencesDialog::chooseThemeIcons()
         { QStringLiteral("Appearance"), QStringLiteral("polar.svg") },
         { QStringLiteral("Plugins"), QStringLiteral("plugins.svg") },
         { QStringLiteral("Initialization Script"), QStringLiteral("initialization.svg") },
+        { QStringLiteral("Analysis"), QStringLiteral("cog_light.svg") },
     };
     QList<QPair<void*, QString>> supportedIconsNames;
 

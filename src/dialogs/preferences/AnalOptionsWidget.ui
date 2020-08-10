@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AnalOptionsWidget</class>
+ <widget class="QWidget" name="AnalOptionsWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>633</width>
+    <height>689</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Analysis</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QScrollArea" name="scrollArea">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>611</width>
+          <height>610</height>
+         </rect>
+        </property>
+        <widget class="QCheckBox" name="verboseCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>190</y>
+           <width>601</width>
+           <height>23</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Show verbose information when performing analysis (anal.verbose)</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="pushRetCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>130</y>
+           <width>601</width>
+           <height>23</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Analyze push+ret as jmp (anal.pushret)</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="typesVerboseCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>160</y>
+           <width>601</width>
+           <height>23</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Verbose output from type analysis (anal.types.verbose)</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="autonameCheckbox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>10</y>
+           <width>601</width>
+           <height>23</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Speculatively set a name for the functions (anal.autoname)</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="hasnextCheckbox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>40</y>
+           <width>601</width>
+           <height>23</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Search for new functions following already defined functions (anal.hasnext)</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="jmpRefCheckbox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>70</y>
+           <width>601</width>
+           <height>23</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Create references for unconditional jumps (anal.jmp.ref)</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="jmpTblCheckbox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>100</y>
+           <width>601</width>
+           <height>23</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Analyze jump tables in switch statements (anal.jmp.tbl)</string>
+         </property>
+        </widget>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item alignment="Qt::AlignRight">
+    <widget class="QPushButton" name="analyzePushButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Analyze program</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
