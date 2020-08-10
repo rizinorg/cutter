@@ -74,6 +74,7 @@ win32 {
         CONFIG += link_pkgconfig
         PKGCONFIG += r_core
         R2_INCLUDEPATH = "$$system("pkg-config --variable=includedir r_core")/libr"
+        R2_INCLUDEPATH = "$$system("pkg-config --variable=includedir r_core")/libr/sdb"
     } else {
         LIBS += \
         -lr_core \

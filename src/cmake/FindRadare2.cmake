@@ -17,7 +17,7 @@
 
 if(WIN32)
 	find_path(Radare2_INCLUDE_DIRS
-			NAMES r_core.h r_bin.h r_util.h
+			NAMES r_core.h r_bin.h r_util.h sdb
 			HINTS
 				"$ENV{HOME}/bin/prefix/radare2/include/libr"
 				/usr/local/include/libr
