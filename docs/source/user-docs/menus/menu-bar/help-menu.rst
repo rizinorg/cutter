@@ -17,4 +17,4 @@ Documentation
 ---------------------------------------
 **Description:** Clicking this option will open the user documentation of Cutter in your browser.
 
-**Steps:** Help -> Documention
+**Steps:** Help -> Documentation
