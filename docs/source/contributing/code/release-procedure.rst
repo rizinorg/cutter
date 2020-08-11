@@ -54,7 +54,7 @@ This isn't intended as exhaustive testing process, just some simple steps to mak
 * Test that sample python plugin works
 * Try debugger
    * Insert breakpoint in main
-   * Start debuging
+   * Start debugging
    * Go to main using function widget, make sure relocation was done correctly and you see code instead of unmapped memory and breakpoint is where you placed
    * Click continue until you hit breakpoint in main
 * Delete cutter settings file, and test that clean start works and layout isn't broken
