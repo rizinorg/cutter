@@ -7,7 +7,7 @@ SCRIPTPATH=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
 cd "$SCRIPTPATH/.."
 
 if [[ ! -d r2dec-js ]]; then
-	git clone --depth 1 https://github.com/wargio/r2dec-js.git
+	git clone --depth 1 https://github.com/radareorg/r2dec-js.git --branch 4.5.0
 fi
 
 cd r2dec-js
