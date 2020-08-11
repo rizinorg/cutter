@@ -1577,7 +1577,7 @@ void MainWindow::on_actionIssue_triggered()
 
 void MainWindow::documentation_triggered()
 {
-    QDesktopServices::openUrl(QUrl("https://cutter.re/docs/user-docs.html", QUrl::TolerantMode));
+    QDesktopServices::openUrl(QUrl("https://cutter.re/docs/user-docs"));
 }
 
 void MainWindow::on_actionRefresh_Panels_triggered()

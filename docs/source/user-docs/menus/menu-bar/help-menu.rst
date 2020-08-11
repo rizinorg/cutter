@@ -13,8 +13,8 @@ Report an Issue
 
 **Steps:** Help -> Report an issue
 
-Documention
+Documentation
 ---------------------------------------
-**Description** Cutter Documention page. This will redirect you to our documentation page on your browser. Strongly suggest to read the docs in any doubts.
+**Description:** Clicking this option will open the user documentation of Cutter in your browser.
 
 **Steps:** Help -> Documention
