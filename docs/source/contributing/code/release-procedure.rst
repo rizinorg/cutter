@@ -6,7 +6,7 @@ Release Procedure
     2. Place the archive in folder and run the script, see cutter-translations for instructions
     3. Commit to cutter-translations
     4. Update submodule in cutter
-2. If there is desire to keep working in the master, create branch for the release and do all the following work there.
+2. If there is a desire to keep working in the master branch, create branch for the release and do all the following work there.
 3. Lock r2ghidra and r2dec versions downloaded by packaging scripts. Specify a tag or commit hash.
 4. Update version
     #. appveyor.yml
@@ -14,19 +14,19 @@ Release Procedure
     #. docs/source/index.rst
     #. Cutter.pro
     #. Cutter.appdata.xml
-    #. To be safe search for the previous version number.
+    #. To be safe, search the code base for the previous version number.
 5. Create a tag v1.11.0-rc1
     #. ``git tag v1.11.0-rc1``
     #. ``git tag push origin v1.11.0-rc1``
 6. Create a GitHub release, mark it as pre-release save draft, set the tag to v1.11.0-rc1
 7. Wait for packages to build
 8. On all operating systems do the `Basic testing procedure`_ to ensure nothing badly broken.
-9. If any major problems are found fix them. If a release branch is used fix them in master and cherry pick into release branch. If the amount of changes is sufficiently large repeat from step 3. increasing rc number by one.
+9. If any major problems are found, open an issue and fix them. If a release branch is used fix them in master and cherry pick into release branch. If the amount of changes is sufficiently large repeat from step 3. increasing rc number by one.
 10. Update version to 1.11.0
 11. Create tag
 12. Create release
-    * Fill the release notes, preparing release notes can be started earlier. Compare current master or release branch against previous release to find all the changes. Choose the most important ones. Don't duplicate the commit log. Release notes should be a summary for people who don't want to read whole commit log. Group related changes.
-13. Announcement
+    * Fill the release notes in the Release description. Preparing release notes can begin earlier. Compare current master or release branch against previous release to find all the changes. Choose the most important ones. Don't duplicate the commit log. Release notes should be a summary for people who don't want to read whole commit log. Group related changes together under titles such as "New features", "Bug Fixes", "Decompiler", "radare2" and similar.
+13. Prepare announcement tweets and messages to send in the Telegram group, reddit, and others.
 14. Close milestone if there was one
 
 
@@ -43,11 +43,11 @@ The process for bugfix release is similar no normal release procedure described 
 Basic testing procedure
 -----------------------
 
-This isn't intended as exhaustive testing process, just some simple steps to make sure everything isn't badly broken.
+This isn't intended as exhaustive testing process, just some simple steps to make sure nothing is badly broken.
 
-* Open simple executable like /bin/ls or calc.exe
-* Make sure upgraded layout isn't completely broken
-* Disassembly shows something
+* Open a simple executable like ``/bin/ls`` or ``calc.exe``
+* Make sure that the upgraded layout isn't completely broken
+* The Disassembly widget shows proper disassembly.
 * Bundled plugins work
    * Open decompiler and select ghidra, it shows some C code at least for some functions
    * Open r2dec in decompiler widget, make sure it shows code
