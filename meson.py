@@ -32,16 +32,13 @@ def set_global_vars():
     r2_meson_mod.set_global_variables()
 
 def win_dist(args):
-    build = os.path.join(ROOT, args.dir)
-    dist = os.path.join(ROOT, args.dist)
-    os.makedirs(dist)
-    r2_meson_mod.copy(os.path.join(build, 'Cutter.exe'), dist)
+    os.makedirs(args.dist)
+    r2_meson_mod.copy(os.path.join(args.dir, 'Cutter.exe'), args.dist)
     log.debug('Deploying Qt5')
-    subprocess.call(['windeployqt', '--release', os.path.join(dist, 'Cutter.exe')])
+    subprocess.call(['windeployqt', '--release', os.path.join(args.dist, 'Cutter.exe')])
     log.debug('Deploying libr2')
     r2_meson_mod.PATH_FMT.update(r2_meson_mod.R2_PATH)
-    r2_meson_mod.win_dist_libr2(DIST=dist, BUILDDIR=os.path.join(build, 'subprojects', 'radare2'),
-                                R2_DATDIR=r'radare2\share', R2_INCDIR=r'radare2\include')
+    r2_meson_mod.meson('install', options=[['-C', '{}'.format(args.dir)], '--no-rebuild'])
 
 def build(args):
     cutter_builddir = os.path.join(ROOT, args.dir)
@@ -53,8 +50,8 @@ def build(args):
             defines.append('-Dradare2:r2_libdir=radare2/lib')
             defines.append('-Dradare2:r2_datdir=radare2/share')
             defines.append('-Dc_args=-D_UNICODE -DUNICODE')
-        r2_meson_mod.meson(os.path.join(ROOT, 'src'), cutter_builddir,
-                           prefix=cutter_builddir, backend=args.backend,
+        r2_meson_mod.meson('setup', rootdir=os.path.join(ROOT, 'src'), builddir=args.dir,
+                           prefix=os.path.abspath(args.dist), backend=args.backend,
                            release=args.release, shared=False, options=defines)
     if not args.nobuild:
         log.info('Building cutter')
@@ -84,6 +81,11 @@ def main():
         parser.add_argument('--dist', help='dist directory')
     args = parser.parse_args()
 
+    if os.name == 'nt' and not args.dist:
+        args.dist = args.dir
+    args.dist = os.path.abspath(args.dist)
+    args.dir = os.path.abspath(args.dir)
+
     if hasattr(args, 'dist') and args.dist and os.path.exists(args.dist):
         log.error('%s already exists', args.dist)
         sys.exit(1)
@@ -92,7 +94,7 @@ def main():
 
     build(args)
 
-    if hasattr(args, 'dist') and args.dist:
+    if os.name == 'nt' and hasattr(args, 'dist') and args.dist:
         win_dist(args)
 
 import_r2_meson_mod()

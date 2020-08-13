@@ -59,6 +59,7 @@ src/CMakeFiles/*
 ninja.exe
 r2_dist_x86/
 r2_dist_x64/
+r2_dist/
 *.pdb
 
 # Mesonbuild
