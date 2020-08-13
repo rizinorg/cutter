@@ -167,8 +167,10 @@ CUTTER_ENABLE_PYTHON {
         BINDINGS_INCLUDE_DIRS = "$$[QT_INSTALL_HEADERS]" \
                                 "$$[QT_INSTALL_HEADERS]/QtCore" \
                                 "$$[QT_INSTALL_HEADERS]/QtWidgets" \
-                                "$$[QT_INSTALL_HEADERS]/QtGui" \
-                                "$$R2_INCLUDEPATH"
+                                "$$[QT_INSTALL_HEADERS]/QtGui"
+        for (path, R2_INCLUDEPATH) {
+           BINDINGS_INCLUDE_DIRS += "$$path"
+        }
         for(path, INCLUDEPATH) {
             BINDINGS_INCLUDE_DIRS += $$absolute_path("$$path")
         }
