@@ -74,7 +74,7 @@ If you are experienced with such tasks, go ahead - we leave this in your hands. 
 
 If you don't know how to implement something, check if any of the existing code implements similar behavior in the same widget or similar widgets. If you do copy an existing code consider why it did things the way it did, the same factors might not apply in your case or the old code was poorly written from the first place.
 
-Creating a Pull request
+Create a Pull request
 -----------------------
 When you are done, and the additions and modifications to the code are in place, commit your changes, and get your code reviewed by opening a new Pull Request. Please remember to follow the Pull Request template.
 
@@ -92,4 +92,3 @@ More Information
 
 .. important::
     We're always in the process of improving the information on this page for newcomers to the Cutter. Please help us by suggesting improvements and tell us about the information that this page lacks.
-
