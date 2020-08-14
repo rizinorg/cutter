@@ -81,7 +81,8 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
             static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
             &DecompilerWidget::decompilerSelected);
     connectCursorPositionChanged(false);
-    connect(Core(), &CutterCore::seekChanged, this, &DecompilerWidget::seekChanged);
+    // connect(Core(), &CutterCore::seekChanged, this, &DecompilerWidget::seekChanged);
+    connect(seekable, &CutterSeekable::seekableSeekChanged, this, &DecompilerWidget::seekChanged);
     ui->textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->textEdit, &QWidget::customContextMenuRequested,
             this, &DecompilerWidget::showDecompilerContextMenu);
@@ -124,9 +125,9 @@ void DecompilerWidget::setAutoRefresh(bool enabled)
 
 void DecompilerWidget::doAutoRefresh()
 {
-    if (!autoRefreshEnabled) {
-        return;
-    }
+    // if (!autoRefreshEnabled) {
+    //     return;
+    // }
     doRefresh();
 }
 
@@ -372,9 +373,9 @@ void DecompilerWidget::cursorPositionChanged()
     setInfoForBreakpoints();
 
     RVA offset = offsetForPosition(pos);
-    if (offset != RVA_INVALID && offset != Core()->getOffset()) {
+    if (offset != RVA_INVALID && offset != seekable->getOffset()) {
         seekFromCursor = true;
-        Core()->seek(offset);
+        seekable->seek(offset);
         mCtxMenu->setOffset(offset);
         seekFromCursor = false;
     }
@@ -387,7 +388,7 @@ void DecompilerWidget::seekChanged()
         return;
     }
     if (autoRefreshEnabled) {
-        auto fcnAddr = Core()->getFunctionStart(Core()->getOffset());
+        auto fcnAddr = Core()->getFunctionStart(seekable->getOffset());
         if (fcnAddr == RVA_INVALID || fcnAddr != decompiledFunctionAddr) {
             doRefresh();
             return;
@@ -398,7 +399,7 @@ void DecompilerWidget::seekChanged()
 
 void DecompilerWidget::updateCursorPosition()
 {
-    RVA offset = Core()->getOffset();
+    RVA offset = seekable->getOffset();
     size_t pos = positionForOffset(offset);
     if (pos == SIZE_MAX) {
         return;
