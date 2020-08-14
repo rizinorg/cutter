@@ -20,8 +20,8 @@ You can download the latest release [here](https://github.com/radareorg/cutter/r
 * macOS: Download the latest `.dmg` file or use [Homebrew Cask](https://github.com/Homebrew/homebrew-cask) `brew cask install cutter`
 * Windows: Download the latest Zip archive.
 * Linux: Download the latest AppImage file. Then just make it executable and run it:
-  * `chmod +x <appimage_file>`
-  * `./<appimage_file>`
+    * `chmod +x <appimage_file>`
+    * `./<appimage_file>`
 
 ## Building from sources
 
