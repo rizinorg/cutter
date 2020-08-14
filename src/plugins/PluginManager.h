@@ -7,7 +7,7 @@
 #include <memory>
 #include <vector>
 
-class CutterPlugin;
+#include "plugins/CutterPlugin.h"
 
 class PluginManager: public QObject
 {

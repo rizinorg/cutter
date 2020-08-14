@@ -11,6 +11,7 @@
 #include "common/TempConfig.h"
 #include "common/RunScriptTask.h"
 #include "common/PythonManager.h"
+#include "plugins/CutterPlugin.h"
 #include "plugins/PluginManager.h"
 #include "CutterConfig.h"
 #include "CutterApplication.h"
