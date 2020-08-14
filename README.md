@@ -17,11 +17,11 @@ Cutter is a free and open-source reverse engineering framework powered by [radar
 Cutter is available for all platforms (Linux, macOS, Windows).
 You can download the latest release [here](https://github.com/radareorg/cutter/releases).
 
-- macOS: Download the latest `.dmg` file or use [Homebrew Cask](https://github.com/Homebrew/homebrew-cask) `brew cask install cutter`.
-- Windows: Download the latest Zip archive.
-- Linux: Download the latest AppImage file. Then just make it executable and run it:
-  - `chmod +x <appimage_file>`
-  - `./<appimage_file>`
+* macOS: Download the latest `.dmg` file or use [Homebrew Cask](https://github.com/Homebrew/homebrew-cask) `brew cask install cutter`
+* Windows: Download the latest Zip archive.
+* Linux: Download the latest AppImage file. Then just make it executable and run it:
+  * `chmod +x <appimage_file>`
+  * `./<appimage_file>`
 
 ## Building from sources
 
@@ -29,7 +29,7 @@ To build Cutter on your local machine, please follow this guide: [Building from 
 
 ## Docker
 
-To deploy _cutter_ using a pre-built `Dockerfile`, it's possible to use the [provided configuration](docker). The corresponding `README.md` file also contains instructions on how to get started using the docker image with minimal effort.
+To deploy *cutter* using a pre-built `Dockerfile`, it's possible to use the [provided configuration](docker). The corresponding `README.md` file also contains instructions on how to get started using the docker image with minimal effort.
 
 ## Documentation
 
@@ -49,7 +49,7 @@ Take a look at [contributing docs](https://cutter.re/docs/contributing.html).
 
 ## Help
 
-The best place to obtain help from _Cutter_ developers and community is to contact us on:
+The best place to obtain help from *Cutter* developers and community is to contact us on:
 
 - **Telegram:** https://t.me/r2cutter
 - **IRC:** #cutter on irc.freenode.net

@@ -21,11 +21,17 @@ steps for contributing
 ======================
 - Have a good knowledge of git and github. we highly recomend to read the `GitHub-Contributing-to-a-Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_.
 - Fork the repository on GitHub.
-- clone the repository.  ``git clone --recurse-submodules https://github.com/radareorg/cutter``.
-- add the fork to your local repository by ``git remote add fork https://github.com/<youride>/cutter``.
-- Create a branch based on topic. avoid working on master. ``git checkout -b <branch name``.
-- Make changes and commit by ``git add .; git commit -m "commit message"``
-- Push it to your forked branch. ``git push fork``
+- clone the repository.
+    ``git clone --recurse-submodules https://github.com/radareorg/cutter``.
+- add the fork to your local repository by
+    ``git remote add fork https://github.com/<youride>/cutter``.
+- Create a branch based on topic. avoid working on master.
+    ``git checkout -b <branch name``.
+- Make changes and commit by
+    ``git add .``
+    ``git commit -m "commit message"``
+- Push it to your forked branch.
+    ``git push fork``
 - Create a Pull request and wait for review. If your commit solves any issues then specify those as "closes #ISSUE_NUM"
 - If any changes requested then do the changes locally and commit changes and push it your fork.
 - If everything is okay your request will be merged and repeat.
