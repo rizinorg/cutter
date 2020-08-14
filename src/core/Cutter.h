@@ -23,7 +23,6 @@ class Decompiler;
 class R2Task;
 class R2TaskDialog;
 
-#include "plugins/CutterPlugin.h"
 #include "common/BasicBlockHighlighter.h"
 #include "common/R2Task.h"
 #include "common/Helpers.h"

@@ -6,6 +6,8 @@
 #include <QMenu>
 #include <QKeySequence>
 
+class MainWindow;
+
 class CUTTER_EXPORT DisassemblyContextMenu : public QMenu
 {
     Q_OBJECT

@@ -5,6 +5,8 @@
 #include <QMenu>
 #include <QKeySequence>
 
+class MainWindow;
+
 class CUTTER_EXPORT AddressableItemContextMenu : public QMenu
 {
     Q_OBJECT

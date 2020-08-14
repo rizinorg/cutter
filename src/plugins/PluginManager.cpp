@@ -10,11 +10,13 @@
 #include "PluginManager.h"
 #include "CutterPlugin.h"
 #include "CutterConfig.h"
+#include "common/Helpers.h"
 
 #include <QDir>
 #include <QCoreApplication>
 #include <QPluginLoader>
 #include <QStandardPaths>
+#include <QDebug>
 
 Q_GLOBAL_STATIC(PluginManager, uniqueInstance)
 
