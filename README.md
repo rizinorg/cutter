@@ -42,9 +42,8 @@ Cutter supports both Python and Native C++ plugins. Want to extend Cutter with P
 
 Our community built many plugins and useful scripts for Cutter such as the native integration of Ghidra decompiler or the plugin to visualize DynamoRIO code coverage. You can find more plugins in the [following list](https://github.com/radareorg/cutter-plugins). Don't hesitate to extend it with your own plugins and scripts for Cutter.
 
-### Contribute
-
-Take a look at [contributing docs](https://cutter.re/docs/contributing.html).
+### Contributing to Cutter
+Our [Contributing docs](https://cutter.re/docs/contributing.html) contain the things you need to know in order to contribute code, documentation, plugins and translations to Cutter.
 
 ## Help
 
