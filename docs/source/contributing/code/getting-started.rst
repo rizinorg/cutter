@@ -74,12 +74,9 @@ If you are experienced with such tasks, go ahead - we leave this in your hands. 
 
 If you don't know how to implement something, check if any of the existing code implements similar behavior in the same widget or similar widgets. If you do copy an existing code consider why it did things the way it did, the same factors might not apply in your case or the old code was poorly written from the first place.
 
-Open a Pull request
+Creating a Pull request
 -------------------
 
-When you are done, and the additions and modifications to the code are in place, commit your changes, and get your code reviewed by opening a new Pull Request. Please remember to follow the Pull Request template.
-
-In the Pull Request template you will be required to add a "Test plan". For example, if you performed GUI changes, demonstrate it by posting a screenshot. Make a list of steps to be taken by the reviewers to verify that the changes are working as expected. This is also a good point to consider any potential edge-cases or different kinds of inputs if you didn't already do it while writing the code. Perform the steps you described when making the PR even if they seem trivial and you did them during development, it helps to catch any mistakes done during the final cleanup and making sure you didn't forget anything.
 
 
 Repeat
