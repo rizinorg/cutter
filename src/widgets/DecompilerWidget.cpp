@@ -49,14 +49,6 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     refreshDeferrer = createRefreshDeferrer([this]() {
         doRefresh();
     });
-    autoRefreshEnabled = Config()->getDecompilerAutoRefreshEnabled();
-    ui->autoRefreshCheckBox->setChecked(autoRefreshEnabled);
-    setAutoRefresh(autoRefreshEnabled);
-    connect(ui->autoRefreshCheckBox, &QCheckBox::stateChanged, this, [this](int state) {
-        setAutoRefresh(state == Qt::Checked);
-        Config()->setDecompilerAutoRefreshEnabled(autoRefreshEnabled);
-        doAutoRefresh();
-    });
 
     auto decompilers = Core()->getDecompilers();
     auto selectedDecompilerId = Config()->getSelectedDecompiler();
