@@ -78,13 +78,7 @@ private:
     bool seekFromCursor = false;
 
     Decompiler *getCurrentDecompiler();
-
-    /**
-     * @brief Enable/Disable auto refresh as per the specified boolean value
-     *
-     * @param enabled
-     */
-    void setAutoRefresh(bool enabled);
+    
     /**
      * @brief Calls the function doRefresh() if auto-refresh is enabled.
      */
@@ -103,7 +97,6 @@ private:
      * @param addr Specified offset/offset in sync.
      */
     void doRefresh();
-    void updateRefreshButton();
     /**
      * @brief Update fonts
      */

@@ -43,9 +43,6 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(Core(), &CutterCore::registersChanged, this, &DecompilerWidget::highlightPC);
     connect(mCtxMenu, &DecompilerContextMenu::copy, this, &DecompilerWidget::copy);
 
-    connect(ui->refreshButton, &QAbstractButton::clicked, this, [this]() {
-        doRefresh();
-    });
     refreshDeferrer = createRefreshDeferrer([this]() {
         doRefresh();
     });
@@ -109,29 +106,12 @@ Decompiler *DecompilerWidget::getCurrentDecompiler()
     return Core()->getDecompilerById(ui->decompilerComboBox->currentData().toString());
 }
 
-void DecompilerWidget::setAutoRefresh(bool enabled)
-{
-    autoRefreshEnabled = enabled;
-    updateRefreshButton();
-}
-
 void DecompilerWidget::doAutoRefresh()
 {
     // if (!autoRefreshEnabled) {
     //     return;
     // }
     doRefresh();
-}
-
-void DecompilerWidget::updateRefreshButton()
-{
-    Decompiler *dec = getCurrentDecompiler();
-    ui->refreshButton->setEnabled(!autoRefreshEnabled && dec && !dec->isRunning());
-    if (dec && dec->isRunning() && dec->isCancelable()) {
-        ui->refreshButton->setText(tr("Cancel"));
-    } else {
-        ui->refreshButton->setText(tr("Refresh"));
-    }
 }
 
 ut64 DecompilerWidget::offsetForPosition(size_t pos)
@@ -257,7 +237,6 @@ void DecompilerWidget::doRefresh()
     if (dec->isRunning()) {
         ui->progressLabel->setVisible(true);
         ui->decompilerComboBox->setEnabled(false);
-        updateRefreshButton();
         return;
     }
 }
@@ -290,7 +269,6 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
 
     ui->progressLabel->setVisible(false);
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
-    updateRefreshButton();
 
     mCtxMenu->setAnnotationHere(nullptr);
     this->code.reset(codeDecompiled);
