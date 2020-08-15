@@ -31,10 +31,8 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
          &r_annotated_code_free)
 {
     ui->setupUi(this);
-
     syntaxHighlighter = Config()->createSyntaxHighlighter(ui->textEdit->document());
-
-    // Event filter to intercept double clicks in the textbox
+    // Event filter to intercept double click and right click in the textbox
     ui->textEdit->viewport()->installEventFilter(this);
 
     setupFonts();
@@ -48,11 +46,9 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(ui->refreshButton, &QAbstractButton::clicked, this, [this]() {
         doRefresh();
     });
-
     refreshDeferrer = createRefreshDeferrer([this]() {
         doRefresh();
     });
-
     autoRefreshEnabled = Config()->getDecompilerAutoRefreshEnabled();
     ui->autoRefreshCheckBox->setChecked(autoRefreshEnabled);
     setAutoRefresh(autoRefreshEnabled);
@@ -75,10 +71,8 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
         }
         connect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
     }
-
     decompilerSelectionEnabled = decompilers.size() > 1;
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
-
     if (decompilers.isEmpty()) {
         ui->textEdit->setPlainText(tr("No Decompiler available."));
     }
@@ -90,7 +84,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(Core(), &CutterCore::seekChanged, this, &DecompilerWidget::seekChanged);
     ui->textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->textEdit, &QWidget::customContextMenuRequested,
-            this, &DecompilerWidget::showDisasContextMenu);
+            this, &DecompilerWidget::showDecompilerContextMenu);
 
     connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::updateBreakpoints);
     addActions(mCtxMenu->actions());
@@ -147,13 +141,13 @@ void DecompilerWidget::updateRefreshButton()
     }
 }
 
-static ut64 offsetForPosition(RAnnotatedCode &codeDecompiled, size_t pos)
+ut64 DecompilerWidget::offsetForPosition(size_t pos)
 {
     size_t closestPos = SIZE_MAX;
-    ut64 closestOffset = UT64_MAX;
-    void *annotationi;
-    r_vector_foreach(&codeDecompiled.annotations, annotationi) {
-        RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
+    ut64 closestOffset = mCtxMenu->getFirstOffsetInLine();
+    void *iter;
+    r_vector_foreach(&code->annotations, iter) {
+        RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
         if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->start > pos
                 || annotation->end <= pos) {
             continue;
@@ -167,13 +161,13 @@ static ut64 offsetForPosition(RAnnotatedCode &codeDecompiled, size_t pos)
     return closestOffset;
 }
 
-static size_t positionForOffset(RAnnotatedCode &codeDecompiled, ut64 offset)
+size_t DecompilerWidget::positionForOffset(ut64 offset)
 {
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = UT64_MAX;
-    void *annotationi;
-    r_vector_foreach(&codeDecompiled.annotations, annotationi) {
-        RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
+    void *iter;
+    r_vector_foreach(&code->annotations, iter) {
+        RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
         if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->offset.offset > offset) {
             continue;
         }
@@ -216,13 +210,13 @@ void DecompilerWidget::gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size
                                             size_t endPos)
 {
     RVA firstOffset = RVA_MAX;
-    void *annotationi;
-    r_vector_foreach(&codeDecompiled.annotations, annotationi) {
-        RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
+    void *iter;
+    r_vector_foreach(&codeDecompiled.annotations, iter) {
+        RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
         if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET) {
             continue;
         }
-        if ((startPos <= annotation->start && annotation->start < endPos) || (startPos <= annotation->end
+        if ((startPos <= annotation->start && annotation->start < endPos) || (startPos < annotation->end
                                                                               && annotation->end < endPos)) {
             firstOffset = (annotation->offset.offset < firstOffset) ? annotation->offset.offset : firstOffset;
         }
@@ -231,7 +225,7 @@ void DecompilerWidget::gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size
     QList<RVA> functionBreakpoints = Core()->getBreakpointsInFunction(decompiledFunctionAddr);
     QVector<RVA> offsetList;
     for (auto bpOffset : functionBreakpoints) {
-        size_t pos = positionForOffset(*code, bpOffset);
+        size_t pos = positionForOffset(bpOffset);
         if (startPos <= pos && pos <= endPos) {
             offsetList.push_back(bpOffset);
         }
@@ -245,26 +239,21 @@ void DecompilerWidget::doRefresh(RVA addr)
     if (!refreshDeferrer->attemptRefresh(nullptr)) {
         return;
     }
-
     if (ui->decompilerComboBox->currentIndex() < 0) {
         return;
     }
-
     Decompiler *dec = getCurrentDecompiler();
     if (!dec) {
         return;
     }
-
     if (dec->isRunning()) {
         decompilerWasBusy = true;
         return;
     }
-
     if (addr == RVA_INVALID) {
         ui->textEdit->setPlainText(tr("Click Refresh to generate Decompiler from current offset."));
         return;
     }
-
     // Clear all selections since we just refreshed
     ui->textEdit->setExtraSelections({});
     previousFunctionAddr = decompiledFunctionAddr;
@@ -287,11 +276,10 @@ void DecompilerWidget::refreshDecompiler()
 
 QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
 {
-    size_t pos = positionForOffset(*code, addr);
+    size_t pos = positionForOffset(addr);
     if (pos == SIZE_MAX || pos == 0) {
         return QTextCursor();
     }
-
     QTextCursor cursor = ui->textEdit->textCursor();
     cursor.setPosition(pos);
     return cursor;
@@ -339,9 +327,9 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
 void DecompilerWidget::setAnnotationsAtCursor(size_t pos)
 {
     RCodeAnnotation *annotationAtPos = nullptr;
-    void *annotationi;
-    r_vector_foreach(&this->code->annotations, annotationi) {
-        RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
+    void *iter;
+    r_vector_foreach(&this->code->annotations, iter) {
+        RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
         if (annotation->type == R_CODE_ANNOTATION_TYPE_OFFSET ||
                 annotation->type == R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT ||
                 annotation->start > pos || annotation->end <= pos) {
@@ -381,10 +369,9 @@ void DecompilerWidget::cursorPositionChanged()
 
     size_t pos = ui->textEdit->textCursor().position();
     setAnnotationsAtCursor(pos);
-
     setInfoForBreakpoints();
 
-    RVA offset = offsetForPosition(*code, pos);
+    RVA offset = offsetForPosition(pos);
     if (offset != RVA_INVALID && offset != Core()->getOffset()) {
         seekFromCursor = true;
         Core()->seek(offset);
@@ -399,7 +386,6 @@ void DecompilerWidget::seekChanged()
     if (seekFromCursor) {
         return;
     }
-
     if (autoRefreshEnabled) {
         auto fcnAddr = Core()->getFunctionStart(Core()->getOffset());
         if (fcnAddr == RVA_INVALID || fcnAddr != decompiledFunctionAddr) {
@@ -407,14 +393,13 @@ void DecompilerWidget::seekChanged()
             return;
         }
     }
-
     updateCursorPosition();
 }
 
 void DecompilerWidget::updateCursorPosition()
 {
     RVA offset = Core()->getOffset();
-    size_t pos = positionForOffset(*code, offset);
+    size_t pos = positionForOffset(offset);
     if (pos == SIZE_MAX) {
         return;
     }
@@ -465,7 +450,7 @@ void DecompilerWidget::colorsUpdatedSlot()
 {
 }
 
-void DecompilerWidget::showDisasContextMenu(const QPoint &pt)
+void DecompilerWidget::showDecompilerContextMenu(const QPoint &pt)
 {
     mCtxMenu->exec(ui->textEdit->mapToGlobal(pt));
 }
@@ -473,7 +458,7 @@ void DecompilerWidget::showDisasContextMenu(const QPoint &pt)
 void DecompilerWidget::seekToReference()
 {
     size_t pos = ui->textEdit->textCursor().position();
-    RVA offset = offsetForPosition(*code, pos);
+    RVA offset = offsetForPosition(pos);
     seekable->seekToReference(offset);
 }
 
@@ -520,7 +505,6 @@ void DecompilerWidget::highlightBreakpoints()
         if (bp == RVA_INVALID) {
             continue;;
         }
-
         cursor = getCursorForAddress(bp);
         if (!cursor.isNull()) {
             // Use a Block formatting since these lines are not updated frequently as selections and PC

@@ -17,11 +17,11 @@
 
 DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWindow)
     :   QMenu(parent),
+        mainWindow(mainWindow),
         curHighlightedWord(QString()),
         offset(0),
         decompiledFunctionAddress(RVA_INVALID),
         isTogglingBreakpoints(false),
-        mainWindow(mainWindow),
         annotationHere(nullptr),
         actionCopy(tr("Copy"), this),
         actionCopyInstructionAddress(tr("Copy instruction address (<address>)"), this),
@@ -48,10 +48,10 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
     setActionAddComment();
     setActionDeleteComment();
 
-    setActionXRefs();
-
     setActionRenameThingHere();
     setActionDeleteName();
+
+    setActionXRefs();
 
     setActionEditFunctionVariables();
 
@@ -73,34 +73,37 @@ DecompilerContextMenu::~DecompilerContextMenu()
 
 void DecompilerContextMenu::setAnnotationHere(RCodeAnnotation *annotation)
 {
-    this->annotationHere = annotation;
+    annotationHere = annotation;
 }
 
 void DecompilerContextMenu::setCurHighlightedWord(QString word)
 {
-    this->curHighlightedWord = word;
+    curHighlightedWord = word;
 }
 
-void DecompilerContextMenu::setOffset(RVA offset)
+void DecompilerContextMenu::setOffset(RVA newOffset)
 {
-    this->offset = offset;
-
-    // this->actionSetFunctionVarTypes.setVisible(true);
+    offset = newOffset;
 }
 
 void DecompilerContextMenu::setDecompiledFunctionAddress(RVA functionAddr)
 {
-    this->decompiledFunctionAddress = functionAddr;
+    decompiledFunctionAddress = functionAddr;
 }
 
 void DecompilerContextMenu::setFirstOffsetInLine(RVA firstOffset)
 {
-    this->firstOffsetInLine = firstOffset;
+    firstOffsetInLine = firstOffset;
+}
+
+RVA DecompilerContextMenu::getFirstOffsetInLine()
+{
+    return firstOffsetInLine;
 }
 
 void DecompilerContextMenu::setAvailableBreakpoints(QVector<RVA> offsetList)
 {
-    this->availableBreakpoints = offsetList;
+    availableBreakpoints = offsetList;
 }
 
 void DecompilerContextMenu::setupBreakpointsInLineMenu()
@@ -130,12 +133,12 @@ void DecompilerContextMenu::setShortcutContextInActions(QMenu *menu)
 
 void DecompilerContextMenu::setIsTogglingBreakpoints(bool isToggling)
 {
-    this->isTogglingBreakpoints = isToggling;
+    isTogglingBreakpoints = isToggling;
 }
 
 bool DecompilerContextMenu::getIsTogglingBreakpoints()
 {
-    return this->isTogglingBreakpoints;
+    return isTogglingBreakpoints;
 }
 
 void DecompilerContextMenu::aboutToHideSlot()
@@ -169,7 +172,6 @@ void DecompilerContextMenu::aboutToShowSlot()
         actionDeleteComment.setVisible(false);
     }
 
-
     setupBreakpointsInLineMenu();
 
     // Only show debug options if we are currently debugging
@@ -184,7 +186,6 @@ void DecompilerContextMenu::aboutToShowSlot()
     } else {
         actionToggleBreakpoint.setText(tr("Remove all breakpoints in line"));
     }
-
     if (numberOfBreakpoints > 1) {
         actionAdvancedBreakpoint.setMenu(breakpointsInLineMenu);
     } else {
@@ -198,7 +199,7 @@ void DecompilerContextMenu::aboutToShowSlot()
 
     if (!annotationHere
             || annotationHere->type ==
-            R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) { // To be considered as invalid
+            R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) { // If constant, don't show rename and targeted show-in
         actionRenameThingHere.setVisible(false);
         copySeparator->setVisible(false);
     } else {
@@ -219,7 +220,7 @@ void DecompilerContextMenu::aboutToShowSlot()
     }
     actionCopyInstructionAddress.setText(tr("Copy instruction address (%1)").arg(RAddressString(
                                                                                      offset)));
-    if (annotationHere && r_annotation_is_reference(annotationHere)) {
+    if (isReference()) {
         actionCopyReferenceAddress.setVisible(true);
         RVA referenceAddr = annotationHere->reference.offset;
         RFlagItem *flagDetails = r_flag_get_i(Core()->core()->flags, referenceAddr);
@@ -257,7 +258,6 @@ void DecompilerContextMenu::aboutToShowSlot()
 }
 
 // Set up actions
-
 
 void DecompilerContextMenu::setActionCopy() // Set all three copy actions
 {
@@ -386,7 +386,7 @@ void DecompilerContextMenu::actionDeleteCommentTriggered()
 
 void DecompilerContextMenu::actionRenameThingHereTriggered()
 {
-    if (!annotationHere) {
+    if (!annotationHere || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
         return;
     }
     RCoreLocked core = Core()->core();
@@ -410,7 +410,6 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
                 Core()->renameFunction(func_addr, newName);
             }
         }
-
     } else if (type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE) {
         RVA var_addr = annotationHere->reference.offset;
         RFlagItem *flagDetails = r_flag_get_i(core->flags, var_addr);
@@ -467,7 +466,7 @@ void DecompilerContextMenu::actionEditFunctionVariablesTriggered()
 
 void DecompilerContextMenu::actionXRefsTriggered()
 {
-    if (!annotationHere || !r_annotation_is_reference(annotationHere)) {
+    if (!isReference()) {
         return;
     }
     XrefsDialog dialog(mainWindow, nullptr);
@@ -551,9 +550,7 @@ void DecompilerContextMenu::updateTargetMenuActions()
     }
     showTargetMenuActions.clear();
     RCoreLocked core = Core()->core();
-    if (annotationHere && (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
-                           || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE
-                           || annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME)) {
+    if (isReference()) {
         QString name;
         QMenu *menu;
         if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
@@ -578,6 +575,11 @@ void DecompilerContextMenu::updateTargetMenuActions()
         action->setMenu(menu);
         insertActions(copySeparator, showTargetMenuActions);
     }
+}
+
+bool DecompilerContextMenu::isReference()
+{
+    return (annotationHere && r_annotation_is_reference(annotationHere));
 }
 
 bool DecompilerContextMenu::isFunctionVariable()
