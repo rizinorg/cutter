@@ -102,7 +102,7 @@ private:
      *
      * @param addr Specified offset/offset in sync.
      */
-    void doRefresh(RVA addr = Core()->getOffset());
+    void doRefresh();
     void updateRefreshButton();
     /**
      * @brief Update fonts

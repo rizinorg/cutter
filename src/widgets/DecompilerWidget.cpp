@@ -91,7 +91,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     addActions(mCtxMenu->actions());
 
     ui->progressLabel->setVisible(false);
-    doRefresh(RVA_INVALID);
+    doRefresh();
 
     connect(Core(), &CutterCore::refreshAll, this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::functionRenamed, this, &DecompilerWidget::doAutoRefresh);
@@ -235,8 +235,9 @@ void DecompilerWidget::gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size
     mCtxMenu->setAvailableBreakpoints(offsetList);
 }
 
-void DecompilerWidget::doRefresh(RVA addr)
+void DecompilerWidget::doRefresh()
 {
+    RVA addr = seekable->getOffset();
     if (!refreshDeferrer->attemptRefresh(nullptr)) {
         return;
     }
