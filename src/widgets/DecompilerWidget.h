@@ -28,16 +28,30 @@ public:
     explicit DecompilerWidget(MainWindow *main);
     ~DecompilerWidget();
 public slots:
-    void showDisasContextMenu(const QPoint &pt);
+    void showDecompilerContextMenu(const QPoint &pt);
 
     void highlightPC();
 private slots:
+    /**
+     * @brief Copy to clipboard what's needed depending on the state of text widget.
+     *
+     * @note If something is selected in the text widget, copy selection.
+     *       If something is highlighted, copy highlighted word.
+     *       Otherwise, copy the line under cursor.
+     */
     void copy();
     void fontsUpdatedSlot();
     void colorsUpdatedSlot();
     void refreshDecompiler();
     void decompilerSelected();
     void cursorPositionChanged();
+    /**
+     * @brief When the synced seek is changed, this refreshes the decompiler widget if needed.
+     * 
+     * Decompiler widget is not refreshed in the following two cases
+     *     - Seek changed to an offset contained in the decompiled function.
+     *     - Auto-refresh is disabled.
+     */
     void seekChanged();
     void decompilationFinished(RAnnotatedCode *code);
 
@@ -51,7 +65,7 @@ private:
     bool autoRefreshEnabled;
 
     /**
-     * True if doRefresh() was called, but the decompiler was still running
+     * True if doRefresh() was called, but the decompiler was still running.
      * This means, after the decompiler has finished, it should be refreshed immediately.
      */
     bool decompilerWasBusy;
@@ -65,16 +79,71 @@ private:
 
     Decompiler *getCurrentDecompiler();
 
+    /**
+     * @brief Enable/Disable auto refresh as per the specified boolean value
+     *
+     * @param enabled
+     */
     void setAutoRefresh(bool enabled);
+    /**
+     * @brief Calls the function doRefresh() if auto-refresh is enabled.
+     */
     void doAutoRefresh();
+    /**
+     * @brief Refreshes the decompiler.
+     * 
+     * - This does the following if the specified offset is valid
+     *     - Decompile function that contains the specified offset.
+     *     - Clears all selections stored for highlighting purposes.
+     *     - Reset previousFunctionAddr with the current function's address
+     *       and decompiledFunctionAddr with the address of the function that
+     *       was decompiled.
+     * - If the offset is invalid, error message is shown in the text widget.
+     *
+     * @param addr Specified offset/offset in sync.
+     */
     void doRefresh(RVA addr = Core()->getOffset());
     void updateRefreshButton();
+    /**
+     * @brief Update fonts
+     */
     void setupFonts();
+    /**
+     * @brief Update highlights in the text widget.
+     * 
+     * These include respective highlights for:
+     *     - Line under cursor
+     *     - Word under cursor
+     *     - Program Counter(PC) while debugging
+     */
     void updateSelection();
+    /**
+     * @brief Connect/Disconnect SIGNAL-SLOT connection that deals with changes in cursor position.
+     *
+     * If the argument is true, then disconnect the SIGNAL-SLOT connection
+     * that changes the view as cursor position gets changed in the text widget.
+     * Otherwise, connect the corresponding signal with slot.
+     *
+     * @param disconnect
+     */
     void connectCursorPositionChanged(bool disconnect);
+    /**
+     * @brief Find the current global offset in sync and update cursor
+     * to the position specified by this offset (found using positionForOffset() )
+     */
     void updateCursorPosition();
 
     QString getWindowTitle() const override;
+
+    /**
+     * @brief Event filter that intercept the following events:
+     *     1. Double click
+     *     2. Right click
+     *
+     * @param obj
+     * @param event
+     * @return
+     */
     bool eventFilter(QObject *obj, QEvent *event) override;
 
     /**
@@ -104,21 +173,49 @@ private:
     void highlightBreakpoints();
     /**
      * @brief Finds the earliest offset and breakpoints within the specified range [startPos, endPos]
-     * in the specified RAnnotatedCode
+     * in the specified RAnnotatedCode.
      *
      * This function is supposed to be used for finding the earliest offset and breakpoints within the specified range
      * [startPos, endPos]. This will set the value of the variables 'RVA firstOffsetInLine' and 'QVector<RVA> availableBreakpoints' in
-     * this->mCtxMenu.
+     * the context menu.
      *
      * @param codeDecompiled - A reference to the RAnnotatedCode for the function that is decompiled.
      * @param startPos - Position of the start of the range(inclusive).
      * @param endPos - Position of the end of the range(inclusive).
      */
     void gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size_t startPos, size_t endPos);
-
+    /**
+     * @brief Finds the offset that's closest to the specified position in the decompiled code.
+     *
+     * @note If no annotations that covers the specified position is found, the first offset in the line
+     * containing specified position will be returned
+     *
+     * @param pos - Position of the decompiled code.
+     * @return Offset for the specified position/first offset in line.
+     */
+    ut64 offsetForPosition(size_t pos);
+    /**
+     * @brief Find the start position of the annotation with the offset that's closest to
+     * the specified offset
+     *
+     * @param offset
+     * @return Position found or SIZE_MAX
+     */
+    size_t positionForOffset(ut64 offset);
+    /**
+     * @brief Updates the view when breakpoints are changed
+     */
     void updateBreakpoints();
+    /**
+     * @brief Set information about the breakpoints on the line in the context menu
+     */
     void setInfoForBreakpoints();
-
+    /**
+     * @brief Find the context-related annotation covering the specified position.
+     * If found, set the variable annotationHere in the decompiler context menu.
+     *
+     * @param pos Position of cursor in the decompiled code.
+     */
     void setAnnotationsAtCursor(size_t pos);
 };
 
