@@ -17,7 +17,7 @@ So you like Cutter and want to get involved? Great! This part of the documentati
    <a class="btn btn-outline-success btn-lg m-2" role="button" href="contributing/plugins/getting-started.html">Plugins</a>
    <a class="btn btn-outline-info btn-lg m-2" role="button" href="contributing/translations/getting-started.html">Translations</a>
 
-steps for contributing
+Steps for Contributing
 ======================
 - Have a good knowledge of git and github. we highly recomend to read the `GitHub-Contributing-to-a-Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_.
 - Fork the repository on GitHub.
