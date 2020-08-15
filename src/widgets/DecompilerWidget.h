@@ -77,8 +77,12 @@ private:
     std::unique_ptr<RAnnotatedCode, void (*)(RAnnotatedCode *)> code;
     bool seekFromCursor = false;
 
+    RVA lowestOffsetInCode;
+    RVA highestOffsetInCode;
+
+
     Decompiler *getCurrentDecompiler();
-    
+
     /**
      * @brief Calls the function doRefresh() if auto-refresh is enabled.
      */

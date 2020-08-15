@@ -273,8 +273,11 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
     mCtxMenu->setAnnotationHere(nullptr);
     this->code.reset(codeDecompiled);
     QString codeString = QString::fromUtf8(this->code->code);
+    
     if (codeString.isEmpty()) {
         ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
+        lowestOffsetInCode = RVA_INVALID;
+        highestOffsetInCode = RVA_INVALID;
         return;
     } else {
         connectCursorPositionChanged(true);
@@ -283,6 +286,20 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
         updateCursorPosition();
         highlightPC();
         highlightBreakpoints();
+        lowestOffsetInCode = RVA_MAX;
+        highestOffsetInCode = -1;
+        void *iter;
+        r_vector_foreach(&code->annotations, iter) {
+            RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
+            if (annotation->type == R_CODE_ANNOTATION_TYPE_OFFSET) {
+                if (lowestOffsetInCode > annotation->offset.offset) {
+                    lowestOffsetInCode = annotation->offset.offset;
+                }
+                if (highestOffsetInCode < annotation->offset.offset) {
+                    highestOffsetInCode = annotation->offset.offset;
+                }
+            }
+        }
     }
 
     if (decompilerWasBusy) {
