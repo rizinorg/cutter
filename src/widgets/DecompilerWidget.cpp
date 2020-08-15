@@ -93,14 +93,14 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     ui->progressLabel->setVisible(false);
     doRefresh();
 
-    connect(Core(), &CutterCore::refreshAll, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::functionRenamed, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::varsChanged, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::functionsChanged, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::flagsChanged, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::commentsChanged, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::instructionChanged, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::refreshCodeViews, this, &DecompilerWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::refreshAll, this, &DecompilerWidget::doRefresh);
+    connect(Core(), &CutterCore::functionRenamed, this, &DecompilerWidget::doRefresh);
+    connect(Core(), &CutterCore::varsChanged, this, &DecompilerWidget::doRefresh);
+    connect(Core(), &CutterCore::functionsChanged, this, &DecompilerWidget::doRefresh);
+    connect(Core(), &CutterCore::flagsChanged, this, &DecompilerWidget::doRefresh);
+    connect(Core(), &CutterCore::commentsChanged, this, &DecompilerWidget::doRefresh);
+    connect(Core(), &CutterCore::instructionChanged, this, &DecompilerWidget::doRefresh);
+    connect(Core(), &CutterCore::refreshCodeViews, this, &DecompilerWidget::doRefresh);
 
     // Esc to seek backward
     QAction *seekPrevAction = new QAction(this);
@@ -317,7 +317,6 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
 
     if (decompilerWasBusy) {
         decompilerWasBusy = false;
-        doAutoRefresh();
     }
 
     if (isDisplayReset) {
@@ -388,12 +387,10 @@ void DecompilerWidget::seekChanged()
     if (seekFromCursor) {
         return;
     }
-    if (autoRefreshEnabled) {
-        auto fcnAddr = Core()->getFunctionStart(seekable->getOffset());
-        if (fcnAddr == RVA_INVALID || fcnAddr != decompiledFunctionAddr) {
-            doRefresh();
-            return;
-        }
+    auto fcnAddr = Core()->getFunctionStart(seekable->getOffset());
+    if (fcnAddr == RVA_INVALID || fcnAddr != decompiledFunctionAddr) {
+        doRefresh();
+        return;
     }
     updateCursorPosition();
 }
