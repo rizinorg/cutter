@@ -74,9 +74,6 @@ compile_commands.json
 .ccls-cache
 docs/source/_build
 
-# vscode
-**/.vscode
-
 # Visual Studio CMake
 src/out
 .vs
