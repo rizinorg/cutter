@@ -24,6 +24,6 @@ So you like Cutter and want to get involved? Great! This part of the documentati
    :titlesonly:
 
    contributing/code
-   Contributing Documentation <contributing/docs/getting-started>
+   contributing/docs
    contributing/translations/getting-started
    contributing/plugins/getting-started
