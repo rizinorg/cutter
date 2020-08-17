@@ -1,13 +1,12 @@
 Decompiler Context Menu 
 ==============================
+The decompiler context menu contains actions that are available for the location under cursor.
 
 .. toctree::
    :maxdepth: 1
    :glob:
 
    decompiler-context-menu/*
-
-The decompiler context menu contains actions that are available for the location under cursor.
 
 Copy
 ----------------------------------------
