@@ -1552,8 +1552,10 @@ void MainWindow::on_actionRefresh_contents_triggered()
 
 void MainWindow::on_actionPreferences_triggered()
 {
-    auto dialog = new PreferencesDialog(this);
-    dialog->show();
+    if (!findChild<PreferencesDialog*>()) {
+        auto dialog = new PreferencesDialog(this);
+        dialog->show();
+    }
 }
 
 void MainWindow::on_actionTabs_triggered()
