@@ -105,6 +105,32 @@ You can now execute Cutter like this:
    ./build/Cutter
 
 
+Building on macOS
+-----------------
+
+Requirements
+~~~~~~~~~~~~
+
+On macOS, you will need:
+
+* cmake
+* meson
+* libzip
+* zlib
+* qt5
+* graphviz
+
+You can install all of these packages as follows:
+
+.. code:: sh
+
+   pip3 install meson
+   brew install cmake libzip zlib qt5 graphviz
+
+Building Steps on macOS is same as `Building Steps`_ on Linux.
+
+After the build process is complete, you can find the executable of Cutter at ``build/Cutter.app/Contents/MacOS``.
+
 Building on Windows
 -------------------
 
