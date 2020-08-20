@@ -77,6 +77,8 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
             this, &DecompilerWidget::showDecompilerContextMenu);
 
     connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::updateBreakpoints);
+    mCtxMenu->addSeperator();
+    mCtxMenu->addAction(&syncAction);
     addActions(mCtxMenu->actions());
 
     ui->progressLabel->setVisible(false);
