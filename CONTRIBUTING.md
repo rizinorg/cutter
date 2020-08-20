@@ -16,7 +16,7 @@ Please follow our contribution guidelines: https://cutter.re/docs/contributing.h
 
 ## Contributing to the documentation
 
-The documentation is something important for newcomers. As of today the documentation can be found [here](https://cutter.re/docs/) and it stands in the [docs](https://github.com/radareorg/cutter/tree/master/docs) folder.
+The documentation is something important for newcomers. As of today the documentation can be read [here](https://cutter.re/docs/) and it's source code stands in the [cutter-docs](https://github.com/radareorg/cutter-docs) repository.
 The API Reference is automatically generated from the source code, so it is strongly advised to document your code.
 Check issues marked as "Documentation" on our issues [list](https://github.com/radareorg/cutter/issues?q=is%3Aissue+is%3Aopen+label%3ADocumentation).
 
