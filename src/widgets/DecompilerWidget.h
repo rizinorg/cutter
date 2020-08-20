@@ -47,7 +47,7 @@ private slots:
     void cursorPositionChanged();
     /**
      * @brief When the synced seek is changed, this refreshes the decompiler widget if needed.
-     * 
+     *
      * Decompiler widget is not refreshed in the following two cases
      *     - Seek changed to an offset contained in the decompiled function.
      *     - Auto-refresh is disabled.
@@ -85,13 +85,13 @@ private:
 
     /**
      * @brief Calls the function doRefresh() if the address specified is a part of the decompiled function.
-     * 
+     *
      * @param addr Address at which a change occurred.
      */
     void refreshForChange(RVA addr);
     /**
      * @brief Refreshes the decompiler.
-     * 
+     *
      * - This does the following if the specified offset is valid
      *     - Decompile function that contains the specified offset.
      *     - Clears all selections stored for highlighting purposes.
@@ -109,7 +109,7 @@ private:
     void setupFonts();
     /**
      * @brief Update highlights in the text widget.
-     * 
+     *
      * These include respective highlights for:
      *     - Line under cursor
      *     - Word under cursor

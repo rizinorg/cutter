@@ -90,7 +90,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(Core(), &CutterCore::functionsChanged, this, &DecompilerWidget::doRefresh);
     connect(Core(), &CutterCore::flagsChanged, this, &DecompilerWidget::doRefresh);
     connect(Core(), &CutterCore::commentsChanged, this, &DecompilerWidget::refreshForChange);
-    connect(Core(), &CutterCore::instructionChanged, this,&DecompilerWidget::refreshForChange);
+    connect(Core(), &CutterCore::instructionChanged, this, &DecompilerWidget::refreshForChange);
     connect(Core(), &CutterCore::refreshCodeViews, this, &DecompilerWidget::doRefresh);
 
     // Esc to seek backward
@@ -277,7 +277,7 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
     mCtxMenu->setAnnotationHere(nullptr);
     this->code.reset(codeDecompiled);
     QString codeString = QString::fromUtf8(this->code->code);
-    
+
     if (codeString.isEmpty()) {
         ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
         lowestOffsetInCode = RVA_MAX;
