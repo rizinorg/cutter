@@ -48,12 +48,12 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     });
 
     auto decompilers = Core()->getDecompilers();
-    auto selectedDecompilerId = Config()->getSelectedDecompiler();
+    QString selectedDecompilerId = Config()->getSelectedDecompiler();
     if (selectedDecompilerId.isEmpty()) {
         // If no decompiler was previously chosen. set r2ghidra as default decompiler
         selectedDecompilerId = "r2ghidra";
     }
-    for (auto dec : decompilers) {
+    for (Decompiler *dec : decompilers) {
         ui->decompilerComboBox->addItem(dec->getName(), dec->getId());
         if (dec->getId() == selectedDecompilerId) {
             ui->decompilerComboBox->setCurrentIndex(ui->decompilerComboBox->count() - 1);
@@ -70,14 +70,13 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
             static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
             &DecompilerWidget::decompilerSelected);
     connectCursorPositionChanged(false);
-    // connect(Core(), &CutterCore::seekChanged, this, &DecompilerWidget::seekChanged);
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &DecompilerWidget::seekChanged);
     ui->textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->textEdit, &QWidget::customContextMenuRequested,
             this, &DecompilerWidget::showDecompilerContextMenu);
 
     connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::updateBreakpoints);
-    mCtxMenu->addSeperator();
+    mCtxMenu->addSeparator();
     mCtxMenu->addAction(&syncAction);
     addActions(mCtxMenu->actions());
 
@@ -165,8 +164,9 @@ void DecompilerWidget::updateBreakpoints(RVA addr)
 
 void DecompilerWidget::setInfoForBreakpoints()
 {
-    if (mCtxMenu->getIsTogglingBreakpoints())
+    if (mCtxMenu->getIsTogglingBreakpoints()) {
         return;
+    }
     // Get the range of the line
     QTextCursor cursorForLine = ui->textEdit->textCursor();
     cursorForLine.movePosition(QTextCursor::StartOfLine);
@@ -194,7 +194,7 @@ void DecompilerWidget::gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size
     mCtxMenu->setFirstOffsetInLine(firstOffset);
     QList<RVA> functionBreakpoints = Core()->getBreakpointsInFunction(decompiledFunctionAddr);
     QVector<RVA> offsetList;
-    for (auto bpOffset : functionBreakpoints) {
+    for (RVA bpOffset : functionBreakpoints) {
         size_t pos = positionForOffset(bpOffset);
         if (startPos <= pos && pos <= endPos) {
             offsetList.push_back(bpOffset);
@@ -336,9 +336,7 @@ void DecompilerWidget::setAnnotationsAtCursor(size_t pos)
 void DecompilerWidget::decompilerSelected()
 {
     Config()->setSelectedDecompiler(ui->decompilerComboBox->currentData().toString());
-    if (autoRefreshEnabled) {
-        doRefresh();
-    }
+    doRefresh();
 }
 
 void DecompilerWidget::connectCursorPositionChanged(bool disconnect)
@@ -412,7 +410,7 @@ void DecompilerWidget::updateSelection()
     QList<QTextEdit::ExtraSelection> extraSelections;
 
     // Highlight the current line
-    auto cursor = ui->textEdit->textCursor();
+    QTextCursor cursor = ui->textEdit->textCursor();
     extraSelections.append(createLineHighlightSelection(cursor));
 
     // Highlight all the words in the document same as the current one
@@ -491,7 +489,7 @@ void DecompilerWidget::highlightBreakpoints()
 
     QList<RVA> functionBreakpoints = Core()->getBreakpointsInFunction(decompiledFunctionAddr);
     QTextCursor cursor;
-    for (auto &bp : functionBreakpoints) {
+    for (RVA &bp : functionBreakpoints) {
         if (bp == RVA_INVALID) {
             continue;;
         }

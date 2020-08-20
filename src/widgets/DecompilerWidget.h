@@ -62,7 +62,6 @@ private:
 
     QSyntaxHighlighter *syntaxHighlighter;
     bool decompilerSelectionEnabled;
-    bool autoRefreshEnabled;
 
     /**
      * True if doRefresh() was called, but the decompiler was still running.
@@ -76,11 +75,20 @@ private:
     RVA decompiledFunctionAddr;
     std::unique_ptr<RAnnotatedCode, void (*)(RAnnotatedCode *)> code;
     bool seekFromCursor = false;
-
+    /**
+     * Specifies the lowest offset of instructions among all the instructions in the decompiled function.
+     */
     RVA lowestOffsetInCode;
+    /**
+     * Specifies the highest offset of instructions among all the instructions in the decompiled function.
+     */
     RVA highestOffsetInCode;
 
-
+    /**
+     * @brief Gets the current decompiler selected by the user.
+     *
+     * @return A pointer to the currently selected decompiler
+     */
     Decompiler *getCurrentDecompiler();
 
     /**
@@ -166,7 +174,7 @@ private:
     bool colorLine(QTextEdit::ExtraSelection extraSelection);
 
     /**
-     * @brief This function responsible to highlight all the breakpoints in the decompiler view.
+     * @brief This function is responsible for highlighting all the breakpoints in the decompiler view.
      * It will also run when a breakpoint is added, removed or modified.
      */
     void highlightBreakpoints();
@@ -216,6 +224,12 @@ private:
      * @param pos Position of cursor in the decompiled code.
      */
     void setAnnotationsAtCursor(size_t pos);
+    /**
+     * @brief Checks if the specified address is a part of the decompiled function.
+     *
+     * @param addr An offset in the binary.
+     * @return True if the specified is a part of the decompiled function, False otherwise.
+     */
     bool addressInRange(RVA addr);
 };
 
