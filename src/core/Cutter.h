@@ -647,7 +647,7 @@ signals:
     void varsChanged();
     void functionsChanged();
     void flagsChanged();
-    void commentsChanged();
+    void commentsChanged(RVA addr);
     void registersChanged();
     void instructionChanged(RVA offset);
     void breakpointsChanged(RVA offset);

@@ -145,7 +145,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
         }
     });
 
-    connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshDisasm()));
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {refreshDisasm();});
     connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), &CutterCore::functionRenamed, this, [this]() {refreshDisasm();});
