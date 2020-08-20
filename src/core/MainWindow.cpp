@@ -236,8 +236,13 @@ void MainWindow::initUI()
     connect(ui->actionDocumentation, &QAction::triggered, this, &MainWindow::documentationClicked);
 
     /* Setup plugins interfaces */
-    for (auto &plugin : Plugins()->getPlugins()) {
+    const auto &plugins = Plugins()->getPlugins();
+    if (!plugins.empty()) {
+      ui->menuPlugins->setEnabled(true); // disabled by default
+
+      for (auto &plugin : plugins) {
         plugin->setupInterface(this);
+      }
     }
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
