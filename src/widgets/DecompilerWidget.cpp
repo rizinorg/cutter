@@ -153,8 +153,11 @@ size_t DecompilerWidget::positionForOffset(ut64 offset)
     return closestPos;
 }
 
-void DecompilerWidget::updateBreakpoints()
+void DecompilerWidget::updateBreakpoints(RVA addr)
 {
+    if (!addressInRange(addr)) {
+        return;
+    }
     setInfoForBreakpoints();
     QTextCursor cursor = ui->textEdit->textCursor();
     cursor.select(QTextCursor::Document);
@@ -524,4 +527,12 @@ void DecompilerWidget::copy()
             clipboard->setText(cursor.selectedText());
         }
     }
+}
+
+void DecompilerWidget::addressInRange(RVA addr)
+{
+    if (lowestOffsetInCode <= addr && addr <= highestOffsetInCode) {
+        return true;
+    }
+    return false;
 }

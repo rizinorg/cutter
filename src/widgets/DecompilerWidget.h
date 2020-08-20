@@ -202,7 +202,7 @@ private:
     /**
      * @brief Updates the view when breakpoints are changed
      */
-    void updateBreakpoints();
+    void updateBreakpoints(RVA addr);
     /**
      * @brief Set information about the breakpoints on the line in the context menu
      */
@@ -214,6 +214,7 @@ private:
      * @param pos Position of cursor in the decompiled code.
      */
     void setAnnotationsAtCursor(size_t pos);
+    void addressInRange(RVA addr);
 };
 
 #endif // DECOMPILERWIDGET_H
