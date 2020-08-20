@@ -88,7 +88,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(Core(), &CutterCore::functionsChanged, this, &DecompilerWidget::doRefresh);
     connect(Core(), &CutterCore::flagsChanged, this, &DecompilerWidget::doRefresh);
     connect(Core(), &CutterCore::commentsChanged, this, &DecompilerWidget::doRefresh);
-    connect(Core(), &CutterCore::instructionChanged, this, &DecompilerWidget::doRefresh);
+    connect(Core(), &CutterCore::instructionChanged, this,&DecompilerWidget::refreshForChange);
     connect(Core(), &CutterCore::refreshCodeViews, this, &DecompilerWidget::doRefresh);
 
     // Esc to seek backward
@@ -106,12 +106,11 @@ Decompiler *DecompilerWidget::getCurrentDecompiler()
     return Core()->getDecompilerById(ui->decompilerComboBox->currentData().toString());
 }
 
-void DecompilerWidget::doAutoRefresh()
+void DecompilerWidget::refreshForChange(RVA addr)
 {
-    // if (!autoRefreshEnabled) {
-    //     return;
-    // }
-    doRefresh();
+    if (addressInRange(addr)) {
+        doRefresh();
+    }
 }
 
 ut64 DecompilerWidget::offsetForPosition(size_t pos)
@@ -280,7 +279,7 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
     if (codeString.isEmpty()) {
         ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
         lowestOffsetInCode = RVA_INVALID;
-        highestOffsetInCode = RVA_INVALID;
+        highestOffsetInCode = 0;
         return;
     } else {
         connectCursorPositionChanged(true);
@@ -290,7 +289,7 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
         highlightPC();
         highlightBreakpoints();
         lowestOffsetInCode = RVA_MAX;
-        highestOffsetInCode = -1;
+        highestOffsetInCode = 0;
         void *iter;
         r_vector_foreach(&code->annotations, iter) {
             RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
@@ -529,7 +528,7 @@ void DecompilerWidget::copy()
     }
 }
 
-void DecompilerWidget::addressInRange(RVA addr)
+bool DecompilerWidget::addressInRange(RVA addr)
 {
     if (lowestOffsetInCode <= addr && addr <= highestOffsetInCode) {
         return true;

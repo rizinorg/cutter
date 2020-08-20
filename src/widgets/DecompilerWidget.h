@@ -84,9 +84,11 @@ private:
     Decompiler *getCurrentDecompiler();
 
     /**
-     * @brief Calls the function doRefresh() if auto-refresh is enabled.
+     * @brief Calls the function doRefresh() if the address specified is a part of the decompiled function.
+     * 
+     * @param addr Address at which a change occurred.
      */
-    void doAutoRefresh();
+    void refreshForChange(RVA addr);
     /**
      * @brief Refreshes the decompiler.
      * 
@@ -214,7 +216,7 @@ private:
      * @param pos Position of cursor in the decompiled code.
      */
     void setAnnotationsAtCursor(size_t pos);
-    void addressInRange(RVA addr);
+    bool addressInRange(RVA addr);
 };
 
 #endif // DECOMPILERWIDGET_H
