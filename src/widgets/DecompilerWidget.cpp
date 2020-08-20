@@ -106,13 +106,6 @@ Decompiler *DecompilerWidget::getCurrentDecompiler()
     return Core()->getDecompilerById(ui->decompilerComboBox->currentData().toString());
 }
 
-void DecompilerWidget::refreshForChange(RVA addr)
-{
-    if (addressInRange(addr)) {
-        doRefresh();
-    }
-}
-
 ut64 DecompilerWidget::offsetForPosition(size_t pos)
 {
     size_t closestPos = SIZE_MAX;
@@ -209,6 +202,13 @@ void DecompilerWidget::gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size
     mCtxMenu->setAvailableBreakpoints(offsetList);
 }
 
+void DecompilerWidget::refreshForChange(RVA addr)
+{
+    if (addressInRange(addr)) {
+        doRefresh();
+    }
+}
+
 void DecompilerWidget::doRefresh()
 {
     RVA addr = seekable->getOffset();
@@ -278,7 +278,7 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
     
     if (codeString.isEmpty()) {
         ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
-        lowestOffsetInCode = RVA_INVALID;
+        lowestOffsetInCode = RVA_MAX;
         highestOffsetInCode = 0;
         return;
     } else {
@@ -376,7 +376,7 @@ void DecompilerWidget::seekChanged()
     if (seekFromCursor) {
         return;
     }
-    auto fcnAddr = Core()->getFunctionStart(seekable->getOffset());
+    RVA fcnAddr = Core()->getFunctionStart(seekable->getOffset());
     if (fcnAddr == RVA_INVALID || fcnAddr != decompiledFunctionAddr) {
         doRefresh();
         return;
