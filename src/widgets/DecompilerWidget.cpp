@@ -58,7 +58,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
         if (dec->getId() == selectedDecompilerId) {
             ui->decompilerComboBox->setCurrentIndex(ui->decompilerComboBox->count() - 1);
         }
-        connect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
+        // connect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
     }
     decompilerSelectionEnabled = decompilers.size() > 1;
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
@@ -237,6 +237,7 @@ void DecompilerWidget::doRefresh()
     previousFunctionAddr = decompiledFunctionAddr;
     decompiledFunctionAddr = Core()->getFunctionStart(addr);
     mCtxMenu->setDecompiledFunctionAddress(decompiledFunctionAddr);
+    connect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
     dec->decompileAt(addr);
     if (dec->isRunning()) {
         ui->progressLabel->setVisible(true);
@@ -276,6 +277,8 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
 
     mCtxMenu->setAnnotationHere(nullptr);
     this->code.reset(codeDecompiled);
+    Decompiler *dec = getCurrentDecompiler();
+    QObject::disconnect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
     QString codeString = QString::fromUtf8(this->code->code);
 
     if (codeString.isEmpty()) {
