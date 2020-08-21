@@ -105,6 +105,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>spinBox_size</tabstop>
+  <tabstop>checkBox_autoSize</tabstop>
+  <tabstop>comboBox_type</tabstop>
+  <tabstop>lineEdit_address</tabstop>
+  <tabstop>pushButton_ok</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
