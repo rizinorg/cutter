@@ -56,6 +56,8 @@ find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui Svg Network)
 
 include(CutterInstallDirs)
 
+include(Packaging)
+
 if(CUTTER_USE_BUNDLED_RADARE2)
     include(BundledRadare2)
     set(RADARE2_TARGET Radare2)

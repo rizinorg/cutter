@@ -110,4 +110,5 @@ jobs:
           -DCMAKE_BUILD_TYPE=Release \
           -DCUTTER_USE_BUNDLED_RADARE2=ON \
           ../src
-        cmake --build .
+        cmake --build . --config Release
+        cmkae --build . --config Release --target package
