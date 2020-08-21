@@ -109,6 +109,7 @@
   <tabstop>checkBox_autoSize</tabstop>
   <tabstop>comboBox_type</tabstop>
   <tabstop>lineEdit_address</tabstop>
+  <tabstop>dialogButtonBox</tabstop>
  </tabstops>
  <resources/>
  <connections>
