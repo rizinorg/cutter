@@ -16,7 +16,11 @@ Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
     this->setMinimumHeight(16);
     this->setFrame(false);
     this->setPlaceholderText(tr("Type flag name or address here"));
-    this->setStyleSheet("border-radius: 5px; padding: 0 8px; margin: 5px 0;");
+
+    // Make the Omnibar with round edges and make sure it has a border when in focus.
+    this->setStyleSheet("QLineEdit {border-radius: 5px; padding: 0 8px; margin: 5px 0;}"
+                        "QLineEdit:focus {border: 2px solid #006080;}");
+                        
     this->setTextMargins(10, 0, 0, 0);
     this->setClearButtonEnabled(true);
 
