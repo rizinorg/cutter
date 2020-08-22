@@ -87,7 +87,10 @@ Recommended plugins
 Project setup
 ~~~~~~~~~~~~~
 - :menuselection:`File --> Open Folder...` and select the folder in which you cloned Cutter
-- If the recommend plugins are already installed, you will see a popup asking you to "Select a Kit for cutter". Choose :guilabel:`[Unspecified]` unless you have more specific needs.
+- Install the recommended plugins.
+- Once the `CMake Tools` plugin is installed, in the corner you will see a popup asking you "Would you like to configure project 'cutter'? Source: CMake Tools (Extension)". Click Yes.
+- In the kit selection popup, choose :guilabel:`[Unspecified]` unless you have more specific needs.
+- If you initially dismissed the configuration window or didn't have the plugins installed yet - open command-palette using :kbd:`Ctrl-Shift-P` and select :guilabel:`Cmake: Configure`
 
 Changing CMake configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
