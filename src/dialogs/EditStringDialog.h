@@ -1,6 +1,7 @@
 #ifndef EDITSTRINGDIALOG_H
 #define EDITSTRINGDIALOG_H
 
+#include <memory>
 #include <QDialog>
 
 namespace Ui {
@@ -52,7 +53,7 @@ public:
     StringType getStringType() const;
 
 private:
-    Ui::EditStringDialog *ui;
+    std::unique_ptr<Ui::EditStringDialog> ui;
 };
 
 #endif // EDITSTRINGDIALOG_H

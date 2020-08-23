@@ -3,7 +3,7 @@
 
 EditStringDialog::EditStringDialog(QWidget *parent)
     :   QDialog(parent)
-    ,   ui(new Ui::EditStringDialog)
+    ,   ui(new Ui::EditStringDialog{})
 {
     ui->setupUi(this);
     ui->spinBox_size->setMinimum(0);
@@ -13,10 +13,7 @@ EditStringDialog::EditStringDialog(QWidget *parent)
     connect(ui->checkBox_autoSize, &QCheckBox::toggled, ui->spinBox_size, &QSpinBox::setDisabled);
 }
 
-EditStringDialog::~EditStringDialog()
-{
-    delete ui;
-}
+EditStringDialog::~EditStringDialog() { }
 
 void EditStringDialog::setStringStartAddress(uint64_t address)
 {
