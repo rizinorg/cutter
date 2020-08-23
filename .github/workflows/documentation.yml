@@ -1,0 +1,45 @@
+name: Cutter Documentation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: sudo apt-get install doxygen
+    - name: Build docs
+      run: |
+        cd docs
+        doxygen
+
+    - name: Checkout deploy target
+      if: ${{ github.event_name == 'push' }}
+      uses: actions/checkout@v2
+      with:
+        repository: 'karliss/github-integration-test' # TODO: replace with radareorg/cutter.re
+        path: 'deploy-checkout'
+        ref: master
+        ssh-key: ${{ secrets.DOC_UPLOAD_SSH_KEY }}
+    
+    - name: Copy files
+      if: ${{ github.event_name == 'push' }}
+      run: |
+        rm -r deploy-checkout/doc/api/latest/* || true
+        mkdir -p deploy-checkout/doc/api/latest
+        cp -r cos/doxygen-out/html/* deploy-checkout/doc/api/latest
+    - name: Commit and push
+      if: ${{ github.event_name == 'push' }}
+      uses: EndBug/add-and-commit@a988073222b8bd50f3ecfca9c0ab7dfbf0d08ceb # v4.4.0
+      with:
+        cwd: deploy-checkout
+        message: ${{ format('Upate docs from {0}@{1}', github.repository, github.sha) }}
+        force: false
+        ref: master
+        add: docs
