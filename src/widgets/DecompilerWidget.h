@@ -96,7 +96,7 @@ private:
      *
      * @param addr Address at which a change occurred.
      */
-    void refreshForChange(RVA addr);
+    void refreshIfChanged(RVA addr);
     /**
      * @brief Refreshes the decompiler.
      *
