@@ -1,0 +1,6 @@
+{
+    "cmake.sourceDirectory": "${workspaceFolder}/src",
+    "cmake.configureSettings": {
+        "CUTTER_USE_BUNDLED_RADARE2": "ON"
+    }
+}
