@@ -59,6 +59,12 @@ Show Types
 
 **Steps:** Windows -> Types  
 
+Add a new instance of the Decompiler Widget
+----------------------------------------------
+**Description:** Create a new instance of the Decompiler widget in order to view multiple decompiled functions using multiple supported decompilers.
+
+**Steps:** Windows -> Add Decompiler  
+
 Add a new instance of the Disassembly Widget
 ----------------------------------------------
 **Description:** Create a new instance of the Disassembly widget in order to view one or multiple locations at the same time.   

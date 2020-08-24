@@ -237,7 +237,6 @@ private:
 
     QList<CutterDockWidget *> dockWidgets;
     QList<CutterDockWidget *> pluginDocks;
-    DecompilerWidget   *decompilerDock = nullptr;
     OverviewWidget     *overviewDock = nullptr;
     QAction *actionOverview = nullptr;
     EntrypointWidget   *entrypointDock = nullptr;
