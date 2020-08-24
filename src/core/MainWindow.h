@@ -168,6 +168,7 @@ private slots:
     void addExtraGraph();
     void addExtraHexdump();
     void addExtraDisassembly();
+    void addExtraDecompiler();
 
     void on_actionRefresh_Panels_triggered();
 

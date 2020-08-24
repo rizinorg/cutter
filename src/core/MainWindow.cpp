@@ -143,6 +143,7 @@ void MainWindow::initUI()
     disassemblyContextMenuExtensions = new QMenu(tr("Plugins"), this);
     addressableContextMenuExtensions = new QMenu(tr("Plugins"), this);
 
+    
     connect(ui->actionExtraGraph, &QAction::triggered, this, &MainWindow::addExtraGraph);
     connect(ui->actionExtraDisassembly, &QAction::triggered, this, &MainWindow::addExtraDisassembly);
     connect(ui->actionExtraHexdump, &QAction::triggered, this, &MainWindow::addExtraHexdump);
@@ -459,6 +460,12 @@ void MainWindow::addExtraHexdump()
 void MainWindow::addExtraDisassembly()
 {
     auto *extraDock = new DisassemblyWidget(this);
+    addExtraWidget(extraDock);
+}
+
+void MainWindow::addExtraDecompiler()
+{
+    auto *extraDock = new DecompilerWidget(this);
     addExtraWidget(extraDock);
 }
 
