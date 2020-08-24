@@ -446,21 +446,18 @@ void MainWindow::updateTasksIndicator()
 void MainWindow::addExtraGraph()
 {
     auto *extraDock = new GraphWidget(this);
-    extraDock->updateWindowTitle();
     addExtraWidget(extraDock);
 }
 
 void MainWindow::addExtraHexdump()
 {
     auto *extraDock = new HexdumpWidget(this);
-    extraDock->updateWindowTitle();
     addExtraWidget(extraDock);
 }
 
 void MainWindow::addExtraDisassembly()
 {
     auto *extraDock = new DisassemblyWidget(this);
-    extraDock->updateWindowTitle();
     addExtraWidget(extraDock);
 }
 
@@ -468,7 +465,6 @@ void MainWindow::addExtraDecompiler()
 {
     auto *extraDock = new DecompilerWidget(this);
     extraDock->getSeekable()->seek(Core()->getOffset());
-    extraDock->updateWindowTitle();
     addExtraWidget(extraDock);
 }
 

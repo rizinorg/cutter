@@ -48,13 +48,12 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     setObjectName(main
                   ? main->getUniqueObjectName(getWidgetType())
                   : getWidgetType());
+    updateWindowTitle();
 
     topOffset = bottomOffset = RVA_INVALID;
     cursorLineOffset = 0;
     cursorCharOffset = 0;
     seekFromCursor = false;
-
-    setWindowTitle(getWindowTitle());
 
     // Instantiate the window layout
     auto *splitter = new QSplitter;

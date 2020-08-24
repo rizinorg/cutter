@@ -26,6 +26,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main) :
     setObjectName(main
                   ? main->getUniqueObjectName(getWidgetType())
                   : getWidgetType());
+    updateWindowTitle();
 
     ui->copyMD5->setIcon(QIcon(":/img/icons/copy.svg"));
     ui->copySHA1->setIcon(QIcon(":/img/icons/copy.svg"));
@@ -75,8 +76,6 @@ HexdumpWidget::HexdumpWidget(MainWindow *main) :
                                      "  border-width : 1px;"
                                      "  border-color : #3daee9"
                                      "}");
-
-    setWindowTitle(getWindowTitle());
 
     refreshDeferrer = createReplacingRefreshDeferrer<RVA>(false, [this](const RVA *offset) {
         refresh(offset ? *offset : RVA_INVALID);

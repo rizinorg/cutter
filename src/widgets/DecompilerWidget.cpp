@@ -35,6 +35,8 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     setObjectName(main
                   ? main->getUniqueObjectName(tr("Decompiler"))
                   : tr("Decompiler"));
+    updateWindowTitle();
+
     syntaxHighlighter = Config()->createSyntaxHighlighter(ui->textEdit->document());
     // Event filter to intercept double click and right click in the textbox
     ui->textEdit->viewport()->installEventFilter(this);
