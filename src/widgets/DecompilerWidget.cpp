@@ -8,6 +8,7 @@
 #include "common/SelectionHighlight.h"
 #include "common/Decompiler.h"
 #include "common/CutterSeekable.h"
+#include "core/MainWindow.h"
 
 #include <QTextEdit>
 #include <QPlainTextEdit>
@@ -31,6 +32,9 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
          &r_annotated_code_free)
 {
     ui->setupUi(this);
+    setObjectName(main
+                  ? main->getUniqueObjectName(tr("Decompiler"))
+                  : tr("Decompiler"));
     syntaxHighlighter = Config()->createSyntaxHighlighter(ui->textEdit->document());
     // Event filter to intercept double click and right click in the textbox
     ui->textEdit->viewport()->installEventFilter(this);
@@ -58,7 +62,6 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
         if (dec->getId() == selectedDecompilerId) {
             ui->decompilerComboBox->setCurrentIndex(ui->decompilerComboBox->count() - 1);
         }
-        // connect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
     }
     decompilerSelectionEnabled = decompilers.size() > 1;
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);

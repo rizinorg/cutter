@@ -976,7 +976,7 @@ QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address,  AddressTypeHi
         createAddNewWidgetAction(tr("New graph"), MemoryWidgetType::Graph);
     }
     createAddNewWidgetAction(tr("New hexdump"), MemoryWidgetType::Hexdump);
-    createAddNewWidgetAction(tr("New Dc"), MemoryWidgetType::Decompiler);
+    createAddNewWidgetAction(tr("New Decompiler"), MemoryWidgetType::Decompiler);
     return menu;
 }
 
