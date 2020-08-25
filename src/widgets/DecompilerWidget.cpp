@@ -226,7 +226,7 @@ void DecompilerWidget::doRefresh()
         return;
     }
     if (addr == RVA_INVALID) {
-        ui->textEdit->setPlainText(tr("A function doesn't exist at the selected offset in this decompiler."));
+        ui->textEdit->setPlainText(tr("Decompiler Error: No function at this offset"));
         return;
     }
     Decompiler *dec = getCurrentDecompiler();
