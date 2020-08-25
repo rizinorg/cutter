@@ -464,7 +464,6 @@ void MainWindow::addExtraDisassembly()
 void MainWindow::addExtraDecompiler()
 {
     auto *extraDock = new DecompilerWidget(this);
-    extraDock->getSeekable()->seek(Core()->getOffset());
     addExtraWidget(extraDock);
 }
 
