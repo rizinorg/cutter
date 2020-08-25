@@ -2,19 +2,13 @@ Decompiler Context Menu
 ==============================
 The decompiler context menu contains actions that are available for the location under cursor.
 
-.. toctree::
-   :maxdepth: 1
-   :glob:
-
-   decompiler-context-menu/*
-
 Copy
 ----------------------------------------
 **Description:** If text is selected, copy selected text. Otherwise, if a word is highlighted, copy that word. In all other cases, copy the line under the cursor.
 
 **Steps:**  Right-click on a selected text and choose ``Copy``  
 
-**Shortcut:** :kbd:`Ctrl` + :kbd:`C`  
+**Shortcut:** :kbd:`Ctrl-C`  
 
 Copy Instruction Address
 ----------------------------------------
@@ -28,7 +22,7 @@ Copy Address of Reference
 
 **Steps:**  Right-click on a location and choose ``Copy  address of [<name of reference>](<address>)``  
 
-**Shortcut:** :kbd:`Ctrl` + :kbd:`Shift` + :kbd:`C`
+**Shortcut:** :kbd:`Ctrl-Shift-C`
 
 Show the code in another widget
 ----------------------------------------
@@ -101,3 +95,35 @@ Show Cross References
 **Steps:** Right-click on a reference and choose ``Show X-Refs``  
 
 **Shortcut:** :kbd:`X`
+
+Manage Breakpoints in the Context Menu
+=======================================
+Add or Remove Breakpoint in the line
+----------------------------------------
+**Description:** Add a breakpoint at the earliest offset in the line under the cursor. If you use the shortcut and if multiple breakpoints are present in a line, all of them will be removed.
+
+**Steps:** Right-click on an instruction and choose ``Breakpoint -> [Add][Remove] [all] breakpoint[s in line]``  
+
+**Shortcut:** :kbd:`F2`  
+
+Advanced Breakpoint Dialog
+----------------------------------------
+**Description:** Open the advanced breakpoint dialog. This dialog lets you define not only a regular breakpoint in this address, but also a Hardware breakpoint, a conditional breakpoint, and more.
+
+**Steps:** Right-click on an instruction and choose ``Breakpoint -> Advanced breakpoint``. If multiple breakpoints are present in the line, you will be able choose the breakpoint you want to edit from the ``Edit breakpoint`` submenu.
+
+**Shortcut:** :kbd:`Ctrl-F2`
+
+Debug Context Menu
+=======================================
+Continue Until Line
+----------------------------------------
+**Description:** Continue the execution of the program until it reaches the offset in the selected line. The program is not guaranteed to ever reach this address and will keep running until exited or until reached another breakpoint. If other breakpoints hit before reaching this line, they will be triggered and pause the execution. *This option is only available on Debug or Emulation modes*.      
+
+**Steps:** While in Debug or Emulation modes, right-click and address and choose ``Debug -> Continue until line``.  
+
+Set Program Counter (PC)
+----------------------------------------
+**Description:** Set the Program Counter of the debuger to the current offset. For example, on an Intel 64bit program, Cutter will set the value of the RIP register to the current address.  *This option is only available on Debug or Emulation modes*.  
+
+**Steps:** While in Debug or Emulation modes, right-click address and choose ``Debug -> Set PC``.
