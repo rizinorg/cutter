@@ -225,24 +225,28 @@ void DecompilerWidget::doRefresh()
     if (ui->decompilerComboBox->currentIndex() < 0) {
         return;
     }
+    if (addr == RVA_INVALID) {
+        ui->textEdit->setPlainText(tr("Click Refresh to generate Decompiler from current offset."));
+        return;
+    }
     Decompiler *dec = getCurrentDecompiler();
     if (!dec) {
         return;
     }
     if (dec->isRunning()) {
-        decompilerWasBusy = true;
+        if (!decompilerWasBusy) {
+            connect(dec, &Decompiler::decompilationOver, this, &DecompilerWidget::doRefresh);
+        }
         return;
     }
-    if (addr == RVA_INVALID) {
-        ui->textEdit->setPlainText(tr("Click Refresh to generate Decompiler from current offset."));
-        return;
-    }
+    disconnect(dec, &Decompiler::decompilationOver, this, &DecompilerWidget::doRefresh);
     // Clear all selections since we just refreshed
     ui->textEdit->setExtraSelections({});
     previousFunctionAddr = decompiledFunctionAddr;
     decompiledFunctionAddr = Core()->getFunctionStart(addr);
     mCtxMenu->setDecompiledFunctionAddress(decompiledFunctionAddr);
     connect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
+    decompilerWasBusy = true;
     dec->decompileAt(addr);
     if (dec->isRunning()) {
         ui->progressLabel->setVisible(true);
