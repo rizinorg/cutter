@@ -76,7 +76,6 @@ void R2DecDecompiler::decompileAt(RVA addr)
         std::string tmp = codeString.toStdString();
         code->code = strdup(tmp.c_str());
         emit finished(code);
-        emit decompilationOver();
     });
     task->startTask();
 }

@@ -35,7 +35,6 @@ public:
 
 signals:
     void finished(RAnnotatedCode *codeDecompiled);
-    void decompilationOver();
 };
 
 class R2DecDecompiler: public Decompiler

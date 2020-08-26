@@ -235,11 +235,13 @@ void DecompilerWidget::doRefresh()
     }
     if (dec->isRunning()) {
         if (!decompilerWasBusy) {
-            connect(dec, &Decompiler::decompilationOver, this, &DecompilerWidget::doRefresh);
+            ui->progressLabel->setVisible(true);
+            ui->decompilerComboBox->setEnabled(false);
+            connect(dec, &Decompiler::finished, this, &DecompilerWidget::doRefresh);
         }
         return;
     }
-    disconnect(dec, &Decompiler::decompilationOver, this, &DecompilerWidget::doRefresh);
+    disconnect(dec, &Decompiler::finished, this, &DecompilerWidget::doRefresh);
     // Clear all selections since we just refreshed
     ui->textEdit->setExtraSelections({});
     previousFunctionAddr = decompiledFunctionAddr;
