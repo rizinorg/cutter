@@ -21,6 +21,7 @@ tri_option(CUTTER_ENABLE_KSYNTAXHIGHLIGHTING "Use KSyntaxHighlighting" AUTO)
 tri_option(CUTTER_ENABLE_GRAPHVIZ "Enable use of graphviz for graph layout" AUTO)
 option (option SHIBOKEN_EXTRA_OPTIONS "Extra options for shiboken generator")
 set(CUTTER_EXTRA_PLUGIN_DIRS "" CACHE STRING "List of addition plugin locations")
+option(CUTTER_ENABLE_DEPENDENCY_DOWNLOADS "Enable downloading of dependencies. Setting to OFF doesn't affect any downloads done by r2 build." OFF)
 
 if(NOT CUTTER_ENABLE_PYTHON)
     set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
@@ -67,13 +68,13 @@ else()
 endif()
 
 if(CUTTER_ENABLE_PYTHON)
+    find_package(PythonInterp REQUIRED)
     find_package(PythonLibs ${CUTTER_PYTHON_MIN} REQUIRED)
 
     include_directories(${PYTHON_INCLUDE_DIRS})
     add_definitions(-DCUTTER_ENABLE_PYTHON)
 
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
-        find_package(PythonInterp REQUIRED)
         # 5.12.3 => 5.12
         if("${Qt5_VERSION}" MATCHES "^([0-9]+\\.[0-9]+)\\.[0-9]+")
             set(Shiboken2_VERSION_REQUIRED "${CMAKE_MATCH_1}")
@@ -148,8 +149,13 @@ if(CUTTER_ENABLE_PYTHON_BINDINGS)
 
     include_directories("${BINDINGS_BUILD_DIR}/CutterBindings")
 
+    set(SHIBOKEN_OPTIONS)
+    if (WIN32)
+        list(APPEND SHIBOKEN_OPTIONS --avoid-protected-hack)
+    endif()
+
     add_custom_command(OUTPUT ${BINDINGS_SOURCE}
-            COMMAND Shiboken2::shiboken2 --project-file="${BINDINGS_BUILD_DIR}/bindings.txt" ${SHIBOKEN_EXTRA_OPTIONS}
+            COMMAND Shiboken2::shiboken2 --project-file="${BINDINGS_BUILD_DIR}/bindings.txt" ${SHIBOKEN_OPTIONS} ${SHIBOKEN_EXTRA_OPTIONS}
             DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.xml" "${BINDINGS_BUILD_DIR}/bindings.txt"
             IMPLICIT_DEPENDS CXX "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.h"
             COMMENT "Generating Python bindings with shiboken2")
@@ -212,6 +218,12 @@ endif()
 target_link_libraries(Cutter PUBLIC Qt5::Core Qt5::Widgets Qt5::Gui PRIVATE  Qt5::Svg Qt5::Network)
 target_link_libraries(Cutter PUBLIC ${RADARE2_TARGET})
 if(CUTTER_ENABLE_PYTHON)
+    if (WIN32)
+        # On windows some of the Python STABLE API functions are in seperate library
+        # which isn't added by CMake.
+        get_filename_component(_PYTHON_LIB_DIR ${PYTHON_LIBRARIES} DIRECTORY)
+        target_link_directories(Cutter PRIVATE ${_PYTHON_LIB_DIR})
+    endif()
     target_link_libraries(Cutter PRIVATE ${PYTHON_LIBRARIES})
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
         target_link_libraries(Cutter PRIVATE Shiboken2::libshiboken PySide2::pyside2)
@@ -235,9 +247,12 @@ if(CUTTER_ENABLE_PYTHON)
         list(APPEND BINDINGS_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS})
         list(APPEND BINDINGS_INCLUDE_DIRS ${Radare2_INCLUDE_DIRS})
         list(APPEND BINDINGS_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}")
-        string(REPLACE ";" ":" BINDINGS_INCLUDE_DIRS "${BINDINGS_INCLUDE_DIRS}")
+        if (NOT WIN32)
+            string(REPLACE ";" ":" BINDINGS_INCLUDE_DIRS "${BINDINGS_INCLUDE_DIRS}")
+        endif()
 
         qmake_configure_file("${BINDINGS_SRC_DIR}/bindings.txt.in" "${BINDINGS_BUILD_DIR}/bindings.txt")
+        add_compile_definitions(WIN32_LEAN_AND_MEAN)
     endif()
 endif()
 

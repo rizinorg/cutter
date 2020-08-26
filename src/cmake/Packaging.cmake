@@ -1,4 +1,7 @@
 if(WIN32)
-	set(CPACK_GENERATOR "ZIP")
+    set(CPACK_GENERATOR "ZIP")
+    if (CUTTER_ENABLE_DOWNLOADS)
+        set(CPACK_INSTALL_SCRIPTS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/WindowsBundlePython.cmake)
+    endif()
 endif()
 include(CPack)

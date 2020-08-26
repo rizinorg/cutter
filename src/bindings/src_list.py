@@ -30,7 +30,10 @@ def get_cpp_files_gen(args, include_package=True):
 
 
 def cmd_cmake(args):
-    sys.stdout.write(";".join(get_cpp_files_gen(args)))
+    files = get_cpp_files_gen(args)
+    if sys.platform == "win32":
+        files = map(lambda x: x.replace("\\", "/"), files)
+    sys.stdout.write(";".join(files))
 
 
 def cmd_qmake(args):
