@@ -69,12 +69,13 @@ private:
      */
     bool decompilerBusy;
 
+    bool seekFromCursor;
     int scrollerHorizontal;
     int scrollerVertical;
     RVA previousFunctionAddr;
     RVA decompiledFunctionAddr;
     std::unique_ptr<RAnnotatedCode, void (*)(RAnnotatedCode *)> code;
-    bool seekFromCursor = false;
+    
     /**
      * Specifies the lowest offset of instructions among all the instructions in the decompiled function.
      */

@@ -24,6 +24,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     mCtxMenu(new DecompilerContextMenu(this, main)),
     ui(new Ui::DecompilerWidget),
     decompilerBusy(false),
+    seekFromCursor(false),
     scrollerHorizontal(0),
     scrollerVertical(0),
     previousFunctionAddr(RVA_INVALID),
@@ -225,10 +226,6 @@ void DecompilerWidget::doRefresh()
     if (ui->decompilerComboBox->currentIndex() < 0) {
         return;
     }
-    if (addr == RVA_INVALID) {
-        ui->textEdit->setPlainText(tr("Decompiler Error: No function at this offset"));
-        return;
-    }
     Decompiler *dec = getCurrentDecompiler();
     if (!dec) {
         return;
@@ -246,6 +243,14 @@ void DecompilerWidget::doRefresh()
     ui->textEdit->setExtraSelections({});
     previousFunctionAddr = decompiledFunctionAddr;
     decompiledFunctionAddr = Core()->getFunctionStart(addr);
+    updateWindowTitle();
+    if (decompiledFunctionAddr == RVA_INVALID) {
+        ui->progressLabel->setVisible(false);
+        ui->decompilerComboBox->setEnabled(true);
+        ui->textEdit->setPlainText(
+            tr("No function found at this offset. Seek to a function or define one in order to decompile it."));
+        return;
+    }
     mCtxMenu->setDecompiledFunctionAddress(decompiledFunctionAddr);
     connect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
     decompilerBusy = true;
@@ -385,7 +390,9 @@ void DecompilerWidget::seekChanged()
     }
     RVA fcnAddr = Core()->getFunctionStart(seekable->getOffset());
     if (fcnAddr == RVA_INVALID || fcnAddr != decompiledFunctionAddr) {
+        connectCursorPositionChanged(true);
         doRefresh();
+        connectCursorPositionChanged(false);
         return;
     }
     updateCursorPosition();
@@ -433,7 +440,14 @@ void DecompilerWidget::updateSelection()
 
 QString DecompilerWidget::getWindowTitle() const
 {
-    return tr("Decompiler");
+    RAnalFunction *fcn = Core()->functionAt(decompiledFunctionAddr);
+    QString windowTitle = tr("Decompiler");
+    if (fcn != NULL) {
+        windowTitle += " (" + QString(fcn->name) + ")";
+    } else {
+        windowTitle += " (Empty)";
+    }
+    return windowTitle;
 }
 
 void DecompilerWidget::fontsUpdatedSlot()
