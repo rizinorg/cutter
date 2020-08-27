@@ -151,9 +151,6 @@
      <property name="title">
       <string>Plugins</string>
      </property>
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
     </widget>
     <widget class="QMenu" name="menuAddInfoWidgets">
      <property name="title">
