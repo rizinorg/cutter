@@ -15,7 +15,6 @@ static const QHash<QString, QString> analBoundaries {
     {"io.maps", "All maps"},
     {"io.map", "Current map"},
     {"raw", "Raw"},
-    {"block", "Current block"},
     {"bin.section", "Current mapped section"},
     {"bin.sections", "All mapped sections"},
 };

@@ -93,7 +93,7 @@ The maximum number of nested pointers to follow in analysis.
 
 **Configuration variable:** ``anal.ptrdepth``
 
-Prelude
+Functions prelude
 ~~~~~~~
 Hex value that represents certain opcodes that will be used to identify functions.
 
