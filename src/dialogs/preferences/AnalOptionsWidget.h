@@ -51,19 +51,19 @@ private slots:
      * @brief A slot to update the value of anal.in when a different option is selected
      * @param index - The index of the selected option for anal.in
      */
-    void on_analInComboBox_currentIndexChanged(int index);
+    void updateAnalIn(int index);
 
     /**
      * @brief A slot to update the value of anal.ptrdepth when a new value is selected
      * @param value - The new value for anal.ptrdepth
      */
-    static void on_ptrdepthSpinBox_valueChanged(int value);
+    static void updateAnalPtrDepth(int value);
 
     /**
      * @brief slot to update the value of anal.prelude when a new value is introduced in the corresponding textbox
      * @param prelude - The new value for anal.prelude
      */
-    static void on_preludeLineEdit_textChanged(const QString &prelude);
+    static void updateAnalPrelude(const QString &prelude);
 };
 
 #endif // ANALOPTIONSWIDGET_H

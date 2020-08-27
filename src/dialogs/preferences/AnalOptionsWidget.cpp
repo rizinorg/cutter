@@ -8,8 +8,6 @@
 
 #include "core/MainWindow.h"
 
-#include <QComboBox>
-
 static const QHash<QString, QString> analBoundaries {
     {"io.maps.x", "All executable maps"},
     {"io.maps", "All maps"},
@@ -49,6 +47,11 @@ AnalOptionsWidget::AnalOptionsWidget(PreferencesDialog *dialog)
     auto *mainWindow = new MainWindow(this);
     connect(ui->analyzePushButton, &QPushButton::clicked, mainWindow,
             &MainWindow::on_actionAnalyze_triggered);
+    connect(ui->analInComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &AnalOptionsWidget::updateAnalIn);
+    connect(ui->ptrDepthSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this,
+            &AnalOptionsWidget::updateAnalPtrDepth);
+    connect(ui->preludeLineEdit, &QLineEdit::textChanged, this, &AnalOptionsWidget::updateAnalPrelude);
     updateAnalOptionsFromVars();
 }
 
@@ -67,21 +70,21 @@ void AnalOptionsWidget::updateAnalOptionsFromVars()
 
     // Update the rest of analysis options that are not checkboxes
     ui->analInComboBox->setCurrentIndex(ui->analInComboBox->findData(Core()->getConfig("anal.in")));
-    ui->ptrdepthSpinBox->setValue(Core()->getConfigi("anal.ptrdepth"));
+    ui->ptrDepthSpinBox->setValue(Core()->getConfigi("anal.ptrdepth"));
     ui->preludeLineEdit->setText(Core()->getConfig("anal.prelude"));
 }
 
-void AnalOptionsWidget::on_analInComboBox_currentIndexChanged(int index)
+void AnalOptionsWidget::updateAnalIn(int index)
 {
     Config()->setConfig("anal.in", ui->analInComboBox->itemData(index).toString());
 }
 
-void AnalOptionsWidget::on_ptrdepthSpinBox_valueChanged(int value)
+void AnalOptionsWidget::updateAnalPtrDepth(int value)
 {
     Config()->setConfig("anal.ptrdepth", value);
 }
 
-void AnalOptionsWidget::on_preludeLineEdit_textChanged(const QString &prelude)
+void AnalOptionsWidget::updateAnalPrelude(const QString &prelude)
 {
     Config()->setConfig("anal.prelude", prelude);
 }

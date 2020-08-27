@@ -181,7 +181,7 @@
            <enum>QFormLayout::ExpandingFieldsGrow</enum>
           </property>
           <item row="0" column="0">
-           <widget class="QLabel" name="ptrdepthLabel">
+           <widget class="QLabel" name="ptrDepthLabel">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -197,7 +197,7 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QSpinBox" name="ptrdepthSpinBox">
+           <widget class="QSpinBox" name="ptrDepthSpinBox">
             <property name="minimum">
              <number>0</number>
             </property>
@@ -233,7 +233,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Prelude (anal.prelude):</string>
+             <string>Functions Prelude (anal.prelude):</string>
             </property>
            </widget>
           </item>

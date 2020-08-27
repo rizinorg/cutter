@@ -27,7 +27,6 @@ Select the boundaries in which the analyis will be performed. The different opti
 - All maps (``io.maps``)
 - Current map (``io.map``)
 - Raw (``raw``)
-- Current block (``block``)
 - Current mapped section (``bin.section``)
 - All mapped sections (``bin.sections``)
 
