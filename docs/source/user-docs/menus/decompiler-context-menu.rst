@@ -1,12 +1,12 @@
 Decompiler Context Menu 
 ==============================
-The decompiler context menu contains actions that are available for the location under cursor.
+The decompiler context menu contains actions that are available for the position under the cursor.
 
 Copy
 ----------------------------------------
 **Description:** If text is selected, copy the selected text to the clipboard. If a word is highlighted, copy that word. In all other cases, copy the line under the cursor.
 
-**Steps:**  Right-click on a selected text and choose ``Copy``  
+**Steps:**  Right-click on a selected text and choose ``Copy``
 
 **Shortcut:** :kbd:`Ctrl-C`  
 
@@ -14,27 +14,27 @@ Copy Instruction Address
 ----------------------------------------
 **Description:** Copy the instruction address mapped to the part of code under the cursor.
 
-**Steps:**  Right-click on the code that for which you want the instruction's address and choose ``Copy instruction address(<address>)``
+**Steps:**  Right-click on the portion of code for which you want the instruction's address and choose ``Copy instruction address (<address>)``
 
 Copy Address of Reference
 ----------------------------------------
 **Description:** Copy the address of the reference under cursor. References include functions, global variables, and constant variables with an address.
 
-**Steps:**  Right-click on the reference and choose ``Copy  address of [<name of reference>](<address>)``  
+**Steps:**  Right-click on a reference and choose ``Copy  address [of <name>] (<address>)``  
 
 **Shortcut:** :kbd:`Ctrl-Shift-C`
 
 Show the code in another widget
 ----------------------------------------
-**Description:** Show the code under cursor in another opened widget, or open a new one. If a non-decompiler widget is chosen, the address mapped to the portion of code under the cursor will be opened in that widget.
+**Description:** Show the code under the cursor in another opened widget, or open a new one. If a non-decompiler widget is chosen, the address mapped to the portion of code under the cursor will be opened in that widget.
 
-**Steps:**  Right-click on an item and go to the :menuselection:`Show in` submenu. You can choose the widget or open a new widget from here.
+**Steps:**  Right-click on an item and go to the :menuselection:`Show in` submenu. You can choose a widget or open a new widget from here.
 
 Show the selected item in another widget
 ----------------------------------------
 **Description:** Show the selected item in another opened widget, or open a new one. Items include functions, global variables, and constant variables under the cursor.
 
-**Steps:**  Right-click on an item and go to the submenu :menuselection:`Show <item> in` or :menuselection:`<function name>(<address>)`. You can choose the widget or open a new widget from here.
+**Steps:**  Right-click on an item and go to the submenu :menuselection:`Show <item> in` or :menuselection:`<function name> (<address>)`. You can choose a widget or open a new widget from here.
 
 Add and Edit Comment
 ----------------------------------------
@@ -46,13 +46,13 @@ Add and Edit Comment
 
 Delete a Comment
 ----------------------------------------
-**Description:** Delete the comment at the location under the cursor. This option is available only for user defined comments.
+**Description:** Delete the comment at the location under the cursor. This option is only available for user defined comments.
 
 **Steps:** Right-click on an instruction with a user-defined comment and choose ``Delete comment``  
 
 Rename function
 ----------------------------------------
-**Description:** Rename the function under cursor. 
+**Description:** Rename a function under the cursor. 
 
 **Steps:** Right-click on a function name and choose ``Rename function <name of function>``  
 
@@ -108,9 +108,9 @@ Add or Remove Breakpoint in the line
 
 Advanced Breakpoint Dialog
 ----------------------------------------
-**Description:** Open the advanced breakpoint dialog. This dialog lets you define not only a regular breakpoint in this address, but also a Hardware breakpoint, a conditional breakpoint, and more.
+**Description:** Open the advanced breakpoint dialog. This dialog lets you define not only a regular breakpoint in this address, but also a hardware breakpoint, a conditional breakpoint, and more.
 
-**Steps:** Right-click on a line of code and choose :menuselection:`Breakpoint --> Advanced breakpoint`. If multiple breakpoints are present in the line, you will be able choose the breakpoint you want to edit from the ``Edit breakpoint`` submenu.
+**Steps:** Right-click on a line of code and choose :menuselection:`Breakpoint --> Advanced breakpoint`. If multiple breakpoints are present in the line, you will be able choose the breakpoint you want to edit from the :menuselection:`Edit breakpoint` submenu.
 
 **Shortcut:** :kbd:`Ctrl-F2`
 
