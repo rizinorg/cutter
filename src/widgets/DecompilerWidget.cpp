@@ -230,6 +230,7 @@ void DecompilerWidget::doRefresh()
     if (!dec) {
         return;
     }
+    // Disabling decompiler selection combo box and making progress label visible ahead of decompilation.
     ui->progressLabel->setVisible(true);
     ui->decompilerComboBox->setEnabled(false);
     if (dec->isRunning()) {
@@ -245,10 +246,14 @@ void DecompilerWidget::doRefresh()
     decompiledFunctionAddr = Core()->getFunctionStart(addr);
     updateWindowTitle();
     if (decompiledFunctionAddr == RVA_INVALID) {
+        // No function was found, so making the progress label invisible and enabling
+        // the decompiler selection combo box as we are not waiting for any decompilation to finish.
         ui->progressLabel->setVisible(false);
         ui->decompilerComboBox->setEnabled(true);
+        connectCursorPositionChanged(true);
         ui->textEdit->setPlainText(
             tr("No function found at this offset. Seek to a function or define one in order to decompile it."));
+        connectCursorPositionChanged(false);
         return;
     }
     mCtxMenu->setDecompiledFunctionAddress(decompiledFunctionAddr);
@@ -295,7 +300,9 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
 
     QString codeString = QString::fromUtf8(this->code->code);
     if (codeString.isEmpty()) {
+        connectCursorPositionChanged(true);
         ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
+        connectCursorPositionChanged(false);
         lowestOffsetInCode = RVA_MAX;
         highestOffsetInCode = 0;
         return;
@@ -390,9 +397,7 @@ void DecompilerWidget::seekChanged()
     }
     RVA fcnAddr = Core()->getFunctionStart(seekable->getOffset());
     if (fcnAddr == RVA_INVALID || fcnAddr != decompiledFunctionAddr) {
-        connectCursorPositionChanged(true);
         doRefresh();
-        connectCursorPositionChanged(false);
         return;
     }
     updateCursorPosition();
