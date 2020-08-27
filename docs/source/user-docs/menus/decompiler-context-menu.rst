@@ -102,7 +102,7 @@ Add or Remove Breakpoint in the line
 ----------------------------------------
 **Description:** Add a breakpoint at the earliest offset in the line under the cursor. If you use the keyboard shortcut to remove a breakpoint, all the breakpoints defined in the line will be removed.
 
-**Steps:** Right-click on a line of code and choose :menuselection:`Breakpoint --> [Add][Remove] [all] breakpoint[s in line]`  
+**Steps:** Right-click on a line of code and choose :menuselection:`Breakpoint --> Add breakpoint`  or :menuselection:`Breakpoint --> Remove breakpoint`.
 
 **Shortcut:** :kbd:`F2`  
 
