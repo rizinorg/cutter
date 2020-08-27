@@ -12,7 +12,7 @@ Copy
 
 Copy Instruction Address
 ----------------------------------------
-**Description:** Copy the instruction address mapped to the part of code under the cursor.
+**Description:** Copy the address of the instruction mapped to the part of code under the cursor.
 
 **Steps:**  Right-click on the portion of code for which you want the instruction's address and choose ``Copy instruction address (<address>)``
 
@@ -54,7 +54,7 @@ Rename function
 ----------------------------------------
 **Description:** Rename a function under the cursor. 
 
-**Steps:** Right-click on a function name and choose ``Rename function <name of function>``  
+**Steps:** Right-click on a function name and choose ``Rename function <name>``  
 
 **Shortcut:** :kbd:`N`
 
@@ -70,7 +70,7 @@ Delete the name of global variable
 ----------------------------------------
 **Description:** Delete the name of the global variable under the cursor.
 
-**Steps:** Right-click on a global variable and choose ``Remove <name of global variable>``.
+**Steps:** Right-click on a global variable and choose ``Remove <name>``.
 
 Rename Function Variable
 ----------------------------------------
