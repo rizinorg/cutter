@@ -23,7 +23,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     MemoryDockWidget(MemoryWidgetType::Decompiler, main),
     mCtxMenu(new DecompilerContextMenu(this, main)),
     ui(new Ui::DecompilerWidget),
-    decompilerWasBusy(false),
+    decompilerBusy(false),
     scrollerHorizontal(0),
     scrollerVertical(0),
     previousFunctionAddr(RVA_INVALID),
@@ -233,10 +233,10 @@ void DecompilerWidget::doRefresh()
     if (!dec) {
         return;
     }
+    ui->progressLabel->setVisible(true);
+    ui->decompilerComboBox->setEnabled(false);
     if (dec->isRunning()) {
-        if (!decompilerWasBusy) {
-            ui->progressLabel->setVisible(true);
-            ui->decompilerComboBox->setEnabled(false);
+        if (!decompilerBusy) {
             connect(dec, &Decompiler::finished, this, &DecompilerWidget::doRefresh);
         }
         return;
@@ -248,13 +248,8 @@ void DecompilerWidget::doRefresh()
     decompiledFunctionAddr = Core()->getFunctionStart(addr);
     mCtxMenu->setDecompiledFunctionAddress(decompiledFunctionAddr);
     connect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
-    decompilerWasBusy = true;
+    decompilerBusy = true;
     dec->decompileAt(addr);
-    if (dec->isRunning()) {
-        ui->progressLabel->setVisible(true);
-        ui->decompilerComboBox->setEnabled(false);
-        return;
-    }
 }
 
 void DecompilerWidget::refreshDecompiler()
@@ -288,10 +283,12 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
 
     mCtxMenu->setAnnotationHere(nullptr);
     this->code.reset(codeDecompiled);
+
     Decompiler *dec = getCurrentDecompiler();
     QObject::disconnect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
-    QString codeString = QString::fromUtf8(this->code->code);
+    decompilerBusy = false;
 
+    QString codeString = QString::fromUtf8(this->code->code);
     if (codeString.isEmpty()) {
         ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
         lowestOffsetInCode = RVA_MAX;
@@ -318,10 +315,6 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
                 }
             }
         }
-    }
-
-    if (decompilerWasBusy) {
-        decompilerWasBusy = false;
     }
 
     if (isDisplayReset) {

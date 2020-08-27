@@ -64,10 +64,10 @@ private:
     bool decompilerSelectionEnabled;
 
     /**
-     * True if doRefresh() was called, but the decompiler was still running.
-     * This means, after the decompiler has finished, it should be refreshed immediately.
+     * True if the selected decompiler is currently running a decompilation for this widget. Once the decompilation
+     * is over, this should be set to false.
      */
-    bool decompilerWasBusy;
+    bool decompilerBusy;
 
     int scrollerHorizontal;
     int scrollerVertical;
