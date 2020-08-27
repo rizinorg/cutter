@@ -247,11 +247,11 @@ void MainWindow::initUI()
     ui->menuWindows->setToolTipsVisible(true);
     if (plugins.empty()) {
         ui->menuPlugins->menuAction()->setToolTip(
-                "No plugins are installed. Check the plugins section on Cutter documentation to learn more.");
+                tr("No plugins are installed. Check the plugins section on Cutter documentation to learn more."));
         ui->menuPlugins->setEnabled(false);
     } else if (ui->menuPlugins->isEmpty()) {
         ui->menuPlugins->menuAction()->setToolTip(
-                "Plugins are installed. No entries haven been added to this menu however.");
+                tr("Plugins are installed. No entries haven been added to this menu however."));
         ui->menuPlugins->setEnabled(false);
     }
 
