@@ -251,7 +251,7 @@ void MainWindow::initUI()
         ui->menuPlugins->setEnabled(false);
     } else if (ui->menuPlugins->isEmpty()) {
         ui->menuPlugins->menuAction()->setToolTip(
-                tr("Plugins are installed. No entries haven been added to this menu however."));
+                tr("The installed plugins didn't add entries to this menu."));
         ui->menuPlugins->setEnabled(false);
     }
 
