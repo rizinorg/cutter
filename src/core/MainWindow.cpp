@@ -237,10 +237,8 @@ void MainWindow::initUI()
 
     /* Setup plugins interfaces */
     const auto &plugins = Plugins()->getPlugins();
-    if (!plugins.empty()) {
-        for (auto &plugin : plugins) {
-            plugin->setupInterface(this);
-        }
+    for (auto &plugin : plugins) {
+        plugin->setupInterface(this);
     }
 
     // Check if plugins are loaded and display tooltips accordingly
