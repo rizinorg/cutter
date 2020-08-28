@@ -404,7 +404,7 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
                 Core()->createFunctionAt(func_addr, function_name);
             }
         } else {
-            QString newName = QInputDialog::getText(this, tr("Rename function %2").arg(currentName),
+            QString newName = QInputDialog::getText(this->mainWindow, tr("Rename function %2").arg(currentName),
                                                     tr("Function name:"), QLineEdit::Normal, currentName, &ok);
             if (ok && !newName.isEmpty()) {
                 Core()->renameFunction(func_addr, newName);
