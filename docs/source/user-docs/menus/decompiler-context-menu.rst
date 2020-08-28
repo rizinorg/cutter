@@ -38,7 +38,7 @@ Show the selected item in another widget
 
 Add and Edit Comment
 ----------------------------------------
-**Description:** Add a comment in the location under the cursor or edit the comment in the location under the cursor. The ``Edit comment`` option is only available for user-defined comments.
+**Description:** Add a comment in the line of code under the cursor or edit the comment under the cursor. The ``Edit comment`` option is only available for user-defined comments.
 
 **Steps:** Right-click and choose ``Add Comment`` or ``Edit Comment``.
 
@@ -46,7 +46,7 @@ Add and Edit Comment
 
 Delete a Comment
 ----------------------------------------
-**Description:** Delete the comment at the location under the cursor. This option is only available for user-defined comments.
+**Description:** Delete the comment under the cursor. If a comment doesn't exist under the cursor, delete the comment at the offset mapped to the portion of code under the cursor.
 
 **Steps:** Right-click on an instruction with a user-defined comment and choose ``Delete comment``  
 
