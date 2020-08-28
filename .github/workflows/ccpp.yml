@@ -133,6 +133,5 @@ jobs:
         echo $PACKAGE_NAME
     - uses: actions/upload-artifact@v2
       if: env.PACKAGE_NAME != null
-      if: contains(matrix.os, 'windows-latest')
       with:
         path: build/${{ env.PACKAGE_NAME }}
