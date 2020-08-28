@@ -114,6 +114,7 @@ jobs:
         cd
         mkdir build
         cd build
+        set PACKAGE_NAME=cutter-git-x64.Windows
         cmake ^
           -DCMAKE_BUILD_TYPE=Release ^
           -DCUTTER_USE_BUNDLED_RADARE2=ON ^
@@ -121,7 +122,14 @@ jobs:
           -DCUTTER_ENABLE_PYTHON_BINDINGS=ON ^
           -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON ^
           -DCMAKE_PREFIX_PATH="%CUTTER_DEPS%\pyside" ^
+          -DCPACK_PACKAGE_FILE_NAME=%PACKAGE_NAME% ^
           -G Ninja ^
           ../src
         cmake --build . --config Release
         cmake --build . --config Release --target package
+        echo "::set-env name=PACKAGE_NAME::%PACKAGE_NAME%.zip"
+    - uses: actions/upload-artifact@v2
+      if: env.PACKAGE_NAME
+      with:
+        name: cutter-ci-build
+        path: build/${{ env.PACKAGE_NAME }}
