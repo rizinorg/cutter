@@ -19,14 +19,14 @@ option(CUTTER_ENABLE_CRASH_REPORTS "Enable crash report system. Unused if CUTTER
 option(CUTTER_APPIMAGE_BUILD "Enable Appimage specific changes. Doesn't cause building of Appimage itself." OFF)
 tri_option(CUTTER_ENABLE_KSYNTAXHIGHLIGHTING "Use KSyntaxHighlighting" AUTO)
 tri_option(CUTTER_ENABLE_GRAPHVIZ "Enable use of graphviz for graph layout" AUTO)
-option (option SHIBOKEN_EXTRA_OPTIONS "Extra options for shiboken generator")
+set(SHIBOKEN_EXTRA_OPTIONS "" CACHE STRING "Extra options for shiboken generator")
 set(CUTTER_EXTRA_PLUGIN_DIRS "" CACHE STRING "List of addition plugin locations")
 option(CUTTER_ENABLE_DEPENDENCY_DOWNLOADS "Enable downloading of dependencies. Setting to OFF doesn't affect any downloads done by r2 build." OFF)
+option(CUTTER_PACKAGE_DEPENDENCIES "Install the dependencies for self contained packages" OFF)
 
 if(NOT CUTTER_ENABLE_PYTHON)
     set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
 endif()
-
 
 # Parse Cutter.pro to get filenames
 include(QMakeProParse)
