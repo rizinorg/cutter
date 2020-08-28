@@ -658,10 +658,10 @@ bool CutterCore::mapFile(QString path, RVA mapaddr)
     return true;
 }
 
-void CutterCore::renameFunction(const QString &oldName, const QString &newName)
+void CutterCore::renameFunction(const RVA offset, const QString &newName)
 {
-    cmdRaw("afn " + newName + " " + oldName);
-    emit functionRenamed(oldName, newName);
+    cmdRaw("afn " + newName + " " + RAddressString(offset));
+    emit functionRenamed(offset, newName);
 }
 
 void CutterCore::delFunction(RVA addr)
@@ -674,6 +674,17 @@ void CutterCore::renameFlag(QString old_name, QString new_name)
 {
     cmdRaw("fr " + old_name + " " + new_name);
     emit flagsChanged();
+}
+
+void CutterCore::renameFunctionVariable(QString newName, QString oldName, RVA functionAddress)
+{
+    CORE_LOCK();
+    RAnalFunction *function = r_anal_get_function_at(core->anal, functionAddress);
+    RAnalVar *variable = r_anal_function_get_var_byname(function, oldName.toUtf8().constData());
+    if (variable) {
+        r_anal_var_rename(variable, newName.toUtf8().constData(), true);
+    }
+    emit refreshCodeViews();
 }
 
 void CutterCore::delFlag(RVA addr)
@@ -2068,23 +2079,7 @@ void CutterCore::setDebugPlugin(QString plugin)
 void CutterCore::toggleBreakpoint(RVA addr)
 {
     cmdRaw(QString("dbs %1").arg(addr));
-    emit instructionChanged(addr);
-    emit breakpointsChanged();
-}
-
-void CutterCore::toggleBreakpoint(QString addr)
-{
-    cmdRaw("dbs " + addr);
-    emit instructionChanged(addr.toULongLong());
-    emit breakpointsChanged();
-}
-
-
-void CutterCore::addBreakpoint(QString addr)
-{
-    cmdRaw("db " + addr);
-    emit instructionChanged(addr.toULongLong());
-    emit breakpointsChanged();
+    emit breakpointsChanged(addr);
 }
 
 void CutterCore::addBreakpoint(const BreakpointDescription &config)
@@ -2138,8 +2133,7 @@ void CutterCore::addBreakpoint(const BreakpointDescription &config)
     if (!config.command.isEmpty()) {
         updateOwnedCharPtr(breakpoint->data, config.command);
     }
-    emit instructionChanged(breakpoint->addr);
-    emit breakpointsChanged();
+    emit breakpointsChanged(breakpoint->addr);
 }
 
 void CutterCore::updateBreakpoint(int index, const BreakpointDescription &config)
@@ -2157,8 +2151,7 @@ void CutterCore::updateBreakpoint(int index, const BreakpointDescription &config
 void CutterCore::delBreakpoint(RVA addr)
 {
     cmdRaw("db- " + RAddressString(addr));
-    emit instructionChanged(addr);
-    emit breakpointsChanged();
+    emit breakpointsChanged(addr);
 }
 
 void CutterCore::delAllBreakpoints()
@@ -2170,15 +2163,13 @@ void CutterCore::delAllBreakpoints()
 void CutterCore::enableBreakpoint(RVA addr)
 {
     cmdRaw("dbe " + RAddressString(addr));
-    emit instructionChanged(addr);
-    emit breakpointsChanged();
+    emit breakpointsChanged(addr);
 }
 
 void CutterCore::disableBreakpoint(RVA addr)
 {
     cmdRaw("dbd " + RAddressString(addr));
-    emit instructionChanged(addr);
-    emit breakpointsChanged();
+    emit breakpointsChanged(addr);
 }
 
 void CutterCore::setBreakpointTrace(int index, bool enabled)
@@ -3640,9 +3631,9 @@ void CutterCore::triggerVarsChanged()
     emit varsChanged();
 }
 
-void CutterCore::triggerFunctionRenamed(const QString &prevName, const QString &newName)
+void CutterCore::triggerFunctionRenamed(const RVA offset, const QString &newName)
 {
-    emit functionRenamed(prevName, newName);
+    emit functionRenamed(offset, newName);
 }
 
 void CutterCore::loadPDB(const QString &file)

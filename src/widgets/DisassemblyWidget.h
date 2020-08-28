@@ -40,6 +40,7 @@ public slots:
 
 protected slots:
     void on_seekChanged(RVA offset);
+    void refreshIfInRange(RVA offset);
     void refreshDisasm(RVA offset = RVA_INVALID);
 
     bool updateMaxLines();

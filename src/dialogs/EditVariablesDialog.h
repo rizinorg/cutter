@@ -23,6 +23,7 @@ private slots:
 
 private:
     Ui::EditVariablesDialog *ui;
+    RVA functionAddress;
     QList<VariableDescription> variables;
 
     void populateTypesComboBox();

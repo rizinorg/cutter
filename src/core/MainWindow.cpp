@@ -11,6 +11,7 @@
 #include "common/TempConfig.h"
 #include "common/RunScriptTask.h"
 #include "common/PythonManager.h"
+#include "plugins/CutterPlugin.h"
 #include "plugins/PluginManager.h"
 #include "CutterConfig.h"
 #include "CutterApplication.h"
@@ -926,12 +927,19 @@ void MainWindow::showMemoryWidget(MemoryWidgetType type)
     memoryDockWidget->raiseMemoryWidget();
 }
 
-QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address)
+QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address,  AddressTypeHint addressType)
 {
     QMenu *menu = new QMenu(parent);
     // Memory dock widgets
     for (auto &dock : dockWidgets) {
         if (auto memoryWidget = qobject_cast<MemoryDockWidget *>(dock)) {
+            if (memoryWidget->getType() == MemoryWidgetType::Graph
+                    || memoryWidget->getType() == MemoryWidgetType::Decompiler)
+            {
+                if (addressType == AddressTypeHint::Data) {
+                    continue;
+                }
+            }
             QAction *action = new QAction(memoryWidget->windowTitle(), menu);
             connect(action, &QAction::triggered, this, [memoryWidget, address]() {
                 memoryWidget->getSeekable()->seek(address);
@@ -964,7 +972,9 @@ QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address)
         menu->addAction(action);
     };
     createAddNewWidgetAction(tr("New disassembly"), MemoryWidgetType::Disassembly);
-    createAddNewWidgetAction(tr("New graph"), MemoryWidgetType::Graph);
+    if (addressType != AddressTypeHint::Data) {
+        createAddNewWidgetAction(tr("New graph"), MemoryWidgetType::Graph);
+    }
     createAddNewWidgetAction(tr("New hexdump"), MemoryWidgetType::Hexdump);
 
     return menu;
@@ -1558,8 +1568,10 @@ void MainWindow::on_actionRefresh_contents_triggered()
 
 void MainWindow::on_actionPreferences_triggered()
 {
-    auto dialog = new PreferencesDialog(this);
-    dialog->show();
+    if (!findChild<PreferencesDialog*>()) {
+        auto dialog = new PreferencesDialog(this);
+        dialog->show();
+    }
 }
 
 void MainWindow::on_actionTabs_triggered()

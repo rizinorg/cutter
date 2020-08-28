@@ -23,17 +23,23 @@
    <string>Edit string</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="dialogButtonBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QLabel" name="label_address">
-         <property name="text">
-          <string>Address:</string>
-         </property>
-        </widget>
-       </item>
        <item>
         <widget class="QLabel" name="label_size">
          <property name="minimumSize">
@@ -54,23 +60,23 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QLabel" name="label_address">
+         <property name="text">
+          <string>Address:</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QLineEdit" name="lineEdit_address">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QSpinBox" name="spinBox_size">
          <property name="minimumSize">
           <size>
            <width>150</width>
-           <height>0</height>
+           <height>24</height>
           </size>
          </property>
         </widget>
@@ -78,9 +84,16 @@
        <item>
         <widget class="QComboBox" name="comboBox_type"/>
        </item>
+       <item>
+        <widget class="QLineEdit" name="lineEdit_address">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
-     <item>
+     <item alignment="Qt::AlignTop">
       <widget class="QCheckBox" name="checkBox_autoSize">
        <property name="text">
         <string>Auto</string>
@@ -89,29 +102,22 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="0">
-    <widget class="QPushButton" name="pushButton_cancel">
-     <property name="text">
-      <string>Cancel</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QPushButton" name="pushButton_ok">
-     <property name="text">
-      <string>OK</string>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>spinBox_size</tabstop>
+  <tabstop>checkBox_autoSize</tabstop>
+  <tabstop>comboBox_type</tabstop>
+  <tabstop>lineEdit_address</tabstop>
+  <tabstop>dialogButtonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>pushButton_cancel</sender>
-   <signal>clicked()</signal>
+   <sender>dialogButtonBox</sender>
+   <signal>accepted()</signal>
    <receiver>EditStringDialog</receiver>
-   <slot>reject()</slot>
+   <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>51</x>
@@ -124,10 +130,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_ok</sender>
-   <signal>clicked()</signal>
+   <sender>dialogButtonBox</sender>
+   <signal>rejected()</signal>
    <receiver>EditStringDialog</receiver>
-   <slot>accept()</slot>
+   <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>143</x>

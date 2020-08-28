@@ -75,7 +75,9 @@ compile_commands.json
 docs/source/_build
 
 # vscode
-**/.vscode
+/.vscode/*
+!/.vscode/settings.json
+!/.vscode/extensions.json
 
 # Visual Studio CMake
 src/out

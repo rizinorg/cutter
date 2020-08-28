@@ -6,6 +6,8 @@
 #include <QMenu>
 #include <QKeySequence>
 
+class MainWindow;
+
 class CUTTER_EXPORT DisassemblyContextMenu : public QMenu
 {
     Q_OBJECT
@@ -87,6 +89,7 @@ private:
     QKeySequence getCopyAddressSequence() const;
     QKeySequence getSetToCodeSequence() const;
     QKeySequence getSetAsStringSequence() const;
+    QKeySequence getSetAsStringAdvanced() const;
     QKeySequence getSetToDataSequence() const;
     QKeySequence getSetToDataExSequence() const;
     QKeySequence getAddFlagSequence() const;

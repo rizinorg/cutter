@@ -68,9 +68,9 @@ Editing Qt .ui files
 ~~~~~~~~~~~~~~~~~~~~
 Double-clicking a ``.ui`` file in a file list opens it inside a visual editor. If you want to make changes that are easier to do by editing ``.ui`` file as text - right-click the file and select :menuselection:`Open With --> Plain Text Editor`. Switching from visual form editor back to code editor mode will open the ``.ui`` file in read-only mode with the following warning "This file can only be edited in Design mode". To edit use the same steps as described before.
 
-VSCode
+VS Code
 -------
-`VSCode <https://github.com/Microsoft/vscode>`_ is an open-source code editor made by Microsoft.
+`VS Code <https://github.com/Microsoft/vscode>`_ is an open-source code editor made by Microsoft.
 
 Pros and Cons
 ~~~~~~~~~~~~~
@@ -86,23 +86,24 @@ Recommended plugins
 
 Project setup
 ~~~~~~~~~~~~~
-- :menuselection:`File --> Open Folder` select the folder in which you cloned Cutter
-- If the recommend plugins are already installed, in the corner you will see a popup asking you "Would you like to configure project 'cutter'? Source: CMake Tools (Extension)". Click Yes.
-- If you initially dismissed the configuration window or didn't have the plugins installed yet - open command pallet using :kbd:`Ctrl-Shift-P` and select :guilabel:`Cmake: Configure`
-- In the kit selection choose :guilabel:`[Unspecified]` unless you have more specific needs.
-- If you see the following error: "CMakeList.txt was not found in the root of folder cutter", choose :guilabel:`Locate` and specify the path to :file:`cutter/src/CMakeLists.txt`
-- :kbd:`Ctrl-Shift-P`/:guilabel:`CMake: Edit CMake Cache`, find the line ``CUTTER_USE_BUNDLED_RADARE2:BOOL=OFF`` and change it to ON.
+- :menuselection:`File --> Open Folder...` and select the folder in which you cloned Cutter
+- Install the recommended plugins.
+- Once the `CMake Tools` plugin is installed, in the corner you will see a popup asking you "Would you like to configure project 'cutter'? Source: CMake Tools (Extension)". Click Yes.
+- In the kit selection popup, choose :guilabel:`[Unspecified]` unless you have more specific needs.
+- If you initially dismissed the configuration window or didn't have the plugins installed yet - open command-palette using :kbd:`Ctrl-Shift-P` and select :guilabel:`Cmake: Configure`
 
 Changing CMake configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 After the first configuration :kbd:`Ctrl-Shift-P`/:guilabel:`CMake: Edit CMake Cache` opens a text editor with all CMake options. Cutter specific ones mostly start with "CUTTER".
 
+.. note::
+    ``CUTTER_USE_BUNDLED_RADARE2`` option is also defined in ``.vscode/settings.json`` file and it will be overridden from there. It is set to ``ON`` by default as it is recommended during development.
 
 .. _vscode-debug-setup:
 
 Building, Running, Debugging
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Build and running commands are available in the bar at the bottom left and in the Command Palette menu (:kbd:`Ctrl-Shift-P`) named ``CMake: Build F7``, ``CMake: Run Without Debugging Shift+F5``, and ``CMake Debug Ctrl + F5``.
+Build and running commands are available in the status bar at the bottom and in the Command Palette menu (:kbd:`Ctrl-Shift-P`) named ``CMake: Build F7``, ``CMake: Run Without Debugging Shift+F5``, and ``CMake Debug Ctrl + F5``.
 Shortcuts can be viewed in the :kbd:`Ctrl-Shift-P` menu. They don't match default VS Code ones since those depend on :file:`tasks.json``.
 
 Running and debugging launches the executable without any arguments. Command-line arguments can be passed to the debug

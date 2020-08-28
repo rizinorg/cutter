@@ -23,7 +23,6 @@ class Decompiler;
 class R2Task;
 class R2TaskDialog;
 
-#include "plugins/CutterPlugin.h"
 #include "common/BasicBlockHighlighter.h"
 #include "common/R2Task.h"
 #include "common/Helpers.h"
@@ -144,9 +143,18 @@ public:
     QStringList autocomplete(const QString &cmd, RLinePromptType promptType, size_t limit = 4096);
 
     /* Functions methods */
-    void renameFunction(const QString &oldName, const QString &newName);
+    void renameFunction(const RVA offset, const QString &newName);
     void delFunction(RVA addr);
     void renameFlag(QString old_name, QString new_name);
+    /**
+     * @brief Renames the specified local variable in the function specified by the
+     * address given.
+     * @param newName Specifies the name to which the current name of the variable
+     * should be renamed.
+     * @param oldName Specifies the current name of the function variable.
+     * @param functionAddress Specifies the exact address of the function.
+     */
+    void renameFunctionVariable(QString newName, QString oldName, RVA functionAddress);
 
     /**
      * @param addr
@@ -392,11 +400,9 @@ public:
     void stepOverDebug();
     void stepOutDebug();
 
-    void addBreakpoint(QString addr);
     void addBreakpoint(const BreakpointDescription &config);
     void updateBreakpoint(int index, const BreakpointDescription &config);
     void toggleBreakpoint(RVA addr);
-    void toggleBreakpoint(QString addr);
     void delBreakpoint(RVA addr);
     void delAllBreakpoints();
     void enableBreakpoint(RVA addr);
@@ -588,7 +594,7 @@ public:
 
     /* Signals related */
     void triggerVarsChanged();
-    void triggerFunctionRenamed(const QString &prevName, const QString &newName);
+    void triggerFunctionRenamed(const RVA offset, const QString &newName);
     void triggerRefreshAll();
     void triggerAsmOptionsChanged();
     void triggerGraphOptionsChanged();
@@ -637,14 +643,14 @@ public:
 signals:
     void refreshAll();
 
-    void functionRenamed(const QString &prev_name, const QString &new_name);
+    void functionRenamed(const RVA offset, const QString &new_name);
     void varsChanged();
     void functionsChanged();
     void flagsChanged();
     void commentsChanged();
     void registersChanged();
     void instructionChanged(RVA offset);
-    void breakpointsChanged();
+    void breakpointsChanged(RVA offset);
     void refreshCodeViews();
     void stackChanged();
     /**
