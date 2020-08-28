@@ -12,13 +12,13 @@ Copy
 
 Copy Instruction Address
 ----------------------------------------
-**Description:** Copy the address of the instruction mapped to the part of code under the cursor.
+**Description:** Copy the address of the instruction mapped to the part of the code under the cursor.
 
 **Steps:**  Right-click on the portion of code for which you want the instruction's address and choose ``Copy instruction address (<address>)``
 
 Copy Address of Reference
 ----------------------------------------
-**Description:** Copy the address of the reference under cursor. References include functions, global variables, and constant variables with an address.
+**Description:** Copy the address of the reference under the cursor. References include functions, global variables, and constant variables with an address.
 
 **Steps:**  Right-click on a reference and choose ``Copy  address [of <name>] (<address>)``  
 
@@ -38,7 +38,7 @@ Show the selected item in another widget
 
 Add and Edit Comment
 ----------------------------------------
-**Description:** Add a comment in the location under the cursor or edit the comment in the location under the cursor. The ``Edit comment`` option is only available for user defined comments.
+**Description:** Add a comment in the location under the cursor or edit the comment in the location under the cursor. The ``Edit comment`` option is only available for user-defined comments.
 
 **Steps:** Right-click and choose ``Add Comment`` or ``Edit Comment``.
 
@@ -46,7 +46,7 @@ Add and Edit Comment
 
 Delete a Comment
 ----------------------------------------
-**Description:** Delete the comment at the location under the cursor. This option is only available for user defined comments.
+**Description:** Delete the comment at the location under the cursor. This option is only available for user-defined comments.
 
 **Steps:** Right-click on an instruction with a user-defined comment and choose ``Delete comment``  
 
@@ -66,7 +66,7 @@ Give a name or rename global variables
 
 **Shortcut:** :kbd:`N`
 
-Delete the name of global variable
+Delete the name of a global variable
 ----------------------------------------
 **Description:** Delete the name of the global variable under the cursor.
 
@@ -90,7 +90,7 @@ Edit Local Variables and Arguments
 
 Show Cross References
 ----------------------------------------
-**Description:** Show X-Refs to the reference under cursor. This option will open Cutter's X-Refs dialog in which you will be able to see a list of X-Refs from and to the address of the reference. You can also see a preview of each cross-reference to quickly inspect the different usages. Note that references refer to function names, global variables, and constant variables with an address.  
+**Description:** Show X-Refs to the reference under the cursor. This option will open Cutter's X-Refs dialog in which you will be able to see a list of X-Refs from and to the address of the reference. You can also see a preview of each cross-reference to quickly inspect the different usages. Note that references refer to function names, global variables, and constant variables with an address.  
 
 **Steps:** Right-click on a reference and choose ``Show X-Refs``  
 
