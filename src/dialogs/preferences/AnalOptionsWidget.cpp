@@ -49,7 +49,7 @@ AnalOptionsWidget::AnalOptionsWidget(PreferencesDialog *dialog)
             &MainWindow::on_actionAnalyze_triggered);
     connect(ui->analInComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &AnalOptionsWidget::updateAnalIn);
-    connect(ui->ptrDepthSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this,
+    connect<void (QSpinBox::*)(int)>(ui->ptrDepthSpinBox, &QSpinBox::valueChanged, this,
             &AnalOptionsWidget::updateAnalPtrDepth);
     connect(ui->preludeLineEdit, &QLineEdit::textChanged, this, &AnalOptionsWidget::updateAnalPrelude);
     updateAnalOptionsFromVars();
