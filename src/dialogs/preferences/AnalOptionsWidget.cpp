@@ -47,10 +47,10 @@ AnalOptionsWidget::AnalOptionsWidget(PreferencesDialog *dialog)
     auto *mainWindow = new MainWindow(this);
     connect(ui->analyzePushButton, &QPushButton::clicked, mainWindow,
             &MainWindow::on_actionAnalyze_triggered);
-    connect(ui->analInComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &AnalOptionsWidget::updateAnalIn);
+    connect<void (QComboBox::*)(int)>(ui->analInComboBox, &QComboBox::currentIndexChanged, this,
+                                      &AnalOptionsWidget::updateAnalIn);
     connect<void (QSpinBox::*)(int)>(ui->ptrDepthSpinBox, &QSpinBox::valueChanged, this,
-            &AnalOptionsWidget::updateAnalPtrDepth);
+                                     &AnalOptionsWidget::updateAnalPtrDepth);
     connect(ui->preludeLineEdit, &QLineEdit::textChanged, this, &AnalOptionsWidget::updateAnalPrelude);
     updateAnalOptionsFromVars();
 }
