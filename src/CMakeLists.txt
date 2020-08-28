@@ -22,7 +22,7 @@ tri_option(CUTTER_ENABLE_GRAPHVIZ "Enable use of graphviz for graph layout" AUTO
 set(SHIBOKEN_EXTRA_OPTIONS "" CACHE STRING "Extra options for shiboken generator")
 set(CUTTER_EXTRA_PLUGIN_DIRS "" CACHE STRING "List of addition plugin locations")
 option(CUTTER_ENABLE_DEPENDENCY_DOWNLOADS "Enable downloading of dependencies. Setting to OFF doesn't affect any downloads done by r2 build." OFF)
-option(CUTTER_PACKAGE_DEPENDENCIES "Install the dependencies for self contained packages" OFF)
+option(CUTTER_PACKAGE_DEPENDENCIES "During install step include the third party dependencies." OFF)
 
 if(NOT CUTTER_ENABLE_PYTHON)
     set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
