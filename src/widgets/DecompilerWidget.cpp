@@ -75,7 +75,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(ui->decompilerComboBox,
             static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
             &DecompilerWidget::decompilerSelected);
-    connectCursorPositionChanged(false);
+    connectCursorPositionChanged(true);
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &DecompilerWidget::seekChanged);
     ui->textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->textEdit, &QWidget::customContextMenuRequested,
@@ -250,10 +250,10 @@ void DecompilerWidget::doRefresh()
         // the decompiler selection combo box as we are not waiting for any decompilation to finish.
         ui->progressLabel->setVisible(false);
         ui->decompilerComboBox->setEnabled(true);
-        connectCursorPositionChanged(true);
+        connectCursorPositionChanged(false);
         ui->textEdit->setPlainText(
             tr("No function found at this offset. Seek to a function or define one in order to decompile it."));
-        connectCursorPositionChanged(false);
+        connectCursorPositionChanged(true);
         return;
     }
     mCtxMenu->setDecompiledFunctionAddress(decompiledFunctionAddr);
@@ -300,16 +300,16 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
 
     QString codeString = QString::fromUtf8(this->code->code);
     if (codeString.isEmpty()) {
-        connectCursorPositionChanged(true);
-        ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
         connectCursorPositionChanged(false);
+        ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
+        connectCursorPositionChanged(true);
         lowestOffsetInCode = RVA_MAX;
         highestOffsetInCode = 0;
         return;
     } else {
-        connectCursorPositionChanged(true);
-        ui->textEdit->setPlainText(codeString);
         connectCursorPositionChanged(false);
+        ui->textEdit->setPlainText(codeString);
+        connectCursorPositionChanged(true);
         updateCursorPosition();
         highlightPC();
         highlightBreakpoints();
@@ -358,11 +358,11 @@ void DecompilerWidget::decompilerSelected()
     doRefresh();
 }
 
-void DecompilerWidget::connectCursorPositionChanged(bool disconnect)
+void DecompilerWidget::connectCursorPositionChanged(bool connectPositionChange)
 {
-    if (disconnect) {
-        QObject::disconnect(ui->textEdit, &QPlainTextEdit::cursorPositionChanged, this,
-                            &DecompilerWidget::cursorPositionChanged);
+    if (!connectPositionChange) {
+        disconnect(ui->textEdit, &QPlainTextEdit::cursorPositionChanged, this,
+                   &DecompilerWidget::cursorPositionChanged);
     } else {
         connect(ui->textEdit, &QPlainTextEdit::cursorPositionChanged, this,
                 &DecompilerWidget::cursorPositionChanged);
@@ -411,12 +411,12 @@ void DecompilerWidget::updateCursorPosition()
         return;
     }
     mCtxMenu->setOffset(offset);
-    connectCursorPositionChanged(true);
+    connectCursorPositionChanged(false);
     QTextCursor cursor = ui->textEdit->textCursor();
     cursor.setPosition(pos);
     ui->textEdit->setTextCursor(cursor);
     updateSelection();
-    connectCursorPositionChanged(false);
+    connectCursorPositionChanged(true);
 }
 
 void DecompilerWidget::setupFonts()

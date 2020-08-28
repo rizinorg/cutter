@@ -75,7 +75,7 @@ private:
     RVA previousFunctionAddr;
     RVA decompiledFunctionAddr;
     std::unique_ptr<RAnnotatedCode, void (*)(RAnnotatedCode *)> code;
-    
+
     /**
      * Specifies the lowest offset of instructions among all the instructions in the decompiled function.
      */
@@ -128,13 +128,13 @@ private:
     /**
      * @brief Connect/Disconnect SIGNAL-SLOT connection that deals with changes in cursor position.
      *
-     * If the argument is true, then disconnect the SIGNAL-SLOT connection
+     * If the argument is true, then connect the SIGNAL-SLOT connection
      * that changes the view as cursor position gets changed in the text widget.
-     * Otherwise, connect the corresponding signal with slot.
+     * Otherwise, disconnect the corresponding signal with slot.
      *
      * @param disconnect
      */
-    void connectCursorPositionChanged(bool disconnect);
+    void connectCursorPositionChanged(bool connectPositionChange);
     /**
      * @brief Find the current global offset in sync and update cursor
      * to the position specified by this offset (found using positionForOffset() )
