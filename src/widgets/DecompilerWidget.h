@@ -132,7 +132,7 @@ private:
      * that changes the view as cursor position gets changed in the text widget.
      * Otherwise, disconnect the corresponding signal with slot.
      *
-     * @param disconnect
+     * @param connectPositionChange
      */
     void connectCursorPositionChanged(bool connectPositionChange);
     /**
