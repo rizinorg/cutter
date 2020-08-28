@@ -819,7 +819,7 @@ void DisassemblyContextMenu::on_actionRename_triggered()
 
     if (fcn) {
         // Renaming a function
-        QString newName = QInputDialog::getText(this, tr("Rename function %2").arg(fcn->name),
+        QString newName = QInputDialog::getText(this->mainWindow, tr("Rename function %2").arg(fcn->name),
                                             tr("Function name:"), QLineEdit::Normal, fcn->name, &ok);
         if (ok && !newName.isEmpty()) {
             Core()->renameFunction(fcn->addr, newName);
