@@ -236,8 +236,21 @@ void MainWindow::initUI()
     connect(ui->actionDocumentation, &QAction::triggered, this, &MainWindow::documentationClicked);
 
     /* Setup plugins interfaces */
-    for (auto &plugin : Plugins()->getPlugins()) {
+    const auto &plugins = Plugins()->getPlugins();
+    for (auto &plugin : plugins) {
         plugin->setupInterface(this);
+    }
+
+    // Check if plugins are loaded and display tooltips accordingly
+    ui->menuWindows->setToolTipsVisible(true);
+    if (plugins.empty()) {
+        ui->menuPlugins->menuAction()->setToolTip(
+                tr("No plugins are installed. Check the plugins section on Cutter documentation to learn more."));
+        ui->menuPlugins->setEnabled(false);
+    } else if (ui->menuPlugins->isEmpty()) {
+        ui->menuPlugins->menuAction()->setToolTip(
+                tr("The installed plugins didn't add entries to this menu."));
+        ui->menuPlugins->setEnabled(false);
     }
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
