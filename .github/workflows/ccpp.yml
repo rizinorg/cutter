@@ -126,10 +126,13 @@ jobs:
           ../src
         cmake --build . --config Release
         cmake --build . --config Release --target package
-        echo "::set-env name=PACKAGE_NAME::%PACKAGE_NAME%.zip"
+        echo ::set-env name=PACKAGE_NAME::%PACKAGE_NAME%.zip
+    - name: windows dependencies
+      shell: bash
+      run: |
+        echo $PACKAGE_NAME
     - uses: actions/upload-artifact@v2
-      #if: env.PACKAGE_NAME
+      if: env.PACKAGE_NAME != null
       if: contains(matrix.os, 'windows-latest')
       with:
-        name: cutter-ci-build
-        path: build/cutter-git-x64.Windows.zip
+        path: build/${{ env.PACKAGE_NAME }}
