@@ -6,6 +6,8 @@ $py_base = "python" + $py_version[0] + $py_version[2]
 $py_platform = If ($arch -eq "x64") {"amd64"} Else {"win32"}
 $py_url = "https://www.python.org/ftp/python/${py_version}/python-${py_version}-embed-${py_platform}.zip"
 
+Remove-Item .\python_embed -Recurse -ErrorAction SilentlyContinue
+$ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget ${py_url} -OutFile python_embed.zip; Expand-Archive .\python_embed.zip -DestinationPath .\python_embed
 New-Item -ItemType directory -Force -Path $dist\$py_base
 Copy-Item .\python_embed\${py_base}.zip -Destination $dist\$py_base
