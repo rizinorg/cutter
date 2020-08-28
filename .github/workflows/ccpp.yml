@@ -127,11 +127,8 @@ jobs:
         cmake --build . --config Release
         cmake --build . --config Release --target package
         echo ::set-env name=PACKAGE_NAME::%PACKAGE_NAME%.zip
-    - name: windows dependencies
-      shell: bash
-      run: |
-        echo $PACKAGE_NAME
     - uses: actions/upload-artifact@v2
       if: env.PACKAGE_NAME != null
       with:
+        name: ${{ env.PACKAGE_NAME }}
         path: build/${{ env.PACKAGE_NAME }}
