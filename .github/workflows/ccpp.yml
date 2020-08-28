@@ -109,7 +109,6 @@ jobs:
       run: |
         set CUTTER_DEPS=%CD%\cutter-deps
         set PATH=%CD%\cutter-deps\qt\bin;%PATH%
-        set
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
         cd
         mkdir build
@@ -129,7 +128,8 @@ jobs:
         cmake --build . --config Release --target package
         echo "::set-env name=PACKAGE_NAME::%PACKAGE_NAME%.zip"
     - uses: actions/upload-artifact@v2
-      if: env.PACKAGE_NAME
+      #if: env.PACKAGE_NAME
+      if: contains(matrix.os, 'windows-latest')
       with:
         name: cutter-ci-build
-        path: build/${{ env.PACKAGE_NAME }}
+        path: build/cutter-git-x64.Windows.zip
