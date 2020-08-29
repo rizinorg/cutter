@@ -108,6 +108,11 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
 
 DecompilerWidget::~DecompilerWidget() = default;
 
+QString DecompilerWidget::getWidgetType()
+{
+    return "Decompiler";
+}
+
 Decompiler *DecompilerWidget::getCurrentDecompiler()
 {
     return Core()->getDecompilerById(ui->decompilerComboBox->currentData().toString());

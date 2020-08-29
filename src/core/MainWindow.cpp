@@ -157,6 +157,8 @@ void MainWindow::initUI()
     widgetTypeToConstructorMap.insert(DisassemblyWidget::getWidgetType(),
                                       getNewInstance<DisassemblyWidget>);
     widgetTypeToConstructorMap.insert(HexdumpWidget::getWidgetType(), getNewInstance<HexdumpWidget>);
+    widgetTypeToConstructorMap.insert(DecompilerWidget::getWidgetType(),
+                                      getNewInstance<DecompilerWidget>);
 
     initToolBar();
     initDocks();
@@ -654,7 +656,12 @@ void MainWindow::finalizeOpen()
         auto disasmWidget = qobject_cast<DisassemblyWidget *>(dockWidget);
         if (disasmWidget && dockWidget->isVisibleToUser()) {
             disasmWidget->raiseMemoryWidget();
-            // continue looping in case there is a graph wiget
+            // continue looping in case there is a graph widget
+        }
+        auto decompilerWidget = qobject_cast<DecompilerWidget *>(dockWidget);
+        if (decompilerWidget && dockWidget->isVisibleToUser()) {
+            decompilerWidget->raiseMemoryWidget();
+            // continue looping in case there is a graph widget
         }
     }
 }
@@ -885,7 +892,8 @@ bool MainWindow::isExtraMemoryWidget(QDockWidget *dock) const
 {
     return qobject_cast<GraphWidget*>(dock) ||
             qobject_cast<HexdumpWidget*>(dock) ||
-            qobject_cast<DisassemblyWidget*>(dock);
+            qobject_cast<DisassemblyWidget*>(dock) ||
+            qobject_cast<DecompilerWidget*>(dock);
 }
 
 MemoryWidgetType MainWindow::getMemoryWidgetTypeToRestore()
@@ -1341,7 +1349,8 @@ void MainWindow::setViewLayout(const CutterLayout &layout)
         docksToCreate = QStringList {
             DisassemblyWidget::getWidgetType(),
             GraphWidget::getWidgetType(),
-            HexdumpWidget::getWidgetType()
+            HexdumpWidget::getWidgetType(),
+            DecompilerWidget::getWidgetType()
         };
     } else {
         docksToCreate = layout.viewProperties.keys();
