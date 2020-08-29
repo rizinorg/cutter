@@ -232,6 +232,8 @@ private:
      * @return True if the specified is a part of the decompiled function, False otherwise.
      */
     bool addressInRange(RVA addr);
+
+    void setCode(RAnnotatedCode *code);
 };
 
 #endif // DECOMPILERWIDGET_H
