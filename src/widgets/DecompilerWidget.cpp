@@ -39,8 +39,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
                   : tr("Decompiler"));
     updateWindowTitle();
 
-    // TODO: allow choosing highlighter
-    syntaxHighlighter = new DecompilerHighlighter(ui->textEdit->document());//Config()->createSyntaxHighlighter(ui->textEdit->document());
+    setHighlighter(Config()->isDecompilerAnnotationHighlighterEnabled());
     // Event filter to intercept double click and right click in the textbox
     ui->textEdit->viewport()->installEventFilter(this);
 
@@ -457,6 +456,10 @@ void DecompilerWidget::fontsUpdatedSlot()
 
 void DecompilerWidget::colorsUpdatedSlot()
 {
+    bool useAnotationHiglighter = Config()->isDecompilerAnnotationHighlighterEnabled();
+    if (useAnotationHiglighter != usingAnnotationBasedHighlighting) {
+        setHighlighter(useAnotationHiglighter);
+    }
 }
 
 void DecompilerWidget::showDecompilerContextMenu(const QPoint &pt)
@@ -560,9 +563,23 @@ bool DecompilerWidget::addressInRange(RVA addr)
 void DecompilerWidget::setCode(RAnnotatedCode *code)
 {
     connectCursorPositionChanged(false);
-    ((DecompilerHighlighter*)syntaxHighlighter)->setAnnotations(code);
+    if (auto highlighter = qobject_cast<DecompilerHighlighter*>(syntaxHighlighter.get())) {
+        highlighter->setAnnotations(code);
+    }
     this->code.reset(code);
     this->ui->textEdit->setPlainText(QString::fromUtf8(this->code->code));
     connectCursorPositionChanged(true);
     syntaxHighlighter->rehighlight();
+}
+
+void DecompilerWidget::setHighlighter(bool annotationBasedHighlighter)
+{
+    usingAnnotationBasedHighlighting = annotationBasedHighlighter;
+    if (usingAnnotationBasedHighlighting) {
+        syntaxHighlighter.reset(new DecompilerHighlighter());
+        static_cast<DecompilerHighlighter*>(syntaxHighlighter.get())->setAnnotations(code.get());
+    } else {
+        syntaxHighlighter.reset(Config()->createSyntaxHighlighter(nullptr));
+    }
+    syntaxHighlighter->setDocument(ui->textEdit->document());
 }

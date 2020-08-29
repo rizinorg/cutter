@@ -163,6 +163,9 @@ public:
     bool getDecompilerAutoRefreshEnabled();
     void setDecompilerAutoRefreshEnabled(bool enabled);
 
+    void enableDecompilerAnnotationHighlighter(bool useDecompilerHighlighter);
+    bool isDecompilerAnnotationHighlighterEnabled();
+
     // Graph
     int getGraphBlockMaxChars() const
     {

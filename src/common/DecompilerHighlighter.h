@@ -35,8 +35,8 @@ protected:
 private:
     void setupTheme();
 
-    static const int HIGHLIGHT_COUNT= R_SYNTAX_HIGHLIGHT_TYPE_GLOBAL_VARIABLE + 1;
-    QTextCharFormat format[HIGHLIGHT_COUNT];
+    static const int HIGHLIGHT_COUNT = R_SYNTAX_HIGHLIGHT_TYPE_GLOBAL_VARIABLE + 1;
+    std::array<QTextCharFormat, HIGHLIGHT_COUNT> format;
     RAnnotatedCode *code = nullptr;
 };
 

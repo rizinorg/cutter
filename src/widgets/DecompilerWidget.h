@@ -60,7 +60,8 @@ private:
 
     RefreshDeferrer *refreshDeferrer;
 
-    QSyntaxHighlighter *syntaxHighlighter;
+    bool usingAnnotationBasedHighlighting = false;
+    std::unique_ptr<QSyntaxHighlighter> syntaxHighlighter;
     bool decompilerSelectionEnabled;
 
     /**
@@ -234,6 +235,8 @@ private:
     bool addressInRange(RVA addr);
 
     void setCode(RAnnotatedCode *code);
+
+    void setHighlighter(bool annotationBasedHighlighter);
 };
 
 #endif // DECOMPILERWIDGET_H

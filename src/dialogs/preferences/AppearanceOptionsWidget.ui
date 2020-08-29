@@ -284,6 +284,16 @@
     </layout>
    </item>
    <item>
+    <widget class="QCheckBox" name="useDecompilerHighlighter">
+     <property name="toolTip">
+      <string>Use information provided by decompiler when highlighting code.</string>
+     </property>
+     <property name="text">
+      <string>Decompiler based highlighting</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

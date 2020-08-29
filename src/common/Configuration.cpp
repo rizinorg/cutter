@@ -724,6 +724,17 @@ void Configuration::setDecompilerAutoRefreshEnabled(bool enabled)
     s.setValue("decompilerAutoRefresh", enabled);
 }
 
+void Configuration::enableDecompilerAnnotationHighlighter(bool useDecompilerHighlighter)
+{
+    s.setValue("enableDecompilerAnnotationHighlighter", useDecompilerHighlighter);
+    emit colorsUpdated();
+}
+
+bool Configuration::isDecompilerAnnotationHighlighterEnabled()
+{
+    return s.value("enableDecompilerAnnotationHighlighter", true).value<bool>();
+}
+
 bool Configuration::getBitmapTransparentState()
 {
     return s.value("bitmapGraphExportTransparency", false).value<bool>();

@@ -19,14 +19,23 @@ void DecompilerHighlighter::setAnnotations(RAnnotatedCode *code)
 
 void DecompilerHighlighter::setupTheme()
 {
-    format[R_SYNTAX_HIGHLIGHT_TYPE_KEYWORD].setForeground(Config()->getColor("other"));
-    format[R_SYNTAX_HIGHLIGHT_TYPE_COMMENT].setForeground(Config()->getColor("comment"));
-    format[R_SYNTAX_HIGHLIGHT_TYPE_DATATYPE].setForeground(Config()->getColor("func_var_type"));
-    format[R_SYNTAX_HIGHLIGHT_TYPE_FUNCTION_NAME].setForeground(Config()->getColor("fname"));
-    format[R_SYNTAX_HIGHLIGHT_TYPE_FUNCTION_PARAMETER].setForeground(Config()->getColor("args"));
-    format[R_SYNTAX_HIGHLIGHT_TYPE_LOCAL_VARIABLE].setForeground(Config()->getColor("func_var"));
-    format[R_SYNTAX_HIGHLIGHT_TYPE_CONSTANT_VARIABLE].setForeground(Config()->getColor("num"));
-    format[R_SYNTAX_HIGHLIGHT_TYPE_GLOBAL_VARIABLE].setForeground(Config()->getColor("func_var"));
+    struct {
+        RSyntaxHighlightType type;
+        QString name;
+    } mapping[] = {
+        {R_SYNTAX_HIGHLIGHT_TYPE_KEYWORD, "other"},
+        {R_SYNTAX_HIGHLIGHT_TYPE_COMMENT, "comment"},
+        {R_SYNTAX_HIGHLIGHT_TYPE_DATATYPE, "func_var_type"},
+        {R_SYNTAX_HIGHLIGHT_TYPE_FUNCTION_NAME, "fname"},
+        {R_SYNTAX_HIGHLIGHT_TYPE_FUNCTION_PARAMETER, "args"},
+        {R_SYNTAX_HIGHLIGHT_TYPE_LOCAL_VARIABLE, "func_var"},
+        {R_SYNTAX_HIGHLIGHT_TYPE_CONSTANT_VARIABLE, "num"},
+        {R_SYNTAX_HIGHLIGHT_TYPE_GLOBAL_VARIABLE, "flag"},
+    };
+    for (const auto &pair : mapping) {
+        assert(pair.type < format.size());
+        format[pair.type].setForeground(Config()->getColor(pair.name));
+    }
 }
 
 void DecompilerHighlighter::highlightBlock(const QString &)
@@ -46,7 +55,7 @@ void DecompilerHighlighter::highlightBlock(const QString &)
             continue;
         }
         auto type = annotation->syntax_highlight.type;
-        if (type >= HIGHLIGHT_COUNT) {
+        if (size_t(type) >= HIGHLIGHT_COUNT) {
             continue;
         }
         auto annotationStart = annotation->start;
