@@ -23,7 +23,7 @@ void DecompilerHighlighter::setupTheme()
         RSyntaxHighlightType type;
         QString name;
     } mapping[] = {
-        {R_SYNTAX_HIGHLIGHT_TYPE_KEYWORD, "other"},
+        {R_SYNTAX_HIGHLIGHT_TYPE_KEYWORD, "pop"},
         {R_SYNTAX_HIGHLIGHT_TYPE_COMMENT, "comment"},
         {R_SYNTAX_HIGHLIGHT_TYPE_DATATYPE, "func_var_type"},
         {R_SYNTAX_HIGHLIGHT_TYPE_FUNCTION_NAME, "fname"},

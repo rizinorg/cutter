@@ -6,6 +6,7 @@
 #include <QSyntaxHighlighter>
 #include <QTextDocument>
 #include <QTextCharFormat>
+#include <array>
 
 /**
  * \brief SyntaxHighlighter based on annotations from decompiled code.
