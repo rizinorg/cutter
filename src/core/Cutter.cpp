@@ -812,13 +812,13 @@ int CutterCore::sizeofDataMeta(RVA addr)
 void CutterCore::setComment(RVA addr, const QString &cmt)
 {
     cmdRawAt(QString("CCu base64:%1").arg(QString(cmt.toLocal8Bit().toBase64())), addr);
-    emit commentsChanged();
+    emit commentsChanged(addr);
 }
 
 void CutterCore::delComment(RVA addr)
 {
     cmdRawAt("CC-", addr);
-    emit commentsChanged();
+    emit commentsChanged(addr);
 }
 
 /**

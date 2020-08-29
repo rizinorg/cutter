@@ -168,6 +168,7 @@ private slots:
     void addExtraGraph();
     void addExtraHexdump();
     void addExtraDisassembly();
+    void addExtraDecompiler();
 
     void on_actionRefresh_Panels_triggered();
 
@@ -236,7 +237,6 @@ private:
 
     QList<CutterDockWidget *> dockWidgets;
     QList<CutterDockWidget *> pluginDocks;
-    DecompilerWidget   *decompilerDock = nullptr;
     OverviewWidget     *overviewDock = nullptr;
     QAction *actionOverview = nullptr;
     EntrypointWidget   *entrypointDock = nullptr;

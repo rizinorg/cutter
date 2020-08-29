@@ -143,6 +143,7 @@ void MainWindow::initUI()
     disassemblyContextMenuExtensions = new QMenu(tr("Plugins"), this);
     addressableContextMenuExtensions = new QMenu(tr("Plugins"), this);
 
+    connect(ui->actionExtraDecompiler, &QAction::triggered, this, &MainWindow::addExtraDecompiler);
     connect(ui->actionExtraGraph, &QAction::triggered, this, &MainWindow::addExtraGraph);
     connect(ui->actionExtraDisassembly, &QAction::triggered, this, &MainWindow::addExtraDisassembly);
     connect(ui->actionExtraHexdump, &QAction::triggered, this, &MainWindow::addExtraHexdump);
@@ -347,7 +348,6 @@ void MainWindow::initToolBar()
 void MainWindow::initDocks()
 {
     dockWidgets.reserve(20);
-    decompilerDock = new DecompilerWidget(this);
     consoleDock = new ConsoleWidget(this);
 
     overviewDock = new OverviewWidget(this);
@@ -415,7 +415,6 @@ void MainWindow::initDocks()
         dashboardDock,
         nullptr,
         functionsDock,
-        decompilerDock,
         overviewDock,
         nullptr,
         searchDock,
@@ -423,7 +422,7 @@ void MainWindow::initDocks()
         typesDock,
         nullptr,
     };
-    ui->menuWindows->insertActions(ui->actionExtraDisassembly, makeActionList(windowDocks));
+    ui->menuWindows->insertActions(ui->actionExtraDecompiler, makeActionList(windowDocks));
     QList<CutterDockWidget *> windowDocks2 = {
         consoleDock,
         commentsDock,
@@ -472,6 +471,12 @@ void MainWindow::addExtraHexdump()
 void MainWindow::addExtraDisassembly()
 {
     auto *extraDock = new DisassemblyWidget(this);
+    addExtraWidget(extraDock);
+}
+
+void MainWindow::addExtraDecompiler()
+{
+    auto *extraDock = new DecompilerWidget(this);
     addExtraWidget(extraDock);
 }
 
@@ -820,7 +825,6 @@ void MainWindow::restoreDocks()
     splitDockWidget(functionsDock, overviewDock, Qt::Vertical);
 
     // main area
-    tabifyDockWidget(dashboardDock, decompilerDock);
     tabifyDockWidget(dashboardDock, entrypointDock);
     tabifyDockWidget(dashboardDock, flagsDock);
     tabifyDockWidget(dashboardDock, stringsDock);
@@ -989,7 +993,7 @@ QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address,  AddressTypeHi
         createAddNewWidgetAction(tr("New graph"), MemoryWidgetType::Graph);
     }
     createAddNewWidgetAction(tr("New hexdump"), MemoryWidgetType::Hexdump);
-
+    createAddNewWidgetAction(tr("New Decompiler"), MemoryWidgetType::Decompiler);
     return menu;
 }
 

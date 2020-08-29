@@ -47,7 +47,7 @@ private slots:
     void cursorPositionChanged();
     /**
      * @brief When the synced seek is changed, this refreshes the decompiler widget if needed.
-     * 
+     *
      * Decompiler widget is not refreshed in the following two cases
      *     - Seek changed to an offset contained in the decompiled function.
      *     - Auto-refresh is disabled.
@@ -62,36 +62,45 @@ private:
 
     QSyntaxHighlighter *syntaxHighlighter;
     bool decompilerSelectionEnabled;
-    bool autoRefreshEnabled;
 
     /**
-     * True if doRefresh() was called, but the decompiler was still running.
-     * This means, after the decompiler has finished, it should be refreshed immediately.
+     * True if the selected decompiler is currently running a decompilation for this widget. Once the decompilation
+     * is over, this should be set to false.
      */
-    bool decompilerWasBusy;
+    bool decompilerBusy;
 
+    bool seekFromCursor;
     int scrollerHorizontal;
     int scrollerVertical;
     RVA previousFunctionAddr;
     RVA decompiledFunctionAddr;
     std::unique_ptr<RAnnotatedCode, void (*)(RAnnotatedCode *)> code;
-    bool seekFromCursor = false;
 
+    /**
+     * Specifies the lowest offset of instructions among all the instructions in the decompiled function.
+     */
+    RVA lowestOffsetInCode;
+    /**
+     * Specifies the highest offset of instructions among all the instructions in the decompiled function.
+     */
+    RVA highestOffsetInCode;
+
+    /**
+     * @brief Gets the current decompiler selected by the user.
+     *
+     * @return A pointer to the currently selected decompiler
+     */
     Decompiler *getCurrentDecompiler();
 
     /**
-     * @brief Enable/Disable auto refresh as per the specified boolean value
+     * @brief Calls the function doRefresh() if the address specified is a part of the decompiled function.
      *
-     * @param enabled
+     * @param addr Address at which a change occurred.
      */
-    void setAutoRefresh(bool enabled);
-    /**
-     * @brief Calls the function doRefresh() if auto-refresh is enabled.
-     */
-    void doAutoRefresh();
+    void refreshIfChanged(RVA addr);
     /**
      * @brief Refreshes the decompiler.
-     * 
+     *
      * - This does the following if the specified offset is valid
      *     - Decompile function that contains the specified offset.
      *     - Clears all selections stored for highlighting purposes.
@@ -102,15 +111,14 @@ private:
      *
      * @param addr Specified offset/offset in sync.
      */
-    void doRefresh(RVA addr = Core()->getOffset());
-    void updateRefreshButton();
+    void doRefresh();
     /**
      * @brief Update fonts
      */
     void setupFonts();
     /**
      * @brief Update highlights in the text widget.
-     * 
+     *
      * These include respective highlights for:
      *     - Line under cursor
      *     - Word under cursor
@@ -120,13 +128,13 @@ private:
     /**
      * @brief Connect/Disconnect SIGNAL-SLOT connection that deals with changes in cursor position.
      *
-     * If the argument is true, then disconnect the SIGNAL-SLOT connection
+     * If the argument is true, then connect the SIGNAL-SLOT connection
      * that changes the view as cursor position gets changed in the text widget.
-     * Otherwise, connect the corresponding signal with slot.
+     * Otherwise, disconnect the corresponding signal with slot.
      *
-     * @param disconnect
+     * @param connectPositionChange
      */
-    void connectCursorPositionChanged(bool disconnect);
+    void connectCursorPositionChanged(bool connectPositionChange);
     /**
      * @brief Find the current global offset in sync and update cursor
      * to the position specified by this offset (found using positionForOffset() )
@@ -167,7 +175,7 @@ private:
     bool colorLine(QTextEdit::ExtraSelection extraSelection);
 
     /**
-     * @brief This function responsible to highlight all the breakpoints in the decompiler view.
+     * @brief This function is responsible for highlighting all the breakpoints in the decompiler view.
      * It will also run when a breakpoint is added, removed or modified.
      */
     void highlightBreakpoints();
@@ -205,7 +213,7 @@ private:
     /**
      * @brief Updates the view when breakpoints are changed
      */
-    void updateBreakpoints();
+    void updateBreakpoints(RVA addr);
     /**
      * @brief Set information about the breakpoints on the line in the context menu
      */
@@ -217,6 +225,13 @@ private:
      * @param pos Position of cursor in the decompiled code.
      */
     void setAnnotationsAtCursor(size_t pos);
+    /**
+     * @brief Checks if the specified address is a part of the decompiled function.
+     *
+     * @param addr An offset in the binary.
+     * @return True if the specified is a part of the decompiled function, False otherwise.
+     */
+    bool addressInRange(RVA addr);
 };
 
 #endif // DECOMPILERWIDGET_H

@@ -8,6 +8,7 @@
 #include "common/SelectionHighlight.h"
 #include "common/Decompiler.h"
 #include "common/CutterSeekable.h"
+#include "core/MainWindow.h"
 
 #include <QTextEdit>
 #include <QPlainTextEdit>
@@ -22,7 +23,8 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     MemoryDockWidget(MemoryWidgetType::Decompiler, main),
     mCtxMenu(new DecompilerContextMenu(this, main)),
     ui(new Ui::DecompilerWidget),
-    decompilerWasBusy(false),
+    decompilerBusy(false),
+    seekFromCursor(false),
     scrollerHorizontal(0),
     scrollerVertical(0),
     previousFunctionAddr(RVA_INVALID),
@@ -31,6 +33,11 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
          &r_annotated_code_free)
 {
     ui->setupUi(this);
+    setObjectName(main
+                  ? main->getUniqueObjectName(tr("Decompiler"))
+                  : tr("Decompiler"));
+    updateWindowTitle();
+
     syntaxHighlighter = Config()->createSyntaxHighlighter(ui->textEdit->document());
     // Event filter to intercept double click and right click in the textbox
     ui->textEdit->viewport()->installEventFilter(this);
@@ -43,33 +50,21 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(Core(), &CutterCore::registersChanged, this, &DecompilerWidget::highlightPC);
     connect(mCtxMenu, &DecompilerContextMenu::copy, this, &DecompilerWidget::copy);
 
-    connect(ui->refreshButton, &QAbstractButton::clicked, this, [this]() {
-        doRefresh();
-    });
     refreshDeferrer = createRefreshDeferrer([this]() {
         doRefresh();
     });
-    autoRefreshEnabled = Config()->getDecompilerAutoRefreshEnabled();
-    ui->autoRefreshCheckBox->setChecked(autoRefreshEnabled);
-    setAutoRefresh(autoRefreshEnabled);
-    connect(ui->autoRefreshCheckBox, &QCheckBox::stateChanged, this, [this](int state) {
-        setAutoRefresh(state == Qt::Checked);
-        Config()->setDecompilerAutoRefreshEnabled(autoRefreshEnabled);
-        doAutoRefresh();
-    });
 
     auto decompilers = Core()->getDecompilers();
-    auto selectedDecompilerId = Config()->getSelectedDecompiler();
+    QString selectedDecompilerId = Config()->getSelectedDecompiler();
     if (selectedDecompilerId.isEmpty()) {
         // If no decompiler was previously chosen. set r2ghidra as default decompiler
         selectedDecompilerId = "r2ghidra";
     }
-    for (auto dec : decompilers) {
+    for (Decompiler *dec : decompilers) {
         ui->decompilerComboBox->addItem(dec->getName(), dec->getId());
         if (dec->getId() == selectedDecompilerId) {
             ui->decompilerComboBox->setCurrentIndex(ui->decompilerComboBox->count() - 1);
         }
-        connect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
     }
     decompilerSelectionEnabled = decompilers.size() > 1;
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
@@ -80,26 +75,28 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(ui->decompilerComboBox,
             static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
             &DecompilerWidget::decompilerSelected);
-    connectCursorPositionChanged(false);
-    connect(Core(), &CutterCore::seekChanged, this, &DecompilerWidget::seekChanged);
+    connectCursorPositionChanged(true);
+    connect(seekable, &CutterSeekable::seekableSeekChanged, this, &DecompilerWidget::seekChanged);
     ui->textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->textEdit, &QWidget::customContextMenuRequested,
             this, &DecompilerWidget::showDecompilerContextMenu);
 
     connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::updateBreakpoints);
+    mCtxMenu->addSeparator();
+    mCtxMenu->addAction(&syncAction);
     addActions(mCtxMenu->actions());
 
     ui->progressLabel->setVisible(false);
-    doRefresh(RVA_INVALID);
+    doRefresh();
 
-    connect(Core(), &CutterCore::refreshAll, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::functionRenamed, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::varsChanged, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::functionsChanged, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::flagsChanged, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::commentsChanged, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::instructionChanged, this, &DecompilerWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::refreshCodeViews, this, &DecompilerWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::refreshAll, this, &DecompilerWidget::doRefresh);
+    connect(Core(), &CutterCore::functionRenamed, this, &DecompilerWidget::doRefresh);
+    connect(Core(), &CutterCore::varsChanged, this, &DecompilerWidget::doRefresh);
+    connect(Core(), &CutterCore::functionsChanged, this, &DecompilerWidget::doRefresh);
+    connect(Core(), &CutterCore::flagsChanged, this, &DecompilerWidget::doRefresh);
+    connect(Core(), &CutterCore::commentsChanged, this, &DecompilerWidget::refreshIfChanged);
+    connect(Core(), &CutterCore::instructionChanged, this, &DecompilerWidget::refreshIfChanged);
+    connect(Core(), &CutterCore::refreshCodeViews, this, &DecompilerWidget::doRefresh);
 
     // Esc to seek backward
     QAction *seekPrevAction = new QAction(this);
@@ -114,31 +111,6 @@ DecompilerWidget::~DecompilerWidget() = default;
 Decompiler *DecompilerWidget::getCurrentDecompiler()
 {
     return Core()->getDecompilerById(ui->decompilerComboBox->currentData().toString());
-}
-
-void DecompilerWidget::setAutoRefresh(bool enabled)
-{
-    autoRefreshEnabled = enabled;
-    updateRefreshButton();
-}
-
-void DecompilerWidget::doAutoRefresh()
-{
-    if (!autoRefreshEnabled) {
-        return;
-    }
-    doRefresh();
-}
-
-void DecompilerWidget::updateRefreshButton()
-{
-    Decompiler *dec = getCurrentDecompiler();
-    ui->refreshButton->setEnabled(!autoRefreshEnabled && dec && !dec->isRunning());
-    if (dec && dec->isRunning() && dec->isCancelable()) {
-        ui->refreshButton->setText(tr("Cancel"));
-    } else {
-        ui->refreshButton->setText(tr("Refresh"));
-    }
 }
 
 ut64 DecompilerWidget::offsetForPosition(size_t pos)
@@ -180,8 +152,11 @@ size_t DecompilerWidget::positionForOffset(ut64 offset)
     return closestPos;
 }
 
-void DecompilerWidget::updateBreakpoints()
+void DecompilerWidget::updateBreakpoints(RVA addr)
 {
+    if (!addressInRange(addr)) {
+        return;
+    }
     setInfoForBreakpoints();
     QTextCursor cursor = ui->textEdit->textCursor();
     cursor.select(QTextCursor::Document);
@@ -195,8 +170,9 @@ void DecompilerWidget::updateBreakpoints()
 
 void DecompilerWidget::setInfoForBreakpoints()
 {
-    if (mCtxMenu->getIsTogglingBreakpoints())
+    if (mCtxMenu->getIsTogglingBreakpoints()) {
         return;
+    }
     // Get the range of the line
     QTextCursor cursorForLine = ui->textEdit->textCursor();
     cursorForLine.movePosition(QTextCursor::StartOfLine);
@@ -224,7 +200,7 @@ void DecompilerWidget::gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size
     mCtxMenu->setFirstOffsetInLine(firstOffset);
     QList<RVA> functionBreakpoints = Core()->getBreakpointsInFunction(decompiledFunctionAddr);
     QVector<RVA> offsetList;
-    for (auto bpOffset : functionBreakpoints) {
+    for (RVA bpOffset : functionBreakpoints) {
         size_t pos = positionForOffset(bpOffset);
         if (startPos <= pos && pos <= endPos) {
             offsetList.push_back(bpOffset);
@@ -234,8 +210,16 @@ void DecompilerWidget::gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size
     mCtxMenu->setAvailableBreakpoints(offsetList);
 }
 
-void DecompilerWidget::doRefresh(RVA addr)
+void DecompilerWidget::refreshIfChanged(RVA addr)
 {
+    if (addressInRange(addr)) {
+        doRefresh();
+    }
+}
+
+void DecompilerWidget::doRefresh()
+{
+    RVA addr = seekable->getOffset();
     if (!refreshDeferrer->attemptRefresh(nullptr)) {
         return;
     }
@@ -246,26 +230,36 @@ void DecompilerWidget::doRefresh(RVA addr)
     if (!dec) {
         return;
     }
+    // Disabling decompiler selection combo box and making progress label visible ahead of decompilation.
+    ui->progressLabel->setVisible(true);
+    ui->decompilerComboBox->setEnabled(false);
     if (dec->isRunning()) {
-        decompilerWasBusy = true;
+        if (!decompilerBusy) {
+            connect(dec, &Decompiler::finished, this, &DecompilerWidget::doRefresh);
+        }
         return;
     }
-    if (addr == RVA_INVALID) {
-        ui->textEdit->setPlainText(tr("Click Refresh to generate Decompiler from current offset."));
-        return;
-    }
+    disconnect(dec, &Decompiler::finished, this, &DecompilerWidget::doRefresh);
     // Clear all selections since we just refreshed
     ui->textEdit->setExtraSelections({});
     previousFunctionAddr = decompiledFunctionAddr;
     decompiledFunctionAddr = Core()->getFunctionStart(addr);
-    mCtxMenu->setDecompiledFunctionAddress(decompiledFunctionAddr);
-    dec->decompileAt(addr);
-    if (dec->isRunning()) {
-        ui->progressLabel->setVisible(true);
-        ui->decompilerComboBox->setEnabled(false);
-        updateRefreshButton();
+    updateWindowTitle();
+    if (decompiledFunctionAddr == RVA_INVALID) {
+        // No function was found, so making the progress label invisible and enabling
+        // the decompiler selection combo box as we are not waiting for any decompilation to finish.
+        ui->progressLabel->setVisible(false);
+        ui->decompilerComboBox->setEnabled(true);
+        connectCursorPositionChanged(false);
+        ui->textEdit->setPlainText(
+            tr("No function found at this offset. Seek to a function or define one in order to decompile it."));
+        connectCursorPositionChanged(true);
         return;
     }
+    mCtxMenu->setDecompiledFunctionAddress(decompiledFunctionAddr);
+    connect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
+    decompilerBusy = true;
+    dec->decompileAt(addr);
 }
 
 void DecompilerWidget::refreshDecompiler()
@@ -296,26 +290,43 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
 
     ui->progressLabel->setVisible(false);
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
-    updateRefreshButton();
 
     mCtxMenu->setAnnotationHere(nullptr);
     this->code.reset(codeDecompiled);
+
+    Decompiler *dec = getCurrentDecompiler();
+    QObject::disconnect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
+    decompilerBusy = false;
+
     QString codeString = QString::fromUtf8(this->code->code);
     if (codeString.isEmpty()) {
+        connectCursorPositionChanged(false);
         ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
+        connectCursorPositionChanged(true);
+        lowestOffsetInCode = RVA_MAX;
+        highestOffsetInCode = 0;
         return;
     } else {
-        connectCursorPositionChanged(true);
-        ui->textEdit->setPlainText(codeString);
         connectCursorPositionChanged(false);
+        ui->textEdit->setPlainText(codeString);
+        connectCursorPositionChanged(true);
         updateCursorPosition();
         highlightPC();
         highlightBreakpoints();
-    }
-
-    if (decompilerWasBusy) {
-        decompilerWasBusy = false;
-        doAutoRefresh();
+        lowestOffsetInCode = RVA_MAX;
+        highestOffsetInCode = 0;
+        void *iter;
+        r_vector_foreach(&code->annotations, iter) {
+            RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
+            if (annotation->type == R_CODE_ANNOTATION_TYPE_OFFSET) {
+                if (lowestOffsetInCode > annotation->offset.offset) {
+                    lowestOffsetInCode = annotation->offset.offset;
+                }
+                if (highestOffsetInCode < annotation->offset.offset) {
+                    highestOffsetInCode = annotation->offset.offset;
+                }
+            }
+        }
     }
 
     if (isDisplayReset) {
@@ -344,16 +355,14 @@ void DecompilerWidget::setAnnotationsAtCursor(size_t pos)
 void DecompilerWidget::decompilerSelected()
 {
     Config()->setSelectedDecompiler(ui->decompilerComboBox->currentData().toString());
-    if (autoRefreshEnabled) {
-        doRefresh();
-    }
+    doRefresh();
 }
 
-void DecompilerWidget::connectCursorPositionChanged(bool disconnect)
+void DecompilerWidget::connectCursorPositionChanged(bool connectPositionChange)
 {
-    if (disconnect) {
-        QObject::disconnect(ui->textEdit, &QPlainTextEdit::cursorPositionChanged, this,
-                            &DecompilerWidget::cursorPositionChanged);
+    if (!connectPositionChange) {
+        disconnect(ui->textEdit, &QPlainTextEdit::cursorPositionChanged, this,
+                   &DecompilerWidget::cursorPositionChanged);
     } else {
         connect(ui->textEdit, &QPlainTextEdit::cursorPositionChanged, this,
                 &DecompilerWidget::cursorPositionChanged);
@@ -372,9 +381,9 @@ void DecompilerWidget::cursorPositionChanged()
     setInfoForBreakpoints();
 
     RVA offset = offsetForPosition(pos);
-    if (offset != RVA_INVALID && offset != Core()->getOffset()) {
+    if (offset != RVA_INVALID && offset != seekable->getOffset()) {
         seekFromCursor = true;
-        Core()->seek(offset);
+        seekable->seek(offset);
         mCtxMenu->setOffset(offset);
         seekFromCursor = false;
     }
@@ -386,30 +395,28 @@ void DecompilerWidget::seekChanged()
     if (seekFromCursor) {
         return;
     }
-    if (autoRefreshEnabled) {
-        auto fcnAddr = Core()->getFunctionStart(Core()->getOffset());
-        if (fcnAddr == RVA_INVALID || fcnAddr != decompiledFunctionAddr) {
-            doRefresh();
-            return;
-        }
+    RVA fcnAddr = Core()->getFunctionStart(seekable->getOffset());
+    if (fcnAddr == RVA_INVALID || fcnAddr != decompiledFunctionAddr) {
+        doRefresh();
+        return;
     }
     updateCursorPosition();
 }
 
 void DecompilerWidget::updateCursorPosition()
 {
-    RVA offset = Core()->getOffset();
+    RVA offset = seekable->getOffset();
     size_t pos = positionForOffset(offset);
     if (pos == SIZE_MAX) {
         return;
     }
     mCtxMenu->setOffset(offset);
-    connectCursorPositionChanged(true);
+    connectCursorPositionChanged(false);
     QTextCursor cursor = ui->textEdit->textCursor();
     cursor.setPosition(pos);
     ui->textEdit->setTextCursor(cursor);
     updateSelection();
-    connectCursorPositionChanged(false);
+    connectCursorPositionChanged(true);
 }
 
 void DecompilerWidget::setupFonts()
@@ -422,7 +429,7 @@ void DecompilerWidget::updateSelection()
     QList<QTextEdit::ExtraSelection> extraSelections;
 
     // Highlight the current line
-    auto cursor = ui->textEdit->textCursor();
+    QTextCursor cursor = ui->textEdit->textCursor();
     extraSelections.append(createLineHighlightSelection(cursor));
 
     // Highlight all the words in the document same as the current one
@@ -438,7 +445,14 @@ void DecompilerWidget::updateSelection()
 
 QString DecompilerWidget::getWindowTitle() const
 {
-    return tr("Decompiler");
+    RAnalFunction *fcn = Core()->functionAt(decompiledFunctionAddr);
+    QString windowTitle = tr("Decompiler");
+    if (fcn != NULL) {
+        windowTitle += " (" + QString(fcn->name) + ")";
+    } else {
+        windowTitle += " (Empty)";
+    }
+    return windowTitle;
 }
 
 void DecompilerWidget::fontsUpdatedSlot()
@@ -501,7 +515,7 @@ void DecompilerWidget::highlightBreakpoints()
 
     QList<RVA> functionBreakpoints = Core()->getBreakpointsInFunction(decompiledFunctionAddr);
     QTextCursor cursor;
-    for (auto &bp : functionBreakpoints) {
+    for (RVA &bp : functionBreakpoints) {
         if (bp == RVA_INVALID) {
             continue;;
         }
@@ -538,4 +552,12 @@ void DecompilerWidget::copy()
             clipboard->setText(cursor.selectedText());
         }
     }
+}
+
+bool DecompilerWidget::addressInRange(RVA addr)
+{
+    if (lowestOffsetInCode <= addr && addr <= highestOffsetInCode) {
+        return true;
+    }
+    return false;
 }

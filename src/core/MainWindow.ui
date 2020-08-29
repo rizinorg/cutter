@@ -162,6 +162,7 @@
       <string>Debug...</string>
      </property>
     </widget>
+    <addaction name="actionExtraDecompiler"/>
     <addaction name="actionExtraDisassembly"/>
     <addaction name="actionExtraGraph"/>
     <addaction name="actionExtraHexdump"/>
@@ -755,6 +756,11 @@
    <property name="text">
     <string>Add Hexdump</string>
    </property>
+  </action>
+  <action name="actionExtraDecompiler">
+    <property name="text">
+     <string>Add Decompiler</string>
+    </property>
   </action>
   <action name="actionExtraDisassembly">
    <property name="text">

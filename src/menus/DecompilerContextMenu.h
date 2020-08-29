@@ -147,7 +147,7 @@ private:
 
     /**
      * @brief Updates targeted "Show in" menu.
-     * 
+     *
      * Removes all actions from the existing targeted "show in" menu. If annotationHere
      * represents an item that has an address assigned to it, insert actions compatible with the
      * type of this item in the targeted "Show in" menu.
