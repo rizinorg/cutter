@@ -1,7 +1,7 @@
 Features
 =============
 This section in the user docs gives a more detailed information about different features in Cutter. These are the different
-utilities and views that be used and controlled by you during your session. As more familiar and comfort you feel with the
+utilities and views that can be used and controlled by you during your session. As more familiar and comfort you feel with the
 different features in Cutter, the more efficient and effective you are during your reverse-engineering experience. 
 
 Decompiler
