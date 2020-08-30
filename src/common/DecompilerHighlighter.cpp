@@ -47,7 +47,7 @@ void DecompilerHighlighter::highlightBlock(const QString &)
     size_t start = block.position();
     size_t end = block.position() + block.length();
 
-    std::unique_ptr<RPVector, typeof(&r_pvector_free)> annotations(r_annotated_code_annotations_range(code, start, end), &r_pvector_free);
+    std::unique_ptr<RPVector, decltype(&r_pvector_free)> annotations(r_annotated_code_annotations_range(code, start, end), &r_pvector_free);
     void **iter;
     r_pvector_foreach(annotations.get(), iter) {
         RCodeAnnotation *annotation = static_cast<RCodeAnnotation*>(*iter);
