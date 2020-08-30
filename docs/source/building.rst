@@ -240,7 +240,14 @@ Note that there are some major building options available:
 * ``CUTTER_ENABLE_PYTHON_BINDINGS`` automatically generate Python Bindings with Shiboken2, required for Python plugins!
 * ``CUTTER_ENABLE_KSYNTAXHIGHLIGHTING`` use KSyntaxHighlighting for code highlighting.
 * ``CUTTER_ENABLE_GRAPHVIZ`` enable Graphviz for graph layouts.
+* ``CUTTER_EXTRA_PLUGIN_DIRS`` List of addition plugin locations. Useful when preparing package for Linux distros that have strict package layout rules.
+
+Cutter binary release options, not needed for most users and might not work easily outside CI environment: 
+
 * ``CUTTER_ENABLE_CRASH_REPORTS`` is used to compile Cutter with crash handling system enabled (Breakpad).
+* ``CUTTER_ENABLE_DEPENDENCY_DOWNLOADS`` Enable downloading of dependencies. Setting to OFF doesn't affect any downloads done by r2 build. This option is used for preparing Cutter binary release packges. Turned off by default.
+* ``CUTTER_PACKAGE_DEPENDENCIES`` During install step include the third party dependencies. This option is used for preparing Cutter binary release packges. 
+
 
 These options can be enabled or disabled from the command line arguments passed to CMake.
 For example, to build Cutter with support for Python plugins, you can run this command:
