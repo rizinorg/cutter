@@ -19,6 +19,19 @@ command, taking into account the configured values of the analysis options.
 
 **Steps to open:** ``Edit -> Preferences -> Analysis``
 
+Search boundaries for analysis
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Select the boundaries in which the analyis will be performed. The different options are:
+
+- All executable maps (``io.maps.x``)
+- All maps (``io.maps``)
+- Current map (``io.map``)
+- Raw (``raw``)
+- Current mapped section (``bin.section``)
+- All mapped sections (``bin.sections``)
+
+**Configuration variable:** ``anal.in``
+
 Speculatively set a name for the functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Try to name functions without symbols by using artifacts in the functions such as API calls and strings.
@@ -72,3 +85,15 @@ Print warnings encountered while preforming type analysis. These warnings can he
 wrong in the analysis.
 
 **Configuration variable:** ``anal.types.verbose``
+
+Pointer depth
+~~~~~~~~~~~~~
+The maximum number of nested pointers to follow in analysis.
+
+**Configuration variable:** ``anal.ptrdepth``
+
+Functions prelude
+~~~~~~~
+Hex value that represents certain opcodes that will be used to identify functions.
+
+**Configuration variable:** ``anal.prelude``
