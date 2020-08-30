@@ -34,8 +34,8 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
 {
     ui->setupUi(this);
     setObjectName(main
-                  ? main->getUniqueObjectName(tr("Decompiler"))
-                  : tr("Decompiler"));
+                  ? main->getUniqueObjectName(getWidgetType())
+                  : getWidgetType());
     updateWindowTitle();
 
     syntaxHighlighter = Config()->createSyntaxHighlighter(ui->textEdit->document());
