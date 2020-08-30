@@ -1,6 +1,6 @@
 Decompiler Context Menu 
 ==============================
-The decompiler context menu contains actions that are available for the position under the cursor.
+The decompiler context menu is a context-sensitive menu that contains actions that are available for the position under the cursor.
 
 Copy
 ----------------------------------------
@@ -38,7 +38,7 @@ Show the selected item in another widget
 
 Add and Edit Comment
 ----------------------------------------
-**Description:** Add a comment in the line of code under the cursor or edit the comment under the cursor. The ``Edit comment`` option is only available for user-defined comments.
+**Description:** Add a comment for the line of code under the cursor or edit the comment under the cursor. The ``Edit comment`` option is only available for user-defined comments.
 
 **Steps:** Right-click and choose ``Add Comment`` or ``Edit Comment``.
 
@@ -96,10 +96,12 @@ Show Cross References
 
 **Shortcut:** :kbd:`X`
 
-Manage Breakpoints in the Context Menu
+
+Debug Context Menu
 =======================================
-Add or Remove Breakpoint in the line
-----------------------------------------
+
+Add or Remove Breakpoint
+-------------------------
 **Description:** Add a breakpoint at the earliest offset in the line under the cursor. If you use the keyboard shortcut to remove a breakpoint, all the breakpoints defined in the line will be removed.
 
 **Steps:** Right-click on a line of code and choose :menuselection:`Breakpoint --> Add breakpoint`  or :menuselection:`Breakpoint --> Remove breakpoint`.
@@ -114,8 +116,6 @@ Advanced Breakpoint Dialog
 
 **Shortcut:** :kbd:`Ctrl-F2`
 
-Debug Context Menu
-=======================================
 Continue Until Line
 ----------------------------------------
 **Description:** Continue the execution of the program until it reaches the offset in the selected line. The program is not guaranteed to ever reach this address and will keep running until exited or until reached another breakpoint. If other breakpoints hit before reaching this line, they will be triggered and pause the execution. *This option is only available on Debug or Emulation modes*.      
