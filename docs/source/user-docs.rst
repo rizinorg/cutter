@@ -13,6 +13,7 @@ The documentation for users is still on its early stages and will be improved ov
    :titlesonly:
    :glob:
 
+   user-docs/features
    user-docs/shortcuts
    user-docs/command-line
    user-docs/menus
