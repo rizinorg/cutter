@@ -565,6 +565,47 @@ bool DecompilerWidget::addressInRange(RVA addr)
     return false;
 }
 
+/**
+ * Convert annotation ranges from byte offsets in utf8 used by RAnnotated code to QString QChars used by QString
+ * and Qt text editor.
+ * @param code - RAnnotated code with annotations that need to be modified
+ * @return Decompiled code
+ */
+static QString remapAnnotationOffsetsToQString(RAnnotatedCode &code)
+{
+    QByteArray bytes(code.code);
+    QString text;
+    text.reserve(bytes.size()); // not exact but a reasonable approximation
+    QTextStream stream(bytes);
+    stream.setCodec("UTF-8");
+    std::vector<size_t> offsets;
+    offsets.reserve(bytes.size());
+    offsets.push_back(0);
+    QChar singleChar;
+    while (!stream.atEnd()) {
+        stream >> singleChar;
+        if (singleChar == QChar('/')) {
+        }
+        text.append(singleChar);
+        offsets.push_back(stream.pos());
+    }
+    auto mapPos = [&](size_t pos) {
+        auto it = std::upper_bound(offsets.begin(), offsets.end(), pos);
+        if (it != offsets.begin()) {
+            --it;
+        }
+        return it - offsets.begin();
+    };
+
+    void *iter;
+    r_vector_foreach(&code.annotations, iter) {
+        RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
+        annotation->start = mapPos(annotation->start);
+        annotation->end = mapPos(annotation->end);
+    }
+    return text;
+}
+
 void DecompilerWidget::setCode(RAnnotatedCode *code)
 {
     connectCursorPositionChanged(false);
@@ -572,7 +613,8 @@ void DecompilerWidget::setCode(RAnnotatedCode *code)
         highlighter->setAnnotations(code);
     }
     this->code.reset(code);
-    this->ui->textEdit->setPlainText(QString::fromUtf8(this->code->code));
+    QString text = remapAnnotationOffsetsToQString(*this->code);
+    this->ui->textEdit->setPlainText(text);
     connectCursorPositionChanged(true);
     syntaxHighlighter->rehighlight();
 }
