@@ -9,6 +9,7 @@
 #include "common/Decompiler.h"
 #include "common/CutterSeekable.h"
 #include "core/MainWindow.h"
+#include "common/DecompilerHighlighter.h"
 
 #include <QTextEdit>
 #include <QPlainTextEdit>
@@ -38,7 +39,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
                   : getWidgetType());
     updateWindowTitle();
 
-    syntaxHighlighter = Config()->createSyntaxHighlighter(ui->textEdit->document());
+    setHighlighter(Config()->isDecompilerAnnotationHighlighterEnabled());
     // Event filter to intercept double click and right click in the textbox
     ui->textEdit->viewport()->installEventFilter(this);
 
@@ -255,10 +256,9 @@ void DecompilerWidget::doRefresh()
         // the decompiler selection combo box as we are not waiting for any decompilation to finish.
         ui->progressLabel->setVisible(false);
         ui->decompilerComboBox->setEnabled(true);
-        connectCursorPositionChanged(false);
-        ui->textEdit->setPlainText(
-            tr("No function found at this offset. Seek to a function or define one in order to decompile it."));
-        connectCursorPositionChanged(true);
+        setCode(Decompiler::makeWarning(
+            tr("No function found at this offset. "
+            "Seek to a function or define one in order to decompile it.")));
         return;
     }
     mCtxMenu->setDecompiledFunctionAddress(decompiledFunctionAddr);
@@ -297,24 +297,18 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
 
     mCtxMenu->setAnnotationHere(nullptr);
-    this->code.reset(codeDecompiled);
+    setCode(codeDecompiled);
 
     Decompiler *dec = getCurrentDecompiler();
     QObject::disconnect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
     decompilerBusy = false;
 
-    QString codeString = QString::fromUtf8(this->code->code);
-    if (codeString.isEmpty()) {
-        connectCursorPositionChanged(false);
-        ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
-        connectCursorPositionChanged(true);
+    if (ui->textEdit->toPlainText().isEmpty()) {
+        setCode(Decompiler::makeWarning(tr("Cannot decompile at this address (Not a function?)")));
         lowestOffsetInCode = RVA_MAX;
         highestOffsetInCode = 0;
         return;
     } else {
-        connectCursorPositionChanged(false);
-        ui->textEdit->setPlainText(codeString);
-        connectCursorPositionChanged(true);
         updateCursorPosition();
         highlightPC();
         highlightBreakpoints();
@@ -467,6 +461,10 @@ void DecompilerWidget::fontsUpdatedSlot()
 
 void DecompilerWidget::colorsUpdatedSlot()
 {
+    bool useAnotationHiglighter = Config()->isDecompilerAnnotationHighlighterEnabled();
+    if (useAnotationHiglighter != usingAnnotationBasedHighlighting) {
+        setHighlighter(useAnotationHiglighter);
+    }
 }
 
 void DecompilerWidget::showDecompilerContextMenu(const QPoint &pt)
@@ -565,4 +563,28 @@ bool DecompilerWidget::addressInRange(RVA addr)
         return true;
     }
     return false;
+}
+
+void DecompilerWidget::setCode(RAnnotatedCode *code)
+{
+    connectCursorPositionChanged(false);
+    if (auto highlighter = qobject_cast<DecompilerHighlighter*>(syntaxHighlighter.get())) {
+        highlighter->setAnnotations(code);
+    }
+    this->code.reset(code);
+    this->ui->textEdit->setPlainText(QString::fromUtf8(this->code->code));
+    connectCursorPositionChanged(true);
+    syntaxHighlighter->rehighlight();
+}
+
+void DecompilerWidget::setHighlighter(bool annotationBasedHighlighter)
+{
+    usingAnnotationBasedHighlighting = annotationBasedHighlighter;
+    if (usingAnnotationBasedHighlighting) {
+        syntaxHighlighter.reset(new DecompilerHighlighter());
+        static_cast<DecompilerHighlighter*>(syntaxHighlighter.get())->setAnnotations(code.get());
+    } else {
+        syntaxHighlighter.reset(Config()->createSyntaxHighlighter(nullptr));
+    }
+    syntaxHighlighter->setDocument(ui->textEdit->document());
 }

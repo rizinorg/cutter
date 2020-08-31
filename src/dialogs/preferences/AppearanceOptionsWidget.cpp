@@ -67,6 +67,10 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
         static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
         this,
         &AppearanceOptionsWidget::onFontZoomBoxValueChanged);
+
+    ui->useDecompilerHighlighter->setChecked(Config()->isDecompilerAnnotationHighlighterEnabled());
+    connect(ui->useDecompilerHighlighter, &QCheckBox::toggled,
+            this, [](bool checked){ Config()->enableDecompilerAnnotationHighlighter(checked); });
 }
 
 AppearanceOptionsWidget::~AppearanceOptionsWidget() {}
