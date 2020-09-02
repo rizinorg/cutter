@@ -9,7 +9,7 @@ cd "$SCRIPTPATH/.."
 if [[ ! -d r2ghidra-dec ]]; then
     git clone --recurse-submodules https://github.com/radareorg/r2ghidra-dec.git || exit 1
     pushd r2ghidra-dec
-    git checkout 8e576eeadc211de4ac8d8c759cc368fa48cdfa99
+    git checkout  --recurse-submodules 8e576eeadc211de4ac8d8c759cc368fa48cdfa99
     popd
 fi
 cd r2ghidra-dec || exit 1
