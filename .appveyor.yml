@@ -1,4 +1,4 @@
-version: '1.11.0-git-{build}'
+version: '1.12.0-git-{build}'
 image: 'Visual Studio 2019'
 clone_depth: 1
 
@@ -33,7 +33,6 @@ environment:
       DEPLOY: false
 
 install:
-  - cmd: if defined QMAKE ( git clone --depth 1 --recurse-submodules https://github.com/radareorg/r2ghidra-dec.git %APPVEYOR_BUILD_FOLDER%/r2ghidra-dec )
   - ps: $env:path = ($env:path -split ";").Where({!($_ -like "*Microsoft SQL Server*")}) -join ";"
   - cmd: C:\msys64\usr\bin\bash -lc "cd $APPVEYOR_BUILD_FOLDER && scripts/fetch_deps.sh"
   - cmd: set "CUTTER_DEPS_DIR=%APPVEYOR_BUILD_FOLDER%\cutter-deps"
@@ -46,7 +45,7 @@ install:
   - cmd: where meson.exe
   - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget %NINJA_URL% -OutFile ninja.zip; Expand-Archive .\ninja.zip -DestinationPath ."
   # Artifacts
-  - cmd: set "ARTIFACT_NAME=Cutter-v1.11.0-%ARCH%.Windows"
+  - cmd: set "ARTIFACT_NAME=Cutter-v1.12.0-rc1-%ARCH%.Windows"
   - cmd: if defined MESON ( set "ARTIFACT_PATH=dist_%ARCH%" ) else ( set "ARTIFACT_PATH=build_%ARCH%\cutter" )
 
 before_build:
