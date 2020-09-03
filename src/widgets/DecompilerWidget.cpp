@@ -111,7 +111,7 @@ DecompilerWidget::~DecompilerWidget() = default;
 
 QString DecompilerWidget::getWidgetType()
 {
-    return "Decompiler";
+    return "DecompilerWidget";
 }
 
 Decompiler *DecompilerWidget::getCurrentDecompiler()
