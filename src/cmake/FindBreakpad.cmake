@@ -38,7 +38,7 @@ else()
 	list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Breakpad/prefix")
 
 	find_package(PkgConfig REQUIRED)
-	pkg_search_module(Breakpad REQUIRED Breakpad-client)
+	pkg_search_module(Breakpad REQUIRED breakpad-client)
 
 	# reset CMAKE_PREFIX_PATH
 	set(CMAKE_PREFIX_PATH ${Breakpad_CMAKE_PREFIX_PATH_TEMP})
