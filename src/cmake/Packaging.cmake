@@ -38,6 +38,7 @@ if(WIN32)
                                     -DRADARE2_INSTALL_PLUGDIR=\${CMAKE_INSTALL_PREFIX}/lib/plugins
                                     -DCUTTER_INSTALL_PLUGDIR=plugins/native
                                     -DBUILD_CUTTER_PLUGIN=ON
+                                    -DBUILD_SLEIGH_PLUGIN=OFF
                                     -G Ninja
                     )
                 if (SCRIPT_RESULT)
