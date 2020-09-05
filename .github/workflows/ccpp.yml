@@ -103,6 +103,7 @@ jobs:
       run: |
         pip install ninja
         scripts/fetch_deps.sh
+        choco install winflexbison3
     - name: windows cmake
       if: contains(matrix.os, 'windows-latest')
       shell: cmd
