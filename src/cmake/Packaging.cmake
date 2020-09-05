@@ -20,8 +20,8 @@ if(WIN32)
                 # That way r2ghidra build process is the same as with any other external plugin built against
                 # installed Cutter.
                 ExternalProject_Add(R2Ghidra
-                    GIT_REPOSITORY https://github.com/karliss/r2ghidra.git
-                    GIT_TAG 5e845f4b50e8559bd51af03b22b6586e8cc5c35c
+                    GIT_REPOSITORY https://github.com/radareorg/r2ghidra.git
+                    GIT_TAG master
                     CONFIGURE_COMMAND ""
                     BUILD_COMMAND ""
                     INSTALL_COMMAND ""
