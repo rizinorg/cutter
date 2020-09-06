@@ -24,6 +24,7 @@ set(CUTTER_EXTRA_PLUGIN_DIRS "" CACHE STRING "List of addition plugin locations"
 option(CUTTER_ENABLE_DEPENDENCY_DOWNLOADS "Enable downloading of dependencies. Setting to OFF doesn't affect any downloads done by r2 build." OFF)
 option(CUTTER_PACKAGE_DEPENDENCIES "During install step include the third party dependencies." OFF)
 option(CUTTER_PACKAGE_R2GHIDRA "Compile and install r2ghidra during install step." OFF)
+option(CUTTER_PACKAGE_R2DEC "Compile and install r2dec during install step." OFF)
 
 if(NOT CUTTER_ENABLE_PYTHON)
     set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
