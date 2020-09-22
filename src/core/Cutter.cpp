@@ -842,6 +842,12 @@ void CutterCore::setImmediateBase(const QString &r2BaseName, RVA offset)
     emit instructionChanged(offset);
 }
 
+int CutterCore::getImmediateBase(RVA offset)
+{
+    QJsonValue result = this->cmdj(QString("ahj %1").arg(offset)).array().first();
+    return result["immbase"].toInt();
+}
+
 void CutterCore::setCurrentBits(int bits, RVA offset)
 {
     if (offset == RVA_INVALID) {

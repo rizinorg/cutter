@@ -232,6 +232,7 @@ public:
     void delComment(RVA addr);
     QString getCommentAt(RVA addr);
     void setImmediateBase(const QString &r2BaseName, RVA offset = RVA_INVALID);
+    int getImmediateBase(RVA offset = RVA_INVALID);
     void setCurrentBits(int bits, RVA offset = RVA_INVALID);
 
     /**
