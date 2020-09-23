@@ -202,10 +202,6 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     ADD_ACTION(QKeySequence::MoveToPreviousPage, Qt::WidgetWithChildrenShortcut, [this]() {
         moveCursorRelative(true, true);
     })
-
-    ADD_ACTION(Qt::Key_H, Qt::WidgetWithChildrenShortcut, [this]() {
-	toggleBase();
-    })
 #undef ADD_ACTION
 }
 
@@ -625,25 +621,6 @@ void DisassemblyWidget::jumpToOffsetUnderCursor(const QTextCursor &cursor)
 {
     RVA offset = readDisassemblyOffset(cursor);
     seekable->seekToReference(offset);
-}
-
-// TODO: requires the user to trigger the action twice if the number is in decimals
-void DisassemblyWidget::toggleBase()
-{
-    RVA offset = readCurrentDisassemblyOffset();
-    QJsonObject instObject = Core()->cmdj("aoj @ " + QString::number(
-                                              offset)).array().first().toObject();
-    auto keys = instObject.keys();
-    bool immBase = keys.contains("val") || keys.contains("ptr");
-
-    if(immBase) {
-	int base = Core()->getImmediateBase(offset);
-	if (base == 10) {
-	    Core()->setImmediateBase("h", offset);
-	} else {
-	    Core()->setImmediateBase("d", offset);
-	}
-    }
 }
 
 bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
