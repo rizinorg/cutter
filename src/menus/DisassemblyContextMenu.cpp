@@ -817,9 +817,9 @@ void DisassemblyContextMenu::on_actionToggleBase_triggered()
 {
     int base = Core()->getImmediateBase(offset);
     if (base == 10) {
-	setBase("h");
+        setBase("h");
     } else {
-	setBase("d");
+        setBase("d");
     }
 }
 
