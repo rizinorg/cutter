@@ -233,6 +233,20 @@ private:
     };
     QVector<ThingUsedHere> getThingUsedHere(RVA offset);
 
+    /**
+     * @brief Checks if it makes sense to display the immediate base menu
+     * @param instObject Object with instruction data
+     * @returns Return true if the it makes sense to display the set immediate base menu
+     * return false otherwise.
+     */
+    bool checkImmediateBaseMenu(const QJsonObject& instObject);
+
+    /**
+     * @brief Returns json data of the current instruction
+     * @returns Instruction data
+     */
+    QJsonObject getInstObject();
+
     void updateTargetMenuActions(const QVector<ThingUsedHere> &targets);
 };
 #endif // DISASSEMBLYCONTEXTMENU_H
