@@ -844,8 +844,14 @@ void CutterCore::setImmediateBase(const QString &r2BaseName, RVA offset)
 
 int CutterCore::getImmediateBase(RVA offset)
 {
-    QJsonValue result = this->cmdj(QString("ahj %1").arg(offset)).array().first();
-    return result.toObject()["immbase"].toInt();
+    QJsonArray result = this->cmdj(QString("ahj %1").arg(offset)).array();
+    for (const auto& n: result) {
+        QJsonValue immbase = n.toObject()["immbase"];
+        if (immbase.isDouble()) {
+            return immbase.toInt();
+        }
+    }
+    return 0;
 }
 
 void CutterCore::setCurrentBits(int bits, RVA offset)
