@@ -404,7 +404,7 @@ void DisassemblyContextMenu::setOffset(RVA offset)
     this->offset = offset;
 
     this->actionSetFunctionVarTypes.setVisible(true);
-    actionToggleBase.setVisible(checkImmediateBaseMenu(getInstObject()));
+    actionToggleBase.setVisible(checkImmediateBaseMenu(Core()->getInstructionObject(offset)));
 }
 
 void DisassemblyContextMenu::setCanCopy(bool enabled)
@@ -417,12 +417,7 @@ void DisassemblyContextMenu::setCurHighlightedWord(const QString &text)
     this->curHighlightedWord = text;
 }
 
-QJsonObject DisassemblyContextMenu::getInstObject() {
-    return Core()->cmdj("aoj @ " + QString::number(
-                                              offset)).array().first().toObject();
-}
-
-// check if set immediate base menu makes sense
+// Check if it makes sense to show the immediate base menu
 bool DisassemblyContextMenu::checkImmediateBaseMenu(const QJsonObject& instObject) {
     auto keys = instObject.keys();
     return keys.contains("val") || keys.contains("ptr");
@@ -430,7 +425,7 @@ bool DisassemblyContextMenu::checkImmediateBaseMenu(const QJsonObject& instObjec
 
 void DisassemblyContextMenu::aboutToShowSlot()
 {
-    QJsonObject instObject = getInstObject();
+    QJsonObject instObject = Core()->getInstructionObject(offset);
 
     setBaseMenu->menuAction()->setVisible(checkImmediateBaseMenu(instObject));
     setBitsMenu->menuAction()->setVisible(true);

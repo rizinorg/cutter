@@ -699,14 +699,19 @@ void CutterCore::delFlag(const QString &name)
     emit flagsChanged();
 }
 
+QJsonObject CutterCore::getInstructionObject(RVA addr)
+{
+    return Core()->cmdj("aoj @ " + QString::number(addr)).array().first().toObject();
+}
+
 QString CutterCore::getInstructionBytes(RVA addr)
 {
-    return cmdj("aoj @ " + RAddressString(addr)).array().first().toObject()[RJsonKey::bytes].toString();
+    return getInstructionObject(addr)[RJsonKey::bytes].toString();
 }
 
 QString CutterCore::getInstructionOpcode(RVA addr)
 {
-    return cmdj("aoj @ " + RAddressString(addr)).array().first().toObject()[RJsonKey::opcode].toString();
+    return getInstructionObject(addr)[RJsonKey::opcode].toString();
 }
 
 void CutterCore::editInstruction(RVA addr, const QString &inst)
@@ -1241,8 +1246,7 @@ QJsonDocument CutterCore::getRegistersInfo()
 RVA CutterCore::getOffsetJump(RVA addr)
 {
     bool ok;
-    RVA value = cmdj("aoj @" + QString::number(
-                         addr)).array().first().toObject().value(RJsonKey::jump).toVariant().toULongLong(&ok);
+    RVA value = getInstructionObject(addr).value(RJsonKey::jump).toVariant().toULongLong(&ok);
 
     if (!ok) {
         return RVA_INVALID;
