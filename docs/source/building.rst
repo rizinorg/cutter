@@ -363,6 +363,6 @@ installed with brew. Run this command to work around the issue:
 
    sudo mv /usr/local/lib/libjpeg.dylib /usr/local/lib/libjpeg.dylib.not-found
 * **LSOpenURLsWithRole() failed with error -10810**
-On macOS High Sierra Cutter crashes due to absence of ``gettext`` library. To fix this problem:
+On macOS High Sierra Cutter crashes due to the absence of ``gettext`` library. To fix this problem, simply install the missing package:
 ::
   brew install gettext
