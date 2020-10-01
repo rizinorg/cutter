@@ -264,6 +264,10 @@ if (CUTTER_APPIMAGE_BUILD)
     target_compile_definitions(Cutter PRIVATE APPIMAGE)
 endif()
 
+if (CUTTER_PACKAGE_R2DEC)
+    target_compile_definitions(Cutter PRIVATE CUTTER_APPVEYOR_R2DEC)
+endif()
+
 include(Translations)
 
 # Install files
