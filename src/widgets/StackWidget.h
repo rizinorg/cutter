@@ -25,7 +25,7 @@ public:
         RefDescription refDesc;
     };
 
-    enum Column { OffsetColumn = 0, ValueColumn, DescriptionColumn, ColumnCount};
+    enum Column { OffsetColumn = 0, ValueColumn, DescriptionColumn, CommentColumn, ColumnCount};
     enum Role { StackDescriptionRole = Qt::UserRole };
 
     StackModel(QObject *parent = nullptr);

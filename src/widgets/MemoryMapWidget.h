@@ -32,7 +32,7 @@ private:
     QList<MemoryMapDescription> *memoryMaps;
 
 public:
-    enum Column { AddrStartColumn = 0, AddrEndColumn, NameColumn, PermColumn, ColumnCount };
+    enum Column { AddrStartColumn = 0, AddrEndColumn, NameColumn, PermColumn, CommentColumn, ColumnCount };
     enum Role { MemoryDescriptionRole = Qt::UserRole };
 
     MemoryMapModel(QList<MemoryMapDescription> *memoryMaps, QObject *parent = nullptr);

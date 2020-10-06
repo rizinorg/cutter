@@ -40,6 +40,8 @@ QVariant RegisterRefModel::data(const QModelIndex &index, int role) const
             return registerRef.value;
         case RefColumn:
             return registerRef.refDesc.ref;
+        case CommentColumn:
+            return Core()->getCommentAt(Core()->math(registerRef.value));
         default:
             return QVariant();
         }
@@ -68,6 +70,8 @@ QVariant RegisterRefModel::headerData(int section, Qt::Orientation, int role) co
             return tr("Value");
         case RefColumn:
             return tr("Reference");
+        case CommentColumn:
+            return tr("Comment");
         default:
             return QVariant();
         }
@@ -104,6 +108,8 @@ bool RegisterRefProxyModel::lessThan(const QModelIndex &left, const QModelIndex 
         return leftRegRef.refDesc.ref < rightRegRef.refDesc.ref;
     case RegisterRefModel::ValueColumn:
         return leftRegRef.value < rightRegRef.value;
+    case RegisterRefModel::CommentColumn:
+        return Core()->getCommentAt(Core()->math(leftRegRef.value)) < Core()->getCommentAt(Core()->math(rightRegRef.value));
     default:
         break;
     }
@@ -155,6 +161,9 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main) :
     setScrollMode();
     connect(Core(), &CutterCore::refreshAll, this, &RegisterRefsWidget::refreshRegisterRef);
     connect(Core(), &CutterCore::registersChanged, this, &RegisterRefsWidget::refreshRegisterRef);
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(registerRefModel, RegisterRefModel::CommentColumn);
+    });
     connect(actionCopyValue, &QAction::triggered, this, [this] () {
         copyClip(RegisterRefModel::ValueColumn);
     });

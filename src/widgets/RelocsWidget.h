@@ -22,7 +22,7 @@ private:
     QList<RelocDescription> *relocs;
 
 public:
-    enum Column { VAddrColumn = 0, TypeColumn, NameColumn, ColumnCount };
+    enum Column { VAddrColumn = 0, TypeColumn, NameColumn, CommentColumn, ColumnCount };
     enum Role { RelocDescriptionRole = Qt::UserRole, AddressRole };
 
     RelocsModel(QList<RelocDescription> *relocs, QObject *parent = nullptr);

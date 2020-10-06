@@ -68,6 +68,8 @@ QVariant SectionsModel::data(const QModelIndex &index, int role) const
             return section.perm;
         case SectionsModel::EntropyColumn:
             return section.entropy;
+        case SectionsModel::CommentColumn:
+            return Core()->getCommentAt(section.vaddr);
         default:
             return QVariant();
         }
@@ -101,6 +103,8 @@ QVariant SectionsModel::headerData(int section, Qt::Orientation, int role) const
             return tr("Permissions");
         case SectionsModel::EntropyColumn:
             return tr("Entropy");
+        case SectionsModel::CommentColumn:
+            return tr("Comment");
         default:
             return QVariant();
         }
@@ -151,6 +155,8 @@ bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
         return leftSection.perm < rightSection.perm;
     case SectionsModel::EntropyColumn:
         return leftSection.entropy < rightSection.entropy;
+    case SectionsModel::CommentColumn:
+        return Core()->getCommentAt(leftSection.vaddr) < Core()->getCommentAt(rightSection.vaddr);
     }
 }
 
@@ -238,6 +244,9 @@ void SectionsWidget::initConnects()
         if (!visibility) {
             updateToggle();
         }
+    });
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(sectionsModel, SectionsModel::CommentColumn);
     });
 }
 

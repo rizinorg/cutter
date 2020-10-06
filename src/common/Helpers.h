@@ -15,6 +15,7 @@ class QString;
 class QTreeWidget;
 class QTreeWidgetItem;
 class QAbstractItemView;
+class QAbstractItemModel;
 class QAbstractButton;
 class QWidget;
 class QTreeView;
@@ -71,6 +72,12 @@ CUTTER_EXPORT qreal devicePixelRatio(const QPaintDevice *p);
  * @param defaultIndex - item to select in case no match
  */
 CUTTER_EXPORT void selectIndexByData(QComboBox *comboBox, QVariant data, int defaultIndex = -1);
+/**
+ * @brief Emit data change signal in a model's column (DisplayRole) 
+ * @param model - model containing data with changes
+ * @param column - column in the model
+ */
+CUTTER_EXPORT void emitColumnChanged(QAbstractItemModel *model, int column);
 
 } // qhelpers
 

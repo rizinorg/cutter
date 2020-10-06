@@ -38,7 +38,7 @@ public:
     static const int IsImportRole = Qt::UserRole + 1;
 
     enum Column { NameColumn = 0, SizeColumn, ImportColumn, OffsetColumn, NargsColumn, NlocalsColumn,
-                  NbbsColumn, CalltypeColumn, EdgesColumn, FrameColumn, ColumnCount
+                  NbbsColumn, CalltypeColumn, EdgesColumn, FrameColumn, CommentColumn, ColumnCount
                 };
 
     FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *importAddresses, ut64 *mainAdress,

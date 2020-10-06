@@ -31,7 +31,7 @@ private:
     QList<BreakpointDescription> breakpoints;
 
 public:
-    enum Column { AddrColumn = 0, NameColumn, TypeColumn, TraceColumn, EnabledColumn, ColumnCount };
+    enum Column { AddrColumn = 0, NameColumn, TypeColumn, TraceColumn, EnabledColumn, CommentColumn, ColumnCount };
     enum Role { BreakpointDescriptionRole = Qt::UserRole };
 
     BreakpointModel(QObject *parent = nullptr);

@@ -22,7 +22,7 @@ private:
     QList<SegmentDescription> *segments;
 
 public:
-    enum Column { NameColumn = 0, SizeColumn, AddressColumn, EndAddressColumn, PermColumn, ColumnCount };
+    enum Column { NameColumn = 0, SizeColumn, AddressColumn, EndAddressColumn, PermColumn, CommentColumn, ColumnCount };
     enum Role { SegmentDescriptionRole = Qt::UserRole };
 
     SegmentsModel(QList<SegmentDescription> *segments, QObject *parent = nullptr);

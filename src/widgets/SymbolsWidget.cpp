@@ -38,6 +38,8 @@ QVariant SymbolsModel::data(const QModelIndex &index, int role) const
             return QString("%1 %2").arg(symbol.bind, symbol.type).trimmed();
         case SymbolsModel::NameColumn:
             return symbol.name;
+        case SymbolsModel::CommentColumn:
+            return Core()->getCommentAt(symbol.vaddr);
         default:
             return QVariant();
         }
@@ -59,6 +61,8 @@ QVariant SymbolsModel::headerData(int section, Qt::Orientation, int role) const
             return tr("Type");
         case SymbolsModel::NameColumn:
             return tr("Name");
+        case SymbolsModel::CommentColumn:
+            return tr("Comment");
         default:
             return QVariant();
         }
@@ -106,6 +110,8 @@ bool SymbolsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
         return leftSymbol.type < rightSymbol.type;
     case SymbolsModel::NameColumn:
         return leftSymbol.name < rightSymbol.name;
+    case SymbolsModel::CommentColumn:
+        return Core()->getCommentAt(leftSymbol.vaddr) < Core()->getCommentAt(rightSymbol.vaddr);
     default:
         break;
     }
@@ -126,6 +132,9 @@ SymbolsWidget::SymbolsWidget(MainWindow *main) :
 
     connect(Core(), &CutterCore::codeRebased, this, &SymbolsWidget::refreshSymbols);
     connect(Core(), &CutterCore::refreshAll, this, &SymbolsWidget::refreshSymbols);
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(symbolsModel, SymbolsModel::CommentColumn);
+    });
 }
 
 SymbolsWidget::~SymbolsWidget() {}

@@ -269,5 +269,13 @@ void selectIndexByData(QComboBox *widget, QVariant data, int defaultIndex)
     widget->setCurrentIndex(defaultIndex);
 }
 
+void emitColumnChanged(QAbstractItemModel *model, int column)
+{
+    emit model->dataChanged(
+        model->index(0, column),
+        model->index(model->rowCount()-1, column),
+        { Qt::DisplayRole }
+    );
+}
 
 } // end namespace

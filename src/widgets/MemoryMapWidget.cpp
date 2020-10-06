@@ -38,6 +38,8 @@ QVariant MemoryMapModel::data(const QModelIndex &index, int role) const
             return memoryMap.name;
         case PermColumn:
             return memoryMap.permission;
+        case CommentColumn:
+            return Core()->getCommentAt(memoryMap.addrStart);
         default:
             return QVariant();
         }
@@ -61,6 +63,8 @@ QVariant MemoryMapModel::headerData(int section, Qt::Orientation, int role) cons
             return tr("Name");
         case PermColumn:
             return tr("Permissions");
+        case CommentColumn:
+            return tr("Comment");
         default:
             return QVariant();
         }
@@ -104,6 +108,8 @@ bool MemoryProxyModel::lessThan(const QModelIndex &left, const QModelIndex &righ
         return leftMemMap.name < rightMemMap.name;
     case MemoryMapModel::PermColumn:
         return leftMemMap.permission < rightMemMap.permission;
+    case MemoryMapModel::CommentColumn:
+        return Core()->getCommentAt(leftMemMap.addrStart) < Core()->getCommentAt(rightMemMap.addrStart);
     default:
         break;
     }
@@ -128,6 +134,9 @@ MemoryMapWidget::MemoryMapWidget(MainWindow *main) :
 
     connect(Core(), &CutterCore::refreshAll, this, &MemoryMapWidget::refreshMemoryMap);
     connect(Core(), &CutterCore::registersChanged, this, &MemoryMapWidget::refreshMemoryMap);
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(memoryModel, MemoryMapModel::CommentColumn);
+    });
 
     showCount(false);
 }

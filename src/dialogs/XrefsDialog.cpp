@@ -53,6 +53,11 @@ XrefsDialog::XrefsDialog(MainWindow *main, QWidget *parent, bool hideXrefFrom) :
     connect(ui->toTreeWidget, &QAbstractItemView::doubleClicked, this, &QWidget::close);
     connect(ui->fromTreeWidget, &QAbstractItemView::doubleClicked, this, &QWidget::close);
 
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(&toModel, XrefModel::COMMENT);
+        qhelpers::emitColumnChanged(&fromModel, XrefModel::COMMENT);
+    });
+
     if (hideXrefFrom) {
         hideXrefFromSection();
     }
@@ -263,6 +268,8 @@ QVariant XrefModel::data(const QModelIndex &index, int role) const
             } else {
                 return QString();
             }
+        case COMMENT:
+            return to ? Core()->getCommentAt(xref.from) : Core()->getCommentAt(xref.to);
         }
         return QVariant();
     case FlagDescriptionRole:
@@ -286,6 +293,8 @@ QVariant XrefModel::headerData(int section, Qt::Orientation orientation, int rol
             return tr("Type");
         case CODE:
             return tr("Code");
+        case COMMENT:
+            return tr("Comment");
         default:
             return QVariant();
         }

@@ -35,6 +35,8 @@ QVariant HeadersModel::data(const QModelIndex &index, int role) const
             return header.name;
         case ValueColumn:
             return header.value;
+        case CommentColumn:
+            return Core()->getCommentAt(header.vaddr);
         default:
             return QVariant();
         }
@@ -56,6 +58,8 @@ QVariant HeadersModel::headerData(int section, Qt::Orientation, int role) const
             return tr("Name");
         case ValueColumn:
             return tr("Value");
+        case CommentColumn:
+            return tr("Comment");
         default:
             return QVariant();
         }
@@ -102,6 +106,8 @@ bool HeadersProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
         return leftHeader.name < rightHeader.name;
     case HeadersModel::ValueColumn:
         return leftHeader.value < rightHeader.value;
+    case HeadersModel::CommentColumn:
+        return Core()->getCommentAt(leftHeader.vaddr) < Core()->getCommentAt(rightHeader.vaddr);
     default:
         break;
     }
@@ -125,6 +131,9 @@ HeadersWidget::HeadersWidget(MainWindow *main) :
 
     connect(Core(), &CutterCore::codeRebased, this, &HeadersWidget::refreshHeaders);
     connect(Core(), &CutterCore::refreshAll, this, &HeadersWidget::refreshHeaders);
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(headersModel, HeadersModel::CommentColumn);
+    });
 }
 
 HeadersWidget::~HeadersWidget() {}

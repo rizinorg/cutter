@@ -56,6 +56,8 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
             return RAddressString(segment.vaddr + segment.size);
         case SegmentsModel::PermColumn:
             return segment.perm;
+        case SegmentsModel::CommentColumn:
+            return Core()->getCommentAt(segment.vaddr);
         default:
             return QVariant();
         }
@@ -85,6 +87,8 @@ QVariant SegmentsModel::headerData(int segment, Qt::Orientation, int role) const
             return tr("End Address");
         case SegmentsModel::PermColumn:
             return tr("Permissions");
+        case SegmentsModel::CommentColumn:
+            return tr("Comment");
         default:
             return QVariant();
         }
@@ -124,6 +128,8 @@ bool SegmentsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
     case SegmentsModel::AddressColumn:
     case SegmentsModel::EndAddressColumn:
         return leftSegment.vaddr < rightSegment.vaddr;
+    case SegmentsModel::CommentColumn:
+        return Core()->getCommentAt(leftSegment.vaddr) < Core()->getCommentAt(rightSegment.vaddr);
     default:
         break;
     }
@@ -147,6 +153,9 @@ SegmentsWidget::SegmentsWidget(MainWindow *main) :
 
     connect(Core(), &CutterCore::refreshAll, this, &SegmentsWidget::refreshSegments);
     connect(Core(), &CutterCore::codeRebased, this, &SegmentsWidget::refreshSegments);
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(segmentsModel, SegmentsModel::CommentColumn);
+    });
 }
 
 SegmentsWidget::~SegmentsWidget() {}

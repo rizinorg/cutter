@@ -30,7 +30,7 @@ private:
     QList<StringDescription> *strings;
 
 public:
-    enum Column { OffsetColumn = 0, StringColumn, TypeColumn, LengthColumn, SizeColumn, SectionColumn, ColumnCount };
+    enum Column { OffsetColumn = 0, StringColumn, TypeColumn, LengthColumn, SizeColumn, SectionColumn, CommentColumn, ColumnCount };
     static const int StringDescriptionRole = Qt::UserRole;
 
     StringsModel(QList<StringDescription> *strings, QObject *parent = nullptr);
@@ -88,7 +88,8 @@ private:
     StringsModel *model;
     StringsProxyModel *proxyModel;
     QList<StringDescription> strings;
-    CutterTreeWidget *tree;
+    CutterTreeWidget* tree;
+
 };
 
 #endif // STRINGSWIDGET_H

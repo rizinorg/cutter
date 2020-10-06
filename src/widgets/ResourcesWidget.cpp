@@ -39,6 +39,8 @@ QVariant ResourcesModel::data(const QModelIndex &index, int role) const
             return qhelpers::formatBytecount(res.size);
         case LANG:
             return res.lang;
+        case COMMENT:
+            return Core()->getCommentAt(res.vaddr);
         default:
             return QVariant();
         }
@@ -83,6 +85,8 @@ QVariant ResourcesModel::headerData(int section, Qt::Orientation, int role) cons
             return tr("Size");
         case LANG:
             return tr("Lang");
+        case COMMENT:
+            return tr("Comment");
         default:
             return QVariant();
         }
@@ -115,6 +119,9 @@ ResourcesWidget::ResourcesWidget(MainWindow *main) :
     this->setWindowTitle(tr("Resources"));
 
     connect(Core(), &CutterCore::refreshAll, this, &ResourcesWidget::refreshResources);
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(model, ResourcesModel::COMMENT);
+    });
 }
 
 void ResourcesWidget::refreshResources()

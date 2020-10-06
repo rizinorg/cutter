@@ -40,6 +40,8 @@ QVariant ExportsModel::data(const QModelIndex &index, int role) const
             return exp.type;
         case ExportsModel::NameColumn:
             return exp.name;
+        case ExportsModel::CommentColumn:
+            return Core()->getCommentAt(exp.vaddr);
         default:
             return QVariant();
         }
@@ -63,6 +65,8 @@ QVariant ExportsModel::headerData(int section, Qt::Orientation, int role) const
             return tr("Type");
         case ExportsModel::NameColumn:
             return tr("Name");
+        case ExportsModel::CommentColumn:
+            return tr("Comment");
         default:
             return QVariant();
         }
@@ -117,6 +121,8 @@ bool ExportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     case ExportsModel::TypeColumn:
         if (leftExp.type != rightExp.type)
             return leftExp.type < rightExp.type;
+    case ExportsModel::CommentColumn:
+        return Core()->getCommentAt(leftExp.vaddr) < Core()->getCommentAt(rightExp.vaddr);
     default:
         break;
     }
@@ -143,6 +149,9 @@ ExportsWidget::ExportsWidget(MainWindow *main) :
 
     connect(Core(), &CutterCore::codeRebased, this, &ExportsWidget::refreshExports);
     connect(Core(), &CutterCore::refreshAll, this, &ExportsWidget::refreshExports);
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(exportsModel, ExportsModel::CommentColumn);
+    });
 }
 
 ExportsWidget::~ExportsWidget() {}

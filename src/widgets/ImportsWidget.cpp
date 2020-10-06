@@ -50,6 +50,8 @@ QVariant ImportsModel::data(const QModelIndex &index, int role) const
             return import.libname;
         case ImportsModel::NameColumn:
             return import.name;
+        case ImportsModel::CommentColumn:
+            return Core()->getCommentAt(import.plt);
         default:
             break;
         }
@@ -78,6 +80,8 @@ QVariant ImportsModel::headerData(int section, Qt::Orientation, int role) const
             return tr("Library");
         case ImportsModel::NameColumn:
             return tr("Name");
+        case ImportsModel::CommentColumn:
+            return tr("Comment");
         default:
             break;
         }
@@ -142,7 +146,9 @@ bool ImportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     // Fallthrough. Sort by Library and then by import name
     case ImportsModel::NameColumn:
         return leftImport.name < rightImport.name;
-        
+    case ImportsModel::CommentColumn:
+        return Core()->getCommentAt(leftImport.plt) < Core()->getCommentAt(rightImport.plt);
+
     default:
         break;
     }
@@ -172,6 +178,9 @@ ImportsWidget::ImportsWidget(MainWindow *main) :
 
     connect(Core(), &CutterCore::codeRebased, this, &ImportsWidget::refreshImports);
     connect(Core(), &CutterCore::refreshAll, this, &ImportsWidget::refreshImports);
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(importsModel, ImportsModel::CommentColumn);
+    });
 }
 
 ImportsWidget::~ImportsWidget() {}

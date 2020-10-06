@@ -28,7 +28,7 @@ private:
     QList<ExportDescription> *exports;
 
 public:
-    enum Column { OffsetColumn = 0, SizeColumn, TypeColumn, NameColumn, ColumnCount };
+    enum Column { OffsetColumn = 0, SizeColumn, TypeColumn, NameColumn, CommentColumn, ColumnCount };
     enum Role { ExportDescriptionRole = Qt::UserRole };
 
     ExportsModel(QList<ExportDescription> *exports, QObject *parent = nullptr);

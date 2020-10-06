@@ -44,6 +44,8 @@ QVariant FlagsModel::data(const QModelIndex &index, int role) const
             return flag.name;
         case REALNAME:
             return flag.realname;
+        case COMMENT:
+            return Core()->getCommentAt(flag.offset);
         default:
             return QVariant();
         }
@@ -67,6 +69,8 @@ QVariant FlagsModel::headerData(int section, Qt::Orientation, int role) const
             return tr("Name");
         case REALNAME:
             return tr("Real Name");
+        case COMMENT:
+            return tr("Comment");
         default:
             return QVariant();
         }
@@ -128,6 +132,9 @@ bool FlagsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIn
     case FlagsModel::REALNAME:
         return left_flag->realname < right_flag->realname;
 
+    case FlagsModel::COMMENT:
+        return Core()->getCommentAt(left_flag->offset) < Core()->getCommentAt(right_flag->offset);
+
     default:
         break;
     }
@@ -181,6 +188,9 @@ FlagsWidget::FlagsWidget(MainWindow *main) :
     connect(Core(), &CutterCore::flagsChanged, this, &FlagsWidget::flagsChanged);
     connect(Core(), &CutterCore::codeRebased, this, &FlagsWidget::flagsChanged);
     connect(Core(), &CutterCore::refreshAll, this, &FlagsWidget::refreshFlagspaces);
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(flags_model, FlagsModel::COMMENT);
+    });
 
     auto menu = ui->flagsTreeView->getItemContextMenu();
     menu->addSeparator();
