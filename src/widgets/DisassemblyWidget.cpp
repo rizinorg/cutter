@@ -376,7 +376,6 @@ void DisassemblyWidget::highlightCurrentLine()
     QList<QTextEdit::ExtraSelection> extraSelections;
 
     QColor highlightColor = ConfigColor("lineHighlight");
-    QColor highlightPCColor = ConfigColor("highlightPC");
 
     // Highlight the current word
     QTextCursor cursor = mDisasTextEdit->textCursor();
@@ -409,9 +408,18 @@ void DisassemblyWidget::highlightCurrentLine()
     // Highlight all the words in the document same as the current one
     extraSelections.append(createSameWordsSelections(mDisasTextEdit, curHighlightedWord));
 
-    // highlight PC line
+    mDisasTextEdit->setExtraSelections(extraSelections);
+}
+
+void DisassemblyWidget::highlightPCLine()
+{
     RVA PCAddr = Core()->getProgramCounterValue();
-    highlightSelection.cursor = cursor;
+
+    QColor highlightPCColor = ConfigColor("highlightPC");
+
+    QList<QTextEdit::ExtraSelection> pcSelections;
+    QTextEdit::ExtraSelection highlightSelection;
+    highlightSelection.cursor = mDisasTextEdit->textCursor();
     highlightSelection.cursor.movePosition(QTextCursor::Start);
     if (PCAddr != RVA_INVALID) {
         while (true) {
@@ -420,8 +428,9 @@ void DisassemblyWidget::highlightCurrentLine()
                 highlightSelection.format.setBackground(highlightPCColor);
                 highlightSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
                 highlightSelection.cursor.clearSelection();
-                extraSelections.append(highlightSelection);
-            } else if (lineOffset != RVA_INVALID && lineOffset > PCAddr) {
+                pcSelections.append(highlightSelection);
+            }
+            else if (lineOffset != RVA_INVALID && lineOffset > PCAddr) {
                 break;
             }
             highlightSelection.cursor.movePosition(QTextCursor::EndOfLine);
@@ -433,7 +442,13 @@ void DisassemblyWidget::highlightCurrentLine()
         }
     }
 
-    mDisasTextEdit->setExtraSelections(extraSelections);
+    // Don't override any extraSelections already set
+    QList<QTextEdit::ExtraSelection> moreSelections = mDisasTextEdit->extraSelections();
+    for (auto& selection : pcSelections) {
+        moreSelections.append(selection);
+    }
+
+    mDisasTextEdit->setExtraSelections(moreSelections);
 }
 
 void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
@@ -513,6 +528,9 @@ void DisassemblyWidget::updateCursorPosition()
             mDisasTextEdit->setTextCursor(originalCursor);
         }
     }
+
+    highlightPCLine();
+
     connectCursorPositionChanged(false);
 }
 
@@ -545,6 +563,7 @@ void DisassemblyWidget::cursorPositionChanged()
     seekable->seek(offset);
     seekFromCursor = false;
     highlightCurrentLine();
+    highlightPCLine();
     mCtxMenu->setCanCopy(mDisasTextEdit->textCursor().hasSelection());
     if (mDisasTextEdit->textCursor().hasSelection()) {
         // A word is selected so use it
@@ -613,6 +632,7 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
         if (offset != seekable->getOffset()) {
             seekable->seek(offset);
             highlightCurrentLine();
+            highlightPCLine();
         }
     }
 }

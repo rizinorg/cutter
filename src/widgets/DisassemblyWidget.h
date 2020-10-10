@@ -29,6 +29,7 @@ public:
 
 public slots:
     void highlightCurrentLine();
+    void highlightPCLine();
     void showDisasContextMenu(const QPoint &pt);
     void fontsUpdatedSlot();
     void colorsUpdatedSlot();
