@@ -11,22 +11,25 @@ VERSION = $${CUTTER_VERSION_MAJOR}.$${CUTTER_VERSION_MINOR}.$${CUTTER_VERSION_PA
 # Required QT version
 lessThan(QT_MAJOR_VERSION, 5): error("requires Qt 5")
 
-TRANSLATIONS += translations/cutter_ar.ts \
-                translations/cutter_ca.ts \
-                translations/cutter_cn.ts \
-                translations/cutter_de.ts \
-                translations/cutter_es.ts \
-                translations/cutter_fa.ts \
-                translations/cutter_fr.ts \
-                translations/cutter_he.ts \
-                translations/cutter_hi.ts \
-                translations/cutter_it.ts \
-                translations/cutter_ja.ts \
-                translations/cutter_nl.ts \
-                translations/cutter_pt.ts \
-                translations/cutter_ro.ts \
-                translations/cutter_ru.ts \
-                translations/cutter_tr.ts
+TRANSLATIONS += translations/ar/cutter_ar.ts \
+                translations/ca/cutter_ca.ts \
+                translations/de/cutter_de.ts \
+                translations/es-ES/cutter_es.ts \
+                translations/fa/cutter_fa.ts \
+                translations/fr/cutter_fr.ts \
+                translations/he/cutter_he.ts \
+                translations/hi/cutter_hi.ts \
+                translations/it/cutter_it.ts \
+                translations/ja/cutter_ja.ts \
+                translations/nl/cutter_nl.ts \
+                translations/pt-PT/cutter_pt.ts \
+                translations/ro/cutter_ro.ts \
+                translations/ru/cutter_ru.ts \
+                translations/tr/cutter_tr.ts \
+                translations/zh-CN/cutter_zh.ts
+
+# translations/ko/cutter_ko.ts problems with fonts
+# translations/pt-BR/cutter_pt.ts #2321 handling multiple versions of a language
 
 # Icon for OS X
 ICON = img/cutter.icns
