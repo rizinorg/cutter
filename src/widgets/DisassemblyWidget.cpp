@@ -315,6 +315,10 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
         bottomOffset = topOffset;
     }
 
+    connectCursorPositionChanged(false);
+
+    updateCursorPosition();
+
     // remove additional lines
     QTextCursor tc = mDisasTextEdit->textCursor();
     tc.movePosition(QTextCursor::Start);
@@ -322,10 +326,6 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
     tc.movePosition(QTextCursor::EndOfLine);
     tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
     tc.removeSelectedText();
-
-    connectCursorPositionChanged(false);
-
-    updateCursorPosition();
 
     mDisasTextEdit->setLockScroll(false);
     mDisasTextEdit->horizontalScrollBar()->setValue(horizontalScrollValue);
