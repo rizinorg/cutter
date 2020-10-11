@@ -15,7 +15,7 @@ Release Procedure
     #. Cutter.pro
     #. Cutter.appdata.xml
     #. To be safe, search the code base for the previous version number.
-5. Create a tag v1.11.0-rc1
+5. Create a tag for the release candidate. For example, for the `v1.11.0` release you'd do something like this:
     #. ``git tag v1.11.0-rc1``
     #. ``git tag push origin v1.11.0-rc1``
 6. Create a GitHub release, mark it as pre-release save draft, set the tag to v1.11.0-rc1
