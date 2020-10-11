@@ -429,8 +429,7 @@ void DisassemblyWidget::highlightPCLine()
                 highlightSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
                 highlightSelection.cursor.clearSelection();
                 pcSelections.append(highlightSelection);
-            }
-            else if (lineOffset != RVA_INVALID && lineOffset > PCAddr) {
+            } else if (lineOffset != RVA_INVALID && lineOffset > PCAddr) {
                 break;
             }
             highlightSelection.cursor.movePosition(QTextCursor::EndOfLine);
@@ -443,12 +442,10 @@ void DisassemblyWidget::highlightPCLine()
     }
 
     // Don't override any extraSelections already set
-    QList<QTextEdit::ExtraSelection> moreSelections = mDisasTextEdit->extraSelections();
-    for (auto& selection : pcSelections) {
-        moreSelections.append(selection);
-    }
+    QList<QTextEdit::ExtraSelection> currentSelections = mDisasTextEdit->extraSelections();
+    currentSelections.append(pcSelections);
 
-    mDisasTextEdit->setExtraSelections(moreSelections);
+    mDisasTextEdit->setExtraSelections(currentSelections);
 }
 
 void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
