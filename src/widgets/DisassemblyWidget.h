@@ -28,7 +28,18 @@ public:
     static QString getWidgetType();
 
 public slots:
+    /**
+     * @brief Highlights the currently selected line and updates the 
+     * highlighting of the same words under the cursor in the visible screen.
+     * This overrides all previous highlighting.
+     */
     void highlightCurrentLine();
+    /**
+     * @brief Adds the PC line highlighting to the other current highlighting.
+     * This should be called after highlightCurrentLine since that function
+     * overrides all previous highlighting.
+     */
+    void highlightPCLine();
     void showDisasContextMenu(const QPoint &pt);
     void fontsUpdatedSlot();
     void colorsUpdatedSlot();
