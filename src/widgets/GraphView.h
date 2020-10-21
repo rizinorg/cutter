@@ -8,6 +8,7 @@
 #include <QScrollBar>
 #include <QElapsedTimer>
 #include <QHelpEvent>
+#include <QGestureEvent>
 
 #include <unordered_map>
 #include <unordered_set>
@@ -134,6 +135,7 @@ protected:
     virtual void wheelEvent(QWheelEvent *event) override;
     virtual EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to,
                                                 bool interactive = true);
+    virtual bool gestureEvent(QGestureEvent *event);
     /**
      * @brief Called when user requested context menu for a block. Should open a block specific contextmenu.
      * Typically triggered by right click.

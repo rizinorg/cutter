@@ -236,6 +236,38 @@ void CutterGraphView::refreshView()
     setLayoutConfig(getLayoutConfig());
 }
 
+bool CutterGraphView::gestureEvent(QGestureEvent *event)
+{
+    if (!event) {
+        return false;
+    }
+
+    if (auto gesture =
+                reinterpret_cast<QPinchGesture *>(event->gesture(Qt::PinchGesture))) {
+        auto changeFlags = gesture->changeFlags();
+
+        if (gesture->state() == Qt::GestureStarted) {
+            m_originalScale = getViewScale();
+            return true;
+        }
+
+        if (changeFlags & QPinchGesture::ScaleFactorChanged) {
+            m_currentScale = gesture->totalScaleFactor();
+        }
+
+        QPointF cursorPos = mapFromGlobal(QCursor::pos());
+        cursorPos.rx() /= size().width();
+        cursorPos.ry() /= size().height();
+
+        setZoom(cursorPos, m_originalScale * m_currentScale);
+
+        if (gesture->state() == Qt::GestureFinished) {
+            m_currentScale = 1.0;
+        }
+    }
+
+    return true;
+}
 
 void CutterGraphView::wheelEvent(QWheelEvent *event)
 {
