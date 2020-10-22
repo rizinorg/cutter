@@ -38,9 +38,6 @@ GraphView::GraphView(QWidget *parent)
     }
 #endif
     setGraphLayout(makeGraphLayout(Layout::GridMedium));
-
-    grabGesture(Qt::PanGesture);
-    grabGesture(Qt::PinchGesture);
 }
 
 GraphView::~GraphView()

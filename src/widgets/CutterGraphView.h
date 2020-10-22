@@ -146,8 +146,6 @@ protected:
     QAction *horizontalLayoutAction;
 private:
     void colorsUpdatedSlot();
-
-    qreal m_currentScale, m_originalScale;
 };
 
 #endif // CUTTER_GRAPHVIEW_H

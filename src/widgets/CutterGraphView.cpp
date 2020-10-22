@@ -80,6 +80,8 @@ CutterGraphView::CutterGraphView(QWidget *parent)
 
     }
     layoutMenu->addActions(layoutGroup->actions());
+
+    grabGesture(Qt::PinchGesture);
 }
 
 QPoint CutterGraphView::getTextOffset(int line) const
@@ -243,30 +245,22 @@ bool CutterGraphView::gestureEvent(QGestureEvent *event)
     }
 
     if (auto gesture =
-                reinterpret_cast<QPinchGesture *>(event->gesture(Qt::PinchGesture))) {
+                static_cast<QPinchGesture *>(event->gesture(Qt::PinchGesture))) {
         auto changeFlags = gesture->changeFlags();
 
-        if (gesture->state() == Qt::GestureStarted) {
-            m_originalScale = getViewScale();
-            return true;
-        }
-
         if (changeFlags & QPinchGesture::ScaleFactorChanged) {
-            m_currentScale = gesture->totalScaleFactor();
+            auto cursorPos = gesture->centerPoint();
+            cursorPos.rx() /= size().width();
+            cursorPos.ry() /= size().height();
+
+            setZoom(cursorPos, getViewScale() * gesture->scaleFactor());
         }
 
-        QPointF cursorPos = mapFromGlobal(QCursor::pos());
-        cursorPos.rx() /= size().width();
-        cursorPos.ry() /= size().height();
-
-        setZoom(cursorPos, m_originalScale * m_currentScale);
-
-        if (gesture->state() == Qt::GestureFinished) {
-            m_currentScale = 1.0;
-        }
+        event->accept(gesture);
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 void CutterGraphView::wheelEvent(QWheelEvent *event)
