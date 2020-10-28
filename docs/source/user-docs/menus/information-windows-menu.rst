@@ -23,7 +23,9 @@ Show Exports
 ----------------------------------------
 **Description:** Show a list of exported functions in the binary.  
 
-**Steps:** Windows -> Info... -> Exports  
+**Steps:** Windows -> Info... -> Exports   
+
+**Shortcut:** :kbd:`Shift` + :kbd:`E`
 
 Show Flags
 ----------------------------------------
@@ -41,7 +43,9 @@ Show Imports
 ----------------------------------------
 **Description:** Show the Imports widget with a list of all the imported functions required by the binary.  
 
-**Steps:** Windows -> Info... -> Imports  
+**Steps:** Windows -> Info... -> Imports   
+
+**Shortcut:** :kbd:`Shift` + :kbd:`I`
 
 Show Relocations
 ----------------------------------------
