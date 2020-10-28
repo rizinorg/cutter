@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-16.04, macos-latest, windows-latest]
+        os: [ubuntu-18.04] #, ubuntu-16.04, macos-latest, windows-latest]
         python-version: [3.7.x]
         system-deps: [false]
         cc-override: [default]
