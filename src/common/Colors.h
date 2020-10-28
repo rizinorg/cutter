@@ -3,7 +3,7 @@
 
 #include "core/Cutter.h"
 #include "common/RichTextPainter.h"
-#include <r_anal.h>
+#include <rz_anal.h>
 
 class Colors
 {

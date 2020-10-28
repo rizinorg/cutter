@@ -5,7 +5,7 @@
 #ifndef CUTTERCORE_H
 #define CUTTERCORE_H
 
-#include "r_core.h"
+#include "rz_core.h"
 #include <QString>
 
 // Workaround for compile errors on Windows

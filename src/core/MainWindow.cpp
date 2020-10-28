@@ -535,7 +535,7 @@ void MainWindow::openNewFile(InitialOptions &options, bool skipOptionsDialog)
     /* Prompt to load filename.r2 script */
     if (options.script.isEmpty()) {
         QString script = QString("%1.r2").arg(this->filename);
-        if (r_file_exists(script.toStdString().data())) {
+        if (rz_file_exists(script.toStdString().data())) {
             QMessageBox mb;
             mb.setWindowTitle(tr("Script loading"));
             mb.setText(tr("Do you want to load the '%1' script?").arg(script));

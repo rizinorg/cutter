@@ -3,7 +3,7 @@
 #include "ui_ThreadsWidget.h"
 #include "common/JsonModel.h"
 #include "QuickFilterView.h"
-#include <r_debug.h>
+#include <rz_debug.h>
 
 #include "core/MainWindow.h"
 
@@ -88,17 +88,17 @@ void ThreadsWidget::updateContents()
 QString ThreadsWidget::translateStatus(QString status)
 {
     switch (status.toStdString().c_str()[0]) {
-    case R_DBG_PROC_STOP:
+    case RZ_DBG_PROC_STOP:
         return "Stopped";
-    case R_DBG_PROC_RUN:
+    case RZ_DBG_PROC_RUN:
         return "Running";
-    case R_DBG_PROC_SLEEP:
+    case RZ_DBG_PROC_SLEEP:
         return "Sleeping";
-    case R_DBG_PROC_ZOMBIE:
+    case RZ_DBG_PROC_ZOMBIE:
         return "Zombie";
-    case R_DBG_PROC_DEAD:
+    case RZ_DBG_PROC_DEAD:
         return "Dead";
-    case R_DBG_PROC_RAISED:
+    case RZ_DBG_PROC_RAISED:
         return "Raised event";
     default:
         return "Unknown status";

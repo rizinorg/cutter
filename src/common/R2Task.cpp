@@ -3,18 +3,18 @@
 
 R2Task::R2Task(const QString &cmd, bool transient)
 {
-    task = r_core_task_new(Core()->core(),
+    task = rz_core_task_new(Core()->core(),
         true,
         cmd.toLocal8Bit().constData(),
-        static_cast<RCoreTaskCallback>(&R2Task::taskFinishedCallback),
+        static_cast<RzCoreTaskCallback>(&R2Task::taskFinishedCallback),
         this);
     task->transient = transient;
-    r_core_task_incref(task);
+    rz_core_task_incref(task);
 }
 
 R2Task::~R2Task()
 {
-    r_core_task_decref(task);
+    rz_core_task_decref(task);
 }
 
 void R2Task::taskFinishedCallback(void *user, char *)
@@ -29,17 +29,17 @@ void R2Task::taskFinished()
 
 void R2Task::startTask()
 {
-    r_core_task_enqueue(&Core()->core_->tasks, task);
+    rz_core_task_enqueue(&Core()->core_->tasks, task);
 }
 
 void R2Task::breakTask()
 {
-    r_core_task_break(&Core()->core_->tasks, task->id);
+    rz_core_task_break(&Core()->core_->tasks, task->id);
 }
 
 void R2Task::joinTask()
 {
-    r_core_task_join(&Core()->core_->tasks, nullptr, task->id);
+    rz_core_task_join(&Core()->core_->tasks, nullptr, task->id);
 }
 
 QString R2Task::getResult()

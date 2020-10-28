@@ -106,7 +106,7 @@ void InitialOptionsDialog::updateCPUComboBox()
     QString arch = getSelectedArch();
     QStringList cpus;
     if (!arch.isEmpty()) {
-        auto pluginDescr = std::find_if(asmPlugins.begin(), asmPlugins.end(), [&](const RAsmPluginDescription &plugin) {
+        auto pluginDescr = std::find_if(asmPlugins.begin(), asmPlugins.end(), [&](const RzAsmPluginDescription &plugin) {
             return plugin.name == arch;
         });
         if (pluginDescr != asmPlugins.end()) {
@@ -269,7 +269,7 @@ void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> adv
     options.loadBinInfo = !ui->binCheckBox->isChecked();
     QVariant forceBinPluginData = ui->formatComboBox->currentData();
     if (!forceBinPluginData.isNull()) {
-        RBinPluginDescription pluginDesc = forceBinPluginData.value<RBinPluginDescription>();
+        RzBinPluginDescription pluginDesc = forceBinPluginData.value<RzBinPluginDescription>();
         options.forceBinPlugin = pluginDesc.name;
     }
     options.demangle = ui->demangleCheckBox->isChecked();

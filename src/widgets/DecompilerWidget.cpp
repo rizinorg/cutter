@@ -31,7 +31,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     previousFunctionAddr(RVA_INVALID),
     decompiledFunctionAddr(RVA_INVALID),
     code(Decompiler::makeWarning(tr("Choose an offset and refresh to get decompiled code")),
-         &r_annotated_code_free)
+         &rz_annotated_code_free)
 {
     ui->setupUi(this);
     setObjectName(main
@@ -58,8 +58,8 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     auto decompilers = Core()->getDecompilers();
     QString selectedDecompilerId = Config()->getSelectedDecompiler();
     if (selectedDecompilerId.isEmpty()) {
-        // If no decompiler was previously chosen. set r2ghidra as default decompiler
-        selectedDecompilerId = "r2ghidra";
+        // If no decompiler was previously chosen. set rz-ghidra as default decompiler
+        selectedDecompilerId = "ghidra";
     }
     for (Decompiler *dec : decompilers) {
         ui->decompilerComboBox->addItem(dec->getName(), dec->getId());
@@ -124,9 +124,9 @@ ut64 DecompilerWidget::offsetForPosition(size_t pos)
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = mCtxMenu->getFirstOffsetInLine();
     void *iter;
-    r_vector_foreach(&code->annotations, iter) {
-        RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
-        if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->start > pos
+    rz_vector_foreach(&code->annotations, iter) {
+        RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
+        if (annotation->type != RZ_CODE_ANNOTATION_TYPE_OFFSET || annotation->start > pos
                 || annotation->end <= pos) {
             continue;
         }
@@ -144,9 +144,9 @@ size_t DecompilerWidget::positionForOffset(ut64 offset)
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = UT64_MAX;
     void *iter;
-    r_vector_foreach(&code->annotations, iter) {
-        RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
-        if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->offset.offset > offset) {
+    rz_vector_foreach(&code->annotations, iter) {
+        RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
+        if (annotation->type != RZ_CODE_ANNOTATION_TYPE_OFFSET || annotation->offset.offset > offset) {
             continue;
         }
         if (closestOffset != UT64_MAX && closestOffset >= annotation->offset.offset) {
@@ -188,14 +188,14 @@ void DecompilerWidget::setInfoForBreakpoints()
     gatherBreakpointInfo(*code, startPos, endPos);
 }
 
-void DecompilerWidget::gatherBreakpointInfo(RAnnotatedCode &codeDecompiled, size_t startPos,
+void DecompilerWidget::gatherBreakpointInfo(RzAnnotatedCode &codeDecompiled, size_t startPos,
                                             size_t endPos)
 {
     RVA firstOffset = RVA_MAX;
     void *iter;
-    r_vector_foreach(&codeDecompiled.annotations, iter) {
-        RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
-        if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET) {
+    rz_vector_foreach(&codeDecompiled.annotations, iter) {
+        RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
+        if (annotation->type != RZ_CODE_ANNOTATION_TYPE_OFFSET) {
             continue;
         }
         if ((startPos <= annotation->start && annotation->start < endPos) || (startPos < annotation->end
@@ -284,7 +284,7 @@ QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
     return cursor;
 }
 
-void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
+void DecompilerWidget::decompilationFinished(RzAnnotatedCode *codeDecompiled)
 {
     bool isDisplayReset = false;
     if (previousFunctionAddr == decompiledFunctionAddr) {
@@ -315,9 +315,9 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
         lowestOffsetInCode = RVA_MAX;
         highestOffsetInCode = 0;
         void *iter;
-        r_vector_foreach(&code->annotations, iter) {
-            RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
-            if (annotation->type == R_CODE_ANNOTATION_TYPE_OFFSET) {
+        rz_vector_foreach(&code->annotations, iter) {
+            RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
+            if (annotation->type == RZ_CODE_ANNOTATION_TYPE_OFFSET) {
                 if (lowestOffsetInCode > annotation->offset.offset) {
                     lowestOffsetInCode = annotation->offset.offset;
                 }
@@ -336,12 +336,12 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
 
 void DecompilerWidget::setAnnotationsAtCursor(size_t pos)
 {
-    RCodeAnnotation *annotationAtPos = nullptr;
+    RzCodeAnnotation *annotationAtPos = nullptr;
     void *iter;
-    r_vector_foreach(&this->code->annotations, iter) {
-        RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
-        if (annotation->type == R_CODE_ANNOTATION_TYPE_OFFSET ||
-                annotation->type == R_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT ||
+    rz_vector_foreach(&this->code->annotations, iter) {
+        RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
+        if (annotation->type == RZ_CODE_ANNOTATION_TYPE_OFFSET ||
+                annotation->type == RZ_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT ||
                 annotation->start > pos || annotation->end <= pos) {
             continue;
         }
@@ -444,7 +444,7 @@ void DecompilerWidget::updateSelection()
 
 QString DecompilerWidget::getWindowTitle() const
 {
-    RAnalFunction *fcn = Core()->functionAt(decompiledFunctionAddr);
+    RzAnalFunction *fcn = Core()->functionAt(decompiledFunctionAddr);
     QString windowTitle = tr("Decompiler");
     if (fcn != NULL) {
         windowTitle += " (" + QString(fcn->name) + ")";
@@ -566,12 +566,12 @@ bool DecompilerWidget::addressInRange(RVA addr)
 }
 
 /**
- * Convert annotation ranges from byte offsets in utf8 used by RAnnotated code to QString QChars used by QString
+ * Convert annotation ranges from byte offsets in utf8 used by RzAnnotated code to QString QChars used by QString
  * and Qt text editor.
- * @param code - RAnnotated code with annotations that need to be modified
+ * @param code - RzAnnotated code with annotations that need to be modified
  * @return Decompiled code
  */
-static QString remapAnnotationOffsetsToQString(RAnnotatedCode &code)
+static QString remapAnnotationOffsetsToQString(RzAnnotatedCode &code)
 {
     QByteArray bytes(code.code);
     QString text;
@@ -598,15 +598,15 @@ static QString remapAnnotationOffsetsToQString(RAnnotatedCode &code)
     };
 
     void *iter;
-    r_vector_foreach(&code.annotations, iter) {
-        RCodeAnnotation *annotation = (RCodeAnnotation *)iter;
+    rz_vector_foreach(&code.annotations, iter) {
+        RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
         annotation->start = mapPos(annotation->start);
         annotation->end = mapPos(annotation->end);
     }
     return text;
 }
 
-void DecompilerWidget::setCode(RAnnotatedCode *code)
+void DecompilerWidget::setCode(RzAnnotatedCode *code)
 {
     connectCursorPositionChanged(false);
     if (auto highlighter = qobject_cast<DecompilerHighlighter*>(syntaxHighlighter.get())) {

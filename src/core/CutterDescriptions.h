@@ -26,7 +26,7 @@ struct FunctionDescription {
     bool contains(RVA addr) const
     {
         // TODO: this is not exactly correct in edge cases.
-        // r_anal_function_contains() does it right.
+        // rz_anal_function_contains() does it right.
         return addr >= offset && addr < offset + linearSize;
     }
 };
@@ -158,14 +158,14 @@ struct XrefDescription {
     QString type;
 };
 
-struct RBinPluginDescription {
+struct RzBinPluginDescription {
     QString name;
     QString description;
     QString license;
     QString type;
 };
 
-struct RIOPluginDescription {
+struct RzIOPluginDescription {
     QString name;
     QString description;
     QString license;
@@ -173,12 +173,12 @@ struct RIOPluginDescription {
     QList<QString> uris;
 };
 
-struct RCorePluginDescription {
+struct RzCorePluginDescription {
     QString name;
     QString description;
 };
 
-struct RAsmPluginDescription {
+struct RzAsmPluginDescription {
     QString name;
     QString architecture;
     QString author;
@@ -338,10 +338,10 @@ Q_DECLARE_METATYPE(FlagspaceDescription)
 Q_DECLARE_METATYPE(FlagDescription)
 Q_DECLARE_METATYPE(XrefDescription)
 Q_DECLARE_METATYPE(EntrypointDescription)
-Q_DECLARE_METATYPE(RBinPluginDescription)
-Q_DECLARE_METATYPE(RIOPluginDescription)
-Q_DECLARE_METATYPE(RCorePluginDescription)
-Q_DECLARE_METATYPE(RAsmPluginDescription)
+Q_DECLARE_METATYPE(RzBinPluginDescription)
+Q_DECLARE_METATYPE(RzIOPluginDescription)
+Q_DECLARE_METATYPE(RzCorePluginDescription)
+Q_DECLARE_METATYPE(RzAsmPluginDescription)
 Q_DECLARE_METATYPE(BinClassMethodDescription)
 Q_DECLARE_METATYPE(BinClassFieldDescription)
 Q_DECLARE_METATYPE(BinClassDescription)

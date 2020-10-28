@@ -85,9 +85,9 @@ BreakpointsDialog::BreakpointsDialog(const BreakpointDescription &breakpoint, QW
     ui->breakpointCondition->setEditText(breakpoint.condition);
     if (breakpoint.hw) {
         ui->radioHardware->setChecked(true);
-        ui->hwRead->setChecked(breakpoint.permission & R_BP_PROT_READ);
-        ui->hwWrite->setChecked(breakpoint.permission & R_BP_PROT_WRITE);
-        ui->hwExecute->setChecked(breakpoint.permission & R_BP_PROT_EXEC);
+        ui->hwRead->setChecked(breakpoint.permission & RZ_BP_PROT_READ);
+        ui->hwWrite->setChecked(breakpoint.permission & RZ_BP_PROT_WRITE);
+        ui->hwExecute->setChecked(breakpoint.permission & RZ_BP_PROT_EXEC);
         ui->breakpointSize->setCurrentText(QString::number(breakpoint.size));
     } else {
         ui->radioSoftware->setChecked(true);
@@ -201,13 +201,13 @@ int BreakpointsDialog::getHwPermissions()
 {
     int result = 0;
     if (ui->hwRead->isChecked()) {
-        result |= R_BP_PROT_READ;
+        result |= RZ_BP_PROT_READ;
     }
     if (ui->hwWrite->isChecked()) {
-        result |= R_BP_PROT_WRITE;
+        result |= RZ_BP_PROT_WRITE;
     }
     if (ui->hwExecute->isChecked()) {
-        result |= R_BP_PROT_EXEC;
+        result |= RZ_BP_PROT_EXEC;
     }
     return result;
 }

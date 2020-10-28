@@ -5,7 +5,7 @@
 #include <QMenu>
 #include <QKeySequence>
 
-#include <r_util/r_annotated_code.h>
+#include <rz_util/rz_annotated_code.h>
 
 class MainWindow;
 
@@ -18,7 +18,7 @@ public:
     ~DecompilerContextMenu();
 
     bool getIsTogglingBreakpoints();
-    void setAnnotationHere(RCodeAnnotation *annotation);
+    void setAnnotationHere(RzCodeAnnotation *annotation);
     RVA getFirstOffsetInLine();
 
 signals:
@@ -78,7 +78,7 @@ private:
      * Context-related annotation for the data under cursor in the decompiler widget.
      * If such an annotation doesn't exist, its value is nullptr.
      */
-    RCodeAnnotation *annotationHere;
+    RzCodeAnnotation *annotationHere;
 
     // Actions and menus in the context menu
     QAction actionCopy;

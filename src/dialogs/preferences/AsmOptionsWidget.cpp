@@ -26,7 +26,7 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
         { ui->refptrCheckBox,       "asm.refptr" },
         { ui->xrefCheckBox,         "asm.xrefs" },
         { ui->bblineCheckBox,       "asm.bb.line" },
-        { ui->varsubCheckBox,       "asm.var.sub" },
+        { ui->varsubCheckBox,       "asm.sub.var" },
         { ui->varsubOnlyCheckBox,   "asm.sub.varonly" },
         { ui->lbytesCheckBox,       "asm.lbytes" },
         { ui->bytespaceCheckBox,    "asm.bytes.space" },
@@ -92,7 +92,7 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     ui->nbytesSpinBox->blockSignals(false);
     ui->nbytesLabel->setEnabled(bytesEnabled);
     ui->nbytesSpinBox->setEnabled(bytesEnabled);
-    bool varsubEnabled = Config()->getConfigBool("asm.var.sub");
+    bool varsubEnabled = Config()->getConfigBool("asm.sub.var");
     ui->varsubOnlyCheckBox->setEnabled(varsubEnabled);
 
     QString currentSyntax = Config()->getConfigString("asm.syntax");
@@ -222,7 +222,7 @@ void AsmOptionsWidget::on_asmTabsOffSpinBox_valueChanged(int value)
 
 void AsmOptionsWidget::on_varsubCheckBox_toggled(bool checked)
 {
-    Config()->setConfig("asm.var.sub", checked);
+    Config()->setConfig("asm.sub.var", checked);
     ui->varsubOnlyCheckBox->setEnabled(checked);
     triggerAsmOptionsChanged();
 }

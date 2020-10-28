@@ -15,7 +15,7 @@ FlagDialog::FlagDialog(RVA offset, QWidget *parent) :
     // Setup UI
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
-    RFlagItem* flag = r_flag_get_i(Core()->core()->flags, offset);
+    RzFlagItem *flag = rz_flag_get_i(Core()->core()->flags, offset);
     if (flag) {
         flagName = QString(flag->name);
         flagOffset = flag->offset;

@@ -71,7 +71,7 @@ DecompilerContextMenu::~DecompilerContextMenu()
 {
 }
 
-void DecompilerContextMenu::setAnnotationHere(RCodeAnnotation *annotation)
+void DecompilerContextMenu::setAnnotationHere(RzCodeAnnotation *annotation)
 {
     annotationHere = annotation;
 }
@@ -199,16 +199,16 @@ void DecompilerContextMenu::aboutToShowSlot()
 
     if (!annotationHere
             || annotationHere->type ==
-            R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) { // If constant, don't show rename and targeted show-in
+            RZ_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) { // If constant, don't show rename and targeted show-in
         actionRenameThingHere.setVisible(false);
         copySeparator->setVisible(false);
     } else {
         copySeparator->setVisible(true);
-        if (annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
+        if (annotationHere->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
             actionRenameThingHere.setText(tr("Rename function %1").arg(QString(
                                                                            annotationHere->reference.name)));
-        } else if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE) {
-            RFlagItem *flagDetails = r_flag_get_i(Core()->core()->flags, annotationHere->reference.offset);
+        } else if (annotationHere->type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE) {
+            RzFlagItem *flagDetails = rz_flag_get_i(Core()->core()->flags, annotationHere->reference.offset);
             if (flagDetails) {
                 actionRenameThingHere.setText(tr("Rename %1").arg(QString(flagDetails->name)));
                 actionDeleteName.setText(tr("Remove %1").arg(QString(flagDetails->name)));
@@ -223,8 +223,8 @@ void DecompilerContextMenu::aboutToShowSlot()
     if (isReference()) {
         actionCopyReferenceAddress.setVisible(true);
         RVA referenceAddr = annotationHere->reference.offset;
-        RFlagItem *flagDetails = r_flag_get_i(Core()->core()->flags, referenceAddr);
-        if (annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
+        RzFlagItem *flagDetails = rz_flag_get_i(Core()->core()->flags, referenceAddr);
+        if (annotationHere->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
             actionCopyReferenceAddress.setText(tr("Copy address of %1 (%2)").arg
                                                (QString(annotationHere->reference.name), RAddressString(referenceAddr)));
         } else if (flagDetails) {
@@ -386,16 +386,16 @@ void DecompilerContextMenu::actionDeleteCommentTriggered()
 
 void DecompilerContextMenu::actionRenameThingHereTriggered()
 {
-    if (!annotationHere || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
+    if (!annotationHere || annotationHere->type == RZ_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
         return;
     }
-    RCoreLocked core = Core()->core();
+    RzCoreLocked core = Core()->core();
     bool ok;
     auto type = annotationHere->type;
-    if (type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
+    if (type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
         QString currentName(annotationHere->reference.name);
         RVA func_addr = annotationHere->reference.offset;
-        RAnalFunction *func = Core()->functionAt(func_addr);
+        RzAnalFunction *func = Core()->functionAt(func_addr);
         if (func == NULL) {
             QString function_name = QInputDialog::getText(this,
                                                           tr("Define this function at %2").arg(RAddressString(func_addr)),
@@ -410,9 +410,9 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
                 Core()->renameFunction(func_addr, newName);
             }
         }
-    } else if (type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE) {
+    } else if (type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE) {
         RVA var_addr = annotationHere->reference.offset;
-        RFlagItem *flagDetails = r_flag_get_i(core->flags, var_addr);
+        RzFlagItem *flagDetails = rz_flag_get_i(core->flags, var_addr);
         if (flagDetails) {
             QString newName = QInputDialog::getText(this, tr("Rename %2").arg(flagDetails->name),
                                                     tr("Enter name"), QLineEdit::Normal, flagDetails->name, &ok);
@@ -470,7 +470,7 @@ void DecompilerContextMenu::actionXRefsTriggered()
         return;
     }
     XrefsDialog dialog(mainWindow, nullptr);
-    QString displayString = (annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) ? QString(
+    QString displayString = (annotationHere->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME) ? QString(
                                 annotationHere->reference.name) : RAddressString(annotationHere->reference.offset);
     dialog.fillRefsForAddress(annotationHere->reference.offset, displayString, false);
     dialog.exec();
@@ -549,22 +549,22 @@ void DecompilerContextMenu::updateTargetMenuActions()
         action->deleteLater();
     }
     showTargetMenuActions.clear();
-    RCoreLocked core = Core()->core();
+    RzCoreLocked core = Core()->core();
     if (isReference()) {
         QString name;
         QMenu *menu;
-        if (annotationHere->type == R_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
-                || annotationHere->type == R_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
+        if (annotationHere->type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
+                || annotationHere->type == RZ_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
             menu = mainWindow->createShowInMenu(this, annotationHere->reference.offset,
                                                 MainWindow::AddressTypeHint::Data);
             RVA var_addr = annotationHere->reference.offset;
-            RFlagItem *flagDetails = r_flag_get_i(core->flags, var_addr);
+            RzFlagItem *flagDetails = rz_flag_get_i(core->flags, var_addr);
             if (flagDetails) {
                 name = tr("Show %1 in").arg(flagDetails->name);
             } else {
                 name = tr("Show %1 in").arg(RAddressString(annotationHere->reference.offset));
             }
-        } else if (annotationHere->type == R_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
+        } else if (annotationHere->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
             menu = mainWindow->createShowInMenu(this, annotationHere->reference.offset,
                                                 MainWindow::AddressTypeHint::Function);
             name = tr("%1 (%2)").arg(QString(annotationHere->reference.name),
@@ -579,12 +579,12 @@ void DecompilerContextMenu::updateTargetMenuActions()
 
 bool DecompilerContextMenu::isReference()
 {
-    return (annotationHere && r_annotation_is_reference(annotationHere));
+    return (annotationHere && rz_annotation_is_reference(annotationHere));
 }
 
 bool DecompilerContextMenu::isFunctionVariable()
 {
-    return (annotationHere && r_annotation_is_variable(annotationHere));
+    return (annotationHere && rz_annotation_is_variable(annotationHere));
 }
 
 bool DecompilerContextMenu::variablePresentInR2()

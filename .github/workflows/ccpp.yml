@@ -29,7 +29,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        submodules: true # 'recursive' 'true' or 'false'
+        token: ${{ secrets.RIZIN_TOKEN }} # TODO: remove when the repo is public
+        submodules: recursive
         persist-credentials: false
     - name: apt dependencies
       if: contains(matrix.os, 'ubuntu')
@@ -101,20 +102,20 @@ jobs:
         then
           cmake \
             -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
             -DCUTTER_ENABLE_PYTHON=ON \
+            -DCMAKE_BUILD_TYPE=Release \
             -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.so.1.0" \
             -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m" \
             -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
             -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF \
             -DCUTTER_ENABLE_CRASH_REPORTS=ON \
-            -DCUTTER_USE_BUNDLED_RADARE2=ON \
-            ../src
+            -DCUTTER_USE_BUNDLED_RIZIN=ON \
+            ../src && \
         else
           cmake \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
-            -DCUTTER_USE_BUNDLED_RADARE2=ON \
+            -DCUTTER_USE_BUNDLED_RIZIN=ON \
             ../src
         fi
         ninja
@@ -137,7 +138,7 @@ jobs:
                 -DCUTTER_ENABLE_PYTHON=ON \
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON \
-                -DCUTTER_USE_BUNDLED_RADARE2=ON \
+                -DCUTTER_USE_BUNDLED_RIZIN=ON \
                 -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR" \
                 ../src && \
               make -j4;
@@ -163,7 +164,7 @@ jobs:
         set PACKAGE_NAME=cutter-git-x64.Windows
         cmake ^
           -DCMAKE_BUILD_TYPE=Release ^
-          -DCUTTER_USE_BUNDLED_RADARE2=ON ^
+          -DCUTTER_USE_BUNDLED_RIZIN=ON ^
           -DCUTTER_ENABLE_PYTHON=ON ^
           -DCUTTER_ENABLE_PYTHON_BINDINGS=ON ^
           -DCUTTER_PACKAGE_DEPENDENCIES=ON ^

@@ -30,13 +30,13 @@ class R2TaskDialog;
 
 #define Core() (CutterCore::instance())
 
-class RCoreLocked;
+class RzCoreLocked;
 
 class CUTTER_EXPORT CutterCore: public QObject
 {
     Q_OBJECT
 
-    friend class RCoreLocked;
+    friend class RzCoreLocked;
     friend class R2Task;
 
 public:
@@ -140,7 +140,7 @@ public:
         return parseJson(res, cmd.isNull() ? nullptr : cmd.toLocal8Bit().constData());
     }
 
-    QStringList autocomplete(const QString &cmd, RLinePromptType promptType, size_t limit = 4096);
+    QStringList autocomplete(const QString &cmd, RzLinePromptType promptType, size_t limit = 4096);
 
     /* Functions methods */
     void renameFunction(const RVA offset, const QString &newName);
@@ -160,13 +160,13 @@ public:
      * @param addr
      * @return a function that contains addr or nullptr
      */
-    RAnalFunction *functionIn(ut64 addr);
+    RzAnalFunction *functionIn(ut64 addr);
 
     /**
      * @param addr
      * @return the function that has its entrypoint at addr or nullptr
      */
-    RAnalFunction *functionAt(ut64 addr);
+    RzAnalFunction *functionAt(ut64 addr);
 
     RVA getFunctionStart(RVA addr);
     RVA getFunctionEnd(RVA addr);
@@ -256,7 +256,7 @@ public:
     void setAnalMethod(const QString &cls, const AnalMethodDescription &meth);
 
     /* File related methods */
-    bool loadFile(QString path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = R_PERM_R,
+    bool loadFile(QString path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = RZ_PERM_R,
                   int va = 0, bool loadbin = false, const QString &forceBinPlugin = QString());
     bool tryFile(QString path, bool rw);
     bool mapFile(QString path, RVA mapaddr);
@@ -481,10 +481,10 @@ public:
     static bool isProjectNameValid(const QString &name);
 
     /* Widgets */
-    QList<RBinPluginDescription> getRBinPluginDescriptions(const QString &type = QString());
-    QList<RIOPluginDescription> getRIOPluginDescriptions();
-    QList<RCorePluginDescription> getRCorePluginDescriptions();
-    QList<RAsmPluginDescription> getRAsmPluginDescriptions();
+    QList<RzBinPluginDescription> getRBinPluginDescriptions(const QString &type = QString());
+    QList<RzIOPluginDescription> getRIOPluginDescriptions();
+    QList<RzCorePluginDescription> getRCorePluginDescriptions();
+    QList<RzAsmPluginDescription> getRAsmPluginDescriptions();
     QList<FunctionDescription> getAllFunctions();
     QList<ImportDescription> getAllImports();
     QList<ExportDescription> getAllExports();
@@ -545,10 +545,10 @@ public:
 
     /**
      * @brief Adds new types
-     * It first uses the r_parse_c_string() function from radare2 API to parse the
+     * It first uses the rz_parse_c_string() function from radare2 API to parse the
      * supplied C file (in the form of a string). If there were errors, they are displayed.
      * If there were no errors, it uses sdb_query_lines() function from radare2 API
-     * to save the parsed types returned by r_parse_c_string()
+     * to save the parsed types returned by rz_parse_c_string()
      * \param str Contains the definition of the data types
      * \return returns an empty QString if there was no error, else returns the error
      */
@@ -603,7 +603,7 @@ public:
 
     QStringList getSectionList();
 
-    RCoreLocked core();
+    RzCoreLocked core();
 
     static QString ansiEscapeToHtml(const QString &text);
     BasicBlockHighlighter *getBBHighlighter();
@@ -711,10 +711,10 @@ private:
     QString notes;
 
     /**
-     * Internal reference to the RCore.
+     * Internal reference to the RzCore.
      * NEVER use this directly! Always use the CORE_LOCK(); macro and access it like core->...
      */
-    RCore *core_ = nullptr;
+    RzCore *core_ = nullptr;
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
     QMutex coreMutex;
 #else
@@ -740,18 +740,18 @@ private:
     QVector<QString> getCutterRCFilePaths() const;
 };
 
-class CUTTER_EXPORT RCoreLocked
+class CUTTER_EXPORT RzCoreLocked
 {
     CutterCore * const core;
 
 public:
-    explicit RCoreLocked(CutterCore *core);
-    RCoreLocked(const RCoreLocked &) = delete;
-    RCoreLocked &operator=(const RCoreLocked &) = delete;
-    RCoreLocked(RCoreLocked &&);
-    ~RCoreLocked();
-    operator RCore *() const;
-    RCore *operator->() const;
+    explicit RzCoreLocked(CutterCore *core);
+    RzCoreLocked(const RzCoreLocked &) = delete;
+    RzCoreLocked &operator=(const RzCoreLocked &) = delete;
+    RzCoreLocked(RzCoreLocked &&);
+    ~RzCoreLocked();
+    operator RzCore *() const;
+    RzCore *operator->() const;
 };
 
 #endif // CUTTER_H

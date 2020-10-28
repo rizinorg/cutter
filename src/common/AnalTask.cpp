@@ -18,7 +18,7 @@ AnalTask::~AnalTask()
 void AnalTask::interrupt()
 {
     AsyncTask::interrupt();
-    r_cons_singleton()->context->breaked = true;
+    rz_cons_singleton()->context->breaked = true;
 }
 
 QString AnalTask::getTitle() {
@@ -32,9 +32,9 @@ QString AnalTask::getTitle() {
 
 void AnalTask::runTask()
 {
-    int perms = R_PERM_RX;
+    int perms = RZ_PERM_RX;
     if (options.writeEnabled) {
-        perms |= R_PERM_W;
+        perms |= RZ_PERM_W;
         emit Core()->ioModeChanged();
 
     }
@@ -63,7 +63,7 @@ void AnalTask::runTask()
         }
     }
 
-    // r_core_bin_load might change asm.bits, so let's set that after the bin is loaded
+    // rz_core_bin_load might change asm.bits, so let's set that after the bin is loaded
     Core()->setCPU(options.arch, options.cpu, options.bits);
 
     if (isInterrupted()) {
@@ -102,9 +102,6 @@ void AnalTask::runTask()
     if (isInterrupted()) {
         return;
     }
-
-    // Use prj.simple as default as long as regular projects are broken
-    Core()->setConfig("prj.simple", true);
 
     if (!options.analCmd.empty()) {
         log(tr("Executing analysis..."));

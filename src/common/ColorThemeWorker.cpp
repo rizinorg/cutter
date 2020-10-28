@@ -59,17 +59,17 @@ const QStringList ColorThemeWorker::radare2UnusedOptions = {
 
 ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject (parent)
 {
-    char* szThemes = r_str_home(R2_HOME_THEMES);
+    char* szThemes = rz_str_home(RZ_HOME_THEMES);
     customR2ThemesLocationPath = szThemes;
-    r_mem_free(szThemes);
+    rz_mem_free(szThemes);
     if (!QDir(customR2ThemesLocationPath).exists()) {
         QDir().mkpath(customR2ThemesLocationPath);
     }
 
     QDir currDir { QStringLiteral("%1%2%3")
-        .arg(r_sys_prefix(nullptr))
-        .arg(R_SYS_DIR)
-        .arg(R2_THEMES)
+        .arg(rz_sys_prefix(nullptr))
+        .arg(RZ_SYS_DIR)
+        .arg(RZ_THEMES)
     };
     if (currDir.exists()) {
         standardR2ThemesLocationPath = currDir.absolutePath();

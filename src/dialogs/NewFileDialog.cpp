@@ -339,8 +339,8 @@ void NewFileDialog::fillIOPluginsList()
     ui->ioPlugin->setItemData(0, tr("Open a file with no extra treatment."), Qt::ToolTipRole);
 
     int index = 1;
-    QList<RIOPluginDescription> ioPlugins = Core()->getRIOPluginDescriptions();
-    for (const RIOPluginDescription &plugin : ioPlugins) {
+    QList<RzIOPluginDescription> ioPlugins = Core()->getRIOPluginDescriptions();
+    for (const RzIOPluginDescription &plugin : ioPlugins) {
         // Hide debug plugins
         if (plugin.permissions.contains('d')) {
             continue;

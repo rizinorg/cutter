@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<QList<StringDescription>>();
     qRegisterMetaType<QList<FunctionDescription>>();
 
-    QCoreApplication::setOrganizationName("RadareOrg");
+    QCoreApplication::setOrganizationName("RizinOrg");
     QCoreApplication::setApplicationName("Cutter");
 
     Cutter::initializeSettings();

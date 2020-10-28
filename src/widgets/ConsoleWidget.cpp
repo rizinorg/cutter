@@ -373,7 +373,7 @@ void ConsoleWidget::updateCompletion()
     }
 
     auto current = ui->r2InputLineEdit->text();
-    auto completions = Core()->autocomplete(current, R_LINE_PROMPT_DEFAULT);
+    auto completions = Core()->autocomplete(current, RZ_LINE_PROMPT_DEFAULT);
     int lastSpace = current.lastIndexOf(' ');
     if (lastSpace >= 0) {
         current = current.left(lastSpace + 1);

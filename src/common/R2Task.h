@@ -9,7 +9,7 @@ class R2Task: public QObject
     Q_OBJECT
 
 private:
-    RCoreTask *task;
+    RzCoreTask *task;
 
     static void taskFinishedCallback(void *user, char *);
     void taskFinished();

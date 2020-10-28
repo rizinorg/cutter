@@ -17,10 +17,10 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
         item->setText(1, plugin.description);
         item->setText(2, plugin.license);
         item->setText(3, plugin.type);
-        ui->RBinTreeWidget->addTopLevelItem(item);
+        ui->RzBinTreeWidget->addTopLevelItem(item);
     }
-    ui->RBinTreeWidget->sortByColumn(0, Qt::AscendingOrder);
-    qhelpers::adjustColumns(ui->RBinTreeWidget, 0);
+    ui->RzBinTreeWidget->sortByColumn(0, Qt::AscendingOrder);
+    qhelpers::adjustColumns(ui->RzBinTreeWidget, 0);
 
     for (const auto &plugin : Core()->getRIOPluginDescriptions()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
@@ -28,19 +28,19 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
         item->setText(1, plugin.description);
         item->setText(2, plugin.license);
         item->setText(3, plugin.permissions);
-        ui->RIOTreeWidget->addTopLevelItem(item);
+        ui->RzIOTreeWidget->addTopLevelItem(item);
     }
-    ui->RIOTreeWidget->sortByColumn(0, Qt::AscendingOrder);
-    qhelpers::adjustColumns(ui->RIOTreeWidget, 0);
+    ui->RzIOTreeWidget->sortByColumn(0, Qt::AscendingOrder);
+    qhelpers::adjustColumns(ui->RzIOTreeWidget, 0);
 
     for (const auto &plugin : Core()->getRCorePluginDescriptions()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, plugin.name);
         item->setText(1, plugin.description);
-        ui->RCoreTreeWidget->addTopLevelItem(item);
+        ui->RzCoreTreeWidget->addTopLevelItem(item);
     }
-    ui->RCoreTreeWidget->sortByColumn(0, Qt::AscendingOrder);
-    qhelpers::adjustColumns(ui->RCoreTreeWidget, 0);
+    ui->RzCoreTreeWidget->sortByColumn(0, Qt::AscendingOrder);
+    qhelpers::adjustColumns(ui->RzCoreTreeWidget, 0);
 
     for (const auto &plugin : Core()->getRAsmPluginDescriptions()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
@@ -51,10 +51,10 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
         item->setText(4, plugin.description);
         item->setText(5, plugin.license);
         item->setText(6, plugin.author);
-        ui->RAsmTreeWidget->addTopLevelItem(item);
+        ui->RzAsmTreeWidget->addTopLevelItem(item);
     }
-    ui->RAsmTreeWidget->sortByColumn(0, Qt::AscendingOrder);
-    qhelpers::adjustColumns(ui->RAsmTreeWidget, 0);
+    ui->RzAsmTreeWidget->sortByColumn(0, Qt::AscendingOrder);
+    qhelpers::adjustColumns(ui->RzAsmTreeWidget, 0);
 }
 
 R2PluginsDialog::~R2PluginsDialog()

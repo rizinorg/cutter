@@ -19,20 +19,20 @@
      <property name="currentIndex">
       <number>4</number>
      </property>
-     <widget class="QWidget" name="RBinTab">
+     <widget class="QWidget" name="RzBinTab">
       <attribute name="title">
-       <string>RBin</string>
+       <string>RzBin</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QLabel" name="RBinLabel">
+        <widget class="QLabel" name="RzBinLabel">
          <property name="text">
-          <string>RBin plugins</string>
+          <string>RzBin plugins</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QTreeWidget" name="RBinTreeWidget">
+        <widget class="QTreeWidget" name="RzBinTreeWidget">
          <property name="sortingEnabled">
           <bool>true</bool>
          </property>
@@ -60,20 +60,20 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="RIOTab">
+     <widget class="QWidget" name="RzIOTab">
       <attribute name="title">
-       <string>RIO</string>
+       <string>RzIO</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QLabel" name="RIOLabel">
+        <widget class="QLabel" name="RzIOLabel">
          <property name="text">
-          <string>RIO plugins</string>
+          <string>RzIO plugins</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QTreeWidget" name="RIOTreeWidget">
+        <widget class="QTreeWidget" name="RzIOTreeWidget">
          <property name="sortingEnabled">
           <bool>true</bool>
          </property>
@@ -101,20 +101,20 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="RCoreTab">
+     <widget class="QWidget" name="RzCoreTab">
       <attribute name="title">
-       <string>RCore</string>
+       <string>RzCore</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="QLabel" name="RCoreLabel">
+        <widget class="QLabel" name="RzCoreLabel">
          <property name="text">
-          <string>RCore plugins</string>
+          <string>RzCore plugins</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QTreeWidget" name="RCoreTreeWidget">
+        <widget class="QTreeWidget" name="RzCoreTreeWidget">
          <property name="sortingEnabled">
           <bool>true</bool>
          </property>
@@ -132,20 +132,20 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="RAsmTab">
+     <widget class="QWidget" name="RzAsmTab">
       <attribute name="title">
-       <string>RAsm</string>
+       <string>RzAsm</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QLabel" name="RAsmLabel">
+        <widget class="QLabel" name="RzAsmLabel">
          <property name="text">
-          <string>RAsm plugins</string>
+          <string>RzAsm plugins</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QTreeWidget" name="RAsmTreeWidget">
+        <widget class="QTreeWidget" name="RzAsmTreeWidget">
          <property name="sortingEnabled">
           <bool>true</bool>
          </property>

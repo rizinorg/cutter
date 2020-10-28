@@ -12,9 +12,9 @@ Decompiler::Decompiler(const QString &id, const QString &name, QObject *parent)
 {
 }
 
-RAnnotatedCode *Decompiler::makeWarning(QString warningMessage){
+RzAnnotatedCode *Decompiler::makeWarning(QString warningMessage){
     std::string temporary = warningMessage.toStdString();
-    return r_annotated_code_new(strdup(temporary.c_str()));
+    return rz_annotated_code_new(strdup(temporary.c_str()));
 }
 
 R2DecDecompiler::R2DecDecompiler(QObject *parent)
@@ -42,7 +42,7 @@ void R2DecDecompiler::decompileAt(RVA addr)
             emit finished(Decompiler::makeWarning(tr("Failed to parse JSON from r2dec")));
             return;
         }
-        RAnnotatedCode *code = r_annotated_code_new(nullptr);
+        RzAnnotatedCode *code = rz_annotated_code_new(nullptr);
         QString codeString = "";
         for (const auto &line : json["log"].toArray()) {
             if (!line.isString()) {
@@ -57,14 +57,14 @@ void R2DecDecompiler::decompileAt(RVA addr)
             if (lineObject.isEmpty()) {
                 continue;
             }
-            RCodeAnnotation annotationi = { 0 };
+            RzCodeAnnotation annotationi = { 0 };
             annotationi.start = codeString.length();
             codeString.append(lineObject["str"].toString() + "\n");
             annotationi.end = codeString.length();
             bool ok;
-            annotationi.type = R_CODE_ANNOTATION_TYPE_OFFSET;
+            annotationi.type = RZ_CODE_ANNOTATION_TYPE_OFFSET;
             annotationi.offset.offset = lineObject["offset"].toVariant().toULongLong(&ok);
-            r_annotated_code_add_annotation(code, &annotationi);
+            rz_annotated_code_add_annotation(code, &annotationi);
         }
 
         for (const auto &line : json["errors"].toArray()) {

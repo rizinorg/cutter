@@ -75,8 +75,8 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     }
 
     // Check r2 version
-    QString r2version = r_core_version();
-    QString localVersion = "" R2_GITTAP;
+    QString r2version = rz_core_version();
+    QString localVersion = "" RZ_GITTAP;
     if (r2version != localVersion) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
@@ -99,7 +99,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 #endif
 
 #ifdef Q_OS_WIN
-    // Redefine r_sys_prefix() behaviour
+    // Redefine rz_sys_prefix() behaviour
     qputenv("R_ALT_SRC_DIR", "1");
 #endif
 
@@ -151,8 +151,8 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         appdir.cdUp(); // appdir
 
         auto sleighHome = appdir;
-        sleighHome.cd("share/radare2/plugins/r2ghidra_sleigh"); // appdir/share/radare2/plugins/r2ghidra_sleigh
-        Core()->setConfig("r2ghidra.sleighhome", sleighHome.absolutePath());
+        sleighHome.cd("share/radare2/plugins/rz_ghidra_sleigh"); // appdir/share/radare2/plugins/rz_ghidra_sleigh
+        Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
 
         auto r2decHome = appdir;
         r2decHome.cd("share/radare2/plugins/r2dec-js"); // appdir/share/radare2/plugins/r2dec-js
@@ -162,15 +162,15 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
 #ifdef Q_OS_MACOS
     {
-        auto r2prefix = QDir(QCoreApplication::applicationDirPath()); // Contents/MacOS
-        r2prefix.cdUp(); // Contents
-        r2prefix.cd("Resources/r2"); // Contents/Resources/r2
+        auto rzprefix = QDir(QCoreApplication::applicationDirPath()); // Contents/MacOS
+        rzprefix.cdUp(); // Contents
+        rzprefix.cd("Resources/r2"); // Contents/Resources/r2
 
-        auto sleighHome = r2prefix;
-        sleighHome.cd("share/radare2/plugins/r2ghidra_sleigh"); // Contents/Resources/r2/share/radare2/plugins/r2ghidra_sleigh
-        Core()->setConfig("r2ghidra.sleighhome", sleighHome.absolutePath());
+        auto sleighHome = rzprefix;
+        sleighHome.cd("share/radare2/plugins/rz_ghidra_sleigh"); // Contents/Resources/r2/share/radare2/plugins/rz_ghidra_sleigh
+        Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
 
-        auto r2decHome = r2prefix;
+        auto r2decHome = rzprefix;
         r2decHome.cd("share/radare2/plugins/r2dec-js"); // Contents/Resources/r2/share/radare2/plugins/r2dec-js
         qputenv("R2DEC_HOME", r2decHome.absolutePath().toLocal8Bit());
     }
@@ -182,8 +182,8 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 #ifdef Q_OS_WIN
     {
         auto sleighHome = QDir(QCoreApplication::applicationDirPath());
-        sleighHome.cd("lib/plugins/r2ghidra_sleigh");
-        Core()->setConfig("r2ghidra.sleighhome", sleighHome.absolutePath());
+        sleighHome.cd("lib/plugins/rz_ghidra_sleigh");
+        Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
     }
 #endif
 }

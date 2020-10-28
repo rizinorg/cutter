@@ -108,7 +108,7 @@ QVector<QDir> PluginManager::getPluginDirectories() const
     {
         auto plugdir = QDir(QCoreApplication::applicationDirPath()); // appdir/bin
         plugdir.cdUp(); // appdir
-        if (plugdir.cd("share/RadareOrg/Cutter/plugins")) { // appdir/share/RadareOrg/Cutter/plugins
+        if (plugdir.cd("share/RizinOrg/Cutter/plugins")) { // appdir/share/RizinOrg/Cutter/plugins
             result.push_back(plugdir);
         }
     }

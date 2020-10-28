@@ -2,7 +2,7 @@
 #define DECOMPILER_HIGHLIGHTER_H
 
 #include "CutterCommon.h"
-#include <r_util/r_annotated_code.h>
+#include <rz_util/rz_annotated_code.h>
 #include <QSyntaxHighlighter>
 #include <QTextDocument>
 #include <QTextCharFormat>
@@ -28,7 +28,7 @@ public:
      * 
      * @param code 
      */
-    void setAnnotations(RAnnotatedCode *code);
+    void setAnnotations(RzAnnotatedCode *code);
 protected:
     void highlightBlock(const QString &text) override;
 
@@ -36,9 +36,9 @@ protected:
 private:
     void setupTheme();
 
-    static const int HIGHLIGHT_COUNT = R_SYNTAX_HIGHLIGHT_TYPE_GLOBAL_VARIABLE + 1;
+    static const int HIGHLIGHT_COUNT = RZ_SYNTAX_HIGHLIGHT_TYPE_GLOBAL_VARIABLE + 1;
     std::array<QTextCharFormat, HIGHLIGHT_COUNT> format;
-    RAnnotatedCode *code = nullptr;
+    RzAnnotatedCode *code = nullptr;
 };
 
 #endif

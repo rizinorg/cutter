@@ -3,7 +3,7 @@
 
 #include "CutterCommon.h"
 #include "R2Task.h"
-#include <r_util/r_annotated_code.h>
+#include <rz_util/rz_annotated_code.h>
 
 #include <QString>
 #include <QObject>
@@ -23,7 +23,7 @@ public:
     Decompiler(const QString &id, const QString &name, QObject *parent = nullptr);
     virtual ~Decompiler() = default;
 
-    static RAnnotatedCode *makeWarning(QString warningMessage);
+    static RzAnnotatedCode *makeWarning(QString warningMessage);
 
     QString getId() const       { return id; }
     QString getName() const     { return name; }
@@ -34,7 +34,7 @@ public:
     virtual void cancel() {}
 
 signals:
-    void finished(RAnnotatedCode *codeDecompiled);
+    void finished(RzAnnotatedCode *codeDecompiled);
 };
 
 class R2DecDecompiler: public Decompiler
