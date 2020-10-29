@@ -35,9 +35,9 @@ Show Decompiler
 
 **Steps:** Windows -> Decompiler  
 
-Show Graph
+Graph Overview
 ----------------------------------------
-**Description:** One of the main views of Cutter allows you to navigate inside functions in a graph mode. This view displays the flow of a functions where each node on the graph represents a basic block in the function. The edges coming-to and getting-out of the blocks represents the control flow.    
+**Description:** One of the main views of Cutter allows you to navigate inside functions in a graph mode. Graph overview will only display a zoomed-out form of the graph, and will help the user understand the flow of a function as a whole.  
 
 **Steps:** Windows -> Graph Overview  
 
@@ -52,6 +52,8 @@ Show Strings
 **Description:** Show the Strings view that will display all the printable strings in the program. A combo-box will allow the user to choose whether they want to view strings from the entire binary or from specific segments and sections.    
 
 **Steps:** Windows -> Strings  
+
+**Shortcut:** :kbd:`Shift` + :kbd:`F12`
 
 Show Types
 ----------------------------------------
@@ -73,7 +75,7 @@ Add a new instance of the Disassembly Widget
 
 Add a new instance of the Graph Widget
 ----------------------------------------
-**Description:** Create a new instance of the Graph widget in order to view one or multiple locations at the same time. 
+**Description:** One of the main views of Cutter allows you to navigate inside functions in a graph mode. This view displays the flow of a function where each node on the graph represents a basic block in the function. The edges coming-to and getting-out of the blocks represent the control flow. The menu item will create a new instance of the Graph widget in order to view one or multiple locations at the same time. 
 
 **Steps:** Windows -> Add Graph  
 
@@ -82,6 +84,8 @@ Add a new instance of the Hexdump Widget
 **Description:** Create a new instance of the Hexdump widget in order to view one or multiple locations at the same time.   
 
 **Steps:** Windows -> Add Hexdump  
+
+**Shortcut:** :kbd:`Shift` + :kbd:`G`
  
 
 Show Comments
@@ -94,4 +98,6 @@ Show Console
 ----------------------------------------
 **Description:** Open the integrated radare2 console. This will allow you to execute radare2 commands straight from Cutter.   
 
-**Steps:** Windows -> Console
+**Steps:** Windows -> Console  
+
+**Shortcut:** :kbd:`:` or :kbd:`Ctrl` + :kbd:`\``
