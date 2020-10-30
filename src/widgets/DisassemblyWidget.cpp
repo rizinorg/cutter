@@ -12,6 +12,7 @@
 #include <QJsonObject>
 #include <QVBoxLayout>
 #include <QRegularExpression>
+#include <QToolTip>
 #include <QTextBlockUserData>
 #include <QPainter>
 #include <QPainterPath>
@@ -660,6 +661,49 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 
         const QTextCursor& cursor = mDisasTextEdit->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
         jumpToOffsetUnderCursor(cursor);
+
+        return true;
+    } else if (event->type() == QEvent::ToolTip
+              &&  obj == mDisasTextEdit->viewport()) {
+
+        QHelpEvent * helpEvent = static_cast<QHelpEvent*>(event);
+
+        auto cursorForWord = mDisasTextEdit->cursorForPosition(helpEvent->pos());
+        cursorForWord.select(QTextCursor::WordUnderCursor);
+
+        RVA offsetFrom, offsetTo = readDisassemblyOffset( cursorForWord );
+        bool offsetsDiffer = false; //Do these 2 values differ?
+
+        QList<XrefDescription> refs = Core()->getXRefs( offsetTo, false, false);
+
+        if (refs.length()) {
+            if (refs.length() > 1) {
+                qWarning() << tr("More than one (%1) references here. Weird behaviour expected.")
+                    .arg(refs.length());
+            }
+            offsetTo = refs.at(0).to;
+            offsetFrom = refs.at(0).from;
+
+            if( offsetTo != offsetFrom ){
+                offsetsDiffer = true;
+            }
+        }
+
+        const QFont &fnt = Config()->getFont();
+        QFontMetrics fm{ fnt };
+
+        QString toolTipContent =
+            QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\">")
+               .arg(fnt.family()).arg(qMax(6, fnt.pointSize() - 1));
+
+        QStringList disasmPreview = Core()->getDisassemblyPreview( offsetTo, 10);
+
+        if (!disasmPreview.isEmpty() && offsetTo && offsetsDiffer){
+            toolTipContent +=
+                tr("<div style=\"margin-bottom: 10px;\"><strong>Disassembly Preview</strong>:<br>%1<div>").arg(disasmPreview.join("<br>"));
+
+            QToolTip::showText( helpEvent->globalPos(), toolTipContent, this, QRect(), 3500);
+        }
 
         return true;
     }
