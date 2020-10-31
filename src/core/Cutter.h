@@ -417,7 +417,8 @@ public:
     void stepOverDebug();
     void stepOutDebug();
     void stepBackDebug();
-    void addTraceSession();
+    void startTraceSession();
+    void stopTraceSession();
 
     void addBreakpoint(const BreakpointDescription &config);
     void updateBreakpoint(int index, const BreakpointDescription &config);

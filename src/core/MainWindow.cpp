@@ -303,7 +303,7 @@ void MainWindow::initToolBar()
     ui->menuDebug->addAction(debugActions->actionContinueUntilSyscall);
     ui->menuDebug->addAction(debugActions->actionContinueBack);
     ui->menuDebug->addSeparator();
-    ui->menuDebug->addAction(debugActions->actionAddTraceSession);
+    ui->menuDebug->addAction(debugActions->actionTrace);
 
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer4 = new QWidget();
