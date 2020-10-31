@@ -55,6 +55,7 @@ private:
      */
     QList<QAction *> toggleActions;
     QList<QAction *> toggleConnectionActions;
+    QList<QAction *> reverseActions;
     QList<QAction *> allActions;
     QToolButton *continueUntilButton;
     RemoteDebugDialog *remoteDialog = nullptr;

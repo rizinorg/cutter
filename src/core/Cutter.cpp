@@ -2167,6 +2167,27 @@ void CutterCore::setDebugPlugin(QString plugin)
     setConfig("dbg.backend", plugin);
 }
 
+bool CutterCore::isTraceSessionInProgress() {
+    CORE_LOCK();
+    if (!currentlyDebugging) {
+        return false;
+    }
+
+    if (currentlyEmulating) {
+        if (core->anal->esil->trace) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        if (core->dbg->session) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
 void CutterCore::startTraceSession()
 {
     if (!currentlyDebugging) {
