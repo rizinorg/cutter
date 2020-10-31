@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   width="500px"
+   height="500px"
+   viewBox="0 0 500 500"
+   enable-background="new 0 0 500 500"
+   xml:space="preserve"
+   sodipodi:docname="stop_trace.svg"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"><metadata
+   id="metadata13"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+   id="defs11" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1017"
+   id="namedview9"
+   showgrid="true"
+   inkscape:zoom="0.472"
+   inkscape:cx="250"
+   inkscape:cy="250"
+   inkscape:window-x="-8"
+   inkscape:window-y="-8"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Layer_1"><inkscape:grid
+     type="xygrid"
+     id="grid17" /></sodipodi:namedview>
+
+<path
+   opacity="0.75"
+   fill="#b15858"
+   enable-background="new    "
+   d="M250,70.443c-99.165,0-179.557,80.392-179.557,179.557  S150.835,429.557,250,429.557S429.557,349.165,429.557,250S349.165,70.443,250,70.443z M250,399.837  c-83.303,0-150.82-67.518-150.82-150.82S166.697,98.196,250,98.196s150.82,67.528,150.82,150.82S333.303,399.837,250,399.837z"
+   id="path6" />
+<rect
+   id="rect15"
+   width="179.15254"
+   height="180.00002"
+   x="160.84744"
+   y="160"
+   style="fill:#ff3d3d;fill-opacity:0.74901961;stroke-width:0.87863451" /></svg>

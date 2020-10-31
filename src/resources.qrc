@@ -42,7 +42,8 @@
         <file>img/icons/step_out.svg</file>
         <file>img/icons/light/step_out.svg</file>
         <file>img/icons/reverse_step.svg</file>
-        <file>img/icons/record_trace.svg</file>
+        <file>img/icons/start_trace.svg</file>
+        <file>img/icons/stop_trace.svg</file>
         <file>img/icons/cloud.svg</file>
         <file>img/icons/down.svg</file>
         <file>img/icons/down_white.svg</file>
