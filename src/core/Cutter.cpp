@@ -1868,7 +1868,7 @@ void CutterCore::stopDebug()
     emit debugTaskStateChanged();
 
     if (currentlyEmulating) {
-        cmdEsil("aeim-; aei-; wcr; .ar-");
+        cmdEsil("aeim-; aei-; wcr; .ar-; aets-");
         currentlyEmulating = false;
     } else if (currentlyAttachedToPID != -1) {
         // Use cmd because cmdRaw would not work with command concatenation
