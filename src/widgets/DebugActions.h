@@ -33,7 +33,7 @@ public:
     QAction *actionStepBack;
     QAction *actionStop;
     QAction *actionAllContinues;
-    QAction *actionAddTraceSession;
+    QAction *actionTrace;
 
     // Continue/suspend and start/restart interchange during runtime
     QIcon continueIcon;

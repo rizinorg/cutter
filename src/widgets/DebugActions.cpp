@@ -26,7 +26,8 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QIcon startRemoteIcon = QIcon(":/img/icons/play_light_remote.svg");
     QIcon continueBackIcon = QIcon(":/img/icons/reverse_continue.svg");
     QIcon stepBackIcon = QIcon(":/img/icons/reverse_step.svg");
-    QIcon addTraceSessionIcon = QIcon(":/img/icons/record_trace.svg");
+    QIcon startTraceIcon = QIcon(":/img/icons/record_trace.svg");
+    QIcon stopTraceIcon = QIcon(":/img/icons/record_trace.svg");
     stopIcon = QIcon(":/img/icons/media-stop_light.svg");
     restartIcon = QIcon(":/img/icons/spin_light.svg");
     detachIcon = QIcon(":/img/icons/detach_debugger.svg");
@@ -49,7 +50,8 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QString stepOverLabel = tr("Step over");
     QString stepOutLabel = tr("Step out");
     QString stepBackLabel = tr("Step backwards");
-    QString addTraceSessionLabel = tr("Add trace session");
+    QString startTraceLabel = tr("Start trace session");
+    QString stopTraceLabel = tr("Stop trace session");
     suspendLabel = tr("Suspend the process");
     continueLabel = tr("Continue");
     restartDebugLabel = tr("Restart program");
@@ -77,14 +79,13 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     actionStepOut->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F8));
     actionStepBack = new QAction(stepBackIcon, stepBackLabel, this);
     actionStepBack->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F7));
-    actionAddTraceSession = new QAction(addTraceSessionIcon, addTraceSessionLabel, this);
+    actionTrace = new QAction(startTraceIcon, startTraceLabel, this);
 
     QToolButton *startButton = new QToolButton;
     startButton->setPopupMode(QToolButton::MenuButtonPopup);
     connect(startButton, &QToolButton::triggered, startButton, &QToolButton::setDefaultAction);
     QMenu *startMenu = new QMenu(startButton);
 
-    // only emulation is currently allowed
     startMenu->addAction(actionStart);
     startMenu->addAction(actionStartEmul);
     startMenu->addAction(actionAttach);
@@ -113,11 +114,11 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     toolBar->addAction(actionStepOut);
     toolBar->addAction(actionStepBack);
     toolBar->addAction(actionContinueBack);
-    toolBar->addAction(actionAddTraceSession);
+    toolBar->addAction(actionTrace);
 
     allActions = {actionStop, actionAllContinues, actionContinue, actionContinueUntilCall,
         actionContinueUntilMain, actionContinueUntilSyscall, actionStep, actionStepOut,
-        actionStepOver, actionContinueBack, actionStepBack, actionAddTraceSession};
+        actionStepOver, actionContinueBack, actionStepBack, actionTrace};
 
     // Hide all actions
     setAllActionsVisible(false);
@@ -126,7 +127,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     // necessary to avoid staying stuck
     toggleActions = {actionStepOver, actionStep, actionStepOut, actionContinueUntilMain,
         actionContinueUntilCall, actionContinueUntilSyscall, actionStepBack,
-        actionContinueBack, actionAddTraceSession};
+        actionContinueBack, actionTrace};
     toggleConnectionActions = {actionAttach, actionStartRemote};
 
     connect(Core(), &CutterCore::debugProcessFinished, this, [ = ](int pid) {
@@ -171,7 +172,10 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
         continueUntilButton->setDefaultAction(actionContinueUntilMain);
         setAllActionsVisible(false);
     });
+
     connect(actionStep, &QAction::triggered, Core(), &CutterCore::stepDebug);
+    connect(actionStepBack, &QAction::triggered, Core(), &CutterCore::stepBackDebug);
+
     connect(actionStart, &QAction::triggered, this, &DebugActions::startDebug);
 
     connect(actionAttach, &QAction::triggered, this, &DebugActions::attachProcessDialog);
@@ -195,12 +199,26 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     connect(actionContinueUntilMain, &QAction::triggered, this, &DebugActions::continueUntilMain);
     connect(actionContinueUntilCall, &QAction::triggered, Core(), &CutterCore::continueUntilCall);
     connect(actionContinueUntilSyscall, &QAction::triggered, Core(), &CutterCore::continueUntilSyscall);
-    connect(actionContinue, &QAction::triggered, Core(), [ = ]() {
+    connect(actionContinueBack, &QAction::triggered, Core(), &CutterCore::continueBackDebug);
+    connect(actionContinue, &QAction::triggered, Core(), [=]() {
         // Switch between continue and suspend depending on the debugger's state
         if (Core()->isDebugTaskInProgress()) {
             Core()->suspendDebug();
         } else {
             Core()->continueDebug();
+        }
+    });
+
+    connect(actionTrace, &QAction::triggered, Core(), [=]() {
+        // Check if a debug session was created to switch between start and stop
+        if (!Core()->core()->dbg->session) {
+            Core()->startTraceSession();
+            actionTrace->setText(stopTraceLabel);
+            actionTrace->setIcon(stopTraceIcon);
+        } else {
+            Core()->stopTraceSession();
+            actionTrace->setText(startTraceLabel);
+            actionTrace->setIcon(startTraceIcon);
         }
     });
 

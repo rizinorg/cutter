@@ -2135,7 +2135,7 @@ void CutterCore::setDebugPlugin(QString plugin)
     setConfig("dbg.backend", plugin);
 }
 
-void CutterCore::addTraceSession()
+void CutterCore::startTraceSession()
 {
     if (!currentlyDebugging) {
         return;
@@ -2165,6 +2165,41 @@ void CutterCore::addTraceSession()
     debugTaskDialog->setBreakOnClose(true);
     debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
     debugTaskDialog->setDesc(tr("Creating debug tracepoint..."));
+    debugTaskDialog->show();
+
+    debugTask->startTask();
+}
+
+void CutterCore::stopTraceSession()
+{
+    if (!currentlyDebugging) {
+        return;
+    }
+
+    if (currentlyEmulating) {
+        if (!asyncCmdEsil("aets-", debugTask)) {
+            return;
+        }
+    } else {
+        if (!asyncCmd("dts-", debugTask)) {
+            return;
+        }
+    }
+    emit debugTaskStateChanged();
+
+    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+        if (debugTaskDialog) {
+            delete debugTaskDialog;
+        }
+        debugTask.clear();
+
+        emit debugTaskStateChanged();
+    });
+
+    debugTaskDialog = new R2TaskDialog(debugTask);
+    debugTaskDialog->setBreakOnClose(true);
+    debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
+    debugTaskDialog->setDesc(tr("Stopping debug session..."));
     debugTaskDialog->show();
 
     debugTask->startTask();
