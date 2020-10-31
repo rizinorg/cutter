@@ -123,12 +123,12 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     // Hide all actions
     setAllActionsVisible(false);
 
-    // Toggle all buttons except restart, suspend(=continue) and stop since those are
-    // necessary to avoid staying stuck
+    // Toggle all buttons except reverse step/continue which are handled separately and
+    // restart, suspend(=continue) and stop since those are necessary to avoid freezing
     toggleActions = {actionStepOver, actionStep, actionStepOut, actionContinueUntilMain,
-        actionContinueUntilCall, actionContinueUntilSyscall, actionStepBack,
-        actionContinueBack, actionTrace};
+        actionContinueUntilCall, actionContinueUntilSyscall, actionTrace};
     toggleConnectionActions = {actionAttach, actionStartRemote};
+    reverseActions = {actionStepBack, actionContinueBack};
 
     connect(Core(), &CutterCore::debugProcessFinished, this, [ = ](int pid) {
         QMessageBox msgBox;
@@ -149,6 +149,12 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
             } else {
                 actionContinue->setText(continueLabel);
                 actionContinue->setIcon(continueIcon);
+            }
+            // Reverse actions should only be toggled if we are tracing
+            if (Core()->isTraceSessionInProgress()) {
+                for (QAction *a : reverseActions) {
+                    a->setDisabled(disableToolbar);
+                }
             }
         } else {
             for (QAction *a : toggleConnectionActions) {
@@ -193,6 +199,10 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
         actionStartEmul->setText(restartEmulLabel);
         actionStartEmul->setIcon(restartIcon);
         actionStop->setText(stopEmulLabel);
+        // Reverse debug actions are disabled until we start tracing
+        for (QAction *a : reverseActions) {
+            a->setDisabled(true);
+        }
     });
     connect(actionStepOver, &QAction::triggered, Core(), &CutterCore::stepOverDebug);
     connect(actionStepOut, &QAction::triggered, Core(), &CutterCore::stepOutDebug);
@@ -211,7 +221,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
 
     connect(actionTrace, &QAction::triggered, Core(), [=]() {
         // Check if a debug session was created to switch between start and stop
-        if (!Core()->core()->dbg->session) {
+        if (!Core()->isTraceSessionInProgress()) {
             Core()->startTraceSession();
             actionTrace->setText(stopTraceLabel);
             actionTrace->setIcon(stopTraceIcon);
@@ -378,6 +388,11 @@ void DebugActions::startDebug()
     actionStart->setText(restartDebugLabel);
     actionStart->setIcon(restartIcon);
     setButtonVisibleIfMainExists();
+
+    // Reverse debug actions are disabled until we start tracing
+    for (QAction *a : reverseActions) {
+        a->setDisabled(true);
+    }
 
     Core()->startDebug();
 }

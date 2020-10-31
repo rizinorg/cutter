@@ -402,6 +402,8 @@ public:
     void stepOverDebug();
     void stepOutDebug();
     void stepBackDebug();
+
+    bool isTraceSessionInProgress();
     void startTraceSession();
     void stopTraceSession();
 
