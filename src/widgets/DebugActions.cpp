@@ -26,8 +26,8 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QIcon startRemoteIcon = QIcon(":/img/icons/play_light_remote.svg");
     QIcon continueBackIcon = QIcon(":/img/icons/reverse_continue.svg");
     QIcon stepBackIcon = QIcon(":/img/icons/reverse_step.svg");
-    QIcon startTraceIcon = QIcon(":/img/icons/record_trace.svg");
-    QIcon stopTraceIcon = QIcon(":/img/icons/record_trace.svg");
+    QIcon startTraceIcon = QIcon(":/img/icons/start_trace.svg");
+    QIcon stopTraceIcon = QIcon(":/img/icons/stop_trace.svg");
     stopIcon = QIcon(":/img/icons/media-stop_light.svg");
     restartIcon = QIcon(":/img/icons/spin_light.svg");
     detachIcon = QIcon(":/img/icons/detach_debugger.svg");
