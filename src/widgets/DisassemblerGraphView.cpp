@@ -41,16 +41,16 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     highlight_token = nullptr;
     auto *layout = new QVBoxLayout(this);
     // Signals that require a refresh all
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshView()));
+    connect(Core(), &CutterCore::refreshAll, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::commentsChanged, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::functionRenamed, this, &DisassemblerGraphView::refreshView);
-    connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshView()));
-    connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshView()));
-    connect(Core(), SIGNAL(instructionChanged(RVA)), this, SLOT(refreshView()));
+    connect(Core(), &CutterCore::flagsChanged, this, &DisassemblerGraphView::refreshView);
+    connect(Core(), &CutterCore::varsChanged, this, &DisassemblerGraphView::refreshView);
+    connect(Core(), &CutterCore::instructionChanged, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::breakpointsChanged, this, &DisassemblerGraphView::refreshView);
-    connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshView()));
-    connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshView()));
-    connect(Core(), SIGNAL(refreshCodeViews()), this, SLOT(refreshView()));
+    connect(Core(), &CutterCore::functionsChanged, this, &DisassemblerGraphView::refreshView);
+    connect(Core(), &CutterCore::asmOptionsChanged, this, &DisassemblerGraphView::refreshView);
+    connect(Core(), &CutterCore::refreshCodeViews, this, &DisassemblerGraphView::refreshView);
 
     connectSeekChanged(false);
 
