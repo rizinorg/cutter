@@ -104,9 +104,19 @@ bool GraphView::event(QEvent *event)
         if (helpEvent(static_cast<QHelpEvent *>(event))) {
             return true;
         }
+    } else if (event->type() == QEvent::Gesture) {
+        if (gestureEvent(static_cast<QGestureEvent *>(event))) {
+            return true;
+        }
     }
 
     return QAbstractScrollArea::event(event);
+}
+
+bool GraphView::gestureEvent(QGestureEvent *event)
+{
+    Q_UNUSED(event)
+    return false;
 }
 
 void GraphView::contextMenuEvent(QContextMenuEvent *event)

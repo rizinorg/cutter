@@ -80,6 +80,8 @@ CutterGraphView::CutterGraphView(QWidget *parent)
 
     }
     layoutMenu->addActions(layoutGroup->actions());
+
+    grabGesture(Qt::PinchGesture);
 }
 
 QPoint CutterGraphView::getTextOffset(int line) const
@@ -236,6 +238,30 @@ void CutterGraphView::refreshView()
     setLayoutConfig(getLayoutConfig());
 }
 
+bool CutterGraphView::gestureEvent(QGestureEvent *event)
+{
+    if (!event) {
+        return false;
+    }
+
+    if (auto gesture =
+                static_cast<QPinchGesture *>(event->gesture(Qt::PinchGesture))) {
+        auto changeFlags = gesture->changeFlags();
+
+        if (changeFlags & QPinchGesture::ScaleFactorChanged) {
+            auto cursorPos = gesture->centerPoint();
+            cursorPos.rx() /= size().width();
+            cursorPos.ry() /= size().height();
+
+            setZoom(cursorPos, getViewScale() * gesture->scaleFactor());
+        }
+
+        event->accept(gesture);
+        return true;
+    }
+
+    return false;
+}
 
 void CutterGraphView::wheelEvent(QWheelEvent *event)
 {

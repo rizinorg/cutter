@@ -7,6 +7,8 @@
 #include <QShortcut>
 #include <QLabel>
 
+#include <QGestureEvent>
+
 #include "widgets/GraphView.h"
 #include "common/CachedFontMetrics.h"
 
@@ -32,7 +34,8 @@ public:
      * @param graphCommand r2 graph printing command without type, not required for direct image export
      * @param address object address for commands like agf
      */
-    void exportGraph(QString filePath, GraphExportType type, QString graphCommand = "", RVA address = RVA_INVALID);
+    void exportGraph(QString filePath, GraphExportType type, QString graphCommand = "",
+                     RVA address = RVA_INVALID);
     /**
      * @brief Export image using r2 ag*w command and graphviz.
      * Requires graphviz dot executable in the path.
@@ -86,6 +89,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
+    bool gestureEvent(QGestureEvent *event) override;
 
     /**
      * @brief Save the the currently viewed or displayed block.
