@@ -41,7 +41,7 @@ void ColorOptionDelegate::paint(QPainter *painter,
                                 const QStyleOptionViewItem &option,
                                 const QModelIndex &index) const
 {
-    int margin = this->margin * qhelpers::devicePixelRatio(painter->device());
+    int margin = this->margin;
     painter->save();
     painter->setFont(option.font);
     painter->setRenderHint(QPainter::Antialiasing);
@@ -140,7 +140,7 @@ void ColorOptionDelegate::paint(QPainter *painter,
     // Create chess-like pattern of black and white squares
     // and fill background of roundedColorRect with it
     if (currCO.color.alpha() < 255) {
-        const int c1 = static_cast<int>(8 * qhelpers::devicePixelRatio(painter->device()));
+        const int c1 = static_cast<int>(8);
         const int c2 = c1 / 2;
         QPixmap p(c1, c1);
         QPainter paint(&p);
@@ -167,7 +167,7 @@ void ColorOptionDelegate::paint(QPainter *painter,
 
 QSize ColorOptionDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    qreal margin = this->margin * qhelpers::devicePixelRatio(option.widget);
+    qreal margin = this->margin;
     qreal fontHeight = option.fontMetrics.height();
     qreal h = QPen().width();
     h += fontHeight; // option name
