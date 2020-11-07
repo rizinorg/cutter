@@ -47,7 +47,12 @@ void RichTextPainter::paintRichText(QPainter *painter, T x, T y, T w, T h, T xin
             painter->setPen(pen);
             break;
         }
-        painter->drawText(typename Metrics<T>::Rect(x + xinc, y, w - xinc, h), Qt::TextBypassShaping, curRichText.text);
+        int flags = 0;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        flags = Qt::TextBypassShaping;
+#endif
+
+        painter->drawText(typename Metrics<T>::Rect(x + xinc, y, w - xinc, h), flags, curRichText.text);
         if (curRichText.highlight && curRichText.highlightColor.alpha()) {
             highlightPen.setColor(curRichText.highlightColor);
             highlightPen.setWidth(curRichText.highlightWidth);
