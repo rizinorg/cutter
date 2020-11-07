@@ -16,6 +16,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QInputDialog>
+#include <QActionGroup>
 
 namespace {
 

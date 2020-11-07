@@ -165,8 +165,11 @@ static void cutterREventCallback(REvent *, int type, void *user, void *data)
     core->handleREvent(type, data);
 }
 
-CutterCore::CutterCore(QObject *parent) :
-    QObject(parent), coreMutex(QMutex::Recursive)
+CutterCore::CutterCore(QObject *parent):
+    QObject(parent)
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+    , coreMutex(QMutex::Recursive)
+#endif
 {
 }
 

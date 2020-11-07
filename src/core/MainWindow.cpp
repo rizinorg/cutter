@@ -74,6 +74,7 @@
 #include "widgets/CallGraph.h"
 
 // Qt Headers
+#include <QActionGroup>
 #include <QApplication>
 #include <QComboBox>
 #include <QCompleter>

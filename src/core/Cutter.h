@@ -715,7 +715,11 @@ private:
      * NEVER use this directly! Always use the CORE_LOCK(); macro and access it like core->...
      */
     RCore *core_ = nullptr;
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
     QMutex coreMutex;
+#else
+    QRecursiveMutex coreMutex;
+#endif
     int coreLockDepth = 0;
     void *coreBed = nullptr;
 

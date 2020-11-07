@@ -124,7 +124,7 @@
              <item>
               <widget class="QComboBox" name="parseEndianComboBox">
                <property name="sizeAdjustPolicy">
-                <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+                <enum>QComboBox::AdjustToContents</enum>
                </property>
                <item>
                 <property name="text">
@@ -201,7 +201,7 @@
                  </sizepolicy>
                 </property>
                 <property name="sizeAdjustPolicy">
-                 <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+                 <enum>QComboBox::AdjustToContents</enum>
                 </property>
                 <property name="frame">
                  <bool>false</bool>
@@ -224,7 +224,7 @@
               <item>
                <widget class="QComboBox" name="parseBitsComboBox">
                 <property name="sizeAdjustPolicy">
-                 <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+                 <enum>QComboBox::AdjustToContents</enum>
                 </property>
                 <item>
                  <property name="text">
@@ -260,14 +260,14 @@
                <pointsize>13</pointsize>
               </font>
              </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
              </property>
              <property name="lineWidth">
               <number>0</number>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
              <property name="plainText">
               <string/>

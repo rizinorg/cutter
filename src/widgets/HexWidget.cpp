@@ -20,6 +20,7 @@
 #include <QJsonArray>
 #include <QRegularExpression>
 #include <QToolTip>
+#include <QActionGroup>
 
 static constexpr uint64_t MAX_COPY_SIZE = 128 * 1024 * 1024;
 static constexpr int MAX_LINE_WIDTH_PRESET = 32;
