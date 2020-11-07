@@ -122,7 +122,7 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.ucase",          false },
     { "asm.bb.line",        false },
     { "asm.capitalize",     false },
-    { "asm.var.sub",        true },
+    { "asm.sub.var",        true },
     { "asm.sub.varonly",    true },
     { "asm.tabs",           8 },
     { "asm.tabs.off",       5 },

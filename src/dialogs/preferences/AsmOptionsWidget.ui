@@ -472,7 +472,7 @@
              <item>
               <widget class="QCheckBox" name="varsubCheckBox">
                <property name="text">
-                <string>Substitute variables (asm.var.sub)</string>
+                <string>Substitute variables (asm.sub.var)</string>
                </property>
               </widget>
              </item>
