@@ -32,17 +32,14 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
         actionCopy(this),
         actionCopyAddr(this),
         actionAddComment(this),
-        actionAddFlag(this),
         actionAnalyzeFunction(this),
         actionEditFunction(this),
         actionRename(this),
-        actionRenameUsedHere(this),
         actionSetFunctionVarTypes(this),
         actionXRefs(this),
         actionXRefsForVariables(this),
         actionDisplayOptions(this),
         actionDeleteComment(this),
-        actionDeleteFlag(this),
         actionDeleteFunction(this),
         actionLinkType(this),
         actionSetBaseBinary(this),
@@ -87,31 +84,20 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
                SLOT(on_actionAddComment_triggered()), getCommentSequence());
     addAction(&actionAddComment);
 
-    initAction(&actionAddFlag, tr("Add Flag"),
-               SLOT(on_actionAddFlag_triggered()), getAddFlagSequence());
-    addAction(&actionAddFlag);
-
-    initAction(&actionRename, tr("Rename"),
+    initAction(&actionRename, tr("Rename or add flag"),
                SLOT(on_actionRename_triggered()), getRenameSequence());
     addAction(&actionRename);
-
-    initAction(&actionEditFunction, tr("Edit function"),
-               SLOT(on_actionEditFunction_triggered()), getEditFunctionSequence());
-    addAction(&actionEditFunction);
-
-    initAction(&actionRenameUsedHere, tr("Rename Flag/Fcn/Var Used Here"),
-               SLOT(on_actionRenameUsedHere_triggered()), getRenameUsedHereSequence());
-    addAction(&actionRenameUsedHere);
 
     initAction(&actionSetFunctionVarTypes, tr("Re-type Local Variables"),
                SLOT(on_actionSetFunctionVarTypes_triggered()), getRetypeSequence());
     addAction(&actionSetFunctionVarTypes);
 
+    initAction(&actionEditFunction, tr("Edit function"),
+               SLOT(on_actionEditFunction_triggered()), getEditFunctionSequence());
+    addAction(&actionEditFunction);
+
     initAction(&actionDeleteComment, tr("Delete comment"), SLOT(on_actionDeleteComment_triggered()));
     addAction(&actionDeleteComment);
-
-    initAction(&actionDeleteFlag, tr("Delete flag"), SLOT(on_actionDeleteFlag_triggered()));
-    addAction(&actionDeleteFlag);
 
     initAction(&actionDeleteFunction, tr("Undefine function"),
                SLOT(on_actionDeleteFunction_triggered()), getUndefineFunctionSequence());
@@ -361,44 +347,9 @@ QVector<DisassemblyContextMenu::ThingUsedHere> DisassemblyContextMenu::getThingU
     return result;
 }
 
-void DisassemblyContextMenu::updateTargetMenuActions(const QVector<ThingUsedHere> &targets)
-{
-    for (auto action : showTargetMenuActions) {
-        removeAction(action);
-        auto menu = action->menu();
-        if (menu) {
-            menu->deleteLater();
-        }
-        action->deleteLater();
-    }
-    showTargetMenuActions.clear();
-    for (auto &target : targets) {
-        QString name;
-        if (target.name.isEmpty()) {
-            name = tr("%1 (used here)").arg(RAddressString(target.offset));
-        } else {
-            name = tr("%1 (%2)").arg(target.name, RAddressString(target.offset));
-        }
-        auto action = new QAction(name, this);
-        showTargetMenuActions.append(action);
-        auto menu = mainWindow->createShowInMenu(this, target.offset);
-        action->setMenu(menu);
-        QAction *copyAddress = new QAction(tr("Copy address"), menu);
-        RVA offset = target.offset;
-        connect(copyAddress, &QAction::triggered, copyAddress, [offset]() {
-            QClipboard *clipboard = QApplication::clipboard();
-            clipboard->setText(RAddressString(offset));
-        });
-        menu->addSeparator();
-        menu->addAction(copyAddress);
-    }
-    insertActions(copySeparator, showTargetMenuActions);
-}
-
 void DisassemblyContextMenu::setOffset(RVA offset)
 {
     this->offset = offset;
-
     this->actionSetFunctionVarTypes.setVisible(true);
 }
 
@@ -483,36 +434,80 @@ void DisassemblyContextMenu::aboutToShowSlot()
     actionCopy.setVisible(canCopy);
     copySeparator->setVisible(canCopy);
 
-
+    // Handle renaming of variable, function, flag, ...
+    // We must take into account cursor location to choose between current address and pointed value
+    // i.e. `0x000040f3  lea rdi, [0x000199b1]` -> does the user want to add a flag at 0x40f3 or at 0x199b1?
+    // and for that we will rely on |curHighlightedWord| which is the currently selected word
     RCore *core = Core()->core();
-    RAnalFunction *fcn = Core()->functionAt(offset);
-    RAnalFunction *in_fcn = Core()->functionIn(offset);
-    RFlagItem *f = r_flag_get_i (core->flags, offset);
-
-    actionDeleteFlag.setVisible(f ? true : false);
-    actionDeleteFunction.setVisible(fcn ? true : false);
-
-    if (fcn) {
-        actionAnalyzeFunction.setVisible(false);
-        actionRename.setVisible(true);
-        actionRename.setText(tr("Rename function \"%1\"").arg(fcn->name));
-    } else if (f) {
-        QString name;
-
-        // Check if Realname is enabled. If yes, show it instead of the full flag-name.
-        if (Config()->getConfigBool("asm.flags.real") && f->realname) {
-            name = f->realname;
-        } else {
-            name = f->name;
+    // Now, we'll try to check if backend has any reference to our highlighted word on current line
+    auto thingsUsedHere = getThingUsedHere(offset);
+    ThingUsedHere *tuh = nullptr;
+    ThingUsedHere defaultTuh = {};
+    ut64 selection = Core()->num(curHighlightedWord);
+    qDebug() << " loop -----";
+    for (auto& thing : thingsUsedHere) {
+        qDebug() << &thing << " " << thing.offset << " " << thing.name;
+        if (thing.offset == selection || thing.name == curHighlightedWord) {
+            // It's a match!
+            tuh = &thing;
+            break;
         }
-
-        actionRename.setVisible(true);
-        actionRename.setText(tr("Rename flag \"%1\"").arg(name));
-    } else {
-        actionRename.setVisible(false);
     }
-
+    if (!tuh) {
+        // Nothing was found, we will fallback on current offset
+        RAnalFunction *fcn = Core()->functionAt(offset);
+        RFlagItem *flag = r_flag_get_i(core->flags, offset);
+        if (fcn != nullptr) {
+            defaultTuh.type = ThingUsedHere::Type::Function;
+            defaultTuh.name = fcn->name;
+        } else if (flag != nullptr) {
+            defaultTuh.type = ThingUsedHere::Type::Flag;
+            if (Config()->getConfigBool("asm.flags.real") && flag->realname) {
+                defaultTuh.name = flag->realname;
+            } else {
+                defaultTuh.name = flag->name;
+            }
+        } else {
+            defaultTuh.type = ThingUsedHere::Type::Address;
+        }
+        tuh = &defaultTuh;
+    }
+    qDebug() << "Type: " << (int) tuh->type;
+    if (tuh->type == ThingUsedHere::Type::Address) {
+        RFlagItem *flagUsedHere = r_flag_get_i(core->flags, tuh->offset);
+        if (flagUsedHere) {
+            doRenameAction = RENAME_FLAG;
+            doRenameInfo.name = RAddressString(tuh->offset);
+            doRenameInfo.addr = tuh->offset;
+            actionRename.setText(tr("Rename flag %1").arg(doRenameInfo.name));
+        } else {
+            doRenameAction = RENAME_ADD_FLAG;
+            doRenameInfo.name = RAddressString(tuh->offset);
+            doRenameInfo.addr = tuh->offset;
+            actionRename.setText(tr("Add flag at %1 (used here)").arg(doRenameInfo.name));
+        }
+    } else if (tuh->type == ThingUsedHere::Type::Function) {
+        doRenameAction = RENAME_FUNCTION;
+        doRenameInfo.name = tuh->name;
+        doRenameInfo.addr = tuh->offset;
+        actionRename.setText(tr("Rename \"%1\"").arg(doRenameInfo.name));
+    } else if (tuh->type == ThingUsedHere::Type::Var) {
+        // TODO
+        doRenameAction = RENAME_DO_NOTHING;
+        qWarning() << "NOT HANDLED";
+    } else if (tuh->type == ThingUsedHere::Type::Flag) {
+        // It's something else, but what?
+        doRenameInfo.name = tuh->name;
+        doRenameInfo.addr = tuh->offset;
+        actionRename.setText(tr("Rename \"%1\" (used here)").arg(doRenameInfo.name));
+    } else {
+        qWarning() << "Unexpected renaming type";
+        doRenameAction = RENAME_DO_NOTHING;
+    }
+    actionRename.setVisible(true);
+    
     // Only show retype for local vars if in a function
+    RAnalFunction *in_fcn = Core()->functionIn(offset);
     if (in_fcn) {
         auto vars = Core()->getVariables(offset);
         actionSetFunctionVarTypes.setVisible(!vars.empty());
@@ -522,25 +517,6 @@ void DisassemblyContextMenu::aboutToShowSlot()
         actionSetFunctionVarTypes.setVisible(false);
         actionEditFunction.setVisible(false);
     }
-
-
-    // Only show "rename X used here" if there is something to rename
-    auto thingsUsedHere = getThingUsedHere(offset);
-    if (!thingsUsedHere.isEmpty()) {
-        actionRenameUsedHere.setVisible(true);
-        auto &thingUsedHere = thingsUsedHere.first();
-        if (thingUsedHere.type == ThingUsedHere::Type::Address) {
-            RVA offset = thingUsedHere.offset;
-            actionRenameUsedHere.setText(tr("Add flag at %1 (used here)").arg(RAddressString(offset)));
-        } else if (thingUsedHere.type == ThingUsedHere::Type::Function) {
-            actionRenameUsedHere.setText(tr("Rename \"%1\"").arg(thingUsedHere.name));
-        }  else {
-            actionRenameUsedHere.setText(tr("Rename \"%1\" (used here)").arg(thingUsedHere.name));
-        }
-    } else {
-        actionRenameUsedHere.setVisible(false);
-    }
-    updateTargetMenuActions(thingsUsedHere);
 
     // Decide to show Reverse jmp option
     showReverseJmpQuery();
@@ -619,19 +595,9 @@ QKeySequence DisassemblyContextMenu::getSetToDataExSequence() const
     return {Qt::Key_Asterisk};
 }
 
-QKeySequence DisassemblyContextMenu::getAddFlagSequence() const
-{
-    return {}; //TODO insert correct sequence
-}
-
 QKeySequence DisassemblyContextMenu::getRenameSequence() const
 {
     return {Qt::Key_N};
-}
-
-QKeySequence DisassemblyContextMenu::getRenameUsedHereSequence() const
-{
-    return {Qt::SHIFT | Qt::Key_N};
 }
 
 QKeySequence DisassemblyContextMenu::getRetypeSequence() const
@@ -803,77 +769,33 @@ void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
     }
 }
 
-void DisassemblyContextMenu::on_actionAddFlag_triggered()
-{
-    FlagDialog dialog(offset, this->parentWidget());
-    dialog.exec();
-}
-
 void DisassemblyContextMenu::on_actionRename_triggered()
 {
-    RCore *core = Core()->core();
     bool ok;
-    
-    RAnalFunction *fcn = Core()->functionIn(offset);
-    RFlagItem *f = r_flag_get_i(core->flags, offset);
-
-    if (fcn) {
-        // Renaming a function
-        QString newName = QInputDialog::getText(this->mainWindow, tr("Rename function %2").arg(fcn->name),
-                                            tr("Function name:"), QLineEdit::Normal, fcn->name, &ok);
+    if (doRenameAction == RENAME_FUNCTION) {
+        QString newName = QInputDialog::getText(this->mainWindow, tr("Rename function %2").arg(doRenameInfo.name),
+                                            tr("Function name:"), QLineEdit::Normal, doRenameInfo.name, &ok);
         if (ok && !newName.isEmpty()) {
-            Core()->renameFunction(fcn->addr, newName);
+            Core()->renameFunction(doRenameInfo.addr, newName);
         }
-    } else if (f) {
-        // Renaming flag
-        QString newName = QInputDialog::getText(this, tr("Rename flag %2").arg(f->name),
-                                            tr("Flag name:"), QLineEdit::Normal, f->name, &ok);
+    } else if (doRenameAction == RENAME_FLAG) {
+        QString newName = QInputDialog::getText(this, tr("Rename flag %2").arg(doRenameInfo.name),
+                                            tr("Flag name at %1:").arg(RAddressString(doRenameInfo.addr)), QLineEdit::Normal, doRenameInfo.name, &ok);
         if (ok && !newName.isEmpty()) {
-            Core()->renameFlag(f->name, newName);
+            Core()->renameFlag(doRenameInfo.name, newName);
         }
-    }
-}
-
-void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
-{
-
-    QString title;
-    QString inputValue;
-    QString oldName;
-
-    auto array = getThingUsedHere(offset);
-    if (array.isEmpty()) {
-        return;
-    }
-
-    auto thingUsedHere = array.first();
-    auto type = thingUsedHere.type;
-
-    if (type == ThingUsedHere::Type::Address) {
-        RVA offset = thingUsedHere.offset;
-        title = tr("Add flag at %1").arg(RAddressString(offset));
-        inputValue = "label." + QString::number(offset, 16);
+    } else if (doRenameAction == RENAME_ADD_FLAG) {
+        //QString newName = QInputDialog::getText(this, tr("Add a flag"),
+        //                                    tr("Flag name at %1:").arg(RAddressString(doRenameInfo.addr)), QLineEdit::Normal, "", &ok);
+        //if (ok && !newName.isEmpty()) {
+        FlagDialog dialog(doRenameInfo.addr, this->parentWidget());
+        dialog.exec();
+        //}
+    } else if (doRenameAction == RENAME_DO_NOTHING) {
+        // Do nothing
     } else {
-        oldName = thingUsedHere.name;
-        title = tr("Rename %1").arg(oldName);
-        inputValue = oldName;
-    }
-
-    bool ok;
-    // Create dialog
-    QString newName = QInputDialog::getText(this, title,
-                            tr("Name:"), QLineEdit::Normal, inputValue, &ok);
-
-    // If user accepted
-    if (ok && !newName.isEmpty()) {
-        Core()->cmdRawAt(QString("an %1").arg(newName), offset);
-        if (type == ThingUsedHere::Type::Address || type == ThingUsedHere::Type::Flag) {
-            Core()->triggerFlagsChanged();
-        } else if (type == ThingUsedHere::Type::Var) {
-            Core()->triggerVarsChanged();
-        } else if (type == ThingUsedHere::Type::Function) {
-            Core()->triggerFunctionRenamed(thingUsedHere.offset, newName);
-        }
+        qWarning() << "Unhandled renaming action: " << doRenameAction;
+        assert(false);
     }
 }
 
@@ -1009,11 +931,6 @@ void DisassemblyContextMenu::on_actionLinkType_triggered()
 void DisassemblyContextMenu::on_actionDeleteComment_triggered()
 {
     Core()->delComment(offset);
-}
-
-void DisassemblyContextMenu::on_actionDeleteFlag_triggered()
-{
-    Core()->delFlag(offset);
 }
 
 void DisassemblyContextMenu::on_actionDeleteFunction_triggered()

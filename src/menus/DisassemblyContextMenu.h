@@ -44,16 +44,13 @@ private slots:
     void on_actionCopyAddr_triggered();
     void on_actionAddComment_triggered();
     void on_actionAnalyzeFunction_triggered();
-    void on_actionAddFlag_triggered();
     void on_actionRename_triggered();
-    void on_actionRenameUsedHere_triggered();
     void on_actionSetFunctionVarTypes_triggered();
     void on_actionXRefs_triggered();
     void on_actionXRefsForVariables_triggered();
     void on_actionDisplayOptions_triggered();
 
     void on_actionDeleteComment_triggered();
-    void on_actionDeleteFlag_triggered();
     void on_actionDeleteFunction_triggered();
 
     void on_actionAddBreakpoint_triggered();
@@ -92,9 +89,7 @@ private:
     QKeySequence getSetAsStringAdvanced() const;
     QKeySequence getSetToDataSequence() const;
     QKeySequence getSetToDataExSequence() const;
-    QKeySequence getAddFlagSequence() const;
     QKeySequence getRenameSequence() const;
-    QKeySequence getRenameUsedHereSequence() const;
     QKeySequence getRetypeSequence() const;
     QKeySequence getXRefSequence() const;
     QKeySequence getDisplayOptionsSequence() const;
@@ -129,18 +124,15 @@ private:
 
 
     QAction actionAddComment;
-    QAction actionAddFlag;
     QAction actionAnalyzeFunction;
     QAction actionEditFunction;
     QAction actionRename;
-    QAction actionRenameUsedHere;
     QAction actionSetFunctionVarTypes;
     QAction actionXRefs;
     QAction actionXRefsForVariables;
     QAction actionDisplayOptions;
 
     QAction actionDeleteComment;
-    QAction actionDeleteFlag;
     QAction actionDeleteFunction;
 
     QMenu *structureOffsetMenu;
@@ -209,6 +201,20 @@ private:
     void addBreakpointMenu();
     void addDebugMenu();
 
+    enum DoRenameAction {
+        RENAME_FUNCTION,
+        RENAME_FLAG,
+        RENAME_ADD_FLAG,
+        RENAME_LOCAL,
+        RENAME_DO_NOTHING,
+    };
+    struct DoRenameInfo {
+        ut64 addr;
+        QString name;
+    };
+    DoRenameAction doRenameAction = RENAME_DO_NOTHING;
+    DoRenameInfo doRenameInfo = { };
+
     /**
      * @brief Checks if the currently highlighted word in the disassembly widget
      * is a local variable or function paramter.
@@ -228,7 +234,5 @@ private:
         Type type;
     };
     QVector<ThingUsedHere> getThingUsedHere(RVA offset);
-
-    void updateTargetMenuActions(const QVector<ThingUsedHere> &targets);
 };
 #endif // DISASSEMBLYCONTEXTMENU_H
