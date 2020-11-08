@@ -361,6 +361,85 @@ void DisassemblyContextMenu::setCanCopy(bool enabled)
 void DisassemblyContextMenu::setCurHighlightedWord(const QString &text)
 {
     this->curHighlightedWord = text;
+    // Update the renaming options only when a new word is selected
+    setupRenaming();
+}
+
+void DisassemblyContextMenu::setupRenaming()
+{
+    // We must take into account cursor location to choose between current address and pointed value
+    // i.e. `0x000040f3  lea rdi, [0x000199b1]` -> does the user want to add a flag at 0x40f3 or at 0x199b1?
+    // and for that we will rely on |curHighlightedWord| which is the currently selected word
+    RCore *core = Core()->core();
+    // Now, we'll try to check if backend has any reference to our highlighted word on current line
+    auto thingsUsedHere = getThingUsedHere(offset);
+    ThingUsedHere *tuh = nullptr;
+    ThingUsedHere defaultTuh = {};
+    ut64 selection = Core()->num(curHighlightedWord);
+    qDebug() << " loop -----";
+    for (auto& thing : thingsUsedHere) {
+        qDebug() << &thing << " " << thing.offset << " " << thing.name;
+        if (thing.offset == selection || thing.name == curHighlightedWord) {
+            // It's a match!
+            tuh = &thing;
+            break;
+        }
+    }
+    if (!tuh) {
+        // Nothing was found, we will fallback on current offset
+        RAnalFunction *fcn = Core()->functionAt(offset);
+        RFlagItem *flag = r_flag_get_i(core->flags, offset);
+        if (fcn != nullptr) {
+            defaultTuh.type = ThingUsedHere::Type::Function;
+            defaultTuh.name = fcn->name;
+        } else if (flag != nullptr) {
+            defaultTuh.type = ThingUsedHere::Type::Flag;
+            if (Config()->getConfigBool("asm.flags.real") && flag->realname) {
+                defaultTuh.name = flag->realname;
+            } else {
+                defaultTuh.name = flag->name;
+            }
+        } else {
+            defaultTuh.type = ThingUsedHere::Type::Address;
+        }
+        defaultTuh.offset = offset;
+        tuh = &defaultTuh;
+    }
+    qDebug() << "Type: " << (int) tuh->type;
+    if (tuh->type == ThingUsedHere::Type::Address) {
+        RFlagItem *flagUsedHere = r_flag_get_i(core->flags, tuh->offset);
+        if (flagUsedHere) {
+            doRenameAction = RENAME_FLAG;
+            doRenameInfo.name = RAddressString(tuh->offset);
+            doRenameInfo.addr = tuh->offset;
+            actionRename.setText(tr("Rename flag %1").arg(doRenameInfo.name));
+        } else {
+            doRenameAction = RENAME_ADD_FLAG;
+            doRenameInfo.name = RAddressString(tuh->offset);
+            doRenameInfo.addr = tuh->offset;
+            actionRename.setText(tr("Add flag at %1 (used here)").arg(doRenameInfo.name));
+        }
+    } else if (tuh->type == ThingUsedHere::Type::Function) {
+        doRenameAction = RENAME_FUNCTION;
+        doRenameInfo.name = tuh->name;
+        doRenameInfo.addr = tuh->offset;
+        actionRename.setText(tr("Rename \"%1\"").arg(doRenameInfo.name));
+    } else if (tuh->type == ThingUsedHere::Type::Var) {
+        doRenameAction = RENAME_LOCAL;
+        doRenameInfo.name = tuh->name;
+        doRenameInfo.addr = tuh->offset;
+        actionRename.setText(tr("Rename local \"%1\"").arg(tuh->name));
+    } else if (tuh->type == ThingUsedHere::Type::Flag) {
+        doRenameAction = RENAME_FLAG;
+        doRenameInfo.name = tuh->name;
+        doRenameInfo.addr = tuh->offset;
+        actionRename.setText(tr("Rename \"%1\" (used here)").arg(doRenameInfo.name));
+    } else {
+        qWarning() << "Unexpected renaming type";
+        doRenameAction = RENAME_DO_NOTHING;
+    }
+    actionRename.setVisible(true);
+    
 }
 
 void DisassemblyContextMenu::aboutToShowSlot()
@@ -435,79 +514,9 @@ void DisassemblyContextMenu::aboutToShowSlot()
     copySeparator->setVisible(canCopy);
 
     // Handle renaming of variable, function, flag, ...
-    // We must take into account cursor location to choose between current address and pointed value
-    // i.e. `0x000040f3  lea rdi, [0x000199b1]` -> does the user want to add a flag at 0x40f3 or at 0x199b1?
-    // and for that we will rely on |curHighlightedWord| which is the currently selected word
-    RCore *core = Core()->core();
-    // Now, we'll try to check if backend has any reference to our highlighted word on current line
-    auto thingsUsedHere = getThingUsedHere(offset);
-    ThingUsedHere *tuh = nullptr;
-    ThingUsedHere defaultTuh = {};
-    ut64 selection = Core()->num(curHighlightedWord);
-    qDebug() << " loop -----";
-    for (auto& thing : thingsUsedHere) {
-        qDebug() << &thing << " " << thing.offset << " " << thing.name;
-        if (thing.offset == selection || thing.name == curHighlightedWord) {
-            // It's a match!
-            tuh = &thing;
-            break;
-        }
-    }
-    if (!tuh) {
-        // Nothing was found, we will fallback on current offset
-        RAnalFunction *fcn = Core()->functionAt(offset);
-        RFlagItem *flag = r_flag_get_i(core->flags, offset);
-        if (fcn != nullptr) {
-            defaultTuh.type = ThingUsedHere::Type::Function;
-            defaultTuh.name = fcn->name;
-        } else if (flag != nullptr) {
-            defaultTuh.type = ThingUsedHere::Type::Flag;
-            if (Config()->getConfigBool("asm.flags.real") && flag->realname) {
-                defaultTuh.name = flag->realname;
-            } else {
-                defaultTuh.name = flag->name;
-            }
-        } else {
-            defaultTuh.type = ThingUsedHere::Type::Address;
-        }
-        defaultTuh.offset = offset;
-        tuh = &defaultTuh;
-    }
-    qDebug() << "Type: " << (int) tuh->type;
-    if (tuh->type == ThingUsedHere::Type::Address) {
-        RFlagItem *flagUsedHere = r_flag_get_i(core->flags, tuh->offset);
-        if (flagUsedHere) {
-            doRenameAction = RENAME_FLAG;
-            doRenameInfo.name = RAddressString(tuh->offset);
-            doRenameInfo.addr = tuh->offset;
-            actionRename.setText(tr("Rename flag %1").arg(doRenameInfo.name));
-        } else {
-            doRenameAction = RENAME_ADD_FLAG;
-            doRenameInfo.name = RAddressString(tuh->offset);
-            doRenameInfo.addr = tuh->offset;
-            actionRename.setText(tr("Add flag at %1 (used here)").arg(doRenameInfo.name));
-        }
-    } else if (tuh->type == ThingUsedHere::Type::Function) {
-        doRenameAction = RENAME_FUNCTION;
-        doRenameInfo.name = tuh->name;
-        doRenameInfo.addr = tuh->offset;
-        actionRename.setText(tr("Rename \"%1\"").arg(doRenameInfo.name));
-    } else if (tuh->type == ThingUsedHere::Type::Var) {
-        doRenameAction = RENAME_LOCAL;
-        doRenameInfo.name = tuh->name;
-        doRenameInfo.addr = tuh->offset;
-        actionRename.setText(tr("Rename local \"%1\"").arg(tuh->name));
-    } else if (tuh->type == ThingUsedHere::Type::Flag) {
-        doRenameAction = RENAME_FLAG;
-        doRenameInfo.name = tuh->name;
-        doRenameInfo.addr = tuh->offset;
-        actionRename.setText(tr("Rename \"%1\" (used here)").arg(doRenameInfo.name));
-    } else {
-        qWarning() << "Unexpected renaming type";
-        doRenameAction = RENAME_DO_NOTHING;
-    }
-    actionRename.setVisible(true);
-    
+    // Note: This might be useless if we consider setCurrentHighlightedWord is always called before
+    setupRenaming();
+
     // Only show retype for local vars if in a function
     RAnalFunction *in_fcn = Core()->functionIn(offset);
     if (in_fcn) {

@@ -201,6 +201,9 @@ private:
     void addBreakpointMenu();
     void addDebugMenu();
 
+    /* Setup renaming (N) display and actions depending on current offset */
+    void setupRenaming();
+
     enum DoRenameAction {
         RENAME_FUNCTION,
         RENAME_FLAG,
