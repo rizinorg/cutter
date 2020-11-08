@@ -470,6 +470,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
         } else {
             defaultTuh.type = ThingUsedHere::Type::Address;
         }
+        defaultTuh.offset = offset;
         tuh = &defaultTuh;
     }
     qDebug() << "Type: " << (int) tuh->type;
@@ -492,11 +493,12 @@ void DisassemblyContextMenu::aboutToShowSlot()
         doRenameInfo.addr = tuh->offset;
         actionRename.setText(tr("Rename \"%1\"").arg(doRenameInfo.name));
     } else if (tuh->type == ThingUsedHere::Type::Var) {
-        // TODO
-        doRenameAction = RENAME_DO_NOTHING;
-        qWarning() << "NOT HANDLED";
+        doRenameAction = RENAME_LOCAL;
+        doRenameInfo.name = tuh->name;
+        doRenameInfo.addr = tuh->offset;
+        actionRename.setText(tr("Rename local \"%1\"").arg(tuh->name));
     } else if (tuh->type == ThingUsedHere::Type::Flag) {
-        // It's something else, but what?
+        doRenameAction = RENAME_FLAG;
         doRenameInfo.name = tuh->name;
         doRenameInfo.addr = tuh->offset;
         actionRename.setText(tr("Rename \"%1\" (used here)").arg(doRenameInfo.name));
@@ -785,12 +787,17 @@ void DisassemblyContextMenu::on_actionRename_triggered()
             Core()->renameFlag(doRenameInfo.name, newName);
         }
     } else if (doRenameAction == RENAME_ADD_FLAG) {
-        //QString newName = QInputDialog::getText(this, tr("Add a flag"),
-        //                                    tr("Flag name at %1:").arg(RAddressString(doRenameInfo.addr)), QLineEdit::Normal, "", &ok);
-        //if (ok && !newName.isEmpty()) {
         FlagDialog dialog(doRenameInfo.addr, this->parentWidget());
         dialog.exec();
-        //}
+    } else if (doRenameAction == RENAME_LOCAL) {
+        RAnalFunction *fcn = Core()->functionIn(offset);
+        if (fcn) {
+            EditVariablesDialog dialog(fcn->addr, curHighlightedWord, this);
+            if (!dialog.empty()) {
+                // don't show the dialog if there are no variables
+                dialog.exec();
+            }
+        }
     } else if (doRenameAction == RENAME_DO_NOTHING) {
         // Do nothing
     } else {
