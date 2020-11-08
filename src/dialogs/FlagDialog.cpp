@@ -19,6 +19,9 @@ FlagDialog::FlagDialog(RVA offset, QWidget *parent) :
     ui->sizeEdit->setValidator(size_validator);
     if (flag) {
         ui->nameEdit->setText(flag->name);
+        ui->message->setText(tr("Edit flag at %1").arg(RAddressString(offset)));
+    } else {
+        ui->message->setText(tr("Add flag at %1").arg(RAddressString(offset)));
     }
 }
 
@@ -26,7 +29,7 @@ FlagDialog::~FlagDialog() {}
 
 void FlagDialog::on_buttonBox_accepted()
 {
-    QString name = ui->nameEdit->text();
+    QString name = ui->nameEdit->text().replace(' ', '_');
     RVA size = ui->sizeEdit->text().toULongLong();
 
     if (flag) {
