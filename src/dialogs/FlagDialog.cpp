@@ -12,10 +12,14 @@ FlagDialog::FlagDialog(RVA offset, QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
+    flag = r_flag_get_i(Core()->core()->flags, offset);
 
     auto size_validator = new QIntValidator(ui->sizeEdit);
     size_validator->setBottom(1);
     ui->sizeEdit->setValidator(size_validator);
+    if (flag) {
+        ui->nameEdit->setText(flag->name);
+    }
 }
 
 FlagDialog::~FlagDialog() {}
@@ -24,7 +28,13 @@ void FlagDialog::on_buttonBox_accepted()
 {
     QString name = ui->nameEdit->text();
     RVA size = ui->sizeEdit->text().toULongLong();
-    Core()->addFlag(offset, name, size);
+
+    if (flag) {
+        Core()->renameFlag(flag->name, name);
+        flag->size = size;
+    } else {
+        Core()->addFlag(offset, name, size);
+    }
 }
 
 void FlagDialog::on_buttonBox_rejected()
