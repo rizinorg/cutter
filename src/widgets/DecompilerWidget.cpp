@@ -574,20 +574,14 @@ bool DecompilerWidget::addressInRange(RVA addr)
 static QString remapAnnotationOffsetsToQString(RzAnnotatedCode &code)
 {
     QByteArray bytes(code.code);
-    QString text;
-    text.reserve(bytes.size()); // not exact but a reasonable approximation
-    QTextStream stream(bytes);
-    stream.setCodec("UTF-8");
     std::vector<size_t> offsets;
     offsets.reserve(bytes.size());
-    offsets.push_back(0);
-    QChar singleChar;
-    while (!stream.atEnd()) {
-        stream >> singleChar;
-        if (singleChar == QChar('/')) {
+    char c;
+    for (size_t off = 0; c = code.code[off], c; off++) {
+        if ((c & 0xc0) == 0x80) {
+            continue;
         }
-        text.append(singleChar);
-        offsets.push_back(stream.pos());
+        offsets.push_back(off);
     }
     auto mapPos = [&](size_t pos) {
         auto it = std::upper_bound(offsets.begin(), offsets.end(), pos);
@@ -603,7 +597,7 @@ static QString remapAnnotationOffsetsToQString(RzAnnotatedCode &code)
         annotation->start = mapPos(annotation->start);
         annotation->end = mapPos(annotation->end);
     }
-    return text;
+    return QString::fromUtf8(code.code);
 }
 
 void DecompilerWidget::setCode(RzAnnotatedCode *code)
