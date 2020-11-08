@@ -376,9 +376,7 @@ void DisassemblyContextMenu::setupRenaming()
     ThingUsedHere *tuh = nullptr;
     ThingUsedHere defaultTuh = {};
     ut64 selection = Core()->num(curHighlightedWord);
-    qDebug() << " loop -----";
     for (auto& thing : thingsUsedHere) {
-        qDebug() << &thing << " " << thing.offset << " " << thing.name;
         if (thing.offset == selection || thing.name == curHighlightedWord) {
             // It's a match!
             tuh = &thing;
@@ -405,7 +403,6 @@ void DisassemblyContextMenu::setupRenaming()
         defaultTuh.offset = offset;
         tuh = &defaultTuh;
     }
-    qDebug() << "Type: " << (int) tuh->type;
     if (tuh->type == ThingUsedHere::Type::Address) {
         RFlagItem *flagUsedHere = r_flag_get_i(core->flags, tuh->offset);
         if (flagUsedHere) {
