@@ -33,6 +33,10 @@ build*/
 cmake-build-*/
 /src-build/
 
+# Build folders
+Debug
+Release
+
 # QtCreator
 *.autosave
 *.qmlproject.user
