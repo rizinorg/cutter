@@ -374,14 +374,22 @@ bool DisassemblyWidget::updateMaxLines()
 void DisassemblyWidget::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
-
     QColor highlightColor = ConfigColor("lineHighlight");
 
     // Highlight the current word
     QTextCursor cursor = mDisasTextEdit->textCursor();
-    cursor.select(QTextCursor::WordUnderCursor);
-    QString searchString = cursor.selectedText();
-    curHighlightedWord = searchString;
+    auto clickedCharPos = cursor.positionInBlock();
+    cursor.select(QTextCursor::BlockUnderCursor);
+    QString searchString = cursor.selectedText().replace("\xc2\xa0", " ");
+    static const QRegularExpression tokenRegExp(R"(\b(?<!\.)([^\s]+)\b(?!\.))");
+    QRegularExpressionMatchIterator i = tokenRegExp.globalMatch(searchString);
+    while (i.hasNext()) {
+        QRegularExpressionMatch match = i.next();
+        if (match.capturedStart() <= clickedCharPos && match.capturedEnd() > clickedCharPos) {
+            curHighlightedWord = match.captured();
+            break;
+        }
+    }
 
     // Highlight the current line
     QTextEdit::ExtraSelection highlightSelection;
