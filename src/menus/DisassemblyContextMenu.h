@@ -237,5 +237,7 @@ private:
         Type type;
     };
     QVector<ThingUsedHere> getThingUsedHere(RVA offset);
+    ThingUsedHere getThingAt(ut64 address);
+    void buildRenameMenu(ThingUsedHere* tuh);
 };
 #endif // DISASSEMBLYCONTEXTMENU_H

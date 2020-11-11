@@ -365,57 +365,59 @@ void DisassemblyContextMenu::setCurHighlightedWord(const QString &text)
     setupRenaming();
 }
 
-void DisassemblyContextMenu::setupRenaming()
+/*
+ * @brief This function checks if the given address contains a function,
+ * a flag or if it is just an address.
+ */
+DisassemblyContextMenu::ThingUsedHere DisassemblyContextMenu::getThingAt(ut64 address)
 {
-    // We must take into account cursor location to choose between current address and pointed value
-    // i.e. `0x000040f3  lea rdi, [0x000199b1]` -> does the user want to add a flag at 0x40f3 or at 0x199b1?
-    // and for that we will rely on |curHighlightedWord| which is the currently selected word
-    RCore *core = Core()->core();
-    // Now, we'll try to check if backend has any reference to our highlighted word on current line
-    auto thingsUsedHere = getThingUsedHere(offset);
-    ThingUsedHere *tuh = nullptr;
-    ThingUsedHere defaultTuh = {};
-    ut64 selection = Core()->num(curHighlightedWord);
-    for (auto& thing : thingsUsedHere) {
-        if (thing.offset == selection || thing.name == curHighlightedWord) {
-            // It's a match!
-            tuh = &thing;
-            break;
-        }
-    }
-    if (!tuh) {
-        // Nothing was found, we will fallback on current offset
-        RAnalFunction *fcn = Core()->functionAt(offset);
-        RFlagItem *flag = r_flag_get_i(core->flags, offset);
-        if (fcn != nullptr) {
-            defaultTuh.type = ThingUsedHere::Type::Function;
-            defaultTuh.name = fcn->name;
-        } else if (flag != nullptr) {
-            defaultTuh.type = ThingUsedHere::Type::Flag;
-            if (Config()->getConfigBool("asm.flags.real") && flag->realname) {
-                defaultTuh.name = flag->realname;
-            } else {
-                defaultTuh.name = flag->name;
-            }
+    ThingUsedHere tuh;
+    RAnalFunction *fcn = Core()->functionAt(address);
+    RFlagItem *flag = r_flag_get_i(Core()->core()->flags, address);
+
+    // We will lookup through existing r2 types to find something relevant
+
+    if (fcn != nullptr) {
+        // It is a function
+        tuh.type = ThingUsedHere::Type::Function;
+        tuh.name = fcn->name;
+    } else if (flag != nullptr) {
+        // It is a flag
+        tuh.type = ThingUsedHere::Type::Flag;
+        if (Config()->getConfigBool("asm.flags.real") && flag->realname) {
+            tuh.name = flag->realname;
         } else {
-            defaultTuh.type = ThingUsedHere::Type::Address;
+            tuh.name = flag->name;
         }
-        defaultTuh.offset = offset;
-        tuh = &defaultTuh;
+    } else {
+        // Consider it an address
+        tuh.type = ThingUsedHere::Type::Address;
+    }
+
+    tuh.offset = address;
+    return tuh;
+}
+
+/*
+ * @brief This function will set the text for the renaming menu given a ThingUsedHere
+ * and provide information on how to handle the renaming of this specific thing.
+ * Indeed, selected dialogs are different when it comes to adding a flag, renaming an existing function,
+ * renaming a local variable...
+ *
+ * This function handles every possible object.
+ */
+void DisassemblyContextMenu::buildRenameMenu(ThingUsedHere* tuh)
+{
+    if (!tuh) {
+        qWarning() << "Unexpected behavior null pointer passed to DisassemblyContextMenu::buildRenameMenu";
+        doRenameAction = RENAME_DO_NOTHING;
+        return;
     }
     if (tuh->type == ThingUsedHere::Type::Address) {
-        RFlagItem *flagUsedHere = r_flag_get_i(core->flags, tuh->offset);
-        if (flagUsedHere) {
-            doRenameAction = RENAME_FLAG;
-            doRenameInfo.name = RAddressString(tuh->offset);
-            doRenameInfo.addr = tuh->offset;
-            actionRename.setText(tr("Rename flag %1").arg(doRenameInfo.name));
-        } else {
-            doRenameAction = RENAME_ADD_FLAG;
-            doRenameInfo.name = RAddressString(tuh->offset);
-            doRenameInfo.addr = tuh->offset;
-            actionRename.setText(tr("Add flag at %1 (used here)").arg(doRenameInfo.name));
-        }
+        doRenameAction = RENAME_ADD_FLAG;
+        doRenameInfo.name = RAddressString(tuh->offset);
+        doRenameInfo.addr = tuh->offset;
+        actionRename.setText(tr("Add flag at %1 (used here)").arg(doRenameInfo.name));
     } else if (tuh->type == ThingUsedHere::Type::Function) {
         doRenameAction = RENAME_FUNCTION;
         doRenameInfo.name = tuh->name;
@@ -430,11 +432,51 @@ void DisassemblyContextMenu::setupRenaming()
         doRenameAction = RENAME_FLAG;
         doRenameInfo.name = tuh->name;
         doRenameInfo.addr = tuh->offset;
-        actionRename.setText(tr("Rename \"%1\" (used here)").arg(doRenameInfo.name));
+        actionRename.setText(tr("Rename flag \"%1\" (used here)").arg(doRenameInfo.name));
     } else {
         qWarning() << "Unexpected renaming type";
         doRenameAction = RENAME_DO_NOTHING;
     }
+}
+
+/*
+ * @brief Setups up the "Rename" option in the context menu
+ *
+ * This function takes into account cursor location so it can choose between current address and pointed value
+ * i.e. `0x000040f3  lea rdi, [0x000199b1]` -> does the user want to add a flag at 0x40f3 or at 0x199b1?
+ * and for that we will rely on |curHighlightedWord| which is the currently selected word.
+ */
+void DisassemblyContextMenu::setupRenaming()
+{
+    // We parse our highlighted word as an address
+    ut64 selection = Core()->num(curHighlightedWord);
+
+    // First, let's try to see if current line (offset) contains a local variable or a function
+    ThingUsedHere *tuh = nullptr;
+    ThingUsedHere thingAt;
+    auto things = getThingUsedHere(offset);
+    for (auto& thing : things) {
+        if (thing.offset == selection || thing.name == curHighlightedWord) {
+            // We matched something on current line
+            tuh = &thing;
+            break;
+        }
+    }
+
+    if (!tuh) {
+        // Nothing matched on current line, is there anything valid coming from our selection?
+        thingAt = getThingAt(selection);
+        if (thingAt.offset == 0) {
+            // We parsed something which resolved to 0, it's very likely nothing interesting was selected
+            // So we fallback on current line offset
+            thingAt = getThingAt(offset);
+        }
+        // In any case, thingAt will contain something we can rename
+        tuh = &thingAt;
+    }
+
+    // Now, build the renaming menu and show it
+    buildRenameMenu(tuh);
     actionRename.setVisible(true);
     
 }
