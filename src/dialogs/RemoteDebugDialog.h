@@ -20,31 +20,24 @@ public:
     explicit RemoteDebugDialog(QWidget *parent = nullptr);
     ~RemoteDebugDialog();
 
-    void setIp(QString ip);
-    void setPort(QString port);
-    void setPath(QString path);
-    void setDebugger(QString debugger);
     QString getUri() const;
-    QString getIp() const;
-    int getPort() const;
-    QString getPath() const;
-    QString getDebugger() const;
     bool validate();
 
 private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
-    void onIndexChange();
     void clearAll();
     void removeItem();
     void itemClicked(QListWidgetItem *item);
 
 private:
-    void activateGdb();
-    void activateWinDbgPipe();
+    int getPort() const;
+    int getDebugger() const;
+    QString getIpOrPath() const;
+
+    bool validatePath();
     bool validateIp();
     bool validatePort();
-    bool validatePath();
 
     bool fillRecentIpList();
     void fillFormData(QString formdata);
