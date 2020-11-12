@@ -19,7 +19,7 @@ struct DbgBackend {
 
 static const QList<DbgBackend> dbgBackends = {
     { GDB, "GDB", "gdb://" },
-    { WINDBG, "WinDbg - Pipe", "windbg://" }
+    { WINDBG, "WinKd - Pipe", "winkd://" }
 };
 
 RemoteDebugDialog::RemoteDebugDialog(QWidget *parent) :
