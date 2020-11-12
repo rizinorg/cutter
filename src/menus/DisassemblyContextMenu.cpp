@@ -365,10 +365,6 @@ void DisassemblyContextMenu::setCurHighlightedWord(const QString &text)
     setupRenaming();
 }
 
-/*
- * @brief This function checks if the given address contains a function,
- * a flag or if it is just an address.
- */
 DisassemblyContextMenu::ThingUsedHere DisassemblyContextMenu::getThingAt(ut64 address)
 {
     ThingUsedHere tuh;
@@ -398,14 +394,6 @@ DisassemblyContextMenu::ThingUsedHere DisassemblyContextMenu::getThingAt(ut64 ad
     return tuh;
 }
 
-/*
- * @brief This function will set the text for the renaming menu given a ThingUsedHere
- * and provide information on how to handle the renaming of this specific thing.
- * Indeed, selected dialogs are different when it comes to adding a flag, renaming an existing function,
- * renaming a local variable...
- *
- * This function handles every possible object.
- */
 void DisassemblyContextMenu::buildRenameMenu(ThingUsedHere* tuh)
 {
     if (!tuh) {
@@ -439,13 +427,6 @@ void DisassemblyContextMenu::buildRenameMenu(ThingUsedHere* tuh)
     }
 }
 
-/*
- * @brief Setups up the "Rename" option in the context menu
- *
- * This function takes into account cursor location so it can choose between current address and pointed value
- * i.e. `0x000040f3  lea rdi, [0x000199b1]` -> does the user want to add a flag at 0x40f3 or at 0x199b1?
- * and for that we will rely on |curHighlightedWord| which is the currently selected word.
- */
 void DisassemblyContextMenu::setupRenaming()
 {
     // We parse our highlighted word as an address
