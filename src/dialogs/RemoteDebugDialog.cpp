@@ -111,10 +111,6 @@ void RemoteDebugDialog::on_buttonBox_rejected()
     close();
 }
 
-/**
- * @brief Clears the selected item in the list of recent connections.
- * Triggers when you right click and click on "Remove Item" in remote debug dialog.
- */
 void RemoteDebugDialog::removeItem()
 {
     QListWidgetItem *item = ui->recentsIpListWidget->currentItem();
@@ -136,10 +132,6 @@ void RemoteDebugDialog::removeItem()
     checkIfEmpty();
 }
 
-/**
- * @brief Clears the list of recent connections.
- * Triggers when you right click and click on "Clear All" in remote debug dialog.
- */
 void RemoteDebugDialog::clearAll()
 {
     QSettings settings;
@@ -152,10 +144,6 @@ void RemoteDebugDialog::clearAll()
     checkIfEmpty();
 }
 
-/**
- * @brief Fills the remote debug dialog form from a given URI
- * Eg: gdb://127.0.0.1:8754 or windbg:///tmp/abcd
- */
 void RemoteDebugDialog::fillFormData(QString formdata)
 {
     QString ipText = "";
@@ -185,9 +173,6 @@ void RemoteDebugDialog::fillFormData(QString formdata)
 }
 
 
-/**
- * @brief Generate a URI for given UI input
- */
 QString RemoteDebugDialog::getUri() const
 {
     int debugger = getDebugger();
@@ -199,9 +184,6 @@ QString RemoteDebugDialog::getUri() const
     return "- uri error";
 }
 
-/**
- * @brief Fills recent remote connections.
- */
 bool RemoteDebugDialog::fillRecentIpList()
 {
     QSettings settings;
@@ -242,9 +224,6 @@ void RemoteDebugDialog::checkIfEmpty()
     }
 }
 
-/**
- * @brief Fills the form with the selected item's data.
- */
 void RemoteDebugDialog::itemClicked(QListWidgetItem *item)
 {
     QVariant data = item->data(Qt::UserRole);
