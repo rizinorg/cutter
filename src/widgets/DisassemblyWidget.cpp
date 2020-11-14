@@ -379,7 +379,7 @@ void DisassemblyWidget::highlightCurrentLine()
     // Highlight the current word
     QTextCursor cursor = mDisasTextEdit->textCursor();
     auto clickedCharPos = cursor.positionInBlock();
-    // Select the line
+    // Select the line (BlockUnderCursor matches a line with current implementation)
     cursor.select(QTextCursor::BlockUnderCursor);
     // Remove any non-breakable space from the current line
     QString searchString = cursor.selectedText().replace("\xc2\xa0", " ");
@@ -388,7 +388,7 @@ void DisassemblyWidget::highlightCurrentLine()
     QRegularExpressionMatchIterator i = tokenRegExp.globalMatch(searchString);
     while (i.hasNext()) {
         QRegularExpressionMatch match = i.next();
-	// Current token is under our cursor, select this one
+        // Current token is under our cursor, select this one
         if (match.capturedStart() <= clickedCharPos && match.capturedEnd() > clickedCharPos) {
             curHighlightedWord = match.captured();
             break;
