@@ -823,7 +823,7 @@ void DisassemblyContextMenu::on_actionRename_triggered()
         if (fcn) {
             EditVariablesDialog dialog(fcn->addr, curHighlightedWord, this);
             if (!dialog.empty()) {
-                // don't show the dialog if there are no variables
+                // Don't show the dialog if there are no variables
                 dialog.exec();
             }
         }

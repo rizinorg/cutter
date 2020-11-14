@@ -10,6 +10,7 @@ FlagDialog::FlagDialog(RVA offset, QWidget *parent) :
     ui(new Ui::FlagDialog),
     offset(offset)
 {
+    // Setup UI
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     flag = r_flag_get_i(Core()->core()->flags, offset);
@@ -19,28 +20,46 @@ FlagDialog::FlagDialog(RVA offset, QWidget *parent) :
     ui->sizeEdit->setValidator(size_validator);
     if (flag) {
         ui->nameEdit->setText(flag->name);
-        ui->message->setText(tr("Edit flag at %1").arg(RAddressString(offset)));
+        ui->labelAction->setText(tr("Edit flag at %1").arg(RAddressString(offset)));
     } else {
-        ui->message->setText(tr("Add flag at %1").arg(RAddressString(offset)));
+        ui->labelAction->setText(tr("Add flag at %1").arg(RAddressString(offset)));
     }
+
+    // Connect slots
+    connect(ui->buttonBox, &QDialogButtonBox::accepted,
+        this, &FlagDialog::buttonBoxAccepted);
+    connect(ui->buttonBox, &QDialogButtonBox::rejected,
+        this, &FlagDialog::buttonBoxRejected);
 }
 
 FlagDialog::~FlagDialog() {}
 
-void FlagDialog::on_buttonBox_accepted()
+void FlagDialog::buttonBoxAccepted()
 {
-    QString name = ui->nameEdit->text().replace(' ', '_');
     RVA size = ui->sizeEdit->text().toULongLong();
+    QString name = ui->nameEdit->text();
 
-    if (flag) {
-        Core()->renameFlag(flag->name, name);
-        flag->size = size;
+    if (name.isEmpty()) {
+        if (flag) {
+            // Empty name and flag exists -> delete the flag
+            Core()->delFlag(flag->offset);
+        } else {
+            // Flag was not existing and we gave an empty name, do nothing
+        }
     } else {
-        Core()->addFlag(offset, name, size);
+        if (flag) {
+            // Name provided and flag exists -> rename the flag
+            Core()->renameFlag(flag->name, name);
+            flag->size = size;
+        } else {
+            // Name provided and flag does not exist -> create the flag
+            Core()->addFlag(offset, name, size);
+        }
     }
+    close();
 }
 
-void FlagDialog::on_buttonBox_rejected()
+void FlagDialog::buttonBoxRejected()
 {
     close();
 }
