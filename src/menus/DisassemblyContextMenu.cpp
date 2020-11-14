@@ -591,7 +591,7 @@ QKeySequence DisassemblyContextMenu::getCommentSequence() const
 
 QKeySequence DisassemblyContextMenu::getCopyAddressSequence() const
 {
-    return {Qt::CTRL + Qt::SHIFT + Qt::Key_C};
+    return {Qt::CTRL | Qt::SHIFT | Qt::Key_C};
 }
 
 QKeySequence DisassemblyContextMenu::getSetToCodeSequence() const
@@ -606,7 +606,7 @@ QKeySequence DisassemblyContextMenu::getSetAsStringSequence() const
 
 QKeySequence DisassemblyContextMenu::getSetAsStringAdvanced() const
 {
-	return {Qt::SHIFT + Qt::Key_A};
+    return {Qt::SHIFT | Qt::Key_A};
 }
 
 QKeySequence DisassemblyContextMenu::getSetToDataSequence() const
@@ -631,7 +631,7 @@ QKeySequence DisassemblyContextMenu::getRenameSequence() const
 
 QKeySequence DisassemblyContextMenu::getRenameUsedHereSequence() const
 {
-    return {Qt::SHIFT + Qt::Key_N};
+    return {Qt::SHIFT | Qt::Key_N};
 }
 
 QKeySequence DisassemblyContextMenu::getRetypeSequence() const
