@@ -22,6 +22,8 @@ if(WIN32)
             ExternalProject_Add(R2Ghidra
                 GIT_REPOSITORY https://github.com/radareorg/r2ghidra.git
                 GIT_TAG master
+                GIT_SHALLOW TRUE
+                GIT_PROGRESS TRUE
                 CONFIGURE_COMMAND ""
                 BUILD_COMMAND ""
                 INSTALL_COMMAND ""
