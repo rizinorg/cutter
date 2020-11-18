@@ -4,12 +4,23 @@
 #include <QHostAddress>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QSettings>
 
-#define GDBSERVER "GDB"
-#define WINDBGPIPE "WinDbg - Pipe"
-#define WINDBG_URI_PREFIX "windbg"
-#define GDB_URI_PREFIX "gdb"
-#define DEFAULT_INDEX (GDBSERVER)
+enum DbgBackendType {
+    GDB = 0,
+    WINDBG = 1
+};
+
+struct DbgBackend {
+    DbgBackendType type;
+    QString name;
+    QString prefix;
+};
+
+static const QList<DbgBackend> dbgBackends = {
+    { GDB, "GDB", "gdb://" },
+    { WINDBG, "WinKd - Pipe", "winkd://" }
+};
 
 RemoteDebugDialog::RemoteDebugDialog(QWidget *parent) :
     QDialog(parent),
@@ -18,47 +29,45 @@ RemoteDebugDialog::RemoteDebugDialog(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
-    // Set a default selection
-    ui->debuggerCombo->setCurrentIndex(ui->debuggerCombo->findText(DEFAULT_INDEX));
-    onIndexChange();
+    // Fill in debugger Combo
+    ui->debuggerCombo->clear();
+    for (auto& backend : dbgBackends) {
+        ui->debuggerCombo->addItem(backend.name);
+    }
 
-    connect(ui->debuggerCombo,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &RemoteDebugDialog::onIndexChange);
+    // Fill ip list
+    fillRecentIpList();
+    ui->ipEdit->setFocus();
+
+    // Connect statements for right click action and itemClicked action
+    ui->recentsIpListWidget->addAction(ui->actionRemoveItem);
+    ui->recentsIpListWidget->addAction(ui->actionRemoveAll);
+    connect(ui->actionRemoveAll, &QAction::triggered, this, &RemoteDebugDialog::clearAll);
+    connect(ui->actionRemoveItem, &QAction::triggered, this, &RemoteDebugDialog::removeItem);
+    connect(ui->recentsIpListWidget, &QListWidget::itemClicked, this, &RemoteDebugDialog::itemClicked);
 }
 
 RemoteDebugDialog::~RemoteDebugDialog() {}
 
 bool RemoteDebugDialog::validate()
 {
-    QString debugger = getDebugger();
-
-    if (debugger == GDBSERVER) {
-        if (!validateIp()) {
-            return false;
-        }
-        if (!validatePort()) {
-            return false;
-        }
-    } else if (debugger == WINDBGPIPE) {
-        if (!validatePath()) {
-            return false;
-        }
-    } else {
-        QMessageBox msgBox;
-        msgBox.setText(tr("Invalid debugger"));
-        msgBox.exec();
-        return false;
+    int debugger = getDebugger();
+    if (debugger == GDB) {
+        return validatePort() && validateIp();
+    } else if (debugger == WINDBG) {
+        return validatePath();
     }
-
-    return true;
+    QMessageBox msgBox;
+    msgBox.setText(tr("Invalid debugger"));
+    msgBox.exec();
+    return false;
 }
 
 bool RemoteDebugDialog::validateIp()
 {
     QMessageBox msgBox;
 
-    QString ip = getIp();
+    QString ip = getIpOrPath();
     if (QHostAddress(ip).isNull()) {
         msgBox.setText(tr("Invalid IP address"));
         msgBox.exec();
@@ -71,7 +80,7 @@ bool RemoteDebugDialog::validatePath()
 {
     QMessageBox msgBox;
 
-    QString path = getPath();
+    QString path = getIpOrPath();
     if (!QFileInfo(path).exists()) {
         msgBox.setText(tr("Path does not exist"));
         msgBox.exec();
@@ -93,36 +102,6 @@ bool RemoteDebugDialog::validatePort()
     return true;
 }
 
-void RemoteDebugDialog::onIndexChange()
-{
-    QString debugger = getDebugger();
-    if (debugger == GDBSERVER) {
-        activateGdb();
-    } else if (debugger == WINDBGPIPE) {
-        activateWinDbgPipe();
-    }
-}
-
-void RemoteDebugDialog::activateGdb()
-{
-    ui->ipEdit->setVisible(true);
-    ui->portEdit->setVisible(true);
-    ui->ipText->setVisible(true);
-    ui->portText->setVisible(true);
-    ui->pathEdit->setVisible(false);
-    ui->pathText->setVisible(false);
-}
-
-void RemoteDebugDialog::activateWinDbgPipe()
-{
-    ui->ipEdit->setVisible(false);
-    ui->portEdit->setVisible(false);
-    ui->ipText->setVisible(false);
-    ui->portText->setVisible(false);
-    ui->pathEdit->setVisible(true);
-    ui->pathText->setVisible(true);
-}
-
 void RemoteDebugDialog::on_buttonBox_accepted()
 {
 }
@@ -132,49 +111,129 @@ void RemoteDebugDialog::on_buttonBox_rejected()
     close();
 }
 
-void RemoteDebugDialog::setIp(QString ip)
+void RemoteDebugDialog::removeItem()
 {
-    ui->ipEdit->setText(ip);
-    ui->ipEdit->selectAll();
+    QListWidgetItem *item = ui->recentsIpListWidget->currentItem();
+
+    if (item == nullptr)
+        return;
+
+    QVariant data = item->data(Qt::UserRole);
+    QString sitem = data.toString();
+
+    // Remove the item from recentIpList
+    QSettings settings;
+    QStringList ips = settings.value("recentIpList").toStringList();
+    ips.removeAll(sitem);
+    settings.setValue("recentIpList", ips);
+
+    // Also remove the line from list
+    ui->recentsIpListWidget->takeItem(ui->recentsIpListWidget->currentRow());
+    checkIfEmpty();
 }
 
-void RemoteDebugDialog::setPath(QString path)
+void RemoteDebugDialog::clearAll()
 {
-    ui->pathEdit->setText(path);
-    ui->pathEdit->selectAll();
+    QSettings settings;
+    ui->recentsIpListWidget->clear();
+
+    QStringList ips = settings.value("recentIpList").toStringList();
+    ips.clear();
+    settings.setValue("recentIpList", ips);
+
+    checkIfEmpty();
 }
 
-void RemoteDebugDialog::setPort(QString port)
+void RemoteDebugDialog::fillFormData(QString formdata)
 {
-    ui->portEdit->setText(port);
-    ui->portEdit->selectAll();
+    QString ipText = "";
+    QString portText = "";
+    const DbgBackend* backend = nullptr;
+    for (auto& back : dbgBackends) {
+        if (formdata.startsWith(back.prefix)) {
+            backend = &back;
+        }
+    }
+    if (!backend) {
+        return;
+    }
+
+    if (backend->type == GDB) {
+        // Format is | prefix | IP | : | PORT |
+        int lastColon = formdata.lastIndexOf(QString(":"));
+        portText = formdata.mid(lastColon + 1, formdata.length());
+        ipText = formdata.mid(backend->prefix.length(), lastColon - backend->prefix.length());
+    } else if (backend->type == WINDBG) {
+        // Format is | prefix | PATH |
+        ipText = formdata.mid(backend->prefix.length());
+    }
+    ui->debuggerCombo->setCurrentText(backend->name);
+    ui->ipEdit->setText(ipText);
+    ui->portEdit->setText(portText);
 }
 
-void RemoteDebugDialog::setDebugger(QString debugger)
-{
-    ui->debuggerCombo->setCurrentIndex(ui->debuggerCombo->findText(debugger));
-}
 
 QString RemoteDebugDialog::getUri() const
 {
-    QString debugger = getDebugger();
-    if (debugger == WINDBGPIPE) {
-        return QString("%1://%2").arg(WINDBG_URI_PREFIX, getPath());
-    } else if (debugger == GDBSERVER) {
-        return QString("%1://%2:%3").arg(GDB_URI_PREFIX, getIp(), QString::number(getPort()));
+    int debugger = getDebugger();
+    if (debugger == WINDBG) {
+        return QString("%1%2").arg(dbgBackends[WINDBG].prefix, getIpOrPath());
+    } else if (debugger == GDB) {
+        return QString("%1%2:%3").arg(dbgBackends[GDB].prefix, getIpOrPath(), QString::number(getPort()));
+    }
+    return "- uri error";
+}
+
+bool RemoteDebugDialog::fillRecentIpList()
+{
+    QSettings settings;
+
+    // Fetch recentIpList
+    QStringList ips = settings.value("recentIpList").toStringList();
+    QMutableListIterator<QString> it(ips);
+    while (it.hasNext()) {
+        const QString ip = it.next();
+        const QString text = QString("%1").arg(ip);
+        QListWidgetItem *item = new QListWidgetItem(
+            text
+        );
+        item->setData(Qt::UserRole, ip);
+        // Fill recentsIpListWidget
+        ui->recentsIpListWidget->addItem(item);
     }
 
-    return NULL;
+    if (!ips.isEmpty()) {
+        fillFormData(ips[0]);
+    }
+
+    checkIfEmpty();
+
+    return !ips.isEmpty();
 }
 
-QString RemoteDebugDialog::getIp() const
+void RemoteDebugDialog::checkIfEmpty()
+{
+    QSettings settings;
+    QStringList ips = settings.value("recentIpList").toStringList();
+
+    if (ips.isEmpty()) {
+        ui->recentsIpListWidget->setVisible(false);
+        ui->line->setVisible(false);
+    } else {
+        // TODO: Find a way to make the list widget not to high
+    }
+}
+
+void RemoteDebugDialog::itemClicked(QListWidgetItem *item)
+{
+    QVariant data = item->data(Qt::UserRole);
+    QString ipport = data.toString();
+    fillFormData(ipport);
+}
+
+QString RemoteDebugDialog::getIpOrPath() const
 {
     return ui->ipEdit->text();
-}
-
-QString RemoteDebugDialog::getPath() const
-{
-    return ui->pathEdit->text();
 }
 
 int RemoteDebugDialog::getPort() const
@@ -182,7 +241,7 @@ int RemoteDebugDialog::getPort() const
     return ui->portEdit->text().toInt();
 }
 
-QString RemoteDebugDialog::getDebugger() const
+int RemoteDebugDialog::getDebugger() const
 {
-    return ui->debuggerCombo->currentText();
+    return ui->debuggerCombo->currentIndex();
 }

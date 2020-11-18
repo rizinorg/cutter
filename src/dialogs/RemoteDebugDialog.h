@@ -2,6 +2,7 @@
 #define REMOTEDEBUGDIALOG_H
 
 #include <QDialog>
+#include <QListWidgetItem>
 #include <memory>
 
 namespace Ui {
@@ -19,30 +20,58 @@ public:
     explicit RemoteDebugDialog(QWidget *parent = nullptr);
     ~RemoteDebugDialog();
 
-    void setIp(QString ip);
-    void setPort(QString port);
-    void setPath(QString path);
-    void setDebugger(QString debugger);
+    /**
+     * @brief Generate a URI for given UI input
+     */
     QString getUri() const;
-    QString getIp() const;
-    int getPort() const;
-    QString getPath() const;
-    QString getDebugger() const;
     bool validate();
 
 private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
-    void onIndexChange();
+
+    /**
+     * @brief Clears the list of recent connections.
+     * Triggers when you right click and click on "Clear All" in remote debug dialog.
+     */
+    void clearAll();
+
+    /**
+     * @brief Clears the selected item in the list of recent connections.
+     * Triggers when you right click and click on "Remove Item" in remote debug dialog.
+     */
+    void removeItem();
+
+    /**
+     * @brief Fills the form with the selected item's data.
+     */
+    void itemClicked(QListWidgetItem *item);
 
 private:
-    void activateGdb();
-    void activateWinDbgPipe();
+    std::unique_ptr<Ui::RemoteDebugDialog> ui;
+    int getPort() const;
+    int getDebugger() const;
+    QString getIpOrPath() const;
+
+    bool validatePath();
     bool validateIp();
     bool validatePort();
-    bool validatePath();
 
-    std::unique_ptr<Ui::RemoteDebugDialog> ui;
+    /**
+     * @brief Fills recent remote connections.
+     */
+    bool fillRecentIpList();
+
+    /**
+     * @brief Fills the remote debug dialog form from a given URI
+     * Eg: gdb://127.0.0.1:8754 or windbg:///tmp/abcd
+     */
+    void fillFormData(QString formdata);
+
+    /**
+     * @brief Checks if the recent connection list is empty or and hide/unhide the table view
+     */
+    void checkIfEmpty();
 };
 
 #endif // REMOTE_DEBUG_DIALOG
