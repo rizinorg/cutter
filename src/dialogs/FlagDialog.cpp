@@ -8,12 +8,18 @@
 FlagDialog::FlagDialog(RVA offset, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::FlagDialog),
-    offset(offset)
+    offset(offset),
+    flagName(""),
+    flagOffset(0)
 {
     // Setup UI
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
-    flag = r_flag_get_i(Core()->core()->flags, offset);
+    RFlagItem* flag = r_flag_get_i(Core()->core()->flags, offset);
+    if (flag) {
+        flagName = QString(flag->name);
+        flagOffset = flag->offset;
+    }
 
     auto size_validator = new QIntValidator(ui->sizeEdit);
     size_validator->setBottom(1);
@@ -40,17 +46,16 @@ void FlagDialog::buttonBoxAccepted()
     QString name = ui->nameEdit->text();
 
     if (name.isEmpty()) {
-        if (flag) {
+        if (flagOffset) {
             // Empty name and flag exists -> delete the flag
-            Core()->delFlag(flag->offset);
+            Core()->delFlag(flagOffset);
         } else {
             // Flag was not existing and we gave an empty name, do nothing
         }
     } else {
-        if (flag) {
+        if (flagOffset) {
             // Name provided and flag exists -> rename the flag
-            Core()->renameFlag(flag->name, name);
-            flag->size = size;
+            Core()->renameFlag(flagName, name);
         } else {
             // Name provided and flag does not exist -> create the flag
             Core()->addFlag(offset, name, size);

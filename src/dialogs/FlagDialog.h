@@ -25,7 +25,8 @@ private slots:
 private:
     std::unique_ptr<Ui::FlagDialog> ui;
     RVA offset;
-    RFlagItem* flag;
+    QString flagName;
+    ut64 flagOffset;
 };
 
 #endif // FLAGDIALOG_H
