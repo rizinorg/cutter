@@ -39,6 +39,9 @@ StackWidget::StackWidget(MainWindow *main) :
     connect(Core(), &CutterCore::refreshAll, this, &StackWidget::updateContents);
     connect(Core(), &CutterCore::registersChanged, this, &StackWidget::updateContents);
     connect(Core(), &CutterCore::stackChanged, this, &StackWidget::updateContents);
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(modelStack, StackModel::CommentColumn);
+    });
     connect(Config(), &Configuration::fontsUpdated, this, &StackWidget::fontsUpdatedSlot);
     connect(viewStack, &QAbstractItemView::doubleClicked, this, &StackWidget::onDoubleClicked);
     connect(viewStack, &QWidget::customContextMenuRequested, this, &StackWidget::customMenuRequested);
@@ -187,6 +190,8 @@ QVariant StackModel::data(const QModelIndex &index, int role) const
             return item.value;
         case DescriptionColumn:
             return item.refDesc.ref;
+        case CommentColumn:
+            return Core()->getCommentAt(item.offset);
         default:
             return QVariant();
         }
@@ -216,6 +221,8 @@ QVariant StackModel::headerData(int section, Qt::Orientation orientation, int ro
             return tr("Value");
         case DescriptionColumn:
             return tr("Reference");
+        case CommentColumn:
+            return tr("Comment");
         default:
             return QVariant();
         }

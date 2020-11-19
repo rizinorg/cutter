@@ -32,7 +32,7 @@ private:
     QList<HeaderDescription> *headers;
 
 public:
-    enum Column { OffsetColumn = 0, NameColumn, ValueColumn, ColumnCount };
+    enum Column { OffsetColumn = 0, NameColumn, ValueColumn, CommentColumn, ColumnCount };
     enum Role { HeaderDescriptionRole = Qt::UserRole };
 
     HeadersModel(QList<HeaderDescription> *headers, QObject *parent = nullptr);

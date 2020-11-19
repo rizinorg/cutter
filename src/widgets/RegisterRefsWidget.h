@@ -39,7 +39,7 @@ private:
     QList<RegisterRefDescription> *registerRefs;
 
 public:
-    enum Column { RegColumn = 0, ValueColumn, RefColumn, ColumnCount };
+    enum Column { RegColumn = 0, ValueColumn, RefColumn, CommentColumn, ColumnCount };
     enum Role { RegisterRefDescriptionRole = Qt::UserRole };
 
     RegisterRefModel(QList<RegisterRefDescription> *registerRefs, QObject *parent = 0);

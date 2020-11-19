@@ -33,6 +33,8 @@ QVariant RelocsModel::data(const QModelIndex &index, int role) const
             return reloc.type;
         case RelocsModel::NameColumn:
             return reloc.name;
+        case RelocsModel::CommentColumn:
+            return Core()->getCommentAt(reloc.vaddr);
         default:
             break;
         }
@@ -57,6 +59,8 @@ QVariant RelocsModel::headerData(int section, Qt::Orientation, int role) const
             return tr("Type");
         case RelocsModel::NameColumn:
             return tr("Name");
+        case RelocsModel::CommentColumn:
+            return tr("Comment");
         }
     return QVariant();
 }
@@ -106,6 +110,8 @@ bool RelocsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &righ
         return leftReloc.type < rightReloc.type;
     case RelocsModel::NameColumn:
         return leftReloc.name < rightReloc.name;
+    case RelocsModel::CommentColumn:
+        return Core()->getCommentAt(leftReloc.vaddr) < Core()->getCommentAt(rightReloc.vaddr);
     default:
         break;
     }
@@ -126,6 +132,9 @@ RelocsWidget::RelocsWidget(MainWindow *main) :
 
     connect(Core(), &CutterCore::codeRebased, this, &RelocsWidget::refreshRelocs);
     connect(Core(), &CutterCore::refreshAll, this, &RelocsWidget::refreshRelocs);
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(relocsModel, RelocsModel::CommentColumn);
+    });
 }
 
 RelocsWidget::~RelocsWidget() {}

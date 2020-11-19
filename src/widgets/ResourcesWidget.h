@@ -21,7 +21,7 @@ private:
     QList<ResourcesDescription> *resources;
 
 public:
-    enum Columns { INDEX = 0, NAME, VADDR, TYPE, SIZE, LANG, COUNT };
+    enum Columns { INDEX = 0, NAME, VADDR, TYPE, SIZE, LANG, COMMENT, COUNT };
     explicit ResourcesModel(QList<ResourcesDescription> *resources, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;

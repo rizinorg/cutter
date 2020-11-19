@@ -43,7 +43,7 @@ private:
     QList<ImportDescription> *imports;
 
 public:
-    enum Column { AddressColumn = 0, TypeColumn, LibraryColumn, NameColumn, SafetyColumn, ColumnCount };
+    enum Column { AddressColumn = 0, TypeColumn, LibraryColumn, NameColumn, SafetyColumn, CommentColumn, ColumnCount };
     enum Role { ImportDescriptionRole = Qt::UserRole, AddressRole };
 
     ImportsModel(QList<ImportDescription> *imports, QObject *parent = nullptr);

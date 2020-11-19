@@ -69,6 +69,8 @@ QVariant BreakpointModel::data(const QModelIndex &index, int role) const
             return breakpoint.trace;
         case EnabledColumn:
             return breakpoint.enabled;
+        case CommentColumn:
+            return Core()->getCommentAt(breakpoint.addr);
         default:
             return QVariant();
         }
@@ -105,6 +107,8 @@ QVariant BreakpointModel::headerData(int section, Qt::Orientation, int role) con
             return tr("Tracing");
         case EnabledColumn:
             return tr("Enabled");
+        case CommentColumn:
+            return tr("Comment");
         default:
             return QVariant();
         }
@@ -216,6 +220,9 @@ BreakpointWidget::BreakpointWidget(MainWindow *main) :
     connect(Core(), &CutterCore::breakpointsChanged, this, &BreakpointWidget::refreshBreakpoint);
     connect(Core(), &CutterCore::codeRebased, this, &BreakpointWidget::refreshBreakpoint);
     connect(Core(), &CutterCore::refreshCodeViews, this, &BreakpointWidget::refreshBreakpoint);
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(breakpointModel, BreakpointModel::CommentColumn);
+    });
     connect(ui->addBreakpoint, &QAbstractButton::clicked, this, &BreakpointWidget::addBreakpointDialog);
     connect(ui->delBreakpoint, &QAbstractButton::clicked, this, &BreakpointWidget::delBreakpoint);
     connect(ui->delAllBreakpoints, &QAbstractButton::clicked, Core(), &CutterCore::delAllBreakpoints);

@@ -67,6 +67,8 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
             return exp.code;
         case DATA:
             return exp.data;
+        case COMMENT:
+            return Core()->getCommentAt(exp.offset);
         default:
             return QVariant();
         }
@@ -115,6 +117,8 @@ QVariant SearchModel::headerData(int section, Qt::Orientation, int role) const
             return tr("Code");
         case DATA:
             return tr("Data");
+        case COMMENT:
+            return tr("Comment");
         default:
             return QVariant();
         }
@@ -159,6 +163,8 @@ bool SearchSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelI
         return left_search.code < right_search.code;
     case SearchModel::DATA:
         return left_search.data < right_search.data;
+    case SearchModel::COMMENT:
+        return Core()->getCommentAt(left_search.offset) < Core()->getCommentAt(right_search.offset);
     default:
         break;
     }
@@ -186,6 +192,9 @@ SearchWidget::SearchWidget(MainWindow *main) :
 
     connect(Core(), &CutterCore::toggleDebugView, this, &SearchWidget::updateSearchBoundaries);
     connect(Core(), &CutterCore::refreshAll, this, &SearchWidget::refreshSearchspaces);
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(search_model, SearchModel::COMMENT);
+    });
 
     QShortcut *enter_press = new QShortcut(QKeySequence(Qt::Key_Return), this);
     connect(enter_press, &QShortcut::activated, this, [this]() {
@@ -304,7 +313,6 @@ void SearchWidget::updatePlaceholderText(int index)
         ui->filterLineEdit->setPlaceholderText("jmp rax");
     }
 }
-
 
 void SearchWidget::on_searchInCombo_currentIndexChanged(int index)
 {

@@ -47,6 +47,8 @@ QVariant StringsModel::data(const QModelIndex &index, int role) const
             return QString::number(str.size);
         case StringsModel::SectionColumn:
             return str.section;
+        case StringsModel::CommentColumn:
+            return Core()->getCommentAt(str.vaddr);
         default:
             return QVariant();
         }
@@ -74,6 +76,8 @@ QVariant StringsModel::headerData(int section, Qt::Orientation, int role) const
             return tr("Size");
         case StringsModel::SectionColumn:
             return tr("Section");
+        case StringsModel::CommentColumn:
+            return tr("Comment");
         default:
             return QVariant();
         }
@@ -129,6 +133,8 @@ bool StringsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
         return leftStr->length < rightStr->length;
     case StringsModel::SectionColumn:
         return leftStr->section < rightStr->section;
+    case StringsModel::CommentColumn:
+        return Core()->getCommentAt(leftStr->vaddr) < Core()->getCommentAt(rightStr->vaddr);
     default:
         break;
     }
@@ -193,6 +199,9 @@ StringsWidget::StringsWidget(MainWindow *main) :
 
     connect(Core(), &CutterCore::refreshAll, this, &StringsWidget::refreshStrings);
     connect(Core(), &CutterCore::codeRebased, this, &StringsWidget::refreshStrings);
+    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(model, StringsModel::CommentColumn);
+    });
 
     connect(
         ui->quickFilterView->comboBox(), &QComboBox::currentTextChanged, this,

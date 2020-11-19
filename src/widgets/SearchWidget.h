@@ -25,7 +25,7 @@ private:
     QList<SearchDescription> *search;
 
 public:
-    enum Columns { OFFSET = 0, SIZE, CODE, DATA, COUNT };
+    enum Columns { OFFSET = 0, SIZE, CODE, DATA, COMMENT, COUNT };
     static const int SearchDescriptionRole = Qt::UserRole;
 
     SearchModel(QList<SearchDescription> *search, QObject *parent = nullptr);
