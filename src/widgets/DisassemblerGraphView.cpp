@@ -235,6 +235,8 @@ void DisassemblerGraphView::loadCurrentGraph()
         GraphBlock gb;
         gb.entry = block_entry;
         db.entry = block_entry;
+        db.header_text = Text("[" + RAddressString(db.entry) + "]", ConfigColor("offset"),
+                              QColorConstants::Transparent);
         db.true_path = RVA_INVALID;
         db.false_path = RVA_INVALID;
         if (block_fail) {
