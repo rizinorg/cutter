@@ -538,8 +538,8 @@ RVA DisassemblerGraphView::getAddrForMouseEvent(GraphBlock &block, QPoint *point
     int text_point_y = point->y() - off_y;
     int mouse_row = text_point_y / charHeight;
 
-    int cur_row = static_cast<int>(db.header_text.lines.size());
-    if (mouse_row < cur_row) {
+    // If mouse coordinate is in header region or margin above
+    if (mouse_row < 0) {
         return db.entry;
     }
 
@@ -563,7 +563,8 @@ DisassemblerGraphView::Instr *DisassemblerGraphView::getInstrForMouseEvent(
     int text_point_y = point->y() - off_y;
     int mouse_row = text_point_y / charHeight;
 
-    int cur_row = static_cast<int>(db.header_text.lines.size());
+    // Row in actual text
+    int cur_row = 0;
 
     for (Instr &instr : db.instrs) {
         if (mouse_row < cur_row + (int)instr.text.lines.size()) {
