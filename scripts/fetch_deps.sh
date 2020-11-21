@@ -12,8 +12,8 @@ MACOS_MD5=e75041c04fc806437723a399028402af
 MACOS_URL=https://github.com/radareorg/cutter-deps/releases/download/v12/cutter-deps-macos.tar.gz
 
 WIN_FILE="cutter-deps-win.tar.gz"
-WIN_MD5=7c755404140f2e9945bfc13d2e645bb1
-WIN_URL=https://github.com/radareorg/cutter-deps/releases/download/v12/cutter-deps-win.tar.gz
+WIN_MD5=ba04c0c7c0d9cf61ccb210bb3406b063
+WIN_URL=https://ci.appveyor.com/api/buildjobs/xnc24lfa138rw4kk/artifacts/cutter-deps-win.tar.gz
 
 if [ "$OS" == "Windows_NT" ]; then
 	FILE="${WIN_FILE}"
