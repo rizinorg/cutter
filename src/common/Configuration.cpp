@@ -780,3 +780,13 @@ bool Configuration::getOutputRedirectionEnabled() const
 {
     return outputRedirectEnabled;
 }
+
+bool Configuration::getGraphBlockEntryOffset()
+{
+    return s.value("graphBlockEntryOffset", true).value<bool>();
+}
+
+void Configuration::setGraphBlockEntryOffset(bool enabled)
+{
+    s.setValue("graphBlockEntryOffset", enabled);
+}

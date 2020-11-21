@@ -153,7 +153,7 @@ public:
      */
     void setConfig(const QString &key, const QVariant &value);
     bool isFirstExecution();
-    
+
     /**
      * @return id of the last selected decompiler (see CutterCore::getDecompilerById)
      */
@@ -186,6 +186,11 @@ public:
     void setGraphSpacing(QPoint blockSpacing, QPoint edgeSpacing);
     QPoint getGraphBlockSpacing();
     QPoint getGraphEdgeSpacing();
+    /**
+     * @brief Getter and setter for graph block entry offset
+     */
+    bool getGraphBlockEntryOffset();
+    void setGraphBlockEntryOffset(bool enabled);
 
     /**
      * @brief Enable or disable Cutter output redirection.

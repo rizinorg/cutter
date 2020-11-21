@@ -79,6 +79,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="blockEntryCheckBox">
+     <property name="text">
+      <string>Show block entry offset</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Layout</string>
