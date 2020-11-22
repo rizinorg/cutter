@@ -28,7 +28,7 @@
         <item>
          <widget class="QCheckBox" name="blockEntryCheckBox">
           <property name="toolTip">
-           <string>The address of the first instruction is shown in the header of each graph block</string>
+           <string>The offset of the first instruction of a graph block is shown in the header of the respective graph block</string>
           </property>
           <property name="text">
            <string>Show offset of the first instruction in each graph block</string>
