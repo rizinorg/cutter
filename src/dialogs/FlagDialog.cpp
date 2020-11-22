@@ -10,7 +10,7 @@ FlagDialog::FlagDialog(RVA offset, QWidget *parent) :
     ui(new Ui::FlagDialog),
     offset(offset),
     flagName(""),
-    flagOffset(0)
+    flagOffset(RVA_INVALID)
 {
     // Setup UI
     ui->setupUi(this);
@@ -46,7 +46,7 @@ void FlagDialog::buttonBoxAccepted()
     QString name = ui->nameEdit->text();
 
     if (name.isEmpty()) {
-        if (flagOffset) {
+        if (flagOffset != RVA_INVALID) {
             // Empty name and flag exists -> delete the flag
             Core()->delFlag(flagOffset);
         } else {
