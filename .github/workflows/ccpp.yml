@@ -15,12 +15,18 @@ jobs:
       matrix:
         os: [ubuntu-18.04, ubuntu-16.04, macos-latest, windows-latest]
         python-version: [3.7.x]
+        system-deps: [false]
+        cc-override: [default]
+        cxx-override: [default]
+        include:
+          - os: ubuntu-16.04
+            python-version: 3.5.10
+            system-deps: true
+            cc-override: '/usr/bin/gcc-5'
+            cxx-override: '/usr/bin/g++-5'
       # Prevent one job from pausing the rest
       fail-fast: false
     steps:
-    - uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
     - uses: actions/checkout@v2
       with:
         submodules: true # 'recursive' 'true' or 'false'
@@ -28,19 +34,36 @@ jobs:
     - name: apt dependencies
       if: contains(matrix.os, 'ubuntu')
       run: |
-        if [[ "${{ matrix.os }}" = "ubuntu-18.04" ]]
-        then
-          # github action VMs currently have broken package list causing install to fail, run update to refresh it
-          # remove this once fixed
-          sudo apt-get update
-        fi
         sudo apt-get install libgraphviz-dev mesa-common-dev
         if [[ "${{ matrix.os }}" = "ubuntu-16.04" ]]
         then
-          sudo apt-get install ninja-build/xenial-backports
+          sudo apt-get install ninja-build/xenial-backports 
+          if [[ "${{ matrix.system-deps }}" = "true" ]]
+          then
+            sudo apt-get install cmake
+            sudo apt-get install --allow-downgrades \
+                g++-5=5.4.\* \
+                gcc-5=5.4.\* \
+                gcc-5-base=5.4.\* \
+                libstdc++-5-dev=5.4.\* \
+                cpp-5=5.4.\* \
+                libgcc-5-dev=5.4.\* \
+                libasan2=5.4.\* \
+                libmpx0=5.4.\*
+           fi
+           # make sure cmake that was just installed is at the front of path before
+           # additiona software installed by GitHub
+           echo /usr/bin >> $GITHUB_PATH
         else
           sudo apt-get install ninja-build
         fi
+        if [[ "${{ matrix.system-deps }}" = "true" ]]
+        then
+          sudo apt-get install qt5-default libqt5svg5-dev qttools5-dev qttools5-dev-tools
+        fi
+    - uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
     - name: homebrew dependencies
       if: contains(matrix.os, 'macos')
       run: |
@@ -56,24 +79,46 @@ jobs:
     - name: cmake ubuntu
       if: contains(matrix.os, 'ubuntu')
       run: |
-        scripts/fetch_deps.sh
-        source cutter-deps/env.sh
-        export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
+        if [[ "${{ matrix.system-deps }}" = "false" ]]
+        then
+          scripts/fetch_deps.sh
+          source cutter-deps/env.sh
+          export PKG_CONFIG_PATH="$CUTTER_DEPS_PYTHON_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
+          export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
+        fi
+        set -euo pipefail #TODO: move to top once cutter-deps doesn't fail
+        if [[ "${{ matrix.cc-override }}" != "default" ]]
+        then
+          export CC="${{matrix.cc-override}}"
+          export CXX="${{matrix.cxx-override}}"
+        fi
+
         source scripts/prepare_breakpad_linux.sh
-        export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+        export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}" #
         mkdir build
         cd build
-        cmake \
-                -DCMAKE_BUILD_TYPE=Release \
-                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.so.1.0" \
-                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m" \
-                -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
-                -DCUTTER_ENABLE_PYTHON=ON \
-                -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF \
-                -DCUTTER_ENABLE_CRASH_REPORTS=ON \
-                -DCUTTER_USE_BUNDLED_RADARE2=ON \
-                ../src && \
-            make -j4
+        cmake --version
+        if [[ "${{ matrix.system-deps }}" = "false" ]]
+        then
+          cmake \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCUTTER_ENABLE_PYTHON=ON \
+            -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.so.1.0" \
+            -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m" \
+            -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
+            -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF \
+            -DCUTTER_ENABLE_CRASH_REPORTS=ON \
+            -DCUTTER_USE_BUNDLED_RADARE2=ON \
+            ../src
+        else
+          cmake \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCUTTER_USE_BUNDLED_RADARE2=ON \
+            ../src
+        fi
+        ninja
     - name: cmake macos
       shell: bash
       if: contains(matrix.os, 'macos')

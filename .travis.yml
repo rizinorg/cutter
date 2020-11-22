@@ -54,24 +54,24 @@ matrix:
          - libxkbcommon-x11-dev
          - ninja-build/xenial-backports
 
-  - name: Linux Ubuntu 16.04 # test that Cutter can be built on an old distro using system libraries
-    os: linux
-    env: BUILD_SYSTEM=cmake_nodep PATH="/usr/bin:$PATH"
-    dist: xenial
-    addons:
-      apt:
-        packages:
-         - ninja-build
-         - libgraphviz-dev
-         - qt5-default
-         - libqt5svg5-dev
-         - qttools5-dev
-         - qttools5-dev-tools
-         - cmake
-    before_install:
-      - pyenv install 3.5.2
-      - pyenv global 3.5.2
-      - pip install meson==0.52.1
+  #- name: Linux Ubuntu 16.04 # test that Cutter can be built on an old distro using system libraries
+  #  os: linux
+  #  env: BUILD_SYSTEM=cmake_nodep PATH="/usr/bin:$PATH"
+  #  dist: xenial
+  #  addons:
+  #    apt:
+  #      packages:
+  #       - ninja-build
+  #       - libgraphviz-dev
+  #       - qt5-default
+  #       - libqt5svg5-dev
+  #       - qttools5-dev
+  #       - qttools5-dev-tools
+  #       - cmake
+  #  before_install:
+  #    - pyenv install 3.5.2
+  #    - pyenv global 3.5.2
+  #    - pip install meson==0.52.1
 
 
   - name: macOS QMake + Deploy
