@@ -447,11 +447,27 @@ void DisassemblyContextMenu::setupRenaming()
     if (!tuh) {
         // Nothing matched on current line, is there anything valid coming from our selection?
         thingAt = getThingAt(selection);
+
         if (thingAt.offset == 0) {
             // We parsed something which resolved to 0, it's very likely nothing interesting was selected
             // So we fallback on current line offset
             thingAt = getThingAt(offset);
         }
+
+        // However, since for the moment selection selects *every* lines which match a specific offset,
+        // make sure we didn't want to select a local variable rather than the function itself
+        if (thingAt.type == ThingUsedHere::Type::Function) {
+            auto vars = Core()->getVariables(offset);
+            for (auto v : vars) {
+                if (v.name == curHighlightedWord) {
+                    // This is a local variable
+                    thingAt.type = ThingUsedHere::Type::Var;
+                    thingAt.name = v.name;
+                    break;
+                }
+            }
+        }
+
         // In any case, thingAt will contain something we can rename
         tuh = &thingAt;
     }
