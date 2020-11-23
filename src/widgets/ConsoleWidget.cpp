@@ -434,6 +434,11 @@ void ConsoleWidget::processQueuedOutput()
     }
 }
 
+// Haiku doesn't have O_ASYNC
+#ifdef Q_OS_HAIKU
+#define O_ASYNC O_NONBLOCK
+#endif
+
 void ConsoleWidget::redirectOutput()
 {
     // Make sure that we are running in a valid console with initialized output handles
