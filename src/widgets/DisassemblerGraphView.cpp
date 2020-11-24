@@ -236,8 +236,9 @@ void DisassemblerGraphView::loadCurrentGraph()
         gb.entry = block_entry;
         db.entry = block_entry;
         if (Config()->getGraphBlockEntryOffset()) {
+            // QColor(0,0,0,0) is transparent
             db.header_text = Text("[" + RAddressString(db.entry) + "]", ConfigColor("offset"),
-                                  QColorConstants::Transparent);
+                                  QColor(0, 0, 0, 0));
         }
         db.true_path = RVA_INVALID;
         db.false_path = RVA_INVALID;
@@ -439,7 +440,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
 
                 qreal highlightWidth = tokenWidth;
                 if (charWidth * 3 + widthBefore + tokenWidth >= block.width - (10 + padding)) {
-                    highlightWidth = block.width - widthBefore - (10 +  2 * padding);
+                    highlightWidth = block.width - widthBefore - (10 + 2 * padding);
                 }
 
                 QColor selectionColor = ConfigColor("wordHighlight");
@@ -569,7 +570,7 @@ DisassemblerGraphView::Instr *DisassemblerGraphView::getInstrForMouseEvent(
     int cur_row = 0;
 
     for (Instr &instr : db.instrs) {
-        if (mouse_row < cur_row + (int)instr.text.lines.size()) {
+        if (mouse_row < cur_row + (int) instr.text.lines.size()) {
             return &instr;
         }
         cur_row += instr.text.lines.size();
