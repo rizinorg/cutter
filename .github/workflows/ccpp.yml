@@ -52,7 +52,7 @@ jobs:
                 libmpx0=5.4.\*
            fi
            # make sure cmake that was just installed is at the front of path before
-           # additiona software installed by GitHub
+           # additional software installed by GitHub
            echo /usr/bin >> $GITHUB_PATH
         else
           sudo apt-get install ninja-build
