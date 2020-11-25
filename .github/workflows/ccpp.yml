@@ -70,6 +70,7 @@ jobs:
         cd scripts
         brew update --preinstall # temporary workaround for https://github.com/Homebrew/homebrew-bundle/issues/751
         brew bundle
+        brew install coreutils
         brew install pkg-config
     - name: py dependencies
       run: |
