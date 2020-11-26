@@ -10,13 +10,12 @@ IF !ERRORLEVEL! NEQ 0 (
 )
 
 SET "PATH=%CD%;%PATH%"
-SET "R2DIST=r2_dist"
+SET "RZDIST=rz_dist"
 
-ECHO Building radare2 (%PLATFORM%)
-CD radare2
+ECHO Building Rizin (%PLATFORM%)
+CD rizin
 git clean -xfd
-RMDIR /S /Q ..\%R2DIST%
-rem python sys\meson.py --release --shared --install --prefix=%CD%\..\%R2DIST% --options "r2_datdir=radare2/share" "r2_libdir=radare2/lib" #"c_args=-D_UNICODE -DUNICODE"
-meson.exe r2_builddir --buildtype=release --prefix=%CD%\..\%R2DIST% || EXIT /B 1
-ninja -C r2_builddir install || EXIT /B 1
+RMDIR /S /Q ..\%RZDIST%
+meson.exe rz_builddir --buildtype=release --prefix=%CD%\..\%RZDIST% || EXIT /B 1
+ninja -C rz_builddir install || EXIT /B 1
 IF !ERRORLEVEL! NEQ 0 EXIT /B 1

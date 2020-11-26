@@ -8,7 +8,7 @@ if(WIN32)
         set(RIZIN_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
     endif()
     set(RIZIN_INSTALL_BINPATH ".")
-    set(MESON_OPTIONS "--prefix=${RIZIN_INSTALL_DIR}" "--bindir=${RIZIN_INSTALL_BINPATH}" "-Dr2_incdir=include/librz")
+    set(MESON_OPTIONS "--prefix=${RIZIN_INSTALL_DIR}" "--bindir=${RIZIN_INSTALL_BINPATH}" "-Drz_incdir=include/librz")
 else()
     set(RIZIN_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/Rizin-prefix")
     set(MESON_OPTIONS "--prefix=${RIZIN_INSTALL_DIR}" --libdir=lib)
@@ -46,7 +46,7 @@ set (R2_LIBS rz_core rz_config rz_cons rz_io rz_util rz_flag rz_asm rz_debug
         rz_hash rz_bin rz_lang rz_io rz_anal rz_parse rz_bp rz_egg rz_reg
         rz_search rz_syscall rz_socket rz_magic rz_crypto)
 set (R2_EXTRA_LIBS rz_main)
-set (R2_BIN r2agent rabin2 rizin radiff2 rafind2 ragg2 rahash2 rarun2 rasm2 rax2)
+set (R2_BIN rz-agent rz-bin rizin rz-diff rz-find rz-gg rz-hash rz-run rz-asm rz-ax)
 
 target_link_libraries(Rizin INTERFACE
         ${R2_LIBS})

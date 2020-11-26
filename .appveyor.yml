@@ -10,63 +10,55 @@ configuration:
 environment:
   NINJA_URL: https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-win.zip
   VSVARSALLPATH: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat'
-  QTPATH: 'cutter-deps\qt'
-  USE_APPVEYOR_QT: 'false'
-  matrix:
-    # Build: qmake vs2017 x86 shared
-    #- ARCH: x86
-    #  PYTHON: 'C:\Python36'
-    #  QMAKE: 1
-    #  DEPLOY: true
-    #  QTPATH: 'C:\Qt\5.12\msvc2017'
-    #  USE_APPVEYOR_QT: true
-    # Build: qmake vs2017 x64 shared
-    - ARCH: x64
-      PYTHON: 'C:\Python36-x64'
-      QMAKE: 1
-      DEPLOY: true
-    # Build: meson ninja x64 static
-    - ARCH: x64
-      PYTHON: 'C:\Python36-x64'
-      MESON: 1
-      BACKEND: ninja
-      DEPLOY: false
+  ARCH: x64
+  PYTHON: 'C:\Python36-x64'
+  PACKAGE_NAME: cutter-git-x64.Windows
 
 install:
+  - ps: $fileContent = "-----BEGIN RSA PRIVATE KEY-----`n"
+  - ps: $fileContent += $env:priv_key.Replace(' ', "`n")
+  - ps: $fileContent += "`n-----END RSA PRIVATE KEY-----`n"
+  - ps: Set-Content $env:userprofile\.ssh\id_rsa $fileContent
+  # --
   - ps: $env:path = ($env:path -split ";").Where({!($_ -like "*Microsoft SQL Server*")}) -join ";"
   - cmd: C:\msys64\usr\bin\bash -lc "cd $APPVEYOR_BUILD_FOLDER && scripts/fetch_deps.sh"
-  - cmd: set "CUTTER_DEPS_DIR=%APPVEYOR_BUILD_FOLDER%\cutter-deps"
+  - cmd: set "CUTTER_DEPS=%APPVEYOR_BUILD_FOLDER%\cutter-deps"
   - cmd: set "PATH=%CD%;%PYTHON%;%PATH%"
   - cmd: call "%VSVARSALLPATH%" %ARCH%
-  - cmd: if "%USE_APPVEYOR_QT%" == "false" ( set "QTPATH=%APPVEYOR_BUILD_FOLDER%\%QTPATH%" )
-  - cmd: set "PATH=%QTPATH%\bin;%PYTHON%\Scripts\;%PATH%"
+  - cmd: set "PATH=%CUTTER_DEPS%\qt\bin;%PYTHON%\Scripts\;%PATH%"
   - cmd: echo %PATH%
-  - cmd: python -m pip install meson==0.52
-  - cmd: where meson.exe
-  - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget %NINJA_URL% -OutFile ninja.zip; Expand-Archive .\ninja.zip -DestinationPath ."
+  - cmd: python -m pip install meson ninja
+  - ps: choco install winflexbison3
   # Artifacts
-  - cmd: set "ARTIFACT_NAME=Cutter-v1.12.0-%ARCH%.Windows"
-  - cmd: if defined MESON ( set "ARTIFACT_PATH=dist_%ARCH%" ) else ( set "ARTIFACT_PATH=build_%ARCH%\cutter" )
+  - cmd: set "ARTIFACT_NAME=%PACKAGE_NAME%.zip"
+  - cmd: set "ARTIFACT_PATH=build\%ARTIFACT_NAME%"
 
 before_build:
-  - cmd: git submodule update --init
+  - cmd: git submodule update --init --recursive
   - scripts\prepare_breakpad.bat
 
 # Build config
 build_script:
-  - cmd: if defined QMAKE ( call prepare_r2.bat )
-  - cmd: if defined QMAKE ( C:\msys64\usr\bin\bash -lc "export PATH=\"/c/msys64/usr/bin:$PATH\" && cd \"$APPVEYOR_BUILD_FOLDER\" && scripts/appveyor_r2ghidra.sh" )
-  - cmd: if defined QMAKE ( call build.bat CUTTER_APPVEYOR_R2DEC=true CUTTER_R2GHIDRA_STATIC=true R2GHIDRA_SOURCE="%APPVEYOR_BUILD_FOLDER%/r2ghidra" R2GHIDRA_INSTALL_PATH="%APPVEYOR_BUILD_FOLDER%/r2_dist/lib/plugins" CUTTER_ENABLE_CRASH_REPORTS=true CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=true CUTTER_DEPS_DIR="%CUTTER_DEPS_DIR%" )
-  - cmd: if defined MESON ( python meson.py --release --dist=%ARTIFACT_PATH% --backend=%BACKEND% --python )
-
-after_build:
-  - cmd: if defined QMAKE ( set "PATH=%CD%\r2_dist\bin;%PATH%" && powershell scripts\bundle_r2dec.ps1 "%CD%\%ARTIFACT_PATH%" )
-  #- cmd: if defined QMAKE ( C:\msys64\usr\bin\bash -lc "export PATH=\"/c/msys64/usr/bin:$PATH\" && cd \"$APPVEYOR_BUILD_FOLDER\" && scripts/appveyor_r2ghidra.sh" )
-  #- cmd: powershell scripts\bundle_openssl.ps1 %ARCH% "%CD%\%ARTIFACT_PATH%"
-  - cmd: powershell scripts\bundle_python.ps1 %ARCH% "%CD%\%ARTIFACT_PATH%"
-  - cmd: xcopy "%CUTTER_DEPS_DIR%\pyside\lib\site-packages" "%ARTIFACT_PATH%\python36\site-packages" /e /i /h
-  - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\shiboken2.abi3.dll" "%ARTIFACT_PATH%\"
-  - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\pyside2.abi3.dll" "%ARTIFACT_PATH%\"
+  - cmd: |
+     mkdir build
+     cd build
+     set PACKAGE_NAME=cutter-git-x64.Windows
+  - cmd: "cmake
+       -DCMAKE_BUILD_TYPE=Release
+       -DCUTTER_USE_BUNDLED_RIZIN=ON
+       -DCUTTER_ENABLE_PYTHON=ON
+       -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
+       -DCUTTER_PACKAGE_DEPENDENCIES=ON
+       -DCUTTER_PACKAGE_R2GHIDRA=ON
+       -DCUTTER_PACKAGE_R2DEC=OFF
+       -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON
+       -DCUTTER_ENABLE_CRASH_REPORTS=ON
+       -DCMAKE_PREFIX_PATH=%CUTTER_DEPS%\\pyside
+       -DCPACK_PACKAGE_FILE_NAME=%PACKAGE_NAME%
+       -G Ninja
+       ../src"
+  - cmd: cmake --build . --config Release
+  - cmd: cmake --build . --config Release --target package
 
 # Tests
 test: off
