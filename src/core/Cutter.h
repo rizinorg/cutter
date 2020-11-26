@@ -191,9 +191,17 @@ public:
     QString nearestFlag(RVA offset, RVA *flagOffsetOut);
     void triggerFlagsChanged();
 
+    /**
+     * @brief Returns json data of an instruction
+     * @param addr Address of the instruction
+     * @returns Instruction data
+     */
+    QJsonObject getInstructionObject(RVA addr);
+
     /* Edition functions */
     QString getInstructionBytes(RVA addr);
     QString getInstructionOpcode(RVA addr);
+
     void editInstruction(RVA addr, const QString &inst);
     void nopInstruction(RVA addr);
     void jmpReverse(RVA addr);
@@ -232,6 +240,7 @@ public:
     void delComment(RVA addr);
     QString getCommentAt(RVA addr);
     void setImmediateBase(const QString &r2BaseName, RVA offset = RVA_INVALID);
+    int getImmediateBase(RVA offset = RVA_INVALID);
     void setCurrentBits(int bits, RVA offset = RVA_INVALID);
 
     /**

@@ -68,6 +68,8 @@ private slots:
     void on_actionSetToData_triggered();
     void on_actionSetToDataEx_triggered();
 
+    void on_actionToggleBase_triggered();
+
     /**
      * @brief Executed on selecting an offset from the structureOffsetMenu
      * Uses the applyStructureOffset() function of CutterCore to apply the
@@ -101,6 +103,7 @@ private:
     QKeySequence getDefineNewFunctionSequence() const;
     QKeySequence getUndefineFunctionSequence() const;
     QKeySequence getEditFunctionSequence() const;
+    QKeySequence getToggleBaseSequence() const;
     QList<QKeySequence> getAddBPSequence() const;
 
     /**
@@ -156,6 +159,7 @@ private:
     QAction actionSetBaseIPAddr;
     QAction actionSetBaseSyscall;
     QAction actionSetBaseString;
+    QAction actionToggleBase;
 
     QMenu *setBitsMenu;
     QAction actionSetBits16;
@@ -228,6 +232,14 @@ private:
         Type type;
     };
     QVector<ThingUsedHere> getThingUsedHere(RVA offset);
+
+    /**
+     * @brief Checks if it makes sense to display the immediate base menu
+     * @param instObject Object with instruction data
+     * @returns Return true if the it makes sense to display the set immediate base menu
+     * return false otherwise.
+     */
+    bool checkImmediateBaseMenu(const QJsonObject& instObject);
 
     void updateTargetMenuActions(const QVector<ThingUsedHere> &targets);
 };

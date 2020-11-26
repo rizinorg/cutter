@@ -125,6 +125,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 
     addSetBaseMenu();
 
+    initAction(&actionToggleBase, tr("Toggle Immediate Base (Hex/Dec)"),
+               SLOT(on_actionToggleBase_triggered()), getToggleBaseSequence());
+    addAction(&actionToggleBase);
+
     addSetBitsMenu();
 
     structureOffsetMenu = addMenu(tr("Structure offset"));
@@ -400,6 +404,7 @@ void DisassemblyContextMenu::setOffset(RVA offset)
     this->offset = offset;
 
     this->actionSetFunctionVarTypes.setVisible(true);
+    actionToggleBase.setVisible(checkImmediateBaseMenu(Core()->getInstructionObject(offset)));
 }
 
 void DisassemblyContextMenu::setCanCopy(bool enabled)
@@ -412,14 +417,17 @@ void DisassemblyContextMenu::setCurHighlightedWord(const QString &text)
     this->curHighlightedWord = text;
 }
 
+// Check if it makes sense to show the immediate base menu
+bool DisassemblyContextMenu::checkImmediateBaseMenu(const QJsonObject& instObject) {
+    auto keys = instObject.keys();
+    return keys.contains("val") || keys.contains("ptr");
+}
+
 void DisassemblyContextMenu::aboutToShowSlot()
 {
-    // check if set immediate base menu makes sense
-    QJsonObject instObject = Core()->cmdj("aoj @ " + QString::number(
-                                              offset)).array().first().toObject();
-    auto keys = instObject.keys();
-    bool immBase = keys.contains("val") || keys.contains("ptr");
-    setBaseMenu->menuAction()->setVisible(immBase);
+    QJsonObject instObject = Core()->getInstructionObject(offset);
+
+    setBaseMenu->menuAction()->setVisible(checkImmediateBaseMenu(instObject));
     setBitsMenu->menuAction()->setVisible(true);
 
     // Create structure offset menu if it makes sense
@@ -674,6 +682,11 @@ QKeySequence DisassemblyContextMenu::getUndefineFunctionSequence() const
     return {Qt::Key_U};
 }
 
+QKeySequence DisassemblyContextMenu::getToggleBaseSequence() const
+{
+    return {Qt::Key_H};
+}
+
 
 void DisassemblyContextMenu::on_actionEditInstruction_triggered()
 {
@@ -800,6 +813,17 @@ void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
     // If user accepted
     if (ok && !functionName.isEmpty()) {
         Core()->createFunctionAt(offset, functionName);
+    }
+}
+
+// TODO: requires the user to trigger the action twice if the number is in decimals
+void DisassemblyContextMenu::on_actionToggleBase_triggered()
+{
+    int base = Core()->getImmediateBase(offset);
+    if (base == 10) {
+        setBase("h");
+    } else {
+        setBase("d");
     }
 }
 
