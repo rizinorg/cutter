@@ -8,7 +8,7 @@
 
 #include <QJsonArray>
 
-XrefsDialog::XrefsDialog(MainWindow *main, QWidget *parent, bool hideXrefFrom) :
+XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom) :
     QDialog(parent),
     addr(0),
     toModel(this),
@@ -18,8 +18,8 @@ XrefsDialog::XrefsDialog(MainWindow *main, QWidget *parent, bool hideXrefFrom) :
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
-    ui->toTreeWidget->setMainWindow(main);
-    ui->fromTreeWidget->setMainWindow(main);
+    ui->toTreeWidget->setMainWindow(parent);
+    ui->fromTreeWidget->setMainWindow(parent);
 
     ui->toTreeWidget->setModel(&toModel);
     ui->fromTreeWidget->setModel(&fromModel);

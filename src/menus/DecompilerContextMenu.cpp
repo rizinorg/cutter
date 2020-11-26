@@ -469,7 +469,7 @@ void DecompilerContextMenu::actionXRefsTriggered()
     if (!isReference()) {
         return;
     }
-    XrefsDialog dialog(mainWindow, nullptr);
+    XrefsDialog dialog(mainWindow);
     QString displayString = (annotationHere->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME) ? QString(
                                 annotationHere->reference.name) : RAddressString(annotationHere->reference.offset);
     dialog.fillRefsForAddress(annotationHere->reference.offset, displayString, false);

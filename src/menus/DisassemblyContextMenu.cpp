@@ -875,7 +875,7 @@ void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
 
 void DisassemblyContextMenu::on_actionXRefs_triggered()
 {
-    XrefsDialog dialog(mainWindow, nullptr);
+    XrefsDialog dialog(mainWindow);
     dialog.fillRefsForAddress(offset, RAddressString(offset), false);
     dialog.exec();
 }
@@ -883,7 +883,7 @@ void DisassemblyContextMenu::on_actionXRefs_triggered()
 void DisassemblyContextMenu::on_actionXRefsForVariables_triggered()
 {
     if (isHighlightedWordLocalVar()) {
-        XrefsDialog dialog(mainWindow, nullptr);
+        XrefsDialog dialog(mainWindow);
         dialog.fillRefsForVariable(curHighlightedWord, offset);
         dialog.exec();
     }
