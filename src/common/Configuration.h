@@ -132,7 +132,7 @@ public:
     QString getColorTheme() const     { return s.value("theme", "cutter").toString(); }
     void setColorTheme(const QString &theme);
     /**
-     * @brief Change current color theme if it doesnt't much native theme's darkness.
+     * @brief Change current color theme if it doesn't much native theme's darkness.
      */
     void adjustColorThemeDarkness();
     int colorThemeDarkness(const QString &colorTheme) const;
@@ -186,15 +186,22 @@ public:
     void setGraphSpacing(QPoint blockSpacing, QPoint edgeSpacing);
     QPoint getGraphBlockSpacing();
     QPoint getGraphEdgeSpacing();
+
     /**
-     * @brief Getter and setter for graph block entry offset
+     * @brief Gets whether the entry offset of each block has to be displayed or not
+     * @return true if the entry offset has to be displayed, false otherwise
      */
     bool getGraphBlockEntryOffset();
+
+    /**
+     * @brief Enable or disable the displaying of the entry offset in each graph block
+     * @param enabled set this to true for displaying the entry offset in each graph block, false otherwise
+     */
     void setGraphBlockEntryOffset(bool enabled);
 
     /**
      * @brief Enable or disable Cutter output redirection.
-     * Output redirection state can only be changed early during Cutter initalization.
+     * Output redirection state can only be changed early during Cutter initialization.
      * Changing it later will have no effect
      * @param enabled set this to false for disabling output redirection
      */
