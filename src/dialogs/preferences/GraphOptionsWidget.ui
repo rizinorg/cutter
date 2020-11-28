@@ -231,17 +231,16 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>blockEntryCheckBox</tabstop>
+  <tabstop>graphOffsetCheckBox</tabstop>
+  <tabstop>maxColsSpinBox</tabstop>
   <tabstop>horizontalBlockSpacing</tabstop>
   <tabstop>verticalBlockSpacing</tabstop>
   <tabstop>horizontalEdgeSpacing</tabstop>
   <tabstop>verticalEdgeSpacing</tabstop>
-  <tabstop>blockEntryCheckBox</tabstop>
-  <tabstop>graphOffsetCheckBox</tabstop> 
-  <tabstop>maxColsSpinBox</tabstop>
   <tabstop>checkTransparent</tabstop>
   <tabstop>bitmapGraphScale</tabstop>
  </tabstops>
  <resources/>
  <connections/>
 </ui>
-  
