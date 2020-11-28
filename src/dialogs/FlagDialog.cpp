@@ -38,7 +38,7 @@ FlagDialog::FlagDialog(RVA offset, QWidget *parent) :
         this, &FlagDialog::buttonBoxRejected);
 }
 
-FlagDialog::~FlagDialog() {}
+FlagDialog::~FlagDialog() { }
 
 void FlagDialog::buttonBoxAccepted()
 {
@@ -62,9 +62,11 @@ void FlagDialog::buttonBoxAccepted()
         }
     }
     close();
+    this->setResult(QDialog::Accepted);
 }
 
 void FlagDialog::buttonBoxRejected()
 {
     close();
+    this->setResult(QDialog::Rejected);
 }

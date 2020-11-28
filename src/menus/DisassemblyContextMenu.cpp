@@ -824,7 +824,7 @@ void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
 
 void DisassemblyContextMenu::on_actionRename_triggered()
 {
-    bool ok;
+    bool ok = false;
     if (doRenameAction == RENAME_FUNCTION) {
         QString newName = QInputDialog::getText(this->mainWindow, tr("Rename function %2").arg(doRenameInfo.name),
                                             tr("Function name:"), QLineEdit::Normal, doRenameInfo.name, &ok);
@@ -832,21 +832,21 @@ void DisassemblyContextMenu::on_actionRename_triggered()
             Core()->renameFunction(doRenameInfo.addr, newName);
         }
     } else if (doRenameAction == RENAME_FLAG) {
-        QString newName = QInputDialog::getText(this, tr("Rename flag %2").arg(doRenameInfo.name),
+        QString newName = QInputDialog::getText(this->mainWindow, tr("Rename flag %2").arg(doRenameInfo.name),
                                             tr("Flag name at %1:").arg(RAddressString(doRenameInfo.addr)), QLineEdit::Normal, doRenameInfo.name, &ok);
         if (ok && !newName.isEmpty()) {
             Core()->renameFlag(doRenameInfo.name, newName);
         }
     } else if (doRenameAction == RENAME_ADD_FLAG) {
-        FlagDialog dialog(doRenameInfo.addr, this->parentWidget());
-        dialog.exec();
+        FlagDialog dialog(doRenameInfo.addr, this->mainWindow);
+        ok = dialog.exec();
     } else if (doRenameAction == RENAME_LOCAL) {
         RAnalFunction *fcn = Core()->functionIn(offset);
         if (fcn) {
-            EditVariablesDialog dialog(fcn->addr, curHighlightedWord, this);
+            EditVariablesDialog dialog(fcn->addr, curHighlightedWord, this->mainWindow);
             if (!dialog.empty()) {
                 // Don't show the dialog if there are no variables
-                dialog.exec();
+                ok = dialog.exec();
             }
         }
     } else if (doRenameAction == RENAME_DO_NOTHING) {
@@ -854,6 +854,11 @@ void DisassemblyContextMenu::on_actionRename_triggered()
     } else {
         qWarning() << "Unhandled renaming action: " << doRenameAction;
         assert(false);
+    }
+
+    if (ok) {
+        // Rebuild menu in case the user presses the rename shortcut directly before clicking
+        setupRenaming();
     }
 }
 
