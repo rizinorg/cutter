@@ -40,6 +40,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
         actionXRefsForVariables(this),
         actionDisplayOptions(this),
         actionDeleteComment(this),
+        actionDeleteFlag(this),
         actionDeleteFunction(this),
         actionLinkType(this),
         actionSetBaseBinary(this),
@@ -98,6 +99,9 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 
     initAction(&actionDeleteComment, tr("Delete comment"), SLOT(on_actionDeleteComment_triggered()));
     addAction(&actionDeleteComment);
+
+    initAction(&actionDeleteFlag, tr("Delete flag"), SLOT(on_actionDeleteFlag_triggered()));
+    addAction(&actionDeleteFlag);
 
     initAction(&actionDeleteFunction, tr("Undefine function"),
                SLOT(on_actionDeleteFunction_triggered()), getUndefineFunctionSequence());
@@ -401,6 +405,8 @@ void DisassemblyContextMenu::buildRenameMenu(ThingUsedHere* tuh)
         doRenameAction = RENAME_DO_NOTHING;
         return;
     }
+
+    actionDeleteFlag.setVisible(false);
     if (tuh->type == ThingUsedHere::Type::Address) {
         doRenameAction = RENAME_ADD_FLAG;
         doRenameInfo.name = RAddressString(tuh->offset);
@@ -421,6 +427,7 @@ void DisassemblyContextMenu::buildRenameMenu(ThingUsedHere* tuh)
         doRenameInfo.name = tuh->name;
         doRenameInfo.addr = tuh->offset;
         actionRename.setText(tr("Rename flag \"%1\" (used here)").arg(doRenameInfo.name));
+        actionDeleteFlag.setVisible(true);
     } else {
         qWarning() << "Unexpected renaming type";
         doRenameAction = RENAME_DO_NOTHING;
@@ -475,7 +482,6 @@ void DisassemblyContextMenu::setupRenaming()
     // Now, build the renaming menu and show it
     buildRenameMenu(tuh);
     actionRename.setVisible(true);
-    
 }
 
 void DisassemblyContextMenu::aboutToShowSlot()
@@ -983,6 +989,11 @@ void DisassemblyContextMenu::on_actionLinkType_triggered()
 void DisassemblyContextMenu::on_actionDeleteComment_triggered()
 {
     Core()->delComment(offset);
+}
+
+void DisassemblyContextMenu::on_actionDeleteFlag_triggered()
+{
+    Core()->delFlag(offset);
 }
 
 void DisassemblyContextMenu::on_actionDeleteFunction_triggered()

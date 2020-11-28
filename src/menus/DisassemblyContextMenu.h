@@ -51,6 +51,7 @@ private slots:
     void on_actionDisplayOptions_triggered();
 
     void on_actionDeleteComment_triggered();
+    void on_actionDeleteFlag_triggered();
     void on_actionDeleteFunction_triggered();
 
     void on_actionAddBreakpoint_triggered();
@@ -133,6 +134,7 @@ private:
     QAction actionDisplayOptions;
 
     QAction actionDeleteComment;
+    QAction actionDeleteFlag;
     QAction actionDeleteFunction;
 
     QMenu *structureOffsetMenu;

@@ -53,7 +53,7 @@ void FlagDialog::buttonBoxAccepted()
             // Flag was not existing and we gave an empty name, do nothing
         }
     } else {
-        if (flagOffset) {
+        if (flagOffset != RVA_INVALID) {
             // Name provided and flag exists -> rename the flag
             Core()->renameFlag(flagName, name);
         } else {
