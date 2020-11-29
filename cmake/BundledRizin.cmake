@@ -71,5 +71,5 @@ elseif (WIN32)
         COMPONENT Devel
         PATTERN "*.pdb" EXCLUDE)
 else ()
-    install(DIRECTORY "${RIZIN_INSTALL_DIR}/" DESTINATION ".")
+    install(DIRECTORY "${RIZIN_INSTALL_DIR}/" DESTINATION "." USE_SOURCE_PERMISSIONS)
 endif()

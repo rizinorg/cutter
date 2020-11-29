@@ -4,16 +4,16 @@ cd $(dirname "${BASH_SOURCE[0]}")/..
 mkdir -p cutter-deps && cd cutter-deps
 
 LINUX_FILE="cutter-deps-linux.tar.gz"
-LINUX_MD5=31fd19443a3405d6b6097cbbd4c11fba
-LINUX_URL=https://github.com/rizinorg/cutter-deps/releases/download/v12/cutter-deps-linux.tar.gz
+LINUX_MD5=63fb136f9c2b1da0b881e460030bff7f
+LINUX_URL=https://github.com/rizinorg/cutter-deps/releases/download/test-v13/cutter-deps-linux.tar.gz
 
 MACOS_FILE="cutter-deps-macos.tar.gz"
-MACOS_MD5=e75041c04fc806437723a399028402af
-MACOS_URL=https://github.com/rizinorg/cutter-deps/releases/download/v12/cutter-deps-macos.tar.gz
+MACOS_MD5=44e490ea45985cfedb5f7882acd36fa2
+MACOS_URL=https://github.com/rizinorg/cutter-deps/releases/download/test-v13/cutter-deps-macos.tar.gz
 
 WIN_FILE="cutter-deps-win.tar.gz"
-WIN_MD5=7c755404140f2e9945bfc13d2e645bb1
-WIN_URL=https://github.com/rizinorg/cutter-deps/releases/download/v12/cutter-deps-win.tar.gz
+WIN_MD5=f7bfcf69da0c9bbe96f7c34dc149d3b9
+WIN_URL=https://github.com/rizinorg/cutter-deps/releases/download/test-v13/cutter-deps-win.tar.gz
 
 if [ "$OS" == "Windows_NT" ]; then
 	FILE="${WIN_FILE}"
