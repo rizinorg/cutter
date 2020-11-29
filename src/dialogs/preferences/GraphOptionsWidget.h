@@ -34,6 +34,7 @@ private slots:
 
     void checkTransparentStateChanged(int checked);
     void bitmapGraphScaleValueChanged(double value);
+    void checkGraphBlockEntryOffsetChanged(bool checked);
     void layoutSpacingChanged();
 };
 

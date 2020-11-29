@@ -15,11 +15,13 @@ GraphOptionsWidget::GraphOptionsWidget(PreferencesDialog *dialog)
 {
     ui->setupUi(this);
     ui->checkTransparent->setChecked(Config()->getBitmapTransparentState());
+    ui->blockEntryCheckBox->setChecked(Config()->getGraphBlockEntryOffset());
     ui->bitmapGraphScale->setValue(Config()->getBitmapExportScaleFactor()*100.0);
     updateOptionsFromVars();
 
     connect<void(QDoubleSpinBox::*)(double)>(ui->bitmapGraphScale, (&QDoubleSpinBox::valueChanged), this, &GraphOptionsWidget::bitmapGraphScaleValueChanged);
     connect(ui->checkTransparent, &QCheckBox::stateChanged, this, &GraphOptionsWidget::checkTransparentStateChanged);
+    connect(ui->blockEntryCheckBox, &QCheckBox::stateChanged, this, &GraphOptionsWidget::checkGraphBlockEntryOffsetChanged);
 
     connect(Core(), &CutterCore::graphOptionsChanged, this, &GraphOptionsWidget::updateOptionsFromVars);
     QSpinBox* graphSpacingWidgets[] = {
@@ -89,3 +91,8 @@ void GraphOptionsWidget::layoutSpacingChanged()
     triggerOptionsChanged();
 }
 
+void GraphOptionsWidget::checkGraphBlockEntryOffsetChanged(bool checked)
+{
+    Config()->setGraphBlockEntryOffset(checked);
+    triggerOptionsChanged();
+}

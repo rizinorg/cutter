@@ -235,6 +235,11 @@ void DisassemblerGraphView::loadCurrentGraph()
         GraphBlock gb;
         gb.entry = block_entry;
         db.entry = block_entry;
+        if (Config()->getGraphBlockEntryOffset()) {
+            // QColor(0,0,0,0) is transparent
+            db.header_text = Text("[" + RAddressString(db.entry) + "]", ConfigColor("offset"),
+                                  QColor(0, 0, 0, 0));
+        }
         db.true_path = RVA_INVALID;
         db.false_path = RVA_INVALID;
         if (block_fail) {
@@ -435,7 +440,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
 
                 qreal highlightWidth = tokenWidth;
                 if (charWidth * 3 + widthBefore + tokenWidth >= block.width - (10 + padding)) {
-                    highlightWidth = block.width - widthBefore - (10 +  2 * padding);
+                    highlightWidth = block.width - widthBefore - (10 + 2 * padding);
                 }
 
                 QColor selectionColor = ConfigColor("wordHighlight");
@@ -536,8 +541,8 @@ RVA DisassemblerGraphView::getAddrForMouseEvent(GraphBlock &block, QPoint *point
     int text_point_y = point->y() - off_y;
     int mouse_row = text_point_y / charHeight;
 
-    int cur_row = static_cast<int>(db.header_text.lines.size());
-    if (mouse_row < cur_row) {
+    // If mouse coordinate is in header region or margin above
+    if (mouse_row < 0) {
         return db.entry;
     }
 
@@ -561,10 +566,11 @@ DisassemblerGraphView::Instr *DisassemblerGraphView::getInstrForMouseEvent(
     int text_point_y = point->y() - off_y;
     int mouse_row = text_point_y / charHeight;
 
-    int cur_row = static_cast<int>(db.header_text.lines.size());
+    // Row in actual text
+    int cur_row = 0;
 
     for (Instr &instr : db.instrs) {
-        if (mouse_row < cur_row + (int)instr.text.lines.size()) {
+        if (mouse_row < cur_row + (int) instr.text.lines.size()) {
             return &instr;
         }
         cur_row += instr.text.lines.size();

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>403</width>
-    <height>296</height>
+    <width>742</width>
+    <height>698</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,163 +15,205 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
-    <layout class="QFormLayout" name="formLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="maxColsLabel">
-       <property name="text">
-        <string>Maximum Line Length:</string>
+    <layout class="QVBoxLayout" name="verticalLayout_8">
+     <item>
+      <widget class="QGroupBox" name="GraphBlockOptions">
+       <property name="title">
+        <string>Graph Block Options </string>
        </property>
+       <layout class="QVBoxLayout" name="verticalLayout_9">
+        <property name="topMargin">
+         <number>24</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="blockEntryCheckBox">
+          <property name="toolTip">
+           <string>The offset of the first instruction of a graph block is shown in the header of the respective graph block</string>
+          </property>
+          <property name="text">
+           <string>Show offset of the first instruction in each graph block</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="graphOffsetCheckBox">
+          <property name="text">
+           <string>Show offset for each instruction (graph.offset)</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="maxColsLabel">
+            <property name="text">
+             <string>Maximum Line Length:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="maxColsSpinBox">
+            <property name="minimum">
+             <number>25</number>
+            </property>
+            <property name="maximum">
+             <number>256</number>
+            </property>
+            <property name="value">
+             <number>100</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QSpinBox" name="maxColsSpinBox">
-       <property name="minimum">
-        <number>25</number>
+     <item>
+      <widget class="QGroupBox" name="LayoutBlock">
+       <property name="title">
+        <string>Graph Layout Options</string>
        </property>
-       <property name="maximum">
-        <number>256</number>
-       </property>
-       <property name="value">
-        <number>100</number>
-       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="horizontalBlockSpacing">
+          <property name="maximum">
+           <number>400</number>
+          </property>
+          <property name="singleStep">
+           <number>10</number>
+          </property>
+          <property name="value">
+           <number>10</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Vertical</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QSpinBox" name="horizontalEdgeSpacing">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>400</number>
+          </property>
+          <property name="singleStep">
+           <number>5</number>
+          </property>
+          <property name="value">
+           <number>10</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Horizontal</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QSpinBox" name="verticalEdgeSpacing">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>400</number>
+          </property>
+          <property name="singleStep">
+           <number>5</number>
+          </property>
+          <property name="value">
+           <number>10</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QSpinBox" name="verticalBlockSpacing">
+          <property name="maximum">
+           <number>400</number>
+          </property>
+          <property name="singleStep">
+           <number>10</number>
+          </property>
+          <property name="value">
+           <number>40</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Block spacing:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Edge spacing</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="bitmapGraphScaleLabel">
-       <property name="text">
-        <string>Graph Bitmap Export Scale: </string>
+     <item>
+      <widget class="QGroupBox" name="BitmapExportBlock">
+       <property name="title">
+        <string>Bitmap Export Options</string>
        </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QDoubleSpinBox" name="bitmapGraphScale">
-       <property name="suffix">
-        <string>%</string>
-       </property>
-       <property name="decimals">
-        <number>0</number>
-       </property>
-       <property name="minimum">
-        <double>100.000000000000000</double>
-       </property>
-       <property name="maximum">
-        <double>30000.000000000000000</double>
-       </property>
-       <property name="singleStep">
-        <double>50.000000000000000</double>
-       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_10">
+        <property name="topMargin">
+         <number>24</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="checkTransparent">
+          <property name="text">
+           <string>Export Transparent Bitmap Graphs</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="bitmapGraphScaleLabel">
+            <property name="text">
+             <string>Graph Bitmap Export Scale: </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="bitmapGraphScale">
+            <property name="suffix">
+             <string>%</string>
+            </property>
+            <property name="decimals">
+             <number>0</number>
+            </property>
+            <property name="minimum">
+             <double>100.000000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>30000.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>50.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="graphOffsetCheckBox">
-     <property name="text">
-      <string>Show offsets (graph.offset)</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="checkTransparent">
-     <property name="text">
-      <string>Export Transparent Bitmap Graphs</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Layout</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="1">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Horizontal</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Block spacing</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Edge spacing</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QSpinBox" name="horizontalBlockSpacing">
-        <property name="maximum">
-         <number>400</number>
-        </property>
-        <property name="singleStep">
-         <number>10</number>
-        </property>
-        <property name="value">
-         <number>10</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QSpinBox" name="verticalBlockSpacing">
-        <property name="maximum">
-         <number>400</number>
-        </property>
-        <property name="singleStep">
-         <number>10</number>
-        </property>
-        <property name="value">
-         <number>40</number>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QSpinBox" name="horizontalEdgeSpacing">
-        <property name="minimum">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <number>400</number>
-        </property>
-        <property name="singleStep">
-         <number>5</number>
-        </property>
-        <property name="value">
-         <number>10</number>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QSpinBox" name="verticalEdgeSpacing">
-        <property name="minimum">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <number>400</number>
-        </property>
-        <property name="singleStep">
-         <number>5</number>
-        </property>
-        <property name="value">
-         <number>10</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Vertical</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -189,14 +231,15 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>maxColsSpinBox</tabstop>
-  <tabstop>bitmapGraphScale</tabstop>
+  <tabstop>blockEntryCheckBox</tabstop>
   <tabstop>graphOffsetCheckBox</tabstop>
-  <tabstop>checkTransparent</tabstop>
+  <tabstop>maxColsSpinBox</tabstop>
   <tabstop>horizontalBlockSpacing</tabstop>
   <tabstop>verticalBlockSpacing</tabstop>
   <tabstop>horizontalEdgeSpacing</tabstop>
   <tabstop>verticalEdgeSpacing</tabstop>
+  <tabstop>checkTransparent</tabstop>
+  <tabstop>bitmapGraphScale</tabstop>
  </tabstops>
  <resources/>
  <connections/>
