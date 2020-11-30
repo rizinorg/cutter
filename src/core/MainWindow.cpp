@@ -74,6 +74,7 @@
 #include "widgets/CallGraph.h"
 
 // Qt Headers
+#include <QActionGroup>
 #include <QApplication>
 #include <QComboBox>
 #include <QCompleter>
@@ -124,7 +125,6 @@ MainWindow::MainWindow(QWidget *parent) :
     core(Core()),
     ui(new Ui::MainWindow)
 {
-    panelLock = false;
     tabsOnTop = false;
     configuration = Config();
 
@@ -233,7 +233,7 @@ void MainWindow::initUI()
         ioModesController.setIOMode(IOModesController::Mode::READ_ONLY);
         setAvailableIOModeOptions();
     });
-  
+
     connect(ui->actionSaveLayout, &QAction::triggered, this, &MainWindow::saveNamedLayout);
     connect(ui->actionManageLayouts, &QAction::triggered, this, &MainWindow::manageLayouts);
     connect(ui->actionDocumentation, &QAction::triggered, this, &MainWindow::documentationClicked);
@@ -255,6 +255,8 @@ void MainWindow::initUI()
                 tr("The installed plugins didn't add entries to this menu."));
         ui->menuPlugins->setEnabled(false);
     }
+
+    connect(ui->actionUnlock, &QAction::toggled, this, [this](bool unlock){ lockDocks(!unlock); });
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
     ui->actionGrouped_dock_dragging->setVisible(false);
@@ -745,8 +747,7 @@ void MainWindow::readSettings()
     QSettings settings;
 
     responsive = settings.value("responsive").toBool();
-    panelLock = settings.value("panelLock").toBool();
-    setPanelLock();
+    lockDocks(settings.value("panelLock").toBool());
     tabsOnTop = settings.value("tabsOnTop").toBool();
     setTabLocation();
     bool dockGroupedDragging = settings.value("docksGroupedDragging", false).toBool();
@@ -760,31 +761,13 @@ void MainWindow::saveSettings()
 {
     QSettings settings;
 
-    settings.setValue("panelLock", panelLock);
+    settings.setValue("panelLock", !ui->actionUnlock->isChecked());
     settings.setValue("tabsOnTop", tabsOnTop);
     settings.setValue("docksGroupedDragging", ui->actionGrouped_dock_dragging->isChecked());
     settings.setValue("geometry", saveGeometry());
 
     layouts[Core()->currentlyDebugging ? LAYOUT_DEBUG : LAYOUT_DEFAULT] = getViewLayout();
     saveLayouts(settings);
-}
-
-
-void MainWindow::setPanelLock()
-{
-    if (panelLock) {
-        for (QDockWidget *dockWidget : findChildren<QDockWidget *>()) {
-            dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
-        }
-
-        ui->actionLock->setChecked(false);
-    } else {
-        for (QDockWidget *dockWidget : findChildren<QDockWidget *>()) {
-            dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
-        }
-
-        ui->actionLock->setChecked(true);
-    }
 }
 
 void MainWindow::setTabLocation()
@@ -803,15 +786,20 @@ void MainWindow::refreshAll()
     core->triggerRefreshAll();
 }
 
-void MainWindow::lockUnlock_Docks(bool what)
+void MainWindow::lockDocks(bool lock)
 {
-    if (what) {
+    if (ui->actionUnlock->isChecked() == lock) {
+        ui->actionUnlock->setChecked(!lock);
+    }
+    if (lock) {
         for (QDockWidget *dockWidget : findChildren<QDockWidget *>()) {
             dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
         }
     } else {
         for (QDockWidget *dockWidget : findChildren<QDockWidget *>()) {
-            dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
+            dockWidget->setFeatures(QDockWidget::DockWidgetClosable |
+                                    QDockWidget::DockWidgetMovable |
+                                    QDockWidget::DockWidgetFloatable);
         }
     }
 
@@ -1452,26 +1440,6 @@ void MainWindow::saveLayouts(QSettings &settings)
     settings.endArray();
 }
 
-void MainWindow::on_actionLock_triggered()
-{
-    panelLock = !panelLock;
-    setPanelLock();
-}
-
-void MainWindow::on_actionLockUnlock_triggered()
-{
-    if (ui->actionLockUnlock->isChecked()) {
-        for (QDockWidget *dockWidget : findChildren<QDockWidget *>()) {
-            dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
-        }
-        ui->actionLockUnlock->setIcon(QIcon(":/lock"));
-    } else {
-        for (QDockWidget *dockWidget : findChildren<QDockWidget *>()) {
-            dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
-        }
-        ui->actionLockUnlock->setIcon(QIcon(":/unlock"));
-    }
-}
 
 void MainWindow::on_actionDefault_triggered()
 {

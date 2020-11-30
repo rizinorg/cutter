@@ -105,12 +105,17 @@
      <addaction name="separator"/>
      <addaction name="actionZoomReset"/>
     </widget>
+    <widget class="QMenu" name="menuLayouts">
+     <property name="title">
+      <string>Layouts</string>
+     </property>
+    </widget>
     <addaction name="actionRefresh_contents"/>
     <addaction name="separator"/>
     <addaction name="actionDefault"/>
     <addaction name="actionReset_settings"/>
     <addaction name="separator"/>
-    <addaction name="actionLock"/>
+    <addaction name="actionUnlock"/>
     <addaction name="actionTabs_on_Top"/>
     <addaction name="actionGrouped_dock_dragging"/>
     <addaction name="separator"/>
@@ -118,11 +123,6 @@
     <addaction name="separator"/>
     <addaction name="actionManageLayouts"/>
     <addaction name="actionSaveLayout"/>
-    <widget class="QMenu" name="menuLayouts">
-     <property name="title">
-      <string>Layouts</string>
-     </property>
-    </widget>
     <addaction name="menuLayouts"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -137,7 +137,6 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionSearch"/>
     <addaction name="actionBackward"/>
     <addaction name="actionForward"/>
     <addaction name="separator"/>
@@ -353,7 +352,7 @@
     <string>Redo Seek</string>
    </property>
   </action>
-  <action name="actionLock">
+  <action name="actionUnlock">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -366,23 +365,12 @@
    <property name="toolTip">
     <string>Toggle panel locks</string>
    </property>
-   <property name="iconVisibleInMenu">
-    <bool>false</bool>
-   </property>
-  </action>
-  <action name="actionLockUnlock">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset>
-     <normaloff>:/unlock</normaloff>:/unlock</iconset>
+     <normaloff>:/lock</normaloff><normalon>:/unlock</normalon>:/unlock</iconset>
    </property>
-   <property name="text">
-    <string>Lock/Unlock</string>
-   </property>
-   <property name="toolTip">
-    <string>Lock/Unlock</string>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
    </property>
   </action>
   <action name="actionTheme">
@@ -758,9 +746,9 @@
    </property>
   </action>
   <action name="actionExtraDecompiler">
-    <property name="text">
-     <string>Add Decompiler</string>
-    </property>
+   <property name="text">
+    <string>Add Decompiler</string>
+   </property>
   </action>
   <action name="actionExtraDisassembly">
    <property name="text">

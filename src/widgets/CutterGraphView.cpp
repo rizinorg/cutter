@@ -8,6 +8,8 @@
 #include <cmath>
 
 #include <QStandardPaths>
+#include <QActionGroup>
+
 
 static const int KEY_ZOOM_IN = Qt::Key_Plus + Qt::ControlModifier;
 static const int KEY_ZOOM_OUT = Qt::Key_Minus + Qt::ControlModifier;

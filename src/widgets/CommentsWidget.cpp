@@ -5,6 +5,7 @@
 
 #include <QMenu>
 #include <QShortcut>
+#include <QActionGroup>
 
 CommentsModel::CommentsModel(QList<CommentDescription> *comments,
                              QList<CommentGroup> *nestedComments,

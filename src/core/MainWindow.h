@@ -141,18 +141,13 @@ public slots:
     void refreshAll();
     void seekToFunctionLastInstruction();
     void seekToFunctionStart();
-    void setPanelLock();
     void setTabLocation();
-
-    void on_actionLock_triggered();
-
-    void on_actionLockUnlock_triggered();
 
     void on_actionTabs_triggered();
 
     void on_actionAnalyze_triggered();
 
-    void lockUnlock_Docks(bool what);
+    void lockDocks(bool lock);
 
     void on_actionRun_Script_triggered();
 
@@ -220,7 +215,6 @@ private slots:
 private:
     CutterCore *core;
 
-    bool panelLock;
     bool tabsOnTop;
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;

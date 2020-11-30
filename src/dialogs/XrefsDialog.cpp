@@ -70,7 +70,7 @@ QString XrefsDialog::normalizeAddr(const QString &addr) const
     QString ret = addr;
     if (addr.length() < 10) {
         ret = ret.mid(3).rightJustified(8, QLatin1Char('0'));
-        ret.prepend(QLatin1Literal("0x"));
+        ret.prepend(QStringLiteral("0x"));
     }
     return ret;
 }
