@@ -28,7 +28,7 @@ static bool migrateSettingsPre18(QSettings &newSettings)
     return true;
 }
 
-#define CUTTER_SETTINGS_VERSION_CURRENT 5
+#define CUTTER_SETTINGS_VERSION_CURRENT 6
 #define CUTTER_SETTINGS_VERSION_KEY     "version"
 
 /*
@@ -123,6 +123,11 @@ static void migrateSettingsTo5(QSettings &settings)
     renameAsmOption(settings, "asm.var.sub", "asm.sub.var");
 }
 
+static void migrateSettingsTo6(QSettings &settings)
+{
+    settings.remove("dir.projects");
+}
+
 void Cutter::initializeSettings()
 {
     QSettings::setDefaultFormat(QSettings::IniFormat);
@@ -150,6 +155,8 @@ void Cutter::initializeSettings()
                     migrateSettingsTo4(settings); break;
                 case 5:
                     migrateSettingsTo5(settings); break;
+                case 6:
+                    migrateSettingsTo6(settings); break;
                 default:
                     break;
                 }

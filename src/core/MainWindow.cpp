@@ -20,7 +20,6 @@
 #include "dialogs/WelcomeDialog.h"
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/InitialOptionsDialog.h"
-#include "dialogs/SaveProjectDialog.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/AboutDialog.h"
 #include "dialogs/preferences/PreferencesDialog.h"
@@ -115,6 +114,8 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
+#define PROJECT_FILE_FILTER tr("Rizin Project (*.rzdb)")
+
 template<class T>
 T *getNewInstance(MainWindow *m) { return new T(m); }
 
@@ -188,8 +189,6 @@ void MainWindow::initUI()
     connect(ui->actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomIn);
     connect(ui->actionZoomOut, &QAction::triggered, this, &MainWindow::onZoomOut);
     connect(ui->actionZoomReset, &QAction::triggered, this, &MainWindow::onZoomReset);
-
-    connect(core, &CutterCore::projectSaved, this, &MainWindow::projectSaved);
 
     connect(core, &CutterCore::toggleDebugView, this, &MainWindow::toggleDebugView);
 
@@ -604,14 +603,32 @@ void MainWindow::displayInitialOptionsDialog(const InitialOptions &options, bool
     }
 }
 
-void MainWindow::openProject(const QString &project_name)
+bool MainWindow::openProject(const QString &file)
 {
-    QString filename = core->cmdRaw("Pi " + project_name);
-    setFilename(filename.trimmed());
+    RzProjectErr err;
+    RzList *res = rz_list_new();
+    {
+        RzCoreLocked core(Core());
+        err = rz_project_load_file(core, file.toUtf8().constData(), true, res);
+    }
+    if (err != RZ_PROJECT_ERR_SUCCESS) {
+        const char *s = rz_project_err_message(err);
+        QString msg = tr("Failed to open project: %1").arg(QString::fromUtf8(s));
+        RzListIter *it;
+        CutterRListForeach(res, it, const char, s) {
+            msg += "\n" + QString::fromUtf8(s);
+        }
+        QMessageBox::critical(this, tr("Open Project"), msg);
+        rz_list_free(res);
+        return false;
+    }
 
-    core->openProject(project_name);
+    Config()->addRecentProject(file);
 
+    rz_list_free(res);
+    setFilename(file.trimmed());
     finalizeOpen();
+    return true;
 }
 
 void MainWindow::finalizeOpen()
@@ -668,21 +685,52 @@ void MainWindow::finalizeOpen()
     }
 }
 
-bool MainWindow::saveProject(bool quit)
+RzProjectErr MainWindow::saveProject(bool *canceled)
 {
-    QString projectName = core->getConfig("prj.name");
-    if (projectName.isEmpty()) {
-        return saveProjectAs(quit);
-    } else {
-        core->saveProject(projectName);
-        return true;
+    QString file = core->getConfig("prj.file");
+    if (file.isEmpty()) {
+        return saveProjectAs(canceled);
     }
+    if (canceled) {
+        *canceled = false;
+    }
+    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData());
+    if (err == RZ_PROJECT_ERR_SUCCESS) {
+        Config()->addRecentProject(file);
+    }
+    return err;
 }
 
-bool MainWindow::saveProjectAs(bool quit)
+RzProjectErr MainWindow::saveProjectAs(bool *canceled)
 {
-    SaveProjectDialog dialog(quit, this);
-    return SaveProjectDialog::Rejected != dialog.exec();
+    QString dir = core->getConfig("prj.file");
+    if (dir.isEmpty()) {
+        dir = QDir(filename).dirName();
+    }
+    QString file = QFileDialog::getSaveFileName(this, tr("Save Project"), dir, PROJECT_FILE_FILTER);
+    if (file.isEmpty()) {
+        if (canceled) {
+            *canceled = true;
+        }
+        return RZ_PROJECT_ERR_SUCCESS;
+    }
+    if (canceled) {
+        *canceled = false;
+    }
+    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData());
+    if (err == RZ_PROJECT_ERR_SUCCESS) {
+        Config()->addRecentProject(file);
+    }
+    return err;
+}
+
+void MainWindow::showProjectSaveError(RzProjectErr err)
+{
+    if (err == RZ_PROJECT_ERR_SUCCESS) {
+        return;
+    }
+    const char *s = rz_project_err_message(err);
+    QMessageBox::critical(this, tr("Save Project"), tr("Failed to save project: %1").arg(QString::fromUtf8(s)));
 }
 
 void MainWindow::refreshOmniBar(const QStringList &flags)
@@ -715,9 +763,17 @@ void MainWindow::closeEvent(QCloseEvent *event)
         return;
     }
 
-    if (ret == QMessageBox::Save && !saveProject(true)) {
-        event->ignore();
-        return;
+    if (ret == QMessageBox::Save) {
+        bool canceled;
+        RzProjectErr save_err = saveProject(&canceled);
+        if (canceled) {
+            event->ignore();
+            return;
+        } else if (save_err != RZ_PROJECT_ERR_SUCCESS) {
+            event->ignore();
+            showProjectSaveError(save_err);
+            return;
+        }
     }
 
     if (!core->currentlyDebugging) {
@@ -1465,12 +1521,12 @@ void MainWindow::on_actionNew_triggered()
 
 void MainWindow::on_actionSave_triggered()
 {
-    saveProject();
+    showProjectSaveError(saveProject(nullptr));
 }
 
 void MainWindow::on_actionSaveAs_triggered()
 {
-    saveProjectAs();
+    showProjectSaveError(saveProjectAs(nullptr));
 }
 
 void MainWindow::on_actionRun_Script_triggered()
@@ -1707,14 +1763,6 @@ void MainWindow::seekToFunctionLastInstruction()
 void MainWindow::seekToFunctionStart()
 {
     Core()->seek(Core()->getFunctionStart(Core()->getOffset()));
-}
-
-void MainWindow::projectSaved(bool successfully, const QString &name)
-{
-    if (successfully)
-        core->message(tr("Project saved: %1").arg(name));
-    else
-        core->message(tr("Failed to save project: %1").arg(name));
 }
 
 void MainWindow::toggleDebugView()

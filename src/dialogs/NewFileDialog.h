@@ -22,8 +22,8 @@ public:
 private slots:
     void on_loadFileButton_clicked();
     void on_selectFileButton_clicked();
+    void on_selectProjectFileButton_clicked();
 
-    void on_selectProjectsDirButton_clicked();
     void on_loadProjectButton_clicked();
     void on_shellcodeButton_clicked();
 
@@ -32,12 +32,14 @@ private slots:
     void on_recentsListWidget_itemClicked(QListWidgetItem *item);
     void on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item);
 
-    void on_projectsListWidget_itemSelectionChanged();
+    void on_projectFileEdit_textChanged();
+    void on_projectsListWidget_itemClicked(QListWidgetItem *item);
     void on_projectsListWidget_itemDoubleClicked(QListWidgetItem *item);
 
     void on_actionRemove_item_triggered();
     void on_actionClear_all_triggered();
     void on_actionRemove_project_triggered();
+    void on_actionClearProjects_triggered();
 
     void on_tabWidget_currentChanged(int index);
 
@@ -60,6 +62,8 @@ private:
      */
     bool fillProjectsList();
     void fillIOPluginsList();
+
+    void updateLoadProjectButton();
 
     void loadFile(const QString &filename);
     void loadProject(const QString &project);

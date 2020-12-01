@@ -73,19 +73,11 @@ public:
     void displayNewFileDialog();
     void displayWelcomeDialog();
     void closeNewFileDialog();
-    void openProject(const QString &project_name);
+    bool openProject(const QString &project_name);
 
-    /**
-     * @param quit whether to show destructive button in dialog
-     * @return if quit is true, false if the application should not close
-     */
-    bool saveProject(bool quit = false);
-
-    /**
-     * @param quit whether to show destructive button in dialog
-     * @return false if the application should not close
-     */
-    bool saveProjectAs(bool quit = false);
+    RzProjectErr saveProject(bool *canceled);
+    RzProjectErr saveProjectAs(bool *canceled);
+    void showProjectSaveError(RzProjectErr err);
 
     void closeEvent(QCloseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
@@ -196,8 +188,6 @@ private slots:
     void on_actionExport_as_code_triggered();
 
     void on_actionGrouped_dock_dragging_triggered(bool checked);
-
-    void projectSaved(bool successfully, const QString &name);
 
     void updateTasksIndicator();
 

@@ -114,9 +114,6 @@ public:
 #endif
     QSyntaxHighlighter *createSyntaxHighlighter(QTextDocument *document);
 
-    QString getDirProjects();
-    void setDirProjects(const QString &dir);
-
     QString getRecentFolder();
     void setRecentFolder(const QString &dir);
 
@@ -207,6 +204,19 @@ public:
      */
     void setOutputRedirectionEnabled(bool enabled);
     bool getOutputRedirectionEnabled() const;
+
+    /**
+     * @brief Recently opened binaries, as shown in NewFileDialog.
+     */
+    QStringList getRecentFiles() const;
+    void setRecentFiles(const QStringList &list);
+
+    /**
+     * @brief Recently opened projects, as shown in NewFileDialog.
+     */
+    QStringList getRecentProjects() const;
+    void setRecentProjects(const QStringList &list);
+    void addRecentProject(QString file);
 
 public slots:
     void refreshFont();

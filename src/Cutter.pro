@@ -344,7 +344,6 @@ SOURCES += \
     widgets/HexdumpWidget.cpp \
     common/Configuration.cpp \
     common/Colors.cpp \
-    dialogs/SaveProjectDialog.cpp \
     common/TempConfig.cpp \
     common/SvgIconEngine.cpp \
     common/SyntaxHighlighter.cpp \
@@ -495,7 +494,6 @@ HEADERS  += \
     widgets/HexdumpWidget.h \
     common/Configuration.h \
     common/Colors.h \
-    dialogs/SaveProjectDialog.h \
     common/TempConfig.h \
     common/SvgIconEngine.h \
     common/SyntaxHighlighter.h \
@@ -621,7 +619,7 @@ FORMS    += \
     dialogs/RemoteDebugDialog.ui \
     dialogs/NativeDebugDialog.ui \
     dialogs/XrefsDialog.ui \
-    dialogs/NewfileDialog.ui \
+    dialogs/NewFileDialog.ui \
     dialogs/InitialOptionsDialog.ui \
     dialogs/EditFunctionDialog.ui \
     core/MainWindow.ui \
@@ -631,7 +629,6 @@ FORMS    += \
     widgets/FlagsWidget.ui \
     widgets/StringsWidget.ui \
     widgets/HexdumpWidget.ui \
-    dialogs/SaveProjectDialog.ui \
     dialogs/preferences/PreferencesDialog.ui \
     dialogs/preferences/AppearanceOptionsWidget.ui \
     dialogs/preferences/GraphOptionsWidget.ui \

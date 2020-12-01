@@ -2,7 +2,7 @@
 #include "core/MainWindow.h"
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/AboutDialog.h"
-#include "ui_NewfileDialog.h"
+#include "ui_NewFileDialog.h"
 #include "common/Helpers.h"
 #include "common/HighDpiPixmap.h"
 
@@ -62,10 +62,8 @@ NewFileDialog::NewFileDialog(MainWindow *main) :
     ui->recentsListWidget->addAction(ui->actionRemove_item);
     ui->recentsListWidget->addAction(ui->actionClear_all);
     ui->projectsListWidget->addAction(ui->actionRemove_project);
+    ui->projectsListWidget->addAction(ui->actionClearProjects);
     ui->logoSvgWidget->load(Config()->getLogoFile());
-
-    // radare2 does not seem to save this config so here we load this manually
-    Core()->setConfig("dir.projects", Config()->getDirProjects());
 
     fillRecentFilesList();
     fillIOPluginsList();
@@ -74,10 +72,10 @@ NewFileDialog::NewFileDialog(MainWindow *main) :
     // Set last clicked tab
     ui->tabWidget->setCurrentIndex(Config()->getNewFileLastClicked());
 
-    ui->loadProjectButton->setEnabled(ui->projectsListWidget->currentItem() != nullptr);
-
     /* Set focus on the TextInput */
     ui->newFileEdit->setFocus();
+
+    updateLoadProjectButton();
 }
 
 NewFileDialog::~NewFileDialog() {}
@@ -100,41 +98,20 @@ void NewFileDialog::on_selectFileButton_clicked()
     }
 }
 
-void NewFileDialog::on_selectProjectsDirButton_clicked()
+void NewFileDialog::on_selectProjectFileButton_clicked()
 {
-    auto currentDir = Config()->getDirProjects();
+    const QString &fileName = QDir::toNativeSeparators(
+            QFileDialog::getOpenFileName(this, tr("Open Project")));
 
-    if (currentDir.startsWith("~")) {
-        currentDir = QDir::homePath() + currentDir.mid(1);
+    if (!fileName.isEmpty()) {
+        ui->projectFileEdit->setText(fileName);
+        ui->loadProjectButton->setFocus();
     }
-    const QString &dir = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(this,
-                                                                                    tr("Select project path (dir.projects)"),
-                                                                                    currentDir));
-
-    if (dir.isEmpty()) {
-        return;
-    }
-    if (!QFileInfo(dir).isWritable()) {
-        QMessageBox::critical(this, tr("Permission denied"),
-                              tr("You do not have write access to <b>%1</b>")
-                              .arg(dir));
-        return;
-    }
-
-    Config()->setDirProjects(dir);
-    Core()->setConfig("dir.projects", dir);
-    fillProjectsList();
 }
 
 void NewFileDialog::on_loadProjectButton_clicked()
 {
-    QListWidgetItem *item = ui->projectsListWidget->currentItem();
-
-    if (item == nullptr) {
-        return;
-    }
-
-    loadProject(item->data(Qt::UserRole).toString());
+    loadProject(ui->projectFileEdit->text());
 }
 
 void NewFileDialog::on_shellcodeButton_clicked()
@@ -165,9 +142,14 @@ void NewFileDialog::on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item
     loadFile(item->data(Qt::UserRole).toString());
 }
 
-void NewFileDialog::on_projectsListWidget_itemSelectionChanged()
+void NewFileDialog::on_projectFileEdit_textChanged()
 {
-    ui->loadProjectButton->setEnabled(ui->projectsListWidget->currentItem() != nullptr);
+    updateLoadProjectButton();
+}
+
+void NewFileDialog::on_projectsListWidget_itemClicked(QListWidgetItem *item)
+{
+    ui->projectFileEdit->setText(item->data(Qt::UserRole).toString());
 }
 
 void NewFileDialog::on_projectsListWidget_itemDoubleClicked(QListWidgetItem *item)
@@ -186,63 +168,43 @@ void NewFileDialog::on_actionRemove_item_triggered()
 {
     // Remove selected item from recents list
     QListWidgetItem *item = ui->recentsListWidget->currentItem();
-
-    if (item == nullptr)
+    if (item == nullptr) {
         return;
-
-    QVariant data = item->data(Qt::UserRole);
-    QString sitem = data.toString();
-
-    QSettings settings;
-    QStringList files = settings.value("recentFileList").toStringList();
+    }
+    QString sitem = item->data(Qt::UserRole).toString();
+    QStringList files = Config()->getRecentFiles();
     files.removeAll(sitem);
-    settings.setValue("recentFileList", files);
-
+    Config()->setRecentFiles(files);
     ui->recentsListWidget->takeItem(ui->recentsListWidget->currentRow());
-
     ui->newFileEdit->clear();
 }
 
 void NewFileDialog::on_actionClear_all_triggered()
 {
-    // Clear recent file list
-    QSettings settings;
-    QStringList files = settings.value("recentFileList").toStringList();
-    files.clear();
-
+    Config()->setRecentFiles({});
     ui->recentsListWidget->clear();
-    // TODO: if called from main window its ok, otherwise its not
-    settings.setValue("recentFileList", files);
     ui->newFileEdit->clear();
 }
 
 void NewFileDialog::on_actionRemove_project_triggered()
 {
-    CutterCore *core = Core();
-
     QListWidgetItem *item = ui->projectsListWidget->currentItem();
-
-    if (item == nullptr)
+    if (item == nullptr) {
         return;
-
-    QVariant data = item->data(Qt::UserRole);
-    QString sitem = data.toString();
-
-    // Confirmation box
-    QMessageBox msgBox(this);
-    msgBox.setText(tr("Delete the project \"%1\" from disk ?").arg(sitem));
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    int ret = msgBox.exec();
-
-    switch (ret) {
-    case QMessageBox::Yes:
-        core->deleteProject(sitem);
-        ui->projectsListWidget->takeItem(ui->projectsListWidget->currentRow());
-        break;
-    case QMessageBox::No:
-    default:
-        break;
     }
+    QString sitem = item->data(Qt::UserRole).toString();
+    QStringList files = Config()->getRecentProjects();
+    files.removeAll(sitem);
+    Config()->setRecentProjects(files);
+    ui->projectsListWidget->takeItem(ui->projectsListWidget->currentRow());
+    ui->projectFileEdit->clear();
+}
+
+void NewFileDialog::on_actionClearProjects_triggered()
+{
+    Config()->setRecentProjects({});
+    ui->projectsListWidget->clear();
+    ui->projectFileEdit->clear();
 }
 
 void NewFileDialog::dragEnterEvent(QDragEnterEvent *event)
@@ -265,14 +227,15 @@ void NewFileDialog::dropEvent(QDropEvent *event)
     loadFile(event->mimeData()->urls().first().toLocalFile());
 }
 
-bool NewFileDialog::fillRecentFilesList()
+/*
+ * @brief Add the existing files from the list to the widget.
+ * @return the list of files that actually exist
+ */
+static QStringList fillFilesList(QListWidget *widget, const QStringList &files)
 {
-    // Fill list with recent opened files
-    QSettings settings;
+    QStringList updatedFiles = files;
 
-    QStringList files = settings.value("recentFileList").toStringList();
-
-    QMutableListIterator<QString> it(files);
+    QMutableListIterator<QString> it(updatedFiles);
     int i = 0;
     while (it.hasNext()) {
         // Get the file name
@@ -296,40 +259,27 @@ bool NewFileDialog::fillRecentFilesList()
                 text
             );
             item->setData(Qt::UserRole, fullpath);
-            ui->recentsListWidget->addItem(item);
+            widget->addItem(item);
         }
     }
+    return updatedFiles;
+}
 
+bool NewFileDialog::fillRecentFilesList()
+{
+    QStringList files = Config()->getRecentFiles();
+    files = fillFilesList(ui->recentsListWidget, files);
     // Removed files were deleted from the stringlist. Save it again.
-    settings.setValue("recentFileList", files);
-
+    Config()->setRecentFiles(files);
     return !files.isEmpty();
 }
 
 bool NewFileDialog::fillProjectsList()
 {
-    CutterCore *core = Core();
-
-    auto currentDir = Config()->getDirProjects();
-
-    ui->projectsDirEdit->setText(currentDir);
-
-    QStringList projects = core->getProjectNames();
-    projects.sort(Qt::CaseInsensitive);
-
-    ui->projectsListWidget->clear();
-
-    int i = 0;
-    for (const QString &project : projects) {
-        QString info = QDir::toNativeSeparators(core->cmdRaw("Pi " + project));
-
-        QListWidgetItem *item = new QListWidgetItem(getIconFor(project, i++), project + "\n" + info);
-
-        item->setData(Qt::UserRole, project);
-        ui->projectsListWidget->addItem(item);
-    }
-
-    return !projects.isEmpty();
+    QStringList files = Config()->getRecentProjects();
+    files = fillFilesList(ui->projectsListWidget, files);
+    Config()->setRecentProjects(files);
+    return !files.isEmpty();
 }
 
 void NewFileDialog::fillIOPluginsList()
@@ -357,6 +307,11 @@ void NewFileDialog::fillIOPluginsList()
     }
 }
 
+void NewFileDialog::updateLoadProjectButton()
+{
+    ui->loadProjectButton->setEnabled(!ui->projectFileEdit->text().trimmed().isEmpty());
+}
+
 void NewFileDialog::loadFile(const QString &filename)
 {
     const QString &nativeFn = QDir::toNativeSeparators(filename);
@@ -370,13 +325,12 @@ void NewFileDialog::loadFile(const QString &filename)
 
     // Add file to recent file list
     QSettings settings;
-    QStringList files = settings.value("recentFileList").toStringList();
+    QStringList files = Config()->getRecentFiles();
     files.removeAll(nativeFn);
     files.prepend(nativeFn);
     while (files.size() > MaxRecentFiles)
         files.removeLast();
-
-    settings.setValue("recentFileList", files);
+    Config()->setRecentFiles(files);
 
     // Close dialog and open MainWindow/InitialOptionsDialog
     QString ioFile = "";
@@ -394,8 +348,9 @@ void NewFileDialog::loadFile(const QString &filename)
 void NewFileDialog::loadProject(const QString &project)
 {
     MainWindow *main = new MainWindow();
-    main->openProject(project);
-
+    if (!main->openProject(project)) {
+        return;
+    }
     close();
 }
 

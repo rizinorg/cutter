@@ -28,6 +28,8 @@ class R2TaskDialog;
 #include "common/Helpers.h"
 #include "dialogs/R2TaskDialog.h"
 
+#include <rz_project.h>
+
 #define Core() (CutterCore::instance())
 
 class RzCoreLocked;
@@ -473,13 +475,6 @@ public:
     QStringList getAsmPluginNames();
     QStringList getAnalPluginNames();
 
-    /* Projects */
-    QStringList getProjectNames();
-    void openProject(const QString &name);
-    void saveProject(const QString &name);
-    void deleteProject(const QString &name);
-    static bool isProjectNameValid(const QString &name);
-
     /* Widgets */
     QList<RzBinPluginDescription> getRBinPluginDescriptions(const QString &type = QString());
     QList<RzIOPluginDescription> getRIOPluginDescriptions();
@@ -673,8 +668,6 @@ signals:
 
     void attachedRemote(bool successfully);
 
-    void projectSaved(bool successfully, const QString &name);
-
     void ioCacheChanged(bool newval);
     void writeModeChanged(bool newval);
     void ioModeChanged();
@@ -708,8 +701,6 @@ signals:
     void showMemoryWidgetRequested();
 
 private:
-    QString notes;
-
     /**
      * Internal reference to the RzCore.
      * NEVER use this directly! Always use the CORE_LOCK(); macro and access it like core->...

@@ -169,22 +169,6 @@ void Configuration::loadInitial()
 #endif
 }
 
-QString Configuration::getDirProjects()
-{
-    auto projectsDir = s.value("dir.projects").toString();
-    if (projectsDir.isEmpty()) {
-        projectsDir = Core()->getConfig("dir.projects");
-        setDirProjects(projectsDir);
-    }
-
-    return QDir::toNativeSeparators(projectsDir);
-}
-
-void Configuration::setDirProjects(const QString &dir)
-{
-    s.setValue("dir.projects", QDir::toNativeSeparators(dir));
-}
-
 QString Configuration::getRecentFolder()
 {
     QString recentFolder = s.value("dir.recentFolder", QDir::homePath()).toString();
@@ -789,4 +773,32 @@ bool Configuration::getGraphBlockEntryOffset()
 void Configuration::setGraphBlockEntryOffset(bool enabled)
 {
     s.setValue("graphBlockEntryOffset", enabled);
+}
+
+QStringList Configuration::getRecentFiles() const
+{
+    return s.value("recentFileList").toStringList();
+}
+
+void Configuration::setRecentFiles(const QStringList &list)
+{
+    s.setValue("recentFileList", list);
+}
+
+QStringList Configuration::getRecentProjects() const
+{
+    return s.value("recentProjectsList").toStringList();
+}
+
+void Configuration::setRecentProjects(const QStringList &list)
+{
+    s.setValue("recentProjectsList", list);
+}
+
+void Configuration::addRecentProject(QString file)
+{
+    QStringList files = getRecentProjects();
+    files.removeAll(file);
+    files.prepend(file);
+    setRecentProjects(files);
 }

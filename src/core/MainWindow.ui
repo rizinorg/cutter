@@ -276,7 +276,7 @@
   </action>
   <action name="actionSave">
    <property name="text">
-    <string>Save</string>
+    <string>Save Project</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -714,7 +714,7 @@
   </action>
   <action name="actionSaveAs">
    <property name="text">
-    <string>Save As...</string>
+    <string>Save Project As...</string>
    </property>
   </action>
   <action name="actionGraph">

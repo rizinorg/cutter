@@ -142,7 +142,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="filesTab">
            <attribute name="title">
@@ -379,7 +379,7 @@
                <number>5</number>
               </property>
               <item row="1" column="1">
-               <widget class="QPushButton" name="selectProjectsDirButton">
+               <widget class="QPushButton" name="selectProjectFileButton">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -392,17 +392,14 @@
                </widget>
               </item>
               <item row="1" column="0">
-               <widget class="QLineEdit" name="projectsDirEdit">
+               <widget class="QLineEdit" name="projectFileEdit">
                 <property name="frame">
                  <bool>false</bool>
-                </property>
-                <property name="readOnly">
-                 <bool>true</bool>
                 </property>
                </widget>
               </item>
               <item row="0" column="0">
-               <widget class="QLabel" name="projectsDirLabel">
+               <widget class="QLabel" name="projectFileLabel">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -410,7 +407,7 @@
                  </sizepolicy>
                 </property>
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Projects path (dir.projects):&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Open Project&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                </widget>
               </item>
@@ -530,6 +527,11 @@
   <action name="actionRemove_project">
    <property name="text">
     <string>Delete project</string>
+   </property>
+  </action>
+  <action name="actionClearProjects">
+   <property name="text">
+    <string>Clear all projects</string>
    </property>
   </action>
  </widget>

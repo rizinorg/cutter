@@ -18,9 +18,10 @@
 #include "common/Json.h"
 #include "core/Cutter.h"
 #include "Decompiler.h"
-#include "rz_asm.h"
-#include "rz_cmd.h"
-#include "sdb.h"
+
+#include <rz_asm.h>
+#include <rz_cmd.h>
+#include <sdb.h>
 
 Q_GLOBAL_STATIC(CutterCore, uniqueInstance)
 
@@ -2415,11 +2416,6 @@ QStringList CutterCore::getAnalPluginNames()
     return ret;
 }
 
-QStringList CutterCore::getProjectNames()
-{
-	return {};
-}
-
 QList<RzBinPluginDescription> CutterCore::getRBinPluginDescriptions(const QString &type)
 {
     QList<RzBinPluginDescription> ret;
@@ -3633,36 +3629,6 @@ void CutterCore::triggerFunctionRenamed(const RVA offset, const QString &newName
 void CutterCore::loadPDB(const QString &file)
 {
     cmdRaw("idp " + sanitizeStringForCommand(file));
-}
-
-void CutterCore::openProject(const QString &name)
-{
-    cmdRaw("Po " + name);
-
-    QString notes = QString::fromUtf8(QByteArray::fromBase64(cmdRaw("Pnj").toUtf8()));
-}
-
-void CutterCore::saveProject(const QString &name)
-{
-    const QString &rv = cmdRaw("Ps " + name.trimmed()).trimmed();
-    const bool ok = rv == name.trimmed();
-    cmdRaw(QString("Pnj %1").arg(QString(notes.toUtf8().toBase64())));
-    emit projectSaved(ok, name);
-}
-
-void CutterCore::deleteProject(const QString &name)
-{
-    cmdRaw("Pd " + name);
-}
-
-bool CutterCore::isProjectNameValid(const QString &name)
-{
-    // see is_valid_project_name() in libr/core/project.
-
-    QString pattern(R"(^[a-zA-Z0-9\\\._:-]{1,}$)");
-    // The below construct mimics the behaviour of QRegexP::exactMatch(), which was here before
-    static const QRegularExpression regexp("\\A(?:" + pattern + ")\\z");
-    return regexp.match(name).hasMatch() && !name.endsWith(".zip") ;
 }
 
 QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
