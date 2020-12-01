@@ -47,7 +47,7 @@ Add Flag
 
 Rename
 ----------------------------------------
-**Description:** Rename the flag in the current location.  
+**Description:** Rename the flag, function or local variable at current location. If empty, remove the currently associated name.
 
 **Steps:** Right-click an address or item and choose ``Rename``  
 
@@ -60,14 +60,6 @@ Edit Function
 **Steps:**  Right-click on a location inside a function and choose ``Edit function``.  
 
 **Shortcut:** :kbd:`Shift` + :kbd:`P`  
-
-Rename Flag/Function/Variable
-----------------------------------------
-**Description:** Rename a specific flag, variable or function under the cursor.  
-
-**Steps:**  -> Rename Flag/Fcn/Var Used Here  
-
-**Shortcut:** :kbd:`Shift` + :kbd:`N`  
 
 Re-type Local Variables
 ----------------------------------------
