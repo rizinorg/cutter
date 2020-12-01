@@ -666,15 +666,16 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
     } else if (event->type() == QEvent::ToolTip
               &&  obj == mDisasTextEdit->viewport()) {
 
-        QHelpEvent * helpEvent = static_cast<QHelpEvent*>(event);
+        QHelpEvent *helpEvent = static_cast<QHelpEvent*>(event);
 
         auto cursorForWord = mDisasTextEdit->cursorForPosition(helpEvent->pos());
         cursorForWord.select(QTextCursor::WordUnderCursor);
 
-        RVA offsetFrom, offsetTo = readDisassemblyOffset( cursorForWord );
+        RVA offsetFrom = readDisassemblyOffset(cursorForWord);
+        RVA offsetTo = RVA_INVALID;
         bool offsetsDiffer = false; //Do these 2 values differ?
 
-        QList<XrefDescription> refs = Core()->getXRefs( offsetTo, false, false);
+        QList<XrefDescription> refs = Core()->getXRefs(offsetFrom, false, false);
 
         if (refs.length()) {
             if (refs.length() > 1) {
@@ -682,7 +683,6 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
                     .arg(refs.length());
             }
             offsetTo = refs.at(0).to;
-            offsetFrom = refs.at(0).from;
 
             if( offsetTo != offsetFrom ){
                 offsetsDiffer = true;
@@ -702,7 +702,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
             toolTipContent +=
                 tr("<div style=\"margin-bottom: 10px;\"><strong>Disassembly Preview</strong>:<br>%1<div>").arg(disasmPreview.join("<br>"));
 
-            QToolTip::showText( helpEvent->globalPos(), toolTipContent, this, QRect(), 3500);
+            QToolTip::showText(helpEvent->globalPos(), toolTipContent, this, QRect(), 3500);
         }
 
         return true;
