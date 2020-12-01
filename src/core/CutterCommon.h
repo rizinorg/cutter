@@ -62,9 +62,12 @@ inline QString RHexString(RVA size)
 #endif
 
 
-#if defined(__has_cpp_attribute) && __has_cpp_attribute(deprecated)
-#define CUTTER_DEPRECATED(msg) [[deprecated(msg)]]
-#else
+#if defined(__has_cpp_attribute)
+    #if __has_cpp_attribute(deprecated)
+        #define CUTTER_DEPRECATED(msg) [[deprecated(msg)]]
+    #endif
+#endif
+#if !defined(CUTTER_DEPRECATED)
 #define CUTTER_DEPRECATED(msg)
 #endif
 
