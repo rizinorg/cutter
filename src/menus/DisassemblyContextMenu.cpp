@@ -831,13 +831,7 @@ void DisassemblyContextMenu::on_actionRename_triggered()
         if (ok && !newName.isEmpty()) {
             Core()->renameFunction(doRenameInfo.addr, newName);
         }
-    } else if (doRenameAction == RENAME_FLAG) {
-        QString newName = QInputDialog::getText(this->mainWindow, tr("Rename flag %2").arg(doRenameInfo.name),
-                                            tr("Flag name at %1:").arg(RAddressString(doRenameInfo.addr)), QLineEdit::Normal, doRenameInfo.name, &ok);
-        if (ok && !newName.isEmpty()) {
-            Core()->renameFlag(doRenameInfo.name, newName);
-        }
-    } else if (doRenameAction == RENAME_ADD_FLAG) {
+    } else if (doRenameAction == RENAME_FLAG || doRenameAction == RENAME_ADD_FLAG) {
         FlagDialog dialog(doRenameInfo.addr, this->mainWindow);
         ok = dialog.exec();
     } else if (doRenameAction == RENAME_LOCAL) {
