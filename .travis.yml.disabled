@@ -192,13 +192,13 @@ script:
                 -DCUTTER_USE_BUNDLED_RADARE2=OFF
                 -DCUTTER_APPIMAGE_BUILD=ON
                 -DCMAKE_INSTALL_PREFIX=appdir/usr
-                ../src &&
+                .. &&
             make -j4;
        elif [[ "$BUILD_SYSTEM" == "cmake_nodep" ]]; then
             cmake
                 -DCMAKE_BUILD_TYPE=Release
                 -DCUTTER_USE_BUNDLED_RADARE2=ON
-                ../src &&
+                .. &&
             make -j4;
        fi
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
@@ -225,7 +225,7 @@ script:
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON
                 -DCUTTER_USE_BUNDLED_RADARE2=ON
                 -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR"
-                ../src &&
+                .. &&
             make -j4;
        fi
     fi

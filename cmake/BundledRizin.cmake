@@ -1,7 +1,7 @@
 
 include(ExternalProject)
 
-set(RIZIN_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../rizin")
+set(RIZIN_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/rizin")
 if(WIN32)
     set(RIZIN_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}")
     if ("${CMAKE_GENERATOR}" MATCHES "Visual Studio")

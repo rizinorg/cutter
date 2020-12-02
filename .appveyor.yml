@@ -48,6 +48,7 @@ build_script:
        -DCUTTER_USE_BUNDLED_RIZIN=ON
        -DCUTTER_ENABLE_PYTHON=ON
        -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
+       -DCUTTER_ENABLE_PACKAGING=ON
        -DCUTTER_PACKAGE_DEPENDENCIES=ON
        -DCUTTER_PACKAGE_R2GHIDRA=ON
        -DCUTTER_PACKAGE_R2DEC=OFF
@@ -56,7 +57,7 @@ build_script:
        -DCMAKE_PREFIX_PATH=%CUTTER_DEPS%\\pyside
        -DCPACK_PACKAGE_FILE_NAME=%PACKAGE_NAME%
        -G Ninja
-       ../src"
+       .."
   - cmd: cmake --build . --config Release
   - cmd: cmake --build . --config Release --target package
 

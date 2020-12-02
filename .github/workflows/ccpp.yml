@@ -110,13 +110,13 @@ jobs:
             -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF \
             -DCUTTER_ENABLE_CRASH_REPORTS=ON \
             -DCUTTER_USE_BUNDLED_RIZIN=ON \
-            ../src && \
+            ..
         else
           cmake \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCUTTER_USE_BUNDLED_RIZIN=ON \
-            ../src
+            ..
         fi
         ninja
     - name: cmake macos
@@ -140,7 +140,7 @@ jobs:
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON \
                 -DCUTTER_USE_BUNDLED_RIZIN=ON \
                 -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR" \
-                ../src && \
+                .. && \
               make -j4;
     - name: windows dependencies
       if: contains(matrix.os, 'windows-latest')
@@ -175,7 +175,7 @@ jobs:
           -DCMAKE_PREFIX_PATH="%CUTTER_DEPS%\pyside" ^
           -DCPACK_PACKAGE_FILE_NAME=%PACKAGE_NAME% ^
           -G Ninja ^
-          ../src
+          ..
         cmake --build . --config Release
         cmake --build . --config Release --target package
         echo PACKAGE_NAME=%PACKAGE_NAME%.zip >> %GITHUB_ENV%
