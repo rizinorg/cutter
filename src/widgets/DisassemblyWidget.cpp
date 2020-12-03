@@ -666,7 +666,6 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         return true;
     } else if (event->type() == QEvent::ToolTip
          &&  obj == mDisasTextEdit->viewport()) {
-        //For future reference : https://github.com/radareorg/cutter/pull/2459
         QHelpEvent *helpEvent = static_cast<QHelpEvent*>(event);
 
         auto cursorForWord = mDisasTextEdit->cursorForPosition(helpEvent->pos());
@@ -689,19 +688,19 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
                     .arg(offsetFrom).arg(refs.at(0).from);
             }
 
-            // Only if the offset we point *to* is different from the one the cursor is
-            // currently on *and* the former is a valid offset, we are allowed to show a tooltip
+            // Only if the offset we point *to* is different from the one the cursor is currently
+            // on *and* the former is a valid offset, we are allowed to get a preview of offsetTo
             if(offsetTo != offsetFrom && offsetTo != RVA_INVALID) {
-                const QFont &fnt = Config()->getFont();
-                QFontMetrics fm{ fnt };
-
-                QString toolTipContent =
-                    QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\">")
-                        .arg(fnt.family()).arg(qMax(6, fnt.pointSize() - 1));
-
                 QStringList disasmPreview = Core()->getDisassemblyPreview(offsetTo, 10);
 
+                // Last check to make sure the returned preview isn't an empty text (QStringList)
                 if (!disasmPreview.isEmpty()) {
+                    const QFont &fnt = Config()->getFont();
+                    QFontMetrics fm{ fnt };
+
+                    QString toolTipContent =
+                        QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\">")
+                            .arg(fnt.family()).arg(qMax(6, fnt.pointSize() - 1));
                     toolTipContent +=
                         tr("<div style=\"margin-bottom: 10px;\"><strong>Disassembly Preview</strong>:<br>%1<div>")
                             .arg(disasmPreview.join("<br>"));
