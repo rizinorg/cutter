@@ -698,14 +698,9 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
                     const QFont &fnt = Config()->getFont();
                     QFontMetrics fm{ fnt };
 
-                    QString toolTipContent =
-                        QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\">")
-                            .arg(fnt.family()).arg(qMax(6, fnt.pointSize() - 1));
-                    toolTipContent +=
-                        tr("<div style=\"margin-bottom: 10px;\"><strong>Disassembly Preview</strong>:<br>%1<div>")
-                            .arg(disasmPreview.join("<br>"));
-
-                    QToolTip::showText(helpEvent->globalPos(), toolTipContent, this, QRect(), 3500);
+                    QString tooltip = QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\"><div style=\"margin-bottom: 10px;\"><strong>Disassembly Preview</strong>:<br>%3<div>")
+                        .arg(fnt.family()).arg(qMax(6, fnt.pointSize() - 1)).arg(disasmPreview.join("<br>"));
+                    QToolTip::showText(helpEvent->globalPos(), tooltip, this, QRect(), 3500);
                 }
             }
         }
