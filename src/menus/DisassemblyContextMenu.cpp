@@ -32,11 +32,9 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
         actionCopy(this),
         actionCopyAddr(this),
         actionAddComment(this),
-        actionAddFlag(this),
         actionAnalyzeFunction(this),
         actionEditFunction(this),
         actionRename(this),
-        actionRenameUsedHere(this),
         actionSetFunctionVarTypes(this),
         actionXRefs(this),
         actionXRefsForVariables(this),
@@ -87,25 +85,17 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
                SLOT(on_actionAddComment_triggered()), getCommentSequence());
     addAction(&actionAddComment);
 
-    initAction(&actionAddFlag, tr("Add Flag"),
-               SLOT(on_actionAddFlag_triggered()), getAddFlagSequence());
-    addAction(&actionAddFlag);
-
-    initAction(&actionRename, tr("Rename"),
+    initAction(&actionRename, tr("Rename or add flag"),
                SLOT(on_actionRename_triggered()), getRenameSequence());
     addAction(&actionRename);
-
-    initAction(&actionEditFunction, tr("Edit function"),
-               SLOT(on_actionEditFunction_triggered()), getEditFunctionSequence());
-    addAction(&actionEditFunction);
-
-    initAction(&actionRenameUsedHere, tr("Rename Flag/Fcn/Var Used Here"),
-               SLOT(on_actionRenameUsedHere_triggered()), getRenameUsedHereSequence());
-    addAction(&actionRenameUsedHere);
 
     initAction(&actionSetFunctionVarTypes, tr("Re-type Local Variables"),
                SLOT(on_actionSetFunctionVarTypes_triggered()), getRetypeSequence());
     addAction(&actionSetFunctionVarTypes);
+
+    initAction(&actionEditFunction, tr("Edit function"),
+               SLOT(on_actionEditFunction_triggered()), getEditFunctionSequence());
+    addAction(&actionEditFunction);
 
     initAction(&actionDeleteComment, tr("Delete comment"), SLOT(on_actionDeleteComment_triggered()));
     addAction(&actionDeleteComment);
@@ -361,44 +351,9 @@ QVector<DisassemblyContextMenu::ThingUsedHere> DisassemblyContextMenu::getThingU
     return result;
 }
 
-void DisassemblyContextMenu::updateTargetMenuActions(const QVector<ThingUsedHere> &targets)
-{
-    for (auto action : showTargetMenuActions) {
-        removeAction(action);
-        auto menu = action->menu();
-        if (menu) {
-            menu->deleteLater();
-        }
-        action->deleteLater();
-    }
-    showTargetMenuActions.clear();
-    for (auto &target : targets) {
-        QString name;
-        if (target.name.isEmpty()) {
-            name = tr("%1 (used here)").arg(RAddressString(target.offset));
-        } else {
-            name = tr("%1 (%2)").arg(target.name, RAddressString(target.offset));
-        }
-        auto action = new QAction(name, this);
-        showTargetMenuActions.append(action);
-        auto menu = mainWindow->createShowInMenu(this, target.offset);
-        action->setMenu(menu);
-        QAction *copyAddress = new QAction(tr("Copy address"), menu);
-        RVA offset = target.offset;
-        connect(copyAddress, &QAction::triggered, copyAddress, [offset]() {
-            QClipboard *clipboard = QApplication::clipboard();
-            clipboard->setText(RAddressString(offset));
-        });
-        menu->addSeparator();
-        menu->addAction(copyAddress);
-    }
-    insertActions(copySeparator, showTargetMenuActions);
-}
-
 void DisassemblyContextMenu::setOffset(RVA offset)
 {
     this->offset = offset;
-
     this->actionSetFunctionVarTypes.setVisible(true);
 }
 
@@ -410,6 +365,123 @@ void DisassemblyContextMenu::setCanCopy(bool enabled)
 void DisassemblyContextMenu::setCurHighlightedWord(const QString &text)
 {
     this->curHighlightedWord = text;
+    // Update the renaming options only when a new word is selected
+    setupRenaming();
+}
+
+DisassemblyContextMenu::ThingUsedHere DisassemblyContextMenu::getThingAt(ut64 address)
+{
+    ThingUsedHere tuh;
+    RAnalFunction *fcn = Core()->functionAt(address);
+    RFlagItem *flag = r_flag_get_i(Core()->core()->flags, address);
+
+    // We will lookup through existing r2 types to find something relevant
+
+    if (fcn != nullptr) {
+        // It is a function
+        tuh.type = ThingUsedHere::Type::Function;
+        tuh.name = fcn->name;
+    } else if (flag != nullptr) {
+        // It is a flag
+        tuh.type = ThingUsedHere::Type::Flag;
+        if (Config()->getConfigBool("asm.flags.real") && flag->realname) {
+            tuh.name = flag->realname;
+        } else {
+            tuh.name = flag->name;
+        }
+    } else {
+        // Consider it an address
+        tuh.type = ThingUsedHere::Type::Address;
+    }
+
+    tuh.offset = address;
+    return tuh;
+}
+
+void DisassemblyContextMenu::buildRenameMenu(ThingUsedHere* tuh)
+{
+    if (!tuh) {
+        qWarning() << "Unexpected behavior null pointer passed to DisassemblyContextMenu::buildRenameMenu";
+        doRenameAction = RENAME_DO_NOTHING;
+        return;
+    }
+
+    actionDeleteFlag.setVisible(false);
+    if (tuh->type == ThingUsedHere::Type::Address) {
+        doRenameAction = RENAME_ADD_FLAG;
+        doRenameInfo.name = RAddressString(tuh->offset);
+        doRenameInfo.addr = tuh->offset;
+        actionRename.setText(tr("Add flag at %1 (used here)").arg(doRenameInfo.name));
+    } else if (tuh->type == ThingUsedHere::Type::Function) {
+        doRenameAction = RENAME_FUNCTION;
+        doRenameInfo.name = tuh->name;
+        doRenameInfo.addr = tuh->offset;
+        actionRename.setText(tr("Rename \"%1\"").arg(doRenameInfo.name));
+    } else if (tuh->type == ThingUsedHere::Type::Var) {
+        doRenameAction = RENAME_LOCAL;
+        doRenameInfo.name = tuh->name;
+        doRenameInfo.addr = tuh->offset;
+        actionRename.setText(tr("Rename local \"%1\"").arg(tuh->name));
+    } else if (tuh->type == ThingUsedHere::Type::Flag) {
+        doRenameAction = RENAME_FLAG;
+        doRenameInfo.name = tuh->name;
+        doRenameInfo.addr = tuh->offset;
+        actionRename.setText(tr("Rename flag \"%1\" (used here)").arg(doRenameInfo.name));
+        actionDeleteFlag.setVisible(true);
+    } else {
+        qWarning() << "Unexpected renaming type";
+        doRenameAction = RENAME_DO_NOTHING;
+    }
+}
+
+void DisassemblyContextMenu::setupRenaming()
+{
+    // We parse our highlighted word as an address
+    ut64 selection = Core()->num(curHighlightedWord);
+
+    // First, let's try to see if current line (offset) contains a local variable or a function
+    ThingUsedHere *tuh = nullptr;
+    ThingUsedHere thingAt;
+    auto things = getThingUsedHere(offset);
+    for (auto& thing : things) {
+        if (thing.offset == selection || thing.name == curHighlightedWord) {
+            // We matched something on current line
+            tuh = &thing;
+            break;
+        }
+    }
+
+    if (!tuh) {
+        // Nothing matched on current line, is there anything valid coming from our selection?
+        thingAt = getThingAt(selection);
+
+        if (thingAt.offset == 0) {
+            // We parsed something which resolved to 0, it's very likely nothing interesting was selected
+            // So we fallback on current line offset
+            thingAt = getThingAt(offset);
+        }
+
+        // However, since for the moment selection selects *every* lines which match a specific offset,
+        // make sure we didn't want to select a local variable rather than the function itself
+        if (thingAt.type == ThingUsedHere::Type::Function) {
+            auto vars = Core()->getVariables(offset);
+            for (auto v : vars) {
+                if (v.name == curHighlightedWord) {
+                    // This is a local variable
+                    thingAt.type = ThingUsedHere::Type::Var;
+                    thingAt.name = v.name;
+                    break;
+                }
+            }
+        }
+
+        // In any case, thingAt will contain something we can rename
+        tuh = &thingAt;
+    }
+
+    // Now, build the renaming menu and show it
+    buildRenameMenu(tuh);
+    actionRename.setVisible(true);
 }
 
 void DisassemblyContextMenu::aboutToShowSlot()
@@ -483,36 +555,12 @@ void DisassemblyContextMenu::aboutToShowSlot()
     actionCopy.setVisible(canCopy);
     copySeparator->setVisible(canCopy);
 
-
-    RCore *core = Core()->core();
-    RAnalFunction *fcn = Core()->functionAt(offset);
-    RAnalFunction *in_fcn = Core()->functionIn(offset);
-    RFlagItem *f = r_flag_get_i (core->flags, offset);
-
-    actionDeleteFlag.setVisible(f ? true : false);
-    actionDeleteFunction.setVisible(fcn ? true : false);
-
-    if (fcn) {
-        actionAnalyzeFunction.setVisible(false);
-        actionRename.setVisible(true);
-        actionRename.setText(tr("Rename function \"%1\"").arg(fcn->name));
-    } else if (f) {
-        QString name;
-
-        // Check if Realname is enabled. If yes, show it instead of the full flag-name.
-        if (Config()->getConfigBool("asm.flags.real") && f->realname) {
-            name = f->realname;
-        } else {
-            name = f->name;
-        }
-
-        actionRename.setVisible(true);
-        actionRename.setText(tr("Rename flag \"%1\"").arg(name));
-    } else {
-        actionRename.setVisible(false);
-    }
+    // Handle renaming of variable, function, flag, ...
+    // Note: This might be useless if we consider setCurrentHighlightedWord is always called before
+    setupRenaming();
 
     // Only show retype for local vars if in a function
+    RAnalFunction *in_fcn = Core()->functionIn(offset);
     if (in_fcn) {
         auto vars = Core()->getVariables(offset);
         actionSetFunctionVarTypes.setVisible(!vars.empty());
@@ -522,25 +570,6 @@ void DisassemblyContextMenu::aboutToShowSlot()
         actionSetFunctionVarTypes.setVisible(false);
         actionEditFunction.setVisible(false);
     }
-
-
-    // Only show "rename X used here" if there is something to rename
-    auto thingsUsedHere = getThingUsedHere(offset);
-    if (!thingsUsedHere.isEmpty()) {
-        actionRenameUsedHere.setVisible(true);
-        auto &thingUsedHere = thingsUsedHere.first();
-        if (thingUsedHere.type == ThingUsedHere::Type::Address) {
-            RVA offset = thingUsedHere.offset;
-            actionRenameUsedHere.setText(tr("Add flag at %1 (used here)").arg(RAddressString(offset)));
-        } else if (thingUsedHere.type == ThingUsedHere::Type::Function) {
-            actionRenameUsedHere.setText(tr("Rename \"%1\"").arg(thingUsedHere.name));
-        }  else {
-            actionRenameUsedHere.setText(tr("Rename \"%1\" (used here)").arg(thingUsedHere.name));
-        }
-    } else {
-        actionRenameUsedHere.setVisible(false);
-    }
-    updateTargetMenuActions(thingsUsedHere);
 
     // Decide to show Reverse jmp option
     showReverseJmpQuery();
@@ -619,19 +648,9 @@ QKeySequence DisassemblyContextMenu::getSetToDataExSequence() const
     return {Qt::Key_Asterisk};
 }
 
-QKeySequence DisassemblyContextMenu::getAddFlagSequence() const
-{
-    return {}; //TODO insert correct sequence
-}
-
 QKeySequence DisassemblyContextMenu::getRenameSequence() const
 {
     return {Qt::Key_N};
-}
-
-QKeySequence DisassemblyContextMenu::getRenameUsedHereSequence() const
-{
-    return {Qt::SHIFT | Qt::Key_N};
 }
 
 QKeySequence DisassemblyContextMenu::getRetypeSequence() const
@@ -803,77 +822,37 @@ void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
     }
 }
 
-void DisassemblyContextMenu::on_actionAddFlag_triggered()
-{
-    FlagDialog dialog(offset, this->parentWidget());
-    dialog.exec();
-}
-
 void DisassemblyContextMenu::on_actionRename_triggered()
 {
-    RCore *core = Core()->core();
-    bool ok;
-    
-    RAnalFunction *fcn = Core()->functionIn(offset);
-    RFlagItem *f = r_flag_get_i(core->flags, offset);
-
-    if (fcn) {
-        // Renaming a function
-        QString newName = QInputDialog::getText(this->mainWindow, tr("Rename function %2").arg(fcn->name),
-                                            tr("Function name:"), QLineEdit::Normal, fcn->name, &ok);
+    bool ok = false;
+    if (doRenameAction == RENAME_FUNCTION) {
+        QString newName = QInputDialog::getText(this->mainWindow, tr("Rename function %2").arg(doRenameInfo.name),
+                                            tr("Function name:"), QLineEdit::Normal, doRenameInfo.name, &ok);
         if (ok && !newName.isEmpty()) {
-            Core()->renameFunction(fcn->addr, newName);
+            Core()->renameFunction(doRenameInfo.addr, newName);
         }
-    } else if (f) {
-        // Renaming flag
-        QString newName = QInputDialog::getText(this, tr("Rename flag %2").arg(f->name),
-                                            tr("Flag name:"), QLineEdit::Normal, f->name, &ok);
-        if (ok && !newName.isEmpty()) {
-            Core()->renameFlag(f->name, newName);
+    } else if (doRenameAction == RENAME_FLAG || doRenameAction == RENAME_ADD_FLAG) {
+        FlagDialog dialog(doRenameInfo.addr, this->mainWindow);
+        ok = dialog.exec();
+    } else if (doRenameAction == RENAME_LOCAL) {
+        RAnalFunction *fcn = Core()->functionIn(offset);
+        if (fcn) {
+            EditVariablesDialog dialog(fcn->addr, curHighlightedWord, this->mainWindow);
+            if (!dialog.empty()) {
+                // Don't show the dialog if there are no variables
+                ok = dialog.exec();
+            }
         }
-    }
-}
-
-void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
-{
-
-    QString title;
-    QString inputValue;
-    QString oldName;
-
-    auto array = getThingUsedHere(offset);
-    if (array.isEmpty()) {
-        return;
-    }
-
-    auto thingUsedHere = array.first();
-    auto type = thingUsedHere.type;
-
-    if (type == ThingUsedHere::Type::Address) {
-        RVA offset = thingUsedHere.offset;
-        title = tr("Add flag at %1").arg(RAddressString(offset));
-        inputValue = "label." + QString::number(offset, 16);
+    } else if (doRenameAction == RENAME_DO_NOTHING) {
+        // Do nothing
     } else {
-        oldName = thingUsedHere.name;
-        title = tr("Rename %1").arg(oldName);
-        inputValue = oldName;
+        qWarning() << "Unhandled renaming action: " << doRenameAction;
+        assert(false);
     }
 
-    bool ok;
-    // Create dialog
-    QString newName = QInputDialog::getText(this, title,
-                            tr("Name:"), QLineEdit::Normal, inputValue, &ok);
-
-    // If user accepted
-    if (ok && !newName.isEmpty()) {
-        Core()->cmdRawAt(QString("an %1").arg(newName), offset);
-        if (type == ThingUsedHere::Type::Address || type == ThingUsedHere::Type::Flag) {
-            Core()->triggerFlagsChanged();
-        } else if (type == ThingUsedHere::Type::Var) {
-            Core()->triggerVarsChanged();
-        } else if (type == ThingUsedHere::Type::Function) {
-            Core()->triggerFunctionRenamed(thingUsedHere.offset, newName);
-        }
+    if (ok) {
+        // Rebuild menu in case the user presses the rename shortcut directly before clicking
+        setupRenaming();
     }
 }
 

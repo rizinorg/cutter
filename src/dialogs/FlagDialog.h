@@ -19,12 +19,14 @@ public:
     ~FlagDialog();
 
 private slots:
-    void on_buttonBox_accepted();
-    void on_buttonBox_rejected();
+    void buttonBoxAccepted();
+    void buttonBoxRejected();
 
 private:
     std::unique_ptr<Ui::FlagDialog> ui;
     RVA offset;
+    QString flagName;
+    ut64 flagOffset;
 };
 
 #endif // FLAGDIALOG_H
