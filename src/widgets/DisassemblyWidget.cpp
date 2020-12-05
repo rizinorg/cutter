@@ -12,6 +12,7 @@
 #include <QJsonObject>
 #include <QVBoxLayout>
 #include <QRegularExpression>
+#include <QToolTip>
 #include <QTextBlockUserData>
 #include <QPainter>
 #include <QPainterPath>
@@ -126,6 +127,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     asm_docu->setDocumentMargin(10);
 
     // Event filter to intercept double clicks in the textbox
+    // and showing tooltips when hovering above those offsets
     mDisasTextEdit->viewport()->installEventFilter(this);
 
     // Set Disas context menu
@@ -660,6 +662,48 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 
         const QTextCursor& cursor = mDisasTextEdit->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
         jumpToOffsetUnderCursor(cursor);
+
+        return true;
+    } else if (event->type() == QEvent::ToolTip
+         &&  obj == mDisasTextEdit->viewport()) {
+        QHelpEvent *helpEvent = static_cast<QHelpEvent*>(event);
+
+        auto cursorForWord = mDisasTextEdit->cursorForPosition(helpEvent->pos());
+        cursorForWord.select(QTextCursor::WordUnderCursor);
+
+        RVA offsetFrom = readDisassemblyOffset(cursorForWord);
+        RVA offsetTo = RVA_INVALID;
+
+        QList<XrefDescription> refs = Core()->getXRefs(offsetFrom, false, false);
+
+        if (refs.length()) {
+            if (refs.length() > 1) {
+                qWarning() << tr("More than one (%1) references here. Weird behaviour expected.")
+                    .arg(refs.length());
+            }
+            offsetTo = refs.at(0).to; //This is the offset we want to preview
+
+            if(Q_UNLIKELY(offsetFrom != refs.at(0).from)) {
+                qWarning() << tr("offsetFrom (%1) differs from refs.at(0).from (%(2))")
+                    .arg(offsetFrom).arg(refs.at(0).from);
+            }
+
+            // Only if the offset we point *to* is different from the one the cursor is currently
+            // on *and* the former is a valid offset, we are allowed to get a preview of offsetTo
+            if(offsetTo != offsetFrom && offsetTo != RVA_INVALID) {
+                QStringList disasmPreview = Core()->getDisassemblyPreview(offsetTo, 10);
+
+                // Last check to make sure the returned preview isn't an empty text (QStringList)
+                if (!disasmPreview.isEmpty()) {
+                    const QFont &fnt = Config()->getFont();
+                    QFontMetrics fm{ fnt };
+
+                    QString tooltip = QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\"><div style=\"margin-bottom: 10px;\"><strong>Disassembly Preview</strong>:<br>%3<div>")
+                        .arg(fnt.family()).arg(qMax(6, fnt.pointSize() - 1)).arg(disasmPreview.join("<br>"));
+                    QToolTip::showText(helpEvent->globalPos(), tooltip, this, QRect(), 3500);
+                }
+            }
+        }
 
         return true;
     }
