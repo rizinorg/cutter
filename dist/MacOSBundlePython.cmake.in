@@ -1,0 +1,20 @@
+
+set(EMBED_PYTHON_SH "@EMBED_PYTHON_SH@")
+set(PYTHON_FRAMEWORK_DIR "@PYTHON_FRAMEWORK_DIR@")
+set(PYSIDE_PREFIX "@PYSIDE_PREFIX@")
+
+get_filename_component(BUNDLE_PATH "${CMAKE_INSTALL_PREFIX}/../.." ABSOLUTE)
+
+set(ENV{PKG_CONFIG_PATH} "${PYSIDE_PREFIX}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+
+# TODO: instead of calling a shellscript, implement the whole thing in cmake
+execute_process(COMMAND
+	"${EMBED_PYTHON_SH}"
+	"${PYTHON_FRAMEWORK_DIR}"
+	"${BUNDLE_PATH}"
+	"${BUNDLE_PATH}/MacOS/Cutter.bin"
+    RESULT_VARIABLE SCRIPT_RESULT)
+if(SCRIPT_RESULT)
+    message(FATAL_ERROR "Failed to bundle python")
+endif()
+

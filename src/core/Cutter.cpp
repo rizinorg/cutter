@@ -189,27 +189,26 @@ void CutterCore::initialize(bool loadPlugins)
 
     rz_event_hook(core_->anal->ev, RZ_EVENT_ALL, cutterREventCallback, this);
 
-#if defined(APPIMAGE) || defined(MACOS_R2_BUNDLED)
+#if defined(APPIMAGE) || defined(MACOS_RZ_BUNDLED)
     auto prefix = QDir(QCoreApplication::applicationDirPath());
 #ifdef APPIMAGE
     // Executable is in appdir/bin
     prefix.cdUp();
     qInfo() << "Setting r2 prefix =" << prefix.absolutePath() << " for AppImage.";
-#else // MACOS_R2_BUNDLED
+#else // MACOS_RZ_BUNDLED
     // Executable is in Contents/MacOS, prefix is Contents/Resources/r2
     prefix.cdUp();
     prefix.cd("Resources");
-    prefix.cd("r2");
     qInfo() << "Setting r2 prefix =" << prefix.absolutePath() << " for macOS Application Bundle.";
 #endif
     setConfig("dir.prefix", prefix.absolutePath());
 
     auto pluginsDir = prefix;
-    if (pluginsDir.cd("share/radare2/plugins")) {
+    if (pluginsDir.cd("share/rizin/plugins")) {
         qInfo() << "Setting r2 plugins dir =" << pluginsDir.absolutePath();
         setConfig("dir.plugins", pluginsDir.absolutePath());
     } else {
-        qInfo() << "r2 plugins dir =" << pluginsDir.absolutePath() << "does not exist!";
+        qInfo() << "r2 plugins dir under" << pluginsDir.absolutePath() << "does not exist!";
     }
 #endif
 

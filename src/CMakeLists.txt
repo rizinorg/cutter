@@ -47,13 +47,12 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
 endif()
 
 
-add_executable(Cutter MACOSX_BUNDLE ${UI_FILES} ${QRC_FILES} ${PLATFORM_RESOURCES} ${SOURCE_FILES} ${HEADER_FILES} ${BINDINGS_SOURCE})
+add_executable(Cutter ${UI_FILES} ${QRC_FILES} ${PLATFORM_RESOURCES} ${SOURCE_FILES} ${HEADER_FILES} ${BINDINGS_SOURCE})
 set_target_properties(Cutter PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ..
         PDB_OUTPUT_DIRECTORY ..
         ENABLE_EXPORTS ON
-        CXX_VISIBILITY_PRESET hidden
-        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist")
+        CXX_VISIBILITY_PRESET hidden)
 target_compile_definitions(Cutter PRIVATE CUTTER_SOURCE_BUILD)
 
 set(CUTTER_INCLUDE_DIRECTORIES core widgets common plugins menus .)
@@ -144,6 +143,10 @@ endif()
 
 if (CUTTER_PACKAGE_R2DEC)
     target_compile_definitions(Cutter PRIVATE CUTTER_APPVEYOR_R2DEC)
+endif()
+
+if(APPLE AND CUTTER_ENABLE_PACKAGING AND CUTTER_USE_BUNDLED_RIZIN)
+	target_compile_definitions(Cutter PRIVATE MACOS_RZ_BUNDLED)
 endif()
 
 include(Translations)

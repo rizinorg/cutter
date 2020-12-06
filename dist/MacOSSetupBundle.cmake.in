@@ -1,0 +1,69 @@
+
+set(MACDEPLOYQT_PATH "@MACDEPLOYQT_PATH@")
+set(INFO_PLIST_PATH "@CPACK_BUNDLE_PLIST@")
+set(CUTTER_SH_PATH "@CUTTER_SH_PATH@")
+set(ADJUST_RIZIN_LIBS "@ADJUST_RIZIN_LIBS@")
+
+macro(run_or_die)
+	execute_process(${ARGV} RESULT_VARIABLE PROC_RESULT)
+	if(PROC_RESULT)
+		message(FATAL_ERROR "Failed to run ${ARGV}")
+	endif()
+endmacro()
+
+get_filename_component(BUNDLE_PATH "${CMAKE_INSTALL_PREFIX}/../.." ABSOLUTE)
+set(EXECUTABLE_DIR "${BUNDLE_PATH}/Contents/MacOS")
+file(MAKE_DIRECTORY "${EXECUTABLE_DIR}")
+# Move the executable from Resources/bin/Cutter to MacOS/Cutter
+# macdeployqt can't handle anything else
+file(RENAME "${CMAKE_INSTALL_PREFIX}/bin/Cutter" "${EXECUTABLE_DIR}/Cutter")
+# Make a symlink from the original location so CutterConfig.cmake won't be broken
+run_or_die(COMMAND ${CMAKE_COMMAND} -E create_symlink "../../MacOS/Cutter.bin" "${CMAKE_INSTALL_PREFIX}/bin/Cutter")
+
+# Copying the Info.plist will be done later again by CPack but we need it a bit earlier
+# so macdeployqt has enough info.
+file(COPY "${INFO_PLIST_PATH}" DESTINATION "${BUNDLE_PATH}/Contents")
+
+# macdeployqt would put the rz libraries into Contents/Frameworks by default, but we want to have them
+# only in the prefix, so we fix the paths manually.
+foreach(_lib ${ADJUST_RIZIN_LIBS})
+	get_filename_component(_lib "${_lib}" REALPATH)
+	get_filename_component(_name "${_lib}" NAME)
+	run_or_die(COMMAND install_name_tool
+		-change "${_lib}" "@rpath/${_name}"
+		"${EXECUTABLE_DIR}/Cutter")
+	# Fix every lib for every lib too
+	foreach(_lib2 ${ADJUST_RIZIN_LIBS})
+	get_filename_component(_lib2 "${_lib2}" REALPATH)
+		get_filename_component(_name2 "${_lib2}" NAME)
+		run_or_die(COMMAND install_name_tool
+			-change "${_lib2}" "@rpath/${_name2}"
+			"${CMAKE_INSTALL_PREFIX}/lib/${_name}")
+	endforeach()
+endforeach()
+
+# Add rpaths because macdeployqt fails to do that properly
+run_or_die(COMMAND install_name_tool
+	-add_rpath "@executable_path/../Frameworks"
+	"${EXECUTABLE_DIR}/Cutter")
+run_or_die(COMMAND install_name_tool
+	-add_rpath "@executable_path/../Resources/lib"
+	"${EXECUTABLE_DIR}/Cutter")
+
+set(MACDEPLOYQT_COMMAND "${MACDEPLOYQT_PATH}" "${BUNDLE_PATH}" "-libpath=${CMAKE_INSTALL_PREFIX}/lib")
+message("Running macdeployqt \"${MACDEPLOYQT_COMMAND}\"")
+run_or_die(COMMAND ${MACDEPLOYQT_COMMAND})
+run_or_die(COMMAND ${MACDEPLOYQT_COMMAND})
+
+# Clean up the mess that macdeployqt made (duplicate rz libs, we only want the ones in the prefix)
+foreach(_lib ${ADJUST_RIZIN_LIBS})
+	get_filename_component(_lib "${_lib}" REALPATH)
+	get_filename_component(_name "${_lib}" NAME)
+	file(REMOVE "${BUNDLE_PATH}/Contents/Frameworks/${_name}")
+endforeach()
+
+# Replace main executable by Cutter.sh
+file(RENAME "${EXECUTABLE_DIR}/Cutter" "${EXECUTABLE_DIR}/Cutter.bin")
+file(COPY "${CUTTER_SH_PATH}" DESTINATION "${EXECUTABLE_DIR}")
+file(RENAME "${EXECUTABLE_DIR}/Cutter.sh" "${EXECUTABLE_DIR}/Cutter")
+

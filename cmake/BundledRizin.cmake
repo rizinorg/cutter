@@ -42,26 +42,27 @@ else()
     link_directories("${RIZIN_INSTALL_DIR}/lib")
 endif()
 
-set (R2_LIBS rz_core rz_config rz_cons rz_io rz_util rz_flag rz_asm rz_debug
+set (RZ_LIBS rz_core rz_config rz_cons rz_io rz_util rz_flag rz_asm rz_debug
         rz_hash rz_bin rz_lang rz_io rz_anal rz_parse rz_bp rz_egg rz_reg
         rz_search rz_syscall rz_socket rz_magic rz_crypto)
-set (R2_EXTRA_LIBS rz_main)
-set (R2_BIN rz-agent rz-bin rizin rz-diff rz-find rz-gg rz-hash rz-run rz-asm rz-ax)
+set (RZ_EXTRA_LIBS rz_main)
+set (RZ_BIN rz-agent rz-bin rizin rz-diff rz-find rz-gg rz-hash rz-run rz-asm rz-ax)
 
 target_link_libraries(Rizin INTERFACE
-        ${R2_LIBS})
+        ${RZ_LIBS})
 target_include_directories(Rizin INTERFACE
     "$<BUILD_INTERFACE:${Rizin_INCLUDE_DIRS}>"
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/librz>")
 
 install(TARGETS Rizin EXPORT CutterTargets)
 if (APPLE)
+    install(DIRECTORY "${RIZIN_INSTALL_DIR}/" DESTINATION ".")
 elseif (WIN32)
-    foreach(_lib ${R2_LIBS} ${R2_EXTRA_LIBS})
-        install(FILES "${RIZIN_INSTALL_DIR}/${R2_INSTALL_BINPATH}/${_lib}.dll" DESTINATION "${CMAKE_INSTALL_BINDIR}")
+	foreach(_lib ${RZ_LIBS} ${RZ_EXTRA_LIBS})
+        install(FILES "${RIZIN_INSTALL_DIR}/${RZ_INSTALL_BINPATH}/${_lib}.dll" DESTINATION "${CMAKE_INSTALL_BINDIR}")
     endforeach()
-    foreach(_exe ${R2_BIN})
-        install(FILES "${RIZIN_INSTALL_DIR}/${R2_INSTALL_BINPATH}/${_exe}.exe" DESTINATION "${CMAKE_INSTALL_BINDIR}")
+    foreach(_exe ${RZ_BIN})
+        install(FILES "${RIZIN_INSTALL_DIR}/${RZ_INSTALL_BINPATH}/${_exe}.exe" DESTINATION "${CMAKE_INSTALL_BINDIR}")
     endforeach()
     install(DIRECTORY "${RIZIN_INSTALL_DIR}/share" DESTINATION ".")
     install(DIRECTORY "${RIZIN_INSTALL_DIR}/include" DESTINATION "."
