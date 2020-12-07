@@ -26,7 +26,7 @@ struct FunctionDescription {
     bool contains(RVA addr) const
     {
         // TODO: this is not exactly correct in edge cases.
-        // rz_anal_function_contains() does it right.
+        // rz_analysis_function_contains() does it right.
         return addr >= offset && addr < offset + linearSize;
     }
 };

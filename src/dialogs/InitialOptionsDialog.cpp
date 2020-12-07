@@ -65,9 +65,9 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
         { { "aaft", tr("Type and Argument matching analysis") }, new QCheckBox(), false },
         { { "aaT", tr("Analyze code after trap-sleds") }, new QCheckBox(), false },
         { { "aap", tr("Analyze function preludes") }, new QCheckBox(), false },
-        { { "e! anal.jmp.tbl", tr("Analyze jump tables in switch statements") }, new QCheckBox(), false },
-        { { "e! anal.pushret", tr("Analyze PUSH+RET as JMP") },  new QCheckBox(), false },
-        { { "e! anal.hasnext", tr("Continue analysis after each function") }, new QCheckBox(), false }};
+        { { "e! analysis.jmp.tbl", tr("Analyze jump tables in switch statements") }, new QCheckBox(), false },
+        { { "e! analysis.pushret", tr("Analyze PUSH+RET as JMP") },  new QCheckBox(), false },
+        { { "e! analysis.hasnext", tr("Continue analysis after each function") }, new QCheckBox(), false }};
 
     // Per each checkbox, set a tooltip desccribing it
     AnalysisCommands item;

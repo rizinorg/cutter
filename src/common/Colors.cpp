@@ -22,7 +22,7 @@ void Colors::colorizeAssembly(RichTextPainter::List &list, QString opcode, ut64 
 }
 
 // Temporary solution
-// Copied from RZ_API const char* r_print_color_op_type(RPrint *p, ut64 anal_type) {
+// Copied from RZ_API const char* r_print_color_op_type(RPrint *p, ut64 analysis_type) {
 QString Colors::getColor(ut64 type)
 {
     switch (type & RZ_ANAL_OP_TYPE_MASK) {

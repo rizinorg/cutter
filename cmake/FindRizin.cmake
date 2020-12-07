@@ -44,7 +44,7 @@ if(WIN32)
 			bin
 			lang
 			io
-			anal
+			analysis
 			parse
 			bp
 			egg

@@ -615,20 +615,20 @@ void ClassesWidget::refreshClasses()
     case Source::BIN:
         if (!bin_model) {
             proxy_model->setSourceModel(nullptr);
-            delete anal_model;
-            anal_model = nullptr;
+            delete analysis_model;
+            analysis_model = nullptr;
             bin_model = new BinClassesModel(this);
             proxy_model->setSourceModel(bin_model);
         }
         bin_model->setClasses(Core()->getAllClassesFromBin());
         break;
     case Source::ANAL:
-        if (!anal_model) {
+        if (!analysis_model) {
             proxy_model->setSourceModel(nullptr);
             delete bin_model;
             bin_model = nullptr;
-            anal_model = new AnalClassesModel(this);
-            proxy_model->setSourceModel(anal_model);
+            analysis_model = new AnalClassesModel(this);
+            proxy_model->setSourceModel(analysis_model);
         }
         break;
     }
@@ -653,7 +653,7 @@ void ClassesWidget::on_classesTreeView_doubleClicked(const QModelIndex &index)
 
 void ClassesWidget::showContextMenu(const QPoint &pt)
 {
-    if(!anal_model) {
+    if(!analysis_model) {
         // no context menu for bin classes
         return;
     }

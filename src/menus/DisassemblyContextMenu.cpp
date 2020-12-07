@@ -372,7 +372,7 @@ void DisassemblyContextMenu::setCurHighlightedWord(const QString &text)
 DisassemblyContextMenu::ThingUsedHere DisassemblyContextMenu::getThingAt(ut64 address)
 {
     ThingUsedHere tuh;
-    RzAnalFunction *fcn = Core()->functionAt(address);
+    RzAnalysisFunction *fcn = Core()->functionAt(address);
     RzFlagItem *flag = rz_flag_get_i(Core()->core()->flags, address);
 
     // We will lookup through existing r2 types to find something relevant
@@ -560,7 +560,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
     setupRenaming();
 
     // Only show retype for local vars if in a function
-    RzAnalFunction *in_fcn = Core()->functionIn(offset);
+    RzAnalysisFunction *in_fcn = Core()->functionIn(offset);
     if (in_fcn) {
         auto vars = Core()->getVariables(offset);
         actionSetFunctionVarTypes.setVisible(!vars.empty());
@@ -835,7 +835,7 @@ void DisassemblyContextMenu::on_actionRename_triggered()
         FlagDialog dialog(doRenameInfo.addr, this->mainWindow);
         ok = dialog.exec();
     } else if (doRenameAction == RENAME_LOCAL) {
-        RzAnalFunction *fcn = Core()->functionIn(offset);
+        RzAnalysisFunction *fcn = Core()->functionIn(offset);
         if (fcn) {
             EditVariablesDialog dialog(fcn->addr, curHighlightedWord, this->mainWindow);
             if (!dialog.empty()) {
@@ -858,7 +858,7 @@ void DisassemblyContextMenu::on_actionRename_triggered()
 
 void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
 {
-    RzAnalFunction *fcn = Core()->functionIn(offset);
+    RzAnalysisFunction *fcn = Core()->functionIn(offset);
 
     if (!fcn) {
         QMessageBox::critical(this, tr("Re-type Local Variables"),
@@ -1004,7 +1004,7 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
 {
     RzCore *core = Core()->core();
     EditFunctionDialog dialog(mainWindow);
-    RzAnalFunction *fcn = rz_anal_get_fcn_in(core->anal, offset, 0);
+    RzAnalysisFunction *fcn = rz_analysis_get_fcn_in(core->analysis, offset, 0);
 
     if (fcn) {
         dialog.setWindowTitle(tr("Edit function %1").arg(fcn->name));

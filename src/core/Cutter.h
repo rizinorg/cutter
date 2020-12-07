@@ -162,13 +162,13 @@ public:
      * @param addr
      * @return a function that contains addr or nullptr
      */
-    RzAnalFunction *functionIn(ut64 addr);
+    RzAnalysisFunction *functionIn(ut64 addr);
 
     /**
      * @param addr
      * @return the function that has its entrypoint at addr or nullptr
      */
-    RzAnalFunction *functionAt(ut64 addr);
+    RzAnalysisFunction *functionAt(ut64 addr);
 
     RVA getFunctionStart(RVA addr);
     RVA getFunctionEnd(RVA addr);

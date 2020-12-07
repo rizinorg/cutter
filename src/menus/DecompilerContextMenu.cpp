@@ -395,7 +395,7 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
     if (type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
         QString currentName(annotationHere->reference.name);
         RVA func_addr = annotationHere->reference.offset;
-        RzAnalFunction *func = Core()->functionAt(func_addr);
+        RzAnalysisFunction *func = Core()->functionAt(func_addr);
         if (func == NULL) {
             QString function_name = QInputDialog::getText(this,
                                                           tr("Define this function at %2").arg(RAddressString(func_addr)),

@@ -187,7 +187,7 @@ void CutterCore::initialize(bool loadPlugins)
     coreBed = rz_cons_sleep_begin();
     CORE_LOCK();
 
-    rz_event_hook(core_->anal->ev, RZ_EVENT_ALL, cutterREventCallback, this);
+    rz_event_hook(core_->analysis->ev, RZ_EVENT_ALL, cutterREventCallback, this);
 
 #if defined(APPIMAGE) || defined(MACOS_RZ_BUNDLED)
     auto prefix = QDir(QCoreApplication::applicationDirPath());
@@ -682,10 +682,10 @@ void CutterCore::renameFlag(QString old_name, QString new_name)
 void CutterCore::renameFunctionVariable(QString newName, QString oldName, RVA functionAddress)
 {
     CORE_LOCK();
-    RzAnalFunction *function = rz_anal_get_function_at(core->anal, functionAddress);
-    RzAnalVar *variable = rz_anal_function_get_var_byname(function, oldName.toUtf8().constData());
+    RzAnalysisFunction *function = rz_analysis_get_function_at(core->analysis, functionAddress);
+    RzAnalysisVar *variable = rz_analysis_function_get_var_byname(function, oldName.toUtf8().constData());
     if (variable) {
-        rz_anal_var_rename(variable, newName.toUtf8().constData(), true);
+        rz_analysis_var_rename(variable, newName.toUtf8().constData(), true);
     }
     emit refreshCodeViews();
 }
@@ -832,7 +832,7 @@ void CutterCore::delComment(RVA addr)
 QString CutterCore::getCommentAt(RVA addr)
 {
     CORE_LOCK();
-    return rz_meta_get_string(core->anal, RZ_META_TYPE_COMMENT, addr);
+    return rz_meta_get_string(core->analysis, RZ_META_TYPE_COMMENT, addr);
 }
 
 void CutterCore::setImmediateBase(const QString &r2BaseName, RVA offset)
@@ -1131,19 +1131,19 @@ QString CutterCore::disassembleSingleInstruction(RVA addr)
     return cmdRawAt("pi 1", addr).simplified();
 }
 
-RzAnalFunction *CutterCore::functionIn(ut64 addr)
+RzAnalysisFunction *CutterCore::functionIn(ut64 addr)
 {
     CORE_LOCK();
-    RzList *fcns = rz_anal_get_functions_in (core->anal, addr);
-    RzAnalFunction *fcn = !rz_list_empty(fcns) ? reinterpret_cast<RzAnalFunction *>(rz_list_first(fcns)) : nullptr;
+    RzList *fcns = rz_analysis_get_functions_in (core->analysis, addr);
+    RzAnalysisFunction *fcn = !rz_list_empty(fcns) ? reinterpret_cast<RzAnalysisFunction *>(rz_list_first(fcns)) : nullptr;
     rz_list_free(fcns);
     return fcn;
 }
 
-RzAnalFunction *CutterCore::functionAt(ut64 addr)
+RzAnalysisFunction *CutterCore::functionAt(ut64 addr)
 {
     CORE_LOCK();
-    return rz_anal_get_function_at(core->anal, addr);
+    return rz_analysis_get_function_at(core->analysis, addr);
 }
 
 /**
@@ -1154,7 +1154,7 @@ RzAnalFunction *CutterCore::functionAt(ut64 addr)
 RVA CutterCore::getFunctionStart(RVA addr)
 {
     CORE_LOCK();
-    RzAnalFunction *fcn = Core()->functionIn(addr);
+    RzAnalysisFunction *fcn = Core()->functionIn(addr);
     return fcn ? fcn->addr : RVA_INVALID;
 }
 
@@ -1166,7 +1166,7 @@ RVA CutterCore::getFunctionStart(RVA addr)
 RVA CutterCore::getFunctionEnd(RVA addr)
 {
     CORE_LOCK();
-    RzAnalFunction *fcn = Core()->functionIn(addr);
+    RzAnalysisFunction *fcn = Core()->functionIn(addr);
     return fcn ? fcn->addr : RVA_INVALID;
 }
 
@@ -1178,12 +1178,12 @@ RVA CutterCore::getFunctionEnd(RVA addr)
 RVA CutterCore::getLastFunctionInstruction(RVA addr)
 {
     CORE_LOCK();
-    RzAnalFunction *fcn = Core()->functionIn(addr);
+    RzAnalysisFunction *fcn = Core()->functionIn(addr);
     if (!fcn) {
         return RVA_INVALID;
     }
-    RzAnalBlock *lastBB = (RzAnalBlock *)rz_list_last(fcn->bbs);
-    return lastBB ? lastBB->addr + rz_anal_bb_offset_inst(lastBB, lastBB->ninstr-1) : RVA_INVALID;
+    RzAnalysisBlock *lastBB = (RzAnalysisBlock *)rz_list_last(fcn->bbs);
+    return lastBB ? lastBB->addr + rz_analysis_bb_offset_inst(lastBB, lastBB->ninstr-1) : RVA_INVALID;
 }
 
 QString CutterCore::cmdFunctionAt(QString addr)
@@ -1377,7 +1377,7 @@ QList<QJsonObject> CutterCore::getStack(int size, int depth)
         return stack;
     }
 
-    int base = core->anal->bits;
+    int base = core->analysis->bits;
     for (int i = 0; i < size; i += base / 8) {
         if ((base == 32 && addr + i >= UT32_MAX) || (base == 16 && addr + i >= UT16_MAX)) {
             break;
@@ -1398,7 +1398,7 @@ QJsonObject CutterCore::getAddrRefs(RVA addr, int depth) {
     CORE_LOCK();
     int bits = core->rasm->bits;
     QByteArray buf = QByteArray();
-    ut64 type = rz_core_anal_address(core, addr);
+    ut64 type = rz_core_analysis_address(core, addr);
 
     json["addr"] = QString::number(addr);
 
@@ -1426,7 +1426,7 @@ QJsonObject CutterCore::getAddrRefs(RVA addr, int depth) {
     }
 
     // Attempt to find the address within a function
-    RzAnalFunction *fcn = rz_anal_get_fcn_in(core->anal, addr, 0);
+    RzAnalysisFunction *fcn = rz_analysis_get_fcn_in(core->analysis, addr, 0);
     if (fcn) {
         json["fcn"] = fcn->name;
     }
@@ -2365,7 +2365,7 @@ void CutterCore::setSettings()
     setConfig("asm.tabs.once", true);
     setConfig("asm.flags.middle", 2);
 
-    setConfig("anal.hasnext", false);
+    setConfig("analysis.hasnext", false);
     setConfig("asm.lines.call", false);
 
     // Colors
@@ -2407,8 +2407,8 @@ QStringList CutterCore::getAnalPluginNames()
     RzListIter *it;
     QStringList ret;
 
-    RzAnalPlugin *ap;
-    CutterRListForeach(core->anal->plugins, it, RzAnalPlugin, ap) {
+    RzAnalysisPlugin *ap;
+    CutterRListForeach(core->analysis->plugins, it, RzAnalysisPlugin, ap) {
         ret << ap->name;
     }
 
@@ -2515,24 +2515,24 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
     CORE_LOCK();
 
     QList<FunctionDescription> funcList;
-    funcList.reserve(rz_list_length(core->anal->fcns));
+    funcList.reserve(rz_list_length(core->analysis->fcns));
 
     RzListIter *iter;
-    RzAnalFunction *fcn;
-    CutterRListForeach (core->anal->fcns, iter, RzAnalFunction, fcn) {
+    RzAnalysisFunction *fcn;
+    CutterRListForeach (core->analysis->fcns, iter, RzAnalysisFunction, fcn) {
         FunctionDescription function;
         function.offset = fcn->addr;
-        function.linearSize = rz_anal_function_linear_size(fcn);
-        function.nargs = rz_anal_var_count(core->anal, fcn, 'b', 1) +
-            rz_anal_var_count(core->anal, fcn, 'r', 1) +
-            rz_anal_var_count(core->anal, fcn, 's', 1);
-        function.nlocals = rz_anal_var_count(core->anal, fcn, 'b', 0) +
-            rz_anal_var_count(core->anal, fcn, 'r', 0) +
-            rz_anal_var_count(core->anal, fcn, 's', 0);
+        function.linearSize = rz_analysis_function_linear_size(fcn);
+        function.nargs = rz_analysis_var_count(core->analysis, fcn, 'b', 1) +
+            rz_analysis_var_count(core->analysis, fcn, 'r', 1) +
+            rz_analysis_var_count(core->analysis, fcn, 's', 1);
+        function.nlocals = rz_analysis_var_count(core->analysis, fcn, 'b', 0) +
+            rz_analysis_var_count(core->analysis, fcn, 'r', 0) +
+            rz_analysis_var_count(core->analysis, fcn, 's', 0);
         function.nbbs = rz_list_length (fcn->bbs);
         function.calltype = fcn->cc ? QString::fromUtf8(fcn->cc) : QString();
         function.name = fcn->name ? QString::fromUtf8(fcn->name) : QString();
-        function.edges = rz_anal_function_count_edges(fcn, nullptr);
+        function.edges = rz_analysis_function_count_edges(fcn, nullptr);
         function.stackframe = fcn->maxstack;
         funcList.append(function);
     }
@@ -3002,7 +3002,7 @@ QList<QString> CutterCore::getAllAnalClasses(bool sorted)
     CORE_LOCK();
     QList<QString> ret;
 
-    SdbListPtr l = makeSdbListPtr(rz_anal_class_get_all(core->anal, sorted));
+    SdbListPtr l = makeSdbListPtr(rz_analysis_class_get_all(core->analysis, sorted));
     if (!l) {
         return ret;
     }
@@ -3023,14 +3023,14 @@ QList<AnalMethodDescription> CutterCore::getAnalClassMethods(const QString &cls)
     CORE_LOCK();
     QList<AnalMethodDescription> ret;
 
-    RzVector *meths = rz_anal_class_method_get_all(core->anal, cls.toUtf8().constData());
+    RzVector *meths = rz_analysis_class_method_get_all(core->analysis, cls.toUtf8().constData());
     if (!meths) {
         return ret;
     }
 
     ret.reserve(static_cast<int>(meths->len));
-    RzAnalMethod *meth;
-    CutterRVectorForeach(meths, meth, RzAnalMethod) {
+    RzAnalysisMethod *meth;
+    CutterRVectorForeach(meths, meth, RzAnalysisMethod) {
         AnalMethodDescription desc;
         desc.name = QString::fromUtf8(meth->name);
         desc.addr = meth->addr;
@@ -3047,14 +3047,14 @@ QList<AnalBaseClassDescription> CutterCore::getAnalClassBaseClasses(const QStrin
     CORE_LOCK();
     QList<AnalBaseClassDescription> ret;
 
-    RzVector *bases = rz_anal_class_base_get_all(core->anal, cls.toUtf8().constData());
+    RzVector *bases = rz_analysis_class_base_get_all(core->analysis, cls.toUtf8().constData());
     if (!bases) {
         return ret;
     }
 
     ret.reserve(static_cast<int>(bases->len));
-    RzAnalBaseClass *base;
-    CutterRVectorForeach(bases, base, RzAnalBaseClass) {
+    RzAnalysisBaseClass *base;
+    CutterRVectorForeach(bases, base, RzAnalysisBaseClass) {
         AnalBaseClassDescription desc;
         desc.id = QString::fromUtf8(base->id);
         desc.offset = base->offset;
@@ -3071,14 +3071,14 @@ QList<AnalVTableDescription> CutterCore::getAnalClassVTables(const QString &cls)
     CORE_LOCK();
     QList<AnalVTableDescription> acVtables;
 
-    RzVector *vtables = rz_anal_class_vtable_get_all(core->anal, cls.toUtf8().constData());
+    RzVector *vtables = rz_analysis_class_vtable_get_all(core->analysis, cls.toUtf8().constData());
     if (!vtables) {
         return acVtables;
     }
 
     acVtables.reserve(static_cast<int>(vtables->len));
-    RzAnalVTable *vtable;
-    CutterRVectorForeach(vtables, vtable, RzAnalVTable) {
+    RzAnalysisVTable *vtable;
+    CutterRVectorForeach(vtables, vtable, RzAnalysisVTable) {
         AnalVTableDescription desc;
         desc.id = QString::fromUtf8(vtable->id);
         desc.offset = vtable->offset;
@@ -3093,50 +3093,50 @@ QList<AnalVTableDescription> CutterCore::getAnalClassVTables(const QString &cls)
 void CutterCore::createNewClass(const QString &cls)
 {
     CORE_LOCK();
-    rz_anal_class_create(core->anal, cls.toUtf8().constData());
+    rz_analysis_class_create(core->analysis, cls.toUtf8().constData());
 }
 
 void CutterCore::renameClass(const QString &oldName, const QString &newName)
 {
     CORE_LOCK();
-    rz_anal_class_rename(core->anal, oldName.toUtf8().constData(), newName.toUtf8().constData());
+    rz_analysis_class_rename(core->analysis, oldName.toUtf8().constData(), newName.toUtf8().constData());
 }
 
 void CutterCore::deleteClass(const QString &cls)
 {
     CORE_LOCK();
-    rz_anal_class_delete(core->anal, cls.toUtf8().constData());
+    rz_analysis_class_delete(core->analysis, cls.toUtf8().constData());
 }
 
 bool CutterCore::getAnalMethod(const QString &cls, const QString &meth, AnalMethodDescription *desc)
 {
     CORE_LOCK();
-    RzAnalMethod analMeth;
-    if (rz_anal_class_method_get(core->anal, cls.toUtf8().constData(), meth.toUtf8().constData(), &analMeth) != RZ_ANAL_CLASS_ERR_SUCCESS) {
+    RzAnalysisMethod analMeth;
+    if (rz_analysis_class_method_get(core->analysis, cls.toUtf8().constData(), meth.toUtf8().constData(), &analMeth) != RZ_ANAL_CLASS_ERR_SUCCESS) {
         return false;
     }
     desc->name = QString::fromUtf8(analMeth.name);
     desc->addr = analMeth.addr;
     desc->vtableOffset = analMeth.vtable_offset;
-    rz_anal_class_method_fini(&analMeth);
+    rz_analysis_class_method_fini(&analMeth);
     return true;
 }
 
 void CutterCore::setAnalMethod(const QString &className, const AnalMethodDescription &meth)
 {
     CORE_LOCK();
-    RzAnalMethod analMeth;
+    RzAnalysisMethod analMeth;
     analMeth.name = strdup (meth.name.toUtf8().constData());
     analMeth.addr = meth.addr;
     analMeth.vtable_offset = meth.vtableOffset;
-    rz_anal_class_method_set(core->anal, className.toUtf8().constData(), &analMeth);
-    rz_anal_class_method_fini(&analMeth);
+    rz_analysis_class_method_set(core->analysis, className.toUtf8().constData(), &analMeth);
+    rz_analysis_class_method_fini(&analMeth);
 }
 
 void CutterCore::renameAnalMethod(const QString &className, const QString &oldMethodName, const QString &newMethodName)
 {
     CORE_LOCK();
-    rz_anal_class_method_rename(core->anal, className.toUtf8().constData(), oldMethodName.toUtf8().constData(), newMethodName.toUtf8().constData());
+    rz_analysis_class_method_rename(core->analysis, className.toUtf8().constData(), oldMethodName.toUtf8().constData(), newMethodName.toUtf8().constData());
 }
 
 QList<ResourcesDescription> CutterCore::getAllResources()
@@ -3304,7 +3304,7 @@ QString CutterCore::addTypes(const char *str)
 {
     CORE_LOCK();
     char *error_msg = nullptr;
-    char *parsed = rz_parse_c_string(core->anal, str, &error_msg);
+    char *parsed = rz_parse_c_string(core->analysis, str, &error_msg);
     QString error;
 
     if (!parsed) {
@@ -3315,7 +3315,7 @@ QString CutterCore::addTypes(const char *str)
          return error;
     }
 
-    rz_anal_save_parsed_type(core->anal, parsed);
+    rz_analysis_save_parsed_type(core->analysis, parsed);
     rz_mem_free(parsed);
 
     if (error_msg) {
@@ -3722,7 +3722,7 @@ QString CutterCore::getVersionInformation()
         const char *name;
         const char *(*callback)();
     } vcs[] = {
-        { "rz_anal", &rz_anal_version },
+        { "rz_analysis", &rz_analysis_version },
         { "rz_lib", &rz_lib_version },
         { "rz_egg", &rz_egg_version },
         { "rz_asm", &rz_asm_version },

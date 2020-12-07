@@ -18,7 +18,7 @@ win32 {
         -lr_hash \
         -lr_bin \
         -lr_lang \
-        -lr_anal \
+        -lr_analysis \
         -lr_parse \
         -lr_bp \
         -lr_egg \
@@ -95,7 +95,7 @@ win32 {
         -lr_syscall \
         -lr_socket \
         -lr_fs \
-        -lr_anal \
+        -lr_analysis \
         -lr_magic \
         -lr_util \
         -lr_crypto
