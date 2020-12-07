@@ -193,7 +193,7 @@ private slots:
     void refreshClasses();
 
 private:
-    enum class Source { BIN, ANAL };
+    enum class Source { BIN, ANALYSIS };
 
     Source getSource();
 

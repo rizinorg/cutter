@@ -1403,7 +1403,7 @@ QJsonObject CutterCore::getAddrRefs(RVA addr, int depth) {
     json["addr"] = QString::number(addr);
 
     // Search for the section the addr is in, avoid duplication for heap/stack with type
-    if(!(type & RZ_ANAL_ADDR_TYPE_HEAP || type & RZ_ANAL_ADDR_TYPE_STACK)) {
+    if(!(type & RZ_ANALYSIS_ADDR_TYPE_HEAP || type & RZ_ANALYSIS_ADDR_TYPE_STACK)) {
         // Attempt to find the address within a map
         RzDebugMap *map = rz_debug_map_get(core->dbg, addr);
         if (map && map->name && map->name[0]) {
@@ -1433,28 +1433,28 @@ QJsonObject CutterCore::getAddrRefs(RVA addr, int depth) {
 
     // Update type and permission information
     if (type != 0) {
-        if (type & RZ_ANAL_ADDR_TYPE_HEAP) {
+        if (type & RZ_ANALYSIS_ADDR_TYPE_HEAP) {
             json["type"] = "heap";
-        } else if (type & RZ_ANAL_ADDR_TYPE_STACK) {
+        } else if (type & RZ_ANALYSIS_ADDR_TYPE_STACK) {
             json["type"] = "stack";
-        } else if (type & RZ_ANAL_ADDR_TYPE_PROGRAM) {
+        } else if (type & RZ_ANALYSIS_ADDR_TYPE_PROGRAM) {
             json["type"] = "program";
-        } else if (type & RZ_ANAL_ADDR_TYPE_LIBRARY) {
+        } else if (type & RZ_ANALYSIS_ADDR_TYPE_LIBRARY) {
             json["type"] = "library";
-        } else if (type & RZ_ANAL_ADDR_TYPE_ASCII) {
+        } else if (type & RZ_ANALYSIS_ADDR_TYPE_ASCII) {
             json["type"] = "ascii";
-        } else if (type & RZ_ANAL_ADDR_TYPE_SEQUENCE) {
+        } else if (type & RZ_ANALYSIS_ADDR_TYPE_SEQUENCE) {
             json["type"] = "sequence";
         }
 
         QString perms = "";
-        if (type & RZ_ANAL_ADDR_TYPE_READ) {
+        if (type & RZ_ANALYSIS_ADDR_TYPE_READ) {
             perms += "r";
         }
-        if (type & RZ_ANAL_ADDR_TYPE_WRITE) {
+        if (type & RZ_ANALYSIS_ADDR_TYPE_WRITE) {
             perms += "w";
         }
-        if (type & RZ_ANAL_ADDR_TYPE_EXEC) {
+        if (type & RZ_ANALYSIS_ADDR_TYPE_EXEC) {
             RzAsmOp op;
             buf.resize(32);
             perms += "x";
@@ -1471,7 +1471,7 @@ QJsonObject CutterCore::getAddrRefs(RVA addr, int depth) {
     }
 
     // Try to telescope further if depth permits it
-    if ((type & RZ_ANAL_ADDR_TYPE_READ) && !(type & RZ_ANAL_ADDR_TYPE_EXEC)) {
+    if ((type & RZ_ANALYSIS_ADDR_TYPE_READ) && !(type & RZ_ANALYSIS_ADDR_TYPE_EXEC)) {
         buf.resize(64);
         ut32 *n32 = (ut32 *)buf.data();
         ut64 *n64 = (ut64 *)buf.data();
@@ -3112,7 +3112,7 @@ bool CutterCore::getAnalMethod(const QString &cls, const QString &meth, AnalMeth
 {
     CORE_LOCK();
     RzAnalysisMethod analMeth;
-    if (rz_analysis_class_method_get(core->analysis, cls.toUtf8().constData(), meth.toUtf8().constData(), &analMeth) != RZ_ANAL_CLASS_ERR_SUCCESS) {
+    if (rz_analysis_class_method_get(core->analysis, cls.toUtf8().constData(), meth.toUtf8().constData(), &analMeth) != RZ_ANALYSIS_CLASS_ERR_SUCCESS) {
         return false;
     }
     desc->name = QString::fromUtf8(analMeth.name);

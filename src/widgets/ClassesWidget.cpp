@@ -605,7 +605,7 @@ ClassesWidget::Source ClassesWidget::getSource()
     case 0:
         return Source::BIN;
     default:
-        return Source::ANAL;
+        return Source::ANALYSIS;
     }
 }
 
@@ -622,7 +622,7 @@ void ClassesWidget::refreshClasses()
         }
         bin_model->setClasses(Core()->getAllClassesFromBin());
         break;
-    case Source::ANAL:
+    case Source::ANALYSIS:
         if (!analysis_model) {
             proxy_model->setSourceModel(nullptr);
             delete bin_model;
