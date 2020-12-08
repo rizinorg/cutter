@@ -1,6 +1,6 @@
 [submodule "rizin"]
 	path = rizin
-	url = git@github.com:rizinorg/rizin
+	url = https://github.com/rizinorg/rizin
 [submodule "src/translations"]
 	path = src/translations
-	url = git@github.com:rizinorg/cutter-translations
+	url = https://github.com/rizinorg/cutter-translations

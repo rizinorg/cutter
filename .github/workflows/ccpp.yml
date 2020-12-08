@@ -29,7 +29,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        token: ${{ secrets.RIZIN_TOKEN }} # TODO: remove when the repo is public
         submodules: recursive
         persist-credentials: false
     - name: apt dependencies
@@ -86,7 +85,6 @@ jobs:
           export PKG_CONFIG_PATH="$CUTTER_DEPS_PYTHON_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
           export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
         fi
-        set -euo pipefail #TODO: move to top once cutter-deps doesn't fail
         if [[ "${{ matrix.cc-override }}" != "default" ]]
         then
           export CC="${{matrix.cc-override}}"
