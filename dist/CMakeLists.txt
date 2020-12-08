@@ -84,7 +84,7 @@ if(CUTTER_PACKAGE_RZ_GHIDRA)
 		# That way rz-ghidra build process is the same as with any other external plugin built against
 		# installed Cutter.
 		ExternalProject_Add(rz-ghidra
-			GIT_REPOSITORY git@github.com:rizinorg/rz-ghidra
+			GIT_REPOSITORY https://github.com/rizinorg/rz-ghidra
 			GIT_TAG master
 			CONFIGURE_COMMAND ""
 			BUILD_COMMAND ""
