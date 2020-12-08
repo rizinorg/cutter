@@ -2,7 +2,7 @@ HEADERS        += ../CutterSamplePlugin.h ../CutterPlugin.h
 INCLUDEPATH    += ../ ../../ ../../core ../../widgets
 SOURCES        += CutterSamplePlugin.cpp
 
-QMAKE_CXXFLAGS += $$system("pkg-config --cflags r_core")
+QMAKE_CXXFLAGS += $$system("pkg-config --cflags rz_core")
 
 TEMPLATE        = lib
 CONFIG         += plugin

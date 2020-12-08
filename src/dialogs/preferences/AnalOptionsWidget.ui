@@ -52,7 +52,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Show verbose information when performing analysis (anal.verbose)</string>
+          <string>Show verbose information when performing analysis (analysis.verbose)</string>
          </property>
         </widget>
         <widget class="QCheckBox" name="pushRetCheckBox">
@@ -65,7 +65,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Analyze push+ret as jmp (anal.pushret)</string>
+          <string>Analyze push+ret as jmp (analysis.pushret)</string>
          </property>
         </widget>
         <widget class="QCheckBox" name="typesVerboseCheckBox">
@@ -78,7 +78,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Verbose output from type analysis (anal.types.verbose)</string>
+          <string>Verbose output from type analysis (analysis.types.verbose)</string>
          </property>
         </widget>
         <widget class="QCheckBox" name="autonameCheckbox">
@@ -91,7 +91,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Speculatively set a name for the functions (anal.autoname)</string>
+          <string>Speculatively set a name for the functions (analysis.autoname)</string>
          </property>
         </widget>
         <widget class="QCheckBox" name="hasnextCheckbox">
@@ -104,7 +104,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Search for new functions following already defined functions (anal.hasnext)</string>
+          <string>Search for new functions following already defined functions (analysis.hasnext)</string>
          </property>
         </widget>
         <widget class="QCheckBox" name="jmpRefCheckbox">
@@ -117,7 +117,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Create references for unconditional jumps (anal.jmp.ref)</string>
+          <string>Create references for unconditional jumps (analysis.jmp.ref)</string>
          </property>
         </widget>
         <widget class="QCheckBox" name="jmpTblCheckbox">
@@ -130,7 +130,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Analyze jump tables in switch statements (anal.jmp.tbl)</string>
+          <string>Analyze jump tables in switch statements (analysis.jmp.tbl)</string>
          </property>
         </widget>
         <widget class="QWidget" name="verticalLayoutWidget">
@@ -158,7 +158,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Search boundaries for analysis (anal.in): </string>
+             <string>Search boundaries for analysis (analysis.in): </string>
             </property>
            </widget>
           </item>
@@ -192,7 +192,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Pointer depth (anal.ptrdepth):</string>
+             <string>Pointer depth (analysis.ptrdepth):</string>
             </property>
            </widget>
           </item>
@@ -233,7 +233,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Functions Prelude (anal.prelude):</string>
+             <string>Functions Prelude (analysis.prelude):</string>
             </property>
            </widget>
           </item>

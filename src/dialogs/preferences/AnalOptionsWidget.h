@@ -29,13 +29,13 @@ private:
     QList<ConfigCheckbox> checkboxes;
 
     /**
-     * @brief This function creates the list with the different options shown in the selector for anal.in
+     * @brief This function creates the list with the different options shown in the selector for analysis.in
      */
     void createAnalInOptionsList();
 
 private slots:
     /**
-     * @brief A slot to display the options in the dialog according to the current anal.* configuration
+     * @brief A slot to display the options in the dialog according to the current analysis.* configuration
      */
     void updateAnalOptionsFromVars();
 
@@ -48,20 +48,20 @@ private slots:
     static void checkboxEnabler(QCheckBox *checkbox, const QString &config);
 
     /**
-     * @brief A slot to update the value of anal.in when a different option is selected
-     * @param index - The index of the selected option for anal.in
+     * @brief A slot to update the value of analysis.in when a different option is selected
+     * @param index - The index of the selected option for analysis.in
      */
     void updateAnalIn(int index);
 
     /**
-     * @brief A slot to update the value of anal.ptrdepth when a new value is selected
-     * @param value - The new value for anal.ptrdepth
+     * @brief A slot to update the value of analysis.ptrdepth when a new value is selected
+     * @param value - The new value for analysis.ptrdepth
      */
     static void updateAnalPtrDepth(int value);
 
     /**
-     * @brief slot to update the value of anal.prelude when a new value is introduced in the corresponding textbox
-     * @param prelude - The new value for anal.prelude
+     * @brief slot to update the value of analysis.prelude when a new value is introduced in the corresponding textbox
+     * @param prelude - The new value for analysis.prelude
      */
     static void updateAnalPrelude(const QString &prelude);
 };

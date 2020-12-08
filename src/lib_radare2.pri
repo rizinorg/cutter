@@ -42,7 +42,7 @@ win32 {
         PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$R2_USER_PKGCONFIG
     } else {
         unix {
-            exists($$R2PREFIX/lib/pkgconfig/r_core.pc) {
+            exists($$R2PREFIX/lib/pkgconfig/rz_core.pc) {
                 PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$R2PREFIX/lib/pkgconfig
             } else {
                 LIBS += -L$$R2PREFIX/lib
@@ -58,7 +58,7 @@ win32 {
             USE_PKGCONFIG = 0
         }
         bsd {
-            !exists($$PKG_CONFIG_PATH/r_core.pc) {
+            !exists($$PKG_CONFIG_PATH/rz_core.pc) {
                 LIBS += -L$$R2PREFIX/lib
                 R2_INCLUDEPATH += $$R2PREFIX/include/libr
                 R2_INCLUDEPATH += $$R2PREFIX/include/libr/sdb
@@ -72,9 +72,9 @@ win32 {
     DEFINES += _CRT_SECURE_NO_WARNINGS
     equals(USE_PKGCONFIG, 1) {
         CONFIG += link_pkgconfig
-        PKGCONFIG += r_core
-        R2_INCLUDEPATH = "$$system("pkg-config --variable=includedir r_core")/libr"
-        R2_INCLUDEPATH += "$$system("pkg-config --variable=includedir r_core")/libr/sdb"
+        PKGCONFIG += rz_core
+        R2_INCLUDEPATH = "$$system("pkg-config --variable=includedir rz_core")/libr"
+        R2_INCLUDEPATH += "$$system("pkg-config --variable=includedir rz_core")/libr/sdb"
     } else {
         LIBS += \
         -lr_core \

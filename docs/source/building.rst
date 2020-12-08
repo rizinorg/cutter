@@ -319,7 +319,7 @@ The workaround is to either add the `--disable-new-dtags` linker flag when compi
 
 * **r_*.h: No such file or directory**
 
-    r_util/r_annotated_code.h: No such file or directory
+    rz_util/rz_annotated_code.h: No such file or directory
 
 If you face an error where some header file starting with ``r_`` is missing, you should check the **radare2** submodule and
 make sure it is in sync with upstream **Cutter** repo. Simply run:
@@ -328,7 +328,7 @@ make sure it is in sync with upstream **Cutter** repo. Simply run:
 
    git submodule update --init --recursive
 
-* **r_core development package not found**
+* **rz_core development package not found**
 
 If you installed radare2 and still encounter this error, it could be that your
 ``PATH`` environment variable is set improperly (doesn’t contain

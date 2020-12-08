@@ -24,16 +24,16 @@ AnalOptionsWidget::AnalOptionsWidget(PreferencesDialog *dialog)
     ui->setupUi(this);
 
     checkboxes = {
-        { ui->autonameCheckbox,     "anal.autoname" },
-        { ui->hasnextCheckbox,      "anal.hasnext" },
-        { ui->jmpRefCheckbox,       "anal.jmp.ref" },
-        { ui->jmpTblCheckbox,       "anal.jmp.tbl" },
-        { ui->pushRetCheckBox,      "anal.pushret" },
-        { ui->typesVerboseCheckBox, "anal.types.verbose" },
-        { ui->verboseCheckBox,      "anal.verbose" }
+        { ui->autonameCheckbox,     "analysis.autoname" },
+        { ui->hasnextCheckbox,      "analysis.hasnext" },
+        { ui->jmpRefCheckbox,       "analysis.jmp.ref" },
+        { ui->jmpTblCheckbox,       "analysis.jmp.tbl" },
+        { ui->pushRetCheckBox,      "analysis.pushret" },
+        { ui->typesVerboseCheckBox, "analysis.types.verbose" },
+        { ui->verboseCheckBox,      "analysis.verbose" }
     };
 
-    // Create list of options for the anal.in selector
+    // Create list of options for the analysis.in selector
     createAnalInOptionsList();
 
     // Connect each checkbox from "checkboxes" to the generic signal "checkboxEnabler"
@@ -69,24 +69,24 @@ void AnalOptionsWidget::updateAnalOptionsFromVars()
     }
 
     // Update the rest of analysis options that are not checkboxes
-    ui->analInComboBox->setCurrentIndex(ui->analInComboBox->findData(Core()->getConfig("anal.in")));
-    ui->ptrDepthSpinBox->setValue(Core()->getConfigi("anal.ptrdepth"));
-    ui->preludeLineEdit->setText(Core()->getConfig("anal.prelude"));
+    ui->analInComboBox->setCurrentIndex(ui->analInComboBox->findData(Core()->getConfig("analysis.in")));
+    ui->ptrDepthSpinBox->setValue(Core()->getConfigi("analysis.ptrdepth"));
+    ui->preludeLineEdit->setText(Core()->getConfig("analysis.prelude"));
 }
 
 void AnalOptionsWidget::updateAnalIn(int index)
 {
-    Config()->setConfig("anal.in", ui->analInComboBox->itemData(index).toString());
+    Config()->setConfig("analysis.in", ui->analInComboBox->itemData(index).toString());
 }
 
 void AnalOptionsWidget::updateAnalPtrDepth(int value)
 {
-    Config()->setConfig("anal.ptrdepth", value);
+    Config()->setConfig("analysis.ptrdepth", value);
 }
 
 void AnalOptionsWidget::updateAnalPrelude(const QString &prelude)
 {
-    Config()->setConfig("anal.prelude", prelude);
+    Config()->setConfig("analysis.prelude", prelude);
 }
 
 void AnalOptionsWidget::createAnalInOptionsList()
