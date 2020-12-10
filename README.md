@@ -5,7 +5,7 @@
 Cutter is a free and open-source reverse engineering framework powered by [radare2](https://github.com/radareorg/radare2) . Its goal is making an advanced, customizable and FOSS reverse-engineering platform while keeping the user experience at mind. Cutter is created by reverse engineers for reverse engineers.  
 
 [![Cutter CI](https://github.com/rizinorg/cutter/workflows/Cutter%20CI/badge.svg)](https://github.com/rizinorg/cutter/actions?query=workflow%3A%22Cutter+CI%22)
-[![Build status](https://ci.appveyor.com/api/projects/status/s9rkx1dn3uy4bfdx/branch/master?svg=true)](https://ci.appveyor.com/project/rizinorg/cutter/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/tn7kttv55b8wf799/branch/master?svg=true)](https://ci.appveyor.com/project/rizinorg/cutter/branch/master)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/rizinorg/cutter.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/rizinorg/cutter/alerts/)
 
 ![Screenshot](https://raw.githubusercontent.com/radareorg/cutter/master/docs/source/images/screenshot.png)
