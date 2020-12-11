@@ -2,7 +2,7 @@
 
 # Cutter
 
-Cutter is a free and open-source reverse engineering platform powered by [rizin](https://github.com/rizinorg/rizin). It aims at being an advanced and customizable RE platform while keeping the user experience in mind. Cutter is created by reverse engineers for reverse engineers.  
+Cutter is a free and open-source reverse engineering platform powered by [rizin](https://github.com/rizinorg/rizin). It aims at being an advanced and customizable reverse engineering platform while keeping the user experience in mind. Cutter is created by reverse engineers for reverse engineers.  
 
 [![Cutter CI](https://github.com/rizinorg/cutter/workflows/Cutter%20CI/badge.svg)](https://github.com/rizinorg/cutter/actions?query=workflow%3A%22Cutter+CI%22)
 [![Build status](https://ci.appveyor.com/api/projects/status/tn7kttv55b8wf799/branch/master?svg=true)](https://ci.appveyor.com/project/rizinorg/cutter/branch/master)
