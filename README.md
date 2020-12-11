@@ -13,25 +13,25 @@ Cutter is a free and open-source reverse engineering platform powered by [rizin]
 ## Learn more at [cutter.re](https://cutter.re).
 
 ## Getting Cutter
-#### Download
+### Download
 
 Cutter release binaries for all major platforms (Linux, macOS, Windows) can be downloaded from [GitHub Releases](https://github.com/rizinorg/cutter/releases).
 
-#### Build from sources
+### Build from sources
 
 To build Cutter from sources, please check the [Building Docs](https://cutter.re/docs/building.html).
 
-#### Docker image
+### Docker image
 
 To deploy *cutter* using a pre-built `Dockerfile`, it's possible to use the [provided configuration](docker). The corresponding `README.md` file also contains instructions on how to get started using the docker image with minimal effort.
 
 ## Documentation
 
-#### [User Guide](https://cutter.re/docs/user-docs.html)
+### [User Guide](https://cutter.re/docs/user-docs.html)
 
-#### [Contribution Guidelines](https://cutter.re/docs/contributing.html)
+### [Contribution Guidelines](https://cutter.re/docs/contributing.html)
 
-#### [Developers Docs](https://cutter.re/docs/contributing/code.html)
+### [Developers Docs](https://cutter.re/docs/contributing/code.html)
 
 ## Plugins
 Cutter supports both Python and Native C++ plugins.
