@@ -42,7 +42,7 @@ jobs:
         sudo apt-get install libgraphviz-dev mesa-common-dev libxkbcommon-x11-dev
         if [[ "${{ matrix.os }}" = "ubuntu-16.04" ]]
         then
-          sudo apt-get install ninja-build/xenial-backports 
+          sudo apt-get install ninja-build/xenial-backports libxcb1-dev libxkbcommon-dev libxcb-*-dev
           if [[ "${{ matrix.system-deps }}" = "true" ]]
           then
             sudo apt-get install cmake
