@@ -10,7 +10,7 @@ Everyone has their own preferences for their favorite IDE or code editor.
 There are no strict requirements for using a specific one for Cutter development.
 Any IDE with good CMake integration should work well.
 
-For most development builds, unless you are working on packaging issues, it is recommended to use ``CUTTER_USE_BUNDLED_RADARE2=ON`` Cmake option. It is the easiest way to ensure that a compatible r2 version is used, and helps you deal with different versions of radare2 when working with multiple Cutter branches. On Linux, in case you have multiple r2 versions without ``CUTTER_USE_BUNDLED_RADARE2``, the ``PKG_CONFIG_PATH`` environment variable can be used to select the desired radare2 installation.
+For most development builds, unless you are working on packaging issues, it is recommended to use ``CUTTER_USE_BUNDLED_RIZIN=ON`` Cmake option. It is the easiest way to ensure that a compatible rizin version is used, and helps you deal with different versions of rizin when working with multiple Cutter branches. On Linux, in case you have multiple rizin versions without ``CUTTER_USE_BUNDLED_RIZIN``, the ``PKG_CONFIG_PATH`` environment variable can be used to select the desired rizin installation.
 
 While `Qt Creator`_ has a builtin visual form and widget editor, not having it in other IDEs is not a major problem. It is also available as a standalone tool called Qt Designer and you can configure the file associations so that ``.ui`` files are opened using it. Depending on the ``.ui`` file and changes you want to make, it is sometimes easier to perform them by editing the ``.ui`` file as a text file. Essentially, ``.ui`` files are XML files. Most code editors should have some support for XML highlighting and possibly block folding.
 
@@ -25,7 +25,7 @@ Windows
 -------
 
 Assuming you have a sufficiently powerful computer, a nice way of getting and configuring Qt for Cutter is to use `vcpkg <https://github.com/Microsoft/vcpkg>`_.
-For a quick test, the exact versions of libraries used by Cutter release packages can be obtained from `cutter-deps <https://github.com/radareorg/cutter-deps/releases>`_ but they don't contain debug
+For a quick test, the exact versions of libraries used by Cutter release packages can be obtained from `cutter-deps <https://github.com/rizinorg/cutter-deps/releases>`_ but they don't contain debug
 versions of libraries so they are not suitable for more serious Cutter development on Windows.
 
 Qt Creator
@@ -41,7 +41,7 @@ Pros and Cons
 - builtin help for Qt API
 - builtin .ui file editor (Qt Designer - visual form editor)
 - builtin helper for displaying Qt types in the debugger
-- Viewing source files that are not directly part of the project (R2 source code) is somewhat inconvenient.
+- Viewing source files that are not directly part of the project (rizin source code) is somewhat inconvenient.
 - The simplest way of installing on non-Linux operating systems require login with Qt account
 
 Project setup
@@ -50,10 +50,10 @@ The following instructions were made based on version 4.12.4 of Qt Creator. The 
 
 - Go to :menuselection:`File --> Open File or Project..` and select :file:`cutter/src/CMakeList.txt`
 - Select kit and press :guilabel:`Configure Project`
-- Configuration step might fail due to r2 not being found, that's normal
+- Configuration step might fail due to rizin not being found, that's normal
 - Click :guilabel:`Projects` button with wrench icon on the left side of the screen
 - Click :menuselection:`Add --> Boolean` in the CMake section
-- Enter ``CUTTER_USE_BUNDLED_RADARE2`` as a key name and change the value to ON. In earlier Qt Creator versions it is necessary to do this during the initial kit selection and configuration step.
+- Enter ``CUTTER_USE_BUNDLED_RIZIN`` as a key name and change the value to ON. In earlier Qt Creator versions it is necessary to do this during the initial kit selection and configuration step.
 - Click :guilabel:`Apply Configuration Changes`:. The configuration should succeed now. In case of errors inspect the output log.
 
 Either in :menuselection:`Projects --> Code Style --> C++` or :menuselection:`Tools --> Options --> C++ --> Code Style` select :guilabel:`Qt [built-in]`. It should be selected by default unless you have used Qt Creator for other projects. Cutter Coding style is almost identical to Qt one. This will help with using correct indentation type and basic formatting without running code formatter.
@@ -140,7 +140,7 @@ Pros and Cons
 Project setup
 ~~~~~~~~~~~~~
 - Go to :menuselection:`File --> Open` and select the folder in which you cloned Cutter
-- Go to :menuselection:`File --> Settings --> Build, Execution, Deployment --> CMake`. In the :guilabel:`CMake Options` field enter ``-DCUTTER_USE_BUNDLED_RADARE2=ON``
+- Go to :menuselection:`File --> Settings --> Build, Execution, Deployment --> CMake`. In the :guilabel:`CMake Options` field enter ``-DCUTTER_USE_BUNDLED_RIZIN=ON``
 - Open :file:`cutter/src/CMakeLists.txt` using the project file list on the left side of the screen
 - A yellow bar with a message :guilabel:`CMake project is not loaded` should appear, click :guilabel:`Load CMake project`
 
@@ -183,7 +183,7 @@ Project setup
 ~~~~~~~~~~~~~
 - Open folder in which you cloned Cutter source using Visual Studio
 - Open CMake settings configurator using either :menuselection:`Project --> CMake Settings` or by clicking :guilabel:`Open the CMake Settings Editor` in the overview page.
-- Check ``CUTTER_USE_BUNDLED_RADARE2`` option
+- Check ``CUTTER_USE_BUNDLED_RIZIN`` option
 - If you are using vcpkg, Visual Studio should detect it automatically. The list of CMake options in the configurator should have some referring to vcpkg. If they are not there, specify the path to vcpkg toolchain file in the :guilabel:`CMake toolchain file` field.
 - If you are not using vcpkg, configure the path to Qt as mentioned in :ref:`windows CMake instructions<building:Building on Windows>`. You can specify the CMake flag in :guilabel:`CMake command arguments:` field.
 - To Ensure that VS debugger can display Qt types in a readable way, it is recommended to install `Qt Visual Studio Tools <https://marketplace.visualstudio.com/items?itemName=TheQtCompany.QtVisualStudioTools2019>`_ plugin. It will create a :file:`Documents/Visual Studio 2019/Visualizers/qt5.natvis` file. Once :file:`qt5.natvis` has been created you can uninstall the plugin.
