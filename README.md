@@ -17,6 +17,16 @@ Cutter is a free and open-source reverse engineering platform powered by [rizin]
 
 Cutter release binaries for all major platforms (Linux, macOS, Windows) can be downloaded from [GitHub Releases](https://github.com/rizinorg/cutter/releases).
 
+- **Linux**: Download the `.AppImage` file. Then make it executable and run as below or use [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher).
+
+    `chmod +x Cutter*.AppImage; ./Cutter*.AppImage`
+- **macOS**: Download the `.dmg` file or use [Homebrew Cask](https://github.com/Homebrew/homebrew-cask):
+
+    `brew cask install cutter`
+- **Windows**: Download the `.zip` archive or use [Chocolatey](https://chocolatey.org):
+
+    `choco install cutter`
+
 ### Build from sources
 
 To build Cutter from sources, please check the [Building Docs](https://cutter.re/docs/building.html).
@@ -36,7 +46,7 @@ To deploy *cutter* using a pre-built `Dockerfile`, it's possible to use the [pro
 ## Plugins
 Cutter supports both Python and Native C++ plugins.
 
-Our community has built many plugins and useful scripts for Cutter such as the native integration of [Ghidra](https://ghidra-sre.org) decompiler or the plugin to visualize DynamoRIO code coverage. You can find a list of cutter plugins linked below. Feel free to extend it with your own plugins and scripts for Cutter.
+Our community has built many plugins and useful scripts for Cutter such as the native integration of [Ghidra decompiler](https://github.com/rizinorg/rz-ghidra) or the plugin to visualize DynamoRIO code coverage. You can find a list of cutter plugins linked below. Feel free to extend it with your own plugins and scripts for Cutter.
 
 **[Official & Community Plugins](https://github.com/rizinorg/cutter-plugins)**
 
