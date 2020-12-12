@@ -4,12 +4,12 @@ SCRIPTPATH=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
 
 mkdir python && cd python
 
-wget "https://www.python.org/ftp/python/3.6.4/Python-3.6.4.tar.xz" || exit 1
-tar -xf Python-3.6.4.tar.xz || exit 1
+wget "https://www.python.org/ftp/python/3.9.1/Python-3.9.1.tar.xz" || exit 1
+tar -xf Python-3.9.1.tar.xz || exit 1
 
 export PYTHON_FRAMEWORK_DIR="`pwd`/framework"
 
-cd Python-3.6.4 || exit 1
+cd Python-3.9.1 || exit 1
 
 CPPFLAGS="-I$(brew --prefix openssl)/include" LDFLAGS="-L$(brew --prefix openssl)/lib" ./configure --enable-framework=$PYTHON_FRAMEWORK_DIR || exit 1
 
