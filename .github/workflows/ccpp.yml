@@ -132,14 +132,14 @@ jobs:
         if [[ "${{ matrix.package || false }}" = "true" ]]
         then
           export CUTTER_VERSION=$(python ../scripts/get_version.py)
-          export VERSION=$CUTTER_VERSION # TODO cleanup this
+          export VERSION=$CUTTER_VERSION
           ninja install
           "../scripts/appimage_embed_python.sh" appdir
           # "../scripts/rz-ghidra.sh" -DCMAKE_INSTALL_PREFIX="`pwd`/appdir/usr" -DBUILD_CUTTER_PLUGIN=ON -DCUTTER_SOURCE_DIR="`pwd`/.."
           APP_PREFIX=`pwd`/appdir/usr
           # export LD_LIBRARY_PATH=${APP_PREFIX}/lib:$Shiboken2_ROOT/lib
           export PATH=$PATH:${APP_PREFIX}/bin
-          "../scripts/r2dec.sh" --prefix=`pwd`/appdir/usr
+          # "../scripts/r2dec.sh" --prefix=`pwd`/appdir/usr
           wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/6/linuxdeployqt-6-x86_64.AppImage"
           chmod a+x linuxdeployqt*.AppImage
           rm -fv "../cutter-deps/qt/plugins/imageformats/libqjp2.so"
@@ -207,7 +207,7 @@ jobs:
           -DCUTTER_ENABLE_PYTHON_BINDINGS=ON ^
           -DCUTTER_PACKAGE_DEPENDENCIES=ON ^
           -DCUTTER_PACKAGE_R2GHIDRA=ON ^
-          -DCUTTER_PACKAGE_R2DEC=ON ^
+          -DCUTTER_PACKAGE_R2DEC=OFF ^
           -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON ^
           -DCUTTER_ENABLE_CRASH_REPORTS=ON ^
           -DCMAKE_PREFIX_PATH="%CUTTER_DEPS%\pyside" ^
