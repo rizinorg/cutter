@@ -19,7 +19,7 @@ jobs:
         cc-override: [default]
         cxx-override: [default]
         include:
-          - os: windows-latest
+          - os: windows-2016
             package: true
           - os: ubuntu-16.04 # ensure that Cutter can be built at least in basic config on Ubuntu 16.04 using sytem libraries
             python-version: 3.5.10
@@ -108,8 +108,8 @@ jobs:
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCUTTER_ENABLE_PYTHON=ON \
-            -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.so.1.0" \
-            -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m" \
+            -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.9.so" \
+            -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.9" \
             -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
             -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
             -DCUTTER_ENABLE_GRAPHVIZ=OFF \
@@ -170,8 +170,8 @@ jobs:
         cd build
         cmake \
                 -DCMAKE_BUILD_TYPE=Release \
-                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.dylib" \
-                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m" \
+                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.9.dylib" \
+                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.9" \
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
                 -DCUTTER_ENABLE_PYTHON=ON \
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
@@ -181,7 +181,7 @@ jobs:
                 .. && \
               make -j4;
     - name: windows dependencies
-      if: contains(matrix.os, 'windows-latest')
+      if: contains(matrix.os, 'windows')
       shell: bash
       run: |
         pip install ninja
