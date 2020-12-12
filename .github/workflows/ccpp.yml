@@ -177,6 +177,7 @@ jobs:
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON \
                 -DCUTTER_USE_BUNDLED_RIZIN=ON \
+                -DCUTTER_ENABLE_PACKAGING=ON \
                 -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR" \
                 .. && \
               make -j4;
@@ -205,6 +206,7 @@ jobs:
           -DCUTTER_USE_BUNDLED_RIZIN=ON ^
           -DCUTTER_ENABLE_PYTHON=ON ^
           -DCUTTER_ENABLE_PYTHON_BINDINGS=ON ^
+          -DCUTTER_ENABLE_PACKAGING=ON ^
           -DCUTTER_PACKAGE_DEPENDENCIES=ON ^
           -DCUTTER_PACKAGE_R2GHIDRA=ON ^
           -DCUTTER_PACKAGE_R2DEC=OFF ^
