@@ -84,7 +84,7 @@ If your operating system has a newer version of CMake (> v3.12) you can use this
 
 .. code:: sh
 
-   cmake -S . -B build -DCUTTER_USE_BUNDLED_RIZIN=ON
+   cmake -B build -DCUTTER_USE_BUNDLED_RIZIN=ON
    cmake --build build
 
 .. note::
