@@ -1,6 +1,6 @@
 {
-    "cmake.sourceDirectory": "${workspaceFolder}/src",
+    "cmake.sourceDirectory": "${workspaceFolder}",
     "cmake.configureSettings": {
-        "CUTTER_USE_BUNDLED_RADARE2": "ON"
+        "CUTTER_USE_BUNDLED_RIZIN": "ON"
     }
 }

@@ -97,7 +97,7 @@ Changing CMake configuration
 After the first configuration :kbd:`Ctrl-Shift-P`/:guilabel:`CMake: Edit CMake Cache` opens a text editor with all CMake options. Cutter specific ones mostly start with "CUTTER".
 
 .. note::
-    ``CUTTER_USE_BUNDLED_RADARE2`` option is also defined in ``.vscode/settings.json`` file and it will be overridden from there. It is set to ``ON`` by default as it is recommended during development.
+    ``CUTTER_USE_BUNDLED_RIZIN`` option is also defined in ``.vscode/settings.json`` file and it will be overridden from there. It is set to ``ON`` by default as it is recommended during development.
 
 .. _vscode-debug-setup:
 

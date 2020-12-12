@@ -4,8 +4,8 @@ Building
 .. note::
 
  If you just want to use the latest Release version of Cutter, please note
- that we provide pre-compiled binaries for Windows, Linux and macOS on
- our `release page. <https://github.com/radareorg/cutter/releases/latest>`_
+ that we provide pre-compiled binaries for Windows, Linux, and macOS on
+ our `release page. <https://github.com/rizinorg/cutter/releases/latest>`_
 
 Getting the Source
 ------------------
@@ -14,17 +14,17 @@ Make sure you've ``git`` installed in your system (`Installation guide <https://
 
 .. code-block:: sh
 
-   git clone --recurse-submodules https://github.com/radareorg/cutter
+   git clone --recurse-submodules https://github.com/rizinorg/cutter
 
 
-This will clone the Cutter source and it's dependencies(radare2, etc.)
+This will clone the Cutter source and its dependencies(rizin, etc.)
 under **cutter** and you should see the following dir structure:
 
 .. code-block:: sh
 
     cutter/-|
             |-docs/     # Cutter Documentation
-            |-radare2/  # radare2 submodule
+            |-rizin/    # rizin submodule
             |-src/      # Cutter Source Code
 
 Following sections assume that **cutter** is your working dir. (if not, do ``cd cutter``)
@@ -77,18 +77,18 @@ The recommended way to build Cutter on Linux is by using CMake. Simply invoke CM
 .. code:: sh
 
    mkdir build && cd build
-   cmake -DCUTTER_USE_BUNDLED_RADARE2=ON ../src
+   cmake -DCUTTER_USE_BUNDLED_RIZIN=ON ..
    cmake --build .
 
 If your operating system has a newer version of CMake (> v3.12) you can use this cleaner solution:
 
 .. code:: sh
 
-   cmake -S src -B build -DCUTTER_USE_BUNDLED_RADARE2=ON
+   cmake -B build -DCUTTER_USE_BUNDLED_RIZIN=ON
    cmake --build build
 
 .. note::
-If you want to use Cutter with another version of radare2 you can omit ``-DCUTTER_USE_BUNDLED_RADARE2=ON``. Note that using a version of radare2 which isn't the version Cutter is using can cause issues and the compilation might fail.
+If you want to use Cutter with another version of rizin you can omit ``-DCUTTER_USE_BUNDLED_RIZIN=ON``. Note that using a version of rizin which isn't the version Cutter is using can cause issues and the compilation might fail.
 
 .. note::
 
@@ -130,7 +130,6 @@ Note that the paths below may vary depending on your version of Qt and Visual St
 .. code:: batch
 
    set CMAKE_PREFIX_PATH=c:\Qt\qt-5.6.2-msvc2013-x86\5.6\msvc2013\lib\cmake
-   cd src
    mkdir build
    cd build
    cmake-gui ..
@@ -235,7 +234,7 @@ CMake Building Options
 
 Note that there are some major building options available:
 
-* ``CUTTER_USE_BUNDLED_RADARE2`` automatically compile Radare2 from submodule.
+* ``CUTTER_USE_BUNDLED_RIZIN`` automatically compile Rizin from submodule.
 * ``CUTTER_ENABLE_PYTHON`` compile with Python support.
 * ``CUTTER_ENABLE_PYTHON_BINDINGS`` automatically generate Python Bindings with Shiboken2, required for Python plugins!
 * ``CUTTER_ENABLE_KSYNTAXHIGHLIGHTING`` use KSyntaxHighlighting for code highlighting.
