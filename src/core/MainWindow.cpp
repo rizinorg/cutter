@@ -265,7 +265,7 @@ void MainWindow::initUI()
     readSettings();
 
     // Display tooltip for the Analyze Program action
-    ui->actionAnalyze->setToolTip("Analyze the program using radare2's \"aaa\" command");
+    ui->actionAnalyze->setToolTip("Analyze the program using Rizin's \"aaa\" command");
     ui->menuFile->setToolTipsVisible(true);
 }
 
@@ -1537,7 +1537,7 @@ void MainWindow::on_actionRun_Script_triggered()
     dialog.setDirectory(QDir::home());
 
     const QString &fileName = QDir::toNativeSeparators(dialog.getOpenFileName(this,
-                                                                              tr("Select radare2 script")));
+                                                                              tr("Select Rizin script")));
     if (fileName.isEmpty()) // Cancel was pressed
         return;
 
@@ -1714,7 +1714,7 @@ void MainWindow::on_actionExport_as_code_triggered()
     cmdMap[filters.last()] = "pcJ";
     filters << tr("Python array (*.py)");
     cmdMap[filters.last()] = "pcp";
-    filters << tr("Print 'wx' r2 commands (*.r2)");
+    filters << tr("Print 'wx' Rizin commands (*.r2)");
     cmdMap[filters.last()] = "pc*";
     filters << tr("GAS .byte blob (*.asm, *.s)");
     cmdMap[filters.last()] = "pca";

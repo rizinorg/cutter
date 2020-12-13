@@ -8,11 +8,11 @@
 #include <QVariant>
 
 /**
- * @brief Class for temporary modifying r2 `e` configuration.
+ * @brief Class for temporary modifying Rizin `e` configuration.
  *
- * Modified values will be restored at the end of scope. This is useful when using a r2 command that can only
+ * Modified values will be restored at the end of scope. This is useful when using a Rizin command that can only
  * be configured using `e` configuration and doesn't accept arguments. TempConfig::set calls can be chained.
- * If a command or r2 method accepts arguments directly it is preferred to use those instead of temporary modifying
+ * If a command or Rizin method accepts arguments directly it is preferred to use those instead of temporary modifying
  * global configuration.
  *
  * \code

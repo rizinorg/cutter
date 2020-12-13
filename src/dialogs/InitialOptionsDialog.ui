@@ -805,7 +805,7 @@
                      <item>
                       <widget class="QLineEdit" name="scriptLineEdit">
                        <property name="placeholderText">
-                        <string>Path to radare2 script file</string>
+                        <string>Path to Rizin script file</string>
                        </property>
                       </widget>
                      </item>

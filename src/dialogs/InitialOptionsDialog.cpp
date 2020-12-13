@@ -426,7 +426,7 @@ void InitialOptionsDialog::updateScriptLayout()
 void InitialOptionsDialog::on_scriptSelectButton_clicked()
 {
     QFileDialog dialog(this);
-    dialog.setWindowTitle(tr("Select radare2 script file"));
+    dialog.setWindowTitle(tr("Select Rizin script file"));
     dialog.setNameFilters({ tr("Script file (*.r2)"), tr("All files (*)") });
 
     if (!dialog.exec()) {

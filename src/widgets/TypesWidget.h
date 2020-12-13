@@ -87,7 +87,7 @@ private slots:
     /**
      * @brief Executed on clicking the Export Types option in the context menu
      * It shows the user a file dialog box to select a file where the types
-     * will be exported. It uses the "tc" command of radare2 to export the types.
+     * will be exported. It uses the "tc" command of Rizin to export the types.
      */
     void on_actionExport_Types_triggered();
 

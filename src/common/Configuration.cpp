@@ -617,7 +617,7 @@ QString Configuration::getConfigString(const QString &key)
 
 /**
  * @brief Configuration::setConfig
- * Set radare2 configuration value (e.g. "asm.lines")
+ * Set Rizin configuration value (e.g. "asm.lines")
  * @param key
  * @param value
  */

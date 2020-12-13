@@ -138,7 +138,7 @@ public:
     const QColor getColor(const QString &name) const;
 
     /**
-     * @brief Get the value of a config var either from r2 or settings, depending on the key.
+     * @brief Get the value of a config var either from Rizin or settings, depending on the key.
      */
     QVariant getConfigVar(const QString &key);
     bool getConfigBool(const QString &key);
@@ -146,7 +146,7 @@ public:
     QString getConfigString(const QString &key);
 
     /**
-     * @brief Set the value of a config var either to r2 or settings, depending on the key.
+     * @brief Set the value of a config var either to Rizin or settings, depending on the key.
      */
     void setConfig(const QString &key, const QVariant &value);
     bool isFirstExecution();

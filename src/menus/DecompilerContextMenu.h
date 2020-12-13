@@ -170,7 +170,7 @@ private:
     bool isFunctionVariable();
     /**
      * @brief Check if the function variable annotated by annotationHere is
-     * present in radare2.
+     * present in Rizin.
      *
      * @return True if the variable is present, otherwise false
      */

@@ -14,7 +14,7 @@
 #undef max
 #endif // Q_OS_WIN
 
-// radare2 list iteration macros
+// Rizin list iteration macros
 #define CutterRListForeach(list, it, type, x) \
     if (list) for (it = list->head; it && ((x=static_cast<type*>(it->data))); it = it->n)
 

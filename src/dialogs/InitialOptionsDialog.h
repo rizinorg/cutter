@@ -67,7 +67,7 @@ private:
 
     /**
      * @brief setTooltipWithConfigHelp is an helper function that add a tolltip to a widget with
-     * a description of a given radare2 eval config.
+     * a description of a given Rizin eval config.
      * @param w - a widget to which to add the tooltip
      * @param config - name of a configuration variable such as "asm.bits".
      */

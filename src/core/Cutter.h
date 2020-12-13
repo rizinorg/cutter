@@ -58,7 +58,7 @@ public:
     /* Core functions (commands) */
     static QString sanitizeStringForCommand(QString s);
     /**
-     * @brief send a command to radare2
+     * @brief send a command to Rizin
      * @param str the command you want to execute
      * @return command output
      * @note if you want to seek to an address, you should use CutterCore::seek.
@@ -66,7 +66,7 @@ public:
     QString cmd(const char *str);
     QString cmd(const QString &str) { return cmd(str.toUtf8().constData()); }
     /**
-     * @brief send a command to radare2 asynchronously
+     * @brief send a command to Rizin asynchronously
      * @param str the command you want to execute
      * @param task a shared pointer that will be returned with the R2 command task
      * @note connect to the &R2Task::finished signal to add your own logic once
@@ -79,7 +79,7 @@ public:
     bool asyncCmd(const QString &str, QSharedPointer<R2Task> &task) { return asyncCmd(str.toUtf8().constData(), task); }
 
     /**
-     * @brief Execute a radare2 command \a cmd.  By nature, the API
+     * @brief Execute a Rizin command \a cmd.  By nature, the API
      * is executing raw commands, and thus ignores multiple commands and overcome command injections.
      * @param cmd - a raw command to execute. Passing multiple commands (e.g "px 5; pd 7 && pdf") will result in them treated as arguments to first command.
      * @return the output of the command
@@ -92,9 +92,9 @@ public:
     QString cmdRaw(const QString &cmd) { return cmdRaw(cmd.toUtf8().constData()); };
 
     /**
-     * @brief Execute a radare2 command \a cmd at \a address. The function will preform a silent seek to the address
+     * @brief Execute a Rizin command \a cmd at \a address. The function will preform a silent seek to the address
      * without triggering the seekChanged event nor adding new entries to the seek history. By nature, the
-     * API is executing a single command without going through radare2 shell, and thus ignores multiple commands 
+     * API is executing a single command without going through Rizin shell, and thus ignores multiple commands 
      * and tries to overcome command injections.
      * @param cmd - a raw command to execute. If multiple commands will be passed (e.g "px 5; pd 7 && pdf") then
      * only the first command will be executed.
@@ -116,14 +116,14 @@ public:
     QString cmdTask(const QString &str);
     QJsonDocument cmdjTask(const QString &str);
     /**
-     * @brief send a command to radare2 and check for ESIL errors
+     * @brief send a command to Rizin and check for ESIL errors
      * @param command the command you want to execute
      * @note If you want to seek to an address, you should use CutterCore::seek.
      */
     void cmdEsil(const char *command);
     void cmdEsil(const QString &command) { cmdEsil(command.toUtf8().constData()); }
     /**
-     * @brief send a command to radare2 and check for ESIL errors
+     * @brief send a command to Rizin and check for ESIL errors
      * @param command the command you want to execute
      * @param task a shared pointer that will be returned with the R2 command task
      * @note connect to the &R2Task::finished signal to add your own logic once
@@ -238,7 +238,7 @@ public:
 
     /**
      * @brief Changes immediate displacement to structure offset
-     * This function makes use of the "aht" command of r2 to apply structure
+     * This function makes use of the "aht" command of Rizin to apply structure
      * offset to the immediate displacement used in the given instruction
      * \param structureOffset The name of struct which will be applied
      * \param offset The address of the instruction where the struct will be applied
@@ -540,9 +540,9 @@ public:
 
     /**
      * @brief Adds new types
-     * It first uses the rz_parse_c_string() function from radare2 API to parse the
+     * It first uses the rz_parse_c_string() function from Rizin API to parse the
      * supplied C file (in the form of a string). If there were errors, they are displayed.
-     * If there were no errors, it uses sdb_query_lines() function from radare2 API
+     * If there were no errors, it uses sdb_query_lines() function from Rizin API
      * to save the parsed types returned by rz_parse_c_string()
      * \param str Contains the definition of the data types
      * \return returns an empty QString if there was no error, else returns the error
@@ -624,7 +624,7 @@ public:
 
     /**
      * @brief Enable or disable Write mode. When the file is opened in write mode, any changes to it will be immediately
-     * committed to the file on disk, thus modify the file. This function wrap radare2 function which re-open the file with
+     * committed to the file on disk, thus modify the file. This function wrap Rizin function which re-open the file with
      * the desired permissions.
      * @param enabled
      */
@@ -688,7 +688,7 @@ signals:
     void graphOptionsChanged();
 
     /**
-     * @brief seekChanged is emitted each time radare2 seek value is modified
+     * @brief seekChanged is emitted each time Rizin's seek value is modified
      * @param offset
      */
     void seekChanged(RVA offset);

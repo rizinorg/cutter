@@ -194,21 +194,21 @@ void CutterCore::initialize(bool loadPlugins)
 #ifdef APPIMAGE
     // Executable is in appdir/bin
     prefix.cdUp();
-    qInfo() << "Setting r2 prefix =" << prefix.absolutePath() << " for AppImage.";
+    qInfo() << "Setting Rizin prefix =" << prefix.absolutePath() << " for AppImage.";
 #else // MACOS_RZ_BUNDLED
     // Executable is in Contents/MacOS, prefix is Contents/Resources/r2
     prefix.cdUp();
     prefix.cd("Resources");
-    qInfo() << "Setting r2 prefix =" << prefix.absolutePath() << " for macOS Application Bundle.";
+    qInfo() << "Setting Rizin prefix =" << prefix.absolutePath() << " for macOS Application Bundle.";
 #endif
     setConfig("dir.prefix", prefix.absolutePath());
 
     auto pluginsDir = prefix;
     if (pluginsDir.cd("share/rizin/plugins")) {
-        qInfo() << "Setting r2 plugins dir =" << pluginsDir.absolutePath();
+        qInfo() << "Setting Rizin plugins dir =" << pluginsDir.absolutePath();
         setConfig("dir.plugins", pluginsDir.absolutePath());
     } else {
-        qInfo() << "r2 plugins dir under" << pluginsDir.absolutePath() << "does not exist!";
+        qInfo() << "Rizin plugins dir under" << pluginsDir.absolutePath() << "does not exist!";
     }
 #endif
 
@@ -220,7 +220,7 @@ void CutterCore::initialize(bool loadPlugins)
     }
     // IMPLICIT rz_bin_iobind (core_->bin, core_->io);
 
-    // Otherwise r2 may ask the user for input and Cutter would freeze
+    // Otherwise Rizin may ask the user for input and Cutter would freeze
     setConfig("scr.interactive", false);
 
     // Initialize graph node highlighter
@@ -643,7 +643,7 @@ bool CutterCore::tryFile(QString path, bool rw)
 }
 
 /**
- * @brief Maps a file using r2 API
+ * @brief Maps a file using Rizin API
  * @param path Path to file
  * @param mapaddr Map Address
  * @return bool
@@ -3747,7 +3747,7 @@ QString CutterCore::getVersionInformation()
         /* ... */
         {NULL, NULL}
     };
-    versionInfo.append(QString("%1 r2\n").arg(RZ_GITTAP));
+    versionInfo.append(QString("%1 rz\n").arg(RZ_GITTAP));
     for (i = 0; vcs[i].name; i++) {
         struct vcs_t *v = &vcs[i];
         const char *name = v->callback ();
