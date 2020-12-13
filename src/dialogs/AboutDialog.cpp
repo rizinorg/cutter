@@ -27,7 +27,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->logoSvgWidget->load(Config()->getLogoFile());
 
     QString aboutString(tr("Version") + " " CUTTER_VERSION_FULL "<br/>"
-                        + tr("Using r2-") + RZ_GITTAP + "<br/>"
+                        + tr("Using rizin-") + RZ_GITTAP + "<br/>"
                         + buildQtVersionString()
                         + "<p><b>" + tr("Optional Features:") + "</b><br/>"
                         + QString("Python: %1<br/>").arg(
@@ -48,7 +48,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
                         + tr("This Software is released under the GNU General Public License v3.0")
                         + "<h2>" + tr("Authors") + "</h2>"
                         + tr("Cutter is developed by the community and maintained by its core and development teams.<br/>")
-                        + tr("Check our <a href='https://github.com/radareorg/cutter/graphs/contributors'>contributors page</a> for the full list of contributors."));
+                        + tr("Check our <a href='https://github.com/rizinorg/cutter/graphs/contributors'>contributors page</a> for the full list of contributors."));
     ui->label->setText(aboutString);
 
     QSignalBlocker s(ui->updatesCheckBox);
@@ -70,7 +70,7 @@ void AboutDialog::on_buttonBox_rejected()
 void AboutDialog::on_showVersionButton_clicked()
 {
     QMessageBox popup(this);
-    popup.setWindowTitle(tr("radare2 version information"));
+    popup.setWindowTitle(tr("Rizin version information"));
     popup.setTextInteractionFlags(Qt::TextSelectableByMouse);
     auto versionInformation = Core()->getVersionInformation();
     popup.setText(versionInformation);

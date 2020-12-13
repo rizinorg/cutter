@@ -5,7 +5,7 @@
 #include "core/Cutter.h"
 
 /**
- * @brief The CommandDescription struct is a pair of a radare2 command and its description
+ * @brief The CommandDescription struct is a pair of a Rizin command and its description
  */
 struct CommandDescription {
     QString command;

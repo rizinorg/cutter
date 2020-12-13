@@ -522,7 +522,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
         structureOffsetMenu->clear();
 
         // Get the possible offsets using the "ahts" command
-        // TODO: add ahtj command to radare2 and then use it here
+        // TODO: add ahtj command to Rizin and then use it here
         QStringList ret = Core()->cmdList("ahts " + memDisp.toString());
         for (const QString &val : ret) {
             if (val.isEmpty()) {

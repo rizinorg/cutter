@@ -18,7 +18,7 @@ class ColorThemeWorker : public QObject
     Q_OBJECT
 public:
     /**
-     * @brief radare2SpecificOptions is list of all available radare2-only color options.
+     * @brief radare2SpecificOptions is list of all available Rizin-only color options.
      */
     const QStringList radare2SpecificOptions = Core()->cmdj("ecj").object().keys();
 
@@ -28,7 +28,7 @@ public:
     static const QStringList cutterSpecificOptions;
 
     /**
-     * @brief radare2UnusedOptions is a list of all radare2 options that Cutter does not use.
+     * @brief radare2UnusedOptions is a list of all Rizin options that Cutter does not use.
      */
     static const QStringList radare2UnusedOptions;
 

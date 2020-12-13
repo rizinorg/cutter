@@ -14,7 +14,7 @@ public:
 
     /**
      * @brief setShowOnlyCustom sets whether or not combobox should contain only
-     * custom themes (created by user or imported) or custom and srandard radare2 themes.
+     * custom themes (created by user or imported) or custom and srandard rizin themes.
      */
     void setShowOnlyCustom(bool value);
 

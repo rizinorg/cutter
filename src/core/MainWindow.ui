@@ -642,7 +642,7 @@
   </action>
   <action name="actionRun_Script">
    <property name="text">
-    <string>Run radare2 script</string>
+    <string>Run Rizin script</string>
    </property>
   </action>
   <action name="actionReset_settings">

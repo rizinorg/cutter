@@ -4,11 +4,11 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0</project_license>
   <name>Cutter</name>
-  <summary>A Qt and C++ GUI for radare2 reverse engineering framework</summary>
+  <summary>Free and Open Source Reverse Engineering Platform powered by Rizin and Qt</summary>
 
   <description>
     <p>
-      Cutter is a free and open-source GUI for radare2. Willing to create an advanced, customizable and free reverse engineering framework.
+      Cutter is a free and open-source GUI for Rizin. Willing to create an advanced, customizable and free reverse engineering framework.
     </p>
   </description>
 
@@ -16,7 +16,7 @@
 
   <screenshots>
     <screenshot>
-      <image>https://raw.githubusercontent.com/radareorg/cutter/master/docs/source/images/screenshot.png</image>
+      <image>https://raw.githubusercontent.com/rizinorg/cutter/master/docs/source/images/screenshot.png</image>
       <caption>Main UI</caption>
     </screenshot>
   </screenshots>

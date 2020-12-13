@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>radare2 plugin information</string>
+   <string>Rizin plugin information</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_1">
    <item>

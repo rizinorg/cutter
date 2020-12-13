@@ -76,8 +76,8 @@ ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject (parent)
     } else {
         QMessageBox::critical(nullptr,
             tr("Standard themes not found"),
-            tr("The radare2 standard themes could not be found in '%1'. "
-               "Most likely, radare2 is not properly installed.")
+            tr("The Rizin standard themes could not be found in '%1'. "
+               "Most likely, Rizin is not properly installed.")
                 .arg(currDir.path())
         );
     }
@@ -231,7 +231,7 @@ QJsonDocument ColorThemeWorker::getTheme(const QString& themeName) const
 QString ColorThemeWorker::deleteTheme(const QString &themeName) const
 {
     if (!isCustomTheme(themeName)) {
-        return tr("You can not delete standard radare2 color themes.");
+        return tr("You can not delete standard Rizin color themes.");
     }
     if (!isThemeExist(themeName)) {
         return tr("Theme <b>%1</b> does not exist.").arg(themeName);
@@ -292,7 +292,7 @@ QString ColorThemeWorker::renameTheme(const QString& themeName, const QString& n
      }
 
      if (!isCustomTheme(themeName)) {
-         return tr("You can not rename standard radare2 themes.");
+         return tr("You can not rename standard Rizin themes.");
      }
 
      QDir dir = customR2ThemesLocationPath;

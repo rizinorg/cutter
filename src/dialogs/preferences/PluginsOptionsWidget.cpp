@@ -51,7 +51,7 @@ PluginsOptionsWidget::PluginsOptionsWidget(PreferencesDialog *dialog)
 
     auto r2PluginsButton = new QPushButton(this);
     layout->addWidget(r2PluginsButton);
-    r2PluginsButton->setText(tr("Show radare2 plugin information"));
+    r2PluginsButton->setText(tr("Show Rizin plugin information"));
     connect(r2PluginsButton, &QPushButton::clicked, this, [this]() {
         R2PluginsDialog dialog(this);
         dialog.exec();
