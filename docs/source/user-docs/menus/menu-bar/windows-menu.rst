@@ -96,7 +96,7 @@ Show Comments
 
 Show Console
 ----------------------------------------
-**Description:** Open the integrated rizin console. This will allow you to execute rizin commands straight from Cutter.   
+**Description:** Open the integrated Rizin console. This will allow you to execute Rizin commands straight from Cutter.   
 
 **Steps:** Windows -> Console  
 

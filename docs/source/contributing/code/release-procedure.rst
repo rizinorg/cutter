@@ -23,7 +23,7 @@ Release Procedure
 10. Update version to 1.11.0
 11. Create tag
 12. Create release
-    * Fill the release notes in the Release description. Preparing release notes can begin earlier. Compare current master or release branch against previous release to find all the changes. Choose the most important ones. Don't duplicate the commit log. Release notes should be a summary for people who don't want to read whole commit log. Group related changes together under titles such as "New features", "Bug Fixes", "Decompiler", "rizin" and similar.
+    * Fill the release notes in the Release description. Preparing release notes can begin earlier. Compare current master or release branch against previous release to find all the changes. Choose the most important ones. Don't duplicate the commit log. Release notes should be a summary for people who don't want to read whole commit log. Group related changes together under titles such as "New features", "Bug Fixes", "Decompiler", "Rizin" and similar.
 13. Prepare announcement tweets and messages to send in the Telegram group, reddit, and others.
 14. Close milestone if there was one
 

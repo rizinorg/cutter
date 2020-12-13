@@ -10,7 +10,7 @@ Everyone has their own preferences for their favorite IDE or code editor.
 There are no strict requirements for using a specific one for Cutter development.
 Any IDE with good CMake integration should work well.
 
-For most development builds, unless you are working on packaging issues, it is recommended to use ``CUTTER_USE_BUNDLED_RIZIN=ON`` Cmake option. It is the easiest way to ensure that a compatible rizin version is used, and helps you deal with different versions of rizin when working with multiple Cutter branches. On Linux, in case you have multiple rizin versions without ``CUTTER_USE_BUNDLED_RIZIN``, the ``PKG_CONFIG_PATH`` environment variable can be used to select the desired rizin installation.
+For most development builds, unless you are working on packaging issues, it is recommended to use ``CUTTER_USE_BUNDLED_RIZIN=ON`` Cmake option. It is the easiest way to ensure that a compatible Rizin version is used, and helps you deal with different versions of Rizin when working with multiple Cutter branches. On Linux, in case you have multiple Rizin versions without ``CUTTER_USE_BUNDLED_RIZIN``, the ``PKG_CONFIG_PATH`` environment variable can be used to select the desired Rizin installation.
 
 While `Qt Creator`_ has a builtin visual form and widget editor, not having it in other IDEs is not a major problem. It is also available as a standalone tool called Qt Designer and you can configure the file associations so that ``.ui`` files are opened using it. Depending on the ``.ui`` file and changes you want to make, it is sometimes easier to perform them by editing the ``.ui`` file as a text file. Essentially, ``.ui`` files are XML files. Most code editors should have some support for XML highlighting and possibly block folding.
 
@@ -41,7 +41,7 @@ Pros and Cons
 - builtin help for Qt API
 - builtin .ui file editor (Qt Designer - visual form editor)
 - builtin helper for displaying Qt types in the debugger
-- Viewing source files that are not directly part of the project (rizin source code) is somewhat inconvenient.
+- Viewing source files that are not directly part of the project (Rizin source code) is somewhat inconvenient.
 - The simplest way of installing on non-Linux operating systems require login with Qt account
 
 Project setup
@@ -50,7 +50,7 @@ The following instructions were made based on version 4.12.4 of Qt Creator. The 
 
 - Go to :menuselection:`File --> Open File or Project..` and select :file:`cutter/src/CMakeList.txt`
 - Select kit and press :guilabel:`Configure Project`
-- Configuration step might fail due to rizin not being found, that's normal
+- Configuration step might fail due to Rizin not being found, that's normal
 - Click :guilabel:`Projects` button with wrench icon on the left side of the screen
 - Click :menuselection:`Add --> Boolean` in the CMake section
 - Enter ``CUTTER_USE_BUNDLED_RIZIN`` as a key name and change the value to ON. In earlier Qt Creator versions it is necessary to do this during the initial kit selection and configuration step.

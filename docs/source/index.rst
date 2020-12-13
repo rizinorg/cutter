@@ -1,7 +1,7 @@
 Cutter
 ======
 
-Cutter is a Qt and C++ GUI for rizin. Its goal is to provide an advanced,
+Cutter is a Qt and C++ GUI for Rizin. Its goal is to provide an advanced,
 customizable and FOSS reverse-engineering platform while keeping the
 user experience in mind. Cutter was created by reverse engineers for
 reverse engineers.

@@ -12,7 +12,7 @@ Common Usage
 CutterCore Class
 ~~~~~~~~~~~~~~~~
 
-This is the main class where every link with rizin is made. It is *unique*
+This is the main class where every link with Rizin is made. It is *unique*
 across the whole process. To access it, simply call ``Core()``.
 
 Example:
@@ -21,26 +21,26 @@ Example:
 
    Core()->getOffset();
 
-Calling a rizin Command
+Calling a Rizin Command
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are multiple ways to call a rizin command: 
+There are multiple ways to call a Rizin command: 
 
 - ``CutterCore::cmdj(<command>)`` - To be used with json commands like ``cmdj("agj")`` or ``cmdj("aflj")``. 
-  This is the command we used to fetch structured data from rizin.
+  This is the command we used to fetch structured data from Rizin.
   
-- ``CutterCore::cmdRaw(<command>)`` - Executes a single rizin command 
-  without going through rizin shell functionality like output redirects, grep, and multiple command parsing.
+- ``CutterCore::cmdRaw(<command>)`` - Executes a single Rizin command 
+  without going through Rizin shell functionality like output redirects, grep, and multiple command parsing.
 
 The command then returns its output. This should be used when a command doesn't have output or the output should be handled as-is. If possible, using the JSON variation with ``cmdj`` is always preferred.
   
-- ``CutterCore::cmdRawAt(<command>, <address>)`` - Executes a single rizin command in a given address and returns the output. This helps avoiding weird strings concatenation like ``cmd("ph " + hash + " @ " + QString::num(address))``.
+- ``CutterCore::cmdRawAt(<command>, <address>)`` - Executes a single Rizin command in a given address and returns the output. This helps avoiding weird strings concatenation like ``cmd("ph " + hash + " @ " + QString::num(address))``.
   
 - ``CutterCore::cmd()`` - *(Discouraged)* Only use it when ``cmdj`` or ``cmdRaw`` cannot be used. This is used for complex commands using concatenation of several commands (``px 5; pd 7; afl;``), for grepping (``pd 5~call``). for commands inside commands (``?e `afn.```) and so on.
   This is also used when the output is complex and is not parsed correctly in ``cmdRaw``.
   Make sure to carefully sanitize user-controlled variables that are passed to the command, to avoid unexpected command injections. 
 
-Generally, if one needs to retrieve information from a rizin command, it
+Generally, if one needs to retrieve information from a Rizin command, it
 is preferred to use the JSON API.
 
 Example:
@@ -52,7 +52,7 @@ Example:
 Seek the Current File
 ~~~~~~~~~~~~~~~~~~~~~
 
-To modify rizin seek use ``CutterCore::seek(const RVA offset)``. This
+To modify Rizin seek use ``CutterCore::seek(const RVA offset)``. This
 is important because it will emit a
 ``CutterCore::seekChanged(RVA offset)`` signal. Never ever call
 ``cmd("s offset")``;
@@ -72,7 +72,7 @@ Creating a Widget
 ~~~~~~~~~~~~~~~~~
 
 Make sure to connect the ``CutterCore::seekChanged(RVA offset)`` signal
-so your widget refreshes its output when rizin seek is modified
+so your widget refreshes its output when Rizin seek is modified
 (switching to another function, etc.).
 
 Coding Style
@@ -225,10 +225,10 @@ Updating the Git Submodules
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Git submodules play a major part in Cutter. This, because Cutter is powered
-by rizin, its parent project, and it tries to stay up-to-date with its
+by Rizin, its parent project, and it tries to stay up-to-date with its
 recent version, which allows us to implement new features, and enjoy bug
-fixes and performance improvements on rizin. Often, we need to update
-the rizin submodule or the others, to push their most recent
+fixes and performance improvements on Rizin. Often, we need to update
+the Rizin submodule or the others, to push their most recent
 version to Cutter.
 
 You can view the list of all the submodules from the cutter root folder with:
@@ -246,7 +246,7 @@ cutter root folder:
    git add submodule_name_1 submodule_name_2
    git commit -m "Update submodules"
 
-More likely, you'll only need to update the rizin submodule.
+More likely, you'll only need to update the *rizin* submodule.
 In order to update one submodule individually, use the following code:
 
 .. code:: sh

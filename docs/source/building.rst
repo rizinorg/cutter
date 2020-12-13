@@ -24,7 +24,7 @@ under **cutter** and you should see the following dir structure:
 
     cutter/-|
             |-docs/     # Cutter Documentation
-            |-rizin/    # rizin submodule
+            |-rizin/    # Rizin submodule
             |-src/      # Cutter Source Code
 
 Following sections assume that **cutter** is your working dir. (if not, do ``cd cutter``)
@@ -72,7 +72,7 @@ On Arch-based Linux distributions:
 Building Steps
 ~~~~~~~~~~~~~~
 
-The recommended way to build Cutter on Linux is by using CMake. Simply invoke CMake to build Cutter and its dependency rizin.
+The recommended way to build Cutter on Linux is by using CMake. Simply invoke CMake to build Cutter and its dependency Rizin.
 
 .. code:: sh
 
@@ -88,7 +88,7 @@ If your operating system has a newer version of CMake (> v3.12) you can use this
    cmake --build build
 
 .. note::
-If you want to use Cutter with another version of rizin you can omit ``-DCUTTER_USE_BUNDLED_RIZIN=ON``. Note that using a version of rizin which isn't the version Cutter is using can cause issues and the compilation might fail.
+If you want to use Cutter with another version of Rizin you can omit ``-DCUTTER_USE_BUNDLED_RIZIN=ON``. Note that using a version of Rizin which isn't the version Cutter is using can cause issues and the compilation might fail.
 
 .. note::
 
@@ -244,7 +244,7 @@ Note that there are some major building options available:
 Cutter binary release options, not needed for most users and might not work easily outside CI environment: 
 
 * ``CUTTER_ENABLE_CRASH_REPORTS`` is used to compile Cutter with crash handling system enabled (Breakpad).
-* ``CUTTER_ENABLE_DEPENDENCY_DOWNLOADS`` Enable downloading of dependencies. Setting to OFF doesn't affect any downloads done by rizin build. This option is used for preparing Cutter binary release packges. Turned off by default.
+* ``CUTTER_ENABLE_DEPENDENCY_DOWNLOADS`` Enable downloading of dependencies. Setting to OFF doesn't affect any downloads done by Rizin build. This option is used for preparing Cutter binary release packges. Turned off by default.
 * ``CUTTER_PACKAGE_DEPENDENCIES`` During install step include the third party dependencies. This option is used for preparing Cutter binary release packges. 
 
 
@@ -305,12 +305,12 @@ containing bin/, lib/, include/, etc.) and specify it to CMake using
    rm CMakeCache.txt # the cache may be polluted with unwanted libraries found before
    cmake -DCMAKE_PREFIX_PATH=/opt/Qt/5.9.1/gcc_64 ..
 
-* **Rizin's libr_*.so cannot be found when running Cutter**
+* **Rizin's librz_*.so cannot be found when running Cutter**
 
-   ./Cutter: error while loading shared libraries: libr_lang.so: cannot open shared object file: No such file or directory
+   ./Cutter: error while loading shared libraries: librz_lang.so: cannot open shared object file: No such file or directory
 
-The exact rizin .so file that cannot be found may vary. On some systems, the linker by default uses RUNPATH instead of RPATH which is incompatible with the way rizin is currently compiled. It results in some of the rizin libraries not being found when running cutter. You can verify if this is the problem by running `ldd ./Cutter`. If all the rizin libraries are missing you have a different problem.
-The workaround is to either add the `--disable-new-dtags` linker flag when compiling Cutter or add the rizin installation path to LD_LIBRARY_PATH environment variable.
+The exact Rizin .so file that cannot be found may vary. On some systems, the linker by default uses RUNPATH instead of RPATH which is incompatible with the way Rizin is currently compiled. It results in some of the Rizin libraries not being found when running cutter. You can verify if this is the problem by running `ldd ./Cutter`. If all the Rizin libraries are missing you have a different problem.
+The workaround is to either add the `--disable-new-dtags` linker flag when compiling Cutter or add the Rizin installation path to LD_LIBRARY_PATH environment variable.
 
 ::
 
@@ -320,7 +320,7 @@ The workaround is to either add the `--disable-new-dtags` linker flag when compi
 
     rz_util/rz_annotated_code.h: No such file or directory
 
-If you face an error where some header file starting with ``r_`` is missing, you should check the **rizin** submodule and
+If you face an error where some header file starting with ``rz_`` is missing, you should check the **rizin** submodule and
 make sure it is in sync with upstream **Cutter** repo. Simply run:
 
 ::
@@ -329,9 +329,9 @@ make sure it is in sync with upstream **Cutter** repo. Simply run:
 
 * **rz_core development package not found**
 
-If you installed rizin and still encounter this error, it could be that your
+If you installed Rizin and still encounter this error, it could be that your
 ``PATH`` environment variable is set improperly (doesn’t contain
-``/usr/local/bin``). You can fix this by adding the rizin installation dir to
+``/usr/local/bin``). You can fix this by adding the Rizin installation dir to
 your ``PATH`` variable.
 
 macOS specific solutions:
@@ -350,7 +350,7 @@ You can also try:
 
 .. image:: images/cutter_path_settings.png
 
-You can also install rizin into ``/usr/lib/pkgconfig/`` and then
+You can also install Rizin into ``/usr/lib/pkgconfig/`` and then
 add a variable ``PKG_CONFIG_PATH`` with the value ``/usr/lib/pkgconfig/``.
 
 * **macOS libjpeg error**

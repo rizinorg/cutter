@@ -21,7 +21,7 @@ not be enough and require a more advanced Xorg configuration.
 Initial Analysis takes a long time or Cutter UI freezes
 -------------------------------------------------------
 
-Cutter and rizin currently don't work very well with large and very large binaries.
+Cutter and Rizin currently don't work very well with large and very large binaries.
 The exact limits depend on the content of the binary, but roughly a few MB can be considered large
 and may take a few minutes to analyze. More than 100MB is very large,
 analysis with default settings will likely take a very long time and it might occasionally
