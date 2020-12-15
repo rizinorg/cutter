@@ -1,6 +1,18 @@
-path_classifiers:
-  library:
-    - radare2
-
-queries:
-  - exclude: cpp/short-global-name
+extraction:
+  cpp:
+    prepare:
+      packages:
+      - "build-essential"
+      - "cmake"
+      - "libzip-dev"
+      - "zlib1g-dev"
+      - "qt5-default"
+      - "libqt5svg5-dev"
+      - "qttools5-dev"
+      - "qttools5-dev-tools"
+    configure:
+      command:
+      - "pip3 install --upgrade --user meson"
+      - "cmake -B build -DCUTTER_USE_BUNDLED_RIZIN=ON"
+    index:
+      build_command: "cmake --build build"
