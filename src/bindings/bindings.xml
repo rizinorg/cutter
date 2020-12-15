@@ -18,6 +18,7 @@
     <object-type name="CutterDockWidget" />
 
     <template name="plugin_meta_get">
+        Shiboken::GilState cutterGil;
         SbkObject *wrapper = Shiboken::BindingManager::instance().retrieveWrapper(this);
         PyObject *classObject = PyObject_GetAttrString(reinterpret_cast&lt;PyObject *&gt;(wrapper), "__class__");
         if (!classObject) {
