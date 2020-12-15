@@ -117,6 +117,7 @@ jobs:
             -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
             -DCUTTER_ENABLE_GRAPHVIZ=OFF \
             -DCUTTER_ENABLE_CRASH_REPORTS=ON \
+            -DCUTTER_ENABLE_TESTS=ON \
             -DCUTTER_USE_BUNDLED_RIZIN=ON \
             -DCUTTER_APPIMAGE_BUILD=ON \
             -DCUTTER_ENABLE_PACKAGING=ON \
@@ -131,9 +132,11 @@ jobs:
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCUTTER_USE_BUNDLED_RIZIN=ON \
+            -DCUTTER_ENABLE_TESTS=ON \
             ..
         fi
         ninja
+	./src/test/CutterTest
         if [[ "${{ matrix.package || false }}" = "true" ]]
         then
           export CUTTER_VERSION=$(python ../scripts/get_version.py)
@@ -185,6 +188,7 @@ jobs:
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON \
                 -DCUTTER_USE_BUNDLED_RIZIN=ON \
                 -DCUTTER_ENABLE_PACKAGING=ON \
+                -DCUTTER_ENABLE_TESTS=ON \
                 -DCUTTER_PACKAGE_DEPENDENCIES=ON \
                 -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON \
                 -DCUTTER_PACKAGE_RZ_GHIDRA=ON \
@@ -198,7 +202,8 @@ jobs:
         make package
         export CUTTER_VERSION=$(python3 ../scripts/get_version.py)
         echo PACKAGE_NAME=${PACKAGE_NAME}.dmg >> $GITHUB_ENV
-        echo UPLOAD_ASSET_TYPE=application/x-apple-diskimage >> $GITHUB_ENV
+        echo UPLOAD_ASSET_TYPE=application/x-apple-diskimage >> $GITHUB_ENVV
+        ./src/test/CutterTest;
     - name: windows dependencies
       if: contains(matrix.os, 'windows')
       shell: bash
@@ -222,6 +227,7 @@ jobs:
         cmake ^
           -DCMAKE_BUILD_TYPE=Release ^
           -DCUTTER_USE_BUNDLED_RIZIN=ON ^
+          -DCUTTER_ENABLE_TESTS=ON \
           -DCUTTER_ENABLE_PYTHON=ON ^
           -DCUTTER_ENABLE_PYTHON_BINDINGS=ON ^
           -DCUTTER_ENABLE_PACKAGING=ON ^
@@ -237,6 +243,7 @@ jobs:
           ..
         cmake --build . --config Release
         cmake --build . --config Release --target package
+        ./src/test/CutterTest
         echo PACKAGE_NAME=%PACKAGE_NAME%.zip >> %GITHUB_ENV%
         echo UPLOAD_ASSET_TYPE=application/zip >> %GITHUB_ENV%
     - uses: actions/upload-artifact@v2
