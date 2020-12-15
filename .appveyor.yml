@@ -1,5 +1,5 @@
 version: '1.12.0-git-{build}'
-image: 'Previous Visual Studio 2019'
+image: 'Visual Studio 2019'
 clone_depth: 1
 
 # Build configuration
