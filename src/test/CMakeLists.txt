@@ -1,4 +1,3 @@
-
 find_package(Qt5 REQUIRED COMPONENTS Test)
 
 set(TEST_HEADER_FILES
