@@ -1,11 +1,11 @@
 Release Procedure
 =================
 
-1. Update translations submodule `https://github.com/radareorg/cutter-translations`_
-    1. The latest archive from Crowdin should already be in the repository, if not make sure to merge any automated Pull Request from Crowdin (e.g. https://github.com/radareorg/cutter-translations/pull/9)
+1. Update translations submodule `https://github.com/rizinorg/cutter-translations`_
+    1. The latest archive from Crowdin should already be in the repository, if not make sure to merge any automated Pull Request from Crowdin (e.g. https://github.com/rizinorg/cutter-translations/pull/9)
     2. Update submodule in cutter
 2. If there is a desire to keep working in the master branch, create branch for the release and do all the following work there.
-3. Lock r2ghidra and r2dec versions downloaded by packaging scripts. Specify a tag or commit hash.
+3. Lock rzghidra and rzdec versions downloaded by packaging scripts. Specify a tag or commit hash.
 4. Update version
     #. appveyor.yml
     #. docs/sourc/conf.py
@@ -23,7 +23,7 @@ Release Procedure
 10. Update version to 1.11.0
 11. Create tag
 12. Create release
-    * Fill the release notes in the Release description. Preparing release notes can begin earlier. Compare current master or release branch against previous release to find all the changes. Choose the most important ones. Don't duplicate the commit log. Release notes should be a summary for people who don't want to read whole commit log. Group related changes together under titles such as "New features", "Bug Fixes", "Decompiler", "radare2" and similar.
+    * Fill the release notes in the Release description. Preparing release notes can begin earlier. Compare current master or release branch against previous release to find all the changes. Choose the most important ones. Don't duplicate the commit log. Release notes should be a summary for people who don't want to read whole commit log. Group related changes together under titles such as "New features", "Bug Fixes", "Decompiler", "Rizin" and similar.
 13. Prepare announcement tweets and messages to send in the Telegram group, reddit, and others.
 14. Close milestone if there was one
 
@@ -49,7 +49,7 @@ If it makes sense repeat the step multiple times at different offsets and click 
 * The Disassembly widget shows proper disassembly.
 * Bundled plugins work
    * Open decompiler and select ghidra, it shows some C code at least for some functions
-   * Open r2dec in decompiler widget, make sure it shows code
+   * Open rzdec in decompiler widget, make sure it shows code
 * Test that sample python plugin works
 * Try debugger
    * Insert breakpoint in main

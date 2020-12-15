@@ -1,9 +1,9 @@
 User Documentation
-=======================
+==================
 
 This page contains information about the different menus in Cutter.
 
-Cutter is an advanced reverse engineering platform powered by radare2.
+Cutter is an advanced reverse engineering platform powered by Rizin.
 This user's guide provides detailed information on how to use Cutter.
 The documentation for users is still on its early stages and will be improved over time.
 

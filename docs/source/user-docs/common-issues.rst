@@ -8,7 +8,7 @@ AppImage Crashes
 
 If the Linux AppImage binary crashes upon startup, make sure your
 ``LD_LIBRARY_PATH`` environment variable is empty.
-For a detailed explanation, see the issue `#579 <https://github.com/radareorg/cutter/issues/579>`__
+For a detailed explanation, see the issue `#579 <https://github.com/rizinorg/cutter/issues/579>`__
 
 Keyboard Layout Issue
 ---------------------
@@ -21,7 +21,7 @@ not be enough and require a more advanced Xorg configuration.
 Initial Analysis takes a long time or Cutter UI freezes
 -------------------------------------------------------
 
-Cutter and radare2 currently don't work very well with large and very large binaries.
+Cutter and Rizin currently don't work very well with large and very large binaries.
 The exact limits depend on the content of the binary, but roughly a few MB can be considered large
 and may take a few minutes to analyze. More than 100MB is very large,
 analysis with default settings will likely take a very long time and it might occasionally

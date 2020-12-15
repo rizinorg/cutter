@@ -139,11 +139,11 @@ Extend the code as follows:
 
    # ...
 
-We can access the data by calling radare2 commands and utilizing their output.
+We can access the data by calling Rizin commands and utilizing their output.
 This is done by using the two functions ``cmd()`` and ``cmdj()``, which behave just as they
-do in `r2pipe <https://radare.gitbooks.io/radare2book/scripting/r2pipe.html>`_.
+do in `rz-pipe <https://book.rizin.re/scripting/rz-pipe.html>`_.
 
-Many commands in radare2 can be suffixed with a ``j`` to return JSON output.
+Many commands in Rizin can be suffixed with a ``j`` to return JSON output.
 ``cmdj()`` will automatically deserialize the JSON into python dicts and lists, so the
 information can be easily accessed.
 

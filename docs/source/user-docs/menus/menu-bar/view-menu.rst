@@ -4,7 +4,7 @@ View Menu
 
 Refresh Contents
 ----------------------------------------
-**Description:** In some cases, not all the displayed information on Cutter's widgets will be up-to-date, for example - after defining a new function from the integrated radare2 console. By refreshing the contents, Cutter will fetch the most up to date information from the session and will update the different views.
+**Description:** In some cases, not all the displayed information on Cutter's widgets will be up-to-date, for example - after defining a new function from the integrated Rizin console. By refreshing the contents, Cutter will fetch the most up to date information from the session and will update the different views.
 
 ***Note:** In the future, Cutter will be aware to any underlying change and will update everything automatically. This is currently a work-in-progress.*
 

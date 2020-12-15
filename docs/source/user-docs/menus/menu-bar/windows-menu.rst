@@ -31,7 +31,7 @@ Show Functions
 
 Show Decompiler
 ----------------------------------------
-**Description:** Cutter releases are shipped with two decompilers by default - [r2ghidra](https://github.com/radareorg/r2ghidra-dec) and [r2dec](https://github.com/radareorg/r2dec-js). The Decompiler view will display the decompilation of the current function. The widget is interactive and support address-syncing, renaming, re-typing and more. Cutter can be extended with more decompilers.   
+**Description:** Cutter releases are shipped with two decompilers by default - [rz-ghidra](https://github.com/rizinorg/rz-ghidra) and [rz-dec](#) which will be available soon. The Decompiler view will display the decompilation of the current function. The widget is interactive and support address-syncing, renaming, re-typing and more. Cutter can be extended with more decompilers.   
 
 **Steps:** Windows -> Decompiler  
 
@@ -96,7 +96,7 @@ Show Comments
 
 Show Console
 ----------------------------------------
-**Description:** Open the integrated radare2 console. This will allow you to execute radare2 commands straight from Cutter.   
+**Description:** Open the integrated Rizin console. This will allow you to execute Rizin commands straight from Cutter.   
 
 **Steps:** Windows -> Console  
 

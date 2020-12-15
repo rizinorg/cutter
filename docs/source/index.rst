@@ -1,7 +1,7 @@
 Cutter
 ======
 
-Cutter is a Qt and C++ GUI for radare2. Its goal is to provide an advanced,
+Cutter is a Qt and C++ GUI for Rizin. Its goal is to provide an advanced,
 customizable and FOSS reverse-engineering platform while keeping the
 user experience in mind. Cutter was created by reverse engineers for
 reverse engineers.
@@ -14,7 +14,7 @@ Getting Cutter
 
 Cutter is available for all major platforms. You can
 download the latest release from
-`here <https://github.com/radareorg/cutter/releases>`__.
+`here <https://github.com/rizinorg/cutter/releases>`__.
 
 - **macOS**: Download the ``.dmg`` file and install it.
 - **Windows**: Download the ``.zip`` archive and extract it.
@@ -35,9 +35,9 @@ Need help?
 
 You can contact the *Cutter* developers and community on:
 
--  Telegram: https://t.me/r2cutter
+-  Telegram: https://t.me/cutter_re
 -  #cutter on irc.freenode.net
--  Twitter: https://twitter.com/r2gui
+-  Twitter: https://twitter.com/cutter_re
 
 Want to help the project?
 -------------------------
