@@ -26,8 +26,8 @@
 
 #include <cstdlib>
 
-#if CUTTER_R2GHIDRA_STATIC
-#include <R2GhidraDecompiler.h>
+#if CUTTER_RZGHIDRA_STATIC
+#include <RzGhidraDecompiler.h>
 #endif
 
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
@@ -103,7 +103,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     qputenv("R_ALT_SRC_DIR", "1");
 #endif
 
-    Core()->initialize(clOptions.enableR2Plugins);
+    Core()->initialize(clOptions.enableRizinPlugins);
     Core()->setSettings();
     Config()->loadInitial();
     Core()->loadCutterRC();
@@ -114,8 +114,8 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         Core()->registerDecompiler(new R2DecDecompiler(Core()));
     }
 
-#if CUTTER_R2GHIDRA_STATIC
-    Core()->registerDecompiler(new R2GhidraDecompiler(Core()));
+#if CUTTER_RZGHIDRA_STATIC
+    Core()->registerDecompiler(new RzGhidraDecompiler(Core()));
 #endif
 
     Plugins()->loadPlugins(clOptions.enableCutterPlugins);
@@ -164,14 +164,14 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     {
         auto rzprefix = QDir(QCoreApplication::applicationDirPath()); // Contents/MacOS
         rzprefix.cdUp(); // Contents
-        rzprefix.cd("Resources"); // Contents/Resources/r2
+        rzprefix.cd("Resources"); // Contents/Resources/rz
 
         auto sleighHome = rzprefix;
-        sleighHome.cd("share/rizin/plugins/rz_ghidra_sleigh"); // Contents/Resources/r2/share/rizin/plugins/rz_ghidra_sleigh
+        sleighHome.cd("share/rizin/plugins/rz_ghidra_sleigh"); // Contents/Resources/rz/share/rizin/plugins/rz_ghidra_sleigh
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
 
         auto r2decHome = rzprefix;
-        r2decHome.cd("share/rizin/plugins/r2dec-js"); // Contents/Resources/r2/share/rizin/plugins/r2dec-js
+        r2decHome.cd("share/rizin/plugins/r2dec-js"); // Contents/Resources/rz/share/rizin/plugins/r2dec-js
         qputenv("R2DEC_HOME", r2decHome.absolutePath().toLocal8Bit());
     }
 #endif
@@ -205,8 +205,8 @@ void CutterApplication::launchNewInstance(const QStringList &args)
     if (!clOptions.enableCutterPlugins) {
         allArgs.push_back("--no-cutter-plugins");
     }
-    if (!clOptions.enableR2Plugins) {
-        allArgs.push_back("--no-r2-plugins");
+    if (!clOptions.enableRizinPlugins) {
+        allArgs.push_back("--no-rizin-plugins");
     }
     allArgs.append(args);
     process.startDetached(qApp->applicationFilePath(), allArgs);
@@ -351,9 +351,9 @@ bool CutterApplication::parseCommandLineOptions()
                                             QObject::tr("Do not load Cutter plugins"));
     cmd_parser.addOption(disableCutterPlugins);
 
-    QCommandLineOption disableR2Plugins("no-r2-plugins",
+    QCommandLineOption disableRizinPlugins("no-rizin-plugins",
                                         QObject::tr("Do not load rizin plugins"));
-    cmd_parser.addOption(disableR2Plugins);
+    cmd_parser.addOption(disableRizinPlugins);
 
     cmd_parser.process(*this);
 
@@ -424,15 +424,15 @@ bool CutterApplication::parseCommandLineOptions()
     opts.outputRedirectionEnabled = !cmd_parser.isSet(disableRedirectOption);
     if (cmd_parser.isSet(disablePlugins)) {
         opts.enableCutterPlugins = false;
-        opts.enableR2Plugins = false;
+        opts.enableRizinPlugins = false;
     }
 
     if (cmd_parser.isSet(disableCutterPlugins)) {
         opts.enableCutterPlugins = false;
     }
 
-    if (cmd_parser.isSet(disableR2Plugins)) {
-        opts.enableR2Plugins = false;
+    if (cmd_parser.isSet(disableRizinPlugins)) {
+        opts.enableRizinPlugins = false;
     }
 
     this->clOptions = opts;

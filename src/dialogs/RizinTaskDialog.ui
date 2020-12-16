@@ -11,13 +11,13 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>R2 Task</string>
+   <string>Rizin Task</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="descLabel">
      <property name="text">
-      <string>R2 task in progress..</string>
+      <string>Rizin task in progress..</string>
      </property>
     </widget>
    </item>

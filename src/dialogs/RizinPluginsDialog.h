@@ -7,19 +7,19 @@
 #include "core/Cutter.h"
 
 namespace Ui {
-class R2PluginsDialog;
+class RizinPluginsDialog;
 }
 
-class R2PluginsDialog : public QDialog
+class RizinPluginsDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit R2PluginsDialog(QWidget *parent = nullptr);
-    ~R2PluginsDialog();
+    explicit RizinPluginsDialog(QWidget *parent = nullptr);
+    ~RizinPluginsDialog();
 
 private:
-    Ui::R2PluginsDialog *ui;
+    Ui::RizinPluginsDialog *ui;
 };
 
 #endif // PLUGINSDIALOG_H

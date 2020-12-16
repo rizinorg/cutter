@@ -174,7 +174,7 @@ private:
      *
      * @return True if the variable is present, otherwise false
      */
-    bool variablePresentInR2();
+    bool variablePresentInRizin();
 };
 
 #endif // DECOMPILERCONTEXTMENU_H

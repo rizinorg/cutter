@@ -1,13 +1,13 @@
-#include "R2PluginsDialog.h"
-#include "ui_R2PluginsDialog.h"
+#include "RizinPluginsDialog.h"
+#include "ui_RizinPluginsDialog.h"
 
 #include "core/Cutter.h"
 #include "common/Helpers.h"
 #include "plugins/PluginManager.h"
 
-R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
+RizinPluginsDialog::RizinPluginsDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::R2PluginsDialog)
+    ui(new Ui::RizinPluginsDialog)
 {
     ui->setupUi(this);
 
@@ -57,7 +57,7 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
     qhelpers::adjustColumns(ui->RzAsmTreeWidget, 0);
 }
 
-R2PluginsDialog::~R2PluginsDialog()
+RizinPluginsDialog::~RizinPluginsDialog()
 {
     delete ui;
 }

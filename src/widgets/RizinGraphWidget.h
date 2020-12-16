@@ -1,5 +1,5 @@
-#ifndef R2_GRAPH_WIDGET_H
-#define R2_GRAPH_WIDGET_H
+#ifndef RZ_GRAPH_WIDGET_H
+#define RZ_GRAPH_WIDGET_H
 
 #include <memory>
 
@@ -11,14 +11,14 @@
 class MainWindow;
 
 namespace Ui {
-class R2GraphWidget;
+class RizinGraphWidget;
 }
 
-class R2GraphWidget;
+class RizinGraphWidget;
 
 /**
- * @brief Generic graph view for r2 graphs.
- * Not all r2 graph commands output the same kind of json. Only those that have following format
+ * @brief Generic graph view for rizin graphs.
+ * Not all rizin graph commands output the same kind of json. Only those that have following format
  * @code{.json}
  * { "nodes": [
  *      {
@@ -31,14 +31,14 @@ class R2GraphWidget;
  * ]}
  * @endcode
  * Id don't have to be sequential. Simple text label is displayed containing concatenation of
- * label and body. No r2 builtin graph uses both. Duplicate edges and edges with target id
+ * label and body. No rizin builtin graph uses both. Duplicate edges and edges with target id
  * not present in the list of nodes are removed.
  */
-class GenericR2GraphView : public SimpleTextGraphView
+class GenericRizinGraphView : public SimpleTextGraphView
 {
     Q_OBJECT
 public:
-    GenericR2GraphView(R2GraphWidget *parent, MainWindow *main);
+    GenericRizinGraphView(RizinGraphWidget *parent, MainWindow *main);
     void setGraphCommand(QString cmd);
     void refreshView() override;
 protected:
@@ -50,19 +50,19 @@ private:
 };
 
 
-class R2GraphWidget : public CutterDockWidget
+class RizinGraphWidget : public CutterDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit R2GraphWidget(MainWindow *main);
-    ~R2GraphWidget();
+    explicit RizinGraphWidget(MainWindow *main);
+    ~RizinGraphWidget();
 
 private:
-    std::unique_ptr<Ui::R2GraphWidget> ui;
-    GenericR2GraphView *graphView;
+    std::unique_ptr<Ui::RizinGraphWidget> ui;
+    GenericRizinGraphView *graphView;
 
     void typeChanged();
 };
 
-#endif // R2_GRAPH_WIDGET_H
+#endif // RZ_GRAPH_WIDGET_H

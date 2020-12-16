@@ -18,9 +18,9 @@ class ColorThemeWorker : public QObject
     Q_OBJECT
 public:
     /**
-     * @brief radare2SpecificOptions is list of all available Rizin-only color options.
+     * @brief rizinSpecificOptions is list of all available Rizin-only color options.
      */
-    const QStringList radare2SpecificOptions = Core()->cmdj("ecj").object().keys();
+    const QStringList rizinSpecificOptions = Core()->cmdj("ecj").object().keys();
 
     /**
      * @brief cutterSpecificOptions is list of all available Cutter-only color options.
@@ -28,9 +28,9 @@ public:
     static const QStringList cutterSpecificOptions;
 
     /**
-     * @brief radare2UnusedOptions is a list of all Rizin options that Cutter does not use.
+     * @brief rizinUnusedOptions is a list of all Rizin options that Cutter does not use.
      */
-    static const QStringList radare2UnusedOptions;
+    static const QStringList rizinUnusedOptions;
 
     static ColorThemeWorker &instance()
     {
@@ -117,8 +117,8 @@ public:
     QStringList customThemes() const;
 
 private:
-    QString standardR2ThemesLocationPath;
-    QString customR2ThemesLocationPath;
+    QString standardRzThemesLocationPath;
+    QString customRzThemesLocationPath;
 
     ColorThemeWorker(QObject *parent = nullptr);
     ColorThemeWorker(const ColorThemeWorker &root) = delete;

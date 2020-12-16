@@ -20,4 +20,4 @@ If you have not received a reply to your email within 48 hours, or have not hear
 
 **Important:** Don't disclose any information regarding the issue itself in the public chats.
 
-Please note that the Cutter Security team isn't handling security issues on the radare2 repository.
+Please note that the Cutter Security team isn't handling security issues on the rizin repository.

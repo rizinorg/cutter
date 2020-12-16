@@ -19,7 +19,7 @@ struct CutterCommandLineOptions {
     QString pythonHome;
     bool outputRedirectionEnabled = true;
     bool enableCutterPlugins = true;
-    bool enableR2Plugins = true;
+    bool enableRizinPlugins = true;
 };
 
 class CutterApplication : public QApplication

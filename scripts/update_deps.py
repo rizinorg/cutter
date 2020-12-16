@@ -15,7 +15,7 @@ else:
 fetch_deps_path = os.path.join(os.path.dirname(sys.argv[0]), "fetch_deps.sh")
 
 print("Fetching latest release")
-json = requests.get("https://api.github.com/repos/radareorg/cutter-deps/releases/latest").json()
+json = requests.get("https://api.github.com/repos/rizinorg/cutter-deps/releases/latest").json()
 
 release_url = json["assets"][0]["browser_download_url"]
 for platform in platforms:

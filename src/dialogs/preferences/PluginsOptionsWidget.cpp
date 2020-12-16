@@ -6,7 +6,7 @@
 #include "common/Helpers.h"
 #include "common/Configuration.h"
 #include "plugins/PluginManager.h"
-#include "dialogs/R2PluginsDialog.h"
+#include "dialogs/RizinPluginsDialog.h"
 
 #include <QLabel>
 #include <QPushButton>
@@ -49,11 +49,11 @@ PluginsOptionsWidget::PluginsOptionsWidget(PreferencesDialog *dialog)
     }
     qhelpers::adjustColumns(treeWidget, 0);
 
-    auto r2PluginsButton = new QPushButton(this);
-    layout->addWidget(r2PluginsButton);
-    r2PluginsButton->setText(tr("Show Rizin plugin information"));
-    connect(r2PluginsButton, &QPushButton::clicked, this, [this]() {
-        R2PluginsDialog dialog(this);
+    auto rzPluginsButton = new QPushButton(this);
+    layout->addWidget(rzPluginsButton);
+    rzPluginsButton->setText(tr("Show Rizin plugin information"));
+    connect(rzPluginsButton, &QPushButton::clicked, this, [this]() {
+        RizinPluginsDialog dialog(this);
         dialog.exec();
     });
 }

@@ -90,7 +90,7 @@
         </property>
         <item>
          <property name="text">
-          <string>R2 Console</string>
+          <string>Rizin Console</string>
          </property>
         </item>
         <item>
@@ -101,7 +101,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="r2InputLineEdit">
+       <widget class="QLineEdit" name="rzInputLineEdit">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
           <horstretch>0</horstretch>

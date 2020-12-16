@@ -25,40 +25,40 @@ public:
     enum class GraphExportType {
         Png, Jpeg, Svg, GVDot, GVJson,
         GVGif, GVPng, GVJpeg, GVPostScript, GVSvg,
-        R2Gml, R2SDBKeyValue, R2Json
+        RzGml, RzSDBKeyValue, RzJson
     };
     /**
      * @brief Export graph to a file in the specified format
      * @param filePath
-     * @param type export type, GV* and R2* types require \p graphCommand
-     * @param graphCommand r2 graph printing command without type, not required for direct image export
+     * @param type export type, GV* and Rz* types require \p graphCommand
+     * @param graphCommand rizin graph printing command without type, not required for direct image export
      * @param address object address for commands like agf
      */
     void exportGraph(QString filePath, GraphExportType type, QString graphCommand = "",
                      RVA address = RVA_INVALID);
     /**
-     * @brief Export image using r2 ag*w command and graphviz.
+     * @brief Export image using rizin ag*w command and graphviz.
      * Requires graphviz dot executable in the path.
      *
      * @param filePath output file path
      * @param type image format as expected by "e graph.gv.format"
-     * @param graphCommand r2 command without type, for example agf
+     * @param graphCommand rizin command without type, for example agf
      * @param address object address if required by command
      */
-    void exportR2GraphvizGraph(QString filePath, QString type, QString graphCommand, RVA address);
+    void exportRizinGraphvizGraph(QString filePath, QString type, QString graphCommand, RVA address);
     /**
-     * @brief Export graph in one of the text formats supported by r2 json, gml, SDB key-value
+     * @brief Export graph in one of the text formats supported by rizin json, gml, SDB key-value
      * @param filePath output file path
      * @param graphCommand graph command including the format, example "agfd" or "agfg"
      * @param address object address if required by command
      */
-    void exportR2TextGraph(QString filePath, QString graphCommand, RVA address);
+    void exportRzTextGraph(QString filePath, QString graphCommand, RVA address);
     static bool graphIsBitamp(GraphExportType type);
     /**
      * @brief Show graph export dialog.
      * @param defaultName - default file name in the export dialog
-     * @param graphCommand - R2 graph commmand with graph type and without export type, for example afC. Leave empty
-     * for non-r2 graphs. In such case only direct image export will be available.
+     * @param graphCommand - rizin graph commmand with graph type and without export type, for example afC. Leave empty
+     * for non-rizin graphs. In such case only direct image export will be available.
      * @param address - object address if relevant for \p graphCommand
      */
     void showExportGraphDialog(QString defaultName, QString graphCommand = "",
@@ -76,7 +76,7 @@ public slots:
     void zoomReset();
 
     /**
-     * @brief Show the export file dialog. Override this to support r2 based export formats.
+     * @brief Show the export file dialog. Override this to support rizin based export formats.
      */
     virtual void showExportDialog();
 signals:

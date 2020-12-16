@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>R2PluginsDialog</class>
- <widget class="QDialog" name="R2PluginsDialog">
+ <class>RizinPluginsDialog</class>
+ <widget class="QDialog" name="RizinPluginsDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -207,7 +207,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>R2PluginsDialog</receiver>
+   <receiver>RizinPluginsDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">

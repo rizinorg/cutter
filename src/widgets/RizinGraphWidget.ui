@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>R2GraphWidget</class>
- <widget class="QDockWidget" name="R2GraphWidget">
+ <class>RizinGraphWidget</class>
+ <widget class="QDockWidget" name="RizinGraphWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string notr="true">R2 graphs</string>
+   <string notr="true">Rizin graphs</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">

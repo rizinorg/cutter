@@ -335,40 +335,40 @@ void CutterGraphView::exportGraph(QString filePath, GraphExportType type, QStrin
         break;
 
     case GraphExportType::GVDot:
-        exportR2TextGraph(filePath, graphCommand + "d", address);
+        exportRzTextGraph(filePath, graphCommand + "d", address);
         break;
-    case GraphExportType::R2Json:
-        exportR2TextGraph(filePath, graphCommand + "j", address);
+    case GraphExportType::RzJson:
+        exportRzTextGraph(filePath, graphCommand + "j", address);
         break;
-    case GraphExportType::R2Gml:
-        exportR2TextGraph(filePath, graphCommand + "g", address);
+    case GraphExportType::RzGml:
+        exportRzTextGraph(filePath, graphCommand + "g", address);
         break;
-    case GraphExportType::R2SDBKeyValue:
-        exportR2TextGraph(filePath, graphCommand + "k", address);
+    case GraphExportType::RzSDBKeyValue:
+        exportRzTextGraph(filePath, graphCommand + "k", address);
         break;
 
     case GraphExportType::GVJson:
-        exportR2GraphvizGraph(filePath, "json", graphCommand, address);
+        exportRizinGraphvizGraph(filePath, "json", graphCommand, address);
         break;
     case GraphExportType::GVGif:
-        exportR2GraphvizGraph(filePath, "gif", graphCommand, address);
+        exportRizinGraphvizGraph(filePath, "gif", graphCommand, address);
         break;
     case GraphExportType::GVPng:
-        exportR2GraphvizGraph(filePath, "png", graphCommand, address);
+        exportRizinGraphvizGraph(filePath, "png", graphCommand, address);
         break;
     case GraphExportType::GVJpeg:
-        exportR2GraphvizGraph(filePath, "jpg", graphCommand, address);
+        exportRizinGraphvizGraph(filePath, "jpg", graphCommand, address);
         break;
     case GraphExportType::GVPostScript:
-        exportR2GraphvizGraph(filePath, "ps", graphCommand, address);
+        exportRizinGraphvizGraph(filePath, "ps", graphCommand, address);
         break;
     case GraphExportType::GVSvg:
-        exportR2GraphvizGraph(filePath, "svg", graphCommand, address);
+        exportRizinGraphvizGraph(filePath, "svg", graphCommand, address);
         break;
     }
 }
 
-void CutterGraphView::exportR2GraphvizGraph(QString filePath, QString type, QString graphCommand,
+void CutterGraphView::exportRizinGraphvizGraph(QString filePath, QString type, QString graphCommand,
                                             RVA address)
 {
     TempConfig tempConfig;
@@ -376,7 +376,7 @@ void CutterGraphView::exportR2GraphvizGraph(QString filePath, QString type, QStr
     qWarning() << Core()->cmdRawAt(QString("%0w \"%1\"").arg(graphCommand).arg(filePath),  address);
 }
 
-void CutterGraphView::exportR2TextGraph(QString filePath, QString graphCommand, RVA address)
+void CutterGraphView::exportRzTextGraph(QString filePath, QString graphCommand, RVA address)
 {
     QFile file(filePath);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -412,13 +412,13 @@ void CutterGraphView::showExportGraphDialog(QString defaultName, QString graphCo
         {tr("SVG (*.svg)"), "svg", QVariant::fromValue(GraphExportType::Svg)}
     };
 
-    bool r2GraphExports = !graphCommand.isEmpty();
-    if (r2GraphExports) {
+    bool rzGraphExports = !graphCommand.isEmpty();
+    if (rzGraphExports) {
         types.append({
             {tr("Graphviz dot (*.dot)"), "dot", QVariant::fromValue(GraphExportType::GVDot)},
-            {tr("Graph Modelling Language (*.gml)"), "gml", QVariant::fromValue(GraphExportType::R2Gml)},
-            {tr("R2 JSON (*.json)"), "json", QVariant::fromValue(GraphExportType::R2Json)},
-            {tr("SDB key-value (*.txt)"), "txt", QVariant::fromValue(GraphExportType::R2SDBKeyValue)},
+            {tr("Graph Modelling Language (*.gml)"), "gml", QVariant::fromValue(GraphExportType::RzGml)},
+            {tr("RZ JSON (*.json)"), "json", QVariant::fromValue(GraphExportType::RzJson)},
+            {tr("SDB key-value (*.txt)"), "txt", QVariant::fromValue(GraphExportType::RzSDBKeyValue)},
         });
         bool hasGraphviz = !QStandardPaths::findExecutable("dot").isEmpty()
                            || !QStandardPaths::findExecutable("xdot").isEmpty();

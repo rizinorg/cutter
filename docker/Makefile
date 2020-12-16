@@ -9,12 +9,12 @@ LGID := $(shell id -g)
 
 # To mount a specific binary using BINARY=/absolute/path/to/binary
 ifdef BINARY
-    MOUNTFLAGS += -v $(BINARY):/home/r2/$(shell basename $(BINARY)):ro
-    RUNFLAGS += /home/r2/$(shell basename $(BINARY))
+    MOUNTFLAGS += -v $(BINARY):/home/rizin/$(shell basename $(BINARY)):ro
+    RUNFLAGS += /home/rizin/$(shell basename $(BINARY))
 endif
 
 VERSION ?= latest
-IMAGE_NAME ?= radareorg/cutter
+IMAGE_NAME ?= rizinorg/cutter
 CONTAINER_NAME ?= cutter
 
 LOCAL_DEV ?= n
@@ -37,11 +37,11 @@ build-nc: ## Build the container without caching
 
 run: ## Run container
 	XSOCK=/tmp/.X11-unix && \
-	XAUTH=$(shell mktemp /tmp/r2cutter_tmp.XXX.xauth) && \
+	XAUTH=$(shell mktemp /tmp/rzcutter_tmp.XXX.xauth) && \
 	xauth nlist $$DISPLAY | sed -e 's/^..../ffff/' | xauth -f $$XAUTH nmerge - && \
 	chmod 644 $$XAUTH && \
-	touch $(DIR)/radare2rc && \
-	mkdir -p $(DIR)/r2-config && \
+	touch $(DIR)/rizinrc && \
+	mkdir -p $(DIR)/rizin-config && \
 	mkdir -p $(DIR)/sharedFolder && \
 	sudo docker run \
 		-it \
@@ -55,8 +55,8 @@ run: ## Run container
 		-v $$XAUTH:$$XAUTH \
 		$(MOUNTFLAGS) \
 		-v $(DIR)/sharedFolder:/var/sharedFolder \
-		-v $(DIR)/radare2rc:/home/r2/.radare2rc \
-		-v $(DIR)/r2-config:/home/r2/.config/radare2 \
+		-v $(DIR)/rizinrc:/home/rizin/.rizinrc \
+		-v $(DIR)/rizin-config:/home/rizin/.config/rizin \
 		$(IMAGE_NAME):$(VERSION) $(RUNFLAGS) && \
 	rm $$XAUTH
 

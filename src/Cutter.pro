@@ -54,14 +54,14 @@ equals(CUTTER_ENABLE_PYTHON, true) {
     }
 }
 
-!defined(CUTTER_BUNDLE_R2_APPBUNDLE, var)       CUTTER_BUNDLE_R2_APPBUNDLE=false
-equals(CUTTER_BUNDLE_R2_APPBUNDLE, true)        CONFIG += CUTTER_BUNDLE_R2_APPBUNDLE
+!defined(CUTTER_BUNDLE_RZ_APPBUNDLE, var)       CUTTER_BUNDLE_RZ_APPBUNDLE=false
+equals(CUTTER_BUNDLE_RZ_APPBUNDLE, true)        CONFIG += CUTTER_BUNDLE_RZ_APPBUNDLE
 
 !defined(CUTTER_APPVEYOR_R2DEC, var)            CUTTER_APPVEYOR_R2DEC=false
 equals(CUTTER_APPVEYOR_R2DEC, true)             CONFIG += CUTTER_APPVEYOR_R2DEC
 
-!defined(CUTTER_R2GHIDRA_STATIC, var)           CUTTER_R2GHIDRA_STATIC=false
-equals(CUTTER_R2GHIDRA_STATIC, true)            CONFIG += CUTTER_R2GHIDRA_STATIC
+!defined(CUTTER_RZGHIDRA_STATIC, var)           CUTTER_RZGHIDRA_STATIC=false
+equals(CUTTER_RZGHIDRA_STATIC, true)            CONFIG += CUTTER_RZGHIDRA_STATIC
 
 DEFINES += CUTTER_SOURCE_BUILD
 
@@ -108,7 +108,7 @@ win32 {
 
 macx {
     QMAKE_CXXFLAGS = -mmacosx-version-min=10.7 -std=gnu0x -stdlib=libc++
-    QMAKE_TARGET_BUNDLE_PREFIX = org.radare
+    QMAKE_TARGET_BUNDLE_PREFIX = org.rizin
     QMAKE_BUNDLE = cutter
     QMAKE_INFO_PLIST = macos/Info.plist
 }
@@ -122,7 +122,7 @@ unix {
 }
 
 # Libraries
-include(lib_radare2.pri)
+include(lib_rizin.pri)
 
 !win32 {
     CONFIG += link_pkgconfig
@@ -171,7 +171,7 @@ CUTTER_ENABLE_PYTHON {
                                 "$$[QT_INSTALL_HEADERS]/QtCore" \
                                 "$$[QT_INSTALL_HEADERS]/QtWidgets" \
                                 "$$[QT_INSTALL_HEADERS]/QtGui"
-        for (path, R2_INCLUDEPATH) {
+        for (path, RZ_INCLUDEPATH) {
            BINDINGS_INCLUDE_DIRS += "$$path"
         }
         for(path, INCLUDEPATH) {
@@ -278,8 +278,8 @@ QMAKE_CXXFLAGS += -g
     }
 }
 
-macx:CUTTER_BUNDLE_R2_APPBUNDLE {
-    message("Using r2 rom AppBundle")
+macx:CUTTER_BUNDLE_RZ_APPBUNDLE {
+    message("Using rizin rom AppBundle")
     DEFINES += MACOS_RZ_BUNDLED
 }
 
@@ -288,13 +288,13 @@ CUTTER_APPVEYOR_R2DEC {
     DEFINES += CUTTER_APPVEYOR_R2DEC
 }
 
-CUTTER_R2GHIDRA_STATIC {
-    message("Building with static r2ghidra support")
-    DEFINES += CUTTER_R2GHIDRA_STATIC
-    SOURCES += $$R2GHIDRA_SOURCE/cutter-plugin/R2GhidraDecompiler.cpp
-    HEADERS += $$R2GHIDRA_SOURCE/cutter-plugin/R2GhidraDecompiler.h
-    INCLUDEPATH += $$R2GHIDRA_SOURCE/cutter-plugin
-    LIBS += -L$$R2GHIDRA_INSTALL_PATH -lcore_ghidra -ldelayimp
+CUTTER_RZGHIDRA_STATIC {
+    message("Building with static rz-ghidra support")
+    DEFINES += CUTTER_RZGHIDRA_STATIC
+    SOURCES += $$RZGHIDRA_SOURCE/cutter-plugin/RzGhidraDecompiler.cpp
+    HEADERS += $$RZGHIDRA_SOURCE/cutter-plugin/RzGhidraDecompiler.h
+    INCLUDEPATH += $$RZGHIDRA_SOURCE/cutter-plugin
+    LIBS += -L$$RZGHIDRA_INSTALL_PATH -lcore_ghidra -ldelayimp
     QMAKE_LFLAGS += /delayload:core_ghidra.dll
 }
 
@@ -364,7 +364,7 @@ SOURCES += \
     widgets/SearchWidget.cpp \
     CutterApplication.cpp \
     common/PythonAPI.cpp \
-    dialogs/R2PluginsDialog.cpp \
+    dialogs/RizinPluginsDialog.cpp \
     widgets/CutterDockWidget.cpp \
     widgets/CutterTreeWidget.cpp \
     widgets/GraphWidget.cpp \
@@ -439,7 +439,7 @@ SOURCES += \
     common/ResourcePaths.cpp \
     widgets/CutterGraphView.cpp \
     widgets/SimpleTextGraphView.cpp \
-    widgets/R2GraphWidget.cpp \
+    widgets/RizinGraphWidget.cpp \
     widgets/CallGraph.cpp \
     widgets/AddressableDockWidget.cpp \
     dialogs/preferences/AnalOptionsWidget.cpp \
@@ -514,7 +514,7 @@ HEADERS  += \
     widgets/HeadersWidget.h \
     widgets/SearchWidget.h \
     common/PythonAPI.h \
-    dialogs/R2PluginsDialog.h \
+    dialogs/RizinPluginsDialog.h \
     widgets/CutterDockWidget.h \
     widgets/CutterTreeWidget.h \
     widgets/GraphWidget.h \
@@ -598,7 +598,7 @@ HEADERS  += \
     common/ResourcePaths.h \
     widgets/CutterGraphView.h \
     widgets/SimpleTextGraphView.h \
-    widgets/R2GraphWidget.h \
+    widgets/RizinGraphWidget.h \
     widgets/CallGraph.h \
     widgets/AddressableDockWidget.h \
     dialogs/preferences/AnalOptionsWidget.h \
@@ -639,7 +639,7 @@ FORMS    += \
     widgets/VTablesWidget.ui \
     widgets/TypesWidget.ui \
     widgets/SearchWidget.ui \
-    dialogs/R2PluginsDialog.ui \
+    dialogs/RizinPluginsDialog.ui \
     dialogs/VersionInfoDialog.ui \
     widgets/ZignaturesWidget.ui \
     dialogs/AsyncTaskDialog.ui \
@@ -669,7 +669,7 @@ FORMS    += \
     dialogs/preferences/ColorThemeEditDialog.ui \
     widgets/ListDockWidget.ui \
     dialogs/LayoutManager.ui \
-    widgets/R2GraphWidget.ui \
+    widgets/RizinGraphWidget.ui \
     dialogs/preferences/AnalOptionsWidget.ui
 
 RESOURCES += \
@@ -694,12 +694,12 @@ unix {
     share_pixmaps.files = $$icon_file
 
 
-    desktop_file = org.radare.Cutter.desktop
+    desktop_file = org.rizin.Cutter.desktop
 
     share_applications.path = $$PREFIX/share/applications
     share_applications.files = $$desktop_file
 
-    appstream_file = org.radare.Cutter.appdata.xml
+    appstream_file = org.rizin.Cutter.appdata.xml
 
     # Used by ???
     share_appdata.path = $$PREFIX/share/appdata

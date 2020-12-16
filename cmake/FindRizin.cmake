@@ -59,7 +59,7 @@ if(WIN32)
 	set(Rizin_LIBRARIES_VARS "")
 	foreach(libname ${Rizin_LIBRARY_NAMES})
 		find_library(Rizin_LIBRARY_${libname}
-				r_${libname}
+				rz_${libname}
 				HINTS
 					"$ENV{HOME}/bin/prefix/rizin/lib"
 					/usr/local/lib
@@ -79,7 +79,7 @@ if(WIN32)
 			INTERFACE_INCLUDE_DIRECTORIES "${Rizin_INCLUDE_DIRS}")
 	set(Rizin_TARGET Rizin::librz)
 else()
-	# support installation locations used by r2 scripts like sys/user.sh and sys/install.sh
+	# support installation locations used by rizin scripts like sys/user.sh and sys/install.sh
 	if(CUTTER_USE_ADDITIONAL_RIZIN_PATHS)
 		set(Rizin_CMAKE_PREFIX_PATH_TEMP ${CMAKE_PREFIX_PATH})
 		list(APPEND CMAKE_PREFIX_PATH "$ENV{HOME}/bin/prefix/rizin") # sys/user.sh

@@ -69,7 +69,7 @@
 #include "widgets/HexdumpWidget.h"
 #include "widgets/DecompilerWidget.h"
 #include "widgets/HexWidget.h"
-#include "widgets/R2GraphWidget.h"
+#include "widgets/RizinGraphWidget.h"
 #include "widgets/CallGraph.h"
 
 // Qt Headers
@@ -395,7 +395,7 @@ void MainWindow::initDocks()
         symbolsDock = new SymbolsWidget(this),
         vTablesDock = new VTablesWidget(this),
         zignaturesDock = new ZignaturesWidget(this),
-        r2GraphDock = new R2GraphWidget(this),
+        rzGraphDock = new RizinGraphWidget(this),
         callGraphDock = new CallGraphWidget(this, false),
         globalCallGraphDock = new CallGraphWidget(this, true),
     };
@@ -531,9 +531,9 @@ void MainWindow::openNewFile(InitialOptions &options, bool skipOptionsDialog)
 {
     setFilename(options.filename);
 
-    /* Prompt to load filename.r2 script */
+    /* Prompt to load filename.rz script */
     if (options.script.isEmpty()) {
-        QString script = QString("%1.r2").arg(this->filename);
+        QString script = QString("%1.rz").arg(this->filename);
         if (rz_file_exists(script.toStdString().data())) {
             QMessageBox mb;
             mb.setWindowTitle(tr("Script loading"));
@@ -894,7 +894,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, memoryMapDock);
     tabifyDockWidget(dashboardDock, breakpointDock);
     tabifyDockWidget(dashboardDock, registerRefsDock);
-    tabifyDockWidget(dashboardDock, r2GraphDock);
+    tabifyDockWidget(dashboardDock, rzGraphDock);
     tabifyDockWidget(dashboardDock, callGraphDock);
     tabifyDockWidget(dashboardDock, globalCallGraphDock);
     for (const auto &it : dockWidgets) {
@@ -1714,7 +1714,7 @@ void MainWindow::on_actionExport_as_code_triggered()
     cmdMap[filters.last()] = "pcJ";
     filters << tr("Python array (*.py)");
     cmdMap[filters.last()] = "pcp";
-    filters << tr("Print 'wx' Rizin commands (*.r2)");
+    filters << tr("Print 'wx' Rizin commands (*.rz)");
     cmdMap[filters.last()] = "pc*";
     filters << tr("GAS .byte blob (*.asm, *.s)");
     cmdMap[filters.last()] = "pca";

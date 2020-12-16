@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-  <id>org.radare.Cutter</id>
+  <id>org.rizin.Cutter</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0</project_license>
   <name>Cutter</name>
@@ -12,7 +12,7 @@
     </p>
   </description>
 
-  <launchable type="desktop-id">org.radare.Cutter.desktop</launchable>
+  <launchable type="desktop-id">org.rizin.Cutter.desktop</launchable>
 
   <screenshots>
     <screenshot>

@@ -21,7 +21,7 @@ RUN apk add --no-cache \
         wget
 
 # Get, compile and test Cutter from master branch
-RUN git clone --recurse-submodules https://github.com/radareorg/cutter.git /opt/cutter
+RUN git clone --recurse-submodules https://github.com/rizinorg/cutter.git /opt/cutter
 RUN cd /opt/cutter && \
     bash build.sh && \
     bash -c 'if [[ ! -x "/opt/cutter/build/Cutter" ]]; then exit -1; fi'
@@ -38,25 +38,25 @@ RUN apk add --no-cache \
          shadow \
          su-exec
 
-# Get the compiled Cutter, r2 libs and bins from the builder
+# Get the compiled Cutter, rizin libs and bins from the builder
 COPY --from=builder /opt/cutter /opt/cutter
 COPY --from=builder /usr/lib /usr/lib
-COPY --from=builder /usr/share/radare2 /usr/share/radare2
-RUN cd /opt/cutter/radare2/binr && \
+COPY --from=builder /usr/share/rizin /usr/share/rizin
+RUN cd /opt/cutter/rizin/binr && \
     make install && \
     make symstall install-symlink
 
-# Add r2 user
-RUN useradd r2
+# Add rizin user
+RUN useradd rizin
 
 # Prepare files to mount configurations later on
 RUN mkdir /var/sharedFolder && \
-    mkdir -p /home/r2/.config/radare2 && \
-    touch /home/r2/.radare2rc && \
-    chown -R r2:r2 /var/sharedFolder && \
-    chown -R r2:r2 /home/r2/
+    mkdir -p /home/rizin/.config/rizin && \
+    touch /home/rizin/.rizinrc && \
+    chown -R rizin:rizin /var/sharedFolder && \
+    chown -R rizin:rizin /home/rizin/
 
-WORKDIR /home/r2
+WORKDIR /home/rizin
 ADD entrypoint.sh /usr/local/bin/entrypoint.sh
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
