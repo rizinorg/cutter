@@ -1,5 +1,5 @@
 #!/bin/bash
-USERNAME="r2"
+USERNAME="rizin"
 
 echo "Cutter: Starting with UID:GID $LOCAL_USER_ID:$LOCAL_GROUP_ID"
 usermod -u $LOCAL_USER_ID $USERNAME

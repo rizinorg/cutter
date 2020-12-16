@@ -52,7 +52,7 @@ class GraphWidget;
 class HexdumpWidget;
 class DecompilerWidget;
 class OverviewWidget;
-class R2GraphWidget;
+class RizinGraphWidget;
 class CallGraphWidget;
 
 namespace Ui {
@@ -253,7 +253,7 @@ private:
     NewFileDialog      *newFileDialog = nullptr;
     CutterDockWidget   *breakpointDock = nullptr;
     CutterDockWidget   *registerRefsDock = nullptr;
-    R2GraphWidget      *r2GraphDock = nullptr;
+    RizinGraphWidget      *rzGraphDock = nullptr;
     CallGraphWidget    *callGraphDock = nullptr;
     CallGraphWidget    *globalCallGraphDock = nullptr;
 

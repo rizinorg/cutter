@@ -544,7 +544,7 @@ void FunctionsWidget::onActionFunctionsRenameTriggered()
                             tr("Function name:"), QLineEdit::Normal, function.name, &ok);
     // If user accepted
     if (ok && !newName.isEmpty()) {
-        // Rename function in r2 core
+        // Rename function in rizin core
         Core()->renameFunction(function.offset, newName);
 
         // Seek to new renamed function

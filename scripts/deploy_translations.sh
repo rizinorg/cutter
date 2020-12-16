@@ -27,6 +27,6 @@ git add Translations.ts
 git commit -m "Updated translations"
 log "Pushing..."
 export GIT_SSH_COMMAND="/usr/bin/ssh -i $TRAVIS_BUILD_DIR/scripts/deploy_translations_rsa"
-git push "git@github.com:radareorg/cutter-translations.git" HEAD:refs/heads/master
+git push "git@github.com:rizinorg/cutter-translations.git" HEAD:refs/heads/master
 
 log "Script done!"

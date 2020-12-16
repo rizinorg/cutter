@@ -7,7 +7,7 @@ cutter_commit="$(git show -s --format="%H %s")"
 
 echo "Cloning current cutter.re"
 
-git clone --depth 1 git@github.com:radareorg/cutter.re.git || exit 1
+git clone --depth 1 git@github.com:rizinorg/cutter.re.git || exit 1
 
 echo "Updating docs"
 
@@ -25,6 +25,6 @@ fi
 
 git add . || exit 1
 git diff --cached --quiet && echo "No changes." && exit 0
-printf "Update docs from radareorg/cutter\n\nOriginal Commit:\n$cutter_commit" | git commit -F -
+printf "Update docs from rizinorg/cutter\n\nOriginal Commit:\n$cutter_commit" | git commit -F -
 git push origin master || exit 1
 

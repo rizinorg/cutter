@@ -249,7 +249,7 @@ void DecompilerContextMenu::aboutToShowSlot()
         actionEditFunctionVariables.setText(tr("Edit variable %1").arg(QString(
                                                                            annotationHere->variable.name)));
         actionRenameThingHere.setText(tr("Rename variable %1").arg(QString(annotationHere->variable.name)));
-        if (!variablePresentInR2()) {
+        if (!variablePresentInRizin()) {
             actionEditFunctionVariables.setDisabled(true);
             actionRenameThingHere.setDisabled(true);
             setToolTipsVisible(true);
@@ -427,7 +427,7 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
             }
         }
     } else if (isFunctionVariable()) {
-        if (!variablePresentInR2()) {
+        if (!variablePresentInRizin()) {
             // Show can't rename this variable dialog
             QMessageBox::critical(this, tr("Rename local variable %1").arg(QString(
                                                                                annotationHere->variable.name)),
@@ -453,7 +453,7 @@ void DecompilerContextMenu::actionEditFunctionVariablesTriggered()
 {
     if (!isFunctionVariable()) {
         return;
-    } else if (!variablePresentInR2()) {
+    } else if (!variablePresentInRizin()) {
         QMessageBox::critical(this, tr("Edit local variable %1").arg(QString(
                                                                          annotationHere->variable.name)),
                               tr("Can't edit this variable. "
@@ -587,7 +587,7 @@ bool DecompilerContextMenu::isFunctionVariable()
     return (annotationHere && rz_annotation_is_variable(annotationHere));
 }
 
-bool DecompilerContextMenu::variablePresentInR2()
+bool DecompilerContextMenu::variablePresentInRizin()
 {
     QString variableName(annotationHere->variable.name);
     QList<VariableDescription> variables = Core()->getVariables(offset);

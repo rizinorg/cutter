@@ -209,7 +209,7 @@ void DebugActions::showDebugWarning()
         QMessageBox msgBox;
         msgBox.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
         msgBox.setText(tr("Debug is currently in beta.\n") +
-                       tr("If you encounter any problems or have suggestions, please submit an issue to https://github.com/radareorg/cutter/issues"));
+                       tr("If you encounter any problems or have suggestions, please submit an issue to https://github.com/rizinorg/cutter/issues"));
         msgBox.exec();
     }
 }

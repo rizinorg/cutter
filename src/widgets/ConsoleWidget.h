@@ -51,7 +51,7 @@ public slots:
 private slots:
     void setupFont();
 
-    void on_r2InputLineEdit_returnPressed();
+    void on_rzInputLineEdit_returnPressed();
     void on_debugeeInputLineEdit_returnPressed();
     void onIndexChange();
 

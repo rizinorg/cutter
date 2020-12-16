@@ -24,7 +24,7 @@ public:
         int y = 0;
         int width = 0;
         int height = 0;
-        // This is a unique identifier, e.g. offset in the case of r2 blocks
+        // This is a unique identifier, e.g. offset in the case of rizin blocks
         ut64 entry;
         // Edges
         std::vector<GraphEdge> edges;

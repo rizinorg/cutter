@@ -3,7 +3,7 @@
 #include "AboutDialog.h"
 
 #include "ui_AboutDialog.h"
-#include "R2PluginsDialog.h"
+#include "RizinPluginsDialog.h"
 #include "common/Configuration.h"
 
 #include <QUrl>
@@ -79,7 +79,7 @@ void AboutDialog::on_showVersionButton_clicked()
 
 void AboutDialog::on_showPluginsButton_clicked()
 {
-    R2PluginsDialog dialog(this);
+    RizinPluginsDialog dialog(this);
     dialog.exec();
 }
 

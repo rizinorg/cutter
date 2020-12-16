@@ -375,7 +375,7 @@ DisassemblyContextMenu::ThingUsedHere DisassemblyContextMenu::getThingAt(ut64 ad
     RzAnalysisFunction *fcn = Core()->functionAt(address);
     RzFlagItem *flag = rz_flag_get_i(Core()->core()->flags, address);
 
-    // We will lookup through existing r2 types to find something relevant
+    // We will lookup through existing rizin types to find something relevant
 
     if (fcn != nullptr) {
         // It is a function

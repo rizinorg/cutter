@@ -176,7 +176,7 @@ endforeach()
 if(UNIX AND NOT APPLE)
     install (FILES "img/cutter.svg"
                 DESTINATION "share/icons/hicolor/scalable/apps/")
-    install(FILES "org.radare.Cutter.desktop"
+    install(FILES "org.rizin.Cutter.desktop"
         DESTINATION "share/applications"
         COMPONENT Devel)
 endif()

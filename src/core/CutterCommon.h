@@ -26,7 +26,7 @@
 #define APPNAME "Cutter"
 
 /**
- * @brief Type to be used for all kinds of addresses/offsets in r2 address space.
+ * @brief Type to be used for all kinds of addresses/offsets in rizin address space.
  */
 typedef ut64 RVA;
 

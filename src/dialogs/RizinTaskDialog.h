@@ -1,5 +1,5 @@
-#ifndef R2TASKDIALOG_H
-#define R2TASKDIALOG_H
+#ifndef RZTASKDIALOG_H
+#define RZTASKDIALOG_H
 
 #include <memory>
 
@@ -47,4 +47,4 @@ private:
     bool breakOnClose = false;
 };
 
-#endif //R2TASKDIALOG_H
+#endif //RZTASKDIALOG_H

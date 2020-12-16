@@ -1,14 +1,14 @@
-#include "R2GraphWidget.h"
-#include "ui_R2GraphWidget.h"
+#include "RizinGraphWidget.h"
+#include "ui_RizinGraphWidget.h"
 
 #include <QJsonValue>
 #include <QJsonArray>
 #include <QJsonObject>
 
-R2GraphWidget::R2GraphWidget(MainWindow *main)
+RizinGraphWidget::RizinGraphWidget(MainWindow *main)
     : CutterDockWidget(main)
-    , ui(new Ui::R2GraphWidget)
-    , graphView(new GenericR2GraphView(this, main))
+    , ui(new Ui::RizinGraphWidget)
+    , graphView(new GenericRizinGraphView(this, main))
 {
     ui->setupUi(this);
     ui->verticalLayout->addWidget(graphView);
@@ -39,7 +39,7 @@ R2GraphWidget::R2GraphWidget(MainWindow *main)
         }
 
     }
-    connect<void(QComboBox::*)(int)>(ui->graphType, &QComboBox::currentIndexChanged, this, &R2GraphWidget::typeChanged);
+    connect<void(QComboBox::*)(int)>(ui->graphType, &QComboBox::currentIndexChanged, this, &RizinGraphWidget::typeChanged);
     connect(ui->customCommand, &QLineEdit::textEdited, this, [this](){
         graphView->setGraphCommand(ui->customCommand->text());
     });
@@ -51,11 +51,11 @@ R2GraphWidget::R2GraphWidget(MainWindow *main)
     typeChanged();
 }
 
-R2GraphWidget::~R2GraphWidget()
+RizinGraphWidget::~RizinGraphWidget()
 {
 }
 
-void R2GraphWidget::typeChanged()
+void RizinGraphWidget::typeChanged()
 {
     auto currentData = ui->graphType->currentData();
     if (currentData.isNull()) {
@@ -70,20 +70,20 @@ void R2GraphWidget::typeChanged()
     }
 }
 
-GenericR2GraphView::GenericR2GraphView(R2GraphWidget *parent, MainWindow *main)
+GenericRizinGraphView::GenericRizinGraphView(RizinGraphWidget *parent, MainWindow *main)
     : SimpleTextGraphView(parent, main)
     , refreshDeferrer(nullptr, this)
 {
     refreshDeferrer.registerFor(parent);
-    connect(&refreshDeferrer, &RefreshDeferrer::refreshNow, this, &GenericR2GraphView::refreshView);
+    connect(&refreshDeferrer, &RefreshDeferrer::refreshNow, this, &GenericRizinGraphView::refreshView);
 }
 
-void GenericR2GraphView::setGraphCommand(QString cmd)
+void GenericRizinGraphView::setGraphCommand(QString cmd)
 {
     graphCommand = cmd;
 }
 
-void GenericR2GraphView::refreshView()
+void GenericRizinGraphView::refreshView()
 {
     if (!refreshDeferrer.attemptRefresh(nullptr)) {
         return;
@@ -91,7 +91,7 @@ void GenericR2GraphView::refreshView()
     SimpleTextGraphView::refreshView();
 }
 
-void GenericR2GraphView::loadCurrentGraph()
+void GenericRizinGraphView::loadCurrentGraph()
 {
     blockContent.clear();
     blocks.clear();

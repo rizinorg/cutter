@@ -1,6 +1,6 @@
 
-#ifndef R2TASK_H
-#define R2TASK_H
+#ifndef RZTASK_H
+#define RZTASK_H
 
 #include "core/Cutter.h"
 
@@ -32,4 +32,4 @@ signals:
     void finished();
 };
 
-#endif // R2TASK_H
+#endif // RZTASK_H

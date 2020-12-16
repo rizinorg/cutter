@@ -427,7 +427,7 @@ void InitialOptionsDialog::on_scriptSelectButton_clicked()
 {
     QFileDialog dialog(this);
     dialog.setWindowTitle(tr("Select Rizin script file"));
-    dialog.setNameFilters({ tr("Script file (*.r2)"), tr("All files (*)") });
+    dialog.setNameFilters({ tr("Script file (*.rz)"), tr("All files (*)") });
 
     if (!dialog.exec()) {
         return;

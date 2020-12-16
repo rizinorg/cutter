@@ -40,28 +40,28 @@ configure_file(input: 'CutterConfig.h.in',
 conf_inc = include_directories('.')
 
 sp_dir = join_paths(meson.source_root(), 'subprojects')
-sp_r2_dir = join_paths(sp_dir, 'radare2')
-exists_cmd = '__import__("sys").exit(__import__("os").path.exists("@0@"))'.format(sp_r2_dir)
+sp_rizin_dir = join_paths(sp_dir, 'rizin')
+exists_cmd = '__import__("sys").exit(__import__("os").path.exists("@0@"))'.format(sp_rizin_dir)
 if run_command(py3_exe, '-c', exists_cmd).returncode() == 0
-  r2_src_dir = join_paths(meson.source_root(), '..', 'radare2')
+  rizin_src_dir = join_paths(meson.source_root(), '..', 'rizin')
   if host_machine.system() == 'windows'
     sp_dir = '\\'.join(sp_dir.split('/'))
-    sp_r2_dir = '\\'.join(sp_r2_dir.split('/'))
-    r2_src_dir = '\\'.join(r2_src_dir.split('/'))
-    link_cmd = ['CMD', '/C', 'MKDIR', sp_dir, '&', 'MKLINK', '/D', sp_r2_dir, r2_src_dir]
+    sp_rizin_dir = '\\'.join(sp_rizin_dir.split('/'))
+    rizin_src_dir = '\\'.join(rizin_src_dir.split('/'))
+    link_cmd = ['CMD', '/C', 'MKDIR', sp_dir, '&', 'MKLINK', '/D', sp_rizin_dir, rizin_src_dir]
   else
-    link_cmd = ['sh', '-c', 'mkdir @0@ ; ln -s @1@ @2@'.format(sp_dir, r2_src_dir, sp_r2_dir)]
+    link_cmd = ['sh', '-c', 'mkdir @0@ ; ln -s @1@ @2@'.format(sp_dir, rizin_src_dir, sp_rizin_dir)]
   endif
   run_command(link_cmd, check: true)
 endif
 
-libr2_dep = dependency('libr2',
-    fallback : ['radare2', 'libr2_dep'],
+librz_dep = dependency('librz',
+    fallback : ['rizin', 'librz_dep'],
     default_options : ['enable_tests=false'])
 
 qt5dep = dependency('qt5', modules: qt_modules, main: true)
 
-deps = [libr2_dep, qt5dep]
+deps = [librz_dep, qt5dep]
 if get_option('enable_python')
   py3_dep = dependency('python3')
   deps += [py3_dep]
@@ -80,8 +80,8 @@ if get_option('enable_python')
                              join_paths(meson.current_source_dir(), 'widgets'),
                              join_paths(meson.current_source_dir(), 'plugins'),
                              join_paths(meson.current_source_dir(), 'menus'),
-                             join_paths(meson.current_source_dir(), 'subprojects/radare2/libr/include'),
-                             join_paths(meson.current_build_dir(), 'subprojects/radare2'),
+                             join_paths(meson.current_source_dir(), 'subprojects/rizin/librz/include'),
+                             join_paths(meson.current_build_dir(), 'subprojects/rizin'),
                              qt5core_dep.get_pkgconfig_variable('includedir'),
                              join_paths(qt5core_dep.get_pkgconfig_variable('includedir'), 'QtCore'),
                              join_paths(qt5core_dep.get_pkgconfig_variable('includedir'), 'QtGui'),

@@ -37,7 +37,7 @@ UpdateWorker::UpdateWorker(QObject *parent) :
 
 void UpdateWorker::checkCurrentVersion(time_t timeoutMs)
 {
-    QUrl url("https://api.github.com/repos/radareorg/cutter/releases/latest");
+    QUrl url("https://api.github.com/repos/rizinorg/cutter/releases/latest");
     QNetworkRequest request;
     request.setUrl(url);
 
@@ -58,7 +58,7 @@ void UpdateWorker::download(QString filename, QString version)
 
     QNetworkRequest request;
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
-    QUrl url(QString("https://github.com/radareorg/cutter/releases/"
+    QUrl url(QString("https://github.com/rizinorg/cutter/releases/"
                      "download/v%1/%2").arg(version).arg(getRepositoryFileName()));
     request.setUrl(url);
 
@@ -77,8 +77,8 @@ void UpdateWorker::showUpdateDialog(bool showDontCheckForUpdatesButton)
                + "<b>" + tr("Current version:") + "</b> " CUTTER_VERSION_FULL "<br/>"
                + "<b>" + tr("Latest version:") + "</b> " + latestVersion.toString() + "<br/><br/>"
                + tr("For update, please check the link:<br/>")
-               + QString("<a href=\"https://github.com/radareorg/cutter/releases/tag/v%1\">"
-                         "https://github.com/radareorg/cutter/releases/tag/v%1</a><br/>").arg(latestVersion.toString())
+               + QString("<a href=\"https://github.com/rizinorg/cutter/releases/tag/v%1\">"
+                         "https://github.com/rizinorg/cutter/releases/tag/v%1</a><br/>").arg(latestVersion.toString())
                + tr("or click \"Download\" to download latest version of Cutter."));
     if (showDontCheckForUpdatesButton) {
         mb.setStandardButtons(QMessageBox::Save | QMessageBox::Reset | QMessageBox::Ok);

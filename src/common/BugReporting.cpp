@@ -31,7 +31,7 @@ void openIssue()
         type = "N/A";
     }
     url =
-        "https://github.com/radareorg/cutter/issues/new?&body=**Environment information**\n* Operating System: "
+        "https://github.com/rizinorg/cutter/issues/new?&body=**Environment information**\n* Operating System: "
         + osInfo + "\n* Cutter version: " + CUTTER_VERSION_FULL +
         "\n* File format: " + format + "\n * Arch: " + arch + "\n * Type: " + type +
         "\n\n**Describe the bug**\nA clear and concise description of what the bug is.\n\n**To Reproduce**\n"

@@ -70,12 +70,12 @@ Options
 
 .. option:: --no-plugins
 
-   Start cutter with all plugins disabled. Implies :option:`--no-cutter-plugins` and :option:`--no-r2-plugins`.
+   Start cutter with all plugins disabled. Implies :option:`--no-cutter-plugins` and :option:`--no-rizin-plugins`.
 
 .. option:: --no-cutter-plugins
 
    Start cutter with cutter plugins disabled.
 
-.. option:: --no-r2-plugins
+.. option:: --no-rizin-plugins
 
-   Start cutter with r2 plugins disabled.
+   Start cutter with rizin plugins disabled.

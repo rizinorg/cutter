@@ -22,12 +22,12 @@ RUN apk add --no-cache \
         unzip \
         wget
 
-# install radare2 first
-COPY docker/build_radare2.sh /opt/cutter/
-COPY radare2 /opt/cutter/radare2
+# install rizin first
+COPY docker/build_rizin.sh /opt/cutter/
+COPY rizin /opt/cutter/rizin
 
 WORKDIR /opt/cutter
-RUN bash build_radare2.sh
+RUN bash build_rizin.sh
 
 COPY docker/build_cutter.sh /opt/cutter/
 COPY scripts /opt/cutter/scripts
@@ -49,22 +49,22 @@ RUN apk add --no-cache \
         shadow \
         su-exec
 
-# Add r2 user
-RUN useradd r2
+# Add rizin user
+RUN useradd rizin
 
 # Prepare files to mount configurations later on
 RUN mkdir /var/sharedFolder && \
-    mkdir -p /home/r2/.config/radare2 && \
-    touch /home/r2/.radare2rc && \
-    chown -R r2:r2 /var/sharedFolder && \
-    chown -R r2:r2 /home/r2/
+    mkdir -p /home/rizin/.config/rizin && \
+    touch /home/rizin/.rizinrc && \
+    chown -R rizin:rizin /var/sharedFolder && \
+    chown -R rizin:rizin /home/rizin/
 
 COPY ./docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
-# Get the compiled Cutter, r2 libs and bins from the builder
+# Get the compiled Cutter, rizin libs and bins from the builder
 COPY --from=builder /opt/cutter /opt/cutter
 COPY --from=builder /usr/lib /usr/lib
-COPY --from=builder /usr/share/radare2 /usr/share/radare2
-WORKDIR /opt/cutter/radare2/binr
+COPY --from=builder /usr/share/rizin /usr/share/rizin
+WORKDIR /opt/cutter/rizin/binrz
 RUN make install && \
 make symstall install-symlink

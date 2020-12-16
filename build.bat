@@ -10,7 +10,7 @@ IF !ERRORLEVEL! NEQ 0 (
     EXIT /B 1
 )
 
-SET "R2DIST=r2_dist"
+SET "RZDIST=rz_dist"
 SET "BUILDDIR=build_%PLATFORM%"
 SET "BREAKPAD_SOURCE_DIR=%CD%\src\breakpad\src\src"
 
@@ -36,10 +36,10 @@ IF !ERRORLEVEL! NEQ 0 EXIT /B 1
 ECHO Deploying cutter
 MKDIR cutter
 COPY release\cutter.exe cutter\cutter.exe
-XCOPY /S /I ..\%R2DIST%\share cutter\share
-XCOPY /S /I ..\%R2DIST%\lib cutter\lib
+XCOPY /S /I ..\%RZDIST%\share cutter\share
+XCOPY /S /I ..\%RZDIST%\lib cutter\lib
 DEL cutter\lib\*.lib
-COPY ..\%R2DIST%\bin\*.dll cutter\
+COPY ..\%RZDIST%\bin\*.dll cutter\
 windeployqt cutter\cutter.exe
 FOR %%i in (..\src\translations\*.qm) DO MOVE "%%~fi" cutter\translations
 

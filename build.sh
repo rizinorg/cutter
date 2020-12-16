@@ -10,12 +10,12 @@ BUILD="$(pwd)/build"
 QMAKE_CONF=$*
 ROOT_DIR=$(pwd)
 
-check_r2() {
-	r2 -v >/dev/null 2>&1
+check_rizin() {
+	rizin -v >/dev/null 2>&1
 	if [ $? = 0 ]; then
-		R2COMMIT=$(r2 -v | tail -n1 | sed "s,commit: \\(.*\\) build.*,\\1,")
-		SUBMODULE=$(git submodule | grep "radare2" | awk '{print $1}')
-		if [ "$R2COMMIT" = "$SUBMODULE" ]; then
+		RZCOMMIT=$(rizin -v | tail -n1 | sed "s,commit: \\(.*\\) build.*,\\1,")
+		SUBMODULE=$(git submodule | grep "rizin" | awk '{print $1}')
+		if [ "$RZCOMMIT" = "$SUBMODULE" ]; then
 			return 0
 		fi
 	fi
@@ -78,23 +78,23 @@ prepare_breakpad() {
 	fi
 }
 
-# Build radare2
-check_r2
+# Build rizin
+check_rizin
 if [ $? -eq 1 ]; then
-    printf "A (new?) version of radare2 will be installed. Do you agree? [Y/n] "
+    printf "A (new?) version of rizin will be installed. Do you agree? [Y/n] "
     read -r answer
     if [ -z "$answer" ] || [ "$answer" = "Y" ] || [ "$answer" = "y" ]; then
-        R2PREFIX=${1:-"/usr"}
+        RZPREFIX=${1:-"/usr"}
         git submodule init && git submodule update
-        cd radare2 || exit 1
-        ./sys/install.sh "$R2PREFIX"
+        cd rizin || exit 1
+        ./sys/install.sh "$RZPREFIX"
         cd ..
     else
         echo "Sorry but this script won't work otherwise. Read the README."
         exit 1
     fi
 else
-    echo "Correct radare2 version found, skipping..."
+    echo "Correct rizin version found, skipping..."
 fi
 
 # Create translations

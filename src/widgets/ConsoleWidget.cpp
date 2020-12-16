@@ -31,7 +31,7 @@
 #define STDIN_PIPE_NAME "%1/cutter-stdin-%2"
 #endif
 
-#define CONSOLE_R2_INPUT ("R2 Console")
+#define CONSOLE_RIZIN_INPUT ("Rizin Console")
 #define CONSOLE_DEBUGEE_INPUT ("Debugee Input")
 
 static const int invalidHistoryPos = -1;
@@ -51,7 +51,7 @@ ConsoleWidget::ConsoleWidget(MainWindow *main) :
     ui->setupUi(this);
 
     // Adjust console lineedit
-    ui->r2InputLineEdit->setTextMargins(10, 0, 0, 0);
+    ui->rzInputLineEdit->setTextMargins(10, 0, 0, 0);
     ui->debugeeInputLineEdit->setTextMargins(10, 0, 0, 0);
 
     setupFont();
@@ -94,9 +94,9 @@ ConsoleWidget::ConsoleWidget(MainWindow *main) :
     completer->setMaxVisibleItems(20);
     completer->setCaseSensitivity(Qt::CaseInsensitive);
     completer->setFilterMode(Qt::MatchStartsWith);
-    ui->r2InputLineEdit->setCompleter(completer);
+    ui->rzInputLineEdit->setCompleter(completer);
 
-    connect(ui->r2InputLineEdit, &QLineEdit::textEdited, this, &ConsoleWidget::updateCompletion);
+    connect(ui->rzInputLineEdit, &QLineEdit::textEdited, this, &ConsoleWidget::updateCompletion);
     updateCompletion();
 
     // Set console output context menu
@@ -104,28 +104,28 @@ ConsoleWidget::ConsoleWidget(MainWindow *main) :
     connect(ui->outputTextEdit, &QWidget::customContextMenuRequested,
             this, &ConsoleWidget::showCustomContextMenu);
 
-    // Esc clears r2InputLineEdit and debugeeInputLineEdit (like OmniBar)
-    QShortcut *r2_clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), ui->r2InputLineEdit);
-    connect(r2_clear_shortcut, &QShortcut::activated, this, &ConsoleWidget::clear);
-    r2_clear_shortcut->setContext(Qt::WidgetShortcut);
+    // Esc clears rzInputLineEdit and debugeeInputLineEdit (like OmniBar)
+    QShortcut *rizin_clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), ui->rzInputLineEdit);
+    connect(rizin_clear_shortcut, &QShortcut::activated, this, &ConsoleWidget::clear);
+    rizin_clear_shortcut->setContext(Qt::WidgetShortcut);
 
     QShortcut *debugee_clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), ui->debugeeInputLineEdit);
     connect(debugee_clear_shortcut, &QShortcut::activated, this, &ConsoleWidget::clear);
     debugee_clear_shortcut->setContext(Qt::WidgetShortcut);
 
     // Up and down arrows show history
-    historyUpShortcut = new QShortcut(QKeySequence(Qt::Key_Up), ui->r2InputLineEdit);
+    historyUpShortcut = new QShortcut(QKeySequence(Qt::Key_Up), ui->rzInputLineEdit);
     connect(historyUpShortcut, &QShortcut::activated, this, &ConsoleWidget::historyPrev);
     historyUpShortcut->setContext(Qt::WidgetShortcut);
 
-    historyDownShortcut = new QShortcut(QKeySequence(Qt::Key_Down), ui->r2InputLineEdit);
+    historyDownShortcut = new QShortcut(QKeySequence(Qt::Key_Down), ui->rzInputLineEdit);
     connect(historyDownShortcut, &QShortcut::activated, this, &ConsoleWidget::historyNext);
     historyDownShortcut->setContext(Qt::WidgetShortcut);
 
-    QShortcut *completionShortcut = new QShortcut(QKeySequence(Qt::Key_Tab), ui->r2InputLineEdit);
+    QShortcut *completionShortcut = new QShortcut(QKeySequence(Qt::Key_Tab), ui->rzInputLineEdit);
     connect(completionShortcut, &QShortcut::activated, this, &ConsoleWidget::triggerCompletion);
 
-    connect(ui->r2InputLineEdit, &QLineEdit::editingFinished, this, &ConsoleWidget::disableCompletion);
+    connect(ui->rzInputLineEdit, &QLineEdit::editingFinished, this, &ConsoleWidget::disableCompletion);
 
     connect(Config(), &Configuration::fontsUpdated, this, &ConsoleWidget::setupFont);
 
@@ -138,8 +138,8 @@ ConsoleWidget::ConsoleWidget(MainWindow *main) :
             ui->inputCombo->setVisible(true);
         } else {
             ui->inputCombo->setVisible(false);
-            // Return to the r2 console
-            ui->inputCombo->setCurrentIndex(ui->inputCombo->findText(CONSOLE_R2_INPUT));
+            // Return to the rizin console
+            ui->inputCombo->setCurrentIndex(ui->inputCombo->findText(CONSOLE_RIZIN_INPUT));
         }
     });
 
@@ -176,7 +176,7 @@ bool ConsoleWidget::eventFilter(QObject *obj, QEvent *event)
 
 QWidget *ConsoleWidget::widgetToFocusOnRaise()
 {
-    return ui->r2InputLineEdit;
+    return ui->rzInputLineEdit;
 }
 
 void ConsoleWidget::setupFont()
@@ -200,7 +200,7 @@ void ConsoleWidget::addDebugOutput(const QString &msg)
 
 void ConsoleWidget::focusInputLineEdit()
 {
-    ui->r2InputLineEdit->setFocus();
+    ui->rzInputLineEdit->setFocus();
 }
 
 void ConsoleWidget::removeLastLine()
@@ -220,7 +220,7 @@ void ConsoleWidget::executeCommand(const QString &command)
     if (!commandTask.isNull()) {
         return;
     }
-    ui->r2InputLineEdit->setEnabled(false);
+    ui->rzInputLineEdit->setEnabled(false);
 
     QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + command;
     addOutput(cmd_line);
@@ -234,8 +234,8 @@ void ConsoleWidget::executeCommand(const QString &command)
         scrollOutputToEnd();
         historyAdd(command);
         commandTask.clear();
-        ui->r2InputLineEdit->setEnabled(true);
-        ui->r2InputLineEdit->setFocus();
+        ui->rzInputLineEdit->setEnabled(true);
+        ui->rzInputLineEdit->setFocus();
 
         if (oldOffset != Core()->getOffset()) {
             Core()->updateSeek();
@@ -263,10 +263,10 @@ void ConsoleWidget::onIndexChange()
 {
     QString console = ui->inputCombo->currentText();
     if (console == CONSOLE_DEBUGEE_INPUT) {
-        ui->r2InputLineEdit->setVisible(false);
+        ui->rzInputLineEdit->setVisible(false);
         ui->debugeeInputLineEdit->setVisible(true);
-    } else if (console == CONSOLE_R2_INPUT) {
-        ui->r2InputLineEdit->setVisible(true);
+    } else if (console == CONSOLE_RIZIN_INPUT) {
+        ui->rzInputLineEdit->setVisible(true);
         ui->debugeeInputLineEdit->setVisible(false);
     }
 }
@@ -278,14 +278,14 @@ void ConsoleWidget::setWrap(bool wrap)
     ui->outputTextEdit->setLineWrapMode(wrap ? QPlainTextEdit::WidgetWidth: QPlainTextEdit::NoWrap);
 }
 
-void ConsoleWidget::on_r2InputLineEdit_returnPressed()
+void ConsoleWidget::on_rzInputLineEdit_returnPressed()
 {
-    QString input = ui->r2InputLineEdit->text();
+    QString input = ui->rzInputLineEdit->text();
     if (input.isEmpty()) {
         return;
     }
     executeCommand(input);
-    ui->r2InputLineEdit->clear();
+    ui->rzInputLineEdit->clear();
 }
 
 void ConsoleWidget::on_debugeeInputLineEdit_returnPressed()
@@ -300,7 +300,7 @@ void ConsoleWidget::on_debugeeInputLineEdit_returnPressed()
 
 void ConsoleWidget::on_execButton_clicked()
 {
-    on_r2InputLineEdit_returnPressed();
+    on_rzInputLineEdit_returnPressed();
 }
 
 void ConsoleWidget::showCustomContextMenu(const QPoint &pt)
@@ -324,9 +324,9 @@ void ConsoleWidget::historyNext()
             --lastHistoryPosition;
 
             if (lastHistoryPosition >= 0) {
-                ui->r2InputLineEdit->setText(history.at(lastHistoryPosition));
+                ui->rzInputLineEdit->setText(history.at(lastHistoryPosition));
             } else {
-                ui->r2InputLineEdit->clear();
+                ui->rzInputLineEdit->clear();
             }
 
 
@@ -341,7 +341,7 @@ void ConsoleWidget::historyPrev()
             lastHistoryPosition = history.size() - 2;
         }
 
-        ui->r2InputLineEdit->setText(history.at(++lastHistoryPosition));
+        ui->rzInputLineEdit->setText(history.at(++lastHistoryPosition));
     }
 }
 
@@ -372,7 +372,7 @@ void ConsoleWidget::updateCompletion()
         return;
     }
 
-    auto current = ui->r2InputLineEdit->text();
+    auto current = ui->rzInputLineEdit->text();
     auto completions = Core()->autocomplete(current, RZ_LINE_PROMPT_DEFAULT);
     int lastSpace = current.lastIndexOf(' ');
     if (lastSpace >= 0) {
@@ -387,14 +387,14 @@ void ConsoleWidget::updateCompletion()
 void ConsoleWidget::clear()
 {
     disableCompletion();
-    ui->r2InputLineEdit->clear();
+    ui->rzInputLineEdit->clear();
     ui->debugeeInputLineEdit->clear();
 
     invalidateHistoryPosition();
 
     // Close the potential shown completer popup
-    ui->r2InputLineEdit->clearFocus();
-    ui->r2InputLineEdit->setFocus();
+    ui->rzInputLineEdit->clearFocus();
+    ui->rzInputLineEdit->setFocus();
 }
 
 void ConsoleWidget::scrollOutputToEnd()
@@ -443,7 +443,7 @@ void ConsoleWidget::redirectOutput()
 {
     // Make sure that we are running in a valid console with initialized output handles
     if (0 > fileno(stderr) && 0 > fileno(stdout)) {
-        addOutput("Run cutter in a console to enable r2 output redirection into this widget.");
+        addOutput("Run cutter in a console to enable rizin output redirection into this widget.");
         return;
     }
 

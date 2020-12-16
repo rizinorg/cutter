@@ -196,7 +196,7 @@ void CutterCore::initialize(bool loadPlugins)
     prefix.cdUp();
     qInfo() << "Setting Rizin prefix =" << prefix.absolutePath() << " for AppImage.";
 #else // MACOS_RZ_BUNDLED
-    // Executable is in Contents/MacOS, prefix is Contents/Resources/r2
+    // Executable is in Contents/MacOS, prefix is Contents/Resources/rz
     prefix.cdUp();
     prefix.cd("Resources");
     qInfo() << "Setting Rizin prefix =" << prefix.absolutePath() << " for macOS Application Bundle.";
@@ -835,13 +835,13 @@ QString CutterCore::getCommentAt(RVA addr)
     return rz_meta_get_string(core->analysis, RZ_META_TYPE_COMMENT, addr);
 }
 
-void CutterCore::setImmediateBase(const QString &r2BaseName, RVA offset)
+void CutterCore::setImmediateBase(const QString &rzBaseName, RVA offset)
 {
     if (offset == RVA_INVALID) {
         offset = getOffset();
     }
 
-    this->cmdRawAt(QString("ahi %1").arg(r2BaseName), offset);
+    this->cmdRawAt(QString("ahi %1").arg(rzBaseName), offset);
     emit instructionChanged(offset);
 }
 
@@ -877,8 +877,8 @@ void CutterCore::seekSilent(ut64 offset)
 void CutterCore::seek(ut64 offset)
 {
     // Slower than using the API, but the API is not complete
-    // which means we either have to duplicate code from radare2
-    // here, or refactor radare2 API.
+    // which means we either have to duplicate code from rizin
+    // here, or refactor rizin API.
     CORE_LOCK();
     if (offset == RVA_INVALID) {
         return;
@@ -2184,7 +2184,7 @@ void CutterCore::setBreakpointTrace(int index, bool enabled)
     }
 }
 
-static BreakpointDescription breakpointDescriptionFromR2(int index, rz_bp_item_t *bpi)
+static BreakpointDescription breakpointDescriptionFromRizin(int index, rz_bp_item_t *bpi)
 {
     BreakpointDescription bp;
     bp.addr = bpi->addr;
@@ -2216,7 +2216,7 @@ BreakpointDescription CutterCore::getBreakpointAt(RVA addr)
     int index = breakpointIndexAt(addr);
     auto bp = rz_bp_get_index(core->dbg->bp, index);
     if (bp) {
-        return breakpointDescriptionFromR2(index, bp);
+        return breakpointDescriptionFromRizin(index, bp);
     }
     return BreakpointDescription();
 }
@@ -2225,10 +2225,10 @@ QList<BreakpointDescription> CutterCore::getBreakpoints()
 {
     CORE_LOCK();
     QList<BreakpointDescription> ret;
-    //TODO: use higher level API, don't touch r2 bps_idx directly
+    //TODO: use higher level API, don't touch rizin bps_idx directly
     for (int i = 0; i < core->dbg->bp->bps_idx_count; i++) {
         if (auto bpi = core->dbg->bp->bps_idx[i]) {
-            ret.push_back(breakpointDescriptionFromR2(i, bpi));
+            ret.push_back(breakpointDescriptionFromRizin(i, bpi));
         }
     }
 
