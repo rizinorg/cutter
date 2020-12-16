@@ -15,6 +15,7 @@
 #include "common/Configuration.h"
 #include "common/AsyncTask.h"
 #include "common/RizinTask.h"
+#include "dialogs/RizinTaskDialog.h"
 #include "common/Json.h"
 #include "core/Cutter.h"
 #include "Decompiler.h"

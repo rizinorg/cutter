@@ -25,9 +25,7 @@ class RizinCmdTask;
 class RizinTaskDialog;
 
 #include "common/BasicBlockHighlighter.h"
-#include "common/RizinTask.h"
 #include "common/Helpers.h"
-#include "dialogs/RizinTaskDialog.h"
 
 #include <rz_project.h>
 

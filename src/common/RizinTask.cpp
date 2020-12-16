@@ -24,6 +24,11 @@ void RizinTask::joinTask()
     rz_core_task_join(&Core()->core_->tasks, nullptr, task->id);
 }
 
+void RizinTask::taskFinished()
+{
+    emit finished();
+}
+
 // RizinCmdTask
 
 RizinCmdTask::RizinCmdTask(const QString &cmd, bool transient)
@@ -41,15 +46,10 @@ void RizinCmdTask::taskFinishedCallback(const char *, void *user)
     reinterpret_cast<RizinCmdTask *>(user)->taskFinished();
 }
 
-void RizinCmdTask::taskFinished()
-{
-    emit finished();
-}
-
 QString RizinCmdTask::getResult()
 {
     const char *res = rz_core_cmd_task_get_result(task);
-    if(!res) {
+    if (!res) {
         return nullptr;
     }
     return QString::fromUtf8(res);
@@ -58,7 +58,7 @@ QString RizinCmdTask::getResult()
 QJsonDocument RizinCmdTask::getResultJson()
 {
     const char *res = rz_core_cmd_task_get_result(task);
-    if(!res) {
+    if (!res) {
         return QJsonDocument();
     }
     return Core()->parseJson(res, nullptr);
@@ -67,4 +67,24 @@ QJsonDocument RizinCmdTask::getResultJson()
 const char *RizinCmdTask::getResultRaw()
 {
     return rz_core_cmd_task_get_result(task);
+}
+
+// RizinFunctionTask
+
+RizinFunctionTask::RizinFunctionTask(std::function<void *(RzCore *)> fcn, bool transient)
+    : fcn(fcn), res(nullptr)
+{
+    task = rz_core_function_task_new(Core()->core(),
+        static_cast<RzCoreTaskFunction>(&RizinFunctionTask::runner),
+        this);
+    task->transient = transient;
+    rz_core_task_incref(task);
+}
+
+void *RizinFunctionTask::runner(RzCore *core, void *user)
+{
+    RizinFunctionTask *task = reinterpret_cast<RizinFunctionTask *>(user);
+    task->res = task->fcn(core);
+    task->taskFinished();
+    return nullptr;
 }
