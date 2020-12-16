@@ -7,22 +7,22 @@
 #include <QTimer>
 #include <QElapsedTimer>
 
-#include "common/R2Task.h"
+#include "common/RizinTask.h"
 #include "core/CutterCommon.h"
 
-class R2Task;
+class RizinTask;
 namespace Ui {
-class R2TaskDialog;
+class RizinTaskDialog;
 }
 
-class CUTTER_EXPORT R2TaskDialog : public QDialog
+class CUTTER_EXPORT RizinTaskDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    using Ptr = QSharedPointer<R2Task>;
-    R2TaskDialog(Ptr task, QWidget *parent = nullptr);
-    ~R2TaskDialog();
+    using Ptr = QSharedPointer<RizinTask>;
+    RizinTaskDialog(Ptr task, QWidget *parent = nullptr);
+    ~RizinTaskDialog();
 
     void setBreakOnClose(bool v)        { breakOnClose = v; }
     bool getBreakOnClose()              { return breakOnClose; }
@@ -38,8 +38,8 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
-    std::unique_ptr<Ui::R2TaskDialog> ui;
-    QSharedPointer<R2Task> task;
+    std::unique_ptr<Ui::RizinTaskDialog> ui;
+    QSharedPointer<RizinTask> task;
 
     QTimer timer;
     QElapsedTimer elapsedTimer;

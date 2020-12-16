@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>R2TaskDialog</class>
- <widget class="QDialog" name="R2TaskDialog">
+ <class>RizinTaskDialog</class>
+ <widget class="QDialog" name="RizinTaskDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -58,7 +58,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>R2TaskDialog</receiver>
+   <receiver>RizinTaskDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -74,7 +74,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>R2TaskDialog</receiver>
+   <receiver>RizinTaskDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
