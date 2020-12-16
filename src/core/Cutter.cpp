@@ -394,7 +394,7 @@ bool CutterCore::isDebugTaskInProgress()
     return false;
 }
 
-bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<RizinTask> &task)
+bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<RizinCmdTask> &task)
 {
     asyncCmd(command, task);
 
@@ -402,7 +402,7 @@ bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<RizinTask> &ta
         return false;
     }
 
-    connect(task.data(), &RizinTask::finished, task.data(), [this, task] () {
+    connect(task.data(), &RizinCmdTask::finished, task.data(), [this, task] () {
         QString res = task.data()->getResult();
 
         if (res.contains(QStringLiteral("[ESIL] Stopped execution in an invalid instruction"))) {
@@ -413,7 +413,7 @@ bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<RizinTask> &ta
     return true;
 }
 
-bool CutterCore::asyncCmd(const char *str, QSharedPointer<RizinTask> &task)
+bool CutterCore::asyncCmd(const char *str, QSharedPointer<RizinCmdTask> &task)
 {
     if (!task.isNull()) {
         return false;
@@ -423,8 +423,8 @@ bool CutterCore::asyncCmd(const char *str, QSharedPointer<RizinTask> &task)
 
     RVA offset = core->offset;
 
-    task = QSharedPointer<RizinTask>(new RizinTask(str, true));
-    connect(task.data(), &RizinTask::finished, task.data(), [this, offset, task] () {
+    task = QSharedPointer<RizinCmdTask>(new RizinCmdTask(str, true));
+    connect(task.data(), &RizinCmdTask::finished, task.data(), [this, offset, task] () {
         CORE_LOCK();
 
         if (offset != core->offset) {
@@ -494,7 +494,7 @@ QJsonDocument CutterCore::cmdjAt(const char *str, RVA address)
 
 QString CutterCore::cmdTask(const QString &str)
 {
-    RizinTask task(str);
+    RizinCmdTask task(str);
     task.startTask();
     task.joinTask();
     return task.getResult();
@@ -502,7 +502,7 @@ QString CutterCore::cmdTask(const QString &str)
 
 QJsonDocument CutterCore::cmdjTask(const QString &str)
 {
-    RizinTask task(str);
+    RizinCmdTask task(str);
     task.startTask();
     task.joinTask();
     return parseJson(task.getResultRaw(), str);

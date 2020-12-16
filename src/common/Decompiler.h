@@ -42,7 +42,7 @@ class R2DecDecompiler: public Decompiler
     Q_OBJECT
 
 private:
-    RizinTask *task;
+    RizinCmdTask *task;
 
 public:
     explicit R2DecDecompiler(QObject *parent = nullptr);

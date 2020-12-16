@@ -8,28 +8,36 @@ class RizinTask: public QObject
 {
     Q_OBJECT
 
-private:
+protected:
     RzCoreTask *task;
 
-    static void taskFinishedCallback(const char *, void *user);
-    void taskFinished();
+    RizinTask() {}
 
 public:
     using Ptr = QSharedPointer<RizinTask>;
 
-    explicit RizinTask(const QString &cmd, bool transient = true);
-    ~RizinTask();
+    virtual ~RizinTask();
 
     void startTask();
     void breakTask();
     void joinTask();
 
+signals:
+    void finished();
+};
+
+class RizinCmdTask: public RizinTask
+{
+private:
+    void taskFinished();
+    static void taskFinishedCallback(const char *, void *user);
+
+public:
+    explicit RizinCmdTask(const QString &cmd, bool transient = true);
+
     QString getResult();
     QJsonDocument getResultJson();
     const char *getResultRaw();
-
-signals:
-    void finished();
 };
 
 #endif // RZTASK_H

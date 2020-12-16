@@ -2,29 +2,11 @@
 #include "RizinTask.h"
 #include <rz_core.h>
 
-RizinTask::RizinTask(const QString &cmd, bool transient)
-{
-    task = rz_core_cmd_task_new(Core()->core(),
-        cmd.toLocal8Bit().constData(),
-        static_cast<RzCoreCmdTaskFinished>(&RizinTask::taskFinishedCallback),
-        this);
-    task->transient = transient;
-    rz_core_task_incref(task);
-}
-
 RizinTask::~RizinTask()
 {
-    rz_core_task_decref(task);
-}
-
-void RizinTask::taskFinishedCallback(const char *, void *user)
-{
-    reinterpret_cast<RizinTask *>(user)->taskFinished();
-}
-
-void RizinTask::taskFinished()
-{
-    emit finished();
+    if (task) {
+        rz_core_task_decref(task);
+    }
 }
 
 void RizinTask::startTask()
@@ -42,7 +24,29 @@ void RizinTask::joinTask()
     rz_core_task_join(&Core()->core_->tasks, nullptr, task->id);
 }
 
-QString RizinTask::getResult()
+// RizinCmdTask
+
+RizinCmdTask::RizinCmdTask(const QString &cmd, bool transient)
+{
+    task = rz_core_cmd_task_new(Core()->core(),
+        cmd.toLocal8Bit().constData(),
+        static_cast<RzCoreCmdTaskFinished>(&RizinCmdTask::taskFinishedCallback),
+        this);
+    task->transient = transient;
+    rz_core_task_incref(task);
+}
+
+void RizinCmdTask::taskFinishedCallback(const char *, void *user)
+{
+    reinterpret_cast<RizinCmdTask *>(user)->taskFinished();
+}
+
+void RizinCmdTask::taskFinished()
+{
+    emit finished();
+}
+
+QString RizinCmdTask::getResult()
 {
     const char *res = rz_core_cmd_task_get_result(task);
     if(!res) {
@@ -51,7 +55,7 @@ QString RizinTask::getResult()
     return QString::fromUtf8(res);
 }
 
-QJsonDocument RizinTask::getResultJson()
+QJsonDocument RizinCmdTask::getResultJson()
 {
     const char *res = rz_core_cmd_task_get_result(task);
     if(!res) {
@@ -60,7 +64,7 @@ QJsonDocument RizinTask::getResultJson()
     return Core()->parseJson(res, nullptr);
 }
 
-const char *RizinTask::getResultRaw()
+const char *RizinCmdTask::getResultRaw()
 {
     return rz_core_cmd_task_get_result(task);
 }
