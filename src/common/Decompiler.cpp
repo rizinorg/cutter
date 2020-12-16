@@ -33,8 +33,8 @@ void R2DecDecompiler::decompileAt(RVA addr)
     if (task) {
         return;
     }
-    task = new R2Task("pddj @ " + QString::number(addr));
-    connect(task, &R2Task::finished, this, [this]() {
+    task = new RizinTask("pddj @ " + QString::number(addr));
+    connect(task, &RizinTask::finished, this, [this]() {
         QJsonObject json = task->getResultJson().object();
         delete task;
         task = nullptr;

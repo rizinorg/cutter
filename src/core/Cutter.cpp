@@ -14,7 +14,7 @@
 #include "common/BasicInstructionHighlighter.h"
 #include "common/Configuration.h"
 #include "common/AsyncTask.h"
-#include "common/R2Task.h"
+#include "common/RizinTask.h"
 #include "common/Json.h"
 #include "core/Cutter.h"
 #include "Decompiler.h"
@@ -394,7 +394,7 @@ bool CutterCore::isDebugTaskInProgress()
     return false;
 }
 
-bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<R2Task> &task)
+bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<RizinTask> &task)
 {
     asyncCmd(command, task);
 
@@ -402,7 +402,7 @@ bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<R2Task> &task)
         return false;
     }
 
-    connect(task.data(), &R2Task::finished, task.data(), [this, task] () {
+    connect(task.data(), &RizinTask::finished, task.data(), [this, task] () {
         QString res = task.data()->getResult();
 
         if (res.contains(QStringLiteral("[ESIL] Stopped execution in an invalid instruction"))) {
@@ -413,7 +413,7 @@ bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<R2Task> &task)
     return true;
 }
 
-bool CutterCore::asyncCmd(const char *str, QSharedPointer<R2Task> &task)
+bool CutterCore::asyncCmd(const char *str, QSharedPointer<RizinTask> &task)
 {
     if (!task.isNull()) {
         return false;
@@ -423,8 +423,8 @@ bool CutterCore::asyncCmd(const char *str, QSharedPointer<R2Task> &task)
 
     RVA offset = core->offset;
 
-    task = QSharedPointer<R2Task>(new R2Task(str, true));
-    connect(task.data(), &R2Task::finished, task.data(), [this, offset, task] () {
+    task = QSharedPointer<RizinTask>(new RizinTask(str, true));
+    connect(task.data(), &RizinTask::finished, task.data(), [this, offset, task] () {
         CORE_LOCK();
 
         if (offset != core->offset) {
@@ -494,7 +494,7 @@ QJsonDocument CutterCore::cmdjAt(const char *str, RVA address)
 
 QString CutterCore::cmdTask(const QString &str)
 {
-    R2Task task(str);
+    RizinTask task(str);
     task.startTask();
     task.joinTask();
     return task.getResult();
@@ -502,7 +502,7 @@ QString CutterCore::cmdTask(const QString &str)
 
 QJsonDocument CutterCore::cmdjTask(const QString &str)
 {
-    R2Task task(str);
+    RizinTask task(str);
     task.startTask();
     task.joinTask();
     return parseJson(task.getResultRaw(), str);
@@ -1602,7 +1602,7 @@ void CutterCore::setCurrentDebugThread(int tid)
     }
 
     emit debugTaskStateChanged();
-    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         debugTask.clear();
         emit registersChanged();
         emit refreshCodeViews();
@@ -1622,7 +1622,7 @@ void CutterCore::setCurrentDebugProcess(int pid)
     }
 
     emit debugTaskStateChanged();
-    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         debugTask.clear();
         emit registersChanged();
         emit refreshCodeViews();
@@ -1649,7 +1649,7 @@ void CutterCore::startDebug()
 
     emit debugTaskStateChanged();
 
-    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         if (debugTaskDialog) {
             delete debugTaskDialog;
         }
@@ -1668,7 +1668,7 @@ void CutterCore::startDebug()
         emit debugTaskStateChanged();
     });
 
-    debugTaskDialog = new R2TaskDialog(debugTask);
+    debugTaskDialog = new RizinTaskDialog(debugTask);
     debugTaskDialog->setBreakOnClose(true);
     debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
     debugTaskDialog->setDesc(tr("Starting native debug..."));
@@ -1688,7 +1688,7 @@ void CutterCore::startEmulation()
 
     emit debugTaskStateChanged();
 
-    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         if (debugTaskDialog) {
             delete debugTaskDialog;
         }
@@ -1711,7 +1711,7 @@ void CutterCore::startEmulation()
         emit debugTaskStateChanged();
     });
 
-    debugTaskDialog = new R2TaskDialog(debugTask);
+    debugTaskDialog = new RizinTaskDialog(debugTask);
     debugTaskDialog->setBreakOnClose(true);
     debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
     debugTaskDialog->setDesc(tr("Starting emulation..."));
@@ -1730,7 +1730,7 @@ void CutterCore::attachRemote(const QString &uri)
     asyncCmd("e cfg.debug = true; oodf " + uri, debugTask);
     emit debugTaskStateChanged();
 
-    connect(debugTask.data(), &R2Task::finished, this, [this, uri] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this, uri] () {
         if (debugTaskDialog) {
             delete debugTaskDialog;
         }
@@ -1767,7 +1767,7 @@ void CutterCore::attachRemote(const QString &uri)
         emit debugTaskStateChanged();
     });
 
-    debugTaskDialog = new R2TaskDialog(debugTask);
+    debugTaskDialog = new RizinTaskDialog(debugTask);
     debugTaskDialog->setBreakOnClose(true);
     debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
     debugTaskDialog->setDesc(tr("Connecting to: ") + uri);
@@ -1786,7 +1786,7 @@ void CutterCore::attachDebug(int pid)
     asyncCmd("e cfg.debug = true; oodf dbg://" + QString::number(pid), debugTask);
     emit debugTaskStateChanged();
 
-    connect(debugTask.data(), &R2Task::finished, this, [this, pid] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this, pid] () {
         if (debugTaskDialog) {
             delete debugTaskDialog;
         }
@@ -1806,7 +1806,7 @@ void CutterCore::attachDebug(int pid)
         emit debugTaskStateChanged();
     });
 
-    debugTaskDialog = new R2TaskDialog(debugTask);
+    debugTaskDialog = new RizinTaskDialog(debugTask);
     debugTaskDialog->setBreakOnClose(true);
     debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
     debugTaskDialog->setDesc(tr("Attaching to process (") + QString::number(pid) + ")...");
@@ -1890,7 +1890,7 @@ void CutterCore::continueDebug()
     }
 
     emit debugTaskStateChanged();
-    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         debugTask.clear();
         syncAndSeekProgramCounter();
         emit registersChanged();
@@ -1918,7 +1918,7 @@ void CutterCore::continueUntilDebug(QString offset)
     }
 
     emit debugTaskStateChanged();
-    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         debugTask.clear();
         syncAndSeekProgramCounter();
         emit registersChanged();
@@ -1947,7 +1947,7 @@ void CutterCore::continueUntilCall()
     }
 
     emit debugTaskStateChanged();
-    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         debugTask.clear();
         syncAndSeekProgramCounter();
         emit debugTaskStateChanged();
@@ -1973,7 +1973,7 @@ void CutterCore::continueUntilSyscall()
     }
 
     emit debugTaskStateChanged();
-    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         debugTask.clear();
         syncAndSeekProgramCounter();
         emit debugTaskStateChanged();
@@ -1999,7 +1999,7 @@ void CutterCore::stepDebug()
     }
 
     emit debugTaskStateChanged();
-    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         debugTask.clear();
         syncAndSeekProgramCounter();
         emit debugTaskStateChanged();
@@ -2025,7 +2025,7 @@ void CutterCore::stepOverDebug()
     }
 
     emit debugTaskStateChanged();
-    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         debugTask.clear();
         syncAndSeekProgramCounter();
         emit debugTaskStateChanged();
@@ -2045,7 +2045,7 @@ void CutterCore::stepOutDebug()
         return;
     }
 
-    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         debugTask.clear();
         syncAndSeekProgramCounter();
         emit debugTaskStateChanged();

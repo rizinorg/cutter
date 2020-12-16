@@ -2,7 +2,7 @@
 #define DECOMPILER_H
 
 #include "CutterCommon.h"
-#include "R2Task.h"
+#include "RizinTask.h"
 #include <rz_util/rz_annotated_code.h>
 
 #include <QString>
@@ -42,7 +42,7 @@ class R2DecDecompiler: public Decompiler
     Q_OBJECT
 
 private:
-    R2Task *task;
+    RizinTask *task;
 
 public:
     explicit R2DecDecompiler(QObject *parent = nullptr);

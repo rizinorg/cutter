@@ -4,21 +4,21 @@
 
 #include "core/Cutter.h"
 
-class R2Task: public QObject
+class RizinTask: public QObject
 {
     Q_OBJECT
 
 private:
     RzCoreTask *task;
 
-    static void taskFinishedCallback(void *user, char *);
+    static void taskFinishedCallback(const char *, void *user);
     void taskFinished();
 
 public:
-    using Ptr = QSharedPointer<R2Task>;
+    using Ptr = QSharedPointer<RizinTask>;
 
-    explicit R2Task(const QString &cmd, bool transient = true);
-    ~R2Task();
+    explicit RizinTask(const QString &cmd, bool transient = true);
+    ~RizinTask();
 
     void startTask();
     void breakTask();

@@ -383,8 +383,8 @@ SOURCES += \
     dialogs/MapFileDialog.cpp \
     common/CommandTask.cpp \
     common/ProgressIndicator.cpp \
-    common/R2Task.cpp \
-    dialogs/R2TaskDialog.cpp \
+    common/RizinTask.cpp \
+    dialogs/RizinTaskDialog.cpp \
     widgets/DebugActions.cpp \
     widgets/MemoryMapWidget.cpp \
     dialogs/preferences/DebugOptionsWidget.cpp \
@@ -536,8 +536,8 @@ HEADERS  += \
     common/CommandTask.h \
     common/ProgressIndicator.h \
     plugins/CutterPlugin.h \
-    common/R2Task.h \
-    dialogs/R2TaskDialog.h \
+    common/RizinTask.h \
+    dialogs/RizinTaskDialog.h \
     widgets/DebugActions.h \
     widgets/MemoryMapWidget.h \
     dialogs/preferences/DebugOptionsWidget.h \
@@ -643,7 +643,7 @@ FORMS    += \
     dialogs/VersionInfoDialog.ui \
     widgets/ZignaturesWidget.ui \
     dialogs/AsyncTaskDialog.ui \
-    dialogs/R2TaskDialog.ui \
+    dialogs/RizinTaskDialog.ui \
     widgets/StackWidget.ui \
     widgets/RegistersWidget.ui \
     widgets/ThreadsWidget.ui \

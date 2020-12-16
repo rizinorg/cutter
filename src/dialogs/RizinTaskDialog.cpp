@@ -1,22 +1,22 @@
-#include "R2TaskDialog.h"
-#include "common/R2Task.h"
+#include "RizinTaskDialog.h"
+#include "common/RizinTask.h"
 
 #include <QCloseEvent>
 
-#include "ui_R2TaskDialog.h"
+#include "ui_RizinTaskDialog.h"
 
-R2TaskDialog::R2TaskDialog(R2Task::Ptr task, QWidget *parent)
+RizinTaskDialog::RizinTaskDialog(RizinTask::Ptr task, QWidget *parent)
     : QDialog(parent),
-      ui(new Ui::R2TaskDialog),
+      ui(new Ui::RizinTaskDialog),
       task(task)
 {
     ui->setupUi(this);
 
-    connect(task.data(), &R2Task::finished, this, [this]() {
+    connect(task.data(), &RizinTask::finished, this, [this]() {
         close();
     });
 
-    connect(&timer, &QTimer::timeout, this, &R2TaskDialog::updateProgressTimer);
+    connect(&timer, &QTimer::timeout, this, &RizinTaskDialog::updateProgressTimer);
     timer.setInterval(1000);
     timer.setSingleShot(false);
     timer.start();
@@ -25,11 +25,11 @@ R2TaskDialog::R2TaskDialog(R2Task::Ptr task, QWidget *parent)
     updateProgressTimer();
 }
 
-R2TaskDialog::~R2TaskDialog()
+RizinTaskDialog::~RizinTaskDialog()
 {
 }
 
-void R2TaskDialog::updateProgressTimer()
+void RizinTaskDialog::updateProgressTimer()
 {
     int secondsElapsed = elapsedTimer.elapsed() / 1000;
     int minutesElapsed = secondsElapsed / 60;
@@ -48,12 +48,12 @@ void R2TaskDialog::updateProgressTimer()
     ui->timeLabel->setText(label);
 }
 
-void R2TaskDialog::setDesc(const QString &label)
+void RizinTaskDialog::setDesc(const QString &label)
 {
     ui->descLabel->setText(label);
 }
 
-void R2TaskDialog::closeEvent(QCloseEvent *event)
+void RizinTaskDialog::closeEvent(QCloseEvent *event)
 {
     if (breakOnClose) {
         task->breakTask();
@@ -64,7 +64,7 @@ void R2TaskDialog::closeEvent(QCloseEvent *event)
     }
 }
 
-void R2TaskDialog::reject()
+void RizinTaskDialog::reject()
 {
     task->breakTask();
     setDesc("Attempting to stop the task...");
