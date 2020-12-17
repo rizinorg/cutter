@@ -57,7 +57,7 @@ void R2DecDecompiler::decompileAt(RVA addr)
             if (lineObject.isEmpty()) {
                 continue;
             }
-            RzCodeAnnotation annotationi = { 0 };
+            RzCodeAnnotation annotationi = {};
             annotationi.start = codeString.length();
             codeString.append(lineObject["str"].toString() + "\n");
             annotationi.end = codeString.length();
