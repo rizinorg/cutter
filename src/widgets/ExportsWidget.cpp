@@ -117,10 +117,13 @@ bool ExportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
             return leftExp.vaddr < rightExp.vaddr;
     // fallthrough
     case ExportsModel::NameColumn:
-        return leftExp.name < rightExp.name;
+        if (leftExp.name != rightExp.name)
+            return leftExp.name < rightExp.name;
+    // fallthrough
     case ExportsModel::TypeColumn:
         if (leftExp.type != rightExp.type)
             return leftExp.type < rightExp.type;
+    // fallthrough
     case ExportsModel::CommentColumn:
         return Core()->getCommentAt(leftExp.vaddr) < Core()->getCommentAt(rightExp.vaddr);
     default:

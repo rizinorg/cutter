@@ -1336,7 +1336,7 @@ static void optimizeLinearProgramPass(
         int g = queue.top().second;
         int size = queue.top().first;
         queue.pop();
-        if (size != edgeCount[g] || processed[g]) {
+        if ((size_t)size != edgeCount[g] || processed[g]) {
             continue;
         }
         int direction = objectiveFunction[g];
