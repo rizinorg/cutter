@@ -1183,7 +1183,7 @@ RVA CutterCore::getLastFunctionInstruction(RVA addr)
         return RVA_INVALID;
     }
     RzAnalysisBlock *lastBB = (RzAnalysisBlock *)rz_list_last(fcn->bbs);
-    return lastBB ? lastBB->addr + rz_analysis_bb_offset_inst(lastBB, lastBB->ninstr-1) : RVA_INVALID;
+    return lastBB ? rz_analysis_block_get_op_addr(lastBB, lastBB->ninstr-1) : RVA_INVALID;
 }
 
 QString CutterCore::cmdFunctionAt(QString addr)
