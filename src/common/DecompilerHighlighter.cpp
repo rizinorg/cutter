@@ -2,6 +2,8 @@
 #include "DecompilerHighlighter.h"
 #include "common/Configuration.h"
 
+#include <memory>
+
 DecompilerHighlighter::DecompilerHighlighter(QTextDocument *parent)
     :   QSyntaxHighlighter(parent)
 {
