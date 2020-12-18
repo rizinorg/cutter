@@ -4,6 +4,8 @@
 #include "core/Cutter.h"
 #include "GraphLayout.h"
 
+#include <memory>
+
 /**
  * @brief Adapter for converting vertical graph layout into horizontal one.
  */
