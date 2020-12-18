@@ -4,32 +4,58 @@
 
 #include "core/Cutter.h"
 
-class RizinTask: public QObject
+class CUTTER_EXPORT RizinTask: public QObject
 {
     Q_OBJECT
 
-private:
+protected:
     RzCoreTask *task;
 
-    static void taskFinishedCallback(const char *, void *user);
+    RizinTask() {}
     void taskFinished();
 
 public:
     using Ptr = QSharedPointer<RizinTask>;
 
-    explicit RizinTask(const QString &cmd, bool transient = true);
-    ~RizinTask();
+    virtual ~RizinTask();
 
     void startTask();
     void breakTask();
     void joinTask();
 
+signals:
+    void finished();
+};
+
+class CUTTER_EXPORT RizinCmdTask: public RizinTask
+{
+    Q_OBJECT
+
+private:
+    static void taskFinishedCallback(const char *, void *user);
+
+public:
+    explicit RizinCmdTask(const QString &cmd, bool transient = true);
+
     QString getResult();
     QJsonDocument getResultJson();
     const char *getResultRaw();
+};
 
-signals:
-    void finished();
+class CUTTER_EXPORT RizinFunctionTask: public RizinTask
+{
+    Q_OBJECT
+
+private:
+    std::function<void *(RzCore *)> fcn;
+    void *res;
+
+    static void *runner(RzCore *core, void *user);
+
+public:
+    explicit RizinFunctionTask(std::function<void *(RzCore *)> fcn, bool transient = true);
+
+    void *getResult() { return res; }
 };
 
 #endif // RZTASK_H
