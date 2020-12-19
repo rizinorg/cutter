@@ -13,17 +13,22 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-18.04] #, ubuntu-16.04, macos-latest, windows-latest]
+        os: [ubuntu-18.04, ubuntu-16.04, macos-latest, windows-2016]
         python-version: [3.7.x]
         system-deps: [false]
         cc-override: [default]
         cxx-override: [default]
         include:
-          - os: ubuntu-16.04
+          - os: windows-2016
+            package: true
+          - os: ubuntu-16.04 # ensure that Cutter can be built at least in basic config on Ubuntu 16.04 using sytem libraries
             python-version: 3.5.10
             system-deps: true
             cc-override: '/usr/bin/gcc-5'
             cxx-override: '/usr/bin/g++-5'
+          - os: ubuntu-16.04 # release package build
+            system-deps: false
+            package: true
       # Prevent one job from pausing the rest
       fail-fast: false
     steps:
@@ -34,10 +39,10 @@ jobs:
     - name: apt dependencies
       if: contains(matrix.os, 'ubuntu')
       run: |
-        sudo apt-get install libgraphviz-dev mesa-common-dev
+        sudo apt-get install libgraphviz-dev mesa-common-dev libxkbcommon-x11-dev
         if [[ "${{ matrix.os }}" = "ubuntu-16.04" ]]
         then
-          sudo apt-get install ninja-build/xenial-backports 
+          sudo apt-get install ninja-build/xenial-backports libxcb1-dev libxkbcommon-dev libxcb-*-dev
           if [[ "${{ matrix.system-deps }}" = "true" ]]
           then
             sudo apt-get install cmake
@@ -85,6 +90,7 @@ jobs:
           export PKG_CONFIG_PATH="$CUTTER_DEPS_PYTHON_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
           export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
         fi
+        set -euo pipefail #TODO: move to top once cutter-deps doesn't fail
         if [[ "${{ matrix.cc-override }}" != "default" ]]
         then
           export CC="${{matrix.cc-override}}"
@@ -100,14 +106,21 @@ jobs:
         then
           cmake \
             -G Ninja \
-            -DCUTTER_ENABLE_PYTHON=ON \
             -DCMAKE_BUILD_TYPE=Release \
-            -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.so.1.0" \
-            -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m" \
+            -DCUTTER_ENABLE_PYTHON=ON \
+            -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.9.so" \
+            -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.9" \
             -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
-            -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF \
+            -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
+            -DCUTTER_ENABLE_GRAPHVIZ=OFF \
             -DCUTTER_ENABLE_CRASH_REPORTS=ON \
             -DCUTTER_USE_BUNDLED_RIZIN=ON \
+            -DCUTTER_APPIMAGE_BUILD=ON \
+            -DCUTTER_ENABLE_PACKAGING=ON \
+            -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON \
+            -DCUTTER_PACKAGE_RZ_GHIDRA=ON \
+            -DCMAKE_INSTALL_PREFIX=appdir/usr \
+            -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
             ..
         else
           cmake \
@@ -117,6 +130,34 @@ jobs:
             ..
         fi
         ninja
+        if [[ "${{ matrix.package || false }}" = "true" ]]
+        then
+          export CUTTER_VERSION=$(python ../scripts/get_version.py)
+          export VERSION=$CUTTER_VERSION
+          ninja install
+          "../scripts/appimage_embed_python.sh" appdir
+          # "../scripts/rz-ghidra.sh" -DCMAKE_INSTALL_PREFIX="`pwd`/appdir/usr" -DBUILD_CUTTER_PLUGIN=ON -DCUTTER_SOURCE_DIR="`pwd`/.."
+          APP_PREFIX=`pwd`/appdir/usr
+          # export LD_LIBRARY_PATH=${APP_PREFIX}/lib:$Shiboken2_ROOT/lib
+          export PATH=$PATH:${APP_PREFIX}/bin
+          # "../scripts/r2dec.sh" --prefix=`pwd`/appdir/usr
+          wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/6/linuxdeployqt-6-x86_64.AppImage"
+          chmod a+x linuxdeployqt*.AppImage
+          rm -fv "../cutter-deps/qt/plugins/imageformats/libqjp2.so"
+          # ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -executable=./appdir/usr/bin/python3 -bundle-non-qt-libs -no-strip -exclude-libs=libnss3.so,libnssutil3.so,libqjp2.so -ignore-glob=usr/lib/python3.9/**/* -verbose=2
+          # exclude librzghidra cutter plugin because cutter and rz plugin is loaded manuallly as they are plugins linuxdeployqt doesn't know this
+          ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop \
+            -executable=./appdir/usr/bin/python3 \
+            -appimage \
+            -no-strip -exclude-libs=libnss3.so,libnssutil3.so,libqjp2.so \
+            -ignore-glob=usr/lib/python3.9/**/* \
+            -ignore-glob=usr/share/RizinOrg/Cutter/plugins/native/librz_ghidra_cutter.so \
+            -verbose=2
+          find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
+          export APPIMAGE_FILE="Cutter-v$CUTTER_VERSION-x64.Linux.AppImage"
+          mv Cutter-*-x86_64.AppImage "$APPIMAGE_FILE"
+          echo PACKAGE_NAME=$APPIMAGE_FILE >> $GITHUB_ENV
+        fi
     - name: cmake macos
       shell: bash
       if: contains(matrix.os, 'macos')
@@ -130,31 +171,32 @@ jobs:
         cd build
         cmake \
                 -DCMAKE_BUILD_TYPE=Release \
-                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.dylib" \
-                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m" \
+                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.9.dylib" \
+                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.9" \
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
                 -DCUTTER_ENABLE_PYTHON=ON \
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON \
                 -DCUTTER_USE_BUNDLED_RIZIN=ON \
+                -DCUTTER_ENABLE_PACKAGING=ON \
                 -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR" \
                 .. && \
               make -j4;
     - name: windows dependencies
-      if: contains(matrix.os, 'windows-latest')
+      if: contains(matrix.os, 'windows')
       shell: bash
       run: |
         pip install ninja
         scripts/fetch_deps.sh
         choco install winflexbison3
     - name: windows cmake
-      if: contains(matrix.os, 'windows-latest')
+      if: contains(matrix.os, 'windows')
       shell: cmd
       run: |
         set ARCH=x64
         set CUTTER_DEPS=%CD%\cutter-deps
         set PATH=%CD%\cutter-deps\qt\bin;%PATH%
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
         call scripts\prepare_breakpad.bat
         cd
         mkdir build
@@ -165,9 +207,10 @@ jobs:
           -DCUTTER_USE_BUNDLED_RIZIN=ON ^
           -DCUTTER_ENABLE_PYTHON=ON ^
           -DCUTTER_ENABLE_PYTHON_BINDINGS=ON ^
+          -DCUTTER_ENABLE_PACKAGING=ON ^
           -DCUTTER_PACKAGE_DEPENDENCIES=ON ^
-          -DCUTTER_PACKAGE_R2GHIDRA=ON ^
-          -DCUTTER_PACKAGE_R2DEC=ON ^
+          -DCUTTER_PACKAGE_RZ_GHIDRA=ON ^
+          -DCUTTER_PACKAGE_R2DEC=OFF ^
           -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON ^
           -DCUTTER_ENABLE_CRASH_REPORTS=ON ^
           -DCMAKE_PREFIX_PATH="%CUTTER_DEPS%\pyside" ^

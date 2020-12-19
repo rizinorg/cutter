@@ -1,5 +1,5 @@
 version: '1.12.0-git-{build}'
-image: 'Previous Visual Studio 2019'
+image: 'Visual Studio 2017'
 clone_depth: 1
 
 # Build configuration
@@ -9,7 +9,7 @@ configuration:
 # Environment
 environment:
   NINJA_URL: https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-win.zip
-  VSVARSALLPATH: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat'
+  VSVARSALLPATH: 'C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat'
   ARCH: x64
   PYTHON: 'C:\Python36-x64'
   PACKAGE_NAME: cutter-git-x64.Windows

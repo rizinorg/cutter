@@ -5,7 +5,7 @@ if ! [[ $# -eq 3 ]]; then
     exit 1
 fi
 
-python_version=python3.6
+python_version=python3.9
 
 py_framework=$1
 appbundle=$2
@@ -22,7 +22,7 @@ install_name_tool -change `otool -L "$executable" | sed -n "s/^[[:blank:]]*\([^[
 echo "Cleaning up embedded Python Framework"
 cd "$appbundle/Contents/Frameworks/Python.framework" || exit 1
 find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf || exit 1
-rm -r Versions/Current/Resources/* Versions/Current/lib/python3.6/test Versions/Current/lib/python3.6/idlelib Versions/Current/lib/python3.6/curses Versions/Current/lib/python3.6/lib2to3 || exit 1
+rm -r Versions/Current/Resources/* Versions/Current/lib/$python_version/test Versions/Current/lib/$python_version/idlelib Versions/Current/lib/$python_version/curses Versions/Current/lib/$python_version/lib2to3 || exit 1
 
 echo "Checking if PySide2 is available"
 

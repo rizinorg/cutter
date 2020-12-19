@@ -5,7 +5,7 @@ if ! [[ $# -eq 1 ]]; then
     exit 1
 fi
 
-python_version=python3.6
+python_version=python3.9
 
 python_prefix=$(pkg-config --variable=prefix python3)
 appdir=$1

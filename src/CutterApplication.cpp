@@ -100,7 +100,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
 #ifdef Q_OS_WIN
     // Redefine rz_sys_prefix() behaviour
-    qputenv("R_ALT_SRC_DIR", "1");
+    qputenv("RZ_ALT_SRC_DIR", "1");
 #endif
 
     Core()->initialize(clOptions.enableRizinPlugins);
