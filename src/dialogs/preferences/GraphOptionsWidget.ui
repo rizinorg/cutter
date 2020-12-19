@@ -43,15 +43,15 @@
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
            <widget class="QLabel" name="maxColsLabel">
             <property name="text">
              <string>Maximum Line Length:</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="1">
            <widget class="QSpinBox" name="maxColsSpinBox">
             <property name="minimum">
              <number>25</number>
@@ -61,6 +61,29 @@
             </property>
             <property name="value">
              <number>100</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="minFontSizeLabel">
+            <property name="toolTip">
+             <string>Hide text when zooming out and it is smaller than the given value. Higher values can increase Performance.</string>
+            </property>
+            <property name="text">
+             <string>Minimum Font Size</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="minFontSizeSpinBox">
+            <property name="toolTip">
+             <string>Hide text when zooming out and it is smaller than the given value. Higher values can increase Performance.</string>
+            </property>
+            <property name="maximum">
+             <number>8</number>
+            </property>
+            <property name="value">
+             <number>4</number>
             </property>
            </widget>
           </item>

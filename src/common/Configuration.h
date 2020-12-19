@@ -173,6 +173,16 @@ public:
         s.setValue("graph.maxcols", ch);
     }
 
+    int getGraphMinFontSize() const
+    {
+        return s.value("graph.minfontsize", 4).toInt();
+    }
+
+    void setGraphMinFontSize(int sz)
+    {
+        s.setValue("graph.minfontsize", sz);
+    }
+
     /**
      * @brief Getters and setters for the transaparent option state and scale factor for bitmap graph exports.
      */

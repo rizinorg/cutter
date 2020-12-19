@@ -43,6 +43,9 @@ void GraphOptionsWidget::updateOptionsFromVars()
     ui->maxColsSpinBox->blockSignals(true);
     ui->maxColsSpinBox->setValue(Config()->getGraphBlockMaxChars());
     ui->maxColsSpinBox->blockSignals(false);
+    ui->minFontSizeSpinBox->blockSignals(true);
+    ui->minFontSizeSpinBox->setValue(Config()->getGraphMinFontSize());
+    ui->minFontSizeSpinBox->blockSignals(false);
     auto blockSpacing = Config()->getGraphBlockSpacing();
     ui->horizontalBlockSpacing->setValue(blockSpacing.x());
     ui->verticalBlockSpacing->setValue(blockSpacing.y());
@@ -62,6 +65,12 @@ void GraphOptionsWidget::triggerOptionsChanged()
 void GraphOptionsWidget::on_maxColsSpinBox_valueChanged(int value)
 {
     Config()->setGraphBlockMaxChars(value);
+    triggerOptionsChanged();
+}
+
+void GraphOptionsWidget::on_minFontSizeSpinBox_valueChanged(int value)
+{
+    Config()->setGraphMinFontSize(value);
     triggerOptionsChanged();
 }
 

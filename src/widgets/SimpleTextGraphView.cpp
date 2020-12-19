@@ -114,7 +114,7 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
     auto transform = p.combinedTransform();
     QRect screenChar = transform.mapRect(QRect(0, 0, charWidth, charHeight));
 
-    if (screenChar.width() * qhelpers::devicePixelRatio(p.device()) < 4) {
+    if (screenChar.width() < Config()->getGraphMinFontSize()) {
         return;
     }
 
