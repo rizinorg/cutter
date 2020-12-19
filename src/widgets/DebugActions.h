@@ -40,10 +40,14 @@ public:
     QIcon suspendIcon;
     QIcon restartIcon;
     QIcon startDebugIcon;
-    QString suspendLabel;
+    QIcon startTraceIcon;
+    QIcon stopTraceIcon;
     QString continueLabel;
+    QString suspendLabel;
     QString restartDebugLabel;
     QString startDebugLabel;
+    QString startTraceLabel;
+    QString stopTraceLabel;
 
     // Stop and Detach interchange during runtime
     QIcon detachIcon;
