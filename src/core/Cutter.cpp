@@ -1581,7 +1581,7 @@ RVA CutterCore::getProgramCounterValue()
     if (currentlyDebugging) {
         // Use cmd because cmdRaw would not work with inner command backticked
         // TODO: Risky command due to changes in API, search for something safer
-        RVA addr = cmd("dr?`drn PC`").toULongLong(&ok, 16);
+        RVA addr = cmd("dr `drn PC`").toULongLong(&ok, 16);
         if (ok) {
             return addr;
         }
@@ -1746,9 +1746,7 @@ void CutterCore::attachRemote(const QString &uri)
                 connected = true;
             }
         }
-        // Use cmd because cmdRaw would not with inner command backticked
-        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-        seekAndShow(programCounterValue);
+        seekAndShow(getProgramCounterValue());
         if (!connected) {
             emit attachedRemote(false);
             emit debugTaskStateChanged();
@@ -1868,9 +1866,7 @@ void CutterCore::stopDebug()
 
 void CutterCore::syncAndSeekProgramCounter()
 {
-    // Use cmd because cmdRaw would not work with inner command backticked
-    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-    seekAndShow(programCounterValue);
+    seekAndShow(getProgramCounterValue());
     emit registersChanged();
 }
 
