@@ -138,7 +138,7 @@ jobs:
             ..
         fi
         ninja
-	./src/test/CutterTest
+        ./src/test/CutterTest
         if [[ "${{ matrix.package || false }}" = "true" ]]
         then
           export CUTTER_VERSION=$(python ../scripts/get_version.py)
