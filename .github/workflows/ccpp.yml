@@ -74,7 +74,7 @@ jobs:
       run: |
         cd scripts
         brew update --preinstall # temporary workaround for https://github.com/Homebrew/homebrew-bundle/issues/751
-        brew uninstall python@2.7
+        brew uninstall python@2
         brew bundle
         brew install coreutils
         brew install pkg-config
