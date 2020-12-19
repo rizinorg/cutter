@@ -1951,7 +1951,7 @@ void CutterCore::continueBackDebug()
     }
     emit debugTaskStateChanged();
 
-    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         debugTask.clear();
         syncAndSeekProgramCounter();
         emit registersChanged();
@@ -2133,7 +2133,7 @@ void CutterCore::stepBackDebug()
     }
     emit debugTaskStateChanged();
 
-    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         debugTask.clear();
         syncAndSeekProgramCounter();
         emit debugTaskStateChanged();
@@ -2174,7 +2174,7 @@ bool CutterCore::isTraceSessionInProgress() {
     }
 
     if (currentlyEmulating) {
-        if (core->anal->esil->trace) {
+        if (core->analysis->esil->trace) {
             return true;
         } else {
             return false;
@@ -2205,7 +2205,7 @@ void CutterCore::startTraceSession()
     }
     emit debugTaskStateChanged();
 
-    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         if (debugTaskDialog) {
             delete debugTaskDialog;
         }
@@ -2214,7 +2214,7 @@ void CutterCore::startTraceSession()
         emit debugTaskStateChanged();
     });
 
-    debugTaskDialog = new R2TaskDialog(debugTask);
+    debugTaskDialog = new RizinTaskDialog(debugTask);
     debugTaskDialog->setBreakOnClose(true);
     debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
     debugTaskDialog->setDesc(tr("Creating debug tracepoint..."));
@@ -2240,7 +2240,7 @@ void CutterCore::stopTraceSession()
     }
     emit debugTaskStateChanged();
 
-    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         if (debugTaskDialog) {
             delete debugTaskDialog;
         }
@@ -2249,7 +2249,7 @@ void CutterCore::stopTraceSession()
         emit debugTaskStateChanged();
     });
 
-    debugTaskDialog = new R2TaskDialog(debugTask);
+    debugTaskDialog = new RizinTaskDialog(debugTask);
     debugTaskDialog->setBreakOnClose(true);
     debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
     debugTaskDialog->setDesc(tr("Stopping debug session..."));
