@@ -26,8 +26,8 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QIcon startRemoteIcon = QIcon(":/img/icons/play_light_remote.svg");
     QIcon continueBackIcon = QIcon(":/img/icons/reverse_continue.svg");
     QIcon stepBackIcon = QIcon(":/img/icons/reverse_step.svg");
-    QIcon startTraceIcon = QIcon(":/img/icons/start_trace.svg");
-    QIcon stopTraceIcon = QIcon(":/img/icons/stop_trace.svg");
+    startTraceIcon = QIcon(":/img/icons/start_trace.svg");
+    stopTraceIcon = QIcon(":/img/icons/stop_trace.svg");
     stopIcon = QIcon(":/img/icons/media-stop_light.svg");
     restartIcon = QIcon(":/img/icons/spin_light.svg");
     detachIcon = QIcon(":/img/icons/detach_debugger.svg");
@@ -50,8 +50,8 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QString stepOverLabel = tr("Step over");
     QString stepOutLabel = tr("Step out");
     QString stepBackLabel = tr("Step backwards");
-    QString startTraceLabel = tr("Start trace session");
-    QString stopTraceLabel = tr("Stop trace session");
+    startTraceLabel = tr("Start trace session");
+    stopTraceLabel = tr("Stop trace session");
     suspendLabel = tr("Suspend the process");
     continueLabel = tr("Continue");
     restartDebugLabel = tr("Restart program");
@@ -150,11 +150,9 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
                 actionContinue->setText(continueLabel);
                 actionContinue->setIcon(continueIcon);
             }
-            // Reverse actions should only be toggled if we are tracing
-            if (Core()->isTraceSessionInProgress()) {
-                for (QAction *a : reverseActions) {
-                    a->setDisabled(disableToolbar);
-                }
+            for (QAction *a : reverseActions) {
+                a->setVisible(Core()->currentlyTracing);
+                a->setDisabled(disableToolbar);
             }
         } else {
             for (QAction *a : toggleConnectionActions) {
@@ -199,9 +197,9 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
         actionStartEmul->setText(restartEmulLabel);
         actionStartEmul->setIcon(restartIcon);
         actionStop->setText(stopEmulLabel);
-        // Reverse debug actions are disabled until we start tracing
+        // Reverse debug actions aren't visible until we start tracing
         for (QAction *a : reverseActions) {
-            a->setDisabled(true);
+            a->setVisible(false);
         }
     });
     connect(actionStepOver, &QAction::triggered, Core(), &CutterCore::stepOverDebug);
@@ -221,7 +219,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
 
     connect(actionTrace, &QAction::triggered, Core(), [=]() {
         // Check if a debug session was created to switch between start and stop
-        if (!Core()->isTraceSessionInProgress()) {
+        if (!Core()->currentlyTracing) {
             Core()->startTraceSession();
             actionTrace->setText(stopTraceLabel);
             actionTrace->setIcon(stopTraceIcon);
@@ -390,10 +388,12 @@ void DebugActions::startDebug()
     actionStart->setIcon(restartIcon);
     setButtonVisibleIfMainExists();
 
-    // Reverse debug actions are disabled until we start tracing
+    // Reverse debug actions aren't visible until we start tracing
     for (QAction *a : reverseActions) {
-        a->setDisabled(true);
+        a->setVisible(false);
     }
+    actionTrace->setText(startTraceLabel);
+    actionTrace->setIcon(startTraceIcon);
 
     Core()->startDebug();
 }

@@ -418,7 +418,6 @@ public:
     void stepOutDebug();
     void stepBackDebug();
 
-    bool isTraceSessionInProgress();
     void startTraceSession();
     void stopTraceSession();
 
@@ -455,6 +454,7 @@ public:
     bool isRedirectableDebugee();
     bool currentlyDebugging = false;
     bool currentlyEmulating = false;
+    bool currentlyTracing = false;
     int currentlyAttachedToPID = -1;
     QString currentlyOpenFile;
 

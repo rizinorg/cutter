@@ -1865,6 +1865,7 @@ void CutterCore::stopDebug()
     }
 
     currentlyDebugging = false;
+    currentlyTracing = false;
     emit debugTaskStateChanged();
 
     if (currentlyEmulating) {
@@ -2167,30 +2168,9 @@ void CutterCore::setDebugPlugin(QString plugin)
     setConfig("dbg.backend", plugin);
 }
 
-bool CutterCore::isTraceSessionInProgress() {
-    CORE_LOCK();
-    if (!currentlyDebugging) {
-        return false;
-    }
-
-    if (currentlyEmulating) {
-        if (core->analysis->esil->trace) {
-            return true;
-        } else {
-            return false;
-        }
-    } else {
-        if (core->dbg->session) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-}
-
 void CutterCore::startTraceSession()
 {
-    if (!currentlyDebugging) {
+    if (!currentlyDebugging || currentlyTracing) {
         return;
     }
 
@@ -2211,6 +2191,7 @@ void CutterCore::startTraceSession()
         }
         debugTask.clear();
 
+        currentlyTracing = true;
         emit debugTaskStateChanged();
     });
 
@@ -2225,7 +2206,7 @@ void CutterCore::startTraceSession()
 
 void CutterCore::stopTraceSession()
 {
-    if (!currentlyDebugging) {
+    if (!currentlyDebugging || !currentlyTracing) {
         return;
     }
 
@@ -2246,6 +2227,7 @@ void CutterCore::stopTraceSession()
         }
         debugTask.clear();
 
+        currentlyTracing = false;
         emit debugTaskStateChanged();
     });
 
