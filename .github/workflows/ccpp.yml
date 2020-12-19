@@ -73,8 +73,9 @@ jobs:
       if: contains(matrix.os, 'macos')
       run: |
         cd scripts
+        brew list | grep python
         brew update --preinstall # temporary workaround for https://github.com/Homebrew/homebrew-bundle/issues/751
-        brew uninstall python@2.7.17
+        brew uninstall python@2.7.18
         brew bundle
         brew install coreutils
         brew install pkg-config
