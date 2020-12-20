@@ -73,6 +73,7 @@ jobs:
       if: contains(matrix.os, 'macos')
       run: |
         cd scripts
+        rm '/usr/local/bin/2to3' # symlink to some kind of existing python2.7 installation conflicts with brew python3 which gets installed as indirect dependency
         brew update --preinstall # temporary workaround for https://github.com/Homebrew/homebrew-bundle/issues/751
         brew bundle
         brew install coreutils
