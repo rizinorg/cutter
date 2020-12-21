@@ -168,7 +168,7 @@ jobs:
         set -euo pipefail
         export PATH=/usr/local/opt/llvm/bin:$PATH
         source scripts/prepare_breakpad_macos.sh
-        export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+        export PKG_CONFIG_PATH="$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
         mkdir build
         cd build
         cmake \
