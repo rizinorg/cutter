@@ -186,6 +186,8 @@ jobs:
                 .. && \
               make -j4;
         make package
+        export CUTTER_VERSION=$(python ../scripts/get_version.py)
+        echo PACKAGE_NAME=Cutter-${CUTTER_VERSIOON}-Darwin.dmg >> $GITHUB_ENV
     - name: windows dependencies
       if: contains(matrix.os, 'windows')
       shell: bash
