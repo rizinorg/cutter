@@ -165,6 +165,7 @@ jobs:
       run: |
         scripts/fetch_deps.sh
         source cutter-deps/env.sh
+        set -euo pipefail
         export PATH=/usr/local/opt/llvm/bin:$PATH
         source scripts/prepare_breakpad_macos.sh
         export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
@@ -186,8 +187,8 @@ jobs:
                 .. && \
               make -j4;
         make package
-        export CUTTER_VERSION=$(python ../scripts/get_version.py)
-        echo PACKAGE_NAME=Cutter-${CUTTER_VERSIOON}-Darwin.dmg >> $GITHUB_ENV
+        export CUTTER_VERSION=$(python3 ../scripts/get_version.py)
+        echo PACKAGE_NAME=Cutter-${CUTTER_VERSION}-Darwin.dmg >> $GITHUB_ENV
     - name: windows dependencies
       if: contains(matrix.os, 'windows')
       shell: bash
