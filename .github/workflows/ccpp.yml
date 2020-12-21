@@ -180,9 +180,12 @@ jobs:
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON \
                 -DCUTTER_USE_BUNDLED_RIZIN=ON \
                 -DCUTTER_ENABLE_PACKAGING=ON \
+                -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON \
+                -DCUTTER_PACKAGE_RZ_GHIDRA=ON \
                 -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR" \
                 .. && \
               make -j4;
+        make package
     - name: windows dependencies
       if: contains(matrix.os, 'windows')
       shell: bash
