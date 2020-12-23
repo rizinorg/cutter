@@ -85,7 +85,7 @@ if [ $? -eq 1 ]; then
     read -r answer
     if [ -z "$answer" ] || [ "$answer" = "Y" ] || [ "$answer" = "y" ]; then
         RZPREFIX=${1:-"/usr"}
-        git submodule init && git submodule update
+        git submodule init && git submodule update --progress --depth 1
         cd rizin || exit 1
         ./sys/install.sh "$RZPREFIX"
         cd ..
