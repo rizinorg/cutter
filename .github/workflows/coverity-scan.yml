@@ -1,5 +1,8 @@
 name: coverity-scan
 on:
+  push:
+    branches:
+      - cov-fix
   schedule:
     - cron: "0 9 * * 1,5" # Bi-weekly at 09:00 UTC on Monday and Thursday
 
