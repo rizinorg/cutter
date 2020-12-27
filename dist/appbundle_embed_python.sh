@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -euo pipefail
 if ! [[ $# -eq 3 ]]; then
     echo "Usage: $0 [Python.framework] [AppBundle.app] [AppBundle.app/Contents/MacOS/Executable]"
     exit 1
@@ -11,7 +12,7 @@ py_framework=$1
 appbundle=$2
 executable=$3
 
-echo "Embedding $py_framework into $appbundle"
+echo "Embedding $py_framework into $appbundle | $executable"
 
 mkdir -p "$appbundle/Contents/Frameworks" || exit 1
 cp -a "$py_framework" "$appbundle/Contents/Frameworks/" || exit 1
