@@ -183,7 +183,7 @@ jobs:
                 -DCUTTER_PACKAGE_DEPENDECIES=ON \
                 -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON \
                 -DCUTTER_PACKAGE_RZ_GHIDRA=ON \
-                -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR" \
+                -DCMAKE_FRAMEWORK_PATH="$BREAKPAD_FRAMEWORK_DIR" \
                 .. && \
               make -j4;
         make package
