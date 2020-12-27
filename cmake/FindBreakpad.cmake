@@ -33,6 +33,11 @@ if(WIN32)
 	set (Breakpad_LINK_LIBRARIES ${Breakpad_LIBRARIES})
 
 	set(Breakpad_LIBRARY_DIRS "")
+elseif(APPLE)
+	find_library(Breakpad_LINK_LIBRARIES Breakpad REQUIRED)
+	set(Breakpad_LIBRARIES ${Breakpad_LINK_LIBRARIES})
+	# Assumes Breakpad is packed as Framework
+	set(Breakpad_INCLUDE_DIRS "${Breakpad_LINK_LIBRARIES}/Headers")
 else()
 	set(Breakpad_CMAKE_PREFIX_PATH_TEMP ${CMAKE_PREFIX_PATH})
 	list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Breakpad/prefix")

@@ -2,8 +2,9 @@ include(BundleUtilities)
 
 set(MACDEPLOYQT_PATH "@MACDEPLOYQT_PATH@")
 set(INFO_PLIST_PATH "@CPACK_BUNDLE_PLIST@")
-#set(CUTTER_SH_PATH "@CUTTER_SH_PATH@")
 set(ADJUST_RIZIN_LIBS "@ADJUST_RIZIN_LIBS@")
+set(CUTTER_ENABLE_CRASH_REPORTS "@CUTTER_ENABLE_CRASH_REPORTS@")
+set(Breakpad_LINK_LIBRARIES "@Breakpad_LINK_LIBRARIES@")
 
 macro(run_or_die)
 	execute_process(${ARGV} RESULT_VARIABLE PROC_RESULT)
@@ -14,6 +15,7 @@ endmacro()
 
 get_filename_component(BUNDLE_PATH "${CMAKE_INSTALL_PREFIX}/../.." ABSOLUTE)
 set(EXECUTABLE_DIR "${BUNDLE_PATH}/Contents/MacOS")
+set(FRAMEWORK_DIR "${BUNDLE_PATH}/Contents/Frameworks")
 #file(MAKE_DIRECTORY "${EXECUTABLE_DIR}")
 ## Move the executable from Resources/bin/Cutter to MacOS/Cutter
 ## macdeployqt can't handle anything else
@@ -62,6 +64,12 @@ run_or_die(COMMAND ${MACDEPLOYQT_COMMAND}) # Plugins not getting deployed first 
 #	get_filename_component(_name "${_lib}" NAME)
 #	file(REMOVE "${BUNDLE_PATH}/Contents/Frameworks/${_name}")
 #endforeach()
+
+if (CUTTER_ENABLE_CRASH_REPORTS)
+	message("Copying Breakpad ${Breakpad_LINK_LIBRARIES}")
+	set(_breakpad_lib "Versions/A/Breakpad")
+	copy_resolved_framework_into_bundle("${Breakpad_LINK_LIBRARIES}/${_breakpad_lib}" "${FRAMEWORK_DIR}/Breakpad.framework/${_breakpad_lib}")
+endif()
 
 # Replace main executable by Cutter.sh
 #file(RENAME "${EXECUTABLE_DIR}/Cutter" "${EXECUTABLE_DIR}/Cutter.bin")
