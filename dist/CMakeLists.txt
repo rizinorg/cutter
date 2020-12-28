@@ -52,11 +52,21 @@ if(APPLE)
 	if(NOT MACDEPLOYQT_PATH)
 		message(FATAL_ERROR "Failed to find macdeployqt")
 	endif()
-	#set(CUTTER_SH_PATH "${CMAKE_CURRENT_SOURCE_DIR}/macos/Cutter.sh")
-	#unset(ADJUST_RIZIN_LIBS)
+
+	unset(ADJUST_RIZIN_LIBS)
 	foreach(_lib ${RZ_LIBS})
 		list(APPEND ADJUST_RIZIN_LIBS "${RIZIN_INSTALL_DIR}/lib/lib${_lib}.dylib")
 	endforeach()
+
+	if(CUTTER_PACKAGE_DEPENDENCIES AND CUTTER_ENABLE_PYTHON)
+		set(EMBED_PYTHON_SH "${CMAKE_CURRENT_SOURCE_DIR}/appbundle_embed_python.sh")
+		set(PYTHON_FRAMEWORK_DIR "${CUTTER_DEPS}/python/Python.framework")
+		set(PYSIDE_PREFIX "${CUTTER_DEPS}/pyside")
+		configure_file("${CMAKE_CURRENT_SOURCE_DIR}/MacOSBundlePython.cmake.in"
+			"${CMAKE_CURRENT_BINARY_DIR}/MacOSBundlePython.cmake" @ONLY)
+		install(SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/MacOSBundlePython.cmake")
+	endif()
+
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/MacOSSetupBundle.cmake.in"
 		"${CMAKE_CURRENT_BINARY_DIR}/MacOSSetupBundle.cmake" @ONLY)
 	install(SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/MacOSSetupBundle.cmake")
@@ -65,14 +75,7 @@ if(APPLE)
 	list(APPEND RZ_GHIDRA_PREFIX_PATH "${QT_PREFIX}")
 	set(RIZIN_INSTALL_PLUGDIR "share/rizin/plugins") # escaped backslash on purpose, should be evaluated later
 
-    if(CUTTER_PACKAGE_DEPENDENCIES AND CUTTER_ENABLE_PYTHON)
-		set(EMBED_PYTHON_SH "${CMAKE_CURRENT_SOURCE_DIR}/appbundle_embed_python.sh")
-		set(PYTHON_FRAMEWORK_DIR "${CUTTER_DEPS}/python/Python.framework")
-		set(PYSIDE_PREFIX "${CUTTER_DEPS}/pyside")
-		configure_file("${CMAKE_CURRENT_SOURCE_DIR}/MacOSBundlePython.cmake.in"
-			"${CMAKE_CURRENT_BINARY_DIR}/MacOSBundlePython.cmake" @ONLY)
-		install(SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/MacOSBundlePython.cmake")
-	endif()
+    
 endif()
 
 ################################################

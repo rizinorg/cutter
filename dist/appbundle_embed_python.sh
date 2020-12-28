@@ -39,7 +39,12 @@ fi
 
 echo "PySide is at $pyside_prefix"
 
-cp -va "$pyside_prefix/lib/$python_version/" "Versions/Current/lib/$python_version"
-cd .. # $appbundle/Contents/Frameworks
-cp -va "$pyside_prefix/lib/"*.dylib .
+if [ ! -d "Versions/Current/lib/$python_version/site-packages/PySide2" ]
+then
+    cp -va "$pyside_prefix/lib/$python_version/" "Versions/Current/lib/$python_version"
+    cd .. # $appbundle/Contents/Frameworks
+    cp -va "$pyside_prefix/lib/"*.dylib .
+else
+    echo "site-packages/Pyside2 exists, skipping copying"
+fi
 

@@ -5,6 +5,8 @@ set(INFO_PLIST_PATH "@CPACK_BUNDLE_PLIST@")
 set(ADJUST_RIZIN_LIBS "@ADJUST_RIZIN_LIBS@")
 set(CUTTER_ENABLE_CRASH_REPORTS "@CUTTER_ENABLE_CRASH_REPORTS@")
 set(Breakpad_LINK_LIBRARIES "@Breakpad_LINK_LIBRARIES@")
+set(CUTTER_PACKAGE_DEPENDENCIES "@CUTTER_PACKAGE_DEPENDENCIES@")
+set(CUTTER_ENABLE_PYTHON "@CUTTER_ENABLE_PYTHON@")
 
 macro(run_or_die)
 	execute_process(${ARGV} RESULT_VARIABLE PROC_RESULT)
@@ -16,13 +18,7 @@ endmacro()
 get_filename_component(BUNDLE_PATH "${CMAKE_INSTALL_PREFIX}/../.." ABSOLUTE)
 set(EXECUTABLE_DIR "${BUNDLE_PATH}/Contents/MacOS")
 set(FRAMEWORK_DIR "${BUNDLE_PATH}/Contents/Frameworks")
-#file(MAKE_DIRECTORY "${EXECUTABLE_DIR}")
-## Move the executable from Resources/bin/Cutter to MacOS/Cutter
-## macdeployqt can't handle anything else
-#file(RENAME "${CMAKE_INSTALL_PREFIX}/bin/Cutter" "${EXECUTABLE_DIR}/Cutter")
-## Make a symlink from the original location so CutterConfig.cmake won't be broken
-#run_or_die(COMMAND ${CMAKE_COMMAND} -E create_symlink "../../MacOS/Cutter.bin" "${CMAKE_INSTALL_PREFIX}/bin/Cutter")
-#
+
 ## Copying the Info.plist will be done later again by CPack but we need it a bit earlier
 ## so macdeployqt has enough info.
 file(COPY "${INFO_PLIST_PATH}" DESTINATION "${BUNDLE_PATH}/Contents")
@@ -56,23 +52,20 @@ run_or_die(COMMAND install_name_tool
 set(MACDEPLOYQT_COMMAND "${MACDEPLOYQT_PATH}" "${BUNDLE_PATH}" "-verbose=2" "-libpath=${CMAKE_INSTALL_PREFIX}/lib")
 message("Running macdeployqt \"${MACDEPLOYQT_COMMAND}\"")
 run_or_die(COMMAND ${MACDEPLOYQT_COMMAND})
-run_or_die(COMMAND ${MACDEPLOYQT_COMMAND}) # Plugins not getting deployed first time, runing twice helps
+if (CUTTER_PACKAGE_DEPENDENCIES AND CUTTER_ENABLE_PYTHON)
+	list(APPEND MACDEPLOYQT_COMMAND "-executable=${FRAMEWORK_DIR}/Python.framework/Python")
+endif()
+run_or_die(COMMAND ${MACDEPLOYQT_COMMAND}) # Plugins not getting deployed first time, runing twice helps, if python is added as additional executable in first run it also doesn't work
 
 # Clean up the mess that macdeployqt made (duplicate rz libs, we only want the ones in the prefix)
-#foreach(_lib ${ADJUST_RIZIN_LIBS})
-#	get_filename_component(_lib "${_lib}" REALPATH)
-#	get_filename_component(_name "${_lib}" NAME)
-#	file(REMOVE "${BUNDLE_PATH}/Contents/Frameworks/${_name}")
-#endforeach()
+foreach(_lib ${ADJUST_RIZIN_LIBS})
+	get_filename_component(_lib "${_lib}" REALPATH)
+	get_filename_component(_name "${_lib}" NAME)
+	file(REMOVE "${BUNDLE_PATH}/Contents/Frameworks/${_name}")
+endforeach()
 
 if (CUTTER_ENABLE_CRASH_REPORTS)
 	message("Copying Breakpad ${Breakpad_LINK_LIBRARIES}")
 	set(_breakpad_lib "Versions/A/Breakpad")
 	copy_resolved_framework_into_bundle("${Breakpad_LINK_LIBRARIES}/${_breakpad_lib}" "${FRAMEWORK_DIR}/Breakpad.framework/${_breakpad_lib}")
 endif()
-
-# Replace main executable by Cutter.sh
-#file(RENAME "${EXECUTABLE_DIR}/Cutter" "${EXECUTABLE_DIR}/Cutter.bin")
-#file(COPY "${CUTTER_SH_PATH}" DESTINATION "${EXECUTABLE_DIR}")
-#file(RENAME "${EXECUTABLE_DIR}/Cutter.sh" "${EXECUTABLE_DIR}/Cutter")
-
