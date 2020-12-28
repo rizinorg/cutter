@@ -78,6 +78,10 @@ jobs:
         brew bundle
         brew install coreutils
         brew install pkg-config
+        # TODO: remove this after rizinorg/rz-ghidra#184
+        brew install bison flex # rz-ghidra needs newer bison than ancient version shipped with macOS
+        echo /usr/local/opt/bison/bin >> $GITHUB_PATH
+        echo /usr/local/opt/flex/bin >> $GITHUB_PATH
     - name: py dependencies
       run: |
         pip install meson
