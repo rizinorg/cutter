@@ -53,7 +53,9 @@ set(MACDEPLOYQT_COMMAND "${MACDEPLOYQT_PATH}" "${BUNDLE_PATH}" "-verbose=2" "-li
 message("Running macdeployqt \"${MACDEPLOYQT_COMMAND}\"")
 run_or_die(COMMAND ${MACDEPLOYQT_COMMAND})
 if (CUTTER_PACKAGE_DEPENDENCIES AND CUTTER_ENABLE_PYTHON)
-	list(APPEND MACDEPLOYQT_COMMAND "-executable=${FRAMEWORK_DIR}/Python.framework/Python")
+	file(REAL_PATH "${FRAMEWORK_DIR}/Python.framework/Python" _python_lib_path)
+	message("Python lib ${_python_lib_path}")
+	list(APPEND MACDEPLOYQT_COMMAND "-executable=${_python_lib_path}")
 endif()
 run_or_die(COMMAND ${MACDEPLOYQT_COMMAND}) # Plugins not getting deployed first time, runing twice helps, if python is added as additional executable in first run it also doesn't work
 
