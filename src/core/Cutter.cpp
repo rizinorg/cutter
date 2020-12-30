@@ -2468,7 +2468,7 @@ QList<RzCorePluginDescription> CutterCore::getRCorePluginDescriptions()
 {
     QList<RzCorePluginDescription> ret;
 
-    QJsonArray plugins = cmdj("Lsj").array();
+    QJsonArray plugins = cmdj("Lcj").array();
     for (const QJsonValue &pluginValue : plugins) {
         QJsonObject pluginObject = pluginValue.toObject();
 
