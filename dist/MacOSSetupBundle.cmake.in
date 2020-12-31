@@ -23,14 +23,27 @@ set(FRAMEWORK_DIR "${BUNDLE_PATH}/Contents/Frameworks")
 ## so macdeployqt has enough info.
 file(COPY "${INFO_PLIST_PATH}" DESTINATION "${BUNDLE_PATH}/Contents")
 
+# replace absolute path from build directory in rizin pkgconfig files with relative ones
+file(GLOB RZ_PCFILES "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig/rz_*.pc")
+list(APPEND RZ_PCFILES "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig/librz.pc")
+foreach (_pcfile ${RZ_PCFILES})
+	file(READ "${_pcfile}" _text)
+	string(REGEX REPLACE "^prefix=[^\n]*\n" "prefix=\${pcfiledir}/../..\n" _text "${_text}")
+	file(WRITE "${_pcfile}" "${_text}")
+endforeach()
 # macdeployqt would put the rz libraries into Contents/Frameworks by default, but we want to have them
 # only in the prefix, so we fix the paths manually.
 foreach(_lib ${ADJUST_RIZIN_LIBS})
 	get_filename_component(_lib "${_lib}" REALPATH)
 	get_filename_component(_name "${_lib}" NAME)
+	# Cutter reference to lib
 	run_or_die(COMMAND install_name_tool
 		-change "${_lib}" "@rpath/${_name}"
 		"${EXECUTABLE_DIR}/Cutter")
+	# lib LC_ID_DYLIB
+	run_or_die(COMMAND install_name_tool
+			-id "@rpath/${_name}"	
+			"${CMAKE_INSTALL_PREFIX}/lib/${_name}")
 	# Fix every lib for every lib too
 	foreach(_lib2 ${ADJUST_RIZIN_LIBS})
 	get_filename_component(_lib2 "${_lib2}" REALPATH)

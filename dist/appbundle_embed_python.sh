@@ -24,6 +24,7 @@ then
     rm -r Versions/Current/Resources/* "Versions/Current/lib/$python_version/test" "Versions/Current/lib/$python_version/idlelib" "Versions/Current/lib/$python_version/curses" "Versions/Current/lib/$python_version/lib2to3" || echo "Couldn't remove something"
 else
     echo "Python.framework already exists, skipping copying"
+    cd "$appbundle/Contents/Frameworks/Python.framework"
 fi
 
 echo "Making executable $executable point to embedded Framework"
