@@ -165,9 +165,9 @@ jobs:
       run: |
         scripts/fetch_deps.sh
         source cutter-deps/env.sh
+        set -euo pipefail
         export PATH=/usr/local/opt/llvm/bin:$PATH
         source scripts/prepare_breakpad_macos.sh
-        export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
         mkdir build
         cd build
         cmake \
@@ -180,9 +180,15 @@ jobs:
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON \
                 -DCUTTER_USE_BUNDLED_RIZIN=ON \
                 -DCUTTER_ENABLE_PACKAGING=ON \
-                -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR" \
+                -DCUTTER_PACKAGE_DEPENDENCIES=ON \
+                -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON \
+                -DCUTTER_PACKAGE_RZ_GHIDRA=ON \
+                -DCMAKE_FRAMEWORK_PATH="$BREAKPAD_FRAMEWORK_DIR" \
                 .. && \
               make -j4;
+        make package
+        export CUTTER_VERSION=$(python3 ../scripts/get_version.py)
+        echo PACKAGE_NAME=Cutter-${CUTTER_VERSION}-Darwin.dmg >> $GITHUB_ENV
     - name: windows dependencies
       if: contains(matrix.os, 'windows')
       shell: bash
