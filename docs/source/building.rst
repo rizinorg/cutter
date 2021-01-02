@@ -87,7 +87,6 @@ If your operating system has a newer version of CMake (> v3.12) you can use this
    cmake -B build -DCUTTER_USE_BUNDLED_RIZIN=ON
    cmake --build build
 
-.. note::
 If you want to use Cutter with another version of Rizin you can omit ``-DCUTTER_USE_BUNDLED_RIZIN=ON``. Note that using a version of Rizin which isn't the version Cutter is using can cause issues and the compilation might fail.
 
 .. note::
@@ -138,93 +137,6 @@ Click ``Configure`` and select your version of Visual Studio from the list,
 for example ``Visual Studio 14 2015``.
 After the configuration is done, click ``Generate`` and you can open
 ``Cutter.sln`` to compile the code as usual.
-
-
-Building with Meson
-~~~~~~~~~~~~~~~~~~~
-
-There is another way to compile Cutter on Windows if the one above does
-not work or does not suit your needs.
-
-Additional requirements:
-
--  Ninja build system
--  Meson build system
-
-Download and unpack
-`Ninja <https://github.com/ninja-build/ninja/releases>`__ to the Cutter
-source root directory (ie. **cutter** - working dir).
-
-Note that in the below steps, the paths may vary depending on your version of Qt and Visual Studio.
-
-Environment settings (example for x64 version):
-
-.. code:: batch
-
-    :: Export MSVC variables
-    CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
-    :: Add qmake to PATH
-    SET "PATH=C:\Qt\5.10.1\msvc2015_64\bin;%PATH%"
-    :: Add Python to PATH
-    SET "PATH=C:\Program Files\Python36;%PATH%"
-
-Install Meson:
-
-.. code:: batch
-
-   python -m pip install meson
-
-To compile Cutter, run:
-
-.. code:: batch
-
-   CALL prepare_rizin.bat
-   CALL build.bat
-
-
---------------
-
-Building with Qmake
--------------------
-
-Using QtCreator
-~~~~~~~~~~~~~~~
-
-One standard way is to simply load the project inside QtCreator.
-To do so, open QtCreator and on the welcome screen click on "Open Project",
-and finally select the ``cutter/src/Cutter.pro`` file.
-QtCreator will then allow you to directly edit the source code and build the project.
-
-.. note::
-
-   On **Windows**, for the ``.pro`` file to be compiled successfully, it is required
-   to run ``prepare_rizin.bat`` beforehand.
-
-Compiling on Linux / macOS
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The easiest way, but not the one we recommend, is to simply run ``./build.sh`` from the root directory,
-and let the magic happen. The script will use ``qmake`` to build Cutter.
-The ``build.sh`` script is meant to be deprecated and will be deleted in the future.
-
-If you want to manually use qmake, follow these steps:
-
-.. code:: sh
-
-   mkdir build; cd build
-   qmake ../src/Cutter.pro
-   make
-   cd ..
-
-Additional Steps for macOS
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-On macOS you will also have to copy the launcher bash script:
-
-.. code:: sh
-
-   mv Cutter.app/Contents/MacOS/Cutter Cutter.app/Contents/MacOS/Cutter.bin
-   cp ../src/macos/Cutter Cutter.app/Contents/MacOS/Cutter && chmod +x Cutter.app/Contents/MacOS/Cutter
 
 
 --------------
@@ -344,9 +256,7 @@ encounter any problems.
 
 You can also try:
 
--  ``PKG_CONFIG_PATH=$HOME/bin/prefix/rizin/lib/pkgconfig qmake``
--  ``PKG_CONFIG_PATH=$HOME/cutter/rizin/pkgcfg qmake`` (for a newer
-   version and if the rizin submodule is being built and used)
+-  ``PKG_CONFIG_PATH=$HOME/bin/prefix/rizin/lib/pkgconfig cmake ...``
 
 .. image:: images/cutter_path_settings.png
 

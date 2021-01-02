@@ -32,9 +32,6 @@ Qt Creator
 ----------
 QT Creator is an open-source IDE made by the same developers as Qt.
 
-Even though Cutter has qmake project cutter.pro it is recommended to use the CMake project in QTCreator.
-QTCreator support for CMake is as good as qmake one but not all Cutter project configuration options are available in qmake project and in future Cutter qmake project might be removed.
-
 Pros and Cons
 ~~~~~~~~~~~~~
 
@@ -48,7 +45,7 @@ Project setup
 ~~~~~~~~~~~~~
 The following instructions were made based on version 4.12.4 of Qt Creator. The steps might slightly differ between the versions.
 
-- Go to :menuselection:`File --> Open File or Project..` and select :file:`cutter/src/CMakeList.txt`
+- Go to :menuselection:`File --> Open File or Project..` and select :file:`cutter/CMakeList.txt`
 - Select kit and press :guilabel:`Configure Project`
 - Configuration step might fail due to Rizin not being found, that's normal
 - Click :guilabel:`Projects` button with wrench icon on the left side of the screen
@@ -141,7 +138,7 @@ Project setup
 ~~~~~~~~~~~~~
 - Go to :menuselection:`File --> Open` and select the folder in which you cloned Cutter
 - Go to :menuselection:`File --> Settings --> Build, Execution, Deployment --> CMake`. In the :guilabel:`CMake Options` field enter ``-DCUTTER_USE_BUNDLED_RIZIN=ON``
-- Open :file:`cutter/src/CMakeLists.txt` using the project file list on the left side of the screen
+- Open :file:`cutter/CMakeLists.txt` using the project file list on the left side of the screen
 - A yellow bar with a message :guilabel:`CMake project is not loaded` should appear, click :guilabel:`Load CMake project`
 
 Changing CMake configuration

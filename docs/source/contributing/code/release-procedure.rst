@@ -1,7 +1,7 @@
 Release Procedure
 =================
 
-1. Update translations submodule `https://github.com/rizinorg/cutter-translations`_
+1. Update translations submodule `<https://github.com/rizinorg/cutter-translations>`_
     1. The latest archive from Crowdin should already be in the repository, if not make sure to merge any automated Pull Request from Crowdin (e.g. https://github.com/rizinorg/cutter-translations/pull/9)
     2. Update submodule in cutter
 2. If there is a desire to keep working in the master branch, create branch for the release and do all the following work there.
@@ -10,7 +10,7 @@ Release Procedure
     #. appveyor.yml
     #. docs/sourc/conf.py
     #. docs/source/index.rst
-    #. Cutter.pro
+    #. CMakeLists.txt
     #. Cutter.appdata.xml
     #. To be safe, search the code base for the previous version number.
 5. Create a tag for the release candidate. For example, for the `v1.11.0` release you'd do something like this:

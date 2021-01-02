@@ -1,2 +1,0 @@
-option('enable_python', type: 'boolean', value: true)
-option('enable_python_bindings', type: 'boolean', value: true)

@@ -1,6 +1,5 @@
-include(QMakeConfigureFile)
-qmake_configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CutterConfig.h.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/CutterConfig.h")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CutterConfig.h.in"
+               "${CMAKE_CURRENT_BINARY_DIR}/CutterConfig.h")
 
 set(SOURCES
     Main.cpp
@@ -498,7 +497,7 @@ if(CUTTER_ENABLE_PYTHON)
             string(REPLACE ";" ":" BINDINGS_INCLUDE_DIRS "${BINDINGS_INCLUDE_DIRS}")
         endif()
 
-        qmake_configure_file("${BINDINGS_SRC_DIR}/bindings.txt.in" "${BINDINGS_BUILD_DIR}/bindings.txt")
+        configure_file("${BINDINGS_SRC_DIR}/bindings.txt.in" "${BINDINGS_BUILD_DIR}/bindings.txt")
         add_compile_definitions(WIN32_LEAN_AND_MEAN)
     endif()
 endif()
