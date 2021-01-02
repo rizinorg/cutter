@@ -19,8 +19,8 @@ get_filename_component(BUNDLE_PATH "${CMAKE_INSTALL_PREFIX}/../.." ABSOLUTE)
 set(EXECUTABLE_DIR "${BUNDLE_PATH}/Contents/MacOS")
 set(FRAMEWORK_DIR "${BUNDLE_PATH}/Contents/Frameworks")
 
-## Copying the Info.plist will be done later again by CPack but we need it a bit earlier
-## so macdeployqt has enough info.
+# Copying the Info.plist will be done later again by CPack but we need it a bit earlier
+# so macdeployqt has enough info.
 file(COPY "${INFO_PLIST_PATH}" DESTINATION "${BUNDLE_PATH}/Contents")
 
 # replace absolute path from build directory in rizin pkgconfig files with relative ones
@@ -64,13 +64,15 @@ run_or_die(COMMAND install_name_tool
 
 set(MACDEPLOYQT_COMMAND "${MACDEPLOYQT_PATH}" "${BUNDLE_PATH}" "-verbose=2" "-libpath=${CMAKE_INSTALL_PREFIX}/lib")
 message("Running macdeployqt \"${MACDEPLOYQT_COMMAND}\"")
-run_or_die(COMMAND ${MACDEPLOYQT_COMMAND})
+run_or_die(COMMAND ${MACDEPLOYQT_COMMAND}) # First run
 if (CUTTER_PACKAGE_DEPENDENCIES AND CUTTER_ENABLE_PYTHON)
 	file(REAL_PATH "${FRAMEWORK_DIR}/Python.framework/Python" _python_lib_path)
 	message("Python lib ${_python_lib_path}")
 	list(APPEND MACDEPLOYQT_COMMAND "-executable=${_python_lib_path}")
 endif()
-run_or_die(COMMAND ${MACDEPLOYQT_COMMAND}) # Plugins not getting deployed first time, runing twice helps, if python is added as additional executable in first run it also doesn't work
+# Qt plugins are not getting deployed on first macdeployqt run. Runing twice helps.
+# If python is added as additional executable in first run it also breaks plugin copying.
+run_or_die(COMMAND ${MACDEPLOYQT_COMMAND}) # Second run
 
 # Clean up the mess that macdeployqt made (duplicate rz libs, we only want the ones in the prefix)
 foreach(_lib ${ADJUST_RIZIN_LIBS})
