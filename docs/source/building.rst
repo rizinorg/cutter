@@ -139,6 +139,36 @@ After the configuration is done, click ``Generate`` and you can open
 ``Cutter.sln`` to compile the code as usual.
 
 
+Building on macOS
+-------------------
+
+Requirements
+~~~~~~~~~~~~
+
+* XCode
+* CMake
+* Qt
+* meson
+* ninja
+
+
+For basic build all dependencies except XCode can be installed using homebrew:
+
+::
+
+   brew install cmake qt5 meson ninja
+
+
+Recommended Way for dev builds
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: batch
+
+   mkdir build
+   cd build
+   cmake .. -DCUTTER_USE_BUNDLED_RIZIN=ON -DCMAKE_PREFIX_PATH=/local/opt/qt5
+   make
+
 --------------
 
 CMake Building Options
