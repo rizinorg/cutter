@@ -18,7 +18,10 @@
 #include <QPainterPath>
 #include <QSplitter>
 
-class DisassemblyTextBlockUserData : public QTextBlockUserData
+#include <algorithm>
+#include <optional>
+
+class DisassemblyTextBlockUserData: public QTextBlockUserData
 {
 public:
     DisassemblyLine line;
@@ -833,19 +836,26 @@ void DisassemblyWidget::seekPrev()
  * Left panel
  *********************/
 
-struct Range
-{
-    Range(RVA v1, RVA v2) : from(v1), to(v2)
-    {
-        if (from > to)
+struct Arrow {
+    Arrow(RVA v1, RVA v2)
+        : from(v1), to(v2), 
+          level(0), reversed(false)
+    { 
+        if (from > to)  { 
             std::swap(from, to);
+            reversed = true;
+        }
     }
-    RVA from;
-    RVA to;
 
-    inline bool contains(const Range &other) const { return from <= other.from && to >= other.to; }
+    inline bool contains(RVA point) const
+    {
+        return from <= point && to >= point;
+    }
 
-    inline bool contains(RVA point) const { return from <= point && to >= point; }
+    RVA      from;
+    RVA      to;
+    uint32_t level;
+    bool     reversed;
 };
 
 DisassemblyLeftPanel::DisassemblyLeftPanel(DisassemblyWidget *disas)
@@ -865,7 +875,6 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
 
-    using namespace std;
     constexpr int penSizePix = 1;
     constexpr int distanceBetweenLines = 10;
     constexpr int arrowWidth = 5;
@@ -883,91 +892,101 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
 
     QList<DisassemblyLine> lines = disas->getLines();
 
-    QMap<RVA, int> linesPixPosition;
-    QMap<RVA, pair<RVA, int>> arrowInfo; /* offset -> (arrow, layer of arrow) */
-    int nLines = 0;
-    for (const auto &line : lines) {
-        linesPixPosition[line.offset] = nLines * lineHeight + lineHeight / 2 + topOffset;
-        nLines++;
-        if (line.arrow != RVA_INVALID) {
-            arrowInfo.insert(line.offset, { line.arrow, -1 });
+    std::vector<std::pair<RVA, int>> linesPixPosition;
+    linesPixPosition.reserve(lines.size());
+
+    std::vector<Arrow> arrows;
+    // allocate maximum possible buffer so we don't waste time on reallocating and moving
+    arrows.reserve(lines.size()); 
+
+    for (int i = 0; i < lines.size(); i++) {
+        linesPixPosition.emplace_back(lines[i].offset, i * lineHeight + lineHeight / 2 + topOffset);
+        if (lines[i].arrow != RVA_INVALID) {
+            arrows.emplace_back(lines[i].offset, lines[i].arrow);
         }
     }
 
-    for (auto it = arrowInfo.begin(); it != arrowInfo.end(); it++) {
-        Range currRange = { it.key(), it.value().first };
-        it.value().second = it.value().second == -1 ? 1 : it.value().second;
-        for (auto innerIt = arrowInfo.begin(); innerIt != arrowInfo.end(); innerIt++) {
-            if (innerIt == it) {
+    if (!arrows.empty()) {
+        // sort by Arrow::to so we can use arrows as sorted oriented ranges 
+        std::sort(std::begin(arrows), std::end(arrows), [](const Arrow& l, const Arrow& r) { 
+            return l.to > r.to; 
+        });
+
+        bool changedAtLeastOne = true;
+        bool exit = false;
+        std::vector<Arrow>::iterator it, end;
+        auto increment = [&]() {
+            it++;
+            if (it == end) {
+                exit = !changedAtLeastOne;
+                changedAtLeastOne = false;
+                it = std::begin(arrows);
+            }
+        };
+        for (it = std::begin(arrows), end = std::end(arrows); !exit; increment()) {
+            if (it->level != 0) {
                 continue;
             }
-            Range innerRange = { innerIt.key(), innerIt.value().first };
-            if (currRange.contains(innerRange) || currRange.contains(innerRange.from)) {
-                it.value().second++;
+            bool hasArrowsEndInside = false;
+            auto minmax_level = std::accumulate(std::next(it), std::end(arrows), 
+                std::pair{ UINT32_MAX, 0u },
+                [&](const auto& acc, const Arrow& it2) {
+                    if (it->contains(it2.to)) {
+                        hasArrowsEndInside = true;
+                        return std::pair{ std::min(acc.first, it2.level), std::max(acc.second, it2.level) };
+                    }
+                    return acc;
+                }
+            );
+            if (!hasArrowsEndInside || minmax_level.first > 1) {
+                it->level = 1;
+                changedAtLeastOne = true;
+            } else if (minmax_level.first > 0) {
+                it->level = minmax_level.second + 1;
+                changedAtLeastOne = true;
             }
         }
     }
-
-    // I'm sorry this loop below, but it is only way I see how to implement the feature
-    while (true) {
-        bool correction = false;
-        bool correction2 = false;
-        for (auto it = arrowInfo.begin(); it != arrowInfo.end(); it++) {
-            int minDistance = INT32_MAX;
-            Range currRange = { it.key(), it.value().first };
-            for (auto innerIt = arrowInfo.begin(); innerIt != arrowInfo.end(); innerIt++) {
-                if (innerIt == it) {
-                    continue;
-                }
-                Range innerRange = { innerIt.key(), innerIt.value().first };
-                if (it.value().second == innerIt.value().second
-                    && (currRange.contains(innerRange) || currRange.contains(innerRange.from))) {
-                    it.value().second++;
-                    correction = true;
-                }
-                int distance = it.value().second - innerIt.value().second;
-                if (distance > 0 && distance < minDistance) {
-                    minDistance = distance;
-                }
-            }
-            if (minDistance > 1 && minDistance != INT32_MAX) {
-                correction2 = true;
-                it.value().second -= minDistance - 1;
-            }
-        }
-        if (!correction && !correction2) {
-            break;
-        }
-    }
+    
 
     const RVA currOffset = disas->getSeekable()->getOffset();
     qreal pixelRatio = qhelpers::devicePixelRatio(p.device());
     // Draw the lines
-    for (const auto &l : lines) {
-        int lineOffset =
-                int((distanceBetweenLines * arrowInfo[l.offset].second + distanceBetweenLines)
-                    * pixelRatio);
+    for (const auto& l : lines) {
+        auto arrow = find_if(std::begin(arrows), std::end(arrows), [&](const Arrow& a) { 
+            return (a.reversed ? a.to : a.from) == l.offset; 
+        });
+        int lineOffset = int((distanceBetweenLines * arrow->level + distanceBetweenLines) * pixelRatio);
         // Skip until we reach a line that jumps to a destination
         if (l.arrow == RVA_INVALID) {
             continue;
         }
 
-        bool jumpDown = l.arrow > l.offset;
-        p.setPen(jumpDown ? penDown : penUp);
+        p.setPen(arrow->reversed ? penUp : penDown);
         if (l.offset == currOffset || l.arrow == currOffset) {
             QPen pen = p.pen();
             pen.setWidthF((penSizePix * 3) / 2.0);
             p.setPen(pen);
         }
+
+        // std::nullopt will be replaced with std::nullptr in this case, so there is no overhead in using std::optional.
+        // std::optional is used here because c++ doesn't allow implicit conversion from std::nullptr_t to whatever type iterator has,
+        // and using explicit conversion, I believe, is technically UB (which won't affect program in any matter, but still) 
+        auto findLineInfo = [&](RVA offset) -> std::optional<decltype(std::begin(linesPixPosition))> {
+            // binary search because linesPixPosition is sorted by offset
+            auto res = lower_bound(std::begin(linesPixPosition), std::end(linesPixPosition), offset, [](const auto& it, RVA offset) {
+                return it.first < offset; 
+            });
+            return offset == res->first ? std::optional{ res } : std::nullopt;
+        };
+
+        int currentLineYPos = findLineInfo(l.offset).value()->second;
+
         bool endVisible = true;
-
-        int currentLineYPos = linesPixPosition[l.offset];
-        int lineArrowY = linesPixPosition.value(l.arrow, -1);
-
-        if (lineArrowY == -1) {
-            lineArrowY = jumpDown ? geometry().bottom() : 0;
-            endVisible = false;
-        }
+        auto tmpLineInfo = findLineInfo(l.arrow);
+        int lineArrowY = tmpLineInfo.has_value()
+            ? tmpLineInfo.value()->second
+            : (endVisible = false, (arrow->reversed ? 0 : geometry().bottom())); // destination isn't on screen
 
         // Draw the lines
         p.drawLine(rightOffset, currentLineYPos, rightOffset - lineOffset, currentLineYPos);
