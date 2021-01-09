@@ -931,7 +931,10 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
 
     // sort by length so that shorter arrows are inside loops formed by longer ones
     std::sort(std::begin(arrows), std::end(arrows), [](const Arrow& l, const Arrow& r) {
-       return l.to != r.to ? l.to < r.to : l.from > r.from;
+        if (l.reversed != r.reversed) {
+            return l.reversed < r.reversed;
+        }
+        return l.to != r.to ? l.to < r.to : l.from > r.from;
        //return l.length() < r.length();
     });
     if (!lines.empty()) {
