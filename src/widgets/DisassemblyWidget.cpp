@@ -4,6 +4,7 @@
 #include "common/Helpers.h"
 #include "common/TempConfig.h"
 #include "common/SelectionHighlight.h"
+#include "common/BinaryTrees.h"
 #include "core/MainWindow.h"
 
 #include <QApplication>
@@ -852,6 +853,11 @@ struct Arrow {
         return from <= point && to >= point;
     }
 
+    ut64 length() const
+    {
+        return to - from;
+    }
+
     RVA      from;
     RVA      to;
     uint32_t level;
@@ -892,62 +898,51 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
 
     QList<DisassemblyLine> lines = disas->getLines();
 
-    std::vector<std::pair<RVA, int>> linesPixPosition;
-    linesPixPosition.reserve(lines.size());
+    std::vector<std::pair<RVA, int>> lineOffsets;
+    lineOffsets.reserve(lines.size());
+
+    RangeAssignMaxTree maxLevel(lines.size() + 1, 0);
 
     std::vector<Arrow> arrows;
     // allocate maximum possible buffer so we don't waste time on reallocating and moving
-    arrows.reserve(lines.size()); 
+    arrows.reserve(lines.size());
 
     for (int i = 0; i < lines.size(); i++) {
-        linesPixPosition.emplace_back(lines[i].offset, i * lineHeight + lineHeight / 2 + topOffset);
+        lineOffsets.emplace_back(lines[i].offset, i);
         if (lines[i].arrow != RVA_INVALID) {
             arrows.emplace_back(lines[i].offset, lines[i].arrow);
         }
     }
 
-    if (!arrows.empty()) {
-        // sort by Arrow::to so we can use arrows as sorted oriented ranges 
-        std::sort(std::begin(arrows), std::end(arrows), [](const Arrow& l, const Arrow& r) { 
-            return l.to > r.to; 
+    auto offsetToLine = [&](RVA offset) -> int {
+        // binary search because linesPixPosition is sorted by offset
+        if (lineOffsets.empty()) {
+            return 0;
+        }
+        if (offset < lineOffsets[0].first) {
+            return -2;
+        }
+        auto res = lower_bound(std::begin(lineOffsets), std::end(lineOffsets), offset, [](const auto& it, RVA offset) {
+            return it.first < offset;
         });
+        if (res == std::end(lineOffsets)) {
+            return lines.size();
+        }
+        return res->second;
+    };
 
-        bool changedAtLeastOne = true;
-        bool exit = false;
-        std::vector<Arrow>::iterator it, end;
-        auto increment = [&]() {
-            it++;
-            if (it == end) {
-                exit = !changedAtLeastOne;
-                changedAtLeastOne = false;
-                it = std::begin(arrows);
-            }
-        };
-        for (it = std::begin(arrows), end = std::end(arrows); !exit; increment()) {
-            if (it->level != 0) {
-                continue;
-            }
-            bool hasArrowsEndInside = false;
-            auto minmax_level = std::accumulate(std::next(it), std::end(arrows), 
-                std::pair{ UINT32_MAX, 0u },
-                [&](const auto& acc, const Arrow& it2) {
-                    if (it->contains(it2.to)) {
-                        hasArrowsEndInside = true;
-                        return std::pair{ std::min(acc.first, it2.level), std::max(acc.second, it2.level) };
-                    }
-                    return acc;
-                }
-            );
-            if (!hasArrowsEndInside || minmax_level.first > 1) {
-                it->level = 1;
-                changedAtLeastOne = true;
-            } else if (minmax_level.first > 0) {
-                it->level = minmax_level.second + 1;
-                changedAtLeastOne = true;
-            }
+    // sort by length so that shorter arrows are inside loops formed by longer ones
+    std::sort(std::begin(arrows), std::end(arrows), [](const Arrow& l, const Arrow& r) {
+        return l.length() < r.length();
+    });
+    if (!lines.empty()) {
+        for (Arrow &arrow : arrows) {
+            int top = std::max(0, offsetToLine(arrow.from));
+            int bottom = std::min(offsetToLine(arrow.to), lines.size() - 1) + 1;
+            arrow.level = maxLevel.rangeMaximum(top, bottom) + 1;
+            maxLevel.setRange(top, bottom, arrow.level);
         }
     }
-    
 
     const RVA currOffset = disas->getSeekable()->getOffset();
     qreal pixelRatio = qhelpers::devicePixelRatio(p.device());
@@ -969,32 +964,25 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
             p.setPen(pen);
         }
 
-        // std::nullopt will be replaced with std::nullptr in this case, so there is no overhead in using std::optional.
-        // std::optional is used here because c++ doesn't allow implicit conversion from std::nullptr_t to whatever type iterator has,
-        // and using explicit conversion, I believe, is technically UB (which won't affect program in any matter, but still) 
-        auto findLineInfo = [&](RVA offset) -> std::optional<decltype(std::begin(linesPixPosition))> {
-            // binary search because linesPixPosition is sorted by offset
-            auto res = lower_bound(std::begin(linesPixPosition), std::end(linesPixPosition), offset, [](const auto& it, RVA offset) {
-                return it.first < offset; 
-            });
-            return offset == res->first ? std::optional{ res } : std::nullopt;
+        auto lineToPixels = [&] (int i) {
+            return i * lineHeight + lineHeight / 2 + topOffset;
         };
 
-        int currentLineYPos = findLineInfo(l.offset).value()->second;
+        int currentLineYPos = lineToPixels(offsetToLine(l.offset));
 
-        bool endVisible = true;
-        auto tmpLineInfo = findLineInfo(l.arrow);
-        int lineArrowY = tmpLineInfo.has_value()
-            ? tmpLineInfo.value()->second
-            : (endVisible = false, (arrow->reversed ? 0 : geometry().bottom())); // destination isn't on screen
+        int arrowLineNumber = offsetToLine(l.arrow);
+        int lineArrowY = lineToPixels(arrowLineNumber);
+        if (arrowLineNumber >= lines.size()) {
+            lineArrowY = geometry().bottom() + lineHeight;
+        }
 
         // Draw the lines
-        p.drawLine(rightOffset, currentLineYPos, rightOffset - lineOffset, currentLineYPos);
-        p.drawLine(rightOffset - lineOffset, currentLineYPos, rightOffset - lineOffset, lineArrowY);
+        p.drawLine(rightOffset, currentLineYPos, rightOffset - lineOffset, currentLineYPos); // left
+        p.drawLine(rightOffset - lineOffset, currentLineYPos, rightOffset - lineOffset, lineArrowY); // horizontal
 
-        if (endVisible) {
-            p.drawLine(rightOffset - lineOffset, lineArrowY, rightOffset, lineArrowY);
+        p.drawLine(rightOffset - lineOffset, lineArrowY, rightOffset, lineArrowY); // right
 
+        { // triangle
             QPainterPath arrow;
             arrow.moveTo(rightOffset - arrowWidth, lineArrowY + arrowWidth);
             arrow.lineTo(rightOffset - arrowWidth, lineArrowY - arrowWidth);
