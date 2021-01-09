@@ -901,8 +901,6 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     std::vector<std::pair<RVA, int>> lineOffsets;
     lineOffsets.reserve(lines.size());
 
-    RangeAssignMaxTree maxLevel(lines.size() + 1, 0);
-
     std::vector<Arrow> arrows;
     // allocate maximum possible buffer so we don't waste time on reallocating and moving
     arrows.reserve(lines.size());
@@ -933,14 +931,23 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
 
     // sort by length so that shorter arrows are inside loops formed by longer ones
     std::sort(std::begin(arrows), std::end(arrows), [](const Arrow& l, const Arrow& r) {
-        return l.length() < r.length();
+       return l.to != r.to ? l.to < r.to : l.from > r.from;
+       //return l.length() < r.length();
     });
     if (!lines.empty()) {
+        //RangeAssignMaxTree maxLevel(lines.size() + 1, 0);
+        MinMaxAccumulateTree maxLevel(lines.size() + 1, {INT_MAX, INT_MIN});
         for (Arrow &arrow : arrows) {
             int top = std::max(0, offsetToLine(arrow.from));
             int bottom = std::min(offsetToLine(arrow.to), lines.size() - 1) + 1;
-            arrow.level = maxLevel.rangeMaximum(top, bottom) + 1;
-            maxLevel.setRange(top, bottom, arrow.level);
+            std::pair<int, int> minMax = maxLevel.rangeMinMax(top, bottom);
+            if (minMax.first > 1) {
+                arrow.level = 1;
+            } else {
+                arrow.level = minMax.second + 1;
+            }
+            //arrow.level = maxLevel.rangeMaximum(top, bottom) + 1;
+            maxLevel.updateRange(top, bottom, arrow.level);
         }
     }
 

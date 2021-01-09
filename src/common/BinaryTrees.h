@@ -396,4 +396,104 @@ public:
     }
 };
 
+
+/**
+ * @brief Structure for keeping track of minimum and maximum value set at each position.
+ *
+ * Supports range update and range query.
+ *
+ * Example:
+ *  @code{.cpp}
+ *  MinMaxAccumulateTree t(30); // operate within range [0; 30)
+ *  t.updateRange(1, 5, 10);
+ *  rangeMinMax(0, 20);// -> {10, 10}
+ *  t.updateRange(4, 6, 15);
+ *  t.updateRange(3, 10, 20);
+ *  t.rangeMinMax(0, 20); // -> {10, 20}
+ *  t.rangeMinMax(1, 3); // -> {10, 10}
+ *  t.rangeMinMax(5, 8); // -> {15, 20}
+ *  @endcode
+ */
+class MinMaxAccumulateTree : public LazySegmentTreeBase<std::pair<int, int>, std::pair<int, int>, MinMaxAccumulateTree>
+{
+    using IntegerType = int;
+    using MinMax = std::pair<IntegerType, IntegerType>;
+    using ValueType = MinMax;
+    using BaseType = LazySegmentTreeBase<ValueType, MinMax, MinMaxAccumulateTree>;
+
+    static constexpr MinMax LIMITS{std::numeric_limits<IntegerType>::max(),
+                                   std::numeric_limits<IntegerType>::min()};
+
+    static MinMax Combine(const MinMax &a, const MinMax &b)
+    {
+        return {std::min(a.first, b.first), std::max(a.second, b.second)};
+    }
+
+    void UpdateNode(NodePosition nodePos, ValueType value)
+    {
+        nodes[nodePos] = Combine(nodes[nodePos], value);
+        if (!isLeave(nodePos)) {
+            promise[nodePos] = Combine(promise[nodePos], value);
+        }
+    }
+
+public:
+    MinMaxAccumulateTree(size_t size, ValueType initialValue = LIMITS)
+        : BaseType(size, initialValue, LIMITS)
+    {
+    }
+
+    void updateFromChildren(NodeType &parent, const NodeType &left, const NodeType &right)
+    {
+        parent = Combine(left, right);
+    }
+
+    void pushDown(NodePosition parent)
+    {
+        size_t left = (parent << 1);
+        size_t right = (parent << 1) | 1;
+        UpdateNode(left, promise[parent]);
+        UpdateNode(right, promise[parent]);
+        promise[parent] = neutralPromiseElement;
+    }
+
+    /**
+     * @brief Update min and max values in the range [\a left, \a right) with number \a value.
+     * @param left inclusive range left side
+     * @param right exclusive right side of range
+     * @param value number to be used for updating minimum and maximum
+     */
+    void updateRange(size_t left, size_t right, IntegerType value)
+    {
+        left = leaveIndexToPosition(left);
+        right = leaveIndexToPosition(right);
+        pushDownFromRoot(left);
+        pushDownFromRoot(right - 1);
+        MinMax pairValue{value, value};
+        for (size_t l = left, r = right; l < r; l >>= 1, r >>= 1) {
+            if (l & 1) {
+                UpdateNode(l, pairValue);
+                l += 1;
+            }
+            if (r & 1) {
+                r -= 1;
+                UpdateNode(r, pairValue);
+            }
+        }
+        updateUntilRoot(left);
+        updateUntilRoot(right - 1);
+    }
+
+    /**
+     * @brief Calculate minimum and maximum value in the range [l, r)
+     * @param l inclusive left side of range
+     * @param r exclusive right side of range
+     * @return std::pair {min, max}
+     */
+    MinMax rangeMinMax(size_t l, size_t r)
+    {
+        return rangeOperation(l, r, neutralPromiseElement);
+    }
+};
+
 #endif // BINARY_TREES_H
