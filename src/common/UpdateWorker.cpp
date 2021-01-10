@@ -19,8 +19,9 @@
 #include <QMessageBox>
 #include "common/Configuration.h"
 #include "CutterConfig.h"
+#endif
 
-
+#if CUTTER_UPDATE_WORKER_AVAILABLE
 UpdateWorker::UpdateWorker(QObject *parent) :
     QObject(parent), pending(false)
 {

@@ -10,14 +10,15 @@
 #endif
 
 #if CUTTER_UPDATE_WORKER_AVAILABLE
-
 #include <QDir>
 #include <QTimer>
 #include <QObject>
 #include <QtNetwork/QNetworkAccessManager>
 
 #include <QVersionNumber>
+#endif
 
+#if CUTTER_UPDATE_WORKER_AVAILABLE
 class QNetworkReply;
 
 /**
