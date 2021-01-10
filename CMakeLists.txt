@@ -32,20 +32,9 @@ if(NOT CUTTER_ENABLE_PYTHON)
     set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
 endif()
 
-# Parse Cutter.pro to get filenames
-include(QMakeProParse)
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/Cutter.pro"
-        "${CMAKE_CURRENT_BINARY_DIR}/src/Cutter.pro"
-        COPYONLY) # trigger reconfigure if Cutter.pro changes
-parse_qmake_pro("${CMAKE_CURRENT_BINARY_DIR}/src/Cutter.pro" CUTTER_PRO)
-# TODO: These variables, exception the versions should be moved to src/CMakeLists.txt after qmake was removed
-set(SOURCE_FILES ${CUTTER_PRO_SOURCES})
-set(HEADER_FILES ${CUTTER_PRO_HEADERS})
-set(UI_FILES ${CUTTER_PRO_FORMS})
-set(QRC_FILES ${CUTTER_PRO_RESOURCES})
-set(CUTTER_VERSION_MAJOR "${CUTTER_PRO_CUTTER_VERSION_MAJOR}")
-set(CUTTER_VERSION_MINOR "${CUTTER_PRO_CUTTER_VERSION_MINOR}")
-set(CUTTER_VERSION_PATCH "${CUTTER_PRO_CUTTER_VERSION_PATCH}")
+set(CUTTER_VERSION_MAJOR 1)
+set(CUTTER_VERSION_MINOR 12)
+set(CUTTER_VERSION_PATCH 0)
 
 set(CUTTER_VERSION_FULL "${CUTTER_VERSION_MAJOR}.${CUTTER_VERSION_MINOR}.${CUTTER_VERSION_PATCH}")
 
