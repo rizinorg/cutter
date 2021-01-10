@@ -64,7 +64,6 @@ set(SOURCES
     widgets/HeadersWidget.cpp
     widgets/SearchWidget.cpp
     CutterApplication.cpp
-    common/PythonAPI.cpp
     dialogs/RizinPluginsDialog.cpp
     widgets/CutterDockWidget.cpp
     widgets/CutterTreeWidget.cpp
@@ -100,7 +99,6 @@ set(SOURCES
     widgets/CutterTreeView.cpp
     widgets/ComboQuickFilterView.cpp
     dialogs/HexdumpRangeDialog.cpp
-    common/QtResImporter.cpp
     common/CutterSeekable.cpp
     common/RefreshDeferrer.cpp
     dialogs/WelcomeDialog.cpp
@@ -108,7 +106,6 @@ set(SOURCES
     dialogs/EditMethodDialog.cpp
     dialogs/TypesInteractionDialog.cpp
     widgets/SdbWidget.cpp
-    common/PythonManager.cpp
     plugins/PluginManager.cpp
     common/BasicBlockHighlighter.cpp
     common/BasicInstructionHighlighter.cpp
@@ -120,7 +117,6 @@ set(SOURCES
     dialogs/preferences/ColorThemeEditDialog.cpp
     common/UpdateWorker.cpp
     widgets/MemoryDockWidget.cpp
-    common/CrashHandler.cpp
     common/BugReporting.cpp
     common/HighDpiPixmap.cpp
     widgets/GraphGridLayout.cpp
@@ -211,7 +207,6 @@ set(HEADER_FILES
     widgets/TypesWidget.h
     widgets/HeadersWidget.h
     widgets/SearchWidget.h
-    common/PythonAPI.h
     dialogs/RizinPluginsDialog.h
     widgets/CutterDockWidget.h
     widgets/CutterTreeWidget.h
@@ -251,7 +246,6 @@ set(HEADER_FILES
     widgets/CutterTreeView.h
     widgets/ComboQuickFilterView.h
     dialogs/HexdumpRangeDialog.h
-    common/QtResImporter.h
     common/CutterSeekable.h
     common/RefreshDeferrer.h
     dialogs/WelcomeDialog.h
@@ -261,7 +255,6 @@ set(HEADER_FILES
     common/CrashHandler.h
     dialogs/TypesInteractionDialog.h
     widgets/SdbWidget.h
-    common/PythonManager.h
     plugins/PluginManager.h
     common/BasicBlockHighlighter.h
     common/BasicInstructionHighlighter.h
@@ -376,6 +369,11 @@ set(QRC_FILES
     themes/lightstyle/light.qrc
 )
 
+if (CUTTER_ENABLE_PYTHON)
+    list(APPEND SOURCES common/QtResImporter.cpp common/PythonManager.cpp common/PythonAPI.cpp)
+    list(APPEND HEADER_FILES common/QtResImporter.h common/PythonManager.h common/PythonAPI.h)
+endif()
+
 if(CUTTER_ENABLE_PYTHON_BINDINGS)
     set(BINDINGS_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bindings")
     set(BINDINGS_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/bindings")
@@ -443,6 +441,8 @@ if (TARGET Graphviz::GVC)
 endif()
 
 if(CUTTER_ENABLE_CRASH_REPORTS)
+    list(APPEND SOURCES common/CrashHandler.cpp)
+
     set(THREADS_PREFER_PTHREAD_FLAG ON)
     find_package(Threads REQUIRED)
     target_link_libraries(Cutter PRIVATE Threads::Threads)

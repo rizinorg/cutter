@@ -1,8 +1,4 @@
-#ifdef CUTTER_ENABLE_PYTHON
-
-#define Py_LIMITED_API 0x03050000
-#include <Python.h>
-
+#include "PythonAPI.h"
 #include "QtResImporter.h"
 
 #include <QFile>
@@ -87,5 +83,3 @@ PyObject *PyInit_qtres()
 {
     return PyModule_Create(&QtResModule);
 }
-
-#endif // CUTTER_ENABLE_PYTHON

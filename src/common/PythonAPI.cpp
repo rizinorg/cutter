@@ -1,6 +1,3 @@
-
-#ifdef CUTTER_ENABLE_PYTHON
-
 #include "PythonAPI.h"
 #include "core/Cutter.h"
 
@@ -83,5 +80,3 @@ PyObject *PyInit_api()
 {
     return PyModule_Create(&CutterModule);
 }
-
-#endif  // CUTTER_ENABLE_PYTHON

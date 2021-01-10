@@ -7,8 +7,6 @@
 #include <QStandardPaths>
 #include <QTime>
 
-#ifdef CUTTER_ENABLE_CRASH_REPORTS
-
 #include <QApplication>
 #include <QString>
 #include <QFile>
@@ -105,16 +103,6 @@ void initCrashHandler()
 #endif
     atexit(finishCrashHandler);
 }
-
-#else // CUTTER_ENABLE_CRASH_REPORTS
-
-void initCrashHandler()
-{
-
-}
-
-#endif // CUTTER_ENABLE_CRASH_REPORTS
-
 
 void showCrashDialog(const QString &dumpFile)
 {
