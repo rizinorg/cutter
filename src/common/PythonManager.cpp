@@ -1,5 +1,3 @@
-#ifdef CUTTER_ENABLE_PYTHON
-
 #include <cassert>
 
 #include "PythonAPI.h"
@@ -184,5 +182,3 @@ void PythonManager::saveThread()
         pyThreadState = PyEval_SaveThread();
     }
 }
-
-#endif

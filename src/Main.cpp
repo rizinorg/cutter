@@ -54,6 +54,7 @@ static void connectToConsole()
 
 int main(int argc, char *argv[])
 {
+#ifdef CUTTER_ENABLE_CRASH_REPORTS
     if (argc >= 3 && QString::fromLocal8Bit(argv[1]) == "--start-crash-handler") {
         QApplication app(argc, argv);
         QString dumpLocation = QString::fromLocal8Bit(argv[2]);
@@ -62,6 +63,7 @@ int main(int argc, char *argv[])
     }
 
     initCrashHandler();
+#endif
 
 #ifdef Q_OS_WIN
     connectToConsole();
