@@ -374,6 +374,10 @@ if (CUTTER_ENABLE_PYTHON)
     list(APPEND HEADER_FILES common/QtResImporter.h common/PythonManager.h common/PythonAPI.h)
 endif()
 
+if(CUTTER_ENABLE_CRASH_REPORTS)
+    list(APPEND SOURCES common/CrashHandler.cpp)
+endif()
+
 if(CUTTER_ENABLE_PYTHON_BINDINGS)
     set(BINDINGS_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bindings")
     set(BINDINGS_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/bindings")
@@ -441,8 +445,6 @@ if (TARGET Graphviz::GVC)
 endif()
 
 if(CUTTER_ENABLE_CRASH_REPORTS)
-    list(APPEND SOURCES common/CrashHandler.cpp)
-
     set(THREADS_PREFER_PTHREAD_FLAG ON)
     find_package(Threads REQUIRED)
     target_link_libraries(Cutter PRIVATE Threads::Threads)
