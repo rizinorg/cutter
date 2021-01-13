@@ -17,18 +17,18 @@ RzAnnotatedCode *Decompiler::makeWarning(QString warningMessage){
     return rz_annotated_code_new(strdup(temporary.c_str()));
 }
 
-R2DecDecompiler::R2DecDecompiler(QObject *parent)
-    : Decompiler("r2dec", "r2dec", parent)
+JSDecDecompiler::JSDecDecompiler(QObject *parent)
+    : Decompiler("jsdec", "jsdec", parent)
 {
     task = nullptr;
 }
 
-bool R2DecDecompiler::isAvailable()
+bool JSDecDecompiler::isAvailable()
 {
     return Core()->cmdList("e cmd.pdc=?").contains(QStringLiteral("pdd"));
 }
 
-void R2DecDecompiler::decompileAt(RVA addr)
+void JSDecDecompiler::decompileAt(RVA addr)
 {
     if (task) {
         return;
@@ -39,7 +39,7 @@ void R2DecDecompiler::decompileAt(RVA addr)
         delete task;
         task = nullptr;
         if (json.isEmpty()) {
-            emit finished(Decompiler::makeWarning(tr("Failed to parse JSON from r2dec")));
+            emit finished(Decompiler::makeWarning(tr("Failed to parse JSON from jsdec")));
             return;
         }
         RzAnnotatedCode *code = rz_annotated_code_new(nullptr);

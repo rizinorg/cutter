@@ -13,7 +13,7 @@ Here's an image that compares one of the decompiler Cutter supports with the Cut
 .. image:: ../images/decompiler_vs_disassembly.png
 
 
-Cutter provides an interface that supports plugins of multiple decompilers including Ghidra, RetDec and R2Dec. The interface receives data from the decompiler and presenting the decompiler code in a context-sensitive decompiler widget. Check the `Decompilers <https://github.com/rizinorg/cutter-plugins#decompilers>`_ section on our Plugins repository to know more about the decompilers we support.
+Cutter provides an interface that supports plugins of multiple decompilers including Ghidra, RetDec and JSDec. The interface receives data from the decompiler and presenting the decompiler code in a context-sensitive decompiler widget. Check the `Decompilers <https://github.com/rizinorg/cutter-plugins#decompilers>`_ section on our Plugins repository to know more about the decompilers we support.
 
 
 Out of the decompiler plugins that we support, the one that's officially maintained by the developers of Cutter is RzGhidra. :doc:`Click here <menus/decompiler-context-menu>` to learn more about the functionalities we provide in the decompiler.

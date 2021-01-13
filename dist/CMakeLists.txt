@@ -20,15 +20,15 @@ if(WIN32)
 		endif()
 		install(SCRIPT WindowsBundleQt.cmake)
 	endif()
-	if (CUTTER_PACKAGE_R2DEC AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
+	if (CUTTER_PACKAGE_JSDEC AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
 		install(CODE "
 			set(ENV{RZ_ALT_SRC_DIR} 1)
 			set(ENV{PATH} \"\${CMAKE_INSTALL_PREFIX};\$ENV{PATH}\")
-			execute_process(COMMAND powershell \"${CMAKE_CURRENT_SOURCE_DIR}/bundle_r2dec.ps1\" \"\${CMAKE_INSTALL_PREFIX}\"
+			execute_process(COMMAND powershell \"${CMAKE_CURRENT_SOURCE_DIR}/bundle_jsdec.ps1\" \"\${CMAKE_INSTALL_PREFIX}\"
 							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 							RESULT_VARIABLE SCRIPT_RESULT)
 			if (SCRIPT_RESULT)
-				message(FATAL_ERROR \"Failed to package r2dec\")
+				message(FATAL_ERROR \"Failed to package jsdec\")
 			endif()
 		")
 	endif()
@@ -48,7 +48,7 @@ if(APPLE)
 	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_CURRENT_SOURCE_DIR}/macos/cutter_mac_app.png")
 	set(CPACK_DMG_DS_STORE "${CMAKE_CURRENT_SOURCE_DIR}/macos/DS_Store_ForDMGBackground")
 
-	
+
 	find_program(MACDEPLOYQT_PATH macdeployqt HINTS "${Qt5_DIR}/../../../bin")
 	if(NOT MACDEPLOYQT_PATH)
 		message(FATAL_ERROR "Failed to find macdeployqt")
@@ -76,7 +76,7 @@ if(APPLE)
 	list(APPEND RZ_GHIDRA_PREFIX_PATH "${QT_PREFIX}")
 	set(RIZIN_INSTALL_PLUGDIR "share/rizin/plugins") # escaped backslash on purpose, should be evaluated later
 
-    
+
 endif()
 
 ################################################
@@ -112,7 +112,7 @@ if(CUTTER_PACKAGE_RZ_GHIDRA)
 		execute_process(
 			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/rz-ghidra-prefix/src/rz-ghidra-build
 			RESULT_VARIABLE SCRIPT_RESULT
-			COMMAND \${CMAKE_COMMAND} 
+			COMMAND \${CMAKE_COMMAND}
 							../rz-ghidra
 							-DCMAKE_BUILD_TYPE=Release
 							\"-DCMAKE_PREFIX_PATH=\${CMAKE_INSTALL_PREFIX};\${CMAKE_INSTALL_PREFIX}/include/librz;\${CMAKE_INSTALL_PREFIX}/include/librz/sdb;${RZ_GHIDRA_PREFIX_PATH}\"

@@ -37,7 +37,7 @@ signals:
     void finished(RzAnnotatedCode *codeDecompiled);
 };
 
-class R2DecDecompiler: public Decompiler
+class JSDecDecompiler: public Decompiler
 {
     Q_OBJECT
 
@@ -45,7 +45,7 @@ private:
     RizinCmdTask *task;
 
 public:
-    explicit R2DecDecompiler(QObject *parent = nullptr);
+    explicit JSDecDecompiler(QObject *parent = nullptr);
     void decompileAt(RVA addr) override;
 
     bool isRunning() override    { return task != nullptr; }

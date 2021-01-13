@@ -67,7 +67,7 @@ public:
     /**
      * @brief send a command to Rizin asynchronously
      * @param str the command you want to execute
-     * @param task a shared pointer that will be returned with the R2 command task
+     * @param task a shared pointer that will be returned with the Rizin command task
      * @note connect to the &RizinTask::finished signal to add your own logic once
      *       the command is finished. Use task->getResult()/getResultJson() for the
      *       return value.
@@ -124,7 +124,7 @@ public:
     /**
      * @brief send a command to Rizin and check for ESIL errors
      * @param command the command you want to execute
-     * @param task a shared pointer that will be returned with the R2 command task
+     * @param task a shared pointer that will be returned with the Rizin command task
      * @note connect to the &RizinTask::finished signal to add your own logic once
      *       the command is finished. Use task->getResult()/getResultJson() for the
      *       return value.
