@@ -25,7 +25,7 @@ JSDecDecompiler::JSDecDecompiler(QObject *parent)
 
 bool JSDecDecompiler::isAvailable()
 {
-    return Core()->cmdList("e cmd.pdc=?").contains(QStringLiteral("pdd"));
+    return Core()->cmdList("es").contains("jsdec");
 }
 
 void JSDecDecompiler::decompileAt(RVA addr)
