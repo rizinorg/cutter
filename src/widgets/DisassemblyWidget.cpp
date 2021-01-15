@@ -837,36 +837,10 @@ void DisassemblyWidget::seekPrev()
  * Left panel
  *********************/
 
-struct Arrow {
-    Arrow(RVA v1, RVA v2)
-        : from(v1), to(v2), 
-          level(0), reversed(false)
-    { 
-        if (from > to)  { 
-            std::swap(from, to);
-            reversed = true;
-        }
-    }
-
-    inline bool contains(RVA point) const
-    {
-        return from <= point && to >= point;
-    }
-
-    ut64 length() const
-    {
-        return to - from;
-    }
-
-    RVA      from;
-    RVA      to;
-    uint32_t level;
-    bool     reversed;
-};
-
 DisassemblyLeftPanel::DisassemblyLeftPanel(DisassemblyWidget *disas)
 {
     this->disas = disas;
+    arrows.reserve((arrowsSize * 3) / 2);
 }
 
 void DisassemblyLeftPanel::wheelEvent(QWheelEvent *event)
@@ -901,16 +875,30 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     std::vector<std::pair<RVA, int>> lineOffsets;
     lineOffsets.reserve(lines.size());
 
-    std::vector<Arrow> arrows;
-    // allocate maximum possible buffer so we don't waste time on reallocating and moving
-    arrows.reserve(lines.size());
-
     for (int i = 0; i < lines.size(); i++) {
         lineOffsets.emplace_back(lines[i].offset, i);
         if (lines[i].arrow != RVA_INVALID) {
-            arrows.emplace_back(lines[i].offset, lines[i].arrow);
+            Arrow a { lines[i].offset, lines[i].arrow };
+            bool contains = std::find_if(std::begin(arrows), std::end(arrows), [&](const Arrow& it) {
+                return it.min == a.min && it.max == a.max;
+            }) != std::end(arrows);
+            if (!contains) {
+                arrows.emplace_back(lines[i].offset, lines[i].arrow);
+            }
         }
     }
+
+    const bool scrolledDown = lastBeginOffset > lines.first().offset;
+    std::sort(std::begin(arrows), std::end(arrows), [&](const Arrow& l, const Arrow& r) {
+        if (scrolledDown) {
+            return l.jmpFromOffset() < r.jmpFromOffset();
+        } else {
+            return l.jmpFromOffset() > r.jmpFromOffset();
+        }
+    });
+
+    const size_t eraseN = arrows.size() > arrowsSize ? arrows.size() - arrowsSize: 0;
+    arrows.erase(std::end(arrows) - eraseN, std::end(arrows));
 
     auto offsetToLine = [&](RVA offset) -> int {
         // binary search because linesPixPosition is sorted by offset
@@ -929,59 +917,62 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
         return res->second;
     };
 
+
     // sort by length so that shorter arrows are inside loops formed by longer ones
     std::sort(std::begin(arrows), std::end(arrows), [](const Arrow& l, const Arrow& r) {
-        if (l.reversed != r.reversed) {
-            return l.reversed < r.reversed;
+        if (l.up != r.up) {
+            return l.up < r.up;
         }
-        return l.to != r.to ? l.to < r.to : l.from > r.from;
-       //return l.length() < r.length();
+        return l.max != r.max ? l.max < r.max : l.min > r.min;
     });
+
+    RVA max = 0;
+    RVA min = RVA_MAX;
+    for (auto& it : arrows) {
+        min = std::min(it.min, min);
+        max = std::max(it.max, max);
+        it.level = 0;
+    }
+
+    uint32_t maxLevel = 0;
     if (!lines.empty()) {
-        //RangeAssignMaxTree maxLevel(lines.size() + 1, 0);
-        MinMaxAccumulateTree maxLevel(lines.size() + 1, {INT_MAX, INT_MIN});
+        MinMaxAccumulateTree maxLevelTree(max - min + 2, { RVA_MAX, 0 });
         for (Arrow &arrow : arrows) {
-            int top = std::max(0, offsetToLine(arrow.from));
-            int bottom = std::min(offsetToLine(arrow.to), lines.size() - 1) + 1;
-            std::pair<int, int> minMax = maxLevel.rangeMinMax(top, bottom);
+            RVA top = arrow.min >= min ? arrow.min - min + 1: 0;
+            RVA bottom = std::min(arrow.max - min, max - min) + 2;
+            std::pair<RVA, RVA> minMax = maxLevelTree.rangeMinMax(top, bottom);
             if (minMax.first > 1) {
                 arrow.level = 1;
             } else {
                 arrow.level = minMax.second + 1;
+                maxLevel = std::max(maxLevel, arrow.level);
             }
-            //arrow.level = maxLevel.rangeMaximum(top, bottom) + 1;
-            maxLevel.updateRange(top, bottom, arrow.level);
+            maxLevelTree.updateRange(top, bottom, arrow.level);
         }
     }
+
 
     const RVA currOffset = disas->getSeekable()->getOffset();
     const qreal pixelRatio = qhelpers::devicePixelRatio(p.device());
     // Draw the lines
-    for (const auto& l : lines) {
-        auto arrow = find_if(std::begin(arrows), std::end(arrows), [&](const Arrow& a) { 
-            return (a.reversed ? a.to : a.from) == l.offset; 
-        });
-        int lineOffset = int((distanceBetweenLines * arrow->level + distanceBetweenLines) * pixelRatio);
-        // Skip until we reach a line that jumps to a destination
-        if (l.arrow == RVA_INVALID) {
-            continue;
-        }
-
-        p.setPen(arrow->reversed ? penUp : penDown);
-        if (l.offset == currOffset || l.arrow == currOffset) {
+    for (const auto& arrow : arrows) {
+        int lineOffset = int((distanceBetweenLines * arrow.level + distanceBetweenLines) * pixelRatio);
+        
+        p.setPen(arrow.up ? penUp : penDown);
+        if (arrow.min == currOffset || arrow.max == currOffset) {
             QPen pen = p.pen();
             pen.setWidthF((penSizePix * 3) / 2.0);
             p.setPen(pen);
         }
 
         auto lineToPixels = [&] (int i) {
-            int offset = int(arrow->reversed ? std::floor(pixelRatio) : -std::floor(pixelRatio));
+            int offset = int(arrow.up ? std::floor(pixelRatio) : -std::floor(pixelRatio));
             return i * lineHeight + lineHeight / 2 + topOffset + offset;
         };
 
-        int currentLineYPos = lineToPixels(offsetToLine(l.offset));
+        int currentLineYPos = lineToPixels(offsetToLine(arrow.up ? arrow.max : arrow.min));
 
-        int arrowLineNumber = offsetToLine(l.arrow);
+        int arrowLineNumber = offsetToLine(arrow.up ? arrow.min : arrow.max);
         int lineArrowY = lineToPixels(arrowLineNumber);
         if (arrowLineNumber >= lines.size()) {
             lineArrowY = geometry().bottom() + lineHeight;
@@ -1000,5 +991,8 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
             arrow.lineTo(rightOffset, lineArrowY);
             p.fillPath(arrow, p.pen().brush());
         }
+    }
+    if (maxLevel > maxLevelBeforeFlush) {
+        arrows.clear();
     }
 }

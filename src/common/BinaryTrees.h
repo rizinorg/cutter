@@ -414,9 +414,9 @@ public:
  *  t.rangeMinMax(5, 8); // -> {15, 20}
  *  @endcode
  */
-class MinMaxAccumulateTree : public LazySegmentTreeBase<std::pair<int, int>, std::pair<int, int>, MinMaxAccumulateTree>
+class MinMaxAccumulateTree : public LazySegmentTreeBase<std::pair<RVA, RVA>, std::pair<RVA, RVA>, MinMaxAccumulateTree>
 {
-    using IntegerType = int;
+    using IntegerType = RVA;
     using MinMax = std::pair<IntegerType, IntegerType>;
     using ValueType = MinMax;
     using BaseType = LazySegmentTreeBase<ValueType, MinMax, MinMaxAccumulateTree>;
