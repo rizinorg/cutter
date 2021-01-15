@@ -186,6 +186,7 @@ private:
     };
 
     const size_t arrowsSize = 128;
+    const uint32_t maxLevelBeforeFlush = 32;
     RVA lastBeginOffset = 0;
     std::vector<Arrow> arrows;
 };
