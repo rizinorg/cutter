@@ -935,7 +935,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     }
 
     uint32_t maxLevel = 0;
-    if (!lines.empty()) {
+    if (!arrows.empty()) {
         MinMaxAccumulateTree maxLevelTree(max - min + 2, { RVA_MAX, 0 });
         for (Arrow &arrow : arrows) {
             RVA top = arrow.min >= min ? arrow.min - min + 1: 0;
