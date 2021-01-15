@@ -20,7 +20,7 @@
 #include <QSplitter>
 
 #include <algorithm>
-#include <optional>
+#include <cmath>
 
 class DisassemblyTextBlockUserData: public QTextBlockUserData
 {
@@ -955,7 +955,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     }
 
     const RVA currOffset = disas->getSeekable()->getOffset();
-    qreal pixelRatio = qhelpers::devicePixelRatio(p.device());
+    const qreal pixelRatio = qhelpers::devicePixelRatio(p.device());
     // Draw the lines
     for (const auto& l : lines) {
         auto arrow = find_if(std::begin(arrows), std::end(arrows), [&](const Arrow& a) { 
@@ -975,7 +975,8 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
         }
 
         auto lineToPixels = [&] (int i) {
-            return i * lineHeight + lineHeight / 2 + topOffset;
+            int offset = int(arrow->reversed ? std::floor(pixelRatio) : -std::floor(pixelRatio));
+            return i * lineHeight + lineHeight / 2 + topOffset + offset;
         };
 
         int currentLineYPos = lineToPixels(offsetToLine(l.offset));
