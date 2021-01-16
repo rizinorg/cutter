@@ -51,7 +51,7 @@ The following instructions were made based on version 4.12.4 of Qt Creator. The 
 - Click :guilabel:`Projects` button with wrench icon on the left side of the screen
 - Click :menuselection:`Add --> Boolean` in the CMake section
 - Enter ``CUTTER_USE_BUNDLED_RIZIN`` as a key name and change the value to ON. In earlier Qt Creator versions it is necessary to do this during the initial kit selection and configuration step.
-- Click :guilabel:`Apply Configuration Changes`:. The configuration should succeed now. In case of errors inspect the output log.
+- Click :guilabel:`Apply Configuration Changes`: The configuration should succeed now. In case of errors inspect the output log.
 
 Either in :menuselection:`Projects --> Code Style --> C++` or :menuselection:`Tools --> Options --> C++ --> Code Style` select :guilabel:`Qt [built-in]`. It should be selected by default unless you have used Qt Creator for other projects. Cutter Coding style is almost identical to Qt one. This will help with using correct indentation type and basic formatting without running code formatter.
 
