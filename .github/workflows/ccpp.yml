@@ -142,7 +142,7 @@ jobs:
           APP_PREFIX=`pwd`/appdir/usr
           # export LD_LIBRARY_PATH=${APP_PREFIX}/lib:$Shiboken2_ROOT/lib
           export PATH=$PATH:${APP_PREFIX}/bin
-          # "../scripts/jsdec.sh" --prefix=`pwd`/appdir/usr
+          "../scripts/jsdec.sh" --prefix=`pwd`/appdir/usr
           wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/6/linuxdeployqt-6-x86_64.AppImage"
           chmod a+x linuxdeployqt*.AppImage
           rm -fv "../cutter-deps/qt/plugins/imageformats/libqjp2.so"
