@@ -110,8 +110,8 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
     Config()->setOutputRedirectionEnabled(clOptions.outputRedirectionEnabled);
 
-    if (R2DecDecompiler::isAvailable()) {
-        Core()->registerDecompiler(new R2DecDecompiler(Core()));
+    if (JSDecDecompiler::isAvailable()) {
+        Core()->registerDecompiler(new JSDecDecompiler(Core()));
     }
 
 #if CUTTER_RZGHIDRA_STATIC
@@ -154,9 +154,9 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         sleighHome.cd("share/rizin/plugins/rz_ghidra_sleigh"); // appdir/share/rizin/plugins/rz_ghidra_sleigh
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
 
-        auto r2decHome = appdir;
-        r2decHome.cd("share/rizin/plugins/r2dec-js"); // appdir/share/rizin/plugins/r2dec-js
-        qputenv("R2DEC_HOME", r2decHome.absolutePath().toLocal8Bit());
+        auto jsdecHome = appdir;
+        jsdecHome.cd("share/rizin/plugins/jsdec"); // appdir/share/rizin/plugins/jsdec
+        qputenv("JSDEC_HOME", jsdecHome.absolutePath().toLocal8Bit());
     }
 #endif
 
@@ -170,14 +170,14 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         sleighHome.cd("share/rizin/plugins/rz_ghidra_sleigh"); // Contents/Resources/rz/share/rizin/plugins/rz_ghidra_sleigh
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
 
-        auto r2decHome = rzprefix;
-        r2decHome.cd("share/rizin/plugins/r2dec-js"); // Contents/Resources/rz/share/rizin/plugins/r2dec-js
-        qputenv("R2DEC_HOME", r2decHome.absolutePath().toLocal8Bit());
+        auto jsdecHome = rzprefix;
+        jsdecHome.cd("share/rizin/plugins/jsdec"); // Contents/Resources/rz/share/rizin/plugins/jsdec
+        qputenv("JSDEC_HOME", jsdecHome.absolutePath().toLocal8Bit());
     }
 #endif
 
-#ifdef CUTTER_APPVEYOR_R2DEC
-    qputenv("R2DEC_HOME", "lib\\plugins\\r2dec-js");
+#ifdef CUTTER_APPVEYOR_JSDEC
+    qputenv("JSDEC_HOME", "lib\\plugins\\jsdec");
 #endif
 #ifdef Q_OS_WIN
     {

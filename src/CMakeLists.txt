@@ -513,8 +513,8 @@ if (CUTTER_APPIMAGE_BUILD)
     target_compile_definitions(Cutter PRIVATE APPIMAGE)
 endif()
 
-if (CUTTER_PACKAGE_R2DEC)
-    target_compile_definitions(Cutter PRIVATE CUTTER_APPVEYOR_R2DEC)
+if (CUTTER_PACKAGE_JSDEC)
+	target_compile_definitions(Cutter PRIVATE CUTTER_APPVEYOR_JSDEC)
 endif()
 
 if(APPLE AND CUTTER_ENABLE_PACKAGING AND CUTTER_USE_BUNDLED_RIZIN)
