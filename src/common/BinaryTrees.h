@@ -414,15 +414,23 @@ public:
  *  t.rangeMinMax(5, 8); // -> {15, 20}
  *  @endcode
  */
-class MinMaxAccumulateTree : public LazySegmentTreeBase<std::pair<RVA, RVA>, std::pair<RVA, RVA>, MinMaxAccumulateTree>
+template<class IntegerType>
+class MinMaxAccumulateTree : public LazySegmentTreeBase<std::pair<IntegerType, IntegerType>, std::pair<IntegerType, IntegerType>, MinMaxAccumulateTree<IntegerType>>
 {
-    using IntegerType = RVA;
+    // Could work with other types but that would require changing LIMITS
+    static_assert (std::is_integral<IntegerType>::value, "Template argument IntegerType must be integer");
     using MinMax = std::pair<IntegerType, IntegerType>;
     using ValueType = MinMax;
-    using BaseType = LazySegmentTreeBase<ValueType, MinMax, MinMaxAccumulateTree>;
+    using ThisType = MinMaxAccumulateTree<IntegerType>;
+    using BaseType = LazySegmentTreeBase<ValueType, MinMax, ThisType>;
+    using NodeType = typename BaseType::NodeType;
+    using NodePosition = typename BaseType::NodePosition;
 
-    static constexpr MinMax LIMITS{std::numeric_limits<IntegerType>::max(),
-                                   std::numeric_limits<IntegerType>::min()};
+    static constexpr MinMax LIMITS()
+    {
+        return {std::numeric_limits<IntegerType>::max(),
+                std::numeric_limits<IntegerType>::min()};
+    }
 
     static MinMax Combine(const MinMax &a, const MinMax &b)
     {
@@ -431,15 +439,15 @@ class MinMaxAccumulateTree : public LazySegmentTreeBase<std::pair<RVA, RVA>, std
 
     void UpdateNode(NodePosition nodePos, ValueType value)
     {
-        nodes[nodePos] = Combine(nodes[nodePos], value);
-        if (!isLeave(nodePos)) {
-            promise[nodePos] = Combine(promise[nodePos], value);
+        this->nodes[nodePos] = Combine(this->nodes[nodePos], value);
+        if (!this->isLeave(nodePos)) {
+            this->promise[nodePos] = Combine(this->promise[nodePos], value);
         }
     }
 
 public:
-    MinMaxAccumulateTree(size_t size, ValueType initialValue = LIMITS)
-        : BaseType(size, initialValue, LIMITS)
+    MinMaxAccumulateTree(size_t size, ValueType initialValue = LIMITS())
+        : BaseType(size, initialValue, LIMITS())
     {
     }
 
@@ -452,9 +460,9 @@ public:
     {
         size_t left = (parent << 1);
         size_t right = (parent << 1) | 1;
-        UpdateNode(left, promise[parent]);
-        UpdateNode(right, promise[parent]);
-        promise[parent] = neutralPromiseElement;
+        this->UpdateNode(left, this->promise[parent]);
+        this->UpdateNode(right, this->promise[parent]);
+        this->promise[parent] = this->neutralPromiseElement;
     }
 
     /**
@@ -465,10 +473,10 @@ public:
      */
     void updateRange(size_t left, size_t right, IntegerType value)
     {
-        left = leaveIndexToPosition(left);
-        right = leaveIndexToPosition(right);
-        pushDownFromRoot(left);
-        pushDownFromRoot(right - 1);
+        left = this->leaveIndexToPosition(left);
+        right = this->leaveIndexToPosition(right);
+        this->pushDownFromRoot(left);
+        this->pushDownFromRoot(right - 1);
         MinMax pairValue{value, value};
         for (size_t l = left, r = right; l < r; l >>= 1, r >>= 1) {
             if (l & 1) {
@@ -480,8 +488,8 @@ public:
                 UpdateNode(r, pairValue);
             }
         }
-        updateUntilRoot(left);
-        updateUntilRoot(right - 1);
+        this->updateUntilRoot(left);
+        this->updateUntilRoot(right - 1);
     }
 
     /**
@@ -492,7 +500,7 @@ public:
      */
     MinMax rangeMinMax(size_t l, size_t r)
     {
-        return rangeOperation(l, r, neutralPromiseElement);
+        return this->rangeOperation(l, r, this->neutralPromiseElement);
     }
 };
 
