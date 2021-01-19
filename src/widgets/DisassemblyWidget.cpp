@@ -906,9 +906,16 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
         return res->second;
     };
 
-    std::sort(std::begin(arrows), std::end(arrows), [](const Arrow& l, const Arrow& r) {
-        if (l.up != r.up) {
-            return l.up < r.up;
+
+    RVA visibleTop = lineOffsets[0].first, visibleBottom = lineOffsets.back().first;
+    auto fitsInScreen = [&](const Arrow &a) {
+        return visibleBottom - visibleTop < a.length();
+    };
+
+    std::sort(std::begin(arrows), std::end(arrows), [&](const Arrow& l, const Arrow& r) {
+        int lScreen = fitsInScreen(l), rScreen = fitsInScreen(r);
+        if (lScreen != rScreen) {
+            return lScreen < rScreen;
         }
         return l.max != r.max ? l.max < r.max : l.min > r.min;
     });
