@@ -1927,7 +1927,6 @@ void CutterCore::continueDebug()
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
         syncAndSeekProgramCounter();
-        emit registersChanged();
         emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
@@ -1955,8 +1954,6 @@ void CutterCore::continueBackDebug()
     connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         debugTask.clear();
         syncAndSeekProgramCounter();
-        emit registersChanged();
-        emit stackChanged();
         emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
@@ -1984,8 +1981,6 @@ void CutterCore::continueUntilDebug(QString offset)
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
         syncAndSeekProgramCounter();
-        emit registersChanged();
-        emit stackChanged();
         emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
@@ -2013,6 +2008,7 @@ void CutterCore::continueUntilCall()
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
         syncAndSeekProgramCounter();
+        emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
 
@@ -2039,6 +2035,7 @@ void CutterCore::continueUntilSyscall()
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
         syncAndSeekProgramCounter();
+        emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
 
@@ -2065,6 +2062,7 @@ void CutterCore::stepDebug()
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
         syncAndSeekProgramCounter();
+        emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
 
@@ -2091,6 +2089,7 @@ void CutterCore::stepOverDebug()
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
         syncAndSeekProgramCounter();
+        emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
 
@@ -2111,6 +2110,7 @@ void CutterCore::stepOutDebug()
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
         syncAndSeekProgramCounter();
+        emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
 
@@ -2137,6 +2137,7 @@ void CutterCore::stepBackDebug()
     connect(debugTask.data(), &RizinTask::finished, this, [this] () {
         debugTask.clear();
         syncAndSeekProgramCounter();
+        emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
 
