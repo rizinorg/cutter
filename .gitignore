@@ -55,6 +55,7 @@ src/*_automoc.cpp
 *CMakeCache.txt*
 *cmake_install.cmake*
 src/CMakeFiles/*
+CMakeSettings.json
 
 # Prepare_r2
 ninja.exe
