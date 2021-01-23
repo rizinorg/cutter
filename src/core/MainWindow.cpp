@@ -755,6 +755,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
         return;
     }
 
+    activateWindow();
+
     QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
                                                             tr("Do you really want to exit?\nSave your project before closing!"),
                                                             (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
