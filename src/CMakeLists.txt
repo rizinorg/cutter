@@ -425,6 +425,7 @@ endif()
 
 add_executable(Cutter ${UI_FILES} ${QRC_FILES} ${PLATFORM_RESOURCES} ${SOURCES} ${HEADER_FILES} ${BINDINGS_SOURCE})
 set_target_properties(Cutter PROPERTIES
+        OUTPUT_NAME cutter
         RUNTIME_OUTPUT_DIRECTORY ..
         PDB_OUTPUT_DIRECTORY ..
         ENABLE_EXPORTS ON
@@ -548,7 +549,7 @@ endforeach()
 if(UNIX AND NOT APPLE)
     install (FILES "img/cutter.svg"
                 DESTINATION "share/icons/hicolor/scalable/apps/")
-    install(FILES "org.rizin.Cutter.desktop"
+    install(FILES "re.rizin.cutter.desktop"
         DESTINATION "share/applications"
         COMPONENT Devel)
 endif()

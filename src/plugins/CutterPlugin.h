@@ -47,7 +47,7 @@ public:
     virtual QString getVersion() const = 0;
 };
 
-#define CutterPlugin_iid "org.rizin.cutter.plugins.CutterPlugin"
+#define CutterPlugin_iid "re.rizin.cutter.plugins.CutterPlugin"
 
 Q_DECLARE_INTERFACE(CutterPlugin, CutterPlugin_iid)
 

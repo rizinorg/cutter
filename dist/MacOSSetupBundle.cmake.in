@@ -39,7 +39,7 @@ foreach(_lib ${ADJUST_RIZIN_LIBS})
 	# Cutter reference to lib
 	run_or_die(COMMAND install_name_tool
 		-change "${_lib}" "@rpath/${_name}"
-		"${EXECUTABLE_DIR}/Cutter")
+		"${EXECUTABLE_DIR}/cutter")
 	# lib LC_ID_DYLIB
 	run_or_die(COMMAND install_name_tool
 			-id "@rpath/${_name}"	
@@ -57,10 +57,10 @@ endforeach()
 # Add rpaths because macdeployqt fails to do that properly
 run_or_die(COMMAND install_name_tool
 	-add_rpath "@executable_path/../Frameworks"
-	"${EXECUTABLE_DIR}/Cutter")
+	"${EXECUTABLE_DIR}/cutter")
 run_or_die(COMMAND install_name_tool
 	-add_rpath "@executable_path/../Resources/lib"
-	"${EXECUTABLE_DIR}/Cutter")
+	"${EXECUTABLE_DIR}/cutter")
 
 set(MACDEPLOYQT_COMMAND "${MACDEPLOYQT_PATH}" "${BUNDLE_PATH}" "-verbose=2" "-libpath=${CMAKE_INSTALL_PREFIX}/lib")
 message("Running macdeployqt \"${MACDEPLOYQT_COMMAND}\"")

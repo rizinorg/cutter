@@ -101,7 +101,7 @@ You can now execute Cutter like this:
 
 .. code:: sh
 
-   ./build/Cutter
+   ./build/cutter
 
 
 Building on Windows
@@ -249,9 +249,9 @@ containing bin/, lib/, include/, etc.) and specify it to CMake using
 
 * **Rizin's librz_*.so cannot be found when running Cutter**
 
-   ./Cutter: error while loading shared libraries: librz_lang.so: cannot open shared object file: No such file or directory
+   ./cutter: error while loading shared libraries: librz_lang.so: cannot open shared object file: No such file or directory
 
-The exact Rizin .so file that cannot be found may vary. On some systems, the linker by default uses RUNPATH instead of RPATH which is incompatible with the way Rizin is currently compiled. It results in some of the Rizin libraries not being found when running cutter. You can verify if this is the problem by running `ldd ./Cutter`. If all the Rizin libraries are missing you have a different problem.
+The exact Rizin .so file that cannot be found may vary. On some systems, the linker by default uses RUNPATH instead of RPATH which is incompatible with the way Rizin is currently compiled. It results in some of the Rizin libraries not being found when running cutter. You can verify if this is the problem by running `ldd ./cutter`. If all the Rizin libraries are missing you have a different problem.
 The workaround is to either add the `--disable-new-dtags` linker flag when compiling Cutter or add the Rizin installation path to LD_LIBRARY_PATH environment variable.
 
 ::

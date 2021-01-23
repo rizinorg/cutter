@@ -44,7 +44,7 @@ def kill_appimage():
 atexit.register(kill_appimage)
 mount_dir = appimage_p.stdout.readline().strip().decode("utf-8")
 
-binaries = [ os.path.join(mount_dir, "usr/bin/Cutter") ]
+binaries = [ os.path.join(mount_dir, "usr/bin/cutter") ]
 for f in os.scandir(os.path.join(mount_dir, "usr/lib")):
 	if f.is_dir() or f.is_symlink():
 		continue
