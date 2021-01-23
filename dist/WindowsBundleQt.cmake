@@ -1,5 +1,5 @@
 message("Running windeployqt")
-execute_process(COMMAND windeployqt Cutter.exe
+execute_process(COMMAND windeployqt cutter.exe
         --plugindir "qtplugins"
         --no-translations # Cutter currently isn't loading Qt translation file
     WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}

@@ -8,7 +8,7 @@
 class CutterSamplePlugin : public QObject, CutterPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.rizin.cutter.plugins.CutterPlugin")
+    Q_PLUGIN_METADATA(IID "re.rizin.cutter.plugins.CutterPlugin")
     Q_INTERFACES(CutterPlugin)
 
 public:

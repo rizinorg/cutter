@@ -12,7 +12,7 @@ execute_process(COMMAND
 	"${EMBED_PYTHON_SH}"
 	"${PYTHON_FRAMEWORK_DIR}"
 	"${BUNDLE_PATH}"
-	"${BUNDLE_PATH}/Contents/MacOS/Cutter"
+	"${BUNDLE_PATH}/Contents/MacOS/cutter"
     RESULT_VARIABLE SCRIPT_RESULT)
 if(SCRIPT_RESULT)
     message(FATAL_ERROR "Failed to bundle python")
