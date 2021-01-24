@@ -68,7 +68,6 @@ public:
     ~SearchWidget();
 
 private slots:
-    void on_searchInCombo_currentIndexChanged(int index);
     void searchChanged();
     void updateSearchBoundaries();
     void refreshSearchspaces();

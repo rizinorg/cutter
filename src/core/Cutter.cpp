@@ -3349,12 +3349,17 @@ bool CutterCore::isAddressMapped(RVA addr)
     return !Core()->cmdRawAt(QString("om."), addr).isEmpty();
 }
 
-QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString space)
+QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, QString space, QString in)
 {
     CORE_LOCK();
     QList<SearchDescription> searchRef;
 
-    QJsonArray searchArray = cmdj(space + QString(" ") + search_for).array();
+    QJsonArray searchArray;
+    {
+        TempConfig cfg;
+        cfg.set("search.in", in);
+        searchArray = cmdj(QString("%1 %2").arg(space, searchFor)).array();
+    }
 
     if (space == "/Rj") {
         for (const QJsonValue &value : searchArray) {

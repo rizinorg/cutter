@@ -96,5 +96,6 @@ src/out
 # astyle backup .orig files
 *.orig
 
-# Gdb's history
+# Local gdb files
 .gdb_history
+.gdbinit

@@ -227,7 +227,6 @@ void SearchWidget::updateSearchBoundaries()
 
     mapIter = boundaries.cbegin();
     ui->searchInCombo->setCurrentIndex(ui->searchInCombo->findData(mapIter.key()));
-    Config()->setConfig("search.in", mapIter.key());
 
     ui->searchInCombo->blockSignals(true);
     ui->searchInCombo->clear();
@@ -265,12 +264,12 @@ void SearchWidget::refreshSearchspaces()
 
 void SearchWidget::refreshSearch()
 {
-    QString search_for = ui->filterLineEdit->text();
-    QVariant searchspace_data = ui->searchspaceCombo->currentData();
-    QString searchspace = searchspace_data.toString();
+    QString searchFor = ui->filterLineEdit->text();
+    QString searchSpace = ui->searchspaceCombo->currentData().toString();
+    QString searchIn = ui->searchInCombo->currentData().toString();
 
     search_model->beginResetModel();
-    search = Core()->getAllSearch(search_for, searchspace);
+    search = Core()->getAllSearch(searchFor, searchSpace, searchIn);
     search_model->endResetModel();
 
     qhelpers::adjustColumns(ui->searchTreeView, 3, 0);
@@ -312,10 +311,4 @@ void SearchWidget::updatePlaceholderText(int index)
     default:
         ui->filterLineEdit->setPlaceholderText("jmp rax");
     }
-}
-
-void SearchWidget::on_searchInCombo_currentIndexChanged(int index)
-{
-    Config()->setConfig("search.in",
-                      ui->searchInCombo->itemData(index).toString());
 }
