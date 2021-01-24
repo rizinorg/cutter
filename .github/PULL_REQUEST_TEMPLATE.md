@@ -16,7 +16,7 @@
 
 
 <!-- **Code formatting**
-Make sure you ran astyle on your code before making the PR. Check our contribution guidelines here: https://cutter.re/docs/code.html -->
+Make sure you ran clang-format on your code before making the PR. Check our contribution guidelines here: https://cutter.re/docs/code.html -->
 
 **Closing issues**
 
