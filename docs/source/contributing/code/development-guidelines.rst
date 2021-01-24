@@ -78,15 +78,20 @@ so your widget refreshes its output when Rizin seek is modified
 Coding Style
 ------------
 
-In general, we follow `the official Qt guidelines <https://wiki.qt.io/Qt_Coding_Style>`__ to
-format the code. If in doubt, you can use `AStyle
-2.06 <https://sourceforge.net/projects/astyle/files/astyle/astyle%202.06/>`__
+In general, we follow a slightly customized version of `the official Qt guidelines <https://wiki.qt.io/Qt_Coding_Style>`__ 
+to format the code. Before sending a pull request, you will need to use `clang-format`<https://clang.llvm.org/docs/ClangFormat.html>`__ (version 8 or newer)
 to format the code. The command line for formatting the code according
 to the style is:
 
 .. code:: bash
 
-   astyle --project=src/Cutter.astylerc src/filename.cpp
+   clang-format -style=file -i src/filename.cpp
+
+If your changes were done on many files across the codebase, you can use this oneliner to tun ``clang-format`` on the entire 'src' directory:
+
+.. code:: bash
+
+   find ./src -regex '.*\.\(cpp\|h\)' -exec clang-format -style=file -i {} \;
 
 In contrast to the official guidelines of Qt, in Cutter we always use curly braces in conditional statements, even if the body of a conditional statement contains only one line.
 
