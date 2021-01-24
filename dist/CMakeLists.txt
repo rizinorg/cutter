@@ -47,6 +47,11 @@ if(APPLE)
 	set(CPACK_BUNDLE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/macos/cutter.icns")
 	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_CURRENT_SOURCE_DIR}/macos/cutter_mac_app.png")
 	set(CPACK_DMG_DS_STORE "${CMAKE_CURRENT_SOURCE_DIR}/macos/DS_Store_ForDMGBackground")
+	set(CPACK_BUNDLE_APPLE_ENTITLEMENTS "${CMAKE_CURRENT_SOURCE_DIR}/macos/Entitlements.plist")
+	set(CPACK_APPLE_BUNDLE_ID "re.rizin.cutter")
+	if (CUTTER_ENABLE_CRASH_REPORTS)
+		list(APPEND CPACK_BUNDLE_APPLE_CODESIGN_FILES "/Contents/Frameworks/Breakpad.framework/Versions/Current/Resources/breakpadUtilities.dylib")
+	endif()
 
 
 	find_program(MACDEPLOYQT_PATH macdeployqt HINTS "${Qt5_DIR}/../../../bin")

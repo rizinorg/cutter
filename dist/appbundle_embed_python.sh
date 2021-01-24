@@ -21,7 +21,7 @@ then
     echo "Cleaning up embedded Python Framework"
     cd "$appbundle/Contents/Frameworks/Python.framework"
     find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
-    rm -r Versions/Current/Resources/* "Versions/Current/lib/$python_version/test" "Versions/Current/lib/$python_version/idlelib" "Versions/Current/lib/$python_version/curses" "Versions/Current/lib/$python_version/lib2to3" || echo "Couldn't remove something"
+    rm -r Versions/Current/Resources/Python.app "Versions/Current/lib/$python_version/test" "Versions/Current/lib/$python_version/idlelib" "Versions/Current/lib/$python_version/curses" "Versions/Current/lib/$python_version/lib2to3" || echo "Couldn't remove something"
 else
     echo "Python.framework already exists, skipping copying"
     cd "$appbundle/Contents/Frameworks/Python.framework"
@@ -48,4 +48,3 @@ then
 else
     echo "site-packages/Pyside2 exists, skipping copying"
 fi
-
