@@ -20,7 +20,7 @@ namespace Ui {
 class StringsWidget;
 }
 
-class StringsModel: public AddressableItemModel<QAbstractListModel>
+class StringsModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
 
@@ -30,7 +30,16 @@ private:
     QList<StringDescription> *strings;
 
 public:
-    enum Column { OffsetColumn = 0, StringColumn, TypeColumn, LengthColumn, SizeColumn, SectionColumn, CommentColumn, ColumnCount };
+    enum Column {
+        OffsetColumn = 0,
+        StringColumn,
+        TypeColumn,
+        LengthColumn,
+        SizeColumn,
+        SectionColumn,
+        CommentColumn,
+        ColumnCount
+    };
     static const int StringDescriptionRole = Qt::UserRole;
 
     StringsModel(QList<StringDescription> *strings, QObject *parent = nullptr);
@@ -45,8 +54,6 @@ public:
     RVA address(const QModelIndex &index) const override;
     const StringDescription *description(const QModelIndex &index) const;
 };
-
-
 
 class StringsProxyModel : public AddressableFilterProxyModel
 {
@@ -63,7 +70,6 @@ protected:
 
     QString selectedSection;
 };
-
 
 class StringsWidget : public CutterDockWidget
 {
@@ -88,8 +94,7 @@ private:
     StringsModel *model;
     StringsProxyModel *proxyModel;
     QList<StringDescription> strings;
-    CutterTreeWidget* tree;
-
+    CutterTreeWidget *tree;
 };
 
 #endif // STRINGSWIDGET_H

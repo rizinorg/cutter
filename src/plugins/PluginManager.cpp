@@ -2,9 +2,9 @@
 #include <cassert>
 
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
-#include <Python.h>
-#include <cutterbindings_python.h>
-#include "PythonManager.h"
+#    include <Python.h>
+#    include <cutterbindings_python.h>
+#    include "PythonManager.h"
 #endif
 
 #include "PluginManager.h"
@@ -25,13 +25,9 @@ PluginManager *PluginManager::getInstance()
     return uniqueInstance;
 }
 
-PluginManager::PluginManager()
-{
-}
+PluginManager::PluginManager() {}
 
-PluginManager::~PluginManager()
-{
-}
+PluginManager::~PluginManager() {}
 
 void PluginManager::loadPlugins(bool enablePlugins)
 {
@@ -120,13 +116,12 @@ QVector<QDir> PluginManager::getPluginDirectories() const
     QChar listSeparator = QDir::listSeparator();
 #endif
     QString extra_plugin_dirs = CUTTER_EXTRA_PLUGIN_DIRS;
-    for (auto& path : extra_plugin_dirs.split(listSeparator, CUTTER_QT_SKIP_EMPTY_PARTS)) {
+    for (auto &path : extra_plugin_dirs.split(listSeparator, CUTTER_QT_SKIP_EMPTY_PARTS)) {
         result.push_back(QDir(path));
     }
 
     return result;
 }
-
 
 QString PluginManager::getUserPluginsDirectory() const
 {
@@ -154,7 +149,7 @@ void PluginManager::loadNativePlugins(const QDir &directory)
             }
             continue;
         }
-        PluginPtr cutterPlugin{qobject_cast<CutterPlugin *>(plugin)};
+        PluginPtr cutterPlugin { qobject_cast<CutterPlugin *>(plugin) };
         if (!cutterPlugin) {
             continue;
         }
@@ -169,7 +164,8 @@ void PluginManager::loadPythonPlugins(const QDir &directory)
 {
     Python()->addPythonPath(directory.absolutePath().toLocal8Bit().data());
 
-    for (const QString &fileName : directory.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot)) {
+    for (const QString &fileName :
+         directory.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot)) {
         if (fileName == "__pycache__") {
             continue;
         }
@@ -179,7 +175,7 @@ void PluginManager::loadPythonPlugins(const QDir &directory)
         } else {
             moduleName = fileName;
         }
-        PluginPtr cutterPlugin{loadPythonPlugin(moduleName.toLocal8Bit().constData())};
+        PluginPtr cutterPlugin { loadPythonPlugin(moduleName.toLocal8Bit().constData()) };
         if (!cutterPlugin) {
             continue;
         }
@@ -203,7 +199,8 @@ CutterPlugin *PluginManager::loadPythonPlugin(const char *moduleName)
 
     PyObject *createPluginFunc = PyObject_GetAttrString(pluginModule, "create_cutter_plugin");
     if (!createPluginFunc || !PyCallable_Check(createPluginFunc)) {
-        qWarning() << "Plugin module does not contain create_cutter_plugin() function:" << QString(moduleName);
+        qWarning() << "Plugin module does not contain create_cutter_plugin() function:"
+                   << QString(moduleName);
         if (createPluginFunc) {
             Py_DECREF(createPluginFunc);
         }
@@ -220,9 +217,13 @@ CutterPlugin *PluginManager::loadPythonPlugin(const char *moduleName)
         return nullptr;
     }
 
-    PythonToCppFunc pythonToCpp = Shiboken::Conversions::isPythonToCppPointerConvertible(reinterpret_cast<SbkObjectType *>(SbkCutterBindingsTypes[SBK_CUTTERPLUGIN_IDX]), pluginObject);
+    PythonToCppFunc pythonToCpp = Shiboken::Conversions::isPythonToCppPointerConvertible(
+            reinterpret_cast<SbkObjectType *>(SbkCutterBindingsTypes[SBK_CUTTERPLUGIN_IDX]),
+            pluginObject);
     if (!pythonToCpp) {
-        qWarning() << "Plugin's create_cutter_plugin() function did not return an instance of CutterPlugin:" << QString(moduleName);
+        qWarning() << "Plugin's create_cutter_plugin() function did not return an instance of "
+                      "CutterPlugin:"
+                   << QString(moduleName);
         return nullptr;
     }
     CutterPlugin *plugin;

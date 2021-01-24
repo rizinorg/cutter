@@ -6,15 +6,11 @@
 #include "ui_RizinTaskDialog.h"
 
 RizinTaskDialog::RizinTaskDialog(RizinTask::Ptr task, QWidget *parent)
-    : QDialog(parent),
-      ui(new Ui::RizinTaskDialog),
-      task(task)
+    : QDialog(parent), ui(new Ui::RizinTaskDialog), task(task)
 {
     ui->setupUi(this);
 
-    connect(task.data(), &RizinTask::finished, this, [this]() {
-        close();
-    });
+    connect(task.data(), &RizinTask::finished, this, [this]() { close(); });
 
     connect(&timer, &QTimer::timeout, this, &RizinTaskDialog::updateProgressTimer);
     timer.setInterval(1000);
@@ -25,9 +21,7 @@ RizinTaskDialog::RizinTaskDialog(RizinTask::Ptr task, QWidget *parent)
     updateProgressTimer();
 }
 
-RizinTaskDialog::~RizinTaskDialog()
-{
-}
+RizinTaskDialog::~RizinTaskDialog() {}
 
 void RizinTaskDialog::updateProgressTimer()
 {
@@ -68,5 +62,4 @@ void RizinTaskDialog::reject()
 {
     task->breakTask();
     setDesc("Attempting to stop the task...");
-
 }

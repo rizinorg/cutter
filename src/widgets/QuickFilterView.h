@@ -33,4 +33,4 @@ private:
     std::unique_ptr<Ui::QuickFilterView> ui;
 };
 
-#endif //QUICKFILTERVIEW_H
+#endif // QUICKFILTERVIEW_H

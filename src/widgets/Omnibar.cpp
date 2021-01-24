@@ -7,10 +7,7 @@
 #include <QShortcut>
 #include <QAbstractItemView>
 
-
-Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
-    QLineEdit(parent),
-    main(main)
+Omnibar::Omnibar(MainWindow *main, QWidget *parent) : QLineEdit(parent), main(main)
 {
     // QLineEdit basic features
     this->setMinimumHeight(16);

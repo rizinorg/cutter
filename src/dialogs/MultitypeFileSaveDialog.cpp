@@ -4,9 +4,7 @@
 
 #include <QMessageBox>
 
-
-MultitypeFileSaveDialog::MultitypeFileSaveDialog(QWidget *parent,
-                                                 const QString &caption,
+MultitypeFileSaveDialog::MultitypeFileSaveDialog(QWidget *parent, const QString &caption,
                                                  const QString &directory)
     : QFileDialog(parent, caption, directory)
 {
@@ -16,14 +14,14 @@ MultitypeFileSaveDialog::MultitypeFileSaveDialog(QWidget *parent,
     connect(this, &QFileDialog::filterSelected, this, &MultitypeFileSaveDialog::onFilterSelected);
 }
 
-void MultitypeFileSaveDialog::setTypes(const QVector<MultitypeFileSaveDialog::TypeDescription>
-                                       types, bool useDetection)
+void MultitypeFileSaveDialog::setTypes(
+        const QVector<MultitypeFileSaveDialog::TypeDescription> types, bool useDetection)
 {
     this->hasTypeDetection = useDetection;
     this->types.clear();
     this->types.reserve(types.size() + (useDetection ? 1 : 0));
     if (useDetection) {
-        this->types.push_back(TypeDescription{tr("Detect type (*)"), "", QVariant()});
+        this->types.push_back(TypeDescription { tr("Detect type (*)"), "", QVariant() });
     }
     this->types.append(types);
     QStringList filters;
@@ -43,9 +41,10 @@ MultitypeFileSaveDialog::TypeDescription MultitypeFileSaveDialog::selectedType()
     if (hasTypeDetection && filterIt == this->types.begin()) {
         QFileInfo info(this->selectedFiles().first());
         QString currentSuffix = info.suffix();
-        filterIt = std::find_if(types.begin(), types.end(), [&currentSuffix](const TypeDescription & v) {
-            return currentSuffix == v.extension;
-        });
+        filterIt = std::find_if(types.begin(), types.end(),
+                                [&currentSuffix](const TypeDescription &v) {
+                                    return currentSuffix == v.extension;
+                                });
         if (filterIt != types.end()) {
             return *filterIt;
         }
@@ -96,8 +95,7 @@ void MultitypeFileSaveDialog::onFilterSelected(const QString &filter)
 QVector<MultitypeFileSaveDialog::TypeDescription>::const_iterator
 MultitypeFileSaveDialog::findType(const QString &description) const
 {
-    return std::find_if(types.begin(), types.end(),
-    [&description](const TypeDescription & v) {
+    return std::find_if(types.begin(), types.end(), [&description](const TypeDescription &v) {
         return v.description == description;
     });
 }

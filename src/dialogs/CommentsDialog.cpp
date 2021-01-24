@@ -3,9 +3,7 @@
 
 #include "core/Cutter.h"
 
-CommentsDialog::CommentsDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::CommentsDialog)
+CommentsDialog::CommentsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::CommentsDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -16,9 +14,7 @@ CommentsDialog::CommentsDialog(QWidget *parent) :
 
 CommentsDialog::~CommentsDialog() {}
 
-void CommentsDialog::on_buttonBox_accepted()
-{
-}
+void CommentsDialog::on_buttonBox_accepted() {}
 
 void CommentsDialog::on_buttonBox_rejected()
 {
@@ -60,14 +56,14 @@ void CommentsDialog::addOrEditComment(RVA offset, QWidget *parent)
     }
 }
 
-bool CommentsDialog::eventFilter(QObject */*obj*/, QEvent *event)
+bool CommentsDialog::eventFilter(QObject * /*obj*/, QEvent *event)
 {
-    if (event -> type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast <QKeyEvent *> (event);
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
 
         // Confirm comment by pressing Ctrl/Cmd+Return
-        if ((keyEvent -> modifiers() & Qt::ControlModifier) &&
-                ((keyEvent -> key() == Qt::Key_Enter) || (keyEvent -> key() == Qt::Key_Return))) {
+        if ((keyEvent->modifiers() & Qt::ControlModifier)
+            && ((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return))) {
             this->accept();
             return true;
         }

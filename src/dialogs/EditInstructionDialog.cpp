@@ -2,10 +2,8 @@
 #include "ui_EditInstructionDialog.h"
 #include "core/Cutter.h"
 
-EditInstructionDialog::EditInstructionDialog(InstructionEditMode editMode, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::EditInstructionDialog),
-    editMode(editMode)
+EditInstructionDialog::EditInstructionDialog(InstructionEditMode editMode, QWidget *parent)
+    : QDialog(parent), ui(new Ui::EditInstructionDialog), editMode(editMode)
 {
     ui->setupUi(this);
     ui->lineEdit->setMinimumWidth(400);
@@ -17,9 +15,7 @@ EditInstructionDialog::EditInstructionDialog(InstructionEditMode editMode, QWidg
 
 EditInstructionDialog::~EditInstructionDialog() {}
 
-void EditInstructionDialog::on_buttonBox_accepted()
-{
-}
+void EditInstructionDialog::on_buttonBox_accepted() {}
 
 void EditInstructionDialog::on_buttonBox_rejected()
 {

@@ -28,7 +28,14 @@ private:
     QList<ExportDescription> *exports;
 
 public:
-    enum Column { OffsetColumn = 0, SizeColumn, TypeColumn, NameColumn, CommentColumn, ColumnCount };
+    enum Column {
+        OffsetColumn = 0,
+        SizeColumn,
+        TypeColumn,
+        NameColumn,
+        CommentColumn,
+        ColumnCount
+    };
     enum Role { ExportDescriptionRole = Qt::UserRole };
 
     ExportsModel(QList<ExportDescription> *exports, QObject *parent = nullptr);
@@ -37,7 +44,8 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     QVariant data(const QModelIndex &index, int role) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
     RVA address(const QModelIndex &index) const override;
     QString name(const QModelIndex &index) const override;

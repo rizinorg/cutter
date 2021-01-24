@@ -17,13 +17,10 @@ public:
     ~MemoryDockWidget() override {}
 
     bool tryRaiseMemoryWidget();
-    MemoryWidgetType getType() const
-    {
-        return mType;
-    }
+    MemoryWidgetType getType() const { return mType; }
     bool eventFilter(QObject *object, QEvent *event) override;
-private:
 
+private:
     MemoryWidgetType mType;
 };
 

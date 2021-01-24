@@ -14,8 +14,7 @@
 #include <QToolTip>
 
 SectionsModel::SectionsModel(QList<SectionDescription> *sections, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent),
-      sections(sections)
+    : AddressableItemModel<QAbstractListModel>(parent), sections(sections)
 {
 }
 
@@ -32,18 +31,19 @@ int SectionsModel::columnCount(const QModelIndex &) const
 QVariant SectionsModel::data(const QModelIndex &index, int role) const
 {
     // TODO: create unique colors, e. g. use HSV color space and rotate in H for 360/size
-    static const QList<QColor> colors = { QColor("#1ABC9C"),    //TURQUOISE
-                                          QColor("#2ECC71"),    //EMERALD
-                                          QColor("#3498DB"),    //PETER RIVER
-                                          QColor("#9B59B6"),    //AMETHYST
-                                          QColor("#34495E"),    //WET ASPHALT
-                                          QColor("#F1C40F"),    //SUN FLOWER
-                                          QColor("#E67E22"),    //CARROT
-                                          QColor("#E74C3C"),    //ALIZARIN
-                                          QColor("#ECF0F1"),    //CLOUDS
-                                          QColor("#BDC3C7"),    //SILVER
-                                          QColor("#95A5A6")     //COBCRETE
-                                        };
+    static const QList<QColor> colors = {
+        QColor("#1ABC9C"), // TURQUOISE
+        QColor("#2ECC71"), // EMERALD
+        QColor("#3498DB"), // PETER RIVER
+        QColor("#9B59B6"), // AMETHYST
+        QColor("#34495E"), // WET ASPHALT
+        QColor("#F1C40F"), // SUN FLOWER
+        QColor("#E67E22"), // CARROT
+        QColor("#E74C3C"), // ALIZARIN
+        QColor("#ECF0F1"), // CLOUDS
+        QColor("#BDC3C7"), // SILVER
+        QColor("#95A5A6") // COBCRETE
+    };
 
     if (index.row() >= sections->count()) {
         return QVariant();
@@ -135,7 +135,8 @@ SectionsProxyModel::SectionsProxyModel(SectionsModel *sourceModel, QObject *pare
 bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
     auto leftSection = left.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
-    auto rightSection = right.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
+    auto rightSection =
+            right.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
 
     switch (left.column()) {
     default:
@@ -160,8 +161,7 @@ bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
     }
 }
 
-SectionsWidget::SectionsWidget(MainWindow *main) :
-    ListDockWidget(main)
+SectionsWidget::SectionsWidget(MainWindow *main) : ListDockWidget(main)
 {
     setObjectName("SectionsWidget");
     setWindowTitle(QStringLiteral("Sections"));
@@ -228,26 +228,25 @@ void SectionsWidget::initConnects()
 {
     connect(Core(), &CutterCore::refreshAll, this, &SectionsWidget::refreshSections);
     connect(Core(), &CutterCore::codeRebased, this, &SectionsWidget::refreshSections);
-    connect(this, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
+    connect(this, &QDockWidget::visibilityChanged, this, [=](bool visibility) {
         if (visibility) {
             refreshSections();
         }
     });
     connect(Core(), &CutterCore::seekChanged, this, &SectionsWidget::refreshDocks);
     connect(Config(), &Configuration::colorsUpdated, this, &SectionsWidget::refreshSections);
-    connect(toggleButton, &QToolButton::clicked, this, [ = ] {
+    connect(toggleButton, &QToolButton::clicked, this, [=] {
         toggleButton->hide();
         addrDockWidget->show();
         virtualAddrDock->show();
     });
-    connect(virtualAddrDock, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
+    connect(virtualAddrDock, &QDockWidget::visibilityChanged, this, [=](bool visibility) {
         if (!visibility) {
             updateToggle();
         }
     });
-    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
-        qhelpers::emitColumnChanged(sectionsModel, SectionsModel::CommentColumn);
-    });
+    connect(Core(), &CutterCore::commentsChanged, this,
+            [this]() { qhelpers::emitColumnChanged(sectionsModel, SectionsModel::CommentColumn); });
 }
 
 void SectionsWidget::refreshSections()
@@ -277,11 +276,15 @@ void SectionsWidget::drawIndicatorOnAddrDocks()
     RVA offset = Core()->getOffset();
     for (int i = 0; i != virtualAddrDock->proxyModel->rowCount(); i++) {
         QModelIndex idx = virtualAddrDock->proxyModel->index(i, 0);
-        RVA vaddr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr;
-        int vsize = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
+        RVA vaddr =
+                idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr;
+        int vsize =
+                idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
         RVA end = vaddr + vsize;
         if (offset < end) {
-            QString name = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().name;
+            QString name = idx.data(SectionsModel::SectionDescriptionRole)
+                                   .value<SectionDescription>()
+                                   .name;
             float ratio = 0;
             if (vsize > 0 && offset > vaddr) {
                 ratio = (float)(offset - vaddr) / (float)vsize;
@@ -293,7 +296,8 @@ void SectionsWidget::drawIndicatorOnAddrDocks()
     }
 }
 
-void SectionsWidget::resizeEvent(QResizeEvent *event) {
+void SectionsWidget::resizeEvent(QResizeEvent *event)
+{
     CutterDockWidget::resizeEvent(event);
     refreshDocks();
 }
@@ -306,10 +310,10 @@ void SectionsWidget::updateToggle()
     }
 }
 
-AbstractAddrDock::AbstractAddrDock(SectionsModel *model, QWidget *parent) :
-    QDockWidget(parent),
-    addrDockScene(new AddrDockScene(this)),
-    graphicsView(new QGraphicsView(this))
+AbstractAddrDock::AbstractAddrDock(SectionsModel *model, QWidget *parent)
+    : QDockWidget(parent),
+      addrDockScene(new AddrDockScene(this)),
+      graphicsView(new QGraphicsView(this))
 {
     graphicsView->setScene(addrDockScene);
     setWidget(graphicsView);
@@ -415,7 +419,8 @@ int AbstractAddrDock::getValidMinSize()
     proxyModel->sort(SectionsModel::SizeColumn, Qt::AscendingOrder);
     for (int i = 0; i < proxyModel->rowCount(); i++) {
         QModelIndex idx = proxyModel->index(i, 0);
-        int size = getSizeOfSection(idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>());
+        int size = getSizeOfSection(
+                idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>());
         if (size > 0) {
             return size;
         }
@@ -429,7 +434,8 @@ void AbstractAddrDock::drawIndicator(QString name, float ratio)
     float padding = addrDockScene->nameHeightMap[name] * ratio;
     int y = addrDockScene->namePosYMap[name] + (int)padding;
     QColor color = indicatorColor;
-    QGraphicsRectItem *indicator = new QGraphicsRectItem(QRectF(0, y, getIndicatorWidth(), indicatorHeight));
+    QGraphicsRectItem *indicator =
+            new QGraphicsRectItem(QRectF(0, y, getIndicatorWidth(), indicatorHeight));
     indicator->setBrush(QBrush(color));
     addrDockScene->addItem(indicator);
 
@@ -441,8 +447,7 @@ void AbstractAddrDock::drawIndicator(QString name, float ratio)
     addTextItem(color, QPoint(0, y - indicatorParamPosY), QString("0x%1").arg(offset, 0, 16));
 }
 
-AddrDockScene::AddrDockScene(QWidget *parent) :
-    QGraphicsScene(parent)
+AddrDockScene::AddrDockScene(QWidget *parent) : QGraphicsScene(parent)
 {
     disableCenterOn = false;
 }
@@ -490,23 +495,19 @@ RVA AddrDockScene::getAddrFromPos(int posY, bool seek)
     return RVA_INVALID;
 }
 
-RawAddrDock::RawAddrDock(SectionsModel *model, QWidget *parent) :
-    AbstractAddrDock(model, parent)
+RawAddrDock::RawAddrDock(SectionsModel *model, QWidget *parent) : AbstractAddrDock(model, parent)
 {
     setWindowTitle(tr("Raw"));
-    connect(this, &QDockWidget::featuresChanged, this, [ = ](){
-        setFeatures(QDockWidget::NoDockWidgetFeatures);
-    });
+    connect(this, &QDockWidget::featuresChanged, this,
+            [=]() { setFeatures(QDockWidget::NoDockWidgetFeatures); });
 }
 
-
-VirtualAddrDock::VirtualAddrDock(SectionsModel *model, QWidget *parent) :
-    AbstractAddrDock(model, parent)
+VirtualAddrDock::VirtualAddrDock(SectionsModel *model, QWidget *parent)
+    : AbstractAddrDock(model, parent)
 {
     setWindowTitle(tr("Virtual"));
-    connect(this, &QDockWidget::featuresChanged, this, [ = ](){
-        setFeatures(QDockWidget::DockWidgetClosable);
-    });
+    connect(this, &QDockWidget::featuresChanged, this,
+            [=]() { setFeatures(QDockWidget::DockWidgetClosable); });
 }
 
 void RawAddrDock::updateDock()

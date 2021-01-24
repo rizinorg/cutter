@@ -40,7 +40,6 @@ public:
 
     virtual ~ColorThemeWorker() {}
 
-
     /**
      * @brief Copies @a srcThemeName with name @a copyThemeName.
      * @param srcThemeName
@@ -59,10 +58,11 @@ public:
      * Name of theme to save.
      * @return "" on success or error message.
      */
-    QString save(const QJsonDocument& theme, const QString &themeName) const;
+    QString save(const QJsonDocument &theme, const QString &themeName) const;
 
     /**
-     * @brief Returns whether or not @a themeName theme is custom (created by user or imported) or not.
+     * @brief Returns whether or not @a themeName theme is custom (created by user or imported) or
+     * not.
      * @param themeName
      * Name of theme to check.
      */
@@ -75,7 +75,8 @@ public:
     bool isThemeExist(const QString &name) const;
 
     /**
-     * @brief Returns theme as Json where key is option name and value is array of 3 Ints (Red, Green, Blue).
+     * @brief Returns theme as Json where key is option name and value is array of 3 Ints (Red,
+     * Green, Blue).
      * @param themeName
      * Theme to get.
      */
@@ -93,13 +94,13 @@ public:
      * @brief Imports theme from @a file.
      * @return "" on success or error message.
      */
-    QString importTheme(const QString& file) const;
+    QString importTheme(const QString &file) const;
 
     /**
      * @brief Renames theme from @a themeName to @a newName.
      * @return "" on success or error message.
      */
-    QString renameTheme(const QString& themeName, const QString& newName) const;
+    QString renameTheme(const QString &themeName, const QString &newName) const;
 
     /**
      * @brief Returns whether or not file at @a filePath is a color theme.

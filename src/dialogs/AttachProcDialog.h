@@ -15,8 +15,7 @@ class MainWindow;
 class QTreeWidget;
 class QTreeWidgetItem;
 
-
-class ProcessModel: public QAbstractListModel
+class ProcessModel : public QAbstractListModel
 {
     Q_OBJECT
 
@@ -34,13 +33,12 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-    static bool lessThan(const ProcessDescription &left, const ProcessDescription &right, int column);
+    static bool lessThan(const ProcessDescription &left, const ProcessDescription &right,
+                         int column);
 
 public slots:
     void updateData();
 };
-
-
 
 class ProcessProxyModel : public QSortFilterProxyModel
 {
@@ -53,7 +51,6 @@ protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
-
 
 class ProcessBeingAnalysedProxyModel : public QSortFilterProxyModel
 {
@@ -70,8 +67,6 @@ private:
     QString processBeingAnalysedFilename;
     QString processPathToFilename(const QString &path) const;
 };
-
-
 
 class AttachProcDialog : public QDialog
 {

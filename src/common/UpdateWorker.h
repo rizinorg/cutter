@@ -4,18 +4,18 @@
 #include <QtGlobal>
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
-#define CUTTER_UPDATE_WORKER_AVAILABLE 1
+#    define CUTTER_UPDATE_WORKER_AVAILABLE 1
 #else
-#define CUTTER_UPDATE_WORKER_AVAILABLE 0
+#    define CUTTER_UPDATE_WORKER_AVAILABLE 0
 #endif
 
 #if CUTTER_UPDATE_WORKER_AVAILABLE
-#include <QDir>
-#include <QTimer>
-#include <QObject>
-#include <QtNetwork/QNetworkAccessManager>
+#    include <QDir>
+#    include <QTimer>
+#    include <QObject>
+#    include <QtNetwork/QNetworkAccessManager>
 
-#include <QVersionNumber>
+#    include <QVersionNumber>
 #endif
 
 #if CUTTER_UPDATE_WORKER_AVAILABLE
@@ -68,7 +68,8 @@ public:
     void showUpdateDialog(bool showDontCheckForUpdatesButton);
 
     /**
-     * @return the version of this Cutter binary, derived from CUTTER_VERSION_MAJOR, CUTTER_VERSION_MINOR and CUTTER_VERSION_PATCH.
+     * @return the version of this Cutter binary, derived from CUTTER_VERSION_MAJOR,
+     * CUTTER_VERSION_MINOR and CUTTER_VERSION_PATCH.
      */
     static QVersionNumber currentVersionNumber();
 
@@ -101,7 +102,6 @@ signals:
      * May be used as indicator of download progress.
      */
     void downloadProcess(size_t bytesReceived, size_t bytesTotal);
-
 
     /**
      * @fn UpdateWorker::downloadFinished(QString filename)
@@ -138,5 +138,5 @@ private:
     QNetworkReply *checkReply;
 };
 
-#endif //CUTTER_UPDATE_WORKER_AVAILABLE
+#endif // CUTTER_UPDATE_WORKER_AVAILABLE
 #endif // UPDATEWORKER_H

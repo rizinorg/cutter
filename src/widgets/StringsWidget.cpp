@@ -10,8 +10,7 @@
 #include <QShortcut>
 
 StringsModel::StringsModel(QList<StringDescription> *strings, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent),
-      strings(strings)
+    : AddressableItemModel<QAbstractListModel>(parent), strings(strings)
 {
 }
 
@@ -107,7 +106,8 @@ StringsProxyModel::StringsProxyModel(StringsModel *sourceModel, QObject *parent)
 bool StringsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
-    StringDescription str = index.data(StringsModel::StringDescriptionRole).value<StringDescription>();
+    StringDescription str =
+            index.data(StringsModel::StringDescriptionRole).value<StringDescription>();
     if (selectedSection.isEmpty())
         return str.string.contains(filterRegExp());
     else
@@ -143,10 +143,8 @@ bool StringsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     return leftStr->vaddr < rightStr->vaddr;
 }
 
-StringsWidget::StringsWidget(MainWindow *main) :
-    CutterDockWidget(main),
-    ui(new Ui::StringsWidget),
-    tree(new CutterTreeWidget(this))
+StringsWidget::StringsWidget(MainWindow *main)
+    : CutterDockWidget(main), ui(new Ui::StringsWidget), tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
     ui->quickFilterView->setLabelText(tr("Section:"));
@@ -158,9 +156,7 @@ StringsWidget::StringsWidget(MainWindow *main) :
 
     // Shift-F12 to toggle strings window
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["StringsWidget"], main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [ = ] () {
-        toggleDockWidget(true);
-    });
+    connect(toggle_shortcut, &QShortcut::activated, this, [=]() { toggleDockWidget(true); });
 
     connect(ui->actionCopy_String, &QAction::triggered, this, &StringsWidget::on_actionCopy);
 
@@ -178,12 +174,11 @@ StringsWidget::StringsWidget(MainWindow *main) :
     auto menu = ui->stringsTreeView->getItemContextMenu();
     menu->addAction(ui->actionCopy_String);
 
-    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged,
-            proxyModel, &QSortFilterProxyModel::setFilterWildcard);
+    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, proxyModel,
+            &QSortFilterProxyModel::setFilterWildcard);
 
-    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this, [this] {
-        tree->showItemsNumber(proxyModel->rowCount());
-    });
+    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
+            [this] { tree->showItemsNumber(proxyModel->rowCount()); });
 
     QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
     connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
@@ -199,18 +194,14 @@ StringsWidget::StringsWidget(MainWindow *main) :
 
     connect(Core(), &CutterCore::refreshAll, this, &StringsWidget::refreshStrings);
     connect(Core(), &CutterCore::codeRebased, this, &StringsWidget::refreshStrings);
-    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
-        qhelpers::emitColumnChanged(model, StringsModel::CommentColumn);
-    });
+    connect(Core(), &CutterCore::commentsChanged, this,
+            [this]() { qhelpers::emitColumnChanged(model, StringsModel::CommentColumn); });
 
-    connect(
-        ui->quickFilterView->comboBox(), &QComboBox::currentTextChanged, this,
-        [this]() {
-            proxyModel->selectedSection = ui->quickFilterView->comboBox()->currentData().toString();
-            proxyModel->setFilterRegExp(proxyModel->filterRegExp());
-            tree->showItemsNumber(proxyModel->rowCount());
-        }
-    );
+    connect(ui->quickFilterView->comboBox(), &QComboBox::currentTextChanged, this, [this]() {
+        proxyModel->selectedSection = ui->quickFilterView->comboBox()->currentData().toString();
+        proxyModel->setFilterRegExp(proxyModel->filterRegExp());
+        tree->showItemsNumber(proxyModel->rowCount());
+    });
 
     auto header = ui->stringsTreeView->header();
     header->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);

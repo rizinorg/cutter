@@ -55,7 +55,7 @@ private slots:
     void onLanguageComboBoxCurrentIndexChanged(int index);
 
 private:
-    void updateModificationButtons(const QString& theme);
+    void updateModificationButtons(const QString &theme);
     void updateFromConfig();
 
     /**
@@ -68,9 +68,8 @@ private:
      * @param before
      * Color that should be repalced.
      */
-    QIcon getIconFromSvg(const QString &fileName, const QColor &after, const QColor &before = QColor());
-
+    QIcon getIconFromSvg(const QString &fileName, const QColor &after,
+                         const QColor &before = QColor());
 };
 
-
-#endif //ASMOPTIONSDIALOG_H
+#endif // ASMOPTIONSDIALOG_H

@@ -3,12 +3,12 @@
 
 #ifdef CUTTER_ENABLE_PYTHON
 
-#include <QObject>
+#    include <QObject>
 
 typedef struct _ts PyThreadState;
 typedef struct _object PyObject;
 
-class PythonManager: public QObject
+class PythonManager : public QObject
 {
     Q_OBJECT
 
@@ -37,8 +37,8 @@ public:
     class ThreadHolder
     {
     public:
-        ThreadHolder()    { getInstance()->restoreThread(); }
-        ~ThreadHolder()   { getInstance()->saveThread(); }
+        ThreadHolder() { getInstance()->restoreThread(); }
+        ~ThreadHolder() { getInstance()->saveThread(); }
     };
 
 signals:
@@ -51,7 +51,7 @@ private:
     int pyThreadStateCounter = 0;
 };
 
-#define Python() (PythonManager::getInstance())
+#    define Python() (PythonManager::getInstance())
 
 #endif // CUTTER_ENABLE_PYTHON
 

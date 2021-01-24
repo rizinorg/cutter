@@ -23,4 +23,4 @@ private:
     std::unique_ptr<Ui::CutterTreeView> ui;
 };
 
-#endif //CUTTERTREEVIEW_H
+#endif // CUTTERTREEVIEW_H

@@ -26,6 +26,7 @@ public slots:
     void clearTarget();
 signals:
     void xrefsTriggered();
+
 private:
     void onActionCopyAddress();
     void onActionShowXrefs();
@@ -39,6 +40,7 @@ private:
 
     RVA offset;
     bool hasTarget = false;
+
 protected:
     void setHasTarget(bool hasTarget);
     QAction *actionShowInMenu;

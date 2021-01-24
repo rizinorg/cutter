@@ -20,7 +20,7 @@ public:
     QByteArray getData() const;
 
 private:
-    Ui::Base64EnDecodedWriteDialog* ui;
+    Ui::Base64EnDecodedWriteDialog *ui;
 };
 
 class IncrementDecrementDialog : public QDialog
@@ -34,7 +34,7 @@ public:
     uint64_t getValue() const;
 
 private:
-    Ui::IncrementDecrementDialog* ui;
+    Ui::IncrementDecrementDialog *ui;
 };
 
 class DuplicateFromOffsetDialog : public QDialog
@@ -46,7 +46,7 @@ public:
     size_t getNBytes() const;
 
 private:
-    Ui::DuplicateFromOffsetDialog* ui;
+    Ui::DuplicateFromOffsetDialog *ui;
 
 private slots:
     void refresh();

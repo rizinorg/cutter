@@ -9,18 +9,23 @@ class QRectF;
 class QFontMetrics;
 class QFontMetricsF;
 
-template<typename T> struct Metrics {};
+template<typename T>
+struct Metrics
+{
+};
 
-template<> struct Metrics<int>
+template<>
+struct Metrics<int>
 {
     using Rect = QRect;
     using FontMetrics = QFontMetrics;
 };
 
-template<> struct Metrics<qreal>
+template<>
+struct Metrics<qreal>
 {
     using Rect = QRectF;
     using FontMetrics = QFontMetricsF;
 };
 
-#endif //METRICS_H
+#endif // METRICS_H

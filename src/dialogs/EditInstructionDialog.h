@@ -8,9 +8,7 @@ namespace Ui {
 class EditInstructionDialog;
 }
 
-enum InstructionEditMode {
-    EDIT_NONE, EDIT_BYTES, EDIT_TEXT
-};
+enum InstructionEditMode { EDIT_NONE, EDIT_BYTES, EDIT_TEXT };
 
 class EditInstructionDialog : public QDialog
 {
@@ -32,7 +30,8 @@ private slots:
 
 private:
     std::unique_ptr<Ui::EditInstructionDialog> ui;
-    InstructionEditMode editMode; // true if editing intruction **bytes**; false if editing instruction **text**
+    InstructionEditMode
+            editMode; // true if editing intruction **bytes**; false if editing instruction **text**
 };
 
 #endif // EDITINSTRUCTIONDIALOG_H

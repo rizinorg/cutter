@@ -24,8 +24,8 @@ public slots:
 private:
     void setupCompleter();
 
-    MainWindow          *main;
-    QStringList         flags;
+    MainWindow *main;
+    QStringList flags;
 };
 
 #endif // OMNIBAR_H

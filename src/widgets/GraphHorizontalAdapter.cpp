@@ -1,22 +1,19 @@
 #include "GraphHorizontalAdapter.h"
 
 GraphHorizontalAdapter::GraphHorizontalAdapter(std::unique_ptr<GraphLayout> layout)
-    : GraphLayout({})
-    , layout(std::move(layout))
+    : GraphLayout({}), layout(std::move(layout))
 {
     swapLayoutConfigDirection();
 }
 
-void GraphHorizontalAdapter::CalculateLayout(
-    GraphLayout::Graph &blocks,
-    unsigned long long entry,
-    int &width,
-    int &height) const
+void GraphHorizontalAdapter::CalculateLayout(GraphLayout::Graph &blocks, unsigned long long entry,
+                                             int &width, int &height) const
 {
     for (auto &block : blocks) {
         std::swap(block.second.width, block.second.height);
     }
-    layout->CalculateLayout(blocks, entry, height, width); // intentionally swapping height and width
+    layout->CalculateLayout(blocks, entry, height,
+                            width); // intentionally swapping height and width
     for (auto &block : blocks) {
         std::swap(block.second.width, block.second.height);
         std::swap(block.second.x, block.second.y);

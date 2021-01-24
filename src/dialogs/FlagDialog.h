@@ -5,7 +5,6 @@
 #include <memory>
 #include "core/CutterCommon.h"
 
-
 namespace Ui {
 class FlagDialog;
 }

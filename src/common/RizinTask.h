@@ -4,7 +4,7 @@
 
 #include "core/Cutter.h"
 
-class CUTTER_EXPORT RizinTask: public QObject
+class CUTTER_EXPORT RizinTask : public QObject
 {
     Q_OBJECT
 
@@ -27,7 +27,7 @@ signals:
     void finished();
 };
 
-class CUTTER_EXPORT RizinCmdTask: public RizinTask
+class CUTTER_EXPORT RizinCmdTask : public RizinTask
 {
     Q_OBJECT
 
@@ -42,7 +42,7 @@ public:
     const char *getResultRaw();
 };
 
-class CUTTER_EXPORT RizinFunctionTask: public RizinTask
+class CUTTER_EXPORT RizinFunctionTask : public RizinTask
 {
     Q_OBJECT
 

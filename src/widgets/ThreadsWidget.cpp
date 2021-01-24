@@ -15,9 +15,7 @@ enum ColumnIndex {
     COLUMN_PATH,
 };
 
-ThreadsWidget::ThreadsWidget(MainWindow *main) :
-    CutterDockWidget(main),
-    ui(new Ui::ThreadsWidget)
+ThreadsWidget::ThreadsWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::ThreadsWidget)
 {
     ui->setupUi(this);
 
@@ -36,7 +34,8 @@ ThreadsWidget::ThreadsWidget(MainWindow *main) :
 
     // CTRL+F switches to the filter view and opens it in case it's hidden
     QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
-    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
+    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
+            &QuickFilterView::showFilter);
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     // ESC switches back to the thread table and clears the buffer
@@ -47,9 +46,7 @@ ThreadsWidget::ThreadsWidget(MainWindow *main) :
     });
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    refreshDeferrer = createRefreshDeferrer([this]() {
-        updateContents();
-    });
+    refreshDeferrer = createRefreshDeferrer([this]() { updateContents(); });
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, modelFilter,
             &ThreadsFilterModel::setFilterWildcard);
@@ -110,7 +107,7 @@ void ThreadsWidget::setThreadsGrid()
     QJsonArray threadsValues = Core()->getProcessThreads(DEBUGGED_PID).array();
     int i = 0;
     QFont font;
-                
+
     for (const QJsonValue &value : threadsValues) {
         QJsonObject threadsItem = value.toObject();
         int pid = threadsItem["pid"].toVariant().toInt();
@@ -137,7 +134,8 @@ void ThreadsWidget::setThreadsGrid()
     }
 
     modelFilter->setSourceModel(modelThreads);
-    ui->viewThreads->resizeColumnsToContents();;
+    ui->viewThreads->resizeColumnsToContents();
+    ;
 }
 
 void ThreadsWidget::fontsUpdatedSlot()
@@ -165,8 +163,7 @@ void ThreadsWidget::onActivated(const QModelIndex &index)
     updateContents();
 }
 
-ThreadsFilterModel::ThreadsFilterModel(QObject *parent)
-    : QSortFilterProxyModel(parent)
+ThreadsFilterModel::ThreadsFilterModel(QObject *parent) : QSortFilterProxyModel(parent)
 {
     setFilterCaseSensitivity(Qt::CaseInsensitive);
     setSortCaseSensitivity(Qt::CaseInsensitive);

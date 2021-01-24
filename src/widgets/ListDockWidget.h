@@ -20,7 +20,6 @@ namespace Ui {
 class ListDockWidget;
 }
 
-
 class CUTTER_EXPORT ListDockWidget : public CutterDockWidget
 {
     Q_OBJECT
@@ -32,14 +31,17 @@ public:
         Hide,
     };
 
-    explicit ListDockWidget(MainWindow *main, SearchBarPolicy searchBarPolicy = SearchBarPolicy::ShowByDefault);
+    explicit ListDockWidget(MainWindow *main,
+                            SearchBarPolicy searchBarPolicy = SearchBarPolicy::ShowByDefault);
     ~ListDockWidget() override;
 
     void showCount(bool show);
+
 protected:
     void setModels(AddressableFilterProxyModel *objectFilterProxyModel);
 
     std::unique_ptr<Ui::ListDockWidget> ui;
+
 private:
     AddressableFilterProxyModel *objectFilterProxyModel = nullptr;
     CutterTreeWidget *tree;

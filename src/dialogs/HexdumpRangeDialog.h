@@ -4,7 +4,6 @@
 #include "core/CutterCommon.h"
 #include <QDialog>
 
-
 namespace Ui {
 class HexdumpRangeDialog;
 }
@@ -20,8 +19,8 @@ public:
     ut64 getStartAddress() const;
     ut64 getEndAddress() const;
 
-    void    setStartAddress(ut64 start);
-    void    open(ut64 start);
+    void setStartAddress(ut64 start);
+    void open(ut64 start);
 
 public slots:
     void textEdited();
@@ -39,7 +38,6 @@ private:
 
 private slots:
     void on_radioButtonClicked(bool checked);
-
 };
 
 #endif // HEXDUMPRANGEDIALOG_H

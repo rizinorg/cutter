@@ -6,8 +6,7 @@
 #include <QShortcut>
 
 SymbolsModel::SymbolsModel(QList<SymbolDescription> *symbols, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent),
-      symbols(symbols)
+    : AddressableItemModel<QAbstractListModel>(parent), symbols(symbols)
 {
 }
 
@@ -119,8 +118,7 @@ bool SymbolsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     return false;
 }
 
-SymbolsWidget::SymbolsWidget(MainWindow *main) :
-    ListDockWidget(main)
+SymbolsWidget::SymbolsWidget(MainWindow *main) : ListDockWidget(main)
 {
     setWindowTitle(tr("Symbols"));
     setObjectName("SymbolsWidget");
@@ -132,9 +130,8 @@ SymbolsWidget::SymbolsWidget(MainWindow *main) :
 
     connect(Core(), &CutterCore::codeRebased, this, &SymbolsWidget::refreshSymbols);
     connect(Core(), &CutterCore::refreshAll, this, &SymbolsWidget::refreshSymbols);
-    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
-        qhelpers::emitColumnChanged(symbolsModel, SymbolsModel::CommentColumn);
-    });
+    connect(Core(), &CutterCore::commentsChanged, this,
+            [this]() { qhelpers::emitColumnChanged(symbolsModel, SymbolsModel::CommentColumn); });
 }
 
 SymbolsWidget::~SymbolsWidget() {}

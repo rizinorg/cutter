@@ -8,11 +8,10 @@
 
 #include "core/MainWindow.h"
 
-enum class AutomaticAnalysisLevel {
-    Ask, None, AAA, AAAA
-};
+enum class AutomaticAnalysisLevel { Ask, None, AAA, AAAA };
 
-struct CutterCommandLineOptions {
+struct CutterCommandLineOptions
+{
     QStringList args;
     AutomaticAnalysisLevel analLevel = AutomaticAnalysisLevel::Ask;
     InitialOptions fileOpenOptions;
@@ -30,12 +29,10 @@ public:
     CutterApplication(int &argc, char **argv);
     ~CutterApplication();
 
-    MainWindow *getMainWindow()
-    {
-        return mainWindow;
-    }
+    MainWindow *getMainWindow() { return mainWindow; }
 
     void launchNewInstance(const QStringList &args = {});
+
 protected:
     bool event(QEvent *e);
 
@@ -50,12 +47,12 @@ private:
      * @return false if options have error
      */
     bool parseCommandLineOptions();
+
 private:
     bool m_FileAlreadyDropped;
     MainWindow *mainWindow;
     CutterCommandLineOptions clOptions;
 };
-
 
 /**
  * @brief CutterProxyStyle is used to force shortcuts displaying in context menu

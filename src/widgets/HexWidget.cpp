@@ -26,30 +26,31 @@ static constexpr uint64_t MAX_COPY_SIZE = 128 * 1024 * 1024;
 static constexpr int MAX_LINE_WIDTH_PRESET = 32;
 static constexpr int MAX_LINE_WIDTH_BYTES = 128 * 1024;
 
-HexWidget::HexWidget(QWidget *parent) :
-    QScrollArea(parent),
-    cursorEnabled(true),
-    cursorOnAscii(false),
-    updatingSelection(false),
-    itemByteLen(1),
-    itemGroupSize(1),
-    rowSizeBytes(16),
-    columnMode(ColumnMode::PowerOf2),
-    itemFormat(ItemFormatHex),
-    itemBigEndian(false),
-    addrCharLen(AddrWidth64),
-    showHeader(true),
-    showAscii(true),
-    showExHex(true),
-    showExAddr(true)
+HexWidget::HexWidget(QWidget *parent)
+    : QScrollArea(parent),
+      cursorEnabled(true),
+      cursorOnAscii(false),
+      updatingSelection(false),
+      itemByteLen(1),
+      itemGroupSize(1),
+      rowSizeBytes(16),
+      columnMode(ColumnMode::PowerOf2),
+      itemFormat(ItemFormatHex),
+      itemBigEndian(false),
+      addrCharLen(AddrWidth64),
+      showHeader(true),
+      showAscii(true),
+      showExHex(true),
+      showExAddr(true)
 {
     setMouseTracking(true);
     setFocusPolicy(Qt::FocusPolicy::StrongFocus);
-    connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, [this]() { viewport()->update(); });
+    connect(horizontalScrollBar(), &QScrollBar::valueChanged, this,
+            [this]() { viewport()->update(); });
 
     connect(Config(), &Configuration::colorsUpdated, this, &HexWidget::updateColors);
-    connect(Config(), &Configuration::fontsUpdated, this, [this]() { setMonospaceFont(
-        Config()->getFont()); });
+    connect(Config(), &Configuration::fontsUpdated, this,
+            [this]() { setMonospaceFont(Config()->getFont()); });
 
     auto sizeActionGroup = new QActionGroup(this);
     for (int i = 1; i <= 8; i *= 2) {
@@ -74,7 +75,8 @@ HexWidget::HexWidget(QWidget *parent) :
         QAction *action = new QAction(names.at(i), this);
         action->setCheckable(true);
         action->setActionGroup(formatActionGroup);
-        connect(action, &QAction::triggered, this, [=]() { setItemFormat(static_cast<ItemFormat>(i)); });
+        connect(action, &QAction::triggered, this,
+                [=]() { setItemFormat(static_cast<ItemFormat>(i)); });
         actionsItemFormat.append(action);
     }
     actionsItemFormat.at(0)->setChecked(true);
@@ -93,7 +95,8 @@ HexWidget::HexWidget(QWidget *parent) :
     actionRowSizePowerOf2 = new QAction(tr("Power of 2"), this);
     actionRowSizePowerOf2->setCheckable(true);
     actionRowSizePowerOf2->setActionGroup(columnsActionGroup);
-    connect(actionRowSizePowerOf2, &QAction::triggered, this, [=]() { setColumnMode(ColumnMode::PowerOf2); });
+    connect(actionRowSizePowerOf2, &QAction::triggered, this,
+            [=]() { setColumnMode(ColumnMode::PowerOf2); });
     rowSizeMenu->addAction(actionRowSizePowerOf2);
 
     actionItemBigEndian = new QAction(tr("Big Endian"), this);
@@ -118,51 +121,51 @@ HexWidget::HexWidget(QWidget *parent) :
     addAction(actionCopyAddress);
 
     actionSelectRange = new QAction(tr("Select range"), this);
-    connect(actionSelectRange, &QAction::triggered, this, [this]() { rangeDialog.open(cursor.address); });
+    connect(actionSelectRange, &QAction::triggered, this,
+            [this]() { rangeDialog.open(cursor.address); });
     addAction(actionSelectRange);
     connect(&rangeDialog, &QDialog::accepted, this, &HexWidget::onRangeDialogAccepted);
 
     actionsWriteString.reserve(5);
-    QAction* actionWriteString = new QAction(tr("Write string"), this);
+    QAction *actionWriteString = new QAction(tr("Write string"), this);
     connect(actionWriteString, &QAction::triggered, this, &HexWidget::w_writeString);
     actionsWriteString.append(actionWriteString);
 
-    QAction* actionWriteLenString = new QAction(tr("Write length and string"), this);
+    QAction *actionWriteLenString = new QAction(tr("Write length and string"), this);
     connect(actionWriteLenString, &QAction::triggered, this, &HexWidget::w_writePascalString);
     actionsWriteString.append(actionWriteLenString);
 
-    QAction* actionWriteWideString = new QAction(tr("Write wide string"), this);
+    QAction *actionWriteWideString = new QAction(tr("Write wide string"), this);
     connect(actionWriteWideString, &QAction::triggered, this, &HexWidget::w_writeWideString);
     actionsWriteString.append(actionWriteWideString);
 
-    QAction* actionWriteCString = new QAction(tr("Write zero terminated string"), this);
+    QAction *actionWriteCString = new QAction(tr("Write zero terminated string"), this);
     connect(actionWriteCString, &QAction::triggered, this, &HexWidget::w_writeCString);
     actionsWriteString.append(actionWriteCString);
 
-    QAction* actionWrite64 = new QAction(tr("Write De\\Encoded Base64 string"), this);
+    QAction *actionWrite64 = new QAction(tr("Write De\\Encoded Base64 string"), this);
     connect(actionWrite64, &QAction::triggered, this, &HexWidget::w_write64);
     actionsWriteString.append(actionWrite64);
 
     actionsWriteOther.reserve(4);
-    QAction* actionWriteZeros = new QAction(tr("Write zeros"), this);
+    QAction *actionWriteZeros = new QAction(tr("Write zeros"), this);
     connect(actionWriteZeros, &QAction::triggered, this, &HexWidget::w_writeZeros);
     actionsWriteOther.append(actionWriteZeros);
 
-    QAction* actionWriteRandom = new QAction(tr("Write random bytes"), this);
+    QAction *actionWriteRandom = new QAction(tr("Write random bytes"), this);
     connect(actionWriteRandom, &QAction::triggered, this, &HexWidget::w_writeRandom);
     actionsWriteOther.append(actionWriteRandom);
 
-    QAction* actionDuplicateFromOffset = new QAction(tr("Duplicate from offset"), this);
+    QAction *actionDuplicateFromOffset = new QAction(tr("Duplicate from offset"), this);
     connect(actionDuplicateFromOffset, &QAction::triggered, this, &HexWidget::w_duplFromOffset);
     actionsWriteOther.append(actionDuplicateFromOffset);
 
-    QAction* actionIncDec = new QAction(tr("Increment/Decrement"), this);
+    QAction *actionIncDec = new QAction(tr("Increment/Decrement"), this);
     connect(actionIncDec, &QAction::triggered, this, &HexWidget::w_increaseDecrease);
     actionsWriteOther.append(actionIncDec);
 
-    connect(this, &HexWidget::selectionChanged, this, [this](Selection selection) {
-        actionCopy->setEnabled(!selection.empty);
-    });
+    connect(this, &HexWidget::selectionChanged, this,
+            [this](Selection selection) { actionCopy->setEnabled(!selection.empty); });
 
     updateMetrics();
     updateItemLength();
@@ -182,10 +185,7 @@ HexWidget::HexWidget(QWidget *parent) :
     updateColors();
 }
 
-HexWidget::~HexWidget()
-{
-
-}
+HexWidget::~HexWidget() {}
 
 void HexWidget::setMonospaceFont(const QFont &font)
 {
@@ -204,7 +204,7 @@ void HexWidget::setMonospaceFont(const QFont &font)
 
 void HexWidget::setItemSize(int nbytes)
 {
-    static const QVector<int> values({1, 2, 4, 8});
+    static const QVector<int> values({ 1, 2, 4, 8 });
 
     if (!values.contains(nbytes))
         return;
@@ -234,7 +234,6 @@ void HexWidget::setItemFormat(ItemFormat format)
     actionsItemSize.at(0)->setEnabled(sizeEnabled);
     actionsItemSize.at(1)->setEnabled(sizeEnabled);
 
-
     updateItemLength();
     fetchData();
     updateCursorMeta();
@@ -256,17 +255,19 @@ void HexWidget::setItemGroupSize(int size)
 /**
  * @brief Checks if Item at the address changed compared to the last read data.
  * @param address Address of Item to be compared.
- * @return True if Item is different, False if Item is equal or last read didn't contain the address.
+ * @return True if Item is different, False if Item is equal or last read didn't contain the
+ * address.
  * @see HexWidget#readItem
  *
  * Checks if current Item at the address changed compared to the last read data.
  * It is assumed that the current read data buffer contains the address.
  */
-bool HexWidget::isItemDifferentAt(uint64_t address) {
+bool HexWidget::isItemDifferentAt(uint64_t address)
+{
     char oldItem[sizeof(uint64_t)] = {};
     char newItem[sizeof(uint64_t)] = {};
-    if (data->copy(newItem, address, static_cast<size_t>(itemByteLen)) &&
-        oldData->copy(oldItem, address, static_cast<size_t>(itemByteLen))) {
+    if (data->copy(newItem, address, static_cast<size_t>(itemByteLen))
+        && oldData->copy(oldItem, address, static_cast<size_t>(itemByteLen))) {
         return memcmp(oldItem, newItem, sizeof(oldItem)) != 0;
     }
     return false;
@@ -368,7 +369,7 @@ void HexWidget::clearSelection()
 
 HexWidget::Selection HexWidget::getSelection()
 {
-    return Selection{selection.isEmpty(), selection.start(), selection.end()};
+    return Selection { selection.isEmpty(), selection.start(), selection.end() };
 }
 
 void HexWidget::seek(uint64_t address)
@@ -560,7 +561,8 @@ void HexWidget::wheelEvent(QWheelEvent *event)
 void HexWidget::keyPressEvent(QKeyEvent *event)
 {
     bool select = false;
-    auto moveOrSelect = [event, &select](QKeySequence::StandardKey moveSeq, QKeySequence::StandardKey selectSeq) ->bool {
+    auto moveOrSelect = [event, &select](QKeySequence::StandardKey moveSeq,
+                                         QKeySequence::StandardKey selectSeq) -> bool {
         if (event->matches(moveSeq)) {
             select = false;
             return true;
@@ -589,7 +591,7 @@ void HexWidget::keyPressEvent(QKeyEvent *event)
         int linePos = int((cursor.address % itemRowByteLen()) - (startAddress % itemRowByteLen()));
         moveCursor(itemRowByteLen() - linePos, select);
     }
-    //viewport()->update();
+    // viewport()->update();
 }
 
 void HexWidget::contextMenuEvent(QContextMenuEvent *event)
@@ -663,13 +665,13 @@ void HexWidget::copy()
 
     QClipboard *clipboard = QApplication::clipboard();
     if (cursorOnAscii) {
-        clipboard->setText(Core()->cmdRawAt(QString("psx %1")
-                                    .arg(selection.size()),
-                                    selection.start()).trimmed());
+        clipboard->setText(
+                Core()->cmdRawAt(QString("psx %1").arg(selection.size()), selection.start())
+                        .trimmed());
     } else {
-        clipboard->setText(Core()->cmdRawAt(QString("p8 %1")
-                                    .arg(selection.size()),
-                                    selection.start()).trimmed()); //TODO: copy in the format shown
+        clipboard->setText(Core()->cmdRawAt(QString("p8 %1").arg(selection.size()),
+                                            selection.start())
+                                   .trimmed()); // TODO: copy in the format shown
     }
 }
 
@@ -700,12 +702,9 @@ void HexWidget::w_writeString()
     bool ok = false;
     QInputDialog d;
     d.setInputMode(QInputDialog::InputMode::TextInput);
-    QString str = d.getText(this, tr("Write string"),
-                            tr("String:"), QLineEdit::Normal, "", &ok);
+    QString str = d.getText(this, tr("Write string"), tr("String:"), QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        Core()->cmdRawAt(QString("w %1")
-                            .arg(str),
-                            getLocationAddress());
+        Core()->cmdRawAt(QString("w %1").arg(str), getLocationAddress());
         refresh();
     }
 }
@@ -722,10 +721,10 @@ void HexWidget::w_increaseDecrease()
     }
     QString mode = d.getMode() == IncrementDecrementDialog::Increase ? "+" : "-";
     Core()->cmdRawAt(QString("w%1%2 %3")
-                        .arg(QString::number(d.getNBytes()))
-                        .arg(mode)
-                        .arg(QString::number(d.getValue())),
-                        getLocationAddress());
+                             .arg(QString::number(d.getNBytes()))
+                             .arg(mode)
+                             .arg(QString::number(d.getValue())),
+                     getLocationAddress());
     refresh();
 }
 
@@ -742,12 +741,10 @@ void HexWidget::w_writeZeros()
         size = static_cast<int>(selection.size());
     }
 
-    QString str = QString::number(d.getInt(this, tr("Write zeros"),
-                                           tr("Number of zeros:"), size, 1, 0x7FFFFFFF, 1, &ok));
+    QString str = QString::number(
+            d.getInt(this, tr("Write zeros"), tr("Number of zeros:"), size, 1, 0x7FFFFFFF, 1, &ok));
     if (ok && !str.isEmpty()) {
-        Core()->cmdRawAt(QString("w0 %1")
-                            .arg(str),
-                            getLocationAddress());
+        Core()->cmdRawAt(QString("w0 %1").arg(str), getLocationAddress());
         refresh();
     }
 }
@@ -765,18 +762,19 @@ void HexWidget::w_write64()
     QString mode = d.getMode() == Base64EnDecodedWriteDialog::Encode ? "e" : "d";
     QByteArray str = d.getData();
 
-    if (mode == "d" && (QString(str).contains(QRegularExpression("[^a-zA-Z0-9+/=]")) ||
-        str.length() % 4 != 0 || str.isEmpty())) {
-        QMessageBox::critical(this, tr("Error"),
-                              tr("Error occured during decoding your input.\n"
-                                 "Please, make sure, that it is a valid base64 string and try again."));
+    if (mode == "d"
+        && (QString(str).contains(QRegularExpression("[^a-zA-Z0-9+/=]")) || str.length() % 4 != 0
+            || str.isEmpty())) {
+        QMessageBox::critical(
+                this, tr("Error"),
+                tr("Error occured during decoding your input.\n"
+                   "Please, make sure, that it is a valid base64 string and try again."));
         return;
     }
 
-    Core()->cmdRawAt(QString("w6%1 %2")
-                        .arg(mode)
-                        .arg((mode == "e" ? str.toHex() : str).toStdString().c_str()),
-                        getLocationAddress());
+    Core()->cmdRawAt(QString("w6%1 %2").arg(mode).arg(
+                             (mode == "e" ? str.toHex() : str).toStdString().c_str()),
+                     getLocationAddress());
     refresh();
 }
 
@@ -792,12 +790,10 @@ void HexWidget::w_writeRandom()
     if (!selection.isEmpty() && selection.size() <= INT_MAX) {
         size = static_cast<int>(selection.size());
     }
-    QString nbytes = QString::number(d.getInt(this, tr("Write random"),
-                                           tr("Number of bytes:"), size, 1, 0x7FFFFFFF, 1, &ok));
+    QString nbytes = QString::number(d.getInt(this, tr("Write random"), tr("Number of bytes:"),
+                                              size, 1, 0x7FFFFFFF, 1, &ok));
     if (ok && !nbytes.isEmpty()) {
-        Core()->cmdRawAt(QString("wr %1")
-                            .arg(nbytes),
-                            getLocationAddress());
+        Core()->cmdRawAt(QString("wr %1").arg(nbytes), getLocationAddress());
         refresh();
     }
 }
@@ -814,10 +810,7 @@ void HexWidget::w_duplFromOffset()
     }
     RVA copyFrom = d.getOffset();
     QString nBytes = QString::number(d.getNBytes());
-    Core()->cmdRawAt(QString("wd %1 %2")
-                            .arg(copyFrom)
-                            .arg(nBytes),
-                            getLocationAddress());
+    Core()->cmdRawAt(QString("wd %1 %2").arg(copyFrom).arg(nBytes), getLocationAddress());
     refresh();
 }
 
@@ -829,12 +822,10 @@ void HexWidget::w_writePascalString()
     bool ok = false;
     QInputDialog d;
     d.setInputMode(QInputDialog::InputMode::TextInput);
-    QString str = d.getText(this, tr("Write Pascal string"),
-                            tr("String:"), QLineEdit::Normal, "", &ok);
+    QString str =
+            d.getText(this, tr("Write Pascal string"), tr("String:"), QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        Core()->cmdRawAt(QString("ws %1")
-                            .arg(str),
-                            getLocationAddress());
+        Core()->cmdRawAt(QString("ws %1").arg(str), getLocationAddress());
         refresh();
     }
 }
@@ -847,12 +838,10 @@ void HexWidget::w_writeWideString()
     bool ok = false;
     QInputDialog d;
     d.setInputMode(QInputDialog::InputMode::TextInput);
-    QString str = d.getText(this, tr("Write wide string"),
-                            tr("String:"), QLineEdit::Normal, "", &ok);
+    QString str =
+            d.getText(this, tr("Write wide string"), tr("String:"), QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        Core()->cmdRawAt(QString("ww %1")
-                            .arg(str),
-                            getLocationAddress());
+        Core()->cmdRawAt(QString("ww %1").arg(str), getLocationAddress());
         refresh();
     }
 }
@@ -865,12 +854,10 @@ void HexWidget::w_writeCString()
     bool ok = false;
     QInputDialog d;
     d.setInputMode(QInputDialog::InputMode::TextInput);
-    QString str = d.getText(this, tr("Write zero-terminated string"),
-                            tr("String:"), QLineEdit::Normal, "", &ok);
+    QString str = d.getText(this, tr("Write zero-terminated string"), tr("String:"),
+                            QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        Core()->cmdRawAt(QString("wz %1")
-                            .arg(str),
-                            getLocationAddress());
+        Core()->cmdRawAt(QString("wz %1").arg(str), getLocationAddress());
         refresh();
     }
 }
@@ -945,7 +932,8 @@ void HexWidget::drawHeader(QPainter &painter)
 
     for (int j = 0; j < itemColumns; ++j) {
         for (int k = 0; k < itemGroupSize; ++k, offset += itemByteLen) {
-            painter.drawText(rect, Qt::AlignVCenter | Qt::AlignRight, QString::number(offset, 16).toUpper());
+            painter.drawText(rect, Qt::AlignVCenter | Qt::AlignRight,
+                             QString::number(offset, 16).toUpper());
             rect.translate(itemWidth(), 0);
         }
         rect.translate(columnSpacingWidth(), 0);
@@ -954,7 +942,8 @@ void HexWidget::drawHeader(QPainter &painter)
     rect.moveLeft(asciiArea.left());
     rect.setWidth(charWidth);
     for (int j = 0; j < itemRowByteLen(); ++j) {
-        painter.drawText(rect, Qt::AlignVCenter | Qt::AlignRight, QString::number(j % 16, 16).toUpper());
+        painter.drawText(rect, Qt::AlignVCenter | Qt::AlignRight,
+                         QString::number(j % 16, 16).toUpper());
         rect.translate(charWidth, 0);
     }
 }
@@ -989,9 +978,8 @@ void HexWidget::drawAddrArea(QPainter &painter)
     QRectF strRect(addrArea.topLeft(), areaSize);
 
     painter.setPen(addrColor);
-    for (int line = 0;
-            line < visibleLines && offset <= data->maxIndex();
-            ++line, strRect.translate(0, lineHeight), offset += itemRowByteLen()) {
+    for (int line = 0; line < visibleLines && offset <= data->maxIndex();
+         ++line, strRect.translate(0, lineHeight), offset += itemRowByteLen()) {
         addrString = QString("%1").arg(offset, addrCharLen, 16, QLatin1Char('0'));
         if (showExAddr)
             addrString.prepend(hexPrefix);
@@ -1016,7 +1004,8 @@ void HexWidget::drawItemArea(QPainter &painter)
     for (int line = 0; line < visibleLines; ++line) {
         itemRect.moveLeft(itemArea.left());
         for (int j = 0; j < itemColumns; ++j) {
-            for (int k = 0; k < itemGroupSize && itemAddr <= data->maxIndex(); ++k, itemAddr += itemByteLen) {
+            for (int k = 0; k < itemGroupSize && itemAddr <= data->maxIndex();
+                 ++k, itemAddr += itemByteLen) {
                 itemString = renderItem(itemAddr - startAddress, &itemColor);
 
                 if (!getFlagsAndComment(itemAddr).isEmpty()) {
@@ -1026,7 +1015,7 @@ void HexWidget::drawItemArea(QPainter &painter)
                     painter.setPen(markerColor);
                     painter.drawPolyline(shape);
                 }
-                if (selection.contains(itemAddr)  && !cursorOnAscii) {
+                if (selection.contains(itemAddr) && !cursorOnAscii) {
                     itemColor = palette().highlightedText().color();
                 }
                 if (isItemDifferentAt(itemAddr)) {
@@ -1077,7 +1066,7 @@ void HexWidget::drawAsciiArea(QPainter &painter)
                 qreal a = cursor.screenPos.width();
                 QPointF p = charRect.bottomLeft();
                 p.rx() += (charWidth - a) / 2 + 1;
-                p.ry() += - 2 * a;
+                p.ry() += -2 * a;
                 painter.fillRect(QRectF(p, QSizeF(a, a)), color);
             } else {
                 painter.drawText(charRect, Qt::AlignVCenter, ascii);
@@ -1342,7 +1331,7 @@ const QColor HexWidget::itemColor(uint8_t byte)
 }
 
 template<class T>
-static T fromBigEndian(const void * src)
+static T fromBigEndian(const void *src)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
     return qFromBigEndian<T>(src);
@@ -1354,7 +1343,7 @@ static T fromBigEndian(const void * src)
 }
 
 template<class T>
-static T fromLittleEndian(const void * src)
+static T fromLittleEndian(const void *src)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
     return qFromLittleEndian<T>(src);
@@ -1419,10 +1408,10 @@ QVariant HexWidget::readItem(int offset, QColor *color)
             qword = fromLittleEndian<quint64>(bytes);
         if (itemFormat == ItemFormatFloat) {
             memcpy(&float64, &qword, sizeof(float64));
-            return  QVariant(float64);
+            return QVariant(float64);
         }
         if (!signedItem)
-            return  QVariant(qword);
+            return QVariant(qword);
         return QVariant(static_cast<qint64>(qword));
     }
 
@@ -1435,7 +1424,7 @@ QString HexWidget::renderItem(int offset, QColor *color)
     QVariant itemVal = readItem(offset, color);
     int itemLen = itemCharLen - itemPrefixLen; /* Reserve space for prefix */
 
-    //FIXME: handle broken itemVal ( QVariant() )
+    // FIXME: handle broken itemVal ( QVariant() )
     switch (itemFormat) {
     case ItemFormatHex:
         item = QString("%1").arg(itemVal.toULongLong(), itemLen, 16, QLatin1Char('0'));
@@ -1499,7 +1488,7 @@ void HexWidget::fetchData()
     data->fetch(startAddress, bytesPerScreen());
 }
 
-BasicCursor HexWidget::screenPosToAddr(const QPoint &point,  bool middle) const
+BasicCursor HexWidget::screenPosToAddr(const QPoint &point, bool middle) const
 {
     QPointF pt = point - itemArea.topLeft();
 
@@ -1536,7 +1525,8 @@ BasicCursor HexWidget::currentAreaPosToAddr(const QPoint &point, bool middle) co
 
 BasicCursor HexWidget::mousePosToAddr(const QPoint &point, bool middle) const
 {
-    return asciiArea.contains(point) ? asciiPosToAddr(point, middle) : screenPosToAddr(point, middle);
+    return asciiArea.contains(point) ? asciiPosToAddr(point, middle)
+                                     : screenPosToAddr(point, middle);
 }
 
 QRectF HexWidget::itemRectangle(int offset)
@@ -1579,6 +1569,7 @@ QRectF HexWidget::asciiRectangle(int offset)
     return QRectF(p, QSizeF(charWidth, lineHeight));
 }
 
-RVA HexWidget::getLocationAddress() {
+RVA HexWidget::getLocationAddress()
+{
     return !selection.isEmpty() ? selection.start() : cursor.address;
 }

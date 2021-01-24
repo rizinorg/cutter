@@ -10,7 +10,7 @@
 
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
 
-#include <KSyntaxHighlighting/syntaxhighlighter.h>
+#    include <KSyntaxHighlighting/syntaxhighlighter.h>
 
 class SyntaxHighlighter : public KSyntaxHighlighting::SyntaxHighlighter
 {
@@ -40,7 +40,8 @@ protected:
     void highlightBlock(const QString &text) override;
 
 private:
-    struct HighlightingRule {
+    struct HighlightingRule
+    {
         QRegularExpression pattern;
         QTextCharFormat format;
     };

@@ -8,12 +8,8 @@
 
 #include <QJsonArray>
 
-XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom) :
-    QDialog(parent),
-    addr(0),
-    toModel(this),
-    fromModel(this),
-    ui(new Ui::XrefsDialog)
+XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom)
+    : QDialog(parent), addr(0), toModel(this), fromModel(this), ui(new Ui::XrefsDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -24,7 +20,8 @@ XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom) :
     ui->toTreeWidget->setModel(&toModel);
     ui->fromTreeWidget->setModel(&fromModel);
 
-    // Modify the splitter's location to show more Disassembly instead of empty space. Not possible via Designer
+    // Modify the splitter's location to show more Disassembly instead of empty space. Not possible
+    // via Designer
     ui->splitter->setSizes(QList<int>() << 300 << 400);
 
     // Increase asm text edit margin
@@ -35,14 +32,15 @@ XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom) :
     setupPreviewFont();
 
     // Highlight current line
-    connect(ui->previewTextEdit, &QPlainTextEdit::cursorPositionChanged, this, &XrefsDialog::highlightCurrentLine);
+    connect(ui->previewTextEdit, &QPlainTextEdit::cursorPositionChanged, this,
+            &XrefsDialog::highlightCurrentLine);
     connect(Config(), &Configuration::fontsUpdated, this, &XrefsDialog::setupPreviewFont);
     connect(Config(), &Configuration::colorsUpdated, this, &XrefsDialog::setupPreviewColors);
 
-    connect(ui->toTreeWidget->selectionModel(), &QItemSelectionModel::selectionChanged,
-            this, &XrefsDialog::onToTreeWidgetItemSelectionChanged);
-    connect(ui->fromTreeWidget->selectionModel(), &QItemSelectionModel::selectionChanged,
-            this, &XrefsDialog::onFromTreeWidgetItemSelectionChanged);
+    connect(ui->toTreeWidget->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+            &XrefsDialog::onToTreeWidgetItemSelectionChanged);
+    connect(ui->fromTreeWidget->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+            &XrefsDialog::onFromTreeWidgetItemSelectionChanged);
 
     // Don't create recursive xref dialogs
     auto toContextMenu = ui->toTreeWidget->getItemContextMenu();
@@ -63,7 +61,7 @@ XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom) :
     }
 }
 
-XrefsDialog::~XrefsDialog() { }
+XrefsDialog::~XrefsDialog() {}
 
 QString XrefsDialog::normalizeAddr(const QString &addr) const
 {
@@ -82,9 +80,10 @@ void XrefsDialog::setupPreviewFont()
 
 void XrefsDialog::setupPreviewColors()
 {
-    ui->previewTextEdit->setStyleSheet(QString("QPlainTextEdit { background-color: %1; color: %2; }")
-                                       .arg(ConfigColor("gui.background").name())
-                                       .arg(ConfigColor("btext").name()));
+    ui->previewTextEdit->setStyleSheet(
+            QString("QPlainTextEdit { background-color: %1; color: %2; }")
+                    .arg(ConfigColor("gui.background").name())
+                    .arg(ConfigColor("btext").name()));
 }
 
 void XrefsDialog::highlightCurrentLine()
@@ -144,7 +143,8 @@ void XrefsDialog::updatePreview(RVA addr)
 void XrefsDialog::updateLabels(QString name)
 {
     ui->label_xTo->setText(tr("X-Refs to %1 (%2 results):").arg(name).arg(toModel.rowCount()));
-    ui->label_xFrom->setText(tr("X-Refs from %1 (%2 results):").arg(name).arg(fromModel.rowCount()));
+    ui->label_xFrom->setText(
+            tr("X-Refs from %1 (%2 results):").arg(name).arg(fromModel.rowCount()));
 }
 
 void XrefsDialog::updateLabelsForVariables(QString name)
@@ -213,11 +213,7 @@ QString XrefModel::xrefTypeString(const QString &type)
     return type;
 }
 
-
-XrefModel::XrefModel(QObject *parent)
-    : AddressableItemModel(parent)
-{
-}
+XrefModel::XrefModel(QObject *parent) : AddressableItemModel(parent) {}
 
 void XrefModel::readForOffset(RVA offset, bool to, bool whole_function)
 {

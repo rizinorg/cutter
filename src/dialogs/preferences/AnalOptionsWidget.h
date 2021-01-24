@@ -22,20 +22,23 @@ public:
 
 private:
     std::unique_ptr<Ui::AnalOptionsWidget> ui;
-    struct ConfigCheckbox {
+    struct ConfigCheckbox
+    {
         QCheckBox *checkBox;
         QString config;
     };
     QList<ConfigCheckbox> checkboxes;
 
     /**
-     * @brief This function creates the list with the different options shown in the selector for analysis.in
+     * @brief This function creates the list with the different options shown in the selector for
+     * analysis.in
      */
     void createAnalInOptionsList();
 
 private slots:
     /**
-     * @brief A slot to display the options in the dialog according to the current analysis.* configuration
+     * @brief A slot to display the options in the dialog according to the current analysis.*
+     * configuration
      */
     void updateAnalOptionsFromVars();
 
@@ -60,7 +63,8 @@ private slots:
     static void updateAnalPtrDepth(int value);
 
     /**
-     * @brief slot to update the value of analysis.prelude when a new value is introduced in the corresponding textbox
+     * @brief slot to update the value of analysis.prelude when a new value is introduced in the
+     * corresponding textbox
      * @param prelude - The new value for analysis.prelude
      */
     static void updateAnalPrelude(const QString &prelude);

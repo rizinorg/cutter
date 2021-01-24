@@ -6,8 +6,7 @@
 #include <QString>
 #include <QVariantMap>
 
-namespace Cutter
-{
+namespace Cutter {
 
 struct CutterLayout
 {

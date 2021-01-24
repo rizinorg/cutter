@@ -21,9 +21,7 @@
 #include <QDialog>
 #include <QTreeWidget>
 
-Dashboard::Dashboard(MainWindow *main) :
-    CutterDockWidget(main),
-    ui(new Ui::Dashboard)
+Dashboard::Dashboard(MainWindow *main) : CutterDockWidget(main), ui(new Ui::Dashboard)
 {
     ui->setupUi(this);
 
@@ -92,7 +90,7 @@ void Dashboard::updateContents()
     ui->hashesVerticalLayout->addWidget(hashesWidget);
 
     // Add hashes as a pair of Hash Name : Hash Value.
-    for (const QString& key : hashes.keys()) {
+    for (const QString &key : hashes.keys()) {
         // Create a bold QString with the hash name uppercased
         QString label = QString("<b>%1:</b>").arg(key.toUpper());
 
@@ -164,12 +162,8 @@ void Dashboard::updateContents()
         ui->verticalLayout_2->addWidget(label);
     }
 
-
-
-
     QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding);
     ui->verticalLayout_2->addSpacerItem(spacer);
-
 
     // Get stats for the graphs
     QStringList stats = Core()->getStats();
@@ -181,7 +175,6 @@ void Dashboard::updateContents()
     if (Core()->getFileVersionInfo().isEmpty()) {
         ui->versioninfoButton->setEnabled(false);
     }
-
 }
 
 void Dashboard::on_certificateButton_clicked()

@@ -39,12 +39,13 @@ public slots:
      * @brief Select a given block. Requires block selection to be enabled.
      */
     void selectBlockWithId(ut64 blockId);
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
     void blockContextMenuRequested(GraphView::GraphBlock &block, QContextMenuEvent *event,
                                    QPoint pos) override;
-    void blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos)override;
+    void blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos) override;
     void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos) override;
 
     void restoreCurrentBlock() override;
@@ -63,7 +64,8 @@ protected:
      */
     void enableAddresses(bool enabled);
 
-    struct BlockContent {
+    struct BlockContent
+    {
         QString text;
         RVA address;
     };
@@ -78,6 +80,7 @@ protected:
     ut64 selectedBlock = NO_BLOCK_SELECTED;
     bool enableBlockSelection = true;
     bool haveAddresses = false;
+
 private:
     void copyBlockText();
 };

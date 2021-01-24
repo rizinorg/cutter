@@ -17,25 +17,22 @@ static const int kMaxTooltipHexdumpBytes = 64;
 }
 
 static const QMap<QString, QString> searchBoundaries {
-    {"io.maps", "All maps"},
-    {"io.map", "Current map"},
-    {"raw", "Raw"},
-    {"block", "Current block"},
-    {"bin.section", "Current mapped section"},
-    {"bin.sections", "All mapped sections"},
+    { "io.maps", "All maps" },
+    { "io.map", "Current map" },
+    { "raw", "Raw" },
+    { "block", "Current block" },
+    { "bin.section", "Current mapped section" },
+    { "bin.sections", "All mapped sections" },
 };
 
-static const QMap<QString, QString> searchBoundariesDebug {
-    {"dbg.maps", "All memory maps"},
-    {"dbg.map", "Memory map"},
-    {"block", "Current block"},
-    {"dbg.stack", "Stack"},
-    {"dbg.heap", "Heap"}
-};
+static const QMap<QString, QString> searchBoundariesDebug { { "dbg.maps", "All memory maps" },
+                                                            { "dbg.map", "Memory map" },
+                                                            { "block", "Current block" },
+                                                            { "dbg.stack", "Stack" },
+                                                            { "dbg.heap", "Heap" } };
 
 SearchModel::SearchModel(QList<SearchDescription> *search, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent),
-      search(search)
+    : AddressableItemModel<QAbstractListModel>(parent), search(search)
 {
 }
 
@@ -77,22 +74,27 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
         QString previewContent = QString();
         // if result is CODE, show disassembly
         if (!exp.code.isEmpty()) {
-            previewContent = Core()->getDisassemblyPreview(exp.offset, kMaxTooltipDisasmPreviewLines)
-                                    .join("<br>");
-        // if result is DATA or Disassembly is N/A                                    
+            previewContent =
+                    Core()->getDisassemblyPreview(exp.offset, kMaxTooltipDisasmPreviewLines)
+                            .join("<br>");
+            // if result is DATA or Disassembly is N/A
         } else if (!exp.data.isEmpty() || previewContent.isEmpty()) {
             previewContent = Core()->getHexdumpPreview(exp.offset, kMaxTooltipHexdumpBytes);
         }
 
         const QFont &fnt = Config()->getBaseFont();
-        QFontMetrics fm{ fnt };
+        QFontMetrics fm { fnt };
 
-        QString toolTipContent = QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\">")
-                .arg(fnt.family())
-                .arg(qMax(6, fnt.pointSize() - 1)); // slightly decrease font size, to keep more text in the same box
-        
-        toolTipContent += tr("<div style=\"margin-bottom: 10px;\"><strong>Preview</strong>:<br>%1</div>")
-                .arg(previewContent);
+        QString toolTipContent =
+                QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: "
+                        "nowrap;\">")
+                        .arg(fnt.family())
+                        .arg(qMax(6, fnt.pointSize() - 1)); // slightly decrease font size, to keep
+                                                            // more text in the same box
+
+        toolTipContent +=
+                tr("<div style=\"margin-bottom: 10px;\"><strong>Preview</strong>:<br>%1</div>")
+                        .arg(previewContent);
 
         toolTipContent += "</div></html>";
         return toolTipContent;
@@ -133,7 +135,6 @@ RVA SearchModel::address(const QModelIndex &index) const
     return exp.offset;
 }
 
-
 SearchSortFilterProxyModel::SearchSortFilterProxyModel(SearchModel *source_model, QObject *parent)
     : AddressableFilterProxyModel(source_model, parent)
 {
@@ -142,17 +143,17 @@ SearchSortFilterProxyModel::SearchSortFilterProxyModel(SearchModel *source_model
 bool SearchSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
-    SearchDescription search = index.data(
-                                   SearchModel::SearchDescriptionRole).value<SearchDescription>();
+    SearchDescription search =
+            index.data(SearchModel::SearchDescriptionRole).value<SearchDescription>();
     return search.code.contains(filterRegExp());
 }
 
 bool SearchSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    SearchDescription left_search = left.data(
-                                        SearchModel::SearchDescriptionRole).value<SearchDescription>();
-    SearchDescription right_search = right.data(
-                                         SearchModel::SearchDescriptionRole).value<SearchDescription>();
+    SearchDescription left_search =
+            left.data(SearchModel::SearchDescriptionRole).value<SearchDescription>();
+    SearchDescription right_search =
+            right.data(SearchModel::SearchDescriptionRole).value<SearchDescription>();
 
     switch (left.column()) {
     case SearchModel::SIZE:
@@ -172,10 +173,7 @@ bool SearchSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelI
     return left_search.offset < right_search.offset;
 }
 
-
-SearchWidget::SearchWidget(MainWindow *main) :
-    CutterDockWidget(main),
-    ui(new Ui::SearchWidget)
+SearchWidget::SearchWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::SearchWidget)
 {
     ui->setupUi(this);
     setStyleSheet(QString("QToolTip { max-width: %1px; opacity: 230; }").arg(kMaxTooltipWidth));
@@ -192,9 +190,8 @@ SearchWidget::SearchWidget(MainWindow *main) :
 
     connect(Core(), &CutterCore::toggleDebugView, this, &SearchWidget::updateSearchBoundaries);
     connect(Core(), &CutterCore::refreshAll, this, &SearchWidget::refreshSearchspaces);
-    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
-        qhelpers::emitColumnChanged(search_model, SearchModel::COMMENT);
-    });
+    connect(Core(), &CutterCore::commentsChanged, this,
+            [this]() { qhelpers::emitColumnChanged(search_model, SearchModel::COMMENT); });
 
     QShortcut *enter_press = new QShortcut(QKeySequence(Qt::Key_Return), this);
     connect(enter_press, &QShortcut::activated, this, [this]() {
@@ -208,8 +205,9 @@ SearchWidget::SearchWidget(MainWindow *main) :
         checkSearchResultEmpty();
     });
 
-    connect(ui->searchspaceCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, [this](int index) { updatePlaceholderText(index);});
+    connect(ui->searchspaceCombo,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
+            [this](int index) { updatePlaceholderText(index); });
 }
 
 SearchWidget::~SearchWidget() {}
@@ -250,8 +248,8 @@ void SearchWidget::refreshSearchspaces()
         cur_idx = 0;
 
     ui->searchspaceCombo->clear();
-    ui->searchspaceCombo->addItem(tr("asm code"),   QVariant("/acj"));
-    ui->searchspaceCombo->addItem(tr("string"),     QVariant("/j"));
+    ui->searchspaceCombo->addItem(tr("asm code"), QVariant("/acj"));
+    ui->searchspaceCombo->addItem(tr("string"), QVariant("/j"));
     ui->searchspaceCombo->addItem(tr("hex string"), QVariant("/xj"));
     ui->searchspaceCombo->addItem(tr("ROP gadgets"), QVariant("/Rj"));
     ui->searchspaceCombo->addItem(tr("32bit value"), QVariant("/vj"));
@@ -279,8 +277,8 @@ void SearchWidget::refreshSearch()
 // Called by &QShortcut::activated and &QAbstractButton::clicked signals
 void SearchWidget::checkSearchResultEmpty()
 {
-    if (search.isEmpty()){ 
-        QString noResultsMessage="<b>";
+    if (search.isEmpty()) {
+        QString noResultsMessage = "<b>";
         noResultsMessage.append(tr("No results found for:"));
         noResultsMessage.append("</b><br>");
         noResultsMessage.append(ui->filterLineEdit->text().toHtmlEscaped());

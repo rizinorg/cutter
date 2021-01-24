@@ -3,8 +3,7 @@
 
 #include <QtGui>
 
-Highlighter::Highlighter(QTextDocument *parent) :
-    QSyntaxHighlighter(parent)
+Highlighter::Highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent)
 {
     HighlightingRule rule;
 
@@ -27,7 +26,6 @@ Highlighter::Highlighter(QTextDocument *parent) :
         rule.format = regFormat;
         highlightingRules.append(rule);
     }
-
 
     singleLineCommentFormat.setFontWeight(QFont::Bold);
     singleLineCommentFormat.setForeground(QColor(63, 195, 128));
@@ -57,17 +55,19 @@ void Highlighter::highlightBlock(const QString &text)
         startIndex = QRegularExpression(commentStartRegularExpression).match(text).capturedStart();
 
     while (startIndex >= 0) {
-        QRegularExpressionMatch commentEndMatch = QRegularExpression(commentEndRegularExpression).match(text.mid(startIndex));
+        QRegularExpressionMatch commentEndMatch =
+                QRegularExpression(commentEndRegularExpression).match(text.mid(startIndex));
         int endIndex = commentEndMatch.capturedStart();
         int commentLength;
         if (endIndex == -1) {
             setCurrentBlockState(1);
             commentLength = text.length() - startIndex;
         } else {
-            commentLength = endIndex - startIndex
-                            + commentEndMatch.capturedLength();
+            commentLength = endIndex - startIndex + commentEndMatch.capturedLength();
         }
         setFormat(startIndex, commentLength, multiLineCommentFormat);
-        startIndex = QRegularExpression(commentStartRegularExpression).match(text.mid(startIndex + commentLength)).capturedStart();
+        startIndex = QRegularExpression(commentStartRegularExpression)
+                             .match(text.mid(startIndex + commentLength))
+                             .capturedStart();
     }
 }

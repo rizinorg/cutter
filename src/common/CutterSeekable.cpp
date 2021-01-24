@@ -3,10 +3,7 @@
 
 #include <QPlainTextEdit>
 
-
-CutterSeekable::CutterSeekable(QObject *parent)
-    :
-    QObject(parent)
+CutterSeekable::CutterSeekable(QObject *parent) : QObject(parent)
 {
     connect(Core(), &CutterCore::seekChanged, this, &CutterSeekable::onCoreSeekChanged);
 }
@@ -38,7 +35,6 @@ void CutterSeekable::updateSeek(RVA addr, bool localOnly)
     emit seekableSeekChanged(addr);
 }
 
-
 void CutterSeekable::seekPrev()
 {
     if (synchronized) {
@@ -65,20 +61,19 @@ bool CutterSeekable::isSynchronized()
 
 void CutterSeekable::seekToReference(RVA offset)
 {
-    if (offset == RVA_INVALID)
-    {
+    if (offset == RVA_INVALID) {
         return;
     }
-    
+
     RVA target;
     QList<XrefDescription> refs = Core()->getXRefs(offset, false, false);
-    
+
     if (refs.length()) {
         if (refs.length() > 1) {
             qWarning() << tr("More than one (%1) references here. Weird behaviour expected.")
-                            .arg(refs.length());
+                                  .arg(refs.length());
         }
-        
+
         target = refs.at(0).to;
         if (target != RVA_INVALID) {
             seek(target);

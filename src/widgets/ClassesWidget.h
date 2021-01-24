@@ -21,7 +21,7 @@ class ClassesWidget;
 /**
  * @brief Common abstract base class for Bin and Anal classes models
  */
-class ClassesModel: public QAbstractItemModel
+class ClassesModel : public QAbstractItemModel
 {
 public:
     enum Columns { NAME = 0, TYPE, OFFSET, VTABLE, COUNT };
@@ -69,14 +69,15 @@ public:
 
 Q_DECLARE_METATYPE(ClassesModel::RowType)
 
-class BinClassesModel: public ClassesModel
+class BinClassesModel : public ClassesModel
 {
     Q_OBJECT
 
 private:
     QList<BinClassDescription> classes;
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex index(int row, int column,
+                      const QModelIndex &parent = QModelIndex()) const override;
 
     QModelIndex parent(const QModelIndex &index) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -89,18 +90,18 @@ public:
     void setClasses(const QList<BinClassDescription> &classes);
 };
 
-
-class AnalClassesModel: public ClassesModel
+class AnalClassesModel : public ClassesModel
 {
-Q_OBJECT
+    Q_OBJECT
 
 private:
     /**
      * @brief List entry below a class
      *
-     * This roughly corresponds to attributes of Rizin analysis classes, which means it is not an attribute in the sense of
-     * a class member variable, but any kind of sub-info associated with the class.
-     * This struct in particular is used to provide a model for the list entries below a class.
+     * This roughly corresponds to attributes of Rizin analysis classes, which means it is not an
+     * attribute in the sense of a class member variable, but any kind of sub-info associated with
+     * the class. This struct in particular is used to provide a model for the list entries below a
+     * class.
      */
     struct Attribute
     {
@@ -133,7 +134,8 @@ private:
 
     const QVector<Attribute> &getAttrs(const QString &cls) const;
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex index(int row, int column,
+                      const QModelIndex &parent = QModelIndex()) const override;
 
     QModelIndex parent(const QModelIndex &index) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -153,8 +155,6 @@ public slots:
     void classAttrsChanged(const QString &cls);
 };
 
-
-
 class ClassesSortFilterProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
@@ -167,8 +167,6 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
     bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
 };
-
-
 
 class ClassesWidget : public CutterDockWidget
 {
@@ -203,6 +201,5 @@ private:
     AnalClassesModel *analysis_model = nullptr;
     ClassesSortFilterProxyModel *proxy_model;
 };
-
 
 #endif // CLASSESWIDGET_H

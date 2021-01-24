@@ -5,7 +5,8 @@
 #include <map>
 #include <QColor>
 
-struct BasicInstruction {
+struct BasicInstruction
+{
     RVA address;
     RVA size;
     QColor color;

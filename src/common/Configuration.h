@@ -10,25 +10,24 @@
 
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
 namespace KSyntaxHighlighting {
-    class Repository;
-    class Theme;
+class Repository;
+class Theme;
 }
 #endif
 
 class QSyntaxHighlighter;
 class QTextDocument;
 
-
 enum ColorFlags {
     LightFlag = 1,
     DarkFlag = 2,
 };
 
-struct CutterInterfaceTheme {
+struct CutterInterfaceTheme
+{
     QString name;
     ColorFlags flag;
 };
-
 
 class CUTTER_EXPORT Configuration : public QObject
 {
@@ -56,7 +55,7 @@ private:
     void applySavedAsmOptions();
 
 public:
-    static const QList<CutterInterfaceTheme>& cutterInterfaceThemesList();
+    static const QList<CutterInterfaceTheme> &cutterInterfaceThemesList();
     static const QHash<QString, ColorFlags> relevantThemes;
     static const QHash<QString, QHash<ColorFlags, QColor>> cutterOptionColors;
 
@@ -83,7 +82,7 @@ public:
      * @brief Gets the configured font set by the font selection box
      * @return the configured font
      */
-     const QFont getBaseFont() const;
+    const QFont getBaseFont() const;
 
     /**
      * @brief Gets the configured font with the point size adjusted by the configured zoom
@@ -101,10 +100,7 @@ public:
     void setLastThemeOf(const CutterInterfaceTheme &currInterfaceTheme, const QString &theme);
     QString getLastThemeOf(const CutterInterfaceTheme &currInterfaceTheme) const;
     void setInterfaceTheme(int theme);
-    int getInterfaceTheme()
-    {
-        return s.value("ColorPalette", 0).toInt();
-    }
+    int getInterfaceTheme() { return s.value("ColorPalette", 0).toInt(); }
 
     const CutterInterfaceTheme *getCurrentTheme();
 
@@ -126,7 +122,7 @@ public:
     // Asm Options
     void resetToDefaultAsmOptions();
 
-    QString getColorTheme() const     { return s.value("theme", "cutter").toString(); }
+    QString getColorTheme() const { return s.value("theme", "cutter").toString(); }
     void setColorTheme(const QString &theme);
     /**
      * @brief Change current color theme if it doesn't much native theme's darkness.
@@ -164,27 +160,16 @@ public:
     bool isDecompilerAnnotationHighlighterEnabled();
 
     // Graph
-    int getGraphBlockMaxChars() const
-    {
-        return s.value("graph.maxcols", 100).toInt();
-    }
-    void setGraphBlockMaxChars(int ch)
-    {
-        s.setValue("graph.maxcols", ch);
-    }
+    int getGraphBlockMaxChars() const { return s.value("graph.maxcols", 100).toInt(); }
+    void setGraphBlockMaxChars(int ch) { s.setValue("graph.maxcols", ch); }
 
-    int getGraphMinFontSize() const
-    {
-        return s.value("graph.minfontsize", 4).toInt();
-    }
+    int getGraphMinFontSize() const { return s.value("graph.minfontsize", 4).toInt(); }
 
-    void setGraphMinFontSize(int sz)
-    {
-        s.setValue("graph.minfontsize", sz);
-    }
+    void setGraphMinFontSize(int sz) { s.setValue("graph.minfontsize", sz); }
 
     /**
-     * @brief Getters and setters for the transaparent option state and scale factor for bitmap graph exports.
+     * @brief Getters and setters for the transaparent option state and scale factor for bitmap
+     * graph exports.
      */
     bool getBitmapTransparentState();
     double getBitmapExportScaleFactor();
@@ -202,7 +187,8 @@ public:
 
     /**
      * @brief Enable or disable the displaying of the entry offset in each graph block
-     * @param enabled set this to true for displaying the entry offset in each graph block, false otherwise
+     * @param enabled set this to true for displaying the entry offset in each graph block, false
+     * otherwise
      */
     void setGraphBlockEntryOffset(bool enabled);
 

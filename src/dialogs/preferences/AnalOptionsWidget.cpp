@@ -9,29 +9,26 @@
 #include "core/MainWindow.h"
 
 static const QHash<QString, QString> analBoundaries {
-    {"io.maps.x", "All executable maps"},
-    {"io.maps", "All maps"},
-    {"io.map", "Current map"},
-    {"raw", "Raw"},
-    {"bin.section", "Current mapped section"},
-    {"bin.sections", "All mapped sections"},
+    { "io.maps.x", "All executable maps" },
+    { "io.maps", "All maps" },
+    { "io.map", "Current map" },
+    { "raw", "Raw" },
+    { "bin.section", "Current mapped section" },
+    { "bin.sections", "All mapped sections" },
 };
 
 AnalOptionsWidget::AnalOptionsWidget(PreferencesDialog *dialog)
-    : QDialog(dialog),
-      ui(new Ui::AnalOptionsWidget)
+    : QDialog(dialog), ui(new Ui::AnalOptionsWidget)
 {
     ui->setupUi(this);
 
-    checkboxes = {
-        { ui->autonameCheckbox,     "analysis.autoname" },
-        { ui->hasnextCheckbox,      "analysis.hasnext" },
-        { ui->jmpRefCheckbox,       "analysis.jmp.ref" },
-        { ui->jmpTblCheckbox,       "analysis.jmp.tbl" },
-        { ui->pushRetCheckBox,      "analysis.pushret" },
-        { ui->typesVerboseCheckBox, "analysis.types.verbose" },
-        { ui->verboseCheckBox,      "analysis.verbose" }
-    };
+    checkboxes = { { ui->autonameCheckbox, "analysis.autoname" },
+                   { ui->hasnextCheckbox, "analysis.hasnext" },
+                   { ui->jmpRefCheckbox, "analysis.jmp.ref" },
+                   { ui->jmpTblCheckbox, "analysis.jmp.tbl" },
+                   { ui->pushRetCheckBox, "analysis.pushret" },
+                   { ui->typesVerboseCheckBox, "analysis.types.verbose" },
+                   { ui->verboseCheckBox, "analysis.verbose" } };
 
     // Create list of options for the analysis.in selector
     createAnalInOptionsList();
@@ -40,7 +37,8 @@ AnalOptionsWidget::AnalOptionsWidget(PreferencesDialog *dialog)
     for (ConfigCheckbox &confCheckbox : checkboxes) {
         QString val = confCheckbox.config;
         QCheckBox &cb = *confCheckbox.checkBox;
-        connect(confCheckbox.checkBox, &QCheckBox::stateChanged, this, [this, val, &cb]() { checkboxEnabler(&cb, val); });
+        connect(confCheckbox.checkBox, &QCheckBox::stateChanged, this,
+                [this, val, &cb]() { checkboxEnabler(&cb, val); });
     }
 
     ui->analyzePushButton->setToolTip("Analyze the program using Rizin's \"aaa\" command");
@@ -51,7 +49,8 @@ AnalOptionsWidget::AnalOptionsWidget(PreferencesDialog *dialog)
                                       &AnalOptionsWidget::updateAnalIn);
     connect<void (QSpinBox::*)(int)>(ui->ptrDepthSpinBox, &QSpinBox::valueChanged, this,
                                      &AnalOptionsWidget::updateAnalPtrDepth);
-    connect(ui->preludeLineEdit, &QLineEdit::textChanged, this, &AnalOptionsWidget::updateAnalPrelude);
+    connect(ui->preludeLineEdit, &QLineEdit::textChanged, this,
+            &AnalOptionsWidget::updateAnalPrelude);
     updateAnalOptionsFromVars();
 }
 
@@ -65,11 +64,13 @@ void AnalOptionsWidget::checkboxEnabler(QCheckBox *checkBox, const QString &conf
 void AnalOptionsWidget::updateAnalOptionsFromVars()
 {
     for (ConfigCheckbox &confCheckbox : checkboxes) {
-        qhelpers::setCheckedWithoutSignals(confCheckbox.checkBox, Core()->getConfigb(confCheckbox.config));
+        qhelpers::setCheckedWithoutSignals(confCheckbox.checkBox,
+                                           Core()->getConfigb(confCheckbox.config));
     }
 
     // Update the rest of analysis options that are not checkboxes
-    ui->analInComboBox->setCurrentIndex(ui->analInComboBox->findData(Core()->getConfig("analysis.in")));
+    ui->analInComboBox->setCurrentIndex(
+            ui->analInComboBox->findData(Core()->getConfig("analysis.in")));
     ui->ptrDepthSpinBox->setValue(Core()->getConfigi("analysis.ptrdepth"));
     ui->preludeLineEdit->setText(Core()->getConfig("analysis.prelude"));
 }

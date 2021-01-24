@@ -24,7 +24,8 @@ protected:
 private:
     CutterCore *core;
 
-    struct HighlightingRule {
+    struct HighlightingRule
+    {
         QRegularExpression pattern;
         QTextCharFormat format;
     };
@@ -42,4 +43,4 @@ private:
     QTextCharFormat functionFormat;
 };
 
-#endif   // HIGHLIGHTER_H
+#endif // HIGHLIGHTER_H

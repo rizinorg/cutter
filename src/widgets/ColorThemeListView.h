@@ -7,7 +7,8 @@
 #include <QAbstractListModel>
 #include <QStyledItemDelegate>
 
-struct ColorOption {
+struct ColorOption
+{
     QString optionName;
     QColor color;
     bool changed;
@@ -23,19 +24,17 @@ public:
     ColorThemeListView(QWidget *parent = nullptr);
     virtual ~ColorThemeListView() override {}
 
-    ColorSettingsModel* colorSettingsModel() const;
+    ColorSettingsModel *colorSettingsModel() const;
 
 protected slots:
-    void currentChanged(const QModelIndex &current,
-                        const QModelIndex &previous) override;
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous) override;
 
-    void dataChanged(const QModelIndex & topLeft, const QModelIndex & bottomRight,
+    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                      const QVector<int> &roles = QVector<int>()) override;
 
     void mouseReleaseEvent(QMouseEvent *e) override;
 
     void mouseMoveEvent(QMouseEvent *e) override;
-
 
 private slots:
     void blinkTimeout();
@@ -86,8 +85,7 @@ public:
     ColorOptionDelegate(QObject *parent = nullptr);
     ~ColorOptionDelegate() override {}
 
-    void paint(QPainter *painter,
-               const QStyleOptionViewItem &option,
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
 
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
@@ -99,7 +97,7 @@ private:
     QPixmap resetButtonPixmap;
     QRect resetButtonRect;
 
-    QPixmap getPixmapFromSvg(const QString& fileName, const QColor& after) const;
+    QPixmap getPixmapFromSvg(const QString &fileName, const QColor &after) const;
 };
 
 #endif // COLORTHEMELISTVIEW_H

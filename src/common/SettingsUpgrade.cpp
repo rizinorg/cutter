@@ -9,7 +9,7 @@
  */
 static bool migrateSettingsPre18(QSettings &newSettings)
 {
-    if(newSettings.value("settings_migrated", false).toBool()) {
+    if (newSettings.value("settings_migrated", false).toBool()) {
         return false;
     }
     QSettings oldSettings(QSettings::NativeFormat, QSettings::Scope::UserScope, "Cutter", "Cutter");
@@ -29,7 +29,7 @@ static bool migrateSettingsPre18(QSettings &newSettings)
 }
 
 #define CUTTER_SETTINGS_VERSION_CURRENT 6
-#define CUTTER_SETTINGS_VERSION_KEY     "version"
+#define CUTTER_SETTINGS_VERSION_KEY "version"
 
 /*
  * How Settings migrations work:
@@ -40,28 +40,30 @@ static bool migrateSettingsPre18(QSettings &newSettings)
  * This function takes care of migrating from EXACTLY version X-1 to X.
  */
 
-static void migrateSettingsTo1(QSettings &settings) {
+static void migrateSettingsTo1(QSettings &settings)
+{
     settings.remove("settings_migrated"); // now handled by version
     settings.remove("updated_custom_themes"); // now handled by theme_version
 }
 
-static void migrateSettingsTo2(QSettings &settings) {
+static void migrateSettingsTo2(QSettings &settings)
+{
     QStringList docks = settings.value("docks").toStringList(); // get current list of docks
     // replace occurences of "PseudocodeWidget" with "DecompilerWidget"
     settings.setValue("docks", docks.replaceInStrings("PseudocodeWidget", "DecompilerWidget"));
 }
 
-static void migrateSettingsTo3(QSettings &settings) {
+static void migrateSettingsTo3(QSettings &settings)
+{
     auto defaultGeometry = settings.value("geometry").toByteArray();
     auto defaultState = settings.value("state").toByteArray();
 
     auto debugGeometry = settings.value("debug.geometry").toByteArray();
     auto debugState = settings.value("debug.state").toByteArray();
 
-
     const auto docks = settings.value("docks", QStringList()).toStringList();
     auto unsyncList = settings.value("unsync", QStringList()).toStringList();
-#if QT_VERSION < QT_VERSION_CHECK(5,14,0)
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
     QSet<QString> unsyncDocks = unsyncList.toSet();
 #else
     QSet<QString> unsyncDocks(unsyncList.begin(), unsyncList.end());
@@ -105,11 +107,11 @@ static void migrateSettingsTo3(QSettings &settings) {
 
 static void renameAsmOption(QSettings &settings, const QString &oldName, const QString &newName)
 {
-	if (settings.contains(oldName)) {
-		auto value = settings.value(oldName);
-		settings.remove(oldName);
-		settings.setValue(newName, value);
-	}
+    if (settings.contains(oldName)) {
+        auto value = settings.value(oldName);
+        settings.remove(oldName);
+        settings.setValue(newName, value);
+    }
 }
 
 static void migrateSettingsTo4(QSettings &settings)
@@ -134,29 +136,35 @@ void Cutter::initializeSettings()
     QSettings settings;
 
     int settingsVersion = settings.value(CUTTER_SETTINGS_VERSION_KEY, 0).toInt();
-    if(settingsVersion == 0) {
+    if (settingsVersion == 0) {
         migrateSettingsPre18(settings);
     }
 
-    if(settings.allKeys().length() > 0) {
+    if (settings.allKeys().length() > 0) {
         if (settingsVersion > CUTTER_SETTINGS_VERSION_CURRENT) {
             qWarning() << "Settings have a higher version than current! Skipping migration.";
-        } else if(settingsVersion >= 0) {
+        } else if (settingsVersion >= 0) {
             for (int v = settingsVersion + 1; v <= CUTTER_SETTINGS_VERSION_CURRENT; v++) {
                 qInfo() << "Migrating Settings to Version" << v;
                 switch (v) {
                 case 1:
-                    migrateSettingsTo1(settings); break;
+                    migrateSettingsTo1(settings);
+                    break;
                 case 2:
-                    migrateSettingsTo2(settings); break;
+                    migrateSettingsTo2(settings);
+                    break;
                 case 3:
-                    migrateSettingsTo3(settings); break;
+                    migrateSettingsTo3(settings);
+                    break;
                 case 4:
-                    migrateSettingsTo4(settings); break;
+                    migrateSettingsTo4(settings);
+                    break;
                 case 5:
-                    migrateSettingsTo5(settings); break;
+                    migrateSettingsTo5(settings);
+                    break;
                 case 6:
-                    migrateSettingsTo6(settings); break;
+                    migrateSettingsTo6(settings);
+                    break;
                 default:
                     break;
                 }
@@ -166,12 +174,13 @@ void Cutter::initializeSettings()
     settings.setValue(CUTTER_SETTINGS_VERSION_KEY, CUTTER_SETTINGS_VERSION_CURRENT);
 }
 
-#define THEME_VERSION_CURRENT   1
-#define THEME_VERSION_KEY       "theme_version"
+#define THEME_VERSION_CURRENT 1
+#define THEME_VERSION_KEY "theme_version"
 
-static void removeObsoleteOptionsFromCustomThemes() {
+static void removeObsoleteOptionsFromCustomThemes()
+{
     const QStringList options = Core()->cmdj("ecj").object().keys()
-        << ColorThemeWorker::cutterSpecificOptions;
+            << ColorThemeWorker::cutterSpecificOptions;
     for (auto theme : Core()->cmdList("eco*")) {
         theme = theme.trimmed();
         if (!ThemeWorker().isCustomTheme(theme)) {
@@ -179,7 +188,7 @@ static void removeObsoleteOptionsFromCustomThemes() {
         }
         QJsonObject updatedTheme;
         auto sch = ThemeWorker().getTheme(theme).object();
-        for (const auto& key : sch.keys()) {
+        for (const auto &key : sch.keys()) {
             if (options.contains(key)) {
                 updatedTheme.insert(key, sch[key]);
             }

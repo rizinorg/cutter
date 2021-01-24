@@ -7,7 +7,6 @@
 #include "common/AddressableItemModel.h"
 #include "widgets/ListDockWidget.h"
 
-
 class MainWindow;
 class ResourcesWidget;
 

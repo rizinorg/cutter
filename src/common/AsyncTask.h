@@ -13,7 +13,7 @@
 
 class AsyncTaskManager;
 
-class CUTTER_EXPORT  AsyncTask : public QObject, public QRunnable
+class CUTTER_EXPORT AsyncTask : public QObject, public QRunnable
 {
     Q_OBJECT
 
@@ -30,17 +30,17 @@ public:
     void wait();
     bool wait(int timeout);
     virtual void interrupt();
-    bool isInterrupted()                { return interrupted; }
-    bool isRunning()                    { return running; }
+    bool isInterrupted() { return interrupted; }
+    bool isRunning() { return running; }
 
-    const QString &getLog()             { return logBuffer; }
-    const QElapsedTimer &getTimer()     { return timer; }
-    qint64 getElapsedTime()             { return timer.isValid() ? timer.elapsed() : 0; }
+    const QString &getLog() { return logBuffer; }
+    const QElapsedTimer &getTimer() { return timer; }
+    qint64 getElapsedTime() { return timer.isValid() ? timer.elapsed() : 0; }
 
-    virtual QString getTitle()          { return QString(); }
+    virtual QString getTitle() { return QString(); }
 
 protected:
-    virtual void runTask() =0;
+    virtual void runTask() = 0;
 
     void log(QString s);
 
@@ -78,5 +78,4 @@ signals:
     void tasksChanged();
 };
 
-
-#endif //ASYNCTASK_H
+#endif // ASYNCTASK_H

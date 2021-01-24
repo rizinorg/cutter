@@ -20,7 +20,8 @@ class DisassemblerGraphView : public CutterGraphView
 {
     Q_OBJECT
 
-    struct Text {
+    struct Text
+    {
         std::vector<RichTextPainter::List> lines;
 
         Text() {}
@@ -33,15 +34,13 @@ class DisassemblerGraphView : public CutterGraphView
             rt.text = text;
             rt.textColor = color;
             rt.textBackground = background;
-            rt.flags = rt.textBackground.alpha() ? RichTextPainter::FlagAll : RichTextPainter::FlagColor;
+            rt.flags = rt.textBackground.alpha() ? RichTextPainter::FlagAll
+                                                 : RichTextPainter::FlagColor;
             richText.push_back(rt);
             lines.push_back(richText);
         }
 
-        Text(const RichTextPainter::List &richText)
-        {
-            lines.push_back(richText);
-        }
+        Text(const RichTextPainter::List &richText) { lines.push_back(richText); }
 
         QString ToQString() const
         {
@@ -55,19 +54,21 @@ class DisassemblerGraphView : public CutterGraphView
         }
     };
 
-    struct Instr {
+    struct Instr
+    {
         ut64 addr = 0;
         ut64 size = 0;
         Text text;
         Text fullText;
         QString plainText;
-        std::vector<unsigned char> opcode; //instruction bytes
+        std::vector<unsigned char> opcode; // instruction bytes
 
         bool empty() const { return size == 0; }
         bool contains(ut64 addr) const;
     };
 
-    struct Token {
+    struct Token
+    {
         int start;
         int length;
         QString type;
@@ -76,7 +77,8 @@ class DisassemblerGraphView : public CutterGraphView
         QString content;
     };
 
-    struct DisassemblyBlock {
+    struct DisassemblyBlock
+    {
         Text header_text;
         std::vector<Instr> instrs;
         ut64 entry = 0;
@@ -92,11 +94,13 @@ public:
     ~DisassemblerGraphView() override;
     std::unordered_map<ut64, DisassemblyBlock> disassembly_blocks;
     virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive) override;
-    virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos) override;
+    virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event,
+                              QPoint pos) override;
     virtual void blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event,
                                     QPoint pos) override;
     virtual bool helpEvent(QHelpEvent *event) override;
-    virtual void blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos) override;
+    virtual void blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event,
+                                QPoint pos) override;
     virtual GraphView::EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from,
                                                            GraphView::GraphBlock *to,
                                                            bool interactive) override;
@@ -185,7 +189,7 @@ signals:
     void nameChanged(const QString &name);
 
 public:
-    bool isGraphEmpty()     { return emptyGraph; }
+    bool isGraphEmpty() { return emptyGraph; }
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H

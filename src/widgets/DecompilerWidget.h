@@ -66,8 +66,8 @@ private:
     bool decompilerSelectionEnabled;
 
     /**
-     * True if the selected decompiler is currently running a decompilation for this widget. Once the decompilation
-     * is over, this should be set to false.
+     * True if the selected decompiler is currently running a decompilation for this widget. Once
+     * the decompilation is over, this should be set to false.
      */
     bool decompilerBusy;
 
@@ -79,11 +79,13 @@ private:
     std::unique_ptr<RzAnnotatedCode, void (*)(RzAnnotatedCode *)> code;
 
     /**
-     * Specifies the lowest offset of instructions among all the instructions in the decompiled function.
+     * Specifies the lowest offset of instructions among all the instructions in the decompiled
+     * function.
      */
     RVA lowestOffsetInCode;
     /**
-     * Specifies the highest offset of instructions among all the instructions in the decompiled function.
+     * Specifies the highest offset of instructions among all the instructions in the decompiled
+     * function.
      */
     RVA highestOffsetInCode;
 
@@ -95,7 +97,8 @@ private:
     Decompiler *getCurrentDecompiler();
 
     /**
-     * @brief Calls the function doRefresh() if the address specified is a part of the decompiled function.
+     * @brief Calls the function doRefresh() if the address specified is a part of the decompiled
+     * function.
      *
      * @param addr Address at which a change occurred.
      */
@@ -177,19 +180,20 @@ private:
     bool colorLine(QTextEdit::ExtraSelection extraSelection);
 
     /**
-     * @brief This function is responsible for highlighting all the breakpoints in the decompiler view.
-     * It will also run when a breakpoint is added, removed or modified.
+     * @brief This function is responsible for highlighting all the breakpoints in the decompiler
+     * view. It will also run when a breakpoint is added, removed or modified.
      */
     void highlightBreakpoints();
     /**
-     * @brief Finds the earliest offset and breakpoints within the specified range [startPos, endPos]
-     * in the specified RzAnnotatedCode.
+     * @brief Finds the earliest offset and breakpoints within the specified range [startPos,
+     * endPos] in the specified RzAnnotatedCode.
      *
-     * This function is supposed to be used for finding the earliest offset and breakpoints within the specified range
-     * [startPos, endPos]. This will set the value of the variables 'RVA firstOffsetInLine' and 'QVector<RVA> availableBreakpoints' in
-     * the context menu.
+     * This function is supposed to be used for finding the earliest offset and breakpoints within
+     * the specified range [startPos, endPos]. This will set the value of the variables 'RVA
+     * firstOffsetInLine' and 'QVector<RVA> availableBreakpoints' in the context menu.
      *
-     * @param codeDecompiled - A reference to the RzAnnotatedCode for the function that is decompiled.
+     * @param codeDecompiled - A reference to the RzAnnotatedCode for the function that is
+     * decompiled.
      * @param startPos - Position of the start of the range(inclusive).
      * @param endPos - Position of the end of the range(inclusive).
      */
@@ -197,8 +201,8 @@ private:
     /**
      * @brief Finds the offset that's closest to the specified position in the decompiled code.
      *
-     * @note If no annotations that covers the specified position is found, the first offset in the line
-     * containing specified position will be returned
+     * @note If no annotations that covers the specified position is found, the first offset in the
+     * line containing specified position will be returned
      *
      * @param pos - Position of the decompiled code.
      * @return Offset for the specified position/first offset in line.

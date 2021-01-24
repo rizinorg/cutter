@@ -28,6 +28,7 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
     int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
     ~JsonModel();
+
 private:
     JsonTreeItem *mRootItem;
     QJsonDocument mDocument;

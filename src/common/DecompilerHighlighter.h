@@ -22,16 +22,16 @@ public:
 
     /**
      * @brief Set the code with annotations to be used for highlighting.
-     * 
+     *
      * It is callers responsibility to ensure that it is synchronized with currentTextDocument and
      * has sufficiently long lifetime.
-     * 
-     * @param code 
+     *
+     * @param code
      */
     void setAnnotations(RzAnnotatedCode *code);
+
 protected:
     void highlightBlock(const QString &text) override;
-
 
 private:
     void setupTheme();

@@ -2,14 +2,9 @@
 #include "common/RunScriptTask.h"
 #include "core/MainWindow.h"
 
-RunScriptTask::RunScriptTask() :
-    AsyncTask()
-{
-}
+RunScriptTask::RunScriptTask() : AsyncTask() {}
 
-RunScriptTask::~RunScriptTask()
-{
-}
+RunScriptTask::~RunScriptTask() {}
 
 void RunScriptTask::interrupt()
 {

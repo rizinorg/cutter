@@ -21,9 +21,9 @@ static QColor getColorFor(int pos)
         QColor(29, 188, 156), // Turquoise
         QColor(52, 152, 219), // Blue
         QColor(155, 89, 182), // Violet
-        QColor(52, 73, 94),   // Grey
-        QColor(231, 76, 60),  // Red
-        QColor(243, 156, 17)  // Orange
+        QColor(52, 73, 94), // Grey
+        QColor(231, 76, 60), // Red
+        QColor(243, 156, 17) // Orange
     };
     return colors[pos % colors.size()];
 }
@@ -51,10 +51,10 @@ static QIcon getIconFor(const QString &str, int pos)
     return QIcon(pixmap);
 }
 
-NewFileDialog::NewFileDialog(MainWindow *main) :
-    QDialog(nullptr), // no parent on purpose, using main causes weird positioning
-    ui(new Ui::NewFileDialog),
-    main(main)
+NewFileDialog::NewFileDialog(MainWindow *main)
+    : QDialog(nullptr), // no parent on purpose, using main causes weird positioning
+      ui(new Ui::NewFileDialog),
+      main(main)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -88,8 +88,8 @@ void NewFileDialog::on_loadFileButton_clicked()
 void NewFileDialog::on_selectFileButton_clicked()
 {
     QString currentDir = Config()->getRecentFolder();
-    const QString &fileName = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this,
-                                                                                    tr("Select file"), currentDir));
+    const QString &fileName = QDir::toNativeSeparators(
+            QFileDialog::getOpenFileName(this, tr("Select file"), currentDir));
 
     if (!fileName.isEmpty()) {
         ui->newFileEdit->setText(fileName);
@@ -100,8 +100,8 @@ void NewFileDialog::on_selectFileButton_clicked()
 
 void NewFileDialog::on_selectProjectFileButton_clicked()
 {
-    const QString &fileName = QDir::toNativeSeparators(
-            QFileDialog::getOpenFileName(this, tr("Open Project")));
+    const QString &fileName =
+            QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, tr("Open Project")));
 
     if (!fileName.isEmpty()) {
         ui->projectFileEdit->setText(fileName);
@@ -252,12 +252,10 @@ static QStringList fillFilesList(QListWidget *widget, const QStringList &files)
             it.remove();
         } else {
             // Format the text and add the item to the file list
-            const QString text = QString("%1\n%2\nSize: %3").arg(basename, filenameHome,
-                                                                 qhelpers::formatBytecount(info.size()));
-            QListWidgetItem *item = new QListWidgetItem(
-                getIconFor(basename, i++),
-                text
-            );
+            const QString text =
+                    QString("%1\n%2\nSize: %3")
+                            .arg(basename, filenameHome, qhelpers::formatBytecount(info.size()));
+            QListWidgetItem *item = new QListWidgetItem(getIconFor(basename, i++), text);
             item->setData(Qt::UserRole, fullpath);
             widget->addItem(item);
         }
@@ -316,7 +314,7 @@ void NewFileDialog::loadFile(const QString &filename)
 {
     const QString &nativeFn = QDir::toNativeSeparators(filename);
     if (ui->ioPlugin->currentIndex() == 0 && !Core()->tryFile(nativeFn, false)
-            && !ui->checkBox_FilelessOpen->isChecked()) {
+        && !ui->checkBox_FilelessOpen->isChecked()) {
         QMessageBox msgBox(this);
         msgBox.setText(tr("Select a new program or a previous one before continuing."));
         msgBox.exec();

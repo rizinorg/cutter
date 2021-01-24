@@ -4,7 +4,7 @@
 
 #include <QWidget>
 
-class ProgressIndicator: public QWidget
+class ProgressIndicator : public QWidget
 {
 public:
     ProgressIndicator(QWidget *parent = nullptr);
@@ -13,10 +13,10 @@ public:
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
 
-    bool getProgressIndicatorVisible() const    { return progressIndicatorVisible; }
+    bool getProgressIndicatorVisible() const { return progressIndicatorVisible; }
     void setProgressIndicatorVisible(bool visible);
 
-    bool getAnimating() const                   { return animating; }
+    bool getAnimating() const { return animating; }
     void setAnimating(bool animating);
 
 protected:
@@ -33,5 +33,4 @@ private:
     void updateAnimationTimer();
 };
 
-
-#endif //PROGRESSINDICATOR_H
+#endif // PROGRESSINDICATOR_H

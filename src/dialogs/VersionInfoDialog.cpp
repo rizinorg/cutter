@@ -9,10 +9,8 @@
 #include <QJsonDocument>
 #include <QTreeWidget>
 
-VersionInfoDialog::VersionInfoDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::VersionInfoDialog),
-    core(Core())
+VersionInfoDialog::VersionInfoDialog(QWidget *parent)
+    : QDialog(parent), ui(new Ui::VersionInfoDialog), core(Core())
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -37,7 +35,7 @@ void VersionInfoDialog::fillVersionInfo()
         ui->leftLabel->setText("Version symbols");
         ui->rightLabel->setText("Version need");
 
-        //Left tree
+        // Left tree
         QTreeWidgetItem *secNameItemL = new QTreeWidgetItem();
         secNameItemL->setText(0, "Section name:");
         secNameItemL->setText(1, versym["section_name"].toString());
@@ -110,7 +108,8 @@ void VersionInfoDialog::fillVersionInfo()
             QTreeWidgetItem *parentItem = new QTreeWidgetItem();
             QString parentString;
             parentItem->setText(0, RAddressString(parentObj["idx"].toDouble()));
-            parentString.append("Version: " + QString::number(parentObj["vn_version"].toDouble()) + "\t");
+            parentString.append("Version: " + QString::number(parentObj["vn_version"].toDouble())
+                                + "\t");
             parentString.append("File: " + parentObj["file_name"].toString());
             parentItem->setText(1, parentString);
 

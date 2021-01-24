@@ -48,9 +48,9 @@ private:
     int analLevel;
     QList<RzAsmPluginDescription> asmPlugins;
 
-
     void updateCPUComboBox();
-    struct AnalysisCommands {
+    struct AnalysisCommands
+    {
         CommandDescription commandDesc;
         QCheckBox *checkbox;
         bool checked;

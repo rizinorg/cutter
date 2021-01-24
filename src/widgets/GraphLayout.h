@@ -8,18 +8,18 @@
 class GraphLayout
 {
 public:
-    struct GraphEdge {
+    struct GraphEdge
+    {
         ut64 target;
         QPolygonF polyline;
-        enum ArrowDirection {
-            Down, Left, Up, Right, None
-        };
+        enum ArrowDirection { Down, Left, Up, Right, None };
         ArrowDirection arrow = ArrowDirection::Down;
 
-        explicit GraphEdge(ut64 target): target(target) {}
+        explicit GraphEdge(ut64 target) : target(target) {}
     };
 
-    struct GraphBlock {
+    struct GraphBlock
+    {
         int x = 0;
         int y = 0;
         int width = 0;
@@ -31,7 +31,8 @@ public:
     };
     using Graph = std::unordered_map<ut64, GraphBlock>;
 
-    struct LayoutConfig {
+    struct LayoutConfig
+    {
         int blockVerticalSpacing = 40;
         int blockHorizontalSpacing = 20;
         int edgeVerticalSpacing = 10;
@@ -40,12 +41,9 @@ public:
 
     GraphLayout(const LayoutConfig &layout_config) : layoutConfig(layout_config) {}
     virtual ~GraphLayout() {}
-    virtual void CalculateLayout(Graph &blocks, ut64 entry, int &width,
-                                 int &height) const = 0;
-    virtual void setLayoutConfig(const LayoutConfig &config)
-    {
-        this->layoutConfig = config;
-    };
+    virtual void CalculateLayout(Graph &blocks, ut64 entry, int &width, int &height) const = 0;
+    virtual void setLayoutConfig(const LayoutConfig &config) { this->layoutConfig = config; };
+
 protected:
     LayoutConfig layoutConfig;
 };

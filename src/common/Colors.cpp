@@ -1,11 +1,7 @@
 #include "Colors.h"
 #include "common/Configuration.h"
 
-Colors::Colors()
-{
-
-}
-
+Colors::Colors() {}
 
 void Colors::colorizeAssembly(RichTextPainter::List &list, QString opcode, ut64 type_num)
 {
@@ -101,4 +97,3 @@ QString Colors::getColor(ut64 type)
         return "invalid";
     }
 }
-

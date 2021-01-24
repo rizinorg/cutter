@@ -6,14 +6,9 @@
 #include <QDebug>
 #include <QCheckBox>
 
-AnalTask::AnalTask() :
-    AsyncTask()
-{
-}
+AnalTask::AnalTask() : AsyncTask() {}
 
-AnalTask::~AnalTask()
-{
-}
+AnalTask::~AnalTask() {}
 
 void AnalTask::interrupt()
 {
@@ -21,7 +16,8 @@ void AnalTask::interrupt()
     rz_cons_singleton()->context->breaked = true;
 }
 
-QString AnalTask::getTitle() {
+QString AnalTask::getTitle()
+{
     // If no file is loaded we consider it's Initial Analysis
     QJsonArray openedFiles = Core()->getOpenedFiles();
     if (!openedFiles.size()) {
@@ -36,7 +32,6 @@ void AnalTask::runTask()
     if (options.writeEnabled) {
         perms |= RZ_PERM_W;
         emit Core()->ioModeChanged();
-
     }
 
     // Demangle (must be before file Core()->loadFile)
@@ -47,13 +42,9 @@ void AnalTask::runTask()
     if (!openedFiles.size() && options.filename.length()) {
         log(tr("Loading the file..."));
         openFailed = false;
-        bool fileLoaded = Core()->loadFile(options.filename,
-                                           options.binLoadAddr,
-                                           options.mapAddr,
-                                           perms,
-                                           options.useVA,
-                                           options.loadBinInfo,
-                                           options.forceBinPlugin);
+        bool fileLoaded =
+                Core()->loadFile(options.filename, options.binLoadAddr, options.mapAddr, perms,
+                                 options.useVA, options.loadBinInfo, options.forceBinPlugin);
         if (!fileLoaded) {
             // Something wrong happened, fallback to open dialog
             openFailed = true;

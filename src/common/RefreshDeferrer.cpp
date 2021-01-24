@@ -2,8 +2,8 @@
 #include "RefreshDeferrer.h"
 #include "widgets/CutterDockWidget.h"
 
-RefreshDeferrer::RefreshDeferrer(RefreshDeferrerAccumulator *acc, QObject *parent) : QObject(parent),
-    acc(acc)
+RefreshDeferrer::RefreshDeferrer(RefreshDeferrerAccumulator *acc, QObject *parent)
+    : QObject(parent), acc(acc)
 {
 }
 
@@ -41,4 +41,3 @@ void RefreshDeferrer::registerFor(CutterDockWidget *dockWidget)
         }
     });
 }
-

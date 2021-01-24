@@ -1,13 +1,9 @@
 #include "BoolToggleDelegate.h"
 #include <QEvent>
 
-BoolTogggleDelegate::BoolTogggleDelegate(QObject *parent)
-    : QStyledItemDelegate(parent)
-{
-}
+BoolTogggleDelegate::BoolTogggleDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
 
-QWidget *BoolTogggleDelegate::createEditor(QWidget *parent,
-                                           const QStyleOptionViewItem &option,
+QWidget *BoolTogggleDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                                            const QModelIndex &index) const
 {
     if (index.data(Qt::EditRole).type() == QVariant::Bool) {

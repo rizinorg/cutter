@@ -18,18 +18,18 @@ namespace Ui {
 class RegisterRefsWidget;
 }
 
-
 class MainWindow;
 class QTreeWidgetItem;
 
-struct RegisterRefDescription {
+struct RegisterRefDescription
+{
     QString reg;
     QString value;
     RefDescription refDesc;
 };
 Q_DECLARE_METATYPE(RegisterRefDescription)
 
-class RegisterRefModel: public QAbstractListModel
+class RegisterRefModel : public QAbstractListModel
 {
     Q_OBJECT
 
@@ -62,7 +62,6 @@ protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
-
 
 class RegisterRefsWidget : public CutterDockWidget
 {

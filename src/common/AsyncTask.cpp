@@ -1,9 +1,7 @@
 
 #include "AsyncTask.h"
 
-AsyncTask::AsyncTask()
-    : QObject(nullptr),
-      QRunnable()
+AsyncTask::AsyncTask() : QObject(nullptr), QRunnable()
 {
     setAutoDelete(false);
     running = false;
@@ -64,15 +62,12 @@ void AsyncTask::log(QString s)
     emit logChanged(logBuffer);
 }
 
-AsyncTaskManager::AsyncTaskManager(QObject *parent)
-    : QObject(parent)
+AsyncTaskManager::AsyncTaskManager(QObject *parent) : QObject(parent)
 {
     threadPool = new QThreadPool(this);
 }
 
-AsyncTaskManager::~AsyncTaskManager()
-{
-}
+AsyncTaskManager::~AsyncTaskManager() {}
 
 void AsyncTaskManager::start(AsyncTask::Ptr task)
 {

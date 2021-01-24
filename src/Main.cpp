@@ -10,7 +10,6 @@
 #include <QJsonArray>
 #include <iostream>
 
-
 /**
  * @brief Attempt to connect to a parent console and configure outputs.
  *
@@ -51,7 +50,6 @@ static void connectToConsole()
 }
 #endif
 
-
 int main(int argc, char *argv[])
 {
 #ifdef CUTTER_ENABLE_CRASH_REPORTS
@@ -77,12 +75,14 @@ int main(int argc, char *argv[])
 
     Cutter::initializeSettings();
 
-    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts); // needed for QtWebEngine inside Plugins
+    QCoreApplication::setAttribute(
+            Qt::AA_ShareOpenGLContexts); // needed for QtWebEngine inside Plugins
 #ifdef Q_OS_WIN
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
-    #endif
+#    if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
+            Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
+#    endif
 #endif
 
     CutterApplication a(argc, argv);
@@ -93,12 +93,13 @@ int main(int argc, char *argv[])
 #if CUTTER_UPDATE_WORKER_AVAILABLE
         UpdateWorker *updateWorker = new UpdateWorker;
         QObject::connect(updateWorker, &UpdateWorker::checkComplete,
-                         [=](const QVersionNumber &version, const QString & error) {
-            if (error.isEmpty() && version > UpdateWorker::currentVersionNumber()) {
-                updateWorker->showUpdateDialog(true);
-            }
-            updateWorker->deleteLater();
-        });
+                         [=](const QVersionNumber &version, const QString &error) {
+                             if (error.isEmpty()
+                                 && version > UpdateWorker::currentVersionNumber()) {
+                                 updateWorker->showUpdateDialog(true);
+                             }
+                             updateWorker->deleteLater();
+                         });
         updateWorker->checkCurrentVersion(7000);
 #endif
     }

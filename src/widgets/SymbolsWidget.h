@@ -9,13 +9,11 @@
 #include "CutterDockWidget.h"
 #include "widgets/ListDockWidget.h"
 
-
 class MainWindow;
 class QTreeWidgetItem;
 class SymbolsWidget;
 
-
-class SymbolsModel: public AddressableItemModel<QAbstractListModel>
+class SymbolsModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
 
@@ -34,7 +32,8 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     QVariant data(const QModelIndex &index, int role) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
     RVA address(const QModelIndex &index) const override;
     QString name(const QModelIndex &index) const override;
@@ -52,7 +51,6 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
-
 class SymbolsWidget : public ListDockWidget
 {
     Q_OBJECT
@@ -68,7 +66,6 @@ private:
     QList<SymbolDescription> symbols;
     SymbolsModel *symbolsModel;
     SymbolsProxyModel *symbolsProxyModel;
-
 };
 
 #endif // SYMBOLSWIDGET_H

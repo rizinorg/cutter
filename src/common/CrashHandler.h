@@ -8,7 +8,7 @@
  *
  * If CUTTER_ENABLE_CRASH_REPORTS is true, initializes
  * crash handling and reporting, otherwise does nothing.
-*/
+ */
 void initCrashHandler();
 
 void showCrashDialog(const QString &dumpFile);

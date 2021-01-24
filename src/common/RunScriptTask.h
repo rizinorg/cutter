@@ -12,13 +12,9 @@ public:
     explicit RunScriptTask();
     ~RunScriptTask();
 
-    QString getTitle() override {
-        return tr("Run Script");
-    }
+    QString getTitle() override { return tr("Run Script"); }
 
-    void setFileName(const QString &fileName) {
-        this->fileName = fileName;
-    }
+    void setFileName(const QString &fileName) { this->fileName = fileName; }
 
     void interrupt() override;
 

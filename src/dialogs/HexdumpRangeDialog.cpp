@@ -6,26 +6,25 @@
 #include <cstdint>
 #include "core/Cutter.h"
 
-HexdumpRangeDialog::HexdumpRangeDialog(QWidget *parent, bool allowEmpty) :
-    QDialog(parent),
-    ui(new Ui::HexdumpRangeDialog),
-    allowEmpty(allowEmpty)
+HexdumpRangeDialog::HexdumpRangeDialog(QWidget *parent, bool allowEmpty)
+    : QDialog(parent), ui(new Ui::HexdumpRangeDialog), allowEmpty(allowEmpty)
 {
     ui->setupUi(this);
-    QRegularExpressionValidator *v = new QRegularExpressionValidator(QRegularExpression("(?:0[xX])?[0-9a-fA-F]+"), this);
+    QRegularExpressionValidator *v =
+            new QRegularExpressionValidator(QRegularExpression("(?:0[xX])?[0-9a-fA-F]+"), this);
     ui->lengthLineEdit->setValidator(v);
     ui->startAddressLineEdit->setValidator(v);
     ui->endAddressLineEdit->setValidator(v);
 
-    //subscribe to a text change slot
-    connect(ui->startAddressLineEdit, &QLineEdit::textEdited, this, &HexdumpRangeDialog::textEdited);
+    // subscribe to a text change slot
+    connect(ui->startAddressLineEdit, &QLineEdit::textEdited, this,
+            &HexdumpRangeDialog::textEdited);
     connect(ui->endAddressLineEdit, &QLineEdit::textEdited, this, &HexdumpRangeDialog::textEdited);
     connect(ui->lengthLineEdit, &QLineEdit::textEdited, this, &HexdumpRangeDialog::textEdited);
     connect(ui->endAddressRadioButton, &QRadioButton::clicked, this,
             &HexdumpRangeDialog::on_radioButtonClicked);
     connect(ui->lengthRadioButton, &QRadioButton::clicked, this,
             &HexdumpRangeDialog::on_radioButtonClicked);
-
 }
 
 HexdumpRangeDialog::~HexdumpRangeDialog()
@@ -60,8 +59,7 @@ bool HexdumpRangeDialog::getLengthRadioButtonChecked() const
 
 void HexdumpRangeDialog::setStartAddress(ut64 start)
 {
-    ui->startAddressLineEdit->setText(
-        QString("0x%1").arg(start, 0, 16));
+    ui->startAddressLineEdit->setText(QString("0x%1").arg(start, 0, 16));
 }
 
 void HexdumpRangeDialog::open(ut64 start)
@@ -84,11 +82,10 @@ bool HexdumpRangeDialog::validate()
         endAddress = Core()->math(ui->endAddressLineEdit->text());
         if (endAddress > startAddress) {
             length = endAddress - startAddress;
-            ui->lengthLineEdit->setText(
-                QString("0x%1").arg(length, 0, 16));
+            ui->lengthLineEdit->setText(QString("0x%1").arg(length, 0, 16));
             this->endAddress = endAddress - 1;
             emptyRange = false;
-        } else  if (endAddress == startAddress) {
+        } else if (endAddress == startAddress) {
             ui->lengthLineEdit->setText("0");
             return allowEmpty;
         } else {
@@ -96,7 +93,7 @@ bool HexdumpRangeDialog::validate()
             return false;
         }
     } else {
-        //we edited the length, so update the end address to be start address + length
+        // we edited the length, so update the end address to be start address + length
         length = Core()->math(ui->lengthLineEdit->text());
         if (length == 0) {
             ui->endAddressLineEdit->setText("Empty");
@@ -108,11 +105,9 @@ bool HexdumpRangeDialog::validate()
             endAddress = startAddress + length - 1;
             emptyRange = false;
             if (endAddress == UINT64_MAX) {
-                ui->endAddressLineEdit->setText(
-                    QString("2^64"));
+                ui->endAddressLineEdit->setText(QString("2^64"));
             } else {
-                ui->endAddressLineEdit->setText(
-                    QString("0x%1").arg(endAddress + 1, 0, 16));
+                ui->endAddressLineEdit->setText(QString("0x%1").arg(endAddress + 1, 0, 16));
             }
         }
     }

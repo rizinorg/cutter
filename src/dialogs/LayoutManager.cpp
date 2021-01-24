@@ -5,21 +5,18 @@
 
 using namespace Cutter;
 
-LayoutManager::LayoutManager(QMap<QString, Cutter::CutterLayout> &layouts, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::LayoutManager),
-    layouts(layouts)
+LayoutManager::LayoutManager(QMap<QString, Cutter::CutterLayout> &layouts, QWidget *parent)
+    : QDialog(parent), ui(new Ui::LayoutManager), layouts(layouts)
 {
     ui->setupUi(this);
     connect(ui->renameButton, &QPushButton::clicked, this, &LayoutManager::renameCurrentLayout);
     connect(ui->deleteButton, &QPushButton::clicked, this, &LayoutManager::deleteLayout);
-    connect(ui->layoutSelector, &QComboBox::currentTextChanged, this, &LayoutManager::updateButtons);
+    connect(ui->layoutSelector, &QComboBox::currentTextChanged, this,
+            &LayoutManager::updateButtons);
     refreshNameList();
 }
 
-LayoutManager::~LayoutManager()
-{
-}
+LayoutManager::~LayoutManager() {}
 
 void LayoutManager::refreshNameList(QString selection)
 {
@@ -42,10 +39,11 @@ void LayoutManager::renameCurrentLayout()
         QString newName;
         while (newName.isEmpty() || isBuiltinLayoutName(newName) || layouts.contains(newName)) {
             if (!newName.isEmpty()) {
-                QMessageBox::warning(this, tr("Rename layout error"), tr("'%1' is already used.").arg(newName));
+                QMessageBox::warning(this, tr("Rename layout error"),
+                                     tr("'%1' is already used.").arg(newName));
             }
-            newName = QInputDialog::getText(this, tr("Save layout"), tr("Enter name"), QLineEdit::Normal,
-                                            current);
+            newName = QInputDialog::getText(this, tr("Save layout"), tr("Enter name"),
+                                            QLineEdit::Normal, current);
             if (newName.isEmpty()) {
                 return;
             }

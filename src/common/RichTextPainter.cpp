@@ -6,12 +6,11 @@
 #include <QTextBlock>
 #include <QTextFragment>
 
-//TODO: fix performance (possibly use QTextLayout?)
-
+// TODO: fix performance (possibly use QTextLayout?)
 
 template<typename T>
 void RichTextPainter::paintRichText(QPainter *painter, T x, T y, T w, T h, T xinc,
-                          const List &richText, CachedFontMetrics<T> *fontMetrics)
+                                    const List &richText, CachedFontMetrics<T> *fontMetrics)
 {
     QPen pen;
     QPen highlightPen;
@@ -21,24 +20,24 @@ void RichTextPainter::paintRichText(QPainter *painter, T x, T y, T w, T h, T xin
         T backgroundWidth = textWidth;
         if (backgroundWidth + xinc > w)
             backgroundWidth = w - xinc;
-        if (backgroundWidth <= 0) //stop drawing when going outside the specified width
+        if (backgroundWidth <= 0) // stop drawing when going outside the specified width
             break;
         switch (curRichText.flags) {
-        case FlagNone: //defaults
+        case FlagNone: // defaults
             pen.setColor(ConfigColor("btext").name());
             painter->setPen(pen);
             break;
-        case FlagColor: //color only
+        case FlagColor: // color only
             pen.setColor(curRichText.textColor);
             painter->setPen(pen);
             break;
-        case FlagBackground: //background only
+        case FlagBackground: // background only
             if (backgroundWidth > 0 && curRichText.textBackground.alpha()) {
                 brush.setColor(curRichText.textBackground);
                 painter->fillRect(QRectF(x + xinc, y, backgroundWidth, h), brush);
             }
             break;
-        case FlagAll: //color+background
+        case FlagAll: // color+background
             if (backgroundWidth > 0 && curRichText.textBackground.alpha()) {
                 brush.setColor(curRichText.textBackground);
                 painter->fillRect(QRectF(x + xinc, y, backgroundWidth, h), brush);
@@ -52,67 +51,74 @@ void RichTextPainter::paintRichText(QPainter *painter, T x, T y, T w, T h, T xin
         flags = Qt::TextBypassShaping;
 #endif
 
-        painter->drawText(typename Metrics<T>::Rect(x + xinc, y, w - xinc, h), flags, curRichText.text);
+        painter->drawText(typename Metrics<T>::Rect(x + xinc, y, w - xinc, h), flags,
+                          curRichText.text);
         if (curRichText.highlight && curRichText.highlightColor.alpha()) {
             highlightPen.setColor(curRichText.highlightColor);
             highlightPen.setWidth(curRichText.highlightWidth);
             painter->setPen(highlightPen);
             T highlightOffsetX = curRichText.highlightConnectPrev ? -1 : 1;
-            painter->drawLine(x + xinc + highlightOffsetX, y + h - 1, x + xinc + backgroundWidth - 1,
-                              y + h - 1);
+            painter->drawLine(x + xinc + highlightOffsetX, y + h - 1,
+                              x + xinc + backgroundWidth - 1, y + h - 1);
         }
         xinc += textWidth;
     }
 }
 
-template
-void RichTextPainter::paintRichText<qreal>(QPainter *painter, qreal x, qreal y, qreal w, qreal h, qreal xinc,
-    const List &richText, CachedFontMetrics<qreal> *fontMetrics);
-
+template void RichTextPainter::paintRichText<qreal>(QPainter *painter, qreal x, qreal y, qreal w,
+                                                    qreal h, qreal xinc, const List &richText,
+                                                    CachedFontMetrics<qreal> *fontMetrics);
 
 /**
- * @brief RichTextPainter::htmlRichText Convert rich text in x64dbg to HTML, for use by other applications
+ * @brief RichTextPainter::htmlRichText Convert rich text in x64dbg to HTML, for use by other
+ * applications
  * @param richText The rich text to be converted to HTML format
- * @param textHtml The HTML source. Any previous content will be preserved and new content will be appended at the end.
- * @param textPlain The plain text. Any previous content will be preserved and new content will be appended at the end.
+ * @param textHtml The HTML source. Any previous content will be preserved and new content will be
+ * appended at the end.
+ * @param textPlain The plain text. Any previous content will be preserved and new content will be
+ * appended at the end.
  */
 void RichTextPainter::htmlRichText(const List &richText, QString &textHtml, QString &textPlain)
 {
     for (const CustomRichText_t &curRichText : richText) {
-        if (curRichText.text == " ") { //blank
+        if (curRichText.text == " ") { // blank
             textHtml += " ";
             textPlain += " ";
             continue;
         }
         switch (curRichText.flags) {
-        case FlagNone: //defaults
+        case FlagNone: // defaults
             textHtml += "<span>";
             break;
-        case FlagColor: //color only
+        case FlagColor: // color only
             textHtml += QString("<span style=\"color:%1\">").arg(curRichText.textColor.name());
             break;
-        case FlagBackground: //background only
-            if (curRichText.textBackground !=
-                    Qt::transparent) // QColor::name() returns "#000000" for transparent color. That's not desired. Leave it blank.
-                textHtml += QString("<span style=\"background-color:%1\">").arg(curRichText.textBackground.name());
+        case FlagBackground: // background only
+            if (curRichText.textBackground
+                != Qt::transparent) // QColor::name() returns "#000000" for transparent color.
+                                    // That's not desired. Leave it blank.
+                textHtml += QString("<span style=\"background-color:%1\">")
+                                    .arg(curRichText.textBackground.name());
             else
                 textHtml += QString("<span>");
             break;
-        case FlagAll: //color+background
-            if (curRichText.textBackground !=
-                    Qt::transparent) // QColor::name() returns "#000000" for transparent color. That's not desired. Leave it blank.
-                textHtml += QString("<span style=\"color:%1; background-color:%2\">").arg(
-                                curRichText.textColor.name(), curRichText.textBackground.name());
+        case FlagAll: // color+background
+            if (curRichText.textBackground
+                != Qt::transparent) // QColor::name() returns "#000000" for transparent color.
+                                    // That's not desired. Leave it blank.
+                textHtml += QString("<span style=\"color:%1; background-color:%2\">")
+                                    .arg(curRichText.textColor.name(),
+                                         curRichText.textBackground.name());
             else
                 textHtml += QString("<span style=\"color:%1\">").arg(curRichText.textColor.name());
             break;
         }
-        if (curRichText.highlight) //Underline highlighted token
+        if (curRichText.highlight) // Underline highlighted token
             textHtml += "<u>";
         textHtml += curRichText.text.toHtmlEscaped();
         if (curRichText.highlight)
             textHtml += "</u>";
-        textHtml += "</span>"; //Close the tag
+        textHtml += "</span>"; // Close the tag
         textPlain += curRichText.text;
     }
 }
@@ -185,7 +191,8 @@ RichTextPainter::List RichTextPainter::cropped(const RichTextPainter::List &rich
             auto &text = r.back();
 
             if (text.text.length() >= indicatorCropLength) {
-                text.text.replace(text.text.length() - indicatorCropLength, indicatorCropLength, indicator);
+                text.text.replace(text.text.length() - indicatorCropLength, indicatorCropLength,
+                                  indicator);
                 break;
             }
 

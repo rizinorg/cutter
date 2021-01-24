@@ -13,9 +13,7 @@
 #include <QToolButton>
 #include <QSettings>
 
-DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
-    QObject(main),
-    main(main)
+DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main), main(main)
 {
     setObjectName("DebugActions");
     // setIconSize(QSize(16, 16));
@@ -101,24 +99,32 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     toolBar->addAction(actionStep);
     toolBar->addAction(actionStepOut);
 
-    allActions = {actionStop, actionAllContinues, actionContinue, actionContinueUntilCall, actionContinueUntilMain, actionContinueUntilSyscall, actionStep, actionStepOut, actionStepOver};
+    allActions = { actionStop,
+                   actionAllContinues,
+                   actionContinue,
+                   actionContinueUntilCall,
+                   actionContinueUntilMain,
+                   actionContinueUntilSyscall,
+                   actionStep,
+                   actionStepOut,
+                   actionStepOver };
     // hide allactions
     setAllActionsVisible(false);
 
     // Toggle all buttons except restart, suspend(=continue) and stop since those are
     // necessary to avoid staying stuck
-    toggleActions = {actionStepOver, actionStep, actionStepOut, actionContinueUntilMain,
-                     actionContinueUntilCall, actionContinueUntilSyscall
-                    };
-    toggleConnectionActions = {actionAttach, actionStartRemote};
+    toggleActions = { actionStepOver,          actionStep,
+                      actionStepOut,           actionContinueUntilMain,
+                      actionContinueUntilCall, actionContinueUntilSyscall };
+    toggleConnectionActions = { actionAttach, actionStartRemote };
 
-    connect(Core(), &CutterCore::debugProcessFinished, this, [ = ](int pid) {
+    connect(Core(), &CutterCore::debugProcessFinished, this, [=](int pid) {
         QMessageBox msgBox;
         msgBox.setText(tr("Debugged process exited (") + QString::number(pid) + ")");
         msgBox.exec();
     });
 
-    connect(Core(), &CutterCore::debugTaskStateChanged, this, [ = ]() {
+    connect(Core(), &CutterCore::debugTaskStateChanged, this, [=]() {
         bool disableToolbar = Core()->isDebugTaskInProgress();
         if (Core()->currentlyDebugging) {
             for (QAction *a : toggleActions) {
@@ -140,7 +146,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     });
 
     connect(actionStop, &QAction::triggered, Core(), &CutterCore::stopDebug);
-    connect(actionStop, &QAction::triggered, [ = ]() {
+    connect(actionStop, &QAction::triggered, [=]() {
         actionStart->setVisible(true);
         actionStartEmul->setVisible(true);
         actionAttach->setVisible(true);
@@ -161,7 +167,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     connect(actionStartRemote, &QAction::triggered, this, &DebugActions::attachRemoteDialog);
     connect(Core(), &CutterCore::attachedRemote, this, &DebugActions::onAttachedRemoteDebugger);
     connect(actionStartEmul, &QAction::triggered, Core(), &CutterCore::startEmulation);
-    connect(actionStartEmul, &QAction::triggered, [ = ]() {
+    connect(actionStartEmul, &QAction::triggered, [=]() {
         setAllActionsVisible(true);
         actionStart->setVisible(false);
         actionAttach->setVisible(false);
@@ -177,8 +183,9 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     connect(actionStepOut, &QAction::triggered, Core(), &CutterCore::stepOutDebug);
     connect(actionContinueUntilMain, &QAction::triggered, this, &DebugActions::continueUntilMain);
     connect(actionContinueUntilCall, &QAction::triggered, Core(), &CutterCore::continueUntilCall);
-    connect(actionContinueUntilSyscall, &QAction::triggered, Core(), &CutterCore::continueUntilSyscall);
-    connect(actionContinue, &QAction::triggered, Core(), [ = ]() {
+    connect(actionContinueUntilSyscall, &QAction::triggered, Core(),
+            &CutterCore::continueUntilSyscall);
+    connect(actionContinue, &QAction::triggered, Core(), [=]() {
         // Switch between continue and suspend depending on the debugger's state
         if (Core()->isDebugTaskInProgress()) {
             Core()->suspendDebug();
@@ -208,8 +215,9 @@ void DebugActions::showDebugWarning()
         acceptedDebugWarning = true;
         QMessageBox msgBox;
         msgBox.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
-        msgBox.setText(tr("Debug is currently in beta.\n") +
-                       tr("If you encounter any problems or have suggestions, please submit an issue to https://github.com/rizinorg/cutter/issues"));
+        msgBox.setText(tr("Debug is currently in beta.\n")
+                       + tr("If you encounter any problems or have suggestions, please submit an "
+                            "issue to https://github.com/rizinorg/cutter/issues"));
         msgBox.exec();
     }
 }
@@ -369,9 +377,8 @@ void DebugActions::chooseThemeIcons()
         { actionContinueUntilSyscall, QStringLiteral("continue_until_syscall.svg") },
     };
 
-
     // Set the correct icon for the QAction
-    qhelpers::setThemeIcons(kSupportedIconsNames, [](void *obj, const QIcon & icon) {
+    qhelpers::setThemeIcons(kSupportedIconsNames, [](void *obj, const QIcon &icon) {
         static_cast<QAction *>(obj)->setIcon(icon);
     });
 }

@@ -5,9 +5,7 @@
 
 #include <QFileDialog>
 
-MapFileDialog::MapFileDialog(QWidget *parent):
-    QDialog(parent),
-    ui(new Ui::MapFileDialog)
+MapFileDialog::MapFileDialog(QWidget *parent) : QDialog(parent), ui(new Ui::MapFileDialog)
 {
     ui->setupUi(this);
 }

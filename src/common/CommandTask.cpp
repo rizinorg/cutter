@@ -7,7 +7,8 @@ CommandTask::CommandTask(const QString &cmd, ColorMode colorMode, bool outFormat
 {
 }
 
-void CommandTask::runTask() {
+void CommandTask::runTask()
+{
     TempConfig tempConfig;
     tempConfig.set("scr.color", colorMode);
     auto res = Core()->cmdTask(cmd);

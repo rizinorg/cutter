@@ -4,7 +4,7 @@
 
 class MainWindow;
 
-class CUTTER_EXPORT  CutterSeekable : public QObject
+class CUTTER_EXPORT CutterSeekable : public QObject
 {
     Q_OBJECT
 
@@ -45,7 +45,8 @@ public:
     bool isSynchronized();
 
     /**
-     * @brief seekToReference will seek to the function or the object which is referenced in a given offset
+     * @brief seekToReference will seek to the function or the object which is referenced in a given
+     * offset
      * @param offset - an address that contains a reference to jump to
      */
     void seekToReference(RVA offset);

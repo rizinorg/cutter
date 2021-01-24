@@ -104,7 +104,6 @@ private:
      */
     QKeySequence getLinkTypeSequence() const;
 
-
     RVA offset;
     bool canCopy;
     QString curHighlightedWord; // The current highlighted word
@@ -122,7 +121,6 @@ private:
     QAction actionCopy;
     QAction *copySeparator;
     QAction actionCopyAddr;
-
 
     QAction actionAddComment;
     QAction actionAnalyzeFunction;
@@ -180,7 +178,7 @@ private:
     QAction actionSetToDataQword;
 
     QAction showInSubmenu;
-    QList<QAction*> showTargetMenuActions;
+    QList<QAction *> showTargetMenuActions;
     QMenu *pluginMenu = nullptr;
     QAction *pluginActionMenuAction = nullptr;
 
@@ -189,7 +187,8 @@ private:
 
     void initAction(QAction *action, QString name, const char *slot = nullptr);
     void initAction(QAction *action, QString name, const char *slot, QKeySequence keySequence);
-    void initAction(QAction *action, QString name, const char *slot, QList<QKeySequence> keySequence);
+    void initAction(QAction *action, QString name, const char *slot,
+                    QList<QKeySequence> keySequence);
 
     void setBase(QString base);
     void setToData(int size, int repeat = 1);
@@ -210,38 +209,36 @@ private:
         RENAME_LOCAL,
         RENAME_DO_NOTHING,
     };
-    struct DoRenameInfo {
+    struct DoRenameInfo
+    {
         ut64 addr;
         QString name;
     };
     DoRenameAction doRenameAction = RENAME_DO_NOTHING;
-    DoRenameInfo doRenameInfo = { };
+    DoRenameInfo doRenameInfo = {};
 
     /*
      * @brief Setups up the "Rename" option in the context menu
      *
-     * This function takes into account cursor location so it can choose between current address and pointed value
-     * i.e. `0x000040f3  lea rdi, [0x000199b1]` -> does the user want to add a flag at 0x40f3 or at 0x199b1?
-     * and for that we will rely on |curHighlightedWord| which is the currently selected word.
+     * This function takes into account cursor location so it can choose between current address and
+     * pointed value i.e. `0x000040f3  lea rdi, [0x000199b1]` -> does the user want to add a flag at
+     * 0x40f3 or at 0x199b1? and for that we will rely on |curHighlightedWord| which is the
+     * currently selected word.
      */
     void setupRenaming();
 
     /**
      * @brief Checks if the currently highlighted word in the disassembly widget
      * is a local variable or function paramter.
-     * @return Return true if the highlighted word is the name of a local variable or function parameter,
-     * return false otherwise.
+     * @return Return true if the highlighted word is the name of a local variable or function
+     * parameter, return false otherwise.
      */
     bool isHighlightedWordLocalVar();
-    struct ThingUsedHere {
+    struct ThingUsedHere
+    {
         QString name;
         RVA offset;
-        enum class Type {
-            Var,
-            Function,
-            Flag,
-            Address
-        };
+        enum class Type { Var, Function, Flag, Address };
         Type type;
     };
     QVector<ThingUsedHere> getThingUsedHere(RVA offset);
@@ -255,11 +252,11 @@ private:
     /*
      * @brief This function will set the text for the renaming menu given a ThingUsedHere
      * and provide information on how to handle the renaming of this specific thing.
-     * Indeed, selected dialogs are different when it comes to adding a flag, renaming an existing function,
-     * renaming a local variable...
+     * Indeed, selected dialogs are different when it comes to adding a flag, renaming an existing
+     * function, renaming a local variable...
      *
      * This function handles every possible object.
      */
-    void buildRenameMenu(ThingUsedHere* tuh);
+    void buildRenameMenu(ThingUsedHere *tuh);
 };
 #endif // DISASSEMBLYCONTEXTMENU_H

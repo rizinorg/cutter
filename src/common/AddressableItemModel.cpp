@@ -4,8 +4,8 @@
 #include <stdexcept>
 
 AddressableFilterProxyModel::AddressableFilterProxyModel(AddressableItemModelI *sourceModel,
-                                                         QObject *parent) :
-    AddressableItemModel<QSortFilterProxyModel>(parent)
+                                                         QObject *parent)
+    : AddressableItemModel<QSortFilterProxyModel>(parent)
 {
     setSourceModel(sourceModel);
     addressableSourceModel = sourceModel;

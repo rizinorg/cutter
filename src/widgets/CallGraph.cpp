@@ -7,9 +7,7 @@
 #include <QJsonObject>
 
 CallGraphWidget::CallGraphWidget(MainWindow *main, bool global)
-    : AddressableDockWidget(main)
-    , graphView(new CallGraphView(this, main, global))
-    , global(global)
+    : AddressableDockWidget(main), graphView(new CallGraphView(this, main, global)), global(global)
 {
     setObjectName(main->getUniqueObjectName("CallGraphWidget"));
     this->setWindowTitle(getWindowTitle());
@@ -18,9 +16,7 @@ CallGraphWidget::CallGraphWidget(MainWindow *main, bool global)
     setWidget(graphView);
 }
 
-CallGraphWidget::~CallGraphWidget()
-{
-}
+CallGraphWidget::~CallGraphWidget() {}
 
 QString CallGraphWidget::getWindowTitle() const
 {
@@ -35,9 +31,7 @@ void CallGraphWidget::onSeekChanged(RVA address)
 }
 
 CallGraphView::CallGraphView(CutterDockWidget *parent, MainWindow *main, bool global)
-    : SimpleTextGraphView(parent, main)
-    , global(global)
-    , refreshDeferrer(nullptr, this)
+    : SimpleTextGraphView(parent, main), global(global), refreshDeferrer(nullptr, this)
 {
     enableAddresses(true);
     refreshDeferrer.registerFor(parent);

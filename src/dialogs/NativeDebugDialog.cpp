@@ -3,9 +3,8 @@
 
 #include <QMessageBox>
 
-NativeDebugDialog::NativeDebugDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::NativeDebugDialog)
+NativeDebugDialog::NativeDebugDialog(QWidget *parent)
+    : QDialog(parent), ui(new Ui::NativeDebugDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));

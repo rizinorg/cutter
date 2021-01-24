@@ -19,12 +19,11 @@ class MainWindow;
 template<class BaseListWidget = CutterTreeView>
 class AddressableItemList : public BaseListWidget
 {
-    static_assert (std::is_base_of<QAbstractItemView, BaseListWidget>::value,
-                   "ParentModel needs to inherit from QAbstractItemModel");
+    static_assert(std::is_base_of<QAbstractItemView, BaseListWidget>::value,
+                  "ParentModel needs to inherit from QAbstractItemModel");
 
 public:
-    explicit AddressableItemList(QWidget *parent = nullptr) :
-        BaseListWidget(parent)
+    explicit AddressableItemList(QWidget *parent = nullptr) : BaseListWidget(parent)
     {
         this->connect(this, &QWidget::customContextMenuRequested, this,
                       &AddressableItemList<BaseListWidget>::showItemContextMenu);
@@ -49,10 +48,7 @@ public:
         this->addActions(this->getItemContextMenu()->actions());
     }
 
-    AddressableItemContextMenu *getItemContextMenu()
-    {
-        return itemContextMenu;
-    }
+    AddressableItemContextMenu *getItemContextMenu() { return itemContextMenu; }
     void setItemContextMenu(AddressableItemContextMenu *menu)
     {
         if (itemContextMenu != menu && itemContextMenu) {
@@ -60,6 +56,7 @@ public:
         }
         itemContextMenu = menu;
     }
+
 protected:
     virtual void showItemContextMenu(const QPoint &pt)
     {
@@ -80,10 +77,7 @@ protected:
         auto offset = addressableModel->address(index);
         Core()->seekAndShow(offset);
     }
-    virtual void onSelectedItemChanged(const QModelIndex &index)
-    {
-        updateMenuFromItem(index);
-    }
+    virtual void onSelectedItemChanged(const QModelIndex &index) { updateMenuFromItem(index); }
     void updateMenuFromItem(const QModelIndex &index)
     {
         if (index.isValid()) {
@@ -94,6 +88,7 @@ protected:
             itemContextMenu->clearTarget();
         }
     }
+
 private:
     AddressableItemModelI *addressableModel = nullptr;
     AddressableItemContextMenu *itemContextMenu = nullptr;

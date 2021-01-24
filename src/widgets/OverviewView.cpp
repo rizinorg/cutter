@@ -7,8 +7,7 @@
 #include "common/Configuration.h"
 #include "common/TempConfig.h"
 
-OverviewView::OverviewView(QWidget *parent)
-    : GraphView(parent)
+OverviewView::OverviewView(QWidget *parent) : GraphView(parent)
 {
     connect(Config(), &Configuration::colorsUpdated, this, &OverviewView::colorsUpdatedSlot);
     colorsUpdatedSlot();
@@ -31,12 +30,10 @@ void OverviewView::centreRect()
 {
     qreal w = rangeRect.width();
     qreal h = rangeRect.height();
-    initialDiff = QPointF(w / 2,  h / 2);
+    initialDiff = QPointF(w / 2, h / 2);
 }
 
-OverviewView::~OverviewView()
-{
-}
+OverviewView::~OverviewView() {}
 
 void OverviewView::scaleAndCenter()
 {
@@ -92,14 +89,15 @@ void OverviewView::mousePressEvent(QMouseEvent *event)
 {
     mouseActive = true;
     if (rangeRect.contains(event->pos())) {
-        initialDiff = QPointF(event->localPos().x() - rangeRect.x(), event->localPos().y() - rangeRect.y());
+        initialDiff = QPointF(event->localPos().x() - rangeRect.x(),
+                              event->localPos().y() - rangeRect.y());
     } else {
         qreal w = rangeRect.width();
         qreal h = rangeRect.height();
         qreal x = event->localPos().x() - w / 2;
         qreal y = event->localPos().y() - h / 2;
         rangeRect = QRectF(x, y, w, h);
-        initialDiff = QPointF(w / 2,  h / 2);
+        initialDiff = QPointF(w / 2, h / 2);
         viewport()->update();
         emit mouseMoved();
     }
@@ -134,7 +132,7 @@ GraphView::EdgeConfiguration OverviewView::edgeConfiguration(GraphView::GraphBlo
 {
     Q_UNUSED(interactive)
     EdgeConfiguration ec;
-    auto baseEcIt = edgeConfigurations.find({from.entry, to->entry});
+    auto baseEcIt = edgeConfigurations.find({ from.entry, to->entry });
     if (baseEcIt != edgeConfigurations.end())
         ec = baseEcIt->second;
     ec.width_scale = 1.0 / getViewScale();

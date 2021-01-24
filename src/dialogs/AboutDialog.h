@@ -26,14 +26,14 @@ private slots:
      * @fn AboutDialog::on_checkForUpdatesButton_clicked()
      *
      * @brief Initiates process of checking for updates.
-    */
+     */
     void on_checkForUpdatesButton_clicked();
 
     /**
      * @fn AboutDialog::on_updatesCheckBox_stateChanged(int state)
      *
      * @brief Changes value of autoUpdateEnabled option in settings.
-    */
+     */
     void on_updatesCheckBox_stateChanged(int state);
 
 private:

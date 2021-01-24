@@ -7,11 +7,12 @@
 #include <QContextMenuEvent>
 
 AddressableDockWidget::AddressableDockWidget(MainWindow *parent)
-    : CutterDockWidget(parent)
-    , seekable(new CutterSeekable(this))
-    , syncAction(tr("Sync/unsync offset"), this)
+    : CutterDockWidget(parent),
+      seekable(new CutterSeekable(this)),
+      syncAction(tr("Sync/unsync offset"), this)
 {
-    connect(seekable, &CutterSeekable::syncChanged, this, &AddressableDockWidget::updateWindowTitle);
+    connect(seekable, &CutterSeekable::syncChanged, this,
+            &AddressableDockWidget::updateWindowTitle);
     connect(&syncAction, &QAction::triggered, seekable, &CutterSeekable::toggleSynchronization);
 
     dockMenu = new QMenu(this);

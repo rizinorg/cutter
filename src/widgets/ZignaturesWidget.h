@@ -40,8 +40,6 @@ private:
     QList<ZignatureDescription> *zignatures;
 };
 
-
-
 class ZignaturesProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
@@ -53,8 +51,6 @@ protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
-
-
 
 class ZignaturesWidget : public CutterDockWidget
 {

@@ -17,12 +17,10 @@ namespace Ui {
 class MemoryMapWidget;
 }
 
-
 class MainWindow;
 class QTreeWidgetItem;
 
-
-class MemoryMapModel: public AddressableItemModel<QAbstractListModel>
+class MemoryMapModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
 
@@ -32,7 +30,14 @@ private:
     QList<MemoryMapDescription> *memoryMaps;
 
 public:
-    enum Column { AddrStartColumn = 0, AddrEndColumn, NameColumn, PermColumn, CommentColumn, ColumnCount };
+    enum Column {
+        AddrStartColumn = 0,
+        AddrEndColumn,
+        NameColumn,
+        PermColumn,
+        CommentColumn,
+        ColumnCount
+    };
     enum Role { MemoryDescriptionRole = Qt::UserRole };
 
     MemoryMapModel(QList<MemoryMapDescription> *memoryMaps, QObject *parent = nullptr);
@@ -41,12 +46,11 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     QVariant data(const QModelIndex &index, int role) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
     RVA address(const QModelIndex &index) const override;
 };
-
-
 
 class MemoryProxyModel : public AddressableFilterProxyModel
 {
@@ -59,8 +63,6 @@ protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
-
-
 
 class MemoryMapWidget : public ListDockWidget
 {

@@ -36,7 +36,8 @@ SimpleTextGraphView::SimpleTextGraphView(QWidget *parent, MainWindow *mainWindow
     contextMenu->addAction(&actionExportGraph);
     contextMenu->addMenu(layoutMenu);
 
-    addressableItemContextMenu.insertAction(addressableItemContextMenu.actions().first(), &copyAction);
+    addressableItemContextMenu.insertAction(addressableItemContextMenu.actions().first(),
+                                            &copyAction);
     addressableItemContextMenu.addSeparator();
     addressableItemContextMenu.addAction(&actionExportGraph);
     addressableItemContextMenu.addMenu(layoutMenu);
@@ -87,7 +88,7 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
 {
     QRectF blockRect(block.x, block.y, block.width, block.height);
 
-    const qreal padding =  charWidth;
+    const qreal padding = charWidth;
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
@@ -121,7 +122,7 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
     p.setPen(palette().color(QPalette::WindowText));
     // Render node text
     auto x = block.x + padding;
-    int y = block.y +  padding + p.fontMetrics().ascent();
+    int y = block.y + padding + p.fontMetrics().ascent();
     p.drawText(QPoint(x, y), content.text);
 }
 
@@ -166,9 +167,9 @@ void SimpleTextGraphView::enableAddresses(bool enabled)
     haveAddresses = enabled;
     if (!enabled) {
         addressableItemContextMenu.clearTarget();
-        // Clearing addreassable item context menu disables all the actions inside it including extra ones added
-        // by SimpleTextGraphView. Re-enable them because they are in the regular context menu as well and shouldn't be
-        // disabled.
+        // Clearing addreassable item context menu disables all the actions inside it including
+        // extra ones added by SimpleTextGraphView. Re-enable them because they are in the regular
+        // context menu as well and shouldn't be disabled.
         for (auto action : contextMenu->actions()) {
             action->setEnabled(true);
         }
@@ -187,9 +188,8 @@ void SimpleTextGraphView::copyBlockText()
 void SimpleTextGraphView::contextMenuEvent(QContextMenuEvent *event)
 {
     GraphView::contextMenuEvent(event);
-    if (!event->isAccepted() &&
-            event->reason() !=  QContextMenuEvent::Mouse &&
-            enableBlockSelection && selectedBlock != NO_BLOCK_SELECTED) {
+    if (!event->isAccepted() && event->reason() != QContextMenuEvent::Mouse && enableBlockSelection
+        && selectedBlock != NO_BLOCK_SELECTED) {
         auto blockIt = blocks.find(selectedBlock);
         if (blockIt != blocks.end()) {
             blockContextMenuRequested(blockIt->second, event, {});
@@ -219,7 +219,6 @@ void SimpleTextGraphView::blockContextMenuRequested(GraphView::GraphBlock &block
         addressableItemContextMenu.exec(pos);
         event->accept();
     }
-
 }
 
 void SimpleTextGraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event,
@@ -234,7 +233,7 @@ void SimpleTextGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent
                                        QPoint /*pos*/)
 {
     if ((event->button() == Qt::LeftButton || event->button() == Qt::RightButton)
-            && enableBlockSelection) {
+        && enableBlockSelection) {
         selectBlockWithId(block.entry);
     }
 }

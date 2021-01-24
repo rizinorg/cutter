@@ -18,12 +18,10 @@ namespace Ui {
 class TypesWidget;
 }
 
-
 class MainWindow;
 class QTreeWidgetItem;
 
-
-class TypesModel: public QAbstractListModel
+class TypesModel : public QAbstractListModel
 {
     Q_OBJECT
 
@@ -42,12 +40,11 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     QVariant data(const QModelIndex &index, int role) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 };
-
-
 
 class TypesSortFilterProxyModel : public QSortFilterProxyModel
 {
@@ -64,8 +61,6 @@ protected:
 
     QString selectedCategory;
 };
-
-
 
 class TypesWidget : public CutterDockWidget
 {
@@ -100,11 +95,10 @@ private slots:
 
     /**
      * @brief Executed on clicking either the Edit Type or View Type options in the context menu
-     * It will open the TypesInteractionDialog filled with the selected type. Depends on Edit or View mode
-     * the text view would be read-only or not.
+     * It will open the TypesInteractionDialog filled with the selected type. Depends on Edit or
+     * View mode the text view would be read-only or not.
      */
-    void viewType(bool readOnly=true);
-
+    void viewType(bool readOnly = true);
 
     /**
      * @brief Executed on clicking the Delete Type option in the context menu
@@ -142,6 +136,5 @@ private:
      */
     void refreshCategoryCombo(const QStringList &categories);
 };
-
 
 #endif // TYPESWIDGET_H
