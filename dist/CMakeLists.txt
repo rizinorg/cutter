@@ -80,7 +80,18 @@ if(APPLE)
 	get_filename_component(QT_PREFIX "${MACDEPLOYQT_PATH}/../.." ABSOLUTE)
 	list(APPEND RZ_GHIDRA_PREFIX_PATH "${QT_PREFIX}")
 	set(RIZIN_INSTALL_PLUGDIR "share/rizin/plugins") # escaped backslash on purpose, should be evaluated later
-
+	
+	if (CUTTER_PACKAGE_JSDEC AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
+		install(CODE "
+			set(ENV{PATH} \"\${CMAKE_INSTALL_PREFIX}/bin:\$ENV{PATH}\")
+			execute_process(COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/jsdec.sh\" --prefix=\${CMAKE_INSTALL_PREFIX}
+							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+							RESULT_VARIABLE SCRIPT_RESULT)
+			if (SCRIPT_RESULT)
+				message(FATAL_ERROR \"Failed to package jsdec\")
+			endif()
+		")
+	endif()
 
 endif()
 
