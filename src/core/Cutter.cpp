@@ -889,9 +889,11 @@ void CutterCore::seek(ut64 offset)
         return;
     }
 
-    // use cmd and not cmdRaw to make sure seekChanged is emitted
-    cmd(QString("s %1").arg(offset));
-    // cmd already does emit seekChanged(core_->offset);
+    RVA o_offset = core->offset;
+    rz_core_seek_and_save(core, offset, true);
+    if (o_offset != core->offset) {
+        updateSeek();
+    }
 }
 
 void CutterCore::showMemoryWidget()
@@ -919,14 +921,16 @@ void CutterCore::seek(QString thing)
 
 void CutterCore::seekPrev()
 {
-    // Use cmd because cmdRaw does not work with seek history
-    cmd("s-");
+    CORE_LOCK ();
+    rz_core_seek_undo (core);
+    updateSeek();
 }
 
 void CutterCore::seekNext()
 {
-    // Use cmd because cmdRaw does not work with seek history
-    cmd("s+");
+    CORE_LOCK ();
+    rz_core_seek_redo (core);
+    updateSeek();
 }
 
 void CutterCore::updateSeek()
