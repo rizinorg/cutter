@@ -21,53 +21,53 @@
 #include <QInputDialog>
 
 DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *mainWindow)
-    :   QMenu(parent),
-        offset(0),
-        canCopy(false),
-        mainWindow(mainWindow),
-        actionEditInstruction(this),
-        actionNopInstruction(this),
-        actionJmpReverse(this),
-        actionEditBytes(this),
-        actionCopy(this),
-        actionCopyAddr(this),
-        actionAddComment(this),
-        actionAnalyzeFunction(this),
-        actionEditFunction(this),
-        actionRename(this),
-        actionSetFunctionVarTypes(this),
-        actionXRefs(this),
-        actionXRefsForVariables(this),
-        actionDisplayOptions(this),
-        actionDeleteComment(this),
-        actionDeleteFlag(this),
-        actionDeleteFunction(this),
-        actionLinkType(this),
-        actionSetBaseBinary(this),
-        actionSetBaseOctal(this),
-        actionSetBaseDecimal(this),
-        actionSetBaseHexadecimal(this),
-        actionSetBasePort(this),
-        actionSetBaseIPAddr(this),
-        actionSetBaseSyscall(this),
-        actionSetBaseString(this),
-        actionSetBits16(this),
-        actionSetBits32(this),
-        actionSetBits64(this),
-        actionContinueUntil(this),
-        actionSetPC(this),
-        actionAddBreakpoint(this),
-        actionAdvancedBreakpoint(this),
-        actionSetToCode(this),
-        actionSetAsStringAuto(this),
-        actionSetAsStringRemove(this),
-        actionSetAsStringAdvanced(this),
-        actionSetToDataEx(this),
-        actionSetToDataByte(this),
-        actionSetToDataWord(this),
-        actionSetToDataDword(this),
-        actionSetToDataQword(this),
-        showInSubmenu(this)
+    : QMenu(parent),
+      offset(0),
+      canCopy(false),
+      mainWindow(mainWindow),
+      actionEditInstruction(this),
+      actionNopInstruction(this),
+      actionJmpReverse(this),
+      actionEditBytes(this),
+      actionCopy(this),
+      actionCopyAddr(this),
+      actionAddComment(this),
+      actionAnalyzeFunction(this),
+      actionEditFunction(this),
+      actionRename(this),
+      actionSetFunctionVarTypes(this),
+      actionXRefs(this),
+      actionXRefsForVariables(this),
+      actionDisplayOptions(this),
+      actionDeleteComment(this),
+      actionDeleteFlag(this),
+      actionDeleteFunction(this),
+      actionLinkType(this),
+      actionSetBaseBinary(this),
+      actionSetBaseOctal(this),
+      actionSetBaseDecimal(this),
+      actionSetBaseHexadecimal(this),
+      actionSetBasePort(this),
+      actionSetBaseIPAddr(this),
+      actionSetBaseSyscall(this),
+      actionSetBaseString(this),
+      actionSetBits16(this),
+      actionSetBits32(this),
+      actionSetBits64(this),
+      actionContinueUntil(this),
+      actionSetPC(this),
+      actionAddBreakpoint(this),
+      actionAdvancedBreakpoint(this),
+      actionSetToCode(this),
+      actionSetAsStringAuto(this),
+      actionSetAsStringRemove(this),
+      actionSetAsStringAdvanced(this),
+      actionSetToDataEx(this),
+      actionSetToDataByte(this),
+      actionSetToDataWord(this),
+      actionSetToDataDword(this),
+      actionSetToDataQword(this),
+      showInSubmenu(this)
 {
     initAction(&actionCopy, tr("Copy"), SLOT(on_actionCopy_triggered()), getCopySequence());
     addAction(&actionCopy);
@@ -81,23 +81,24 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 
     copySeparator = addSeparator();
 
-    initAction(&actionAddComment, tr("Add Comment"),
-               SLOT(on_actionAddComment_triggered()), getCommentSequence());
+    initAction(&actionAddComment, tr("Add Comment"), SLOT(on_actionAddComment_triggered()),
+               getCommentSequence());
     addAction(&actionAddComment);
 
-    initAction(&actionRename, tr("Rename or add flag"),
-               SLOT(on_actionRename_triggered()), getRenameSequence());
+    initAction(&actionRename, tr("Rename or add flag"), SLOT(on_actionRename_triggered()),
+               getRenameSequence());
     addAction(&actionRename);
 
     initAction(&actionSetFunctionVarTypes, tr("Re-type Local Variables"),
                SLOT(on_actionSetFunctionVarTypes_triggered()), getRetypeSequence());
     addAction(&actionSetFunctionVarTypes);
 
-    initAction(&actionEditFunction, tr("Edit function"),
-               SLOT(on_actionEditFunction_triggered()), getEditFunctionSequence());
+    initAction(&actionEditFunction, tr("Edit function"), SLOT(on_actionEditFunction_triggered()),
+               getEditFunctionSequence());
     addAction(&actionEditFunction);
 
-    initAction(&actionDeleteComment, tr("Delete comment"), SLOT(on_actionDeleteComment_triggered()));
+    initAction(&actionDeleteComment, tr("Delete comment"),
+               SLOT(on_actionDeleteComment_triggered()));
     addAction(&actionDeleteComment);
 
     initAction(&actionDeleteFlag, tr("Delete flag"), SLOT(on_actionDeleteFlag_triggered()));
@@ -118,27 +119,28 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     addSetBitsMenu();
 
     structureOffsetMenu = addMenu(tr("Structure offset"));
-    connect(structureOffsetMenu, &QMenu::triggered,
-            this, &DisassemblyContextMenu::on_actionStructureOffsetMenu_triggered);
+    connect(structureOffsetMenu, &QMenu::triggered, this,
+            &DisassemblyContextMenu::on_actionStructureOffsetMenu_triggered);
 
-    initAction(&actionLinkType, tr("Link Type to Address"),
-               SLOT(on_actionLinkType_triggered()), getLinkTypeSequence());
+    initAction(&actionLinkType, tr("Link Type to Address"), SLOT(on_actionLinkType_triggered()),
+               getLinkTypeSequence());
     addAction(&actionLinkType);
 
     addSetAsMenu();
 
     addSeparator();
 
-    initAction(&actionXRefs, tr("Show X-Refs"),
-               SLOT(on_actionXRefs_triggered()), getXRefSequence());
+    initAction(&actionXRefs, tr("Show X-Refs"), SLOT(on_actionXRefs_triggered()),
+               getXRefSequence());
     addAction(&actionXRefs);
 
     initAction(&actionXRefsForVariables, tr("X-Refs for local variables"),
-                SLOT(on_actionXRefsForVariables_triggered()), QKeySequence({Qt::SHIFT + Qt::Key_X}));
+               SLOT(on_actionXRefsForVariables_triggered()),
+               QKeySequence({ Qt::SHIFT + Qt::Key_X }));
     addAction(&actionXRefsForVariables);
 
-    initAction(&actionDisplayOptions, tr("Show Options"),
-               SLOT(on_actionDisplayOptions_triggered()), getDisplayOptionsSequence());
+    initAction(&actionDisplayOptions, tr("Show Options"), SLOT(on_actionDisplayOptions_triggered()),
+               getDisplayOptionsSequence());
 
     addSeparator();
 
@@ -158,15 +160,13 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 
     addSeparator();
 
-    connect(this, &DisassemblyContextMenu::aboutToShow,
-            this, &DisassemblyContextMenu::aboutToShowSlot);
-    connect(this, &DisassemblyContextMenu::aboutToHide,
-            this, &DisassemblyContextMenu::aboutToHideSlot);
+    connect(this, &DisassemblyContextMenu::aboutToShow, this,
+            &DisassemblyContextMenu::aboutToShowSlot);
+    connect(this, &DisassemblyContextMenu::aboutToHide, this,
+            &DisassemblyContextMenu::aboutToHideSlot);
 }
 
-DisassemblyContextMenu::~DisassemblyContextMenu()
-{
-}
+DisassemblyContextMenu::~DisassemblyContextMenu() {}
 
 void DisassemblyContextMenu::addSetBaseMenu()
 {
@@ -222,24 +222,22 @@ void DisassemblyContextMenu::addSetBitsMenu()
     connect(&actionSetBits64, &QAction::triggered, this, [this] { setBits(64); });
 }
 
-
 void DisassemblyContextMenu::addSetAsMenu()
 {
     setAsMenu = addMenu(tr("Set as..."));
 
-    initAction(&actionSetToCode, tr("Code"),
-               SLOT(on_actionSetToCode_triggered()), getSetToCodeSequence());
+    initAction(&actionSetToCode, tr("Code"), SLOT(on_actionSetToCode_triggered()),
+               getSetToCodeSequence());
     setAsMenu->addAction(&actionSetToCode);
 
     setAsString = setAsMenu->addMenu(tr("String..."));
 
-    initAction(&actionSetAsStringAuto, tr("Auto-detect"),
-               SLOT(on_actionSetAsString_triggered()), getSetAsStringSequence());
+    initAction(&actionSetAsStringAuto, tr("Auto-detect"), SLOT(on_actionSetAsString_triggered()),
+               getSetAsStringSequence());
     initAction(&actionSetAsStringRemove, tr("Remove"),
                SLOT(on_actionSetAsStringRemove_triggered()));
     initAction(&actionSetAsStringAdvanced, tr("Advanced"),
                SLOT(on_actionSetAsStringAdvanced_triggered()), getSetAsStringAdvanced());
-
 
     setAsString->addAction(&actionSetAsStringAuto);
     setAsString->addAction(&actionSetAsStringRemove);
@@ -268,23 +266,25 @@ void DisassemblyContextMenu::addSetToDataMenu()
     setToDataMenu->addAction(&actionSetToDataQword);
     connect(&actionSetToDataQword, &QAction::triggered, this, [this] { setToData(8); });
 
-    initAction(&actionSetToDataEx, "...",
-               SLOT(on_actionSetToDataEx_triggered()), getSetToDataExSequence());
+    initAction(&actionSetToDataEx, "...", SLOT(on_actionSetToDataEx_triggered()),
+               getSetToDataExSequence());
     setToDataMenu->addAction(&actionSetToDataEx);
 
     auto switchAction = new QAction(this);
-    initAction(switchAction, "Switch Data",
-               SLOT(on_actionSetToData_triggered()), getSetToDataSequence());
+    initAction(switchAction, "Switch Data", SLOT(on_actionSetToData_triggered()),
+               getSetToDataSequence());
 }
 
 void DisassemblyContextMenu::addEditMenu()
 {
     editMenu = addMenu(tr("Edit"));
 
-    initAction(&actionEditInstruction, tr("Instruction"), SLOT(on_actionEditInstruction_triggered()));
+    initAction(&actionEditInstruction, tr("Instruction"),
+               SLOT(on_actionEditInstruction_triggered()));
     editMenu->addAction(&actionEditInstruction);
 
-    initAction(&actionNopInstruction, tr("Nop Instruction"), SLOT(on_actionNopInstruction_triggered()));
+    initAction(&actionNopInstruction, tr("Nop Instruction"),
+               SLOT(on_actionNopInstruction_triggered()));
     editMenu->addAction(&actionNopInstruction);
 
     initAction(&actionEditBytes, tr("Bytes"), SLOT(on_actionEditBytes_triggered()));
@@ -302,7 +302,7 @@ void DisassemblyContextMenu::addBreakpointMenu()
                SLOT(on_actionAddBreakpoint_triggered()), getAddBPSequence());
     breakpointMenu->addAction(&actionAddBreakpoint);
     initAction(&actionAdvancedBreakpoint, tr("Advanced breakpoint"),
-               SLOT(on_actionAdvancedBreakpoint_triggered()), QKeySequence(Qt::CTRL+Qt::Key_F2));
+               SLOT(on_actionAdvancedBreakpoint_triggered()), QKeySequence(Qt::CTRL + Qt::Key_F2));
     breakpointMenu->addAction(&actionAdvancedBreakpoint);
 }
 
@@ -346,7 +346,7 @@ QVector<DisassemblyContextMenu::ThingUsedHere> DisassemblyContextMenu::getThingU
         } else if (typeString == "address") {
             type = ThingUsedHere::Type::Address;
         }
-        result.push_back(ThingUsedHere{name, offset, type});
+        result.push_back(ThingUsedHere { name, offset, type });
     }
     return result;
 }
@@ -398,10 +398,11 @@ DisassemblyContextMenu::ThingUsedHere DisassemblyContextMenu::getThingAt(ut64 ad
     return tuh;
 }
 
-void DisassemblyContextMenu::buildRenameMenu(ThingUsedHere* tuh)
+void DisassemblyContextMenu::buildRenameMenu(ThingUsedHere *tuh)
 {
     if (!tuh) {
-        qWarning() << "Unexpected behavior null pointer passed to DisassemblyContextMenu::buildRenameMenu";
+        qWarning() << "Unexpected behavior null pointer passed to "
+                      "DisassemblyContextMenu::buildRenameMenu";
         doRenameAction = RENAME_DO_NOTHING;
         return;
     }
@@ -443,7 +444,7 @@ void DisassemblyContextMenu::setupRenaming()
     ThingUsedHere *tuh = nullptr;
     ThingUsedHere thingAt;
     auto things = getThingUsedHere(offset);
-    for (auto& thing : things) {
+    for (auto &thing : things) {
         if (thing.offset == selection || thing.name == curHighlightedWord) {
             // We matched something on current line
             tuh = &thing;
@@ -456,13 +457,14 @@ void DisassemblyContextMenu::setupRenaming()
         thingAt = getThingAt(selection);
 
         if (thingAt.offset == 0) {
-            // We parsed something which resolved to 0, it's very likely nothing interesting was selected
-            // So we fallback on current line offset
+            // We parsed something which resolved to 0, it's very likely nothing interesting was
+            // selected So we fallback on current line offset
             thingAt = getThingAt(offset);
         }
 
-        // However, since for the moment selection selects *every* lines which match a specific offset,
-        // make sure we didn't want to select a local variable rather than the function itself
+        // However, since for the moment selection selects *every* lines which match a specific
+        // offset, make sure we didn't want to select a local variable rather than the function
+        // itself
         if (thingAt.type == ThingUsedHere::Type::Function) {
             auto vars = Core()->getVariables(offset);
             for (auto v : vars) {
@@ -487,8 +489,8 @@ void DisassemblyContextMenu::setupRenaming()
 void DisassemblyContextMenu::aboutToShowSlot()
 {
     // check if set immediate base menu makes sense
-    QJsonObject instObject = Core()->cmdj("aoj @ " + QString::number(
-                                              offset)).array().first().toObject();
+    QJsonObject instObject =
+            Core()->cmdj("aoj @ " + QString::number(offset)).array().first().toObject();
     auto keys = instObject.keys();
     bool immBase = keys.contains("val") || keys.contains("ptr");
     setBaseMenu->menuAction()->setVisible(immBase);
@@ -499,17 +501,16 @@ void DisassemblyContextMenu::aboutToShowSlot()
     QVariant memDisp; // Displacement
     if (instObject.contains("opex") && instObject["opex"].toObject().contains("operands")) {
         // Loop through both the operands of the instruction
-        for (const QJsonValue value: instObject["opex"].toObject()["operands"].toArray()) {
+        for (const QJsonValue value : instObject["opex"].toObject()["operands"].toArray()) {
             QJsonObject operand = value.toObject();
-            if (operand.contains("type") && operand["type"].toString() == "mem" &&
-                    operand.contains("base") && !operand["base"].toString().contains("bp") &&
-                    operand.contains("disp") && operand["disp"].toVariant().toLongLong() > 0) {
+            if (operand.contains("type") && operand["type"].toString() == "mem"
+                && operand.contains("base") && !operand["base"].toString().contains("bp")
+                && operand.contains("disp") && operand["disp"].toVariant().toLongLong() > 0) {
 
-                    // The current operand is the one which has an immediate displacement
-                    memBaseReg = operand["base"].toString();
-                    memDisp = operand["disp"].toVariant();
-                    break;
-
+                // The current operand is the one which has an immediate displacement
+                memBaseReg = operand["base"].toString();
+                memDisp = operand["disp"].toVariant();
+                break;
             }
         }
     }
@@ -582,10 +583,9 @@ void DisassemblyContextMenu::aboutToShowSlot()
     // Only show debug options if we are currently debugging
     debugMenu->menuAction()->setVisible(Core()->currentlyDebugging);
     bool hasBreakpoint = Core()->breakpointIndexAt(offset) > -1;
-    actionAddBreakpoint.setText(hasBreakpoint ?
-                                     tr("Remove breakpoint") : tr("Add breakpoint"));
-    actionAdvancedBreakpoint.setText(hasBreakpoint ?
-                                     tr("Edit breakpoint") : tr("Advanced breakpoint"));
+    actionAddBreakpoint.setText(hasBreakpoint ? tr("Remove breakpoint") : tr("Add breakpoint"));
+    actionAdvancedBreakpoint.setText(hasBreakpoint ? tr("Edit breakpoint")
+                                                   : tr("Advanced breakpoint"));
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText("Set " + progCounterName + " here");
 
@@ -615,84 +615,83 @@ QKeySequence DisassemblyContextMenu::getCopySequence() const
 
 QKeySequence DisassemblyContextMenu::getCommentSequence() const
 {
-    return {Qt::Key_Semicolon};
+    return { Qt::Key_Semicolon };
 }
 
 QKeySequence DisassemblyContextMenu::getCopyAddressSequence() const
 {
-    return {Qt::CTRL | Qt::SHIFT | Qt::Key_C};
+    return { Qt::CTRL | Qt::SHIFT | Qt::Key_C };
 }
 
 QKeySequence DisassemblyContextMenu::getSetToCodeSequence() const
 {
-    return {Qt::Key_C};
+    return { Qt::Key_C };
 }
 
 QKeySequence DisassemblyContextMenu::getSetAsStringSequence() const
 {
-    return {Qt::Key_A};
+    return { Qt::Key_A };
 }
 
 QKeySequence DisassemblyContextMenu::getSetAsStringAdvanced() const
 {
-    return {Qt::SHIFT | Qt::Key_A};
+    return { Qt::SHIFT | Qt::Key_A };
 }
 
 QKeySequence DisassemblyContextMenu::getSetToDataSequence() const
 {
-    return {Qt::Key_D};
+    return { Qt::Key_D };
 }
 
 QKeySequence DisassemblyContextMenu::getSetToDataExSequence() const
 {
-    return {Qt::Key_Asterisk};
+    return { Qt::Key_Asterisk };
 }
 
 QKeySequence DisassemblyContextMenu::getRenameSequence() const
 {
-    return {Qt::Key_N};
+    return { Qt::Key_N };
 }
 
 QKeySequence DisassemblyContextMenu::getRetypeSequence() const
 {
-    return {Qt::Key_Y};
+    return { Qt::Key_Y };
 }
 
 QKeySequence DisassemblyContextMenu::getXRefSequence() const
 {
-    return {Qt::Key_X};
+    return { Qt::Key_X };
 }
 
 QKeySequence DisassemblyContextMenu::getDisplayOptionsSequence() const
 {
-    return {}; //TODO insert correct sequence
+    return {}; // TODO insert correct sequence
 }
 
 QKeySequence DisassemblyContextMenu::getLinkTypeSequence() const
 {
-    return {Qt::Key_L};
+    return { Qt::Key_L };
 }
 
 QList<QKeySequence> DisassemblyContextMenu::getAddBPSequence() const
 {
-    return {Qt::Key_F2, Qt::CTRL + Qt::Key_B};
+    return { Qt::Key_F2, Qt::CTRL + Qt::Key_B };
 }
 
 QKeySequence DisassemblyContextMenu::getDefineNewFunctionSequence() const
 {
-    return {Qt::Key_P};
+    return { Qt::Key_P };
 }
 
 QKeySequence DisassemblyContextMenu::getEditFunctionSequence() const
 {
-    return {Qt::SHIFT + Qt::Key_P};
+    return { Qt::SHIFT + Qt::Key_P };
 }
 
 QKeySequence DisassemblyContextMenu::getUndefineFunctionSequence() const
 {
-    return {Qt::Key_U};
+    return { Qt::Key_U };
 }
-
 
 void DisassemblyContextMenu::on_actionEditInstruction_triggered()
 {
@@ -813,8 +812,9 @@ void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
 {
     bool ok;
     // Create dialog
-    QString functionName = QInputDialog::getText(this, tr("New function %1").arg(RAddressString(offset)),
-                            tr("Function name:"), QLineEdit::Normal, QString(), &ok);
+    QString functionName =
+            QInputDialog::getText(this, tr("New function %1").arg(RAddressString(offset)),
+                                  tr("Function name:"), QLineEdit::Normal, QString(), &ok);
 
     // If user accepted
     if (ok && !functionName.isEmpty()) {
@@ -826,8 +826,9 @@ void DisassemblyContextMenu::on_actionRename_triggered()
 {
     bool ok = false;
     if (doRenameAction == RENAME_FUNCTION) {
-        QString newName = QInputDialog::getText(this->mainWindow, tr("Rename function %2").arg(doRenameInfo.name),
-                                            tr("Function name:"), QLineEdit::Normal, doRenameInfo.name, &ok);
+        QString newName = QInputDialog::getText(
+                this->mainWindow, tr("Rename function %2").arg(doRenameInfo.name),
+                tr("Function name:"), QLineEdit::Normal, doRenameInfo.name, &ok);
         if (ok && !newName.isEmpty()) {
             Core()->renameFunction(doRenameInfo.addr, newName);
         }
@@ -918,22 +919,21 @@ void DisassemblyContextMenu::on_actionSetAsStringAdvanced_triggered()
     dialog.setStringSizeValue(predictedStrSize);
     dialog.setStringStartAddress(offset);
 
-    if(!dialog.exec())
-    {
+    if (!dialog.exec()) {
         return;
     }
 
     uint64_t strAddr = 0U;
-    if( !dialog.getStringStartAddress(strAddr) ) {
-        QMessageBox::critical(this->window(), tr("Wrong address"), tr("Can't edit string at this address"));
+    if (!dialog.getStringStartAddress(strAddr)) {
+        QMessageBox::critical(this->window(), tr("Wrong address"),
+                              tr("Can't edit string at this address"));
         return;
     }
     CutterCore::StringTypeFormats coreStringType = CutterCore::StringTypeFormats::None;
 
     const auto strSize = dialog.getStringSizeValue();
     const auto strType = dialog.getStringType();
-    switch(strType)
-    {
+    switch (strType) {
     case EditStringDialog::StringType::Auto:
         coreStringType = CutterCore::StringTypeFormats::None;
         break;
@@ -1020,7 +1020,6 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
         dialog.setCallConList(callConList);
         dialog.setCallConSelected(fcn->cc);
 
-
         if (dialog.exec()) {
             QString new_name = dialog.getNameText();
             Core()->renameFunction(fcn->addr, new_name);
@@ -1069,8 +1068,8 @@ void DisassemblyContextMenu::initAction(QAction *action, QString name, const cha
     }
 }
 
-void DisassemblyContextMenu::initAction(QAction *action, QString name,
-                                        const char *slot, QKeySequence keySequence)
+void DisassemblyContextMenu::initAction(QAction *action, QString name, const char *slot,
+                                        QKeySequence keySequence)
 {
     initAction(action, name, slot);
     if (keySequence.isEmpty()) {
@@ -1080,8 +1079,8 @@ void DisassemblyContextMenu::initAction(QAction *action, QString name,
     action->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 }
 
-void DisassemblyContextMenu::initAction(QAction *action, QString name,
-                                        const char *slot, QList<QKeySequence> keySequenceList)
+void DisassemblyContextMenu::initAction(QAction *action, QString name, const char *slot,
+                                        QList<QKeySequence> keySequenceList)
 {
     initAction(action, name, slot);
     if (keySequenceList.empty()) {

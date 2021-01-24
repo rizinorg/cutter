@@ -5,8 +5,7 @@
 #include <QShortcut>
 
 MemoryMapModel::MemoryMapModel(QList<MemoryMapDescription> *memoryMaps, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent),
-      memoryMaps(memoryMaps)
+    : AddressableItemModel<QAbstractListModel>(parent), memoryMaps(memoryMaps)
 {
 }
 
@@ -87,17 +86,17 @@ MemoryProxyModel::MemoryProxyModel(MemoryMapModel *sourceModel, QObject *parent)
 bool MemoryProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
-    MemoryMapDescription item = index.data(
-                                    MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
+    MemoryMapDescription item =
+            index.data(MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
     return item.name.contains(filterRegExp());
 }
 
 bool MemoryProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    MemoryMapDescription leftMemMap = left.data(
-                                          MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
-    MemoryMapDescription rightMemMap = right.data(
-                                           MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
+    MemoryMapDescription leftMemMap =
+            left.data(MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
+    MemoryMapDescription rightMemMap =
+            right.data(MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
 
     switch (left.column()) {
     case MemoryMapModel::AddrStartColumn:
@@ -109,7 +108,8 @@ bool MemoryProxyModel::lessThan(const QModelIndex &left, const QModelIndex &righ
     case MemoryMapModel::PermColumn:
         return leftMemMap.permission < rightMemMap.permission;
     case MemoryMapModel::CommentColumn:
-        return Core()->getCommentAt(leftMemMap.addrStart) < Core()->getCommentAt(rightMemMap.addrStart);
+        return Core()->getCommentAt(leftMemMap.addrStart)
+                < Core()->getCommentAt(rightMemMap.addrStart);
     default:
         break;
     }
@@ -117,8 +117,8 @@ bool MemoryProxyModel::lessThan(const QModelIndex &left, const QModelIndex &righ
     return leftMemMap.addrStart < rightMemMap.addrStart;
 }
 
-MemoryMapWidget::MemoryMapWidget(MainWindow *main) :
-    ListDockWidget(main, ListDockWidget::SearchBarPolicy::HideByDefault)
+MemoryMapWidget::MemoryMapWidget(MainWindow *main)
+    : ListDockWidget(main, ListDockWidget::SearchBarPolicy::HideByDefault)
 {
     setWindowTitle(tr("Memory Map"));
     setObjectName("MemoryMapWidget");
@@ -128,15 +128,12 @@ MemoryMapWidget::MemoryMapWidget(MainWindow *main) :
     setModels(memoryProxyModel);
     ui->treeView->sortByColumn(MemoryMapModel::AddrStartColumn, Qt::AscendingOrder);
 
-    refreshDeferrer = createRefreshDeferrer([this]() {
-        refreshMemoryMap();
-    });
+    refreshDeferrer = createRefreshDeferrer([this]() { refreshMemoryMap(); });
 
     connect(Core(), &CutterCore::refreshAll, this, &MemoryMapWidget::refreshMemoryMap);
     connect(Core(), &CutterCore::registersChanged, this, &MemoryMapWidget::refreshMemoryMap);
-    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
-        qhelpers::emitColumnChanged(memoryModel, MemoryMapModel::CommentColumn);
-    });
+    connect(Core(), &CutterCore::commentsChanged, this,
+            [this]() { qhelpers::emitColumnChanged(memoryModel, MemoryMapModel::CommentColumn); });
 
     showCount(false);
 }

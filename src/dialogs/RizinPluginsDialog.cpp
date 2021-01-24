@@ -5,9 +5,8 @@
 #include "common/Helpers.h"
 #include "plugins/PluginManager.h"
 
-RizinPluginsDialog::RizinPluginsDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::RizinPluginsDialog)
+RizinPluginsDialog::RizinPluginsDialog(QWidget *parent)
+    : QDialog(parent), ui(new Ui::RizinPluginsDialog)
 {
     ui->setupUi(this);
 

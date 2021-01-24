@@ -1,14 +1,11 @@
 #include "CutterTreeWidget.h"
 #include "core/MainWindow.h"
 
-CutterTreeWidget::CutterTreeWidget(QObject *parent) :
-    QObject(parent),
-    bar(nullptr)
-{}
+CutterTreeWidget::CutterTreeWidget(QObject *parent) : QObject(parent), bar(nullptr) {}
 
 void CutterTreeWidget::addStatusBar(QVBoxLayout *pos)
 {
-    if(!bar) {
+    if (!bar) {
         bar = new QStatusBar;
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
         bar->setSizePolicy(sizePolicy);
@@ -18,7 +15,7 @@ void CutterTreeWidget::addStatusBar(QVBoxLayout *pos)
 
 void CutterTreeWidget::showItemsNumber(int count)
 {
-    if(bar){
+    if (bar) {
         bar->showMessage(tr("%1 Items").arg(count));
     }
 }

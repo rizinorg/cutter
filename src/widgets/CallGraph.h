@@ -18,17 +18,18 @@ public:
     void showExportDialog() override;
     void showAddress(RVA address);
     void refreshView() override;
+
 protected:
     bool global; ///< is this a global or function callgraph
     RVA address = RVA_INVALID; ///< function address if this is not a global callgraph
     std::unordered_map<RVA, ut64> addressMapping; ///< mapping from addresses to block id
     void loadCurrentGraph() override;
     void restoreCurrentBlock() override;
+
 private:
     RefreshDeferrer refreshDeferrer;
     RVA lastLoadedAddress = RVA_INVALID;
 };
-
 
 class CallGraphWidget : public AddressableDockWidget
 {
@@ -37,8 +38,10 @@ class CallGraphWidget : public AddressableDockWidget
 public:
     explicit CallGraphWidget(MainWindow *main, bool global);
     ~CallGraphWidget();
+
 protected:
     QString getWindowTitle() const override;
+
 private:
     CallGraphView *graphView;
     bool global;

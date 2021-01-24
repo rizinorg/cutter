@@ -14,7 +14,8 @@ SvgIconEngine::SvgIconEngine(const QString &filename)
     this->svgData = file.readAll();
 }
 
-SvgIconEngine::SvgIconEngine(const QString &filename, const QColor &tintColor) : SvgIconEngine(filename)
+SvgIconEngine::SvgIconEngine(const QString &filename, const QColor &tintColor)
+    : SvgIconEngine(filename)
 {
     this->svgData = qhelpers::applyColorToSvg(svgData, tintColor);
 }

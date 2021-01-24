@@ -10,10 +10,10 @@
 /**
  * @brief Class for temporary modifying Rizin `e` configuration.
  *
- * Modified values will be restored at the end of scope. This is useful when using a Rizin command that can only
- * be configured using `e` configuration and doesn't accept arguments. TempConfig::set calls can be chained.
- * If a command or Rizin method accepts arguments directly it is preferred to use those instead of temporary modifying
- * global configuration.
+ * Modified values will be restored at the end of scope. This is useful when using a Rizin command
+ * that can only be configured using `e` configuration and doesn't accept arguments. TempConfig::set
+ * calls can be chained. If a command or Rizin method accepts arguments directly it is preferred to
+ * use those instead of temporary modifying global configuration.
  *
  * \code
  * {
@@ -36,9 +36,9 @@ public:
     TempConfig &set(const QString &key, bool value);
 
 private:
-    TempConfig(const TempConfig&) = delete;
-    TempConfig &operator=(const TempConfig&) = delete;
+    TempConfig(const TempConfig &) = delete;
+    TempConfig &operator=(const TempConfig &) = delete;
     QMap<QString, QVariant> resetValues;
 };
 
-#endif //TEMPCONFIG_H
+#endif // TEMPCONFIG_H

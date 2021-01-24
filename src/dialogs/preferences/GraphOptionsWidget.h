@@ -21,6 +21,7 @@ class GraphOptionsWidget : public QDialog
 public:
     explicit GraphOptionsWidget(PreferencesDialog *dialog);
     ~GraphOptionsWidget();
+
 private:
     std::unique_ptr<Ui::GraphOptionsWidget> ui;
 
@@ -39,5 +40,4 @@ private slots:
     void layoutSpacingChanged();
 };
 
-
-#endif //GRAPHOPTIONSWIDGET_H
+#endif // GRAPHOPTIONSWIDGET_H

@@ -24,7 +24,8 @@ public:
 
 private:
     std::unique_ptr<Ui::AsmOptionsWidget> ui;
-    struct ConfigCheckbox {
+    struct ConfigCheckbox
+    {
         QCheckBox *checkBox;
         QString config;
     };
@@ -57,5 +58,4 @@ private slots:
     void checkboxEnabler(QCheckBox *checkbox, QString config);
 };
 
-
-#endif //ASMOPTIONSWIDGET_H
+#endif // ASMOPTIONSWIDGET_H

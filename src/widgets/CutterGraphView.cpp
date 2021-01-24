@@ -10,7 +10,6 @@
 #include <QStandardPaths>
 #include <QActionGroup>
 
-
 static const int KEY_ZOOM_IN = Qt::Key_Plus + Qt::ControlModifier;
 static const int KEY_ZOOM_OUT = Qt::Key_Minus + Qt::ControlModifier;
 static const int KEY_ZOOM_RESET = Qt::Key_Equal + Qt::ControlModifier;
@@ -18,16 +17,16 @@ static const int KEY_ZOOM_RESET = Qt::Key_Equal + Qt::ControlModifier;
 static const uint64_t BITMPA_EXPORT_WARNING_SIZE = 32 * 1024 * 1024;
 
 #ifndef NDEBUG
-#define GRAPH_GRID_DEBUG_MODES true
+#    define GRAPH_GRID_DEBUG_MODES true
 #else
-#define GRAPH_GRID_DEBUG_MODES false
+#    define GRAPH_GRID_DEBUG_MODES false
 #endif
 
 CutterGraphView::CutterGraphView(QWidget *parent)
-    : GraphView(parent)
-    , mFontMetrics(nullptr)
-    , actionExportGraph(tr("Export Graph"), this)
-    , graphLayout(GraphView::Layout::GridMedium)
+    : GraphView(parent),
+      mFontMetrics(nullptr),
+      actionExportGraph(tr("Export Graph"), this),
+      graphLayout(GraphView::Layout::GridMedium)
 {
     connect(Core(), &CutterCore::graphOptionsChanged, this, &CutterGraphView::refreshView);
     connect(Config(), &Configuration::colorsUpdated, this, &CutterGraphView::colorsUpdatedSlot);
@@ -43,26 +42,28 @@ CutterGraphView::CutterGraphView(QWidget *parent)
     horizontalLayoutAction->setCheckable(true);
 
     static const std::pair<QString, GraphView::Layout> LAYOUT_CONFIG[] = {
-        {tr("Grid narrow"), GraphView::Layout::GridNarrow}
-        , {tr("Grid medium"), GraphView::Layout::GridMedium}
-        , {tr("Grid wide"), GraphView::Layout::GridWide}
+        { tr("Grid narrow"), GraphView::Layout::GridNarrow },
+        { tr("Grid medium"), GraphView::Layout::GridMedium },
+        { tr("Grid wide"), GraphView::Layout::GridWide }
 #if GRAPH_GRID_DEBUG_MODES
-        , {"GridAAA", GraphView::Layout::GridAAA}
-        , {"GridAAB", GraphView::Layout::GridAAB}
-        , {"GridABA", GraphView::Layout::GridABA}
-        , {"GridABB", GraphView::Layout::GridABB}
-        , {"GridBAA", GraphView::Layout::GridBAA}
-        , {"GridBAB", GraphView::Layout::GridBAB}
-        , {"GridBBA", GraphView::Layout::GridBBA}
-        , {"GridBBB", GraphView::Layout::GridBBB}
+        ,
+        { "GridAAA", GraphView::Layout::GridAAA },
+        { "GridAAB", GraphView::Layout::GridAAB },
+        { "GridABA", GraphView::Layout::GridABA },
+        { "GridABB", GraphView::Layout::GridABB },
+        { "GridBAA", GraphView::Layout::GridBAA },
+        { "GridBAB", GraphView::Layout::GridBAB },
+        { "GridBBA", GraphView::Layout::GridBBA },
+        { "GridBBB", GraphView::Layout::GridBBB }
 #endif
 #ifdef CUTTER_ENABLE_GRAPHVIZ
-        , {tr("Graphviz polyline"), GraphView::Layout::GraphvizPolyline}
-        , {tr("Graphviz ortho"), GraphView::Layout::GraphvizOrtho}
-        , {tr("Graphviz sfdp"), GraphView::Layout::GraphvizSfdp}
-        , {tr("Graphviz neato"), GraphView::Layout::GraphvizNeato}
-        , {tr("Graphviz twopi"), GraphView::Layout::GraphvizTwoPi}
-        , {tr("Graphviz circo"), GraphView::Layout::GraphvizCirco}
+        ,
+        { tr("Graphviz polyline"), GraphView::Layout::GraphvizPolyline },
+        { tr("Graphviz ortho"), GraphView::Layout::GraphvizOrtho },
+        { tr("Graphviz sfdp"), GraphView::Layout::GraphvizSfdp },
+        { tr("Graphviz neato"), GraphView::Layout::GraphvizNeato },
+        { tr("Graphviz twopi"), GraphView::Layout::GraphvizTwoPi },
+        { tr("Graphviz circo"), GraphView::Layout::GraphvizCirco }
 #endif
     };
     layoutMenu->addSeparator();
@@ -79,7 +80,6 @@ CutterGraphView::CutterGraphView(QWidget *parent)
             this->graphLayout = layout;
             updateLayout();
         });
-
     }
     layoutMenu->addActions(layoutGroup->actions());
 
@@ -206,8 +206,8 @@ bool CutterGraphView::event(QEvent *event)
     case QEvent::ShortcutOverride: {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         int key = keyEvent->key() + keyEvent->modifiers();
-        if (key == KEY_ZOOM_OUT || key == KEY_ZOOM_RESET
-                || key == KEY_ZOOM_IN || (key == (KEY_ZOOM_IN | Qt::ShiftModifier))) {
+        if (key == KEY_ZOOM_OUT || key == KEY_ZOOM_RESET || key == KEY_ZOOM_IN
+            || (key == (KEY_ZOOM_IN | Qt::ShiftModifier))) {
             event->accept();
             return true;
         }
@@ -246,8 +246,7 @@ bool CutterGraphView::gestureEvent(QGestureEvent *event)
         return false;
     }
 
-    if (auto gesture =
-                static_cast<QPinchGesture *>(event->gesture(Qt::PinchGesture))) {
+    if (auto gesture = static_cast<QPinchGesture *>(event->gesture(Qt::PinchGesture))) {
         auto changeFlags = gesture->changeFlags();
 
         if (changeFlags & QPinchGesture::ScaleFactorChanged) {
@@ -297,14 +296,9 @@ void CutterGraphView::resizeEvent(QResizeEvent *event)
     emit resized();
 }
 
-void CutterGraphView::saveCurrentBlock()
-{
-}
+void CutterGraphView::saveCurrentBlock() {}
 
-void CutterGraphView::restoreCurrentBlock()
-{
-}
-
+void CutterGraphView::restoreCurrentBlock() {}
 
 void CutterGraphView::mousePressEvent(QMouseEvent *event)
 {
@@ -369,11 +363,11 @@ void CutterGraphView::exportGraph(QString filePath, GraphExportType type, QStrin
 }
 
 void CutterGraphView::exportRizinGraphvizGraph(QString filePath, QString type, QString graphCommand,
-                                            RVA address)
+                                               RVA address)
 {
     TempConfig tempConfig;
     tempConfig.set("graph.gv.format", type);
-    qWarning() << Core()->cmdRawAt(QString("%0w \"%1\"").arg(graphCommand).arg(filePath),  address);
+    qWarning() << Core()->cmdRawAt(QString("%0w \"%1\"").arg(graphCommand).arg(filePath), address);
 }
 
 void CutterGraphView::exportRzTextGraph(QString filePath, QString graphCommand, RVA address)
@@ -401,36 +395,41 @@ bool CutterGraphView::graphIsBitamp(CutterGraphView::GraphExportType type)
     }
 }
 
-
 Q_DECLARE_METATYPE(CutterGraphView::GraphExportType);
 
 void CutterGraphView::showExportGraphDialog(QString defaultName, QString graphCommand, RVA address)
 {
     QVector<MultitypeFileSaveDialog::TypeDescription> types = {
-        {tr("PNG (*.png)"), "png", QVariant::fromValue(GraphExportType::Png)},
-        {tr("JPEG (*.jpg)"), "jpg", QVariant::fromValue(GraphExportType::Jpeg)},
-        {tr("SVG (*.svg)"), "svg", QVariant::fromValue(GraphExportType::Svg)}
+        { tr("PNG (*.png)"), "png", QVariant::fromValue(GraphExportType::Png) },
+        { tr("JPEG (*.jpg)"), "jpg", QVariant::fromValue(GraphExportType::Jpeg) },
+        { tr("SVG (*.svg)"), "svg", QVariant::fromValue(GraphExportType::Svg) }
     };
 
     bool rzGraphExports = !graphCommand.isEmpty();
     if (rzGraphExports) {
         types.append({
-            {tr("Graphviz dot (*.dot)"), "dot", QVariant::fromValue(GraphExportType::GVDot)},
-            {tr("Graph Modelling Language (*.gml)"), "gml", QVariant::fromValue(GraphExportType::RzGml)},
-            {tr("RZ JSON (*.json)"), "json", QVariant::fromValue(GraphExportType::RzJson)},
-            {tr("SDB key-value (*.txt)"), "txt", QVariant::fromValue(GraphExportType::RzSDBKeyValue)},
+                { tr("Graphviz dot (*.dot)"), "dot", QVariant::fromValue(GraphExportType::GVDot) },
+                { tr("Graph Modelling Language (*.gml)"), "gml",
+                  QVariant::fromValue(GraphExportType::RzGml) },
+                { tr("RZ JSON (*.json)"), "json", QVariant::fromValue(GraphExportType::RzJson) },
+                { tr("SDB key-value (*.txt)"), "txt",
+                  QVariant::fromValue(GraphExportType::RzSDBKeyValue) },
         });
         bool hasGraphviz = !QStandardPaths::findExecutable("dot").isEmpty()
-                           || !QStandardPaths::findExecutable("xdot").isEmpty();
+                || !QStandardPaths::findExecutable("xdot").isEmpty();
         if (hasGraphviz) {
-            types.append({
-                {tr("Graphviz json (*.json)"), "json", QVariant::fromValue(GraphExportType::GVJson)},
-                {tr("Graphviz gif (*.gif)"), "gif", QVariant::fromValue(GraphExportType::GVGif)},
-                {tr("Graphviz png (*.png)"), "png", QVariant::fromValue(GraphExportType::GVPng)},
-                {tr("Graphviz jpg (*.jpg)"), "jpg", QVariant::fromValue(GraphExportType::GVJpeg)},
-                {tr("Graphviz PostScript (*.ps)"), "ps", QVariant::fromValue(GraphExportType::GVPostScript)},
-                {tr("Graphviz svg (*.svg)"), "svg", QVariant::fromValue(GraphExportType::GVSvg)}
-            });
+            types.append({ { tr("Graphviz json (*.json)"), "json",
+                             QVariant::fromValue(GraphExportType::GVJson) },
+                           { tr("Graphviz gif (*.gif)"), "gif",
+                             QVariant::fromValue(GraphExportType::GVGif) },
+                           { tr("Graphviz png (*.png)"), "png",
+                             QVariant::fromValue(GraphExportType::GVPng) },
+                           { tr("Graphviz jpg (*.jpg)"), "jpg",
+                             QVariant::fromValue(GraphExportType::GVJpeg) },
+                           { tr("Graphviz PostScript (*.ps)"), "ps",
+                             QVariant::fromValue(GraphExportType::GVPostScript) },
+                           { tr("Graphviz svg (*.svg)"), "svg",
+                             QVariant::fromValue(GraphExportType::GVSvg) } });
         }
     }
 
@@ -451,10 +450,13 @@ void CutterGraphView::showExportGraphDialog(QString defaultName, QString graphCo
     if (graphIsBitamp(exportType)) {
         uint64_t bitmapSize = uint64_t(width) * uint64_t(height);
         if (bitmapSize > BITMPA_EXPORT_WARNING_SIZE) {
-            auto answer = QMessageBox::question(this,
-                                                tr("Graph Export"),
-                                                tr("Do you really want to export %1 x %2 = %3 pixel bitmap image? Consider using different format.")
-                                                .arg(width).arg(height).arg(bitmapSize));
+            auto answer =
+                    QMessageBox::question(this, tr("Graph Export"),
+                                          tr("Do you really want to export %1 x %2 = %3 pixel "
+                                             "bitmap image? Consider using different format.")
+                                                  .arg(width)
+                                                  .arg(height)
+                                                  .arg(bitmapSize));
             if (answer != QMessageBox::Yes) {
                 return;
             }
@@ -463,5 +465,4 @@ void CutterGraphView::showExportGraphDialog(QString defaultName, QString graphCo
 
     QString filePath = dialog.selectedFiles().first();
     exportGraph(filePath, exportType, graphCommand, address);
-
 }

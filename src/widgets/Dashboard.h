@@ -30,7 +30,7 @@ private slots:
     void on_versioninfoButton_clicked();
 
 private:
-    std::unique_ptr<Ui::Dashboard>   ui;
+    std::unique_ptr<Ui::Dashboard> ui;
     void setPlainText(QLineEdit *textBox, const QString &text);
     void setBool(QLineEdit *textBox, const QJsonObject &jsonObject, const QString &key);
 

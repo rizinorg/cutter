@@ -6,30 +6,29 @@
 #include <QJsonObject>
 
 RizinGraphWidget::RizinGraphWidget(MainWindow *main)
-    : CutterDockWidget(main)
-    , ui(new Ui::RizinGraphWidget)
-    , graphView(new GenericRizinGraphView(this, main))
+    : CutterDockWidget(main),
+      ui(new Ui::RizinGraphWidget),
+      graphView(new GenericRizinGraphView(this, main))
 {
     ui->setupUi(this);
     ui->verticalLayout->addWidget(graphView);
-    connect(ui->refreshButton, &QPushButton::pressed, this, [this]() {
-        graphView->refreshView();
-    });
-    struct GraphType {
+    connect(ui->refreshButton, &QPushButton::pressed, this, [this]() { graphView->refreshView(); });
+    struct GraphType
+    {
         QChar commandChar;
         QString label;
     } types[] = {
-        {'a', tr("Data reference graph (aga)")},
-        {'A', tr("Global data references graph (agA)")},
+        { 'a', tr("Data reference graph (aga)") },
+        { 'A', tr("Global data references graph (agA)") },
         // {'c', tr("c - Function callgraph")},
         // {'C', tr("C - Global callgraph")},
         // {'f', tr("f - Basic blocks function graph")},
-        {'i', tr("Imports graph (agi)")},
-        {'r', tr("References graph (agr)")},
-        {'R', tr("Global references graph (agR)")},
-        {'x', tr("Cross references graph (agx)")},
-        {'g', tr("Custom graph (agg)")},
-        {' ', tr("User command")},
+        { 'i', tr("Imports graph (agi)") },
+        { 'r', tr("References graph (agr)") },
+        { 'R', tr("Global references graph (agR)") },
+        { 'x', tr("Cross references graph (agx)") },
+        { 'g', tr("Custom graph (agg)") },
+        { ' ', tr("User command") },
     };
     for (auto &graphType : types) {
         if (graphType.commandChar != ' ') {
@@ -37,13 +36,12 @@ RizinGraphWidget::RizinGraphWidget(MainWindow *main)
         } else {
             ui->graphType->addItem(graphType.label, QVariant());
         }
-
     }
-    connect<void(QComboBox::*)(int)>(ui->graphType, &QComboBox::currentIndexChanged, this, &RizinGraphWidget::typeChanged);
-    connect(ui->customCommand, &QLineEdit::textEdited, this, [this](){
-        graphView->setGraphCommand(ui->customCommand->text());
-    });
-    connect(ui->customCommand, &QLineEdit::returnPressed, this, [this](){
+    connect<void (QComboBox::*)(int)>(ui->graphType, &QComboBox::currentIndexChanged, this,
+                                      &RizinGraphWidget::typeChanged);
+    connect(ui->customCommand, &QLineEdit::textEdited, this,
+            [this]() { graphView->setGraphCommand(ui->customCommand->text()); });
+    connect(ui->customCommand, &QLineEdit::returnPressed, this, [this]() {
         graphView->setGraphCommand(ui->customCommand->text());
         graphView->refreshView();
     });
@@ -51,9 +49,7 @@ RizinGraphWidget::RizinGraphWidget(MainWindow *main)
     typeChanged();
 }
 
-RizinGraphWidget::~RizinGraphWidget()
-{
-}
+RizinGraphWidget::~RizinGraphWidget() {}
 
 void RizinGraphWidget::typeChanged()
 {
@@ -71,11 +67,11 @@ void RizinGraphWidget::typeChanged()
 }
 
 GenericRizinGraphView::GenericRizinGraphView(RizinGraphWidget *parent, MainWindow *main)
-    : SimpleTextGraphView(parent, main)
-    , refreshDeferrer(nullptr, this)
+    : SimpleTextGraphView(parent, main), refreshDeferrer(nullptr, this)
 {
     refreshDeferrer.registerFor(parent);
-    connect(&refreshDeferrer, &RefreshDeferrer::refreshNow, this, &GenericRizinGraphView::refreshView);
+    connect(&refreshDeferrer, &RefreshDeferrer::refreshNow, this,
+            &GenericRizinGraphView::refreshView);
 }
 
 void GenericRizinGraphView::setGraphCommand(QString cmd)

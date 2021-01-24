@@ -90,10 +90,14 @@ public:
     void addMemoryDockWidget(MemoryDockWidget *widget);
     void removeWidget(CutterDockWidget *widget);
     void addExtraWidget(CutterDockWidget *extraDock);
-    MemoryDockWidget *addNewMemoryWidget(MemoryWidgetType type, RVA address, bool synchronized = true);
+    MemoryDockWidget *addNewMemoryWidget(MemoryWidgetType type, RVA address,
+                                         bool synchronized = true);
 
     CUTTER_DEPRECATED("Action will be ignored. Use addPluginDockWidget(CutterDockWidget*) instead.")
-    void addPluginDockWidget(CutterDockWidget *dockWidget, QAction *) { addPluginDockWidget(dockWidget); }
+    void addPluginDockWidget(CutterDockWidget *dockWidget, QAction *)
+    {
+        addPluginDockWidget(dockWidget);
+    }
     void addPluginDockWidget(CutterDockWidget *dockWidget);
     enum class MenuType { File, Edit, View, Windows, Debug, Help, Plugins };
     /**
@@ -104,19 +108,17 @@ public:
     QMenu *getMenuByType(MenuType type);
     void addMenuFileAction(QAction *action);
 
-    QString getFilename() const
-    {
-        return filename;
-    }
+    QString getFilename() const { return filename; }
     void messageBoxWarning(QString title, QString message);
 
     QString getUniqueObjectName(const QString &widgetType) const;
     void showMemoryWidget();
     void showMemoryWidget(MemoryWidgetType type);
     enum class AddressTypeHint { Function, Data, Unknown };
-    QMenu *createShowInMenu(QWidget *parent, RVA address, AddressTypeHint addressType = AddressTypeHint::Unknown);
-    void setCurrentMemoryWidget(MemoryDockWidget* memoryWidget);
-    MemoryDockWidget* getLastMemoryWidget();
+    QMenu *createShowInMenu(QWidget *parent, RVA address,
+                            AddressTypeHint addressType = AddressTypeHint::Unknown);
+    void setCurrentMemoryWidget(MemoryDockWidget *memoryWidget);
+    MemoryDockWidget *getLastMemoryWidget();
 
     /* Context menu plugins */
     enum class ContextMenuType { Disassembly, Addressable };
@@ -202,6 +204,7 @@ private slots:
     void onZoomReset();
 
     void setAvailableIOModeOptions();
+
 private:
     CutterCore *core;
 
@@ -221,41 +224,41 @@ private:
 
     QList<CutterDockWidget *> dockWidgets;
     QList<CutterDockWidget *> pluginDocks;
-    OverviewWidget     *overviewDock = nullptr;
+    OverviewWidget *overviewDock = nullptr;
     QAction *actionOverview = nullptr;
-    EntrypointWidget   *entrypointDock = nullptr;
-    FunctionsWidget    *functionsDock = nullptr;
-    ImportsWidget      *importsDock = nullptr;
-    ExportsWidget      *exportsDock = nullptr;
-    HeadersWidget      *headersDock = nullptr;
-    TypesWidget        *typesDock = nullptr;
-    SearchWidget       *searchDock = nullptr;
-    SymbolsWidget      *symbolsDock = nullptr;
-    RelocsWidget       *relocsDock = nullptr;
-    CommentsWidget     *commentsDock = nullptr;
-    StringsWidget      *stringsDock = nullptr;
-    FlagsWidget        *flagsDock = nullptr;
-    Dashboard          *dashboardDock = nullptr;
-    SdbWidget          *sdbDock = nullptr;
-    SectionsWidget     *sectionsDock = nullptr;
-    SegmentsWidget     *segmentsDock = nullptr;
-    ZignaturesWidget   *zignaturesDock = nullptr;
-    ConsoleWidget      *consoleDock = nullptr;
-    ClassesWidget      *classesDock = nullptr;
-    ResourcesWidget    *resourcesDock = nullptr;
-    VTablesWidget      *vTablesDock = nullptr;
-    CutterDockWidget   *stackDock = nullptr;
-    CutterDockWidget   *threadsDock = nullptr;
-    CutterDockWidget   *processesDock = nullptr;
-    CutterDockWidget   *registersDock = nullptr;
-    CutterDockWidget   *backtraceDock = nullptr;
-    CutterDockWidget   *memoryMapDock = nullptr;
-    NewFileDialog      *newFileDialog = nullptr;
-    CutterDockWidget   *breakpointDock = nullptr;
-    CutterDockWidget   *registerRefsDock = nullptr;
-    RizinGraphWidget      *rzGraphDock = nullptr;
-    CallGraphWidget    *callGraphDock = nullptr;
-    CallGraphWidget    *globalCallGraphDock = nullptr;
+    EntrypointWidget *entrypointDock = nullptr;
+    FunctionsWidget *functionsDock = nullptr;
+    ImportsWidget *importsDock = nullptr;
+    ExportsWidget *exportsDock = nullptr;
+    HeadersWidget *headersDock = nullptr;
+    TypesWidget *typesDock = nullptr;
+    SearchWidget *searchDock = nullptr;
+    SymbolsWidget *symbolsDock = nullptr;
+    RelocsWidget *relocsDock = nullptr;
+    CommentsWidget *commentsDock = nullptr;
+    StringsWidget *stringsDock = nullptr;
+    FlagsWidget *flagsDock = nullptr;
+    Dashboard *dashboardDock = nullptr;
+    SdbWidget *sdbDock = nullptr;
+    SectionsWidget *sectionsDock = nullptr;
+    SegmentsWidget *segmentsDock = nullptr;
+    ZignaturesWidget *zignaturesDock = nullptr;
+    ConsoleWidget *consoleDock = nullptr;
+    ClassesWidget *classesDock = nullptr;
+    ResourcesWidget *resourcesDock = nullptr;
+    VTablesWidget *vTablesDock = nullptr;
+    CutterDockWidget *stackDock = nullptr;
+    CutterDockWidget *threadsDock = nullptr;
+    CutterDockWidget *processesDock = nullptr;
+    CutterDockWidget *registersDock = nullptr;
+    CutterDockWidget *backtraceDock = nullptr;
+    CutterDockWidget *memoryMapDock = nullptr;
+    NewFileDialog *newFileDialog = nullptr;
+    CutterDockWidget *breakpointDock = nullptr;
+    CutterDockWidget *registerRefsDock = nullptr;
+    RizinGraphWidget *rzGraphDock = nullptr;
+    CallGraphWidget *callGraphDock = nullptr;
+    CallGraphWidget *globalCallGraphDock = nullptr;
 
     QMenu *disassemblyContextMenuExtensions = nullptr;
     QMenu *addressableContextMenuExtensions = nullptr;
@@ -266,7 +269,8 @@ private:
     void initToolBar();
     void initDocks();
     void initBackForwardMenu();
-    void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
+    void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(),
+                                     bool skipOptionsDialog = false);
 
     Cutter::CutterLayout getViewLayout();
     Cutter::CutterLayout getViewLayout(const QString &name);
@@ -274,7 +278,6 @@ private:
     void setViewLayout(const Cutter::CutterLayout &layout);
     void loadLayouts(QSettings &settings);
     void saveLayouts(QSettings &settings);
-
 
     void updateMemberPointers();
     void restoreDocks();
@@ -309,12 +312,13 @@ private:
     MemoryWidgetType getMemoryWidgetTypeToRestore();
 
     /**
-     * @brief Map from a widget type (e.g. DisassemblyWidget::getWidgetType()) to the respective contructor of the widget
+     * @brief Map from a widget type (e.g. DisassemblyWidget::getWidgetType()) to the respective
+     * contructor of the widget
      */
-    QMap<QString, std::function<CutterDockWidget*(MainWindow*)>> widgetTypeToConstructorMap;
+    QMap<QString, std::function<CutterDockWidget *(MainWindow *)>> widgetTypeToConstructorMap;
 
-    MemoryDockWidget* lastSyncMemoryWidget = nullptr;
-    MemoryDockWidget* lastMemoryWidget = nullptr;
+    MemoryDockWidget *lastSyncMemoryWidget = nullptr;
+    MemoryDockWidget *lastMemoryWidget = nullptr;
     int functionDockWidthToRestore = 0;
 };
 

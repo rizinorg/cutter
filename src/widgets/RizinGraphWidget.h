@@ -41,14 +41,15 @@ public:
     GenericRizinGraphView(RizinGraphWidget *parent, MainWindow *main);
     void setGraphCommand(QString cmd);
     void refreshView() override;
+
 protected:
     void loadCurrentGraph() override;
+
 private:
     RefreshDeferrer refreshDeferrer;
     QString graphCommand;
     QString lastShownCommand;
 };
-
 
 class RizinGraphWidget : public CutterDockWidget
 {

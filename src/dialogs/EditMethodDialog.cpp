@@ -3,9 +3,8 @@
 
 #include <QComboBox>
 
-EditMethodDialog::EditMethodDialog(bool classFixed, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::EditMethodDialog)
+EditMethodDialog::EditMethodDialog(bool classFixed, QWidget *parent)
+    : QDialog(parent), ui(new Ui::EditMethodDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -24,15 +23,14 @@ EditMethodDialog::EditMethodDialog(bool classFixed, QWidget *parent) :
     updateVirtualUI();
     validateInput();
 
-    connect(ui->virtualCheckBox, &QCheckBox::stateChanged, this, &EditMethodDialog::updateVirtualUI);
+    connect(ui->virtualCheckBox, &QCheckBox::stateChanged, this,
+            &EditMethodDialog::updateVirtualUI);
     connect(ui->nameEdit, &QLineEdit::textChanged, this, &EditMethodDialog::validateInput);
 }
 
 EditMethodDialog::~EditMethodDialog() {}
 
-void EditMethodDialog::on_buttonBox_accepted()
-{
-}
+void EditMethodDialog::on_buttonBox_accepted() {}
 
 void EditMethodDialog::on_buttonBox_rejected()
 {
@@ -73,7 +71,7 @@ void EditMethodDialog::setClass(const QString &className)
             return;
         }
 
-        for (int i=0; i<classComboBox->count(); i++) {
+        for (int i = 0; i < classComboBox->count(); i++) {
             QString cls = classComboBox->itemData(i).toString();
             if (cls == className) {
                 classComboBox->setCurrentIndex(i);
@@ -131,7 +129,8 @@ AnalMethodDescription EditMethodDialog::getMethod() const
     return ret;
 }
 
-bool EditMethodDialog::showDialog(const QString &title, bool classFixed, QString *className, AnalMethodDescription *desc, QWidget *parent)
+bool EditMethodDialog::showDialog(const QString &title, bool classFixed, QString *className,
+                                  AnalMethodDescription *desc, QWidget *parent)
 {
     EditMethodDialog dialog(classFixed, parent);
     dialog.setWindowTitle(title);

@@ -5,9 +5,8 @@
 
 #include "core/MainWindow.h"
 
-BacktraceWidget::BacktraceWidget(MainWindow *main) :
-    CutterDockWidget(main),
-    ui(new Ui::BacktraceWidget)
+BacktraceWidget::BacktraceWidget(MainWindow *main)
+    : CutterDockWidget(main), ui(new Ui::BacktraceWidget)
 {
     ui->setupUi(this);
 
@@ -25,9 +24,7 @@ BacktraceWidget::BacktraceWidget(MainWindow *main) :
     viewBacktrace->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->verticalLayout->addWidget(viewBacktrace);
 
-    refreshDeferrer = createRefreshDeferrer([this]() {
-        updateContents();
-    });
+    refreshDeferrer = createRefreshDeferrer([this]() { updateContents(); });
 
     connect(Core(), &CutterCore::refreshAll, this, &BacktraceWidget::updateContents);
     connect(Core(), &CutterCore::registersChanged, this, &BacktraceWidget::updateContents);

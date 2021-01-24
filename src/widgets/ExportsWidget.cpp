@@ -7,8 +7,7 @@
 #include <QShortcut>
 
 ExportsModel::ExportsModel(QList<ExportDescription> *exports, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent),
-      exports(exports)
+    : AddressableItemModel<QAbstractListModel>(parent), exports(exports)
 {
 }
 
@@ -134,8 +133,7 @@ bool ExportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     return leftExp.vaddr < rightExp.vaddr;
 }
 
-ExportsWidget::ExportsWidget(MainWindow *main) :
-    ListDockWidget(main)
+ExportsWidget::ExportsWidget(MainWindow *main) : ListDockWidget(main)
 {
     setWindowTitle(tr("Exports"));
     setObjectName("ExportsWidget");
@@ -146,15 +144,12 @@ ExportsWidget::ExportsWidget(MainWindow *main) :
     ui->treeView->sortByColumn(ExportsModel::OffsetColumn, Qt::AscendingOrder);
 
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ExportsWidget"], main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
-            toggleDockWidget(true);
-            } );
+    connect(toggle_shortcut, &QShortcut::activated, this, [=]() { toggleDockWidget(true); });
 
     connect(Core(), &CutterCore::codeRebased, this, &ExportsWidget::refreshExports);
     connect(Core(), &CutterCore::refreshAll, this, &ExportsWidget::refreshExports);
-    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
-        qhelpers::emitColumnChanged(exportsModel, ExportsModel::CommentColumn);
-    });
+    connect(Core(), &CutterCore::commentsChanged, this,
+            [this]() { qhelpers::emitColumnChanged(exportsModel, ExportsModel::CommentColumn); });
 }
 
 ExportsWidget::~ExportsWidget() {}

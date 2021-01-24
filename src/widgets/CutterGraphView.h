@@ -1,7 +1,6 @@
 #ifndef CUTTER_GRAPHVIEW_H
 #define CUTTER_GRAPHVIEW_H
 
-
 #include <QWidget>
 #include <QPainter>
 #include <QShortcut>
@@ -23,15 +22,26 @@ public:
     virtual bool event(QEvent *event) override;
 
     enum class GraphExportType {
-        Png, Jpeg, Svg, GVDot, GVJson,
-        GVGif, GVPng, GVJpeg, GVPostScript, GVSvg,
-        RzGml, RzSDBKeyValue, RzJson
+        Png,
+        Jpeg,
+        Svg,
+        GVDot,
+        GVJson,
+        GVGif,
+        GVPng,
+        GVJpeg,
+        GVPostScript,
+        GVSvg,
+        RzGml,
+        RzSDBKeyValue,
+        RzJson
     };
     /**
      * @brief Export graph to a file in the specified format
      * @param filePath
      * @param type export type, GV* and Rz* types require \p graphCommand
-     * @param graphCommand rizin graph printing command without type, not required for direct image export
+     * @param graphCommand rizin graph printing command without type, not required for direct image
+     * export
      * @param address object address for commands like agf
      */
     void exportGraph(QString filePath, GraphExportType type, QString graphCommand = "",
@@ -45,7 +55,8 @@ public:
      * @param graphCommand rizin command without type, for example agf
      * @param address object address if required by command
      */
-    void exportRizinGraphvizGraph(QString filePath, QString type, QString graphCommand, RVA address);
+    void exportRizinGraphvizGraph(QString filePath, QString type, QString graphCommand,
+                                  RVA address);
     /**
      * @brief Export graph in one of the text formats supported by rizin json, gml, SDB key-value
      * @param filePath output file path
@@ -57,8 +68,9 @@ public:
     /**
      * @brief Show graph export dialog.
      * @param defaultName - default file name in the export dialog
-     * @param graphCommand - rizin graph commmand with graph type and without export type, for example afC. Leave empty
-     * for non-rizin graphs. In such case only direct image export will be available.
+     * @param graphCommand - rizin graph commmand with graph type and without export type, for
+     * example afC. Leave empty for non-rizin graphs. In such case only direct image export will be
+     * available.
      * @param address - object address if relevant for \p graphCommand
      */
     void showExportGraphDialog(QString defaultName, QString graphCommand = "",
@@ -84,6 +96,7 @@ signals:
     void viewZoomed();
     void graphMoved();
     void resized();
+
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
@@ -93,14 +106,14 @@ protected:
 
     /**
      * @brief Save the the currently viewed or displayed block.
-     * Called before reloading graph. Override to this to implement graph specific logic for what block is selected.
-     * Default implementation does nothing.
+     * Called before reloading graph. Override to this to implement graph specific logic for what
+     * block is selected. Default implementation does nothing.
      */
     virtual void saveCurrentBlock();
     /**
      * @brief Restore view focus and block last saved using saveCurrentBlock().
-     * Called after the graph is reloaded. Default implementation does nothing. Can center the view if the new graph
-     * displays completely different content and the matching node doesn't exist.
+     * Called after the graph is reloaded. Default implementation does nothing. Can center the view
+     * if the new graph displays completely different content and the matching node doesn't exist.
      */
     virtual void restoreCurrentBlock();
 
@@ -144,6 +157,7 @@ protected:
     GraphView::Layout graphLayout;
     QMenu *layoutMenu;
     QAction *horizontalLayoutAction;
+
 private:
     void colorsUpdatedSlot();
 };

@@ -3,8 +3,7 @@
 #include "GraphWidget.h"
 #include "OverviewView.h"
 
-OverviewWidget::OverviewWidget(MainWindow *main) :
-    CutterDockWidget(main)
+OverviewWidget::OverviewWidget(MainWindow *main) : CutterDockWidget(main)
 {
     setWindowTitle("Graph Overview");
     setObjectName("Graph Overview");
@@ -15,17 +14,15 @@ OverviewWidget::OverviewWidget(MainWindow *main) :
 
     connect(graphView, &OverviewView::mouseMoved, this, &OverviewWidget::updateTargetView);
 
-    graphDataRefreshDeferrer = createRefreshDeferrer([this]() {
-        updateGraphData();
-    });
+    graphDataRefreshDeferrer = createRefreshDeferrer([this]() { updateGraphData(); });
 
     // Zoom shortcuts
     QShortcut *shortcut_zoom_in = new QShortcut(QKeySequence(Qt::Key_Plus), this);
     shortcut_zoom_in->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(shortcut_zoom_in, &QShortcut::activated, this, [this](){ zoomTarget(1); });
+    connect(shortcut_zoom_in, &QShortcut::activated, this, [this]() { zoomTarget(1); });
     QShortcut *shortcut_zoom_out = new QShortcut(QKeySequence(Qt::Key_Minus), this);
     shortcut_zoom_out->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(shortcut_zoom_out, &QShortcut::activated, this, [this](){ zoomTarget(-1); });
+    connect(shortcut_zoom_out, &QShortcut::activated, this, [this]() { zoomTarget(-1); });
 }
 
 OverviewWidget::~OverviewWidget() {}
@@ -56,9 +53,9 @@ void OverviewWidget::setIsAvailable(bool isAvailable)
         return;
     }
     this->isAvailable = isAvailable;
-    if(!isAvailable) {
+    if (!isAvailable) {
         hide();
-    } else if(userOpened) {
+    } else if (userOpened) {
         show();
     }
     emit isAvailableChanged(isAvailable);
@@ -87,18 +84,27 @@ void OverviewWidget::setTargetGraphWidget(GraphWidget *widget)
         return;
     }
     if (targetGraphWidget) {
-        disconnect(targetGraphWidget->getGraphView(), &DisassemblerGraphView::viewRefreshed, this, &OverviewWidget::updateGraphData);
-        disconnect(targetGraphWidget->getGraphView(), &DisassemblerGraphView::resized, this, &OverviewWidget::updateRangeRect);
-        disconnect(targetGraphWidget->getGraphView(), &GraphView::viewOffsetChanged, this, &OverviewWidget::updateRangeRect);
-        disconnect(targetGraphWidget->getGraphView(), &GraphView::viewScaleChanged, this, &OverviewWidget::updateRangeRect);
-        disconnect(targetGraphWidget, &GraphWidget::graphClosed, this, &OverviewWidget::targetClosed);
+        disconnect(targetGraphWidget->getGraphView(), &DisassemblerGraphView::viewRefreshed, this,
+                   &OverviewWidget::updateGraphData);
+        disconnect(targetGraphWidget->getGraphView(), &DisassemblerGraphView::resized, this,
+                   &OverviewWidget::updateRangeRect);
+        disconnect(targetGraphWidget->getGraphView(), &GraphView::viewOffsetChanged, this,
+                   &OverviewWidget::updateRangeRect);
+        disconnect(targetGraphWidget->getGraphView(), &GraphView::viewScaleChanged, this,
+                   &OverviewWidget::updateRangeRect);
+        disconnect(targetGraphWidget, &GraphWidget::graphClosed, this,
+                   &OverviewWidget::targetClosed);
     }
     targetGraphWidget = widget;
     if (targetGraphWidget) {
-        connect(targetGraphWidget->getGraphView(), &DisassemblerGraphView::viewRefreshed, this, &OverviewWidget::updateGraphData);
-        connect(targetGraphWidget->getGraphView(), &DisassemblerGraphView::resized, this, &OverviewWidget::updateRangeRect);
-        connect(targetGraphWidget->getGraphView(), &GraphView::viewOffsetChanged, this, &OverviewWidget::updateRangeRect);
-        connect(targetGraphWidget->getGraphView(), &GraphView::viewScaleChanged, this, &OverviewWidget::updateRangeRect);
+        connect(targetGraphWidget->getGraphView(), &DisassemblerGraphView::viewRefreshed, this,
+                &OverviewWidget::updateGraphData);
+        connect(targetGraphWidget->getGraphView(), &DisassemblerGraphView::resized, this,
+                &OverviewWidget::updateRangeRect);
+        connect(targetGraphWidget->getGraphView(), &GraphView::viewOffsetChanged, this,
+                &OverviewWidget::updateRangeRect);
+        connect(targetGraphWidget->getGraphView(), &GraphView::viewScaleChanged, this,
+                &OverviewWidget::updateRangeRect);
         connect(targetGraphWidget, &GraphWidget::graphClosed, this, &OverviewWidget::targetClosed);
     }
     updateGraphData();
@@ -143,7 +149,7 @@ void OverviewWidget::updateGraphData()
         graphView->currentFcnAddr = targetGraphWidget->getGraphView()->currentFcnAddr;
         auto &mainGraphView = *targetGraphWidget->getGraphView();
         graphView->setData(mainGraphView.getWidth(), mainGraphView.getHeight(),
-            mainGraphView.getBlocks(), mainGraphView.getEdgeConfigurations());
+                           mainGraphView.getBlocks(), mainGraphView.getEdgeConfigurations());
     } else {
         graphView->currentFcnAddr = RVA_INVALID;
         graphView->setData(0, 0, {}, {});
@@ -151,7 +157,8 @@ void OverviewWidget::updateGraphData()
     }
 }
 
-void OverviewWidget::updateRangeRect() {
+void OverviewWidget::updateRangeRect()
+{
     if (targetGraphWidget) {
         qreal curScale = graphView->getViewScale();
         qreal baseScale = targetGraphWidget->getGraphView()->getViewScale();

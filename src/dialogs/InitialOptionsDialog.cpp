@@ -15,12 +15,11 @@
 #include "core/Cutter.h"
 #include "common/AnalTask.h"
 
-
-InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
-    QDialog(nullptr), // parent must not be main
-    ui(new Ui::InitialOptionsDialog),
-    main(main),
-    core(Core())
+InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
+    : QDialog(nullptr), // parent must not be main
+      ui(new Ui::InitialOptionsDialog),
+      main(main),
+      core(Core())
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -32,7 +31,7 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
         ui->archComboBox->addItem(plugin.name, plugin.name);
     }
 
-    setTooltipWithConfigHelp(ui->archComboBox,"asm.arch");
+    setTooltipWithConfigHelp(ui->archComboBox, "asm.arch");
 
     // cpu combo box
     ui->cpuComboBox->lineEdit()->setPlaceholderText(tr("Auto"));
@@ -65,19 +64,23 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
         { { "aaft", tr("Type and Argument matching analysis") }, new QCheckBox(), false },
         { { "aaT", tr("Analyze code after trap-sleds") }, new QCheckBox(), false },
         { { "aap", tr("Analyze function preludes") }, new QCheckBox(), false },
-        { { "e! analysis.jmp.tbl", tr("Analyze jump tables in switch statements") }, new QCheckBox(), false },
-        { { "e! analysis.pushret", tr("Analyze PUSH+RET as JMP") },  new QCheckBox(), false },
-        { { "e! analysis.hasnext", tr("Continue analysis after each function") }, new QCheckBox(), false }};
+        { { "e! analysis.jmp.tbl", tr("Analyze jump tables in switch statements") },
+          new QCheckBox(),
+          false },
+        { { "e! analysis.pushret", tr("Analyze PUSH+RET as JMP") }, new QCheckBox(), false },
+        { { "e! analysis.hasnext", tr("Continue analysis after each function") },
+          new QCheckBox(),
+          false }
+    };
 
     // Per each checkbox, set a tooltip desccribing it
     AnalysisCommands item;
-    foreach (item, analysisCommands){
+    foreach (item, analysisCommands) {
         item.checkbox->setText(item.commandDesc.description);
         item.checkbox->setToolTip(item.commandDesc.command);
         item.checkbox->setChecked(item.checked);
         ui->verticalLayout_7->addWidget(item.checkbox);
     }
-    
 
     ui->hideFrame->setVisible(false);
     ui->analoptionsFrame->setVisible(false);
@@ -85,11 +88,13 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
 
     updatePDBLayout();
 
-    connect(ui->pdbCheckBox, &QCheckBox::stateChanged, this, &InitialOptionsDialog::updatePDBLayout);
+    connect(ui->pdbCheckBox, &QCheckBox::stateChanged, this,
+            &InitialOptionsDialog::updatePDBLayout);
 
     updateScriptLayout();
 
-    connect(ui->scriptCheckBox, &QCheckBox::stateChanged, this, &InitialOptionsDialog::updateScriptLayout);
+    connect(ui->scriptCheckBox, &QCheckBox::stateChanged, this,
+            &InitialOptionsDialog::updateScriptLayout);
 
     connect(ui->cancelButton, &QPushButton::clicked, this, &InitialOptionsDialog::reject);
 
@@ -106,11 +111,11 @@ void InitialOptionsDialog::updateCPUComboBox()
     QString arch = getSelectedArch();
     QStringList cpus;
     if (!arch.isEmpty()) {
-        auto pluginDescr = std::find_if(asmPlugins.begin(), asmPlugins.end(), [&](const RzAsmPluginDescription &plugin) {
-            return plugin.name == arch;
-        });
+        auto pluginDescr = std::find_if(
+                asmPlugins.begin(), asmPlugins.end(),
+                [&](const RzAsmPluginDescription &plugin) { return plugin.name == arch; });
         if (pluginDescr != asmPlugins.end()) {
-#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
             cpus = pluginDescr->cpus.split(",", Qt::SkipEmptyParts);
 #else
             cpus = pluginDescr->cpus.split(",", QString::SkipEmptyParts);
@@ -124,9 +129,10 @@ void InitialOptionsDialog::updateCPUComboBox()
     ui->cpuComboBox->lineEdit()->setText(currentText);
 }
 
-QList<QString> InitialOptionsDialog::getAnalysisCommands(const InitialOptions &options) {
+QList<QString> InitialOptionsDialog::getAnalysisCommands(const InitialOptions &options)
+{
     QList<QString> commands;
-    for (auto& commandDesc: options.analCmd) {
+    for (auto &commandDesc : options.analCmd) {
         commands << commandDesc.command;
     }
     return commands;
@@ -136,15 +142,15 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
 {
     if (options.analCmd.isEmpty()) {
         analLevel = 0;
-    } else if (options.analCmd.first().command == "aaa" ) {
+    } else if (options.analCmd.first().command == "aaa") {
         analLevel = 1;
-    } else if (options.analCmd.first().command ==  "aaaa" ) {
+    } else if (options.analCmd.first().command == "aaaa") {
         analLevel = 2;
     } else {
         analLevel = 3;
         AnalysisCommands item;
         QList<QString> commands = getAnalysisCommands(options);
-        foreach (item, analysisCommands){
+        foreach (item, analysisCommands) {
             qInfo() << item.commandDesc.command;
             item.checkbox->setChecked(commands.contains(item.commandDesc.command));
         }
@@ -173,19 +179,15 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
         ui->entry_loadOffset->setText(RAddressString(options.binLoadAddr));
     }
 
-	ui->writeCheckBox->setChecked(options.writeEnabled);
-
+    ui->writeCheckBox->setChecked(options.writeEnabled);
 
     // TODO: all other options should also be applied to the ui
 }
 
-
-void InitialOptionsDialog::setTooltipWithConfigHelp(QWidget *w, const char *config) {
-    w->setToolTip(QString("%1 (%2)")
-                  .arg(core->getConfigDescription(config))
-                  .arg(config));
+void InitialOptionsDialog::setTooltipWithConfigHelp(QWidget *w, const char *config)
+{
+    w->setToolTip(QString("%1 (%2)").arg(core->getConfigDescription(config)).arg(config));
 }
-
 
 QString InitialOptionsDialog::getSelectedArch() const
 {
@@ -235,8 +237,8 @@ QList<CommandDescription> InitialOptionsDialog::getSelectedAdvancedAnalCmds() co
     QList<CommandDescription> advanced = QList<CommandDescription>();
     if (ui->analSlider->value() == 3) {
         AnalysisCommands item;
-        foreach (item, analysisCommands){
-            if(item.checkbox->isChecked()) {
+        foreach (item, analysisCommands) {
+            if (item.checkbox->isChecked()) {
                 advanced << item.commandDesc;
             }
         }
@@ -259,8 +261,8 @@ void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> adv
         options.binLoadAddr = Core()->math(ui->entry_loadOffset->text());
     }
 
-    options.mapAddr = Core()->math(
-                          ui->entry_mapOffset->text());      // Where to map the file once loaded (-m)
+    options.mapAddr =
+            Core()->math(ui->entry_mapOffset->text()); // Where to map the file once loaded (-m)
     options.arch = getSelectedArch();
     options.cpu = getSelectedCPU();
     options.bits = getSelectedBits();
@@ -280,16 +282,15 @@ void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> adv
         options.script = ui->scriptLineEdit->text();
     }
 
-
     options.endian = getSelectedEndianness();
 
     int level = ui->analSlider->value();
     switch (level) {
     case 1:
-        options.analCmd = { {"aaa", "Auto analysis"} };
+        options.analCmd = { { "aaa", "Auto analysis" } };
         break;
     case 2:
-        options.analCmd = { {"aaaa", "Auto analysis (experimental)"} };
+        options.analCmd = { { "aaaa", "Auto analysis (experimental)" } };
         break;
     case 3:
         options.analCmd = getSelectedAdvancedAnalCmds();
@@ -298,7 +299,6 @@ void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> adv
         options.analCmd = {};
         break;
     }
-
 
     AnalTask *analTask = new AnalTask();
     analTask->setOptions(options);
@@ -337,7 +337,7 @@ void InitialOptionsDialog::closeEvent(QCloseEvent *event)
 
 QString InitialOptionsDialog::analysisDescription(int level)
 {
-    //TODO: replace this with meaningful descriptions
+    // TODO: replace this with meaningful descriptions
     switch (level) {
     case 0:
         return tr("No analysis");
@@ -417,7 +417,6 @@ void InitialOptionsDialog::on_pdbSelectButton_clicked()
     }
 }
 
-
 void InitialOptionsDialog::updateScriptLayout()
 {
     ui->scriptWidget->setEnabled(ui->scriptCheckBox->isChecked());
@@ -439,7 +438,6 @@ void InitialOptionsDialog::on_scriptSelectButton_clicked()
         ui->scriptLineEdit->setText(fileName);
     }
 }
-
 
 void InitialOptionsDialog::reject()
 {

@@ -11,13 +11,10 @@
  */
 
 namespace Cutter {
-QStringList locateAll(
-    QStandardPaths::StandardLocation type,
-    const QString &fileName,
-    QStandardPaths::LocateOptions options = QStandardPaths::LocateFile);
+QStringList locateAll(QStandardPaths::StandardLocation type, const QString &fileName,
+                      QStandardPaths::LocateOptions options = QStandardPaths::LocateFile);
 QStringList standardLocations(QStandardPaths::StandardLocation type);
 QString writableLocation(QStandardPaths::StandardLocation type);
-
 
 /**
  * @brief Get list of available translation directories (depends on configuration and OS)

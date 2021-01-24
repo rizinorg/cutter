@@ -1,12 +1,12 @@
 #include "PreferenceCategory.h"
 
 PreferenceCategory::PreferenceCategory(const QString &name, const QIcon &icon)
-    : name(name), icon(icon), widget(nullptr), children{}
+    : name(name), icon(icon), widget(nullptr), children {}
 {
 }
 
 PreferenceCategory::PreferenceCategory(const QString &name, QWidget *widget, const QIcon &icon)
-    : name(name), icon(icon), widget(widget), children{}
+    : name(name), icon(icon), widget(widget), children {}
 {
 }
 
@@ -24,7 +24,7 @@ PreferenceCategory::PreferenceCategory(const QString &name, const QIcon &icon,
 
 void PreferenceCategory::addItem(QTreeWidget &tree, QStackedWidget &panel)
 {
-    QTreeWidgetItem *w = new QTreeWidgetItem({name});
+    QTreeWidgetItem *w = new QTreeWidgetItem({ name });
 
     tree.addTopLevelItem(w);
     for (auto &c : children)
@@ -41,7 +41,7 @@ void PreferenceCategory::addItem(QTreeWidget &tree, QStackedWidget &panel)
 
 void PreferenceCategory::addItem(QTreeWidgetItem &tree, QStackedWidget &panel)
 {
-    QTreeWidgetItem *w = new QTreeWidgetItem({name});
+    QTreeWidgetItem *w = new QTreeWidgetItem({ name });
 
     tree.addChild(w);
     for (auto &c : children)

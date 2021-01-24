@@ -28,19 +28,13 @@ public:
 
     ~ConsoleWidget();
 
-    void setDebugOutputEnabled(bool enabled)
-    {
-        debugOutputEnabled = enabled;
-    }
+    void setDebugOutputEnabled(bool enabled) { debugOutputEnabled = enabled; }
 
-    void setMaxHistoryEntries(int max)
-    {
-        maxHistoryEntries = max;
-    }
+    void setMaxHistoryEntries(int max) { maxHistoryEntries = max; }
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
-    QWidget* widgetToFocusOnRaise() override;
+    QWidget *widgetToFocusOnRaise() override;
 
 public slots:
     void focusInputLineEdit();
@@ -105,7 +99,7 @@ private:
     FILE *origStderr = nullptr;
     FILE *origStdout = nullptr;
     FILE *origStdin = nullptr;
-    QLocalSocket *pipeSocket  = nullptr;
+    QLocalSocket *pipeSocket = nullptr;
 #ifdef Q_OS_WIN
     HANDLE hRead;
     HANDLE hWrite;

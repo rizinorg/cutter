@@ -16,12 +16,12 @@
 #include <array>
 #include <cmath>
 
-VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
-    QToolBar(main),
-    graphicsView(new QGraphicsView),
-    seekGraphicsItem(nullptr),
-    PCGraphicsItem(nullptr),
-    main(main)
+VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent)
+    : QToolBar(main),
+      graphicsView(new QGraphicsView),
+      seekGraphicsItem(nullptr),
+      PCGraphicsItem(nullptr),
+      main(main)
 {
     Q_UNUSED(parent);
 
@@ -31,7 +31,8 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
     setContentsMargins(0, 0, 0, 0);
     // If line below is used, with the dark theme the paintEvent is not called
     // and the result is wrong. Something to do with overwriting the style sheet :/
-    //setStyleSheet("QToolBar { border: 0px; border-bottom: 0px; border-top: 0px; border-width: 0px;}");
+    // setStyleSheet("QToolBar { border: 0px; border-bottom: 0px; border-top: 0px; border-width:
+    // 0px;}");
 
     /*
     QComboBox *addsCombo = new QComboBox();
@@ -40,7 +41,7 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
     addsCombo->addItem("Marks");
     */
     addWidget(this->graphicsView);
-    //addWidget(addsCombo);
+    // addWidget(addsCombo);
 
     connect(Core(), &CutterCore::seekChanged, this, &VisualNavbar::on_seekChanged);
     connect(Core(), &CutterCore::registersChanged, this, &VisualNavbar::drawPCCursor);
@@ -135,14 +136,17 @@ void VisualNavbar::updateGraphicsScene()
     RVA beginAddr = stats.from;
 
     double widthPerByte = (double)w / (double)totalSize;
-    auto xFromAddr = [widthPerByte, beginAddr] (RVA addr) -> double {
+    auto xFromAddr = [widthPerByte, beginAddr](RVA addr) -> double {
         return (addr - beginAddr) * widthPerByte;
     };
 
     std::array<QBrush, static_cast<int>(DataType::Count)> dataTypeBrushes;
-    dataTypeBrushes[static_cast<int>(DataType::Code)] = QBrush(Config()->getColor("gui.navbar.code"));
-    dataTypeBrushes[static_cast<int>(DataType::String)] = QBrush(Config()->getColor("gui.navbar.str"));
-    dataTypeBrushes[static_cast<int>(DataType::Symbol)] = QBrush(Config()->getColor("gui.navbar.sym"));
+    dataTypeBrushes[static_cast<int>(DataType::Code)] =
+            QBrush(Config()->getColor("gui.navbar.code"));
+    dataTypeBrushes[static_cast<int>(DataType::String)] =
+            QBrush(Config()->getColor("gui.navbar.str"));
+    dataTypeBrushes[static_cast<int>(DataType::Symbol)] =
+            QBrush(Config()->getColor("gui.navbar.sym"));
 
     DataType lastDataType = DataType::Empty;
     QGraphicsRectItem *dataItem = nullptr;
@@ -218,7 +222,8 @@ void VisualNavbar::drawCursor(RVA addr, QColor color, QGraphicsRectItem *&graphi
 
 void VisualNavbar::drawPCCursor()
 {
-    drawCursor(Core()->getProgramCounterValue(), Config()->getColor("gui.navbar.pc"), PCGraphicsItem);
+    drawCursor(Core()->getProgramCounterValue(), Config()->getColor("gui.navbar.pc"),
+               PCGraphicsItem);
 }
 
 void VisualNavbar::drawSeekCursor()
@@ -268,7 +273,8 @@ double VisualNavbar::addressToLocalX(RVA address)
 {
     for (const XToAddress &x2a : xToAddress) {
         if ((x2a.address_from <= address) && (address < x2a.address_to)) {
-            double offset = (double)(address - x2a.address_from) / (double)(x2a.address_to - x2a.address_from);
+            double offset = (double)(address - x2a.address_from)
+                    / (double)(x2a.address_to - x2a.address_from);
             double size = x2a.x_end - x2a.x_start;
             return x2a.x_start + (offset * size);
         }

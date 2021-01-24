@@ -13,7 +13,7 @@ class EditStringDialog : public QDialog
     Q_OBJECT
 
 public:
-    enum class StringType {Auto, ASCII_LATIN1, UTF8};
+    enum class StringType { Auto, ASCII_LATIN1, UTF8 };
     explicit EditStringDialog(QWidget *parent = nullptr);
     ~EditStringDialog();
 
@@ -30,7 +30,6 @@ public:
      * @return whether the call successful or not
      */
     bool getStringStartAddress(uint64_t &returnValue) const;
-
 
     /**
      * @brief Sets the size of string in the dialog

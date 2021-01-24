@@ -9,9 +9,9 @@
 
 #include "plugins/CutterPlugin.h"
 
-class PluginManager: public QObject
+class PluginManager : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     static PluginManager *getInstance();
@@ -19,7 +19,7 @@ public:
     class PluginTerminator
     {
     public:
-        void operator()(CutterPlugin*) const;
+        void operator()(CutterPlugin *) const;
     };
     using PluginPtr = std::unique_ptr<CutterPlugin, PluginTerminator>;
 
@@ -37,7 +37,7 @@ public:
      */
     void destroyPlugins();
 
-    const std::vector<PluginPtr> &getPlugins()   { return plugins; }
+    const std::vector<PluginPtr> &getPlugins() { return plugins; }
 
     QVector<QDir> getPluginDirectories() const;
     QString getUserPluginsDirectory() const;
@@ -56,4 +56,4 @@ private:
 
 #define Plugins() (PluginManager::getInstance())
 
-#endif //PLUGINMANAGER_H
+#endif // PLUGINMANAGER_H

@@ -5,7 +5,7 @@
 #include <QIconEngine>
 #include <QPalette>
 
-class SvgIconEngine: public QIconEngine
+class SvgIconEngine : public QIconEngine
 {
 private:
     QByteArray svgData;
@@ -19,7 +19,6 @@ public:
     void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) override;
     QIconEngine *clone() const override;
     QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) override;
-
 };
 
-#endif //SVGICONENGINE_H
+#endif // SVGICONENGINE_H

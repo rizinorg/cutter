@@ -11,14 +11,13 @@
  * @brief Constructs a WelcomeDialog object
  * @param parent
  */
-WelcomeDialog::WelcomeDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::WelcomeDialog)
+WelcomeDialog::WelcomeDialog(QWidget *parent) : QDialog(parent), ui(new Ui::WelcomeDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     ui->logoSvgWidget->load(Config()->getLogoFile());
-    ui->versionLabel->setText("<font color='#a4a9b2'>" + tr("Version ") + CUTTER_VERSION_FULL + "</font>");
+    ui->versionLabel->setText("<font color='#a4a9b2'>" + tr("Version ") + CUTTER_VERSION_FULL
+                              + "</font>");
     ui->themeComboBox->setCurrentIndex(Config()->getInterfaceTheme());
 
     QSignalBlocker s(ui->updatesCheckBox);
@@ -33,8 +32,7 @@ WelcomeDialog::WelcomeDialog(QWidget *parent) :
     }
     ui->languageComboBox->setCurrentText(curr);
     connect(ui->languageComboBox,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
             &WelcomeDialog::onLanguageComboBox_currentIndexChanged);
 
     Config()->adjustColorThemeDarkness();

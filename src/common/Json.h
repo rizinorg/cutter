@@ -16,4 +16,4 @@ static inline RVA JsonValueGetRVA(const QJsonValue &value, RVA defaultValue = RV
     return ret;
 }
 
-#endif //CUTTER_JSON_H
+#endif // CUTTER_JSON_H

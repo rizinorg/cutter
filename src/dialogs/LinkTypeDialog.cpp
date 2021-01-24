@@ -1,9 +1,7 @@
 #include "LinkTypeDialog.h"
 #include "ui_LinkTypeDialog.h"
 
-LinkTypeDialog::LinkTypeDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::LinkTypeDialog)
+LinkTypeDialog::LinkTypeDialog(QWidget *parent) : QDialog(parent), ui(new Ui::LinkTypeDialog)
 {
     addrValid = false;
 
@@ -48,7 +46,6 @@ bool LinkTypeDialog::setDefaultAddress(const QString &address)
     }
     return true;
 }
-
 
 void LinkTypeDialog::done(int r)
 {

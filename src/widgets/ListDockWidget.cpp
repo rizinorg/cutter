@@ -8,11 +8,11 @@
 #include <QResizeEvent>
 #include <QShortcut>
 
-ListDockWidget::ListDockWidget(MainWindow *main, SearchBarPolicy searchBarPolicy) :
-    CutterDockWidget(main),
-    ui(new Ui::ListDockWidget),
-    tree(new CutterTreeWidget(this)),
-    searchBarPolicy(searchBarPolicy)
+ListDockWidget::ListDockWidget(MainWindow *main, SearchBarPolicy searchBarPolicy)
+    : CutterDockWidget(main),
+      ui(new Ui::ListDockWidget),
+      tree(new CutterTreeWidget(this)),
+      searchBarPolicy(searchBarPolicy)
 {
     ui->setupUi(this);
 
@@ -22,7 +22,8 @@ ListDockWidget::ListDockWidget(MainWindow *main, SearchBarPolicy searchBarPolicy
     if (searchBarPolicy != SearchBarPolicy::Hide) {
         // Ctrl-F to show/hide the filter entry
         QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
-        connect(searchShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
+        connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
+                &QuickFilterView::showFilter);
         searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
         // Esc to clear the filter entry
@@ -54,17 +55,13 @@ void ListDockWidget::setModels(AddressableFilterProxyModel *objectFilterProxyMod
 {
     this->objectFilterProxyModel = objectFilterProxyModel;
 
-
     ui->treeView->setModel(objectFilterProxyModel);
 
-
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged,
-            objectFilterProxyModel, &QSortFilterProxyModel::setFilterWildcard);
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, objectFilterProxyModel,
+            &QSortFilterProxyModel::setFilterWildcard);
     connect(ui->quickFilterView, &QuickFilterView::filterClosed, ui->treeView,
-            static_cast<void(QWidget::*)()>(&QWidget::setFocus));
+            static_cast<void (QWidget::*)()>(&QWidget::setFocus));
 
-
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        tree->showItemsNumber(this->objectFilterProxyModel->rowCount());
-    });
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
+            [this] { tree->showItemsNumber(this->objectFilterProxyModel->rowCount()); });
 }

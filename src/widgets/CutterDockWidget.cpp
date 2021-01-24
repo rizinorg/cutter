@@ -4,14 +4,9 @@
 #include <QEvent>
 #include <QtWidgets/QShortcut>
 
-CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *)
-    : CutterDockWidget(parent)
-{
-}
+CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *) : CutterDockWidget(parent) {}
 
-CutterDockWidget::CutterDockWidget(MainWindow *parent) :
-    QDockWidget(parent),
-    mainWindow(parent)
+CutterDockWidget::CutterDockWidget(MainWindow *parent) : QDockWidget(parent), mainWindow(parent)
 {
     // Install event filter to catch redraw widgets when needed
     installEventFilter(this);
@@ -23,12 +18,9 @@ CutterDockWidget::~CutterDockWidget() = default;
 
 bool CutterDockWidget::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::FocusIn
-        || event->type() == QEvent::ZOrderChange
-        || event->type() == QEvent::Paint
-        || event->type() == QEvent::Close
-        || event->type() == QEvent::Show
-        || event->type() == QEvent::Hide) {
+    if (event->type() == QEvent::FocusIn || event->type() == QEvent::ZOrderChange
+        || event->type() == QEvent::Paint || event->type() == QEvent::Close
+        || event->type() == QEvent::Show || event->type() == QEvent::Hide) {
         updateIsVisibleToUser();
     }
     return QDockWidget::eventFilter(object, event);
@@ -39,9 +31,7 @@ QVariantMap CutterDockWidget::serializeViewProprties()
     return {};
 }
 
-void CutterDockWidget::deserializeViewProperties(const QVariantMap &)
-{
-}
+void CutterDockWidget::deserializeViewProperties(const QVariantMap &) {}
 
 void CutterDockWidget::ignoreVisibilityStatus(bool ignore)
 {
@@ -92,7 +82,8 @@ void CutterDockWidget::closeEvent(QCloseEvent *event)
             mainWindow->removeWidget(this);
         }
 
-        // remove parent, otherwise dock layout may still decide to use this widget which is about to be deleted
+        // remove parent, otherwise dock layout may still decide to use this widget which is about
+        // to be deleted
         setParent(nullptr);
 
         deleteLater();

@@ -16,13 +16,11 @@ namespace Ui {
 class HeadersWidget;
 }
 
-
 class MainWindow;
 class QTreeWidgetItem;
 class HeadersWidget;
 
-
-class HeadersModel: public AddressableItemModel<QAbstractListModel>
+class HeadersModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
 
@@ -41,13 +39,12 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     QVariant data(const QModelIndex &index, int role) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
     RVA address(const QModelIndex &index) const override;
     QString name(const QModelIndex &index) const override;
 };
-
-
 
 class HeadersProxyModel : public AddressableFilterProxyModel
 {
@@ -60,8 +57,6 @@ protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
-
-
 
 class HeadersWidget : public ListDockWidget
 {
@@ -79,6 +74,5 @@ private:
     HeadersProxyModel *headersProxyModel;
     QList<HeaderDescription> headers;
 };
-
 
 #endif // HEADERSWIDGET_H

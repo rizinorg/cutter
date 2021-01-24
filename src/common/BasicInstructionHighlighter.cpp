@@ -24,13 +24,13 @@ void BasicInstructionHighlighter::clear(RVA address, RVA size)
     if (!addrs.empty()) {
         const BasicInstruction &prev = biMap[addrs.front()];
         if (prev.address < address && prev.address + prev.size > address) {
-            newInstructions.push_back({prev.address, address - prev.address, prev.color});
+            newInstructions.push_back({ prev.address, address - prev.address, prev.color });
         }
 
         const BasicInstruction &next = biMap[addrs.back()];
         if (next.address < address + size && next.address + next.size > address + size) {
             const RVA offset = address + size - next.address;
-            newInstructions.push_back({next.address + offset, next.size - offset, next.color});
+            newInstructions.push_back({ next.address + offset, next.size - offset, next.color });
         }
     }
 
@@ -41,7 +41,7 @@ void BasicInstructionHighlighter::clear(RVA address, RVA size)
         }
     }
 
-    for ( BasicInstruction newInstr : newInstructions) {
+    for (BasicInstruction newInstr : newInstructions) {
         biMap[newInstr.address] = newInstr;
     }
 }
@@ -52,7 +52,7 @@ void BasicInstructionHighlighter::clear(RVA address, RVA size)
 void BasicInstructionHighlighter::highlight(RVA address, RVA size, QColor color)
 {
     clear(address, size);
-    biMap[address] = {address, size, color};
+    biMap[address] = { address, size, color };
 }
 
 /**

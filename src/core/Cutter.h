@@ -33,7 +33,7 @@ class RizinTaskDialog;
 
 class RzCoreLocked;
 
-class CUTTER_EXPORT CutterCore: public QObject
+class CUTTER_EXPORT CutterCore : public QObject
 {
     Q_OBJECT
 
@@ -52,7 +52,7 @@ public:
 
     AsyncTaskManager *getAsyncTaskManager() { return asyncTaskManager; }
 
-    RVA getOffset() const                   { return core_->offset; }
+    RVA getOffset() const { return core_->offset; }
 
     /* Core functions (commands) */
     static QString sanitizeStringForCommand(QString s);
@@ -75,12 +75,17 @@ public:
      *       If you want to seek to an address, you should use CutterCore::seek.
      */
     bool asyncCmd(const char *str, QSharedPointer<RizinCmdTask> &task);
-    bool asyncCmd(const QString &str, QSharedPointer<RizinCmdTask> &task) { return asyncCmd(str.toUtf8().constData(), task); }
+    bool asyncCmd(const QString &str, QSharedPointer<RizinCmdTask> &task)
+    {
+        return asyncCmd(str.toUtf8().constData(), task);
+    }
 
     /**
      * @brief Execute a Rizin command \a cmd.  By nature, the API
-     * is executing raw commands, and thus ignores multiple commands and overcome command injections.
-     * @param cmd - a raw command to execute. Passing multiple commands (e.g "px 5; pd 7 && pdf") will result in them treated as arguments to first command.
+     * is executing raw commands, and thus ignores multiple commands and overcome command
+     * injections.
+     * @param cmd - a raw command to execute. Passing multiple commands (e.g "px 5; pd 7 && pdf")
+     * will result in them treated as arguments to first command.
      * @return the output of the command
      */
     QString cmdRaw(const char *cmd);
@@ -91,12 +96,12 @@ public:
     QString cmdRaw(const QString &cmd) { return cmdRaw(cmd.toUtf8().constData()); };
 
     /**
-     * @brief Execute a Rizin command \a cmd at \a address. The function will preform a silent seek to the address
-     * without triggering the seekChanged event nor adding new entries to the seek history. By nature, the
-     * API is executing a single command without going through Rizin shell, and thus ignores multiple commands
-     * and tries to overcome command injections.
-     * @param cmd - a raw command to execute. If multiple commands will be passed (e.g "px 5; pd 7 && pdf") then
-     * only the first command will be executed.
+     * @brief Execute a Rizin command \a cmd at \a address. The function will preform a silent seek
+     * to the address without triggering the seekChanged event nor adding new entries to the seek
+     * history. By nature, the API is executing a single command without going through Rizin shell,
+     * and thus ignores multiple commands and tries to overcome command injections.
+     * @param cmd - a raw command to execute. If multiple commands will be passed (e.g "px 5; pd 7
+     * && pdf") then only the first command will be executed.
      * @param address - an address to which Cutter will temporarily seek.
      * @return the output of the command
      */
@@ -105,12 +110,18 @@ public:
     /**
      * @brief a wrapper around cmdRawAt(const char *cmd, RVA address).
      */
-    QString cmdRawAt(const QString &str, RVA address) { return cmdRawAt(str.toUtf8().constData(), address); }
+    QString cmdRawAt(const QString &str, RVA address)
+    {
+        return cmdRawAt(str.toUtf8().constData(), address);
+    }
 
     QJsonDocument cmdj(const char *str);
     QJsonDocument cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
     QJsonDocument cmdjAt(const char *str, RVA address);
-    QStringList cmdList(const char *str) { return cmd(str).split(QLatin1Char('\n'), CUTTER_QT_SKIP_EMPTY_PARTS); }
+    QStringList cmdList(const char *str)
+    {
+        return cmd(str).split(QLatin1Char('\n'), CUTTER_QT_SKIP_EMPTY_PARTS);
+    }
     QStringList cmdList(const QString &str) { return cmdList(str.toUtf8().constData()); }
     QString cmdTask(const QString &str);
     QJsonDocument cmdjTask(const QString &str);
@@ -132,7 +143,10 @@ public:
      *       If you want to seek to an address, you should use CutterCore::seek.
      */
     bool asyncCmdEsil(const char *command, QSharedPointer<RizinCmdTask> &task);
-    bool asyncCmdEsil(const QString &command, QSharedPointer<RizinCmdTask> &task) { return asyncCmdEsil(command.toUtf8().constData(), task); }
+    bool asyncCmdEsil(const QString &command, QSharedPointer<RizinCmdTask> &task)
+    {
+        return asyncCmdEsil(command.toUtf8().constData(), task);
+    }
     QString getVersionInformation();
 
     QJsonDocument parseJson(const char *res, const char *cmd = nullptr);
@@ -253,7 +267,8 @@ public:
     void renameClass(const QString &oldName, const QString &newName);
     void deleteClass(const QString &cls);
     bool getAnalMethod(const QString &cls, const QString &meth, AnalMethodDescription *desc);
-    void renameAnalMethod(const QString &className, const QString &oldMethodName, const QString &newMethodName);
+    void renameAnalMethod(const QString &className, const QString &oldMethodName,
+                          const QString &newMethodName);
     void setAnalMethod(const QString &cls, const AnalMethodDescription &meth);
 
     /* File related methods */
@@ -445,7 +460,8 @@ public:
      * Register a new decompiler
      *
      * The decompiler must have a unique id, otherwise this method will fail.
-     * The decompiler's parent will be set to this CutterCore instance, so it will automatically be freed later.
+     * The decompiler's parent will be set to this CutterCore instance, so it will automatically be
+     * freed later.
      *
      * @return whether the decompiler was registered successfully
      */
@@ -536,7 +552,6 @@ public:
      */
     QString getTypeAsC(QString name, QString category);
 
-
     /**
      * @brief Adds new types
      * It first uses the rz_parse_c_string() function from Rizin API to parse the
@@ -572,11 +587,12 @@ public:
      * @brief Fetches all the writes or reads to the specified local variable 'variableName'
      * in the function in which the specified offset is a part of.
      * @param variableName Name of the local variable.
-     * @param findWrites If this is true, then locations at which modification happen to the specified
-     * local variable is fetched. Else, the locations at which the local is variable is read is fetched.
+     * @param findWrites If this is true, then locations at which modification happen to the
+     * specified local variable is fetched. Else, the locations at which the local is variable is
+     * read is fetched.
      * @param offset An offset in the function in which the specified local variable exist.
-     * @return A list of XrefDescriptions that contains details of all the writes or reads that happen to the
-     * variable 'variableName'.
+     * @return A list of XrefDescriptions that contains details of all the writes or reads that
+     * happen to the variable 'variableName'.
      */
     QList<XrefDescription> getXRefsForVariable(QString variableName, bool findWrites, RVA offset);
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
@@ -622,9 +638,9 @@ public:
     void commitWriteCache();
 
     /**
-     * @brief Enable or disable Write mode. When the file is opened in write mode, any changes to it will be immediately
-     * committed to the file on disk, thus modify the file. This function wrap Rizin function which re-open the file with
-     * the desired permissions.
+     * @brief Enable or disable Write mode. When the file is opened in write mode, any changes to it
+     * will be immediately committed to the file on disk, thus modify the file. This function wrap
+     * Rizin function which re-open the file with the desired permissions.
      * @param enabled
      */
     void setWriteMode(bool enabled);
@@ -732,7 +748,7 @@ private:
 
 class CUTTER_EXPORT RzCoreLocked
 {
-    CutterCore * const core;
+    CutterCore *const core;
 
 public:
     explicit RzCoreLocked(CutterCore *core);

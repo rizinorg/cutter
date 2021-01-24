@@ -7,8 +7,8 @@
 
 ColorThemeComboBox::ColorThemeComboBox(QWidget *parent) : QComboBox(parent), showOnlyCustom(false)
 {
-    connect(this, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &ColorThemeComboBox::onCurrentIndexChanged);
+    connect(this, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
+            &ColorThemeComboBox::onCurrentIndexChanged);
     updateFromConfig();
 }
 
@@ -17,22 +17,21 @@ void ColorThemeComboBox::updateFromConfig(bool interfaceThemeChanged)
     QSignalBlocker signalBlockerColorBox(this);
 
     const int curInterfaceThemeIndex = Config()->getInterfaceTheme();
-    const QList<QString> themes(showOnlyCustom
-                                ? ThemeWorker().customThemes()
-                                : Core()->getColorThemes());
+    const QList<QString> themes(showOnlyCustom ? ThemeWorker().customThemes()
+                                               : Core()->getColorThemes());
 
     clear();
     for (const QString &theme : themes) {
-        if (ThemeWorker().isCustomTheme(theme) ||
-            (Configuration::cutterInterfaceThemesList()[curInterfaceThemeIndex].flag &
-             Configuration::relevantThemes[theme])) {
+        if (ThemeWorker().isCustomTheme(theme)
+            || (Configuration::cutterInterfaceThemesList()[curInterfaceThemeIndex].flag
+                & Configuration::relevantThemes[theme])) {
             addItem(theme);
         }
     }
 
-    QString curTheme = interfaceThemeChanged
-        ? Config()->getLastThemeOf(Configuration::cutterInterfaceThemesList()[curInterfaceThemeIndex])
-        : Config()->getColorTheme();
+    QString curTheme = interfaceThemeChanged ? Config()->getLastThemeOf(
+                               Configuration::cutterInterfaceThemesList()[curInterfaceThemeIndex])
+                                             : Config()->getColorTheme();
     const int index = findText(curTheme);
 
     setCurrentIndex(index == -1 ? 0 : index);

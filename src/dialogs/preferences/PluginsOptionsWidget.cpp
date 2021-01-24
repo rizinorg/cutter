@@ -14,9 +14,7 @@
 #include <QVBoxLayout>
 #include <QUrl>
 
-
-PluginsOptionsWidget::PluginsOptionsWidget(PreferencesDialog *dialog)
-    : QDialog(dialog)
+PluginsOptionsWidget::PluginsOptionsWidget(PreferencesDialog *dialog) : QDialog(dialog)
 {
     auto layout = new QVBoxLayout(this);
     setLayout(layout);
@@ -26,18 +24,14 @@ PluginsOptionsWidget::PluginsOptionsWidget(PreferencesDialog *dialog)
     dirLabel->setOpenExternalLinks(true);
     layout->addWidget(dirLabel);
     auto pluginPath = Plugins()->getUserPluginsDirectory();
-    dirLabel->setText(tr("Plugins are loaded from <a href=\"%1\">%2</a>")
-                      .arg(QUrl::fromLocalFile(pluginPath).toString(), pluginPath.toHtmlEscaped()));
+    dirLabel->setText(
+            tr("Plugins are loaded from <a href=\"%1\">%2</a>")
+                    .arg(QUrl::fromLocalFile(pluginPath).toString(), pluginPath.toHtmlEscaped()));
 
     auto treeWidget = new QTreeWidget(this);
     layout->addWidget(treeWidget);
     treeWidget->setRootIsDecorated(false);
-    treeWidget->setHeaderLabels({
-        tr("Name"),
-        tr("Description"),
-        tr("Version"),
-        tr("Author")
-    });
+    treeWidget->setHeaderLabels({ tr("Name"), tr("Description"), tr("Version"), tr("Author") });
 
     for (auto &plugin : Plugins()->getPlugins()) {
         auto item = new QTreeWidgetItem();

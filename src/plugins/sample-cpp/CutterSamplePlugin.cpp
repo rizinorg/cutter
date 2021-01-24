@@ -8,9 +8,7 @@
 #include "common/Configuration.h"
 #include "MainWindow.h"
 
-void CutterSamplePlugin::setupPlugin()
-{
-}
+void CutterSamplePlugin::setupPlugin() {}
 
 void CutterSamplePlugin::setupInterface(MainWindow *main)
 {
@@ -18,8 +16,7 @@ void CutterSamplePlugin::setupInterface(MainWindow *main)
     main->addPluginDockWidget(widget);
 }
 
-CutterSamplePluginWidget::CutterSamplePluginWidget(MainWindow *main) :
-    CutterDockWidget(main)
+CutterSamplePluginWidget::CutterSamplePluginWidget(MainWindow *main) : CutterDockWidget(main)
 {
     this->setObjectName("CutterSamplePluginWidget");
     this->setWindowTitle("Sample C++ Plugin");

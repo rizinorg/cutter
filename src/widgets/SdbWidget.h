@@ -30,7 +30,6 @@ private slots:
 private:
     std::unique_ptr<Ui::SdbWidget> ui;
     QString path;
-
 };
 
 #endif // SDBWIDGET_H

@@ -5,9 +5,9 @@
 #include "GraphLayout.h"
 #include "common/LinkedListPool.h"
 
-
 /**
- * @brief Graph layout algorithm on layered graph layout approach. For simplicity all the nodes are placed in a grid.
+ * @brief Graph layout algorithm on layered graph layout approach. For simplicity all the nodes are
+ * placed in a grid.
  */
 class GraphGridLayout : public GraphLayout
 {
@@ -19,14 +19,12 @@ public:
     };
 
     GraphGridLayout(LayoutType layoutType = LayoutType::Medium);
-    virtual void CalculateLayout(Graph &blocks,
-                                 ut64 entry,
-                                 int &width,
-                                 int &height) const override;
+    virtual void CalculateLayout(Graph &blocks, ut64 entry, int &width, int &height) const override;
     void setTightSubtreePlacement(bool enabled) { tightSubtreePlacement = enabled; }
     void setParentBetweenDirectChild(bool enabled) { parentBetweenDirectChild = enabled; }
     void setverticalBlockAlignmentMiddle(bool enabled) { verticalBlockAlignmentMiddle = enabled; }
     void setLayoutOptimization(bool enabled) { useLayoutOptimization = enabled; }
+
 private:
     /// false - use bounding box for smallest subtree when placing them side by side
     bool tightSubtreePlacement = false;
@@ -36,7 +34,8 @@ private:
     bool verticalBlockAlignmentMiddle = false;
     bool useLayoutOptimization = true;
 
-    struct GridBlock {
+    struct GridBlock
+    {
         ut64 id;
         std::vector<ut64> tree_edge; //!< subset of outgoing edges that form a tree
         std::vector<ut64> dag_edge; //!< subset of outgoing edges that form a dag
@@ -61,7 +60,8 @@ private:
         LinkedListPool<int>::List rightSideShape;
     };
 
-    struct Point {
+    struct Point
+    {
         int row;
         int col;
         int offset;
@@ -69,7 +69,8 @@ private:
         int16_t spacingOverride;
     };
 
-    struct GridEdge {
+    struct GridEdge
+    {
         ut64 dest;
         int mainColumn = -1;
         std::vector<Point> points;
@@ -77,11 +78,12 @@ private:
 
         void addPoint(int row, int col, int16_t kind = 0)
         {
-            this->points.push_back({row, col, 0, kind, 0});
+            this->points.push_back({ row, col, 0, kind, 0 });
         }
     };
 
-    struct LayoutState {
+    struct LayoutState
+    {
         std::unordered_map<ut64, GridBlock> grid_blocks;
         std::unordered_map<ut64, GraphBlock> *blocks = nullptr;
         std::unordered_map<ut64, std::vector<GridEdge>> edge;
@@ -102,7 +104,8 @@ private:
 
     /**
      * @brief Find nodes where control flow merges after splitting.
-     * Sets node column offset so that after computing placement merge point is centered bellow nodes above.
+     * Sets node column offset so that after computing placement merge point is centered bellow
+     * nodes above.
      */
     void findMergePoints(LayoutState &state) const;
     /**
@@ -113,8 +116,8 @@ private:
                                   LayoutState &layoutState) const;
     /**
      * @brief Perform the topological sorting of graph nodes.
-     * If the graph contains loops, a subset of edges is selected. Subset of edges forming DAG are stored in
-     * GridBlock::dag_edge.
+     * If the graph contains loops, a subset of edges is selected. Subset of edges forming DAG are
+     * stored in GridBlock::dag_edge.
      * @param state Graph layout state including the input graph.
      * @param entry Entrypoint node. When removing loops prefer placing this node at top.
      * @return Reverse topological ordering.
@@ -162,10 +165,13 @@ private:
      * @param edgeColumnOffset
      * @return total width of all the columns
      */
-    static int calculateColumnOffsets(const std::vector<int> &columnWidth, std::vector<int> &edgeColumnWidth,
-                                      std::vector<int> &columnOffset, std::vector<int> &edgeColumnOffset);
+    static int calculateColumnOffsets(const std::vector<int> &columnWidth,
+                                      std::vector<int> &edgeColumnWidth,
+                                      std::vector<int> &columnOffset,
+                                      std::vector<int> &edgeColumnOffset);
     /**
-     * @brief Final graph layout step. Convert grids cell relative positions to absolute pixel positions.
+     * @brief Final graph layout step. Convert grids cell relative positions to absolute pixel
+     * positions.
      * @param state
      * @param width image width output argument
      * @param height image height output argument
@@ -184,7 +190,8 @@ private:
      */
     void connectEdgeEnds(Graph &graph) const;
     /**
-     * @brief Reduce spacing between nodes and edges by pushing everything together ignoring the grid.
+     * @brief Reduce spacing between nodes and edges by pushing everything together ignoring the
+     * grid.
      * @param state
      */
     void optimizeLayout(LayoutState &state) const;

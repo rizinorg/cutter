@@ -1,8 +1,6 @@
 #include "BasicBlockHighlighter.h"
 
-BasicBlockHighlighter::BasicBlockHighlighter()
-{
-}
+BasicBlockHighlighter::BasicBlockHighlighter() {}
 
 BasicBlockHighlighter::~BasicBlockHighlighter()
 {
@@ -41,7 +39,7 @@ BasicBlock *BasicBlockHighlighter::getBasicBlock(RVA address)
 
     it = bbMap.find(address);
     if (it != bbMap.end()) {
-	return it->second;
+        return it->second;
     }
 
     return nullptr;

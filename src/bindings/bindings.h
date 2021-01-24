@@ -11,4 +11,4 @@
 #include "../plugins/CutterPlugin.h"
 #include "../menus/AddressableItemContextMenu.h"
 
-#endif //CUTTER_BINDINGS_H
+#endif // CUTTER_BINDINGS_H

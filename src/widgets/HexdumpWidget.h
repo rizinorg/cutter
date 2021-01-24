@@ -41,6 +41,7 @@ public slots:
 protected:
     virtual void resizeEvent(QResizeEvent *event) override;
     QWidget *widgetToFocusOnRaise() override;
+
 private:
     std::unique_ptr<Ui::HexdumpWidget> ui;
 

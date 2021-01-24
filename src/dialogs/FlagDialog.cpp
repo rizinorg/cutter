@@ -4,13 +4,8 @@
 #include <QIntValidator>
 #include "core/Cutter.h"
 
-
-FlagDialog::FlagDialog(RVA offset, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::FlagDialog),
-    offset(offset),
-    flagName(""),
-    flagOffset(RVA_INVALID)
+FlagDialog::FlagDialog(RVA offset, QWidget *parent)
+    : QDialog(parent), ui(new Ui::FlagDialog), offset(offset), flagName(""), flagOffset(RVA_INVALID)
 {
     // Setup UI
     ui->setupUi(this);
@@ -32,13 +27,11 @@ FlagDialog::FlagDialog(RVA offset, QWidget *parent) :
     }
 
     // Connect slots
-    connect(ui->buttonBox, &QDialogButtonBox::accepted,
-        this, &FlagDialog::buttonBoxAccepted);
-    connect(ui->buttonBox, &QDialogButtonBox::rejected,
-        this, &FlagDialog::buttonBoxRejected);
+    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &FlagDialog::buttonBoxAccepted);
+    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &FlagDialog::buttonBoxRejected);
 }
 
-FlagDialog::~FlagDialog() { }
+FlagDialog::~FlagDialog() {}
 
 void FlagDialog::buttonBoxAccepted()
 {

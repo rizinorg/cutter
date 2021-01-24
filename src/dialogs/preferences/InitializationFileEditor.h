@@ -21,11 +21,9 @@ public:
     ~InitializationFileEditor();
     void saveCutterRC();
     void executeCutterRC();
-    
+
 private:
     std::unique_ptr<Ui::InitializationFileEditor> ui;
-
 };
 
-
-#endif //INITIALIZATIONFILEEDITOR_H
+#endif // INITIALIZATIONFILEEDITOR_H

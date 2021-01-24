@@ -9,10 +9,10 @@
 #include <QShortcut>
 #include <QTreeWidget>
 
-ImportsModel::ImportsModel(QList<ImportDescription> *imports, QObject *parent) :
-    AddressableItemModel(parent),
-    imports(imports)
-{}
+ImportsModel::ImportsModel(QList<ImportDescription> *imports, QObject *parent)
+    : AddressableItemModel(parent), imports(imports)
+{
+}
 
 int ImportsModel::rowCount(const QModelIndex &parent) const
 {
@@ -160,10 +160,10 @@ bool ImportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
  * Imports Widget
  */
 
-ImportsWidget::ImportsWidget(MainWindow *main) :
-    ListDockWidget(main),
-    importsModel(new ImportsModel(&imports, this)),
-    importsProxyModel(new ImportsProxyModel(importsModel, this))
+ImportsWidget::ImportsWidget(MainWindow *main)
+    : ListDockWidget(main),
+      importsModel(new ImportsModel(&imports, this)),
+      importsProxyModel(new ImportsProxyModel(importsModel, this))
 {
     setWindowTitle(tr("Imports"));
     setObjectName("ImportsWidget");
@@ -172,15 +172,12 @@ ImportsWidget::ImportsWidget(MainWindow *main) :
     // Sort by library name by default to create a solid context per each group of imports
     ui->treeView->sortByColumn(ImportsModel::LibraryColumn, Qt::AscendingOrder);
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ImportsWidget"], main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
-            toggleDockWidget(true);
-            } );
+    connect(toggle_shortcut, &QShortcut::activated, this, [=]() { toggleDockWidget(true); });
 
     connect(Core(), &CutterCore::codeRebased, this, &ImportsWidget::refreshImports);
     connect(Core(), &CutterCore::refreshAll, this, &ImportsWidget::refreshImports);
-    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
-        qhelpers::emitColumnChanged(importsModel, ImportsModel::CommentColumn);
-    });
+    connect(Core(), &CutterCore::commentsChanged, this,
+            [this]() { qhelpers::emitColumnChanged(importsModel, ImportsModel::CommentColumn); });
 }
 
 ImportsWidget::~ImportsWidget() {}

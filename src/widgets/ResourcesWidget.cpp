@@ -5,8 +5,7 @@
 #include <QVBoxLayout>
 
 ResourcesModel::ResourcesModel(QList<ResourcesDescription> *resources, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent),
-      resources(resources)
+    : AddressableItemModel<QAbstractListModel>(parent), resources(resources)
 {
 }
 
@@ -101,8 +100,8 @@ RVA ResourcesModel::address(const QModelIndex &index) const
     return res.vaddr;
 }
 
-ResourcesWidget::ResourcesWidget(MainWindow *main) :
-    ListDockWidget(main, ListDockWidget::SearchBarPolicy::HideByDefault)
+ResourcesWidget::ResourcesWidget(MainWindow *main)
+    : ListDockWidget(main, ListDockWidget::SearchBarPolicy::HideByDefault)
 {
     setObjectName("ResourcesWidget");
 
@@ -119,9 +118,8 @@ ResourcesWidget::ResourcesWidget(MainWindow *main) :
     this->setWindowTitle(tr("Resources"));
 
     connect(Core(), &CutterCore::refreshAll, this, &ResourcesWidget::refreshResources);
-    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
-        qhelpers::emitColumnChanged(model, ResourcesModel::COMMENT);
-    });
+    connect(Core(), &CutterCore::commentsChanged, this,
+            [this]() { qhelpers::emitColumnChanged(model, ResourcesModel::COMMENT); });
 }
 
 void ResourcesWidget::refreshResources()

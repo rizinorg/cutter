@@ -7,10 +7,10 @@
 
 class StringsTask : public AsyncTask
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
-    QString getTitle() override                     { return tr("Searching for Strings"); }
+    QString getTitle() override { return tr("Searching for Strings"); }
 
 signals:
     void stringSearchFinished(const QList<StringDescription> &strings);
@@ -23,4 +23,4 @@ protected:
     }
 };
 
-#endif //STRINGSASYNCTASK_H
+#endif // STRINGSASYNCTASK_H

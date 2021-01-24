@@ -36,7 +36,17 @@ private:
     QList<SectionDescription> *sections;
 
 public:
-    enum Column { NameColumn = 0, SizeColumn, AddressColumn, EndAddressColumn, VirtualSizeColumn, PermissionsColumn, EntropyColumn, CommentColumn, ColumnCount };
+    enum Column {
+        NameColumn = 0,
+        SizeColumn,
+        AddressColumn,
+        EndAddressColumn,
+        VirtualSizeColumn,
+        PermissionsColumn,
+        EntropyColumn,
+        CommentColumn,
+        ColumnCount
+    };
     enum Role { SectionDescriptionRole = Qt::UserRole };
 
     SectionsModel(QList<SectionDescription> *sections, QObject *parent = nullptr);
@@ -73,6 +83,7 @@ public:
 private slots:
     void refreshSections();
     void refreshDocks();
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
@@ -136,8 +147,8 @@ protected:
     int getIndicatorWidth();
     int getValidMinSize();
 
-    virtual RVA getSizeOfSection(const SectionDescription &section) =0;
-    virtual RVA getAddressOfSection(const SectionDescription &section) =0;
+    virtual RVA getSizeOfSection(const SectionDescription &section) = 0;
+    virtual RVA getAddressOfSection(const SectionDescription &section) = 0;
 
 private:
     void drawIndicator(QString name, float ratio);

@@ -16,9 +16,8 @@ enum ColumnIndex {
     COLUMN_PATH,
 };
 
-ProcessesWidget::ProcessesWidget(MainWindow *main) :
-    CutterDockWidget(main),
-    ui(new Ui::ProcessesWidget)
+ProcessesWidget::ProcessesWidget(MainWindow *main)
+    : CutterDockWidget(main), ui(new Ui::ProcessesWidget)
 {
     ui->setupUi(this);
 
@@ -38,7 +37,8 @@ ProcessesWidget::ProcessesWidget(MainWindow *main) :
 
     // CTRL+F switches to the filter view and opens it in case it's hidden
     QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
-    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
+    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
+            &QuickFilterView::showFilter);
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     // ESC switches back to the processes table and clears the buffer
@@ -49,9 +49,7 @@ ProcessesWidget::ProcessesWidget(MainWindow *main) :
     });
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    refreshDeferrer = createRefreshDeferrer([this]() {
-        updateContents();
-    });
+    refreshDeferrer = createRefreshDeferrer([this]() { updateContents(); });
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, modelFilter,
             &ProcessesFilterModel::setFilterWildcard);
@@ -146,7 +144,8 @@ void ProcessesWidget::setProcessesGrid()
     }
 
     modelFilter->setSourceModel(modelProcesses);
-    ui->viewProcesses->resizeColumnsToContents();;
+    ui->viewProcesses->resizeColumnsToContents();
+    ;
 }
 
 void ProcessesWidget::fontsUpdatedSlot()
@@ -181,8 +180,7 @@ void ProcessesWidget::onActivated(const QModelIndex &index)
     updateContents();
 }
 
-ProcessesFilterModel::ProcessesFilterModel(QObject *parent)
-    : QSortFilterProxyModel(parent)
+ProcessesFilterModel::ProcessesFilterModel(QObject *parent) : QSortFilterProxyModel(parent)
 {
     setFilterCaseSensitivity(Qt::CaseInsensitive);
     setSortCaseSensitivity(Qt::CaseInsensitive);

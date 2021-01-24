@@ -24,8 +24,8 @@ public:
     RizinTaskDialog(Ptr task, QWidget *parent = nullptr);
     ~RizinTaskDialog();
 
-    void setBreakOnClose(bool v)        { breakOnClose = v; }
-    bool getBreakOnClose()              { return breakOnClose; }
+    void setBreakOnClose(bool v) { breakOnClose = v; }
+    bool getBreakOnClose() { return breakOnClose; }
     void setDesc(const QString &label);
 
 public slots:
@@ -47,4 +47,4 @@ private:
     bool breakOnClose = false;
 };
 
-#endif //RZTASKDIALOG_H
+#endif // RZTASKDIALOG_H

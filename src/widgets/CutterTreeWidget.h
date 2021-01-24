@@ -22,6 +22,5 @@ public:
 
 private:
     QStatusBar *bar;
-
 };
 #endif // CUTTERTREEWIDGET_H

@@ -25,4 +25,4 @@ private:
     QList<PreferenceCategory> children;
 };
 
-#endif //PREFERENCECATEGORY_H
+#endif // PREFERENCECATEGORY_H

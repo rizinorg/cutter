@@ -38,11 +38,11 @@ public:
     enum NestedColumn { OffsetNestedColumn = 0, CommentNestedColumn, NestedColumnCount };
     enum Role { CommentDescriptionRole = Qt::UserRole, FunctionRole };
 
-    CommentsModel(QList<CommentDescription> *comments,
-                  QList<CommentGroup> *nestedComments,
+    CommentsModel(QList<CommentDescription> *comments, QList<CommentGroup> *nestedComments,
                   QObject *parent = nullptr);
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex index(int row, int column,
+                      const QModelIndex &parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex &index) const override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;

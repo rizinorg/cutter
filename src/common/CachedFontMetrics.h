@@ -11,8 +11,7 @@ template<typename T>
 class CachedFontMetrics
 {
 public:
-    explicit CachedFontMetrics(const QFont &font)
-        : mFontMetrics(font)
+    explicit CachedFontMetrics(const QFont &font) : mFontMetrics(font)
     {
         memset(mWidths, 0, sizeof(mWidths));
         mHeight = mFontMetrics.height();
@@ -20,7 +19,7 @@ public:
 
     T width(const QChar &ch)
     {
-        //return mFontMetrics.width(ch);
+        // return mFontMetrics.width(ch);
         auto unicode = ch.unicode();
         if (unicode >= 0xD800) {
             if (unicode >= 0xE000)
@@ -49,10 +48,7 @@ public:
         return result;
     }
 
-    T height()
-    {
-        return mHeight;
-    }
+    T height() { return mHeight; }
 
     T position(const QString &text, T offset)
     {
@@ -84,7 +80,7 @@ private:
 
     T fetchWidth(QChar c)
     {
-#if QT_VERSION < QT_VERSION_CHECK(5,11,0)
+#if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
         return mFontMetrics.width(c);
 #else
         return mFontMetrics.horizontalAdvance(c);
@@ -93,7 +89,7 @@ private:
 
     T fetchWidth(const QString &s)
     {
-#if QT_VERSION < QT_VERSION_CHECK(5,11,0)
+#if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
         return mFontMetrics.width(s);
 #else
         return mFontMetrics.horizontalAdvance(s);

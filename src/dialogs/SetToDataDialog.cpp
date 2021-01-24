@@ -2,10 +2,8 @@
 #include "ui_SetToDataDialog.h"
 #include <QIntValidator>
 
-SetToDataDialog::SetToDataDialog(RVA startAddr, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::SetToDataDialog),
-    startAddress(startAddr)
+SetToDataDialog::SetToDataDialog(RVA startAddr, QWidget *parent)
+    : QDialog(parent), ui(new Ui::SetToDataDialog), startAddress(startAddr)
 {
     ui->setupUi(this);
     auto validator = new QIntValidator(this);

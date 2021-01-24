@@ -5,8 +5,8 @@
 #include <core/Cutter.h>
 
 namespace Cutter {
-    void initializeSettings();
-    void migrateThemes();
+void initializeSettings();
+void migrateThemes();
 }
 
 #endif // COMMON_SETTINGS_UPGRADE_H

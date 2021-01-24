@@ -71,7 +71,8 @@ private:
      */
     bool isTogglingBreakpoints;
     /**
-     * List of the offsets of all the breakpoints (enabled and disabled) that are present in the line under cursor.
+     * List of the offsets of all the breakpoints (enabled and disabled) that are present in the
+     * line under cursor.
      */
     QVector<RVA> availableBreakpoints;
     /**

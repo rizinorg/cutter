@@ -140,7 +140,7 @@ private:
     DisassemblerGraphView::EdgeConfigurationMapping edgeConfigurations;
 
 public:
-    QRectF getRangeRect()       { return rangeRect; }
+    QRectF getRangeRect() { return rangeRect; }
     void setRangeRect(QRectF rect);
 };
 

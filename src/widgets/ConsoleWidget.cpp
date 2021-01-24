@@ -17,18 +17,18 @@
 #include "WidgetShortcuts.h"
 
 #ifdef Q_OS_WIN
-#include <io.h>
-#define dup2 _dup2
-#define dup _dup
-#define fileno _fileno
-#define fdopen _fdopen
-#define PIPE_SIZE 65536 // Match Linux size
-#define PIPE_NAME "\\\\.\\pipe\\cutteroutput-%1"
+#    include <io.h>
+#    define dup2 _dup2
+#    define dup _dup
+#    define fileno _fileno
+#    define fdopen _fdopen
+#    define PIPE_SIZE 65536 // Match Linux size
+#    define PIPE_NAME "\\\\.\\pipe\\cutteroutput-%1"
 #else
-#include <unistd.h>
-#define PIPE_READ  (0)
-#define PIPE_WRITE (1)
-#define STDIN_PIPE_NAME "%1/cutter-stdin-%2"
+#    include <unistd.h>
+#    define PIPE_READ (0)
+#    define PIPE_WRITE (1)
+#    define STDIN_PIPE_NAME "%1/cutter-stdin-%2"
 #endif
 
 #define CONSOLE_RIZIN_INPUT ("Rizin Console")
@@ -38,15 +38,15 @@ static const int invalidHistoryPos = -1;
 
 static const char *consoleWrapSettingsKey = "console.wrap";
 
-ConsoleWidget::ConsoleWidget(MainWindow *main) :
-    CutterDockWidget(main),
-    ui(new Ui::ConsoleWidget),
-    debugOutputEnabled(true),
-    maxHistoryEntries(100),
-    lastHistoryPosition(invalidHistoryPos),
-    completer(nullptr),
-    historyUpShortcut(nullptr),
-    historyDownShortcut(nullptr)
+ConsoleWidget::ConsoleWidget(MainWindow *main)
+    : CutterDockWidget(main),
+      ui(new Ui::ConsoleWidget),
+      debugOutputEnabled(true),
+      maxHistoryEntries(100),
+      lastHistoryPosition(invalidHistoryPos),
+      completer(nullptr),
+      historyUpShortcut(nullptr),
+      historyDownShortcut(nullptr)
 {
     ui->setupUi(this);
 
@@ -63,9 +63,10 @@ ConsoleWidget::ConsoleWidget(MainWindow *main) :
     // Ctrl+` and ';' to toggle console widget
     QAction *toggleConsole = toggleViewAction();
     QList<QKeySequence> toggleShortcuts;
-    toggleShortcuts << widgetShortcuts["ConsoleWidget"] << widgetShortcuts["ConsoleWidgetAlternative"];
+    toggleShortcuts << widgetShortcuts["ConsoleWidget"]
+                    << widgetShortcuts["ConsoleWidgetAlternative"];
     toggleConsole->setShortcuts(toggleShortcuts);
-    connect(toggleConsole, &QAction::triggered, this, [this, toggleConsole](){
+    connect(toggleConsole, &QAction::triggered, this, [this, toggleConsole]() {
         if (toggleConsole->isChecked()) {
             widgetToFocusOnRaise()->setFocus();
         }
@@ -83,9 +84,7 @@ ConsoleWidget::ConsoleWidget(MainWindow *main) :
     actionWrapLines = new QAction(tr("Wrap Lines"), ui->outputTextEdit);
     actionWrapLines->setCheckable(true);
     setWrap(QSettings().value(consoleWrapSettingsKey, true).toBool());
-    connect(actionWrapLines, &QAction::triggered, this, [this] (bool checked) {
-        setWrap(checked);
-    });
+    connect(actionWrapLines, &QAction::triggered, this, [this](bool checked) { setWrap(checked); });
     actions.append(actionWrapLines);
 
     // Completion
@@ -101,15 +100,17 @@ ConsoleWidget::ConsoleWidget(MainWindow *main) :
 
     // Set console output context menu
     ui->outputTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->outputTextEdit, &QWidget::customContextMenuRequested,
-            this, &ConsoleWidget::showCustomContextMenu);
+    connect(ui->outputTextEdit, &QWidget::customContextMenuRequested, this,
+            &ConsoleWidget::showCustomContextMenu);
 
     // Esc clears rzInputLineEdit and debugeeInputLineEdit (like OmniBar)
-    QShortcut *rizin_clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), ui->rzInputLineEdit);
+    QShortcut *rizin_clear_shortcut =
+            new QShortcut(QKeySequence(Qt::Key_Escape), ui->rzInputLineEdit);
     connect(rizin_clear_shortcut, &QShortcut::activated, this, &ConsoleWidget::clear);
     rizin_clear_shortcut->setContext(Qt::WidgetShortcut);
 
-    QShortcut *debugee_clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), ui->debugeeInputLineEdit);
+    QShortcut *debugee_clear_shortcut =
+            new QShortcut(QKeySequence(Qt::Key_Escape), ui->debugeeInputLineEdit);
     connect(debugee_clear_shortcut, &QShortcut::activated, this, &ConsoleWidget::clear);
     debugee_clear_shortcut->setContext(Qt::WidgetShortcut);
 
@@ -125,15 +126,15 @@ ConsoleWidget::ConsoleWidget(MainWindow *main) :
     QShortcut *completionShortcut = new QShortcut(QKeySequence(Qt::Key_Tab), ui->rzInputLineEdit);
     connect(completionShortcut, &QShortcut::activated, this, &ConsoleWidget::triggerCompletion);
 
-    connect(ui->rzInputLineEdit, &QLineEdit::editingFinished, this, &ConsoleWidget::disableCompletion);
+    connect(ui->rzInputLineEdit, &QLineEdit::editingFinished, this,
+            &ConsoleWidget::disableCompletion);
 
     connect(Config(), &Configuration::fontsUpdated, this, &ConsoleWidget::setupFont);
 
-    connect(ui->inputCombo,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(ui->inputCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &ConsoleWidget::onIndexChange);
 
-    connect(Core(), &CutterCore::debugTaskStateChanged, this, [ = ]() {
+    connect(Core(), &CutterCore::debugTaskStateChanged, this, [=]() {
         if (Core()->isRedirectableDebugee()) {
             ui->inputCombo->setVisible(true);
         } else {
@@ -160,7 +161,7 @@ ConsoleWidget::~ConsoleWidget()
 
 bool ConsoleWidget::eventFilter(QObject *obj, QEvent *event)
 {
-    if(completer && obj == completer->popup() &&
+    if (completer && obj == completer->popup() &&
         // disable up/down shortcuts if completer is shown
         (event->type() == QEvent::Type::Show || event->type() == QEvent::Type::Hide)) {
         bool enabled = !completer->popup()->isVisible();
@@ -226,21 +227,21 @@ void ConsoleWidget::executeCommand(const QString &command)
     addOutput(cmd_line);
 
     RVA oldOffset = Core()->getOffset();
-    commandTask = QSharedPointer<CommandTask>(new CommandTask(command, CommandTask::ColorMode::MODE_256, true));
-    connect(commandTask.data(), &CommandTask::finished, this, [this, cmd_line,
-          command, oldOffset] (const QString & result) {
+    commandTask = QSharedPointer<CommandTask>(
+            new CommandTask(command, CommandTask::ColorMode::MODE_256, true));
+    connect(commandTask.data(), &CommandTask::finished, this,
+            [this, cmd_line, command, oldOffset](const QString &result) {
+                ui->outputTextEdit->appendHtml(result);
+                scrollOutputToEnd();
+                historyAdd(command);
+                commandTask.clear();
+                ui->rzInputLineEdit->setEnabled(true);
+                ui->rzInputLineEdit->setFocus();
 
-        ui->outputTextEdit->appendHtml(result);
-        scrollOutputToEnd();
-        historyAdd(command);
-        commandTask.clear();
-        ui->rzInputLineEdit->setEnabled(true);
-        ui->rzInputLineEdit->setFocus();
-
-        if (oldOffset != Core()->getOffset()) {
-            Core()->updateSeek();
-        }
-    });
+                if (oldOffset != Core()->getOffset()) {
+                    Core()->updateSeek();
+                }
+            });
 
     Core()->getAsyncTaskManager()->start(commandTask);
 }
@@ -275,7 +276,8 @@ void ConsoleWidget::setWrap(bool wrap)
 {
     QSettings().setValue(consoleWrapSettingsKey, wrap);
     actionWrapLines->setChecked(wrap);
-    ui->outputTextEdit->setLineWrapMode(wrap ? QPlainTextEdit::WidgetWidth: QPlainTextEdit::NoWrap);
+    ui->outputTextEdit->setLineWrapMode(wrap ? QPlainTextEdit::WidgetWidth
+                                             : QPlainTextEdit::NoWrap);
 }
 
 void ConsoleWidget::on_rzInputLineEdit_returnPressed()
@@ -318,7 +320,7 @@ void ConsoleWidget::historyNext()
     if (!history.isEmpty()) {
         if (lastHistoryPosition > invalidHistoryPos) {
             if (lastHistoryPosition >= history.size()) {
-                lastHistoryPosition = history.size() - 1 ;
+                lastHistoryPosition = history.size() - 1;
             }
 
             --lastHistoryPosition;
@@ -328,8 +330,6 @@ void ConsoleWidget::historyNext()
             } else {
                 ui->rzInputLineEdit->clear();
             }
-
-
         }
     }
 }
@@ -436,7 +436,7 @@ void ConsoleWidget::processQueuedOutput()
 
 // Haiku doesn't have O_ASYNC
 #ifdef Q_OS_HAIKU
-#define O_ASYNC O_NONBLOCK
+#    define O_ASYNC O_NONBLOCK
 #endif
 
 void ConsoleWidget::redirectOutput()
@@ -455,9 +455,10 @@ void ConsoleWidget::redirectOutput()
 #ifdef Q_OS_WIN
     QString pipeName = QString::fromLatin1(PIPE_NAME).arg(QUuid::createUuid().toString());
 
-    SECURITY_ATTRIBUTES attributes = {sizeof(SECURITY_ATTRIBUTES), 0, false};
-    hWrite = CreateNamedPipeW((wchar_t *)pipeName.utf16(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
-                              PIPE_TYPE_BYTE | PIPE_WAIT, 1, PIPE_SIZE, PIPE_SIZE, 0, &attributes);
+    SECURITY_ATTRIBUTES attributes = { sizeof(SECURITY_ATTRIBUTES), 0, false };
+    hWrite =
+            CreateNamedPipeW((wchar_t *)pipeName.utf16(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
+                             PIPE_TYPE_BYTE | PIPE_WAIT, 1, PIPE_SIZE, PIPE_SIZE, 0, &attributes);
 
     int writeFd = _open_osfhandle((intptr_t)hWrite, _O_WRONLY | _O_TEXT);
     dup2(writeFd, fileno(stdout));
@@ -467,7 +468,7 @@ void ConsoleWidget::redirectOutput()
 #else
     pipe(redirectPipeFds);
     stdinFifoPath = QString(STDIN_PIPE_NAME).arg(QDir::tempPath(), QUuid::createUuid().toString());
-    mkfifo(stdinFifoPath.toStdString().c_str(), (mode_t) 0777);
+    mkfifo(stdinFifoPath.toStdString().c_str(), (mode_t)0777);
     stdinFile = open(stdinFifoPath.toStdString().c_str(), O_RDWR | O_ASYNC);
 
     dup2(stdinFile, fileno(stdin));

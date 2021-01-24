@@ -7,10 +7,10 @@
 
 class FunctionsTask : public AsyncTask
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
-    QString getTitle() override                     { return tr("Fetching Functions"); }
+    QString getTitle() override { return tr("Fetching Functions"); }
 
 signals:
     void fetchFinished(const QList<FunctionDescription> &strings);
@@ -23,4 +23,4 @@ protected:
     }
 };
 
-#endif //FUNCTIONSTASK_H
+#endif // FUNCTIONSTASK_H

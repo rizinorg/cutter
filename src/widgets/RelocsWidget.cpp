@@ -6,10 +6,10 @@
 #include <QShortcut>
 #include <QTreeWidget>
 
-RelocsModel::RelocsModel(QList<RelocDescription> *relocs, QObject *parent) :
-    AddressableItemModel<QAbstractTableModel>(parent),
-    relocs(relocs)
-{}
+RelocsModel::RelocsModel(QList<RelocDescription> *relocs, QObject *parent)
+    : AddressableItemModel<QAbstractTableModel>(parent), relocs(relocs)
+{
+}
 
 int RelocsModel::rowCount(const QModelIndex &parent) const
 {
@@ -119,10 +119,10 @@ bool RelocsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &righ
     return false;
 }
 
-RelocsWidget::RelocsWidget(MainWindow *main) :
-    ListDockWidget(main),
-    relocsModel(new RelocsModel(&relocs, this)),
-    relocsProxyModel(new RelocsProxyModel(relocsModel, this))
+RelocsWidget::RelocsWidget(MainWindow *main)
+    : ListDockWidget(main),
+      relocsModel(new RelocsModel(&relocs, this)),
+      relocsProxyModel(new RelocsProxyModel(relocsModel, this))
 {
     setWindowTitle(tr("Relocs"));
     setObjectName("RelocsWidget");
@@ -132,9 +132,8 @@ RelocsWidget::RelocsWidget(MainWindow *main) :
 
     connect(Core(), &CutterCore::codeRebased, this, &RelocsWidget::refreshRelocs);
     connect(Core(), &CutterCore::refreshAll, this, &RelocsWidget::refreshRelocs);
-    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
-        qhelpers::emitColumnChanged(relocsModel, RelocsModel::CommentColumn);
-    });
+    connect(Core(), &CutterCore::commentsChanged, this,
+            [this]() { qhelpers::emitColumnChanged(relocsModel, RelocsModel::CommentColumn); });
 }
 
 RelocsWidget::~RelocsWidget() {}

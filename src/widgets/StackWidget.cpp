@@ -8,11 +8,11 @@
 #include "QHeaderView"
 #include "QMenu"
 
-StackWidget::StackWidget(MainWindow *main) :
-    CutterDockWidget(main),
-    ui(new Ui::StackWidget),
-    menuText(this),
-    addressableItemContextMenu(this, main)
+StackWidget::StackWidget(MainWindow *main)
+    : CutterDockWidget(main),
+      ui(new Ui::StackWidget),
+      menuText(this),
+      addressableItemContextMenu(this, main)
 {
     ui->setupUi(this);
 
@@ -26,28 +26,27 @@ StackWidget::StackWidget(MainWindow *main) :
     viewStack->setAutoScroll(false);
     viewStack->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->verticalLayout->addWidget(viewStack);
-    viewStack->setEditTriggers(viewStack->editTriggers() &
-                               ~(QAbstractItemView::DoubleClicked | QAbstractItemView::AnyKeyPressed));
+    viewStack->setEditTriggers(
+            viewStack->editTriggers()
+            & ~(QAbstractItemView::DoubleClicked | QAbstractItemView::AnyKeyPressed));
 
     editAction = new QAction(tr("Edit stack value..."), this);
     viewStack->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    refreshDeferrer = createRefreshDeferrer([this]() {
-        updateContents();
-    });
+    refreshDeferrer = createRefreshDeferrer([this]() { updateContents(); });
 
     connect(Core(), &CutterCore::refreshAll, this, &StackWidget::updateContents);
     connect(Core(), &CutterCore::registersChanged, this, &StackWidget::updateContents);
     connect(Core(), &CutterCore::stackChanged, this, &StackWidget::updateContents);
-    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
-        qhelpers::emitColumnChanged(modelStack, StackModel::CommentColumn);
-    });
+    connect(Core(), &CutterCore::commentsChanged, this,
+            [this]() { qhelpers::emitColumnChanged(modelStack, StackModel::CommentColumn); });
     connect(Config(), &Configuration::fontsUpdated, this, &StackWidget::fontsUpdatedSlot);
     connect(viewStack, &QAbstractItemView::doubleClicked, this, &StackWidget::onDoubleClicked);
-    connect(viewStack, &QWidget::customContextMenuRequested, this, &StackWidget::customMenuRequested);
+    connect(viewStack, &QWidget::customContextMenuRequested, this,
+            &StackWidget::customMenuRequested);
     connect(editAction, &QAction::triggered, this, &StackWidget::editStack);
-    connect(viewStack->selectionModel(), &QItemSelectionModel::currentChanged,
-            this, &StackWidget::onCurrentChanged);
+    connect(viewStack->selectionModel(), &QItemSelectionModel::currentChanged, this,
+            &StackWidget::onCurrentChanged);
 
     addressableItemContextMenu.addAction(editAction);
     addActions(addressableItemContextMenu.actions());
@@ -129,7 +128,8 @@ void StackWidget::onCurrentChanged(const QModelIndex &current, const QModelIndex
     if (currentIndex.column() != StackModel::DescriptionColumn) {
         offsetString = currentIndex.data().toString();
     } else {
-        offsetString = currentIndex.sibling(currentIndex.row(), StackModel::ValueColumn).data().toString();
+        offsetString =
+                currentIndex.sibling(currentIndex.row(), StackModel::ValueColumn).data().toString();
     }
 
     RVA offset = Core()->math(offsetString);
@@ -141,10 +141,7 @@ void StackWidget::onCurrentChanged(const QModelIndex &current, const QModelIndex
     }
 }
 
-StackModel::StackModel(QObject *parent)
-    : QAbstractTableModel(parent)
-{
-}
+StackModel::StackModel(QObject *parent) : QAbstractTableModel(parent) {}
 
 void StackModel::reload()
 {

@@ -11,18 +11,15 @@
 #include <QKeyEvent>
 #include <QSortFilterProxyModel>
 
-ColorThemeEditDialog::ColorThemeEditDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::ColorThemeEditDialog),
-    configSignalBlocker(Config()), // Blocks signals from Config to avoid updating of widgets during editing
-    colorTheme(Config()->getColorTheme())
+ColorThemeEditDialog::ColorThemeEditDialog(QWidget *parent)
+    : QDialog(parent),
+      ui(new Ui::ColorThemeEditDialog),
+      configSignalBlocker(
+              Config()), // Blocks signals from Config to avoid updating of widgets during editing
+      colorTheme(Config()->getColorTheme())
 {
-    showAlphaOptions = {
-        "gui.overview.border",
-        "gui.overview.fill",
-        "wordHighlight",
-        "lineHighlight"
-    };
+    showAlphaOptions = { "gui.overview.border", "gui.overview.fill", "wordHighlight",
+                         "lineHighlight" };
     ui->setupUi(this);
     ui->colorComboBox->setShowOnlyCustom(true);
 
@@ -39,31 +36,31 @@ ColorThemeEditDialog::ColorThemeEditDialog(QWidget *parent) :
     previewDisasmWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
     ui->colorPickerAndPreviewLayout->addWidget(previewDisasmWidget);
 
+    connect(ui->colorThemeListView, &ColorThemeListView::blink, previewDisasmWidget,
+            &DisassemblyWidget::colorsUpdatedSlot);
 
-    connect(ui->colorThemeListView, &ColorThemeListView::blink,
-            previewDisasmWidget, &DisassemblyWidget::colorsUpdatedSlot);
+    connect(ui->colorThemeListView, &ColorThemeListView::itemChanged, this,
+            [this](const QColor &color) {
+                ui->colorPicker->updateColor(color);
+                QString optionName = ui->colorThemeListView->currentIndex()
+                                             .data(Qt::UserRole)
+                                             .value<ColorOption>()
+                                             .optionName;
+                ui->colorPicker->setAlphaEnabled(showAlphaOptions.contains(optionName));
+            });
 
-    connect(ui->colorThemeListView, &ColorThemeListView::itemChanged,
-            this, [this](const QColor& color) {
-        ui->colorPicker->updateColor(color);
-        QString optionName = ui->colorThemeListView->currentIndex()
-                             .data(Qt::UserRole)
-                             .value<ColorOption>()
-                             .optionName;
-        ui->colorPicker->setAlphaEnabled(showAlphaOptions.contains(optionName));
-    });
-
-    connect(ui->filterLineEdit, &QLineEdit::textChanged, this,
-            [this](const QString& s) {
-        static_cast<QSortFilterProxyModel*>(ui->colorThemeListView->model())->setFilterFixedString(s);
+    connect(ui->filterLineEdit, &QLineEdit::textChanged, this, [this](const QString &s) {
+        static_cast<QSortFilterProxyModel *>(ui->colorThemeListView->model())
+                ->setFilterFixedString(s);
     });
 
     ui->colorThemeListView->setCurrentIndex(ui->colorThemeListView->model()->index(0, 0));
 
-    connect(ui->colorPicker, &ColorPicker::colorChanged, this, &ColorThemeEditDialog::colorOptionChanged);
+    connect(ui->colorPicker, &ColorPicker::colorChanged, this,
+            &ColorThemeEditDialog::colorOptionChanged);
 
-    connect(ui->colorComboBox, &ColorThemeComboBox::currentTextChanged,
-            this, &ColorThemeEditDialog::editThemeChanged);
+    connect(ui->colorComboBox, &ColorThemeComboBox::currentTextChanged, this,
+            &ColorThemeEditDialog::editThemeChanged);
 }
 
 ColorThemeEditDialog::~ColorThemeEditDialog()
@@ -92,11 +89,11 @@ void ColorThemeEditDialog::accept()
 
 void ColorThemeEditDialog::reject()
 {
-    if (themeWasEdited(ui->colorComboBox->currentText()) &&
-        QMessageBox::question(this,
-                              tr("Unsaved changes"),
-                              tr("Are you sure you want to exit without saving? "
-                                 "All changes will be lost.")) == QMessageBox::No) {
+    if (themeWasEdited(ui->colorComboBox->currentText())
+        && QMessageBox::question(this, tr("Unsaved changes"),
+                                 tr("Are you sure you want to exit without saving? "
+                                    "All changes will be lost."))
+                == QMessageBox::No) {
         return;
     }
     configSignalBlocker.unblock();
@@ -121,7 +118,7 @@ void ColorThemeEditDialog::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void ColorThemeEditDialog::colorOptionChanged(const QColor& newColor)
+void ColorThemeEditDialog::colorOptionChanged(const QColor &newColor)
 {
     QModelIndex currIndex = ui->colorThemeListView->currentIndex();
 
@@ -141,13 +138,12 @@ void ColorThemeEditDialog::colorOptionChanged(const QColor& newColor)
     previewDisasmWidget->colorsUpdatedSlot();
 }
 
-void ColorThemeEditDialog::editThemeChanged(const QString& newTheme)
+void ColorThemeEditDialog::editThemeChanged(const QString &newTheme)
 {
     if (themeWasEdited(colorTheme)) {
-        int ret = QMessageBox::question(this,
-                              tr("Unsaved changes"),
-                              tr("Are you sure you want to exit without saving? "
-                                 "All changes will be lost."));
+        int ret = QMessageBox::question(this, tr("Unsaved changes"),
+                                        tr("Are you sure you want to exit without saving? "
+                                           "All changes will be lost."));
         if (ret == QMessageBox::No) {
             QSignalBlocker s(ui->colorComboBox); // avoid second call of this func
             int index = ui->colorComboBox->findText(colorTheme);
@@ -163,7 +159,7 @@ void ColorThemeEditDialog::editThemeChanged(const QString& newTheme)
     setWindowTitle(tr("Theme Editor - <%1>").arg(colorTheme));
 }
 
-bool ColorThemeEditDialog::themeWasEdited(const QString& theme) const
+bool ColorThemeEditDialog::themeWasEdited(const QString &theme) const
 {
     auto model = ui->colorThemeListView->colorSettingsModel();
     return ThemeWorker().getTheme(theme) != model->getTheme();

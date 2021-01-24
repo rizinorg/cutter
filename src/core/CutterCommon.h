@@ -10,17 +10,20 @@
 
 // Workaround for compile errors on Windows
 #ifdef Q_OS_WIN
-#undef min
-#undef max
+#    undef min
+#    undef max
 #endif // Q_OS_WIN
 
 // Rizin list iteration macros
-#define CutterRListForeach(list, it, type, x) \
-    if (list) for (it = list->head; it && ((x=static_cast<type*>(it->data))); it = it->n)
+#define CutterRListForeach(list, it, type, x)                                                      \
+    if (list)                                                                                      \
+        for (it = list->head; it && ((x = static_cast<type *>(it->data))); it = it->n)
 
-#define CutterRVectorForeach(vec, it, type) \
-	if ((vec) && (vec)->a) \
-		for (it = (type *)(vec)->a; (char *)it != (char *)(vec)->a + ((vec)->len * (vec)->elem_size); it = (type *)((char *)it + (vec)->elem_size))
+#define CutterRVectorForeach(vec, it, type)                                                        \
+    if ((vec) && (vec)->a)                                                                         \
+        for (it = (type *)(vec)->a;                                                                \
+             (char *)it != (char *)(vec)->a + ((vec)->len * (vec)->elem_size);                     \
+             it = (type *)((char *)it + (vec)->elem_size))
 
 // Global information for Cutter
 #define APPNAME "Cutter"
@@ -31,7 +34,8 @@
 typedef ut64 RVA;
 
 /**
- * @brief Maximum value of RVA. Do NOT use this for specifying invalid values, use RVA_INVALID instead.
+ * @brief Maximum value of RVA. Do NOT use this for specifying invalid values, use RVA_INVALID
+ * instead.
  */
 #define RVA_MAX UT64_MAX
 
@@ -56,20 +60,18 @@ inline QString RHexString(RVA size)
 }
 
 #ifdef CUTTER_SOURCE_BUILD
-#define CUTTER_EXPORT Q_DECL_EXPORT
+#    define CUTTER_EXPORT Q_DECL_EXPORT
 #else
-#define CUTTER_EXPORT Q_DECL_IMPORT
+#    define CUTTER_EXPORT Q_DECL_IMPORT
 #endif
-
 
 #if defined(__has_cpp_attribute)
-    #if __has_cpp_attribute(deprecated)
-        #define CUTTER_DEPRECATED(msg) [[deprecated(msg)]]
-    #endif
+#    if __has_cpp_attribute(deprecated)
+#        define CUTTER_DEPRECATED(msg) [[deprecated(msg)]]
+#    endif
 #endif
 #if !defined(CUTTER_DEPRECATED)
-#define CUTTER_DEPRECATED(msg)
+#    define CUTTER_DEPRECATED(msg)
 #endif
 
 #endif // CUTTERCORE_H
-

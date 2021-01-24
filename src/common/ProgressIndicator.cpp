@@ -9,15 +9,12 @@ static const int paddingInner = 8;
 static const int arms = 12;
 static const int timerInterval = 50;
 
-ProgressIndicator::ProgressIndicator(QWidget *parent)
-    : QWidget(parent)
+ProgressIndicator::ProgressIndicator(QWidget *parent) : QWidget(parent)
 {
     updateAnimationTimer();
 }
 
-ProgressIndicator::~ProgressIndicator()
-{
-}
+ProgressIndicator::~ProgressIndicator() {}
 
 void ProgressIndicator::setProgressIndicatorVisible(bool visible)
 {
@@ -77,13 +74,9 @@ void ProgressIndicator::paintEvent(QPaintEvent *)
     QLineF line(paddingInner, 0.0, width() * 0.5 - paddingOuter, 0.0);
 
     qreal angle = 360.0 / arms;
-    for (int i=0; i<arms; i++) {
+    for (int i = 0; i < arms; i++) {
         int state = (i + (arms - animationState)) % arms;
         painter.setOpacity((float)state / arms);
-        painter.drawLine(line * QTransform()
-            .translate(origin.x(), origin.y())
-            .rotate(angle * i));
+        painter.drawLine(line * QTransform().translate(origin.x(), origin.y()).rotate(angle * i));
     }
 }
-
-

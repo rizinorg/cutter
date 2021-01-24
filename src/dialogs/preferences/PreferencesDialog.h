@@ -34,4 +34,4 @@ private:
     void chooseThemeIcons();
 };
 
-#endif //PREFERENCESDIALOG_H
+#endif // PREFERENCESDIALOG_H

@@ -6,7 +6,6 @@
 #include <QApplication>
 #include <QDebug>
 
-
 #ifdef APPIMAGE
 static QDir appimageRoot()
 {
@@ -37,7 +36,8 @@ static QStringList substitutePaths(const QStringList &paths)
     QStringList result;
     result.reserve(paths.size());
     for (auto &path : paths) {
-        // consider ignoring some of system folders for portable packages here or standardLocations if it depends on path type
+        // consider ignoring some of system folders for portable packages here or standardLocations
+        // if it depends on path type
         result.push_back(substitutePath(path));
     }
     return result;
@@ -46,8 +46,8 @@ static QStringList substitutePaths(const QStringList &paths)
 QStringList Cutter::locateAll(QStandardPaths::StandardLocation type, const QString &fileName,
                               QStandardPaths::LocateOptions options)
 {
-    // This function is reimplemented here instead of forwarded to Qt becauase existence check needs to be done
-    // after substitutions
+    // This function is reimplemented here instead of forwarded to Qt becauase existence check needs
+    // to be done after substitutions
     QStringList result;
     for (auto path : standardLocations(type)) {
         QString filePath = path + QLatin1Char('/') + fileName;
@@ -81,4 +81,3 @@ QStringList Cutter::getTranslationsDirectories()
     result << QLibraryInfo::location(QLibraryInfo::TranslationsPath);
     return result;
 }
-

@@ -1,7 +1,6 @@
 #include "JsonModel.h"
 
-JsonModel::JsonModel(QObject *parent) :
-    QAbstractItemModel(parent)
+JsonModel::JsonModel(QObject *parent) : QAbstractItemModel(parent)
 {
     mRootItem = new JsonTreeItem;
     mHeaders.append("key");
@@ -42,9 +41,7 @@ QVariant JsonModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-
     JsonTreeItem *item = static_cast<JsonTreeItem *>(index.internalPointer());
-
 
     if (role == Qt::DisplayRole) {
 
@@ -122,4 +119,3 @@ int JsonModel::columnCount(const QModelIndex &parent) const
     Q_UNUSED(parent)
     return 2;
 }
-

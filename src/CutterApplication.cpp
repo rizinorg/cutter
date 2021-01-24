@@ -21,13 +21,13 @@
 #include <QLibraryInfo>
 #include <QFontDatabase>
 #ifdef Q_OS_WIN
-#include <QtNetwork/QtNetwork>
+#    include <QtNetwork/QtNetwork>
 #endif // Q_OS_WIN
 
 #include <cstdlib>
 
 #if CUTTER_RZGHIDRA_STATIC
-#include <RzGhidraDecompiler.h>
+#    include <RzGhidraDecompiler.h>
 #endif
 
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
@@ -38,7 +38,8 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     setAttribute(Qt::AA_UseHighDpiPixmaps);
     setLayoutDirection(Qt::LeftToRight);
 
-    // WARN!!! Put initialization code below this line. Code above this line is mandatory to be run First
+    // WARN!!! Put initialization code below this line. Code above this line is mandatory to be run
+    // First
 
 #ifdef Q_OS_WIN
     // Hack to force Cutter load internet connection related DLL's
@@ -62,10 +63,9 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         qWarning() << "Cannot load Incosolata-Regular font.";
     }
 
-
     // Set QString codec to UTF-8
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
 #endif
@@ -82,9 +82,10 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         msg.setIcon(QMessageBox::Critical);
         msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msg.setWindowTitle(QObject::tr("Version mismatch!"));
-        msg.setText(QString(
-                        QObject::tr("The version used to compile Cutter (%1) does not match the binary version of rizin (%2). This could result in unexpected behaviour. Are you sure you want to continue?")).arg(
-                        localVersion, rzversion));
+        msg.setText(QString(QObject::tr("The version used to compile Cutter (%1) does not match "
+                                        "the binary version of rizin (%2). This could result in "
+                                        "unexpected behaviour. Are you sure you want to continue?"))
+                            .arg(localVersion, rzversion));
         if (msg.exec() == QMessageBox::No) {
             std::exit(1);
         }
@@ -134,7 +135,8 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
     if (clOptions.args.empty()) {
         // check if this is the first execution of Cutter in this computer
-        // Note: the execution after the preferences been reset, will be considered as first-execution
+        // Note: the execution after the preferences been reset, will be considered as
+        // first-execution
         if (Config()->isFirstExecution()) {
             mainWindow->displayWelcomeDialog();
         }
@@ -144,14 +146,14 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         mainWindow->openNewFile(clOptions.fileOpenOptions, askOptions);
     }
 
-
 #ifdef APPIMAGE
     {
         auto appdir = QDir(QCoreApplication::applicationDirPath()); // appdir/bin
         appdir.cdUp(); // appdir
 
         auto sleighHome = appdir;
-        sleighHome.cd("share/rizin/plugins/rz_ghidra_sleigh"); // appdir/share/rizin/plugins/rz_ghidra_sleigh
+        sleighHome.cd(
+                "share/rizin/plugins/rz_ghidra_sleigh"); // appdir/share/rizin/plugins/rz_ghidra_sleigh
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
 
         auto jsdecHome = appdir;
@@ -167,11 +169,13 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         rzprefix.cd("Resources"); // Contents/Resources/rz
 
         auto sleighHome = rzprefix;
-        sleighHome.cd("share/rizin/plugins/rz_ghidra_sleigh"); // Contents/Resources/rz/share/rizin/plugins/rz_ghidra_sleigh
+        sleighHome.cd(
+                "share/rizin/plugins/rz_ghidra_sleigh"); // Contents/Resources/rz/share/rizin/plugins/rz_ghidra_sleigh
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
 
         auto jsdecHome = rzprefix;
-        jsdecHome.cd("share/rizin/plugins/jsdec"); // Contents/Resources/rz/share/rizin/plugins/jsdec
+        jsdecHome.cd(
+                "share/rizin/plugins/jsdec"); // Contents/Resources/rz/share/rizin/plugins/jsdec
         qputenv("JSDEC_HOME", jsdecHome.absolutePath().toLocal8Bit());
     }
 #endif
@@ -221,7 +225,7 @@ bool CutterApplication::event(QEvent *e)
                 // We already dropped a file in macOS, let's spawn another instance
                 // (Like the File -> Open)
                 QString fileName = openEvent->file();
-                launchNewInstance({fileName});
+                launchNewInstance({ fileName });
             } else {
                 QString fileName = openEvent->file();
                 m_FileAlreadyDropped = true;
@@ -241,8 +245,8 @@ bool CutterApplication::loadTranslations()
     if (language == QStringLiteral("en") || language.startsWith(QStringLiteral("en-"))) {
         return true;
     }
-    const auto &allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
-                                                      QLocale::AnyCountry);
+    const auto &allLocales =
+            QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript, QLocale::AnyCountry);
 
     bool cutterTrLoaded = false;
 
@@ -259,7 +263,8 @@ bool CutterApplication::loadTranslations()
             const QStringList &cutterTrPaths = Cutter::getTranslationsDirectories();
 
             for (const auto &trPath : cutterTrPaths) {
-                if (trCutter && trCutter->load(it, QLatin1String("cutter"), QLatin1String("_"), trPath)) {
+                if (trCutter
+                    && trCutter->load(it, QLatin1String("cutter"), QLatin1String("_"), trPath)) {
                     installTranslator(trCutter);
                     cutterTrLoaded = true;
                     trCutter = nullptr;
@@ -299,52 +304,50 @@ bool CutterApplication::parseCommandLineOptions()
 
     QCommandLineParser cmd_parser;
     cmd_parser.setApplicationDescription(
-        QObject::tr("A Qt and C++ GUI for rizin reverse engineering framework"));
+            QObject::tr("A Qt and C++ GUI for rizin reverse engineering framework"));
     cmd_parser.addHelpOption();
     cmd_parser.addVersionOption();
     cmd_parser.addPositionalArgument("filename", QObject::tr("Filename to open."));
 
-    QCommandLineOption analOption({"A", "analysis"},
-                                  QObject::tr("Automatically open file and optionally start analysis. "
-                                              "Needs filename to be specified. May be a value between 0 and 2:"
-                                              " 0 = no analysis, 1 = aaa, 2 = aaaa (experimental)"),
-                                  QObject::tr("level"));
+    QCommandLineOption analOption(
+            { "A", "analysis" },
+            QObject::tr("Automatically open file and optionally start analysis. "
+                        "Needs filename to be specified. May be a value between 0 and 2:"
+                        " 0 = no analysis, 1 = aaa, 2 = aaaa (experimental)"),
+            QObject::tr("level"));
     cmd_parser.addOption(analOption);
 
-    QCommandLineOption formatOption({"F", "format"},
+    QCommandLineOption formatOption({ "F", "format" },
                                     QObject::tr("Force using a specific file format (bin plugin)"),
                                     QObject::tr("name"));
     cmd_parser.addOption(formatOption);
 
-    QCommandLineOption baddrOption({"B", "base"},
+    QCommandLineOption baddrOption({ "B", "base" },
                                    QObject::tr("Load binary at a specific base address"),
                                    QObject::tr("base address"));
     cmd_parser.addOption(baddrOption);
 
-    QCommandLineOption scriptOption("i",
-                                    QObject::tr("Run script file"),
-                                    QObject::tr("file"));
+    QCommandLineOption scriptOption("i", QObject::tr("Run script file"), QObject::tr("file"));
     cmd_parser.addOption(scriptOption);
 
-    QCommandLineOption writeModeOption({"w", "writemode"},
+    QCommandLineOption writeModeOption({ "w", "writemode" },
                                        QObject::tr("Open file in write mode"));
     cmd_parser.addOption(writeModeOption);
 
-
-    QCommandLineOption pythonHomeOption("pythonhome",
-                                        QObject::tr("PYTHONHOME to use for embedded python interpreter"),
-                                        "PYTHONHOME");
+    QCommandLineOption pythonHomeOption(
+            "pythonhome", QObject::tr("PYTHONHOME to use for embedded python interpreter"),
+            "PYTHONHOME");
     cmd_parser.addOption(pythonHomeOption);
 
-    QCommandLineOption disableRedirectOption("no-output-redirect",
-                                             QObject::tr("Disable output redirection."
-                                                         " Some of the output in console widget will not be visible."
-                                                         " Use this option when debuging a crash or freeze and output "
-                                                         " redirection is causing some messages to be lost."));
+    QCommandLineOption disableRedirectOption(
+            "no-output-redirect",
+            QObject::tr("Disable output redirection."
+                        " Some of the output in console widget will not be visible."
+                        " Use this option when debuging a crash or freeze and output "
+                        " redirection is causing some messages to be lost."));
     cmd_parser.addOption(disableRedirectOption);
 
-    QCommandLineOption disablePlugins("no-plugins",
-                                      QObject::tr("Do not load plugins"));
+    QCommandLineOption disablePlugins("no-plugins", QObject::tr("Do not load plugins"));
     cmd_parser.addOption(disablePlugins);
 
     QCommandLineOption disableCutterPlugins("no-cutter-plugins",
@@ -352,7 +355,7 @@ bool CutterApplication::parseCommandLineOptions()
     cmd_parser.addOption(disableCutterPlugins);
 
     QCommandLineOption disableRizinPlugins("no-rizin-plugins",
-                                        QObject::tr("Do not load rizin plugins"));
+                                           QObject::tr("Do not load rizin plugins"));
     cmd_parser.addOption(disableRizinPlugins);
 
     cmd_parser.process(*this);
@@ -366,7 +369,9 @@ bool CutterApplication::parseCommandLineOptions()
 
         if (!analLevelSpecified || analLevel < 0 || analLevel > 2) {
             fprintf(stderr, "%s\n",
-                    QObject::tr("Invalid Analysis Level. May be a value between 0 and 2.").toLocal8Bit().constData());
+                    QObject::tr("Invalid Analysis Level. May be a value between 0 and 2.")
+                            .toLocal8Bit()
+                            .constData());
             return false;
         }
         switch (analLevel) {
@@ -384,7 +389,9 @@ bool CutterApplication::parseCommandLineOptions()
 
     if (opts.args.empty() && opts.analLevel != AutomaticAnalysisLevel::Ask) {
         fprintf(stderr, "%s\n",
-                QObject::tr("Filename must be specified to start analysis automatically.").toLocal8Bit().constData());
+                QObject::tr("Filename must be specified to start analysis automatically.")
+                        .toLocal8Bit()
+                        .constData());
         return false;
     }
 
@@ -406,10 +413,10 @@ bool CutterApplication::parseCommandLineOptions()
             opts.fileOpenOptions.analCmd = {};
             break;
         case AutomaticAnalysisLevel::AAA:
-            opts.fileOpenOptions.analCmd = { {"aaa", "Auto analysis"} };
+            opts.fileOpenOptions.analCmd = { { "aaa", "Auto analysis" } };
             break;
         case AutomaticAnalysisLevel::AAAA:
-            opts.fileOpenOptions.analCmd = { {"aaaa", "Auto analysis (experimental)"} };
+            opts.fileOpenOptions.analCmd = { { "aaaa", "Auto analysis (experimental)" } };
             break;
         }
         opts.fileOpenOptions.script = cmd_parser.value(scriptOption);
@@ -438,7 +445,6 @@ bool CutterApplication::parseCommandLineOptions()
     this->clOptions = opts;
     return true;
 }
-
 
 void CutterProxyStyle::polish(QWidget *widget)
 {

@@ -23,7 +23,6 @@ private:
     CutterCore *core;
 
     void fillVersionInfo();
-
 };
 
 #endif // VERSIONINFODIALOG_H

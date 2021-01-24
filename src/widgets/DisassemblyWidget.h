@@ -12,7 +12,6 @@
 #include <QShortcut>
 #include <QAction>
 
-
 class DisassemblyTextEdit;
 class DisassemblyScrollArea;
 class DisassemblyContextMenu;
@@ -29,7 +28,7 @@ public:
 
 public slots:
     /**
-     * @brief Highlights the currently selected line and updates the 
+     * @brief Highlights the currently selected line and updates the
      * highlighting of the same words under the cursor in the visible screen.
      * This overrides all previous highlighting.
      */
@@ -98,7 +97,7 @@ private:
 
     void moveCursorRelative(bool up, bool page);
 
-    void jumpToOffsetUnderCursor(const QTextCursor&);
+    void jumpToOffsetUnderCursor(const QTextCursor &);
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea
@@ -119,22 +118,20 @@ private:
     void resetScrollBars();
 };
 
-
-class DisassemblyTextEdit: public QPlainTextEdit
+class DisassemblyTextEdit : public QPlainTextEdit
 {
     Q_OBJECT
 
 public:
     explicit DisassemblyTextEdit(QWidget *parent = nullptr)
-        : QPlainTextEdit(parent),
-          lockScroll(false) {}
-
-    void setLockScroll(bool lock)
+        : QPlainTextEdit(parent), lockScroll(false)
     {
-        this->lockScroll = lock;
     }
 
+    void setLockScroll(bool lock) { this->lockScroll = lock; }
+
     qreal textOffset() const;
+
 protected:
     bool viewportEvent(QEvent *event) override;
     void scrollContentsBy(int dx, int dy) override;
@@ -149,7 +146,7 @@ private:
  * This class is used to draw the left pane of the disassembly
  * widget. Its goal is to draw proper arrows for the jumps of the disassembly.
  */
-class DisassemblyLeftPanel: public QFrame
+class DisassemblyLeftPanel : public QFrame
 {
 public:
     DisassemblyLeftPanel(DisassemblyWidget *disas);

@@ -11,8 +11,7 @@
 #include <QPushButton>
 
 AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWindow *mainWindow)
-    : QMenu(parent)
-    , mainWindow(mainWindow)
+    : QMenu(parent), mainWindow(mainWindow)
 {
     actionShowInMenu = new QAction(tr("Show in"), this);
     actionCopyAddress = new QAction(tr("Copy address"), this);
@@ -21,17 +20,17 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
 
     connect(actionCopyAddress, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionCopyAddress);
-    actionCopyAddress->setShortcuts({Qt::CTRL + Qt::SHIFT + Qt::Key_C});
+    actionCopyAddress->setShortcuts({ Qt::CTRL + Qt::SHIFT + Qt::Key_C });
     actionCopyAddress->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     connect(actionShowXrefs, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionShowXrefs);
-    actionShowXrefs->setShortcut({Qt::Key_X});
+    actionShowXrefs->setShortcut({ Qt::Key_X });
     actionShowXrefs->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     connect(actionAddcomment, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionAddComment);
-    actionAddcomment->setShortcut({Qt::Key_Semicolon});
+    actionAddcomment->setShortcut({ Qt::Key_Semicolon });
     actionAddcomment->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     addAction(actionShowInMenu);
@@ -50,9 +49,7 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
     connect(this, &QMenu::aboutToShow, this, &AddressableItemContextMenu::aboutToShowSlot);
 }
 
-AddressableItemContextMenu::~AddressableItemContextMenu()
-{
-}
+AddressableItemContextMenu::~AddressableItemContextMenu() {}
 
 void AddressableItemContextMenu::setWholeFunction(bool wholeFunciton)
 {
@@ -119,4 +116,3 @@ void AddressableItemContextMenu::setHasTarget(bool hasTarget)
         action->setEnabled(hasTarget);
     }
 }
-

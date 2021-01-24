@@ -4,8 +4,7 @@
 #include "common/Helpers.h"
 
 HeadersModel::HeadersModel(QList<HeaderDescription> *headers, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent),
-      headers(headers)
+    : AddressableItemModel<QAbstractListModel>(parent), headers(headers)
 {
 }
 
@@ -88,16 +87,17 @@ HeadersProxyModel::HeadersProxyModel(HeadersModel *sourceModel, QObject *parent)
 bool HeadersProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
-    HeaderDescription item = index.data(HeadersModel::HeaderDescriptionRole).value<HeaderDescription>();
+    HeaderDescription item =
+            index.data(HeadersModel::HeaderDescriptionRole).value<HeaderDescription>();
     return item.name.contains(filterRegExp());
 }
 
 bool HeadersProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    HeaderDescription leftHeader = left.data(
-                                       HeadersModel::HeaderDescriptionRole).value<HeaderDescription>();
-    HeaderDescription rightHeader = right.data(
-                                        HeadersModel::HeaderDescriptionRole).value<HeaderDescription>();
+    HeaderDescription leftHeader =
+            left.data(HeadersModel::HeaderDescriptionRole).value<HeaderDescription>();
+    HeaderDescription rightHeader =
+            right.data(HeadersModel::HeaderDescriptionRole).value<HeaderDescription>();
 
     switch (left.column()) {
     case HeadersModel::OffsetColumn:
@@ -115,8 +115,7 @@ bool HeadersProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     return leftHeader.vaddr < rightHeader.vaddr;
 }
 
-HeadersWidget::HeadersWidget(MainWindow *main) :
-    ListDockWidget(main)
+HeadersWidget::HeadersWidget(MainWindow *main) : ListDockWidget(main)
 {
     setWindowTitle(tr("Headers"));
     setObjectName("HeadersWidget");
@@ -131,9 +130,8 @@ HeadersWidget::HeadersWidget(MainWindow *main) :
 
     connect(Core(), &CutterCore::codeRebased, this, &HeadersWidget::refreshHeaders);
     connect(Core(), &CutterCore::refreshAll, this, &HeadersWidget::refreshHeaders);
-    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
-        qhelpers::emitColumnChanged(headersModel, HeadersModel::CommentColumn);
-    });
+    connect(Core(), &CutterCore::commentsChanged, this,
+            [this]() { qhelpers::emitColumnChanged(headersModel, HeadersModel::CommentColumn); });
 }
 
 HeadersWidget::~HeadersWidget() {}

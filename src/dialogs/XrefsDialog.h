@@ -8,11 +8,12 @@
 #include "core/Cutter.h"
 #include "common/AddressableItemModel.h"
 
-class XrefModel: public AddressableItemModel<QAbstractListModel>
+class XrefModel : public AddressableItemModel<QAbstractListModel>
 {
 private:
     QList<XrefDescription> xrefs;
     bool to;
+
 public:
     enum Columns { OFFSET = 0, TYPE, CODE, COMMENT, COUNT };
     static const int FlagDescriptionRole = Qt::UserRole;
@@ -32,7 +33,6 @@ public:
     static QString xrefTypeString(const QString &type);
 };
 
-
 class MainWindow;
 
 namespace Ui {
@@ -44,14 +44,15 @@ class XrefsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit XrefsDialog(MainWindow *parent, bool hideXrefFrom=false);
+    explicit XrefsDialog(MainWindow *parent, bool hideXrefFrom = false);
     ~XrefsDialog();
 
     void fillRefsForAddress(RVA addr, QString name, bool whole_function);
     /**
-     * @brief Initializes toModel and fromModel with the details about the references to the specified
-     * local variable 'nameOfVariable'.
-     * @param nameOfVarible Name of the local variable for which the references are being initialized.
+     * @brief Initializes toModel and fromModel with the details about the references to the
+     * specified local variable 'nameOfVariable'.
+     * @param nameOfVarible Name of the local variable for which the references are being
+     * initialized.
      * @param offset An offset in the function in which the specified local variable exist.
      */
     void fillRefsForVariable(QString nameOfVariable, RVA offset);

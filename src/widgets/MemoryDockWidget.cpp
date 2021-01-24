@@ -7,8 +7,7 @@
 #include <QContextMenuEvent>
 
 MemoryDockWidget::MemoryDockWidget(MemoryWidgetType type, MainWindow *parent)
-    : AddressableDockWidget(parent)
-    , mType(type)
+    : AddressableDockWidget(parent), mType(type)
 {
     if (parent) {
         parent->addMemoryDockWidget(this);

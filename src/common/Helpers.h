@@ -25,9 +25,9 @@ class QPaintDevice;
 class QComboBox;
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-#define CUTTER_QT_SKIP_EMPTY_PARTS QString::SkipEmptyParts
+#    define CUTTER_QT_SKIP_EMPTY_PARTS QString::SkipEmptyParts
 #else
-#define CUTTER_QT_SKIP_EMPTY_PARTS Qt::SkipEmptyParts
+#    define CUTTER_QT_SKIP_EMPTY_PARTS Qt::SkipEmptyParts
 #endif
 
 namespace qhelpers {
@@ -35,15 +35,18 @@ CUTTER_EXPORT QString formatBytecount(const uint64_t bytecount);
 CUTTER_EXPORT void adjustColumns(QTreeView *tv, int columnCount, int padding);
 CUTTER_EXPORT void adjustColumns(QTreeWidget *tw, int padding);
 CUTTER_EXPORT bool selectFirstItem(QAbstractItemView *itemView);
-CUTTER_EXPORT QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str, const QString &str2 = QString(),
-                           const QString &str3 = QString(), const QString &str4 = QString(), const QString &str5 = QString());
+CUTTER_EXPORT QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str,
+                                         const QString &str2 = QString(),
+                                         const QString &str3 = QString(),
+                                         const QString &str4 = QString(),
+                                         const QString &str5 = QString());
 
 CUTTER_EXPORT void setVerticalScrollMode(QAbstractItemView *tw);
 
 CUTTER_EXPORT void setCheckedWithoutSignals(QAbstractButton *button, bool checked);
 
-
-struct CUTTER_EXPORT SizePolicyMinMax {
+struct CUTTER_EXPORT SizePolicyMinMax
+{
     QSizePolicy sizePolicy;
     int min;
     int max;
@@ -61,7 +64,8 @@ CUTTER_EXPORT int getMaxFullyDisplayedLines(QPlainTextEdit *plainTextEdit);
 CUTTER_EXPORT QByteArray applyColorToSvg(const QByteArray &data, QColor color);
 CUTTER_EXPORT QByteArray applyColorToSvg(const QString &filename, QColor color);
 
-CUTTER_EXPORT void setThemeIcons(QList<QPair<void*, QString>> supportedIconsNames, std::function<void(void *, const QIcon &)> setter);
+CUTTER_EXPORT void setThemeIcons(QList<QPair<void *, QString>> supportedIconsNames,
+                                 std::function<void(void *, const QIcon &)> setter);
 
 CUTTER_EXPORT void prependQAction(QAction *action, QMenu *menu);
 CUTTER_EXPORT qreal devicePixelRatio(const QPaintDevice *p);
@@ -73,7 +77,7 @@ CUTTER_EXPORT qreal devicePixelRatio(const QPaintDevice *p);
  */
 CUTTER_EXPORT void selectIndexByData(QComboBox *comboBox, QVariant data, int defaultIndex = -1);
 /**
- * @brief Emit data change signal in a model's column (DisplayRole) 
+ * @brief Emit data change signal in a model's column (DisplayRole)
  * @param model - model containing data with changes
  * @param column - column in the model
  */
