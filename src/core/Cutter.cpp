@@ -521,6 +521,10 @@ QJsonDocument CutterCore::parseJson(const char *res, const char *cmd)
     QJsonDocument doc = QJsonDocument::fromJson(json, &jsonError);
 
     if (jsonError.error != QJsonParseError::NoError) {
+        // don't call trimmed() before knowing that parsing failed to avoid copying huge jsons all the time
+        if (json.trimmed().isEmpty()) {
+            return doc;
+        }
         if (cmd) {
             eprintf("Failed to parse JSON for command \"%s\": %s\n", cmd,
                     jsonError.errorString().toLocal8Bit().constData());
