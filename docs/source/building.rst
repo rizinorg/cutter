@@ -258,9 +258,9 @@ The workaround is to either add the `--disable-new-dtags` linker flag when compi
 
    cmake -DCMAKE_EXE_LINKER_FLAGS="-Wl,--disable-new-dtags"  ..
 
-* **r_*.h: No such file or directory**
+* **rz_*.h: No such file or directory**
 
-    rz_util/rz_annotated_code.h: No such file or directory
+    Eg: rz_util/rz_annotated_code.h: No such file or directory
 
 If you face an error where some header file starting with ``rz_`` is missing, you should check the **rizin** submodule and
 make sure it is in sync with upstream **Cutter** repo. Simply run:
@@ -301,9 +301,3 @@ installed with brew. Run this command to work around the issue:
 ::
 
    sudo mv /usr/local/lib/libjpeg.dylib /usr/local/lib/libjpeg.dylib.not-found
-* **LSOpenURLsWithRole() failed with error -10810**
-On macOS High Sierra Cutter crashes due to the absence of ``gettext`` library. To fix this problem, simply install the missing package:
-
-::
-
-   brew install gettext
