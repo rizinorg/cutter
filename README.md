@@ -50,7 +50,7 @@ Our community has built many plugins and useful scripts for Cutter such as the n
 
 **[Official & Community Plugins](https://github.com/rizinorg/cutter-plugins)**
 
-**[Plugins Development Guide]()**
+**[Plugins Development Guide](https://cutter.re/docs/plugins.html)**
 
 ## Getting Help
 
