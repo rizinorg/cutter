@@ -83,8 +83,9 @@ if(APPLE)
 	
 	if (CUTTER_PACKAGE_JSDEC AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
 		install(CODE "
-			set(ENV{PATH} \"\${CMAKE_INSTALL_PREFIX}/bin:\$ENV{PATH}\")
-			execute_process(COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/jsdec.sh\" --prefix=\${CMAKE_INSTALL_PREFIX}
+			execute_process(COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/jsdec.sh\" --prefix=\${CMAKE_INSTALL_PREFIX} 
+								\"-Drizin_incdir=\${CMAKE_INSTALL_PREFIX}/include/librz\"
+								\"-Drizin_libdir=\${CMAKE_INSTALL_PREFIX}/lib\"
 							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 							RESULT_VARIABLE SCRIPT_RESULT)
 			if (SCRIPT_RESULT)
