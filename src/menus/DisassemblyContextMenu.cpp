@@ -819,7 +819,7 @@ void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
         if (pfx.isEmpty()) {
             pfx = QString("fcn");
         }
-        name = pfx + "." + RAddressString(offset);
+        name = pfx + QString::asprintf(".%llx", offset);
     }
 
     // Create dialog
