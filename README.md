@@ -22,7 +22,7 @@ Cutter release binaries for all major platforms (Linux, macOS, Windows) can be d
     `chmod +x Cutter*.AppImage; ./Cutter*.AppImage`
 - **macOS**: Download the `.dmg` file or use [Homebrew Cask](https://github.com/Homebrew/homebrew-cask):
 
-    `brew cask install cutter`
+    `brew install --cask cutter`
 - **Windows**: Download the `.zip` archive or use [Chocolatey](https://chocolatey.org):
 
     `choco install cutter`
