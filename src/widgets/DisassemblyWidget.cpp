@@ -947,8 +947,12 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
 
     const RVA currOffset = disas->getSeekable()->getOffset();
     const qreal pixelRatio = qhelpers::devicePixelRatio(p.device());
+    const Arrow visibleRange { lines.first().offset, lines.last().offset };
     // Draw the lines
     for (const auto& arrow : arrows) {
+        if (!visibleRange.intersects(arrow)) {
+            continue;
+        }
         int lineOffset = int((distanceBetweenLines * arrow.level + distanceBetweenLines) * pixelRatio);
         
         p.setPen(arrow.up ? penUp : penDown);
@@ -965,15 +969,9 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
 
         int lineStartNumber = offsetToLine(arrow.jmpFromOffset());
         int currentLineYPos = lineToPixels(lineStartNumber);
-        if (lineStartNumber >= lines.size()) {
-            currentLineYPos = geometry().bottom() + lineHeight;
-        }
 
         int arrowLineNumber = offsetToLine(arrow.jmpToffset());
         int lineArrowY = lineToPixels(arrowLineNumber);
-        if (arrowLineNumber >= lines.size()) {
-            lineArrowY = geometry().bottom() + lineHeight;
-        }
 
         // Draw the lines
         p.drawLine(rightOffset, currentLineYPos, rightOffset - lineOffset, currentLineYPos); // left

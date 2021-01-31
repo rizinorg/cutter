@@ -173,6 +173,9 @@ private:
         inline bool contains(RVA point) const
         { return min <= point && max >= point; }
 
+        inline bool intersects(const Arrow& other) const
+        { return std::max(min, other.min) <= std::min(max, other.max); }
+
         ut64 length() const { return max - min; }
 
         RVA jmpFromOffset() const { return up ? max : min; }
