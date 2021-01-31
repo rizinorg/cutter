@@ -901,7 +901,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
             return it.first < offset;
         });
         if (res == std::end(lineOffsets)) {
-            return lines.size();
+            return lines.size() + 2;
         }
         return res->second;
     };
