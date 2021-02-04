@@ -1951,7 +1951,7 @@ void CutterCore::continueBackDebug()
     }
     emit debugTaskStateChanged();
 
-    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
         syncAndSeekProgramCounter();
         emit refreshCodeViews();
@@ -2134,7 +2134,7 @@ void CutterCore::stepBackDebug()
     }
     emit debugTaskStateChanged();
 
-    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
         syncAndSeekProgramCounter();
         emit refreshCodeViews();
@@ -2186,7 +2186,7 @@ void CutterCore::startTraceSession()
     }
     emit debugTaskStateChanged();
 
-    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         if (debugTaskDialog) {
             delete debugTaskDialog;
         }
@@ -2222,7 +2222,7 @@ void CutterCore::stopTraceSession()
     }
     emit debugTaskStateChanged();
 
-    connect(debugTask.data(), &RizinTask::finished, this, [this] () {
+    connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         if (debugTaskDialog) {
             delete debugTaskDialog;
         }

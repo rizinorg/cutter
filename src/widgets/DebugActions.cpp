@@ -13,9 +13,7 @@
 #include <QToolButton>
 #include <QSettings>
 
-DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
-    QObject(main),
-    main(main)
+DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main), main(main)
 {
     setObjectName("DebugActions");
     // setIconSize(QSize(16, 16));
@@ -116,19 +114,33 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     toolBar->addAction(actionContinueBack);
     toolBar->addAction(actionTrace);
 
-    allActions = {actionStop, actionAllContinues, actionContinue, actionContinueUntilCall,
-        actionContinueUntilMain, actionContinueUntilSyscall, actionStep, actionStepOut,
-        actionStepOver, actionContinueBack, actionStepBack, actionTrace};
+    allActions = { actionStop,
+                   actionAllContinues,
+                   actionContinue,
+                   actionContinueUntilCall,
+                   actionContinueUntilMain,
+                   actionContinueUntilSyscall,
+                   actionStep,
+                   actionStepOut,
+                   actionStepOver,
+                   actionContinueBack,
+                   actionStepBack,
+                   actionTrace };
 
     // Hide all actions
     setAllActionsVisible(false);
 
     // Toggle all buttons except reverse step/continue which are handled separately and
     // restart, suspend(=continue) and stop since those are necessary to avoid freezing
-    toggleActions = {actionStepOver, actionStep, actionStepOut, actionContinueUntilMain,
-        actionContinueUntilCall, actionContinueUntilSyscall, actionTrace};
-    toggleConnectionActions = {actionAttach, actionStartRemote};
-    reverseActions = {actionStepBack, actionContinueBack};
+    toggleActions = { actionStepOver,
+                      actionStep,
+                      actionStepOut,
+                      actionContinueUntilMain,
+                      actionContinueUntilCall,
+                      actionContinueUntilSyscall,
+                      actionTrace };
+    toggleConnectionActions = { actionAttach, actionStartRemote };
+    reverseActions = { actionStepBack, actionContinueBack };
 
     connect(Core(), &CutterCore::debugProcessFinished, this, [=](int pid) {
         QMessageBox msgBox;
@@ -206,7 +218,8 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     connect(actionStepOut, &QAction::triggered, Core(), &CutterCore::stepOutDebug);
     connect(actionContinueUntilMain, &QAction::triggered, this, &DebugActions::continueUntilMain);
     connect(actionContinueUntilCall, &QAction::triggered, Core(), &CutterCore::continueUntilCall);
-    connect(actionContinueUntilSyscall, &QAction::triggered, Core(), &CutterCore::continueUntilSyscall);
+    connect(actionContinueUntilSyscall, &QAction::triggered, Core(),
+            &CutterCore::continueUntilSyscall);
     connect(actionContinueBack, &QAction::triggered, Core(), &CutterCore::continueBackDebug);
     connect(actionContinue, &QAction::triggered, Core(), [=]() {
         // Switch between continue and suspend depending on the debugger's state
@@ -421,7 +434,7 @@ void DebugActions::chooseThemeIcons()
     };
 
     // Set the correct icon for the QAction
-    qhelpers::setThemeIcons(kSupportedIconsNames, [](void *obj, const QIcon & icon) {
+    qhelpers::setThemeIcons(kSupportedIconsNames, [](void *obj, const QIcon &icon) {
         static_cast<QAction *>(obj)->setIcon(icon);
     });
 }
