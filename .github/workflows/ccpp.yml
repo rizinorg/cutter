@@ -101,6 +101,7 @@ jobs:
         fi
 
         source scripts/prepare_breakpad_linux.sh
+        export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}" #
         mkdir build
         cd build
         cmake --version
