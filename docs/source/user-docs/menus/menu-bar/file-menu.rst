@@ -62,7 +62,7 @@ Save Project
 Save Project as...
 ----------------------------------------
 **Description:** Save the current state of your session, including function names, comments, and more.
-***Note:** This feature is currently in Beta.*
+**Note:** This feature is currently in `Beta<https://rizin.re/posts/introducing-projects/>`_.
 
 
 **Steps:** File -> Save As...  
