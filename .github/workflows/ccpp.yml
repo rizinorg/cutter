@@ -227,7 +227,7 @@ jobs:
         cmake ^
           -DCMAKE_BUILD_TYPE=Release ^
           -DCUTTER_USE_BUNDLED_RIZIN=ON ^
-          -DCUTTER_ENABLE_TESTS=ON \
+          -DCUTTER_ENABLE_TESTS=ON ^
           -DCUTTER_ENABLE_PYTHON=ON ^
           -DCUTTER_ENABLE_PYTHON_BINDINGS=ON ^
           -DCUTTER_ENABLE_PACKAGING=ON ^
