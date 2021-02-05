@@ -425,10 +425,8 @@ endif()
 
 
 if (TARGET Graphviz::GVC)
-    list(APPEND SOURCE_FILES ${CUTTER_PRO_GRAPHVIZ_SOURCES})
-    list(APPEND HEADER_FILES ${CUTTER_PRO_GRAPHVIZ_HEADERS})
-endif()
-
+    list(APPEND SOURCES widgets/GraphvizLayout.cpp)
+    list(APPEND HEADER_FILES widgets/GraphvizLayout.h)
 if (WIN32)
     set(PLATFORM_RESOURCES "img/cutter.rc")
     set(OPTIONS WIN32)
