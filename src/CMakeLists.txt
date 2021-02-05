@@ -427,6 +427,8 @@ endif()
 if (TARGET Graphviz::GVC)
     list(APPEND SOURCES widgets/GraphvizLayout.cpp)
     list(APPEND HEADER_FILES widgets/GraphvizLayout.h)
+endif()
+
 if (WIN32)
     set(PLATFORM_RESOURCES "img/cutter.rc")
     set(OPTIONS WIN32)
