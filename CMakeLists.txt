@@ -136,3 +136,7 @@ add_subdirectory(src)
 if(CUTTER_ENABLE_PACKAGING)
 	add_subdirectory(dist)
 endif()
+
+if(CUTTER_ENABLE_TESTS)
+    add_subdirectory(test)
+endif()

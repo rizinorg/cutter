@@ -137,7 +137,7 @@ jobs:
         fi
         ninja
         export QT_QPA_PLATFORM=minimal
-        ./src/test/CutterTest
+        ./test/CutterTest
         if [[ "${{ matrix.package || false }}" = "true" ]]
         then
           export CUTTER_VERSION=$(python ../scripts/get_version.py)
@@ -204,7 +204,7 @@ jobs:
         export CUTTER_VERSION=$(python3 ../scripts/get_version.py)
         echo PACKAGE_NAME=${PACKAGE_NAME}.dmg >> $GITHUB_ENV
         echo UPLOAD_ASSET_TYPE=application/x-apple-diskimage >> $GITHUB_ENVV
-        ./src/test/CutterTest;
+        ./test/CutterTest;
     - name: windows dependencies
       if: contains(matrix.os, 'windows')
       shell: bash
@@ -244,7 +244,7 @@ jobs:
           ..
         cmake --build . --config Release
         cmake --build . --config Release --target package
-        src/test/CutterTest
+        cd test; CutterTest
         echo PACKAGE_NAME=%PACKAGE_NAME%.zip >> %GITHUB_ENV%
         echo UPLOAD_ASSET_TYPE=application/zip >> %GITHUB_ENV%
     - uses: actions/upload-artifact@v2

@@ -602,7 +602,3 @@ if(UNIX AND NOT APPLE)
         DESTINATION "share/applications"
         COMPONENT Devel)
 endif()
-
-if(CUTTER_ENABLE_TESTS)
-    add_subdirectory(test)
-endif()
