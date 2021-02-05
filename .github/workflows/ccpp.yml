@@ -245,7 +245,7 @@ jobs:
           ..
         cmake --build . --config Release
         cmake --build . --config Release --target package
-        ./src/test/CutterTest
+        src/test/CutterTest
         echo PACKAGE_NAME=%PACKAGE_NAME%.zip >> %GITHUB_ENV%
         echo UPLOAD_ASSET_TYPE=application/zip >> %GITHUB_ENV%
     - uses: actions/upload-artifact@v2
