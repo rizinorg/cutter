@@ -443,7 +443,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
 endif()
 
 list(REMOVE_ITEM SOURCES Main.cpp)
-add_library(CutterLib OBJECT ${UI_FILES} ${QRC_FILES} ${PLATFORM_RESOURCES} ${SOURCES} ${HEADER_FILES} ${BINDINGS_SOURCE})
+add_library(CutterLib STATIC ${UI_FILES} ${QRC_FILES} ${PLATFORM_RESOURCES} ${SOURCES} ${HEADER_FILES} ${BINDINGS_SOURCE})
 add_executable(Cutter ${OPTIONS} Main.cpp)
 set_target_properties(Cutter PROPERTIES
         OUTPUT_NAME cutter
