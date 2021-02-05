@@ -62,8 +62,7 @@ Save Project
 Save Project as...
 ----------------------------------------
 **Description:** Save the current state of your session, including function names, comments, and more.
-On the saving dialog, choose the project type that fits your needs.  
-***Note:** This feature is currently unstable and under constructions.*
+**Note:** This feature is currently in `Beta<https://rizin.re/posts/introducing-projects/>`_.
 
 
 **Steps:** File -> Save As...  
