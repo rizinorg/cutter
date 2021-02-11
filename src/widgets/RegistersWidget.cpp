@@ -51,7 +51,7 @@ void RegistersWidget::setRegisterGrid()
 
     registerLen = registerRefs.size();
     for (auto &reg : registerRefs) {
-        regValue = "0x" + reg.value;
+        regValue = reg.value;
         // check if we already filled this grid space with label/value
         if (!registerLayout->itemAtPosition(i, col)) {
             registerLabel = new QLabel;
