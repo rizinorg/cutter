@@ -115,11 +115,11 @@ To compile Cutter it is necessary to have the following installed:
 
 * A version of `Visual Studio <https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16>`_ (2015, 2017 and 2019 are supported)
 * `CMake <https://cmake.org/download/>`_
-* `Qt <https://www.qt.io/download-qt-installer>`_
+* `Qt 5 <https://www.qt.io/download-qt-installer>`_
 * `Meson <https://mesonbuild.com/Getting-meson.html#installing-meson-with-pip>`_
 * `Ninja <https://github.com/ninja-build/ninja/releases/latest>`_
 
-Recommended Way
+Building Steps
 ~~~~~~~~~~~~~~~
 
 To build Cutter on Windows machines using CMake,
@@ -135,7 +135,7 @@ executing the following commands.
    meson --version
    cmake --version
 
-If they are not available, you can use PowerShell to add them to your path one by one:
+If they are not available, you can use PowerShell to add them to your PATH one by one:
 
 .. code:: powershell
 
