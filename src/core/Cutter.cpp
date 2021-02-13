@@ -1865,10 +1865,11 @@ void CutterCore::stopDebug()
     }
 
     currentlyDebugging = false;
+    currentlyTracing = false;
     emit debugTaskStateChanged();
 
     if (currentlyEmulating) {
-        cmdEsil("aeim-; aei-; wcr; .ar-");
+        cmdEsil("aeim-; aei-; wcr; .ar-; aets-");
         currentlyEmulating = false;
     } else if (currentlyAttachedToPID != -1) {
         // Use cmd because cmdRaw would not work with command concatenation
@@ -1926,7 +1927,33 @@ void CutterCore::continueDebug()
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
         syncAndSeekProgramCounter();
-        emit registersChanged();
+        emit refreshCodeViews();
+        emit debugTaskStateChanged();
+    });
+
+    debugTask->startTask();
+}
+
+void CutterCore::continueBackDebug()
+{
+    if (!currentlyDebugging) {
+        return;
+    }
+
+    if (currentlyEmulating) {
+        if (!asyncCmdEsil("aecb", debugTask)) {
+            return;
+        }
+    } else {
+        if (!asyncCmd("dcb", debugTask)) {
+            return;
+        }
+    }
+    emit debugTaskStateChanged();
+
+    connect(debugTask.data(), &RizinTask::finished, this, [this]() {
+        debugTask.clear();
+        syncAndSeekProgramCounter();
         emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
@@ -1954,8 +1981,6 @@ void CutterCore::continueUntilDebug(QString offset)
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
         syncAndSeekProgramCounter();
-        emit registersChanged();
-        emit stackChanged();
         emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
@@ -1983,6 +2008,7 @@ void CutterCore::continueUntilCall()
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
         syncAndSeekProgramCounter();
+        emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
 
@@ -2009,6 +2035,7 @@ void CutterCore::continueUntilSyscall()
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
         syncAndSeekProgramCounter();
+        emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
 
@@ -2035,6 +2062,7 @@ void CutterCore::stepDebug()
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
         syncAndSeekProgramCounter();
+        emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
 
@@ -2061,6 +2089,7 @@ void CutterCore::stepOverDebug()
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
         syncAndSeekProgramCounter();
+        emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
 
@@ -2081,6 +2110,34 @@ void CutterCore::stepOutDebug()
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
         syncAndSeekProgramCounter();
+        emit refreshCodeViews();
+        emit debugTaskStateChanged();
+    });
+
+    debugTask->startTask();
+}
+
+void CutterCore::stepBackDebug()
+{
+    if (!currentlyDebugging) {
+        return;
+    }
+
+    if (currentlyEmulating) {
+        if (!asyncCmdEsil("aesb", debugTask)) {
+            return;
+        }
+    } else {
+        if (!asyncCmd("dsb", debugTask)) {
+            return;
+        }
+    }
+    emit debugTaskStateChanged();
+
+    connect(debugTask.data(), &RizinTask::finished, this, [this]() {
+        debugTask.clear();
+        syncAndSeekProgramCounter();
+        emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
 
@@ -2110,6 +2167,78 @@ QString CutterCore::getActiveDebugPlugin()
 void CutterCore::setDebugPlugin(QString plugin)
 {
     setConfig("dbg.backend", plugin);
+}
+
+void CutterCore::startTraceSession()
+{
+    if (!currentlyDebugging || currentlyTracing) {
+        return;
+    }
+
+    if (currentlyEmulating) {
+        if (!asyncCmdEsil("aets+", debugTask)) {
+            return;
+        }
+    } else {
+        if (!asyncCmd("dts+", debugTask)) {
+            return;
+        }
+    }
+    emit debugTaskStateChanged();
+
+    connect(debugTask.data(), &RizinTask::finished, this, [this]() {
+        if (debugTaskDialog) {
+            delete debugTaskDialog;
+        }
+        debugTask.clear();
+
+        currentlyTracing = true;
+        emit debugTaskStateChanged();
+    });
+
+    debugTaskDialog = new RizinTaskDialog(debugTask);
+    debugTaskDialog->setBreakOnClose(true);
+    debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
+    debugTaskDialog->setDesc(tr("Creating debug tracepoint..."));
+    debugTaskDialog->show();
+
+    debugTask->startTask();
+}
+
+void CutterCore::stopTraceSession()
+{
+    if (!currentlyDebugging || !currentlyTracing) {
+        return;
+    }
+
+    if (currentlyEmulating) {
+        if (!asyncCmdEsil("aets-", debugTask)) {
+            return;
+        }
+    } else {
+        if (!asyncCmd("dts-", debugTask)) {
+            return;
+        }
+    }
+    emit debugTaskStateChanged();
+
+    connect(debugTask.data(), &RizinTask::finished, this, [this]() {
+        if (debugTaskDialog) {
+            delete debugTaskDialog;
+        }
+        debugTask.clear();
+
+        currentlyTracing = false;
+        emit debugTaskStateChanged();
+    });
+
+    debugTaskDialog = new RizinTaskDialog(debugTask);
+    debugTaskDialog->setBreakOnClose(true);
+    debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
+    debugTaskDialog->setDesc(tr("Stopping debug session..."));
+    debugTaskDialog->show();
+
+    debugTask->startTask();
 }
 
 void CutterCore::toggleBreakpoint(RVA addr)

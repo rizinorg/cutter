@@ -33,6 +33,7 @@
         <file>img/icons/light/continue_until_call.svg</file>
         <file>img/icons/continue_until_syscall.svg</file>
         <file>img/icons/light/continue_until_syscall.svg</file>
+        <file>img/icons/reverse_continue.svg</file>
         <file>img/icons/detach_debugger.svg</file>
         <file>img/icons/light/step_into.svg</file>
         <file>img/icons/step_into.svg</file>
@@ -40,6 +41,9 @@
         <file>img/icons/step_over.svg</file>
         <file>img/icons/step_out.svg</file>
         <file>img/icons/light/step_out.svg</file>
+        <file>img/icons/reverse_step.svg</file>
+        <file>img/icons/start_trace.svg</file>
+        <file>img/icons/stop_trace.svg</file>
         <file>img/icons/cloud.svg</file>
         <file>img/icons/down.svg</file>
         <file>img/icons/down_white.svg</file>

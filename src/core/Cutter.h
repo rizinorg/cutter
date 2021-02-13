@@ -409,12 +409,17 @@ public:
     void suspendDebug();
     void syncAndSeekProgramCounter();
     void continueDebug();
+    void continueBackDebug();
     void continueUntilCall();
     void continueUntilSyscall();
     void continueUntilDebug(QString offset);
     void stepDebug();
     void stepOverDebug();
     void stepOutDebug();
+    void stepBackDebug();
+
+    void startTraceSession();
+    void stopTraceSession();
 
     void addBreakpoint(const BreakpointDescription &config);
     void updateBreakpoint(int index, const BreakpointDescription &config);
@@ -449,6 +454,7 @@ public:
     bool isRedirectableDebugee();
     bool currentlyDebugging = false;
     bool currentlyEmulating = false;
+    bool currentlyTracing = false;
     int currentlyAttachedToPID = -1;
     QString currentlyOpenFile;
 
