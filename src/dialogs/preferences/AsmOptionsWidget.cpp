@@ -39,6 +39,7 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
                    { ui->fcnlinesCheckBox, "asm.lines.fcn" },
                    { ui->flgoffCheckBox, "asm.flags.offset" },
                    { ui->emuCheckBox, "asm.emu" },
+                   { ui->dwarfCheckBox, "asm.dwarf" },
                    { ui->emuStrCheckBox, "emu.str" },
                    { ui->varsumCheckBox, "asm.var.summary" },
                    { ui->sizeCheckBox, "asm.size" },

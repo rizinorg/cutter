@@ -456,6 +456,13 @@
               </widget>
              </item>
              <item>
+              <widget class="QCheckBox" name="dwarfCheckBox">
+               <property name="text">
+                <string>Show dwarf information (asm.dwarf)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QCheckBox" name="sizeCheckBox">
                <property name="text">
                 <string>Show size of opcodes in disassembly (asm.size)</string>
