@@ -694,11 +694,20 @@ RzProjectErr MainWindow::saveProject(bool *canceled)
 
 RzProjectErr MainWindow::saveProjectAs(bool *canceled)
 {
-    QString dir = core->getConfig("prj.file");
-    if (dir.isEmpty()) {
-        dir = QFileInfo(filename).absolutePath();
+    QString projectFile = core->getConfig("prj.file");
+    if (projectFile.isEmpty()) {
+        projectFile = filename;
     }
-    QString file = QFileDialog::getSaveFileName(this, tr("Save Project"), dir, PROJECT_FILE_FILTER);
+
+    QFileInfo projectFileInfo = QFileInfo(projectFile);
+
+    // preferred name is of fromat 'binary.exe.rzdb'
+    QString preferredName = QString("%1.%2").arg(projectFileInfo.absoluteFilePath()).arg("rzdb");
+
+    QFileDialog fileDialog(this);
+    // Append 'rzdb' suffix if it does not exist
+    fileDialog.setDefaultSuffix("rzdb");
+    QString file = fileDialog.getSaveFileName(this, tr("Save Project"), preferredName, PROJECT_FILE_FILTER);
     if (file.isEmpty()) {
         if (canceled) {
             *canceled = true;
