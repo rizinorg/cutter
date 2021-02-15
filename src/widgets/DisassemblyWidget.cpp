@@ -4,6 +4,7 @@
 #include "common/Helpers.h"
 #include "common/TempConfig.h"
 #include "common/SelectionHighlight.h"
+#include "common/BinaryTrees.h"
 #include "core/MainWindow.h"
 
 #include <QApplication>
@@ -18,7 +19,10 @@
 #include <QPainterPath>
 #include <QSplitter>
 
-class DisassemblyTextBlockUserData : public QTextBlockUserData
+#include <algorithm>
+#include <cmath>
+
+class DisassemblyTextBlockUserData: public QTextBlockUserData
 {
 public:
     DisassemblyLine line;
@@ -833,24 +837,10 @@ void DisassemblyWidget::seekPrev()
  * Left panel
  *********************/
 
-struct Range
-{
-    Range(RVA v1, RVA v2) : from(v1), to(v2)
-    {
-        if (from > to)
-            std::swap(from, to);
-    }
-    RVA from;
-    RVA to;
-
-    inline bool contains(const Range &other) const { return from <= other.from && to >= other.to; }
-
-    inline bool contains(RVA point) const { return from <= point && to >= point; }
-};
-
 DisassemblyLeftPanel::DisassemblyLeftPanel(DisassemblyWidget *disas)
 {
     this->disas = disas;
+    arrows.reserve((arrowsSize * 3) / 2);
 }
 
 void DisassemblyLeftPanel::wheelEvent(QWheelEvent *event)
@@ -865,7 +855,6 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
 
-    using namespace std;
     constexpr int penSizePix = 1;
     constexpr int distanceBetweenLines = 10;
     constexpr int arrowWidth = 5;
@@ -883,99 +872,114 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
 
     QList<DisassemblyLine> lines = disas->getLines();
 
-    QMap<RVA, int> linesPixPosition;
-    QMap<RVA, pair<RVA, int>> arrowInfo; /* offset -> (arrow, layer of arrow) */
-    int nLines = 0;
-    for (const auto &line : lines) {
-        linesPixPosition[line.offset] = nLines * lineHeight + lineHeight / 2 + topOffset;
-        nLines++;
-        if (line.arrow != RVA_INVALID) {
-            arrowInfo.insert(line.offset, { line.arrow, -1 });
-        }
-    }
+    using LineInfo = std::pair<RVA, int>;
+    std::vector<LineInfo> lineOffsets;
+    lineOffsets.reserve(lines.size());
 
-    for (auto it = arrowInfo.begin(); it != arrowInfo.end(); it++) {
-        Range currRange = { it.key(), it.value().first };
-        it.value().second = it.value().second == -1 ? 1 : it.value().second;
-        for (auto innerIt = arrowInfo.begin(); innerIt != arrowInfo.end(); innerIt++) {
-            if (innerIt == it) {
-                continue;
-            }
-            Range innerRange = { innerIt.key(), innerIt.value().first };
-            if (currRange.contains(innerRange) || currRange.contains(innerRange.from)) {
-                it.value().second++;
+    for (int i = 0; i < lines.size(); i++) {
+        lineOffsets.emplace_back(lines[i].offset, i);
+        if (lines[i].arrow != RVA_INVALID) {
+            Arrow a { lines[i].offset, lines[i].arrow };
+            bool contains = std::find_if(std::begin(arrows), std::end(arrows), [&](const Arrow& it) {
+                return it.min == a.min && it.max == a.max;
+            }) != std::end(arrows);
+            if (!contains) {
+                arrows.emplace_back(lines[i].offset, lines[i].arrow);
             }
         }
     }
 
-    // I'm sorry this loop below, but it is only way I see how to implement the feature
-    while (true) {
-        bool correction = false;
-        bool correction2 = false;
-        for (auto it = arrowInfo.begin(); it != arrowInfo.end(); it++) {
-            int minDistance = INT32_MAX;
-            Range currRange = { it.key(), it.value().first };
-            for (auto innerIt = arrowInfo.begin(); innerIt != arrowInfo.end(); innerIt++) {
-                if (innerIt == it) {
-                    continue;
-                }
-                Range innerRange = { innerIt.key(), innerIt.value().first };
-                if (it.value().second == innerIt.value().second
-                    && (currRange.contains(innerRange) || currRange.contains(innerRange.from))) {
-                    it.value().second++;
-                    correction = true;
-                }
-                int distance = it.value().second - innerIt.value().second;
-                if (distance > 0 && distance < minDistance) {
-                    minDistance = distance;
-                }
-            }
-            if (minDistance > 1 && minDistance != INT32_MAX) {
-                correction2 = true;
-                it.value().second -= minDistance - 1;
-            }
+    auto offsetToLine = [&](RVA offset) -> int {
+        // binary search because linesPixPosition is sorted by offset
+        if (lineOffsets.empty()) {
+            return 0;
         }
-        if (!correction && !correction2) {
-            break;
+        if (offset < lineOffsets[0].first) {
+            return -2;
+        }
+        auto res = lower_bound(std::begin(lineOffsets), std::end(lineOffsets), offset, [](const LineInfo& it, RVA offset) {
+            return it.first < offset;
+        });
+        if (res == std::end(lineOffsets)) {
+            return lines.size() + 2;
+        }
+        return res->second;
+    };
+
+
+    RVA visibleTop = lineOffsets[0].first, visibleBottom = lineOffsets.back().first;
+    auto fitsInScreen = [&](const Arrow &a) {
+        return visibleBottom - visibleTop < a.length();
+    };
+
+    std::sort(std::begin(arrows), std::end(arrows), [&](const Arrow& l, const Arrow& r) {
+        int lScreen = fitsInScreen(l), rScreen = fitsInScreen(r);
+        if (lScreen != rScreen) {
+            return lScreen < rScreen;
+        }
+        return l.max != r.max ? l.max < r.max : l.min > r.min;
+    });
+
+    RVA max = 0;
+    RVA min = RVA_MAX;
+    for (auto& it : arrows) {
+        min = std::min(it.min, min);
+        max = std::max(it.max, max);
+        it.level = 0;
+    }
+
+    uint32_t maxLevel = 0;
+    if (!arrows.empty()) {
+        MinMaxAccumulateTree<uint32_t> maxLevelTree(max - min + 2);
+        for (Arrow &arrow : arrows) {
+            RVA top = arrow.min >= min ? arrow.min - min + 1: 0;
+            RVA bottom = std::min(arrow.max - min, max - min) + 2;
+            auto minMax = maxLevelTree.rangeMinMax(top, bottom);
+            if (minMax.first > 1) {
+                arrow.level = 1;
+            } else {
+                arrow.level = minMax.second + 1;
+                maxLevel = std::max(maxLevel, arrow.level);
+            }
+            maxLevelTree.updateRange(top, bottom, arrow.level);
         }
     }
 
     const RVA currOffset = disas->getSeekable()->getOffset();
-    qreal pixelRatio = qhelpers::devicePixelRatio(p.device());
+    const qreal pixelRatio = qhelpers::devicePixelRatio(p.device());
+    const Arrow visibleRange { lines.first().offset, lines.last().offset };
     // Draw the lines
-    for (const auto &l : lines) {
-        int lineOffset =
-                int((distanceBetweenLines * arrowInfo[l.offset].second + distanceBetweenLines)
-                    * pixelRatio);
-        // Skip until we reach a line that jumps to a destination
-        if (l.arrow == RVA_INVALID) {
+    for (const auto& arrow : arrows) {
+        if (!visibleRange.intersects(arrow)) {
             continue;
         }
-
-        bool jumpDown = l.arrow > l.offset;
-        p.setPen(jumpDown ? penDown : penUp);
-        if (l.offset == currOffset || l.arrow == currOffset) {
+        int lineOffset = int((distanceBetweenLines * arrow.level + distanceBetweenLines) * pixelRatio);
+        
+        p.setPen(arrow.up ? penUp : penDown);
+        if (arrow.min == currOffset || arrow.max == currOffset) {
             QPen pen = p.pen();
             pen.setWidthF((penSizePix * 3) / 2.0);
             p.setPen(pen);
         }
-        bool endVisible = true;
 
-        int currentLineYPos = linesPixPosition[l.offset];
-        int lineArrowY = linesPixPosition.value(l.arrow, -1);
+        auto lineToPixels = [&] (int i) {
+            int offset = int(arrow.up ? std::floor(pixelRatio) : -std::floor(pixelRatio));
+            return i * lineHeight + lineHeight / 2 + topOffset + offset;
+        };
 
-        if (lineArrowY == -1) {
-            lineArrowY = jumpDown ? geometry().bottom() : 0;
-            endVisible = false;
-        }
+        int lineStartNumber = offsetToLine(arrow.jmpFromOffset());
+        int currentLineYPos = lineToPixels(lineStartNumber);
+
+        int arrowLineNumber = offsetToLine(arrow.jmpToffset());
+        int lineArrowY = lineToPixels(arrowLineNumber);
 
         // Draw the lines
-        p.drawLine(rightOffset, currentLineYPos, rightOffset - lineOffset, currentLineYPos);
-        p.drawLine(rightOffset - lineOffset, currentLineYPos, rightOffset - lineOffset, lineArrowY);
+        p.drawLine(rightOffset, currentLineYPos, rightOffset - lineOffset, currentLineYPos); // left
+        p.drawLine(rightOffset - lineOffset, currentLineYPos, rightOffset - lineOffset, lineArrowY); // horizontal
 
-        if (endVisible) {
-            p.drawLine(rightOffset - lineOffset, lineArrowY, rightOffset, lineArrowY);
+        p.drawLine(rightOffset - lineOffset, lineArrowY, rightOffset, lineArrowY); // right
 
+        { // triangle
             QPainterPath arrow;
             arrow.moveTo(rightOffset - arrowWidth, lineArrowY + arrowWidth);
             arrow.lineTo(rightOffset - arrowWidth, lineArrowY - arrowWidth);
@@ -983,4 +987,23 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
             p.fillPath(arrow, p.pen().brush());
         }
     }
+
+    if (maxLevel > maxLevelBeforeFlush) {
+        arrows.clear();
+    }
+
+    const size_t eraseN = arrows.size() > arrowsSize ? arrows.size() - arrowsSize: 0;
+    if (eraseN > 0) {
+        const bool scrolledDown = lastBeginOffset > lines.first().offset;
+        std::sort(std::begin(arrows), std::end(arrows), [&](const Arrow& l, const Arrow& r) {
+            if (scrolledDown) {
+                return l.jmpFromOffset() < r.jmpFromOffset();
+            } else {
+                return l.jmpFromOffset() > r.jmpFromOffset();
+            }
+        });
+        arrows.erase(std::end(arrows) - eraseN, std::end(arrows));
+    }
+    
+    lastBeginOffset = lines.first().offset;
 }
