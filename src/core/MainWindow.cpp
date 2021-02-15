@@ -696,18 +696,14 @@ RzProjectErr MainWindow::saveProjectAs(bool *canceled)
 {
     QString projectFile = core->getConfig("prj.file");
     if (projectFile.isEmpty()) {
-        projectFile = filename;
+        // preferred name is of fromat 'binary.exe.rzdb'
+        projectFile = QString("%1.%2").arg(filename).arg("rzdb");
     }
-
-    QFileInfo projectFileInfo = QFileInfo(projectFile);
-
-    // preferred name is of fromat 'binary.exe.rzdb'
-    QString preferredName = QString("%1.%2").arg(projectFileInfo.absoluteFilePath()).arg("rzdb");
 
     QFileDialog fileDialog(this);
     // Append 'rzdb' suffix if it does not exist
     fileDialog.setDefaultSuffix("rzdb");
-    QString file = fileDialog.getSaveFileName(this, tr("Save Project"), preferredName, PROJECT_FILE_FILTER);
+    QString file = fileDialog.getSaveFileName(this, tr("Save Project"), projectFile, PROJECT_FILE_FILTER);
     if (file.isEmpty()) {
         if (canceled) {
             *canceled = true;
