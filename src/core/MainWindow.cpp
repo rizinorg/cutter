@@ -696,7 +696,7 @@ RzProjectErr MainWindow::saveProjectAs(bool *canceled)
 {
     QString dir = core->getConfig("prj.file");
     if (dir.isEmpty()) {
-        dir = QDir(filename).dirName();
+        dir = QFileInfo(filename).absolutePath();
     }
     QString file = QFileDialog::getSaveFileName(this, tr("Save Project"), dir, PROJECT_FILE_FILTER);
     if (file.isEmpty()) {
