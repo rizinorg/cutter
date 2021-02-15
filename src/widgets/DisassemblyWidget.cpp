@@ -22,7 +22,7 @@
 #include <algorithm>
 #include <cmath>
 
-class DisassemblyTextBlockUserData: public QTextBlockUserData
+class DisassemblyTextBlockUserData : public QTextBlockUserData
 {
 public:
     DisassemblyLine line;
@@ -880,9 +880,11 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
         lineOffsets.emplace_back(lines[i].offset, i);
         if (lines[i].arrow != RVA_INVALID) {
             Arrow a { lines[i].offset, lines[i].arrow };
-            bool contains = std::find_if(std::begin(arrows), std::end(arrows), [&](const Arrow& it) {
-                return it.min == a.min && it.max == a.max;
-            }) != std::end(arrows);
+            bool contains = std::find_if(std::begin(arrows), std::end(arrows),
+                                         [&](const Arrow &it) {
+                                             return it.min == a.min && it.max == a.max;
+                                         })
+                    != std::end(arrows);
             if (!contains) {
                 arrows.emplace_back(lines[i].offset, lines[i].arrow);
             }
@@ -897,22 +899,18 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
         if (offset < lineOffsets[0].first) {
             return -2;
         }
-        auto res = lower_bound(std::begin(lineOffsets), std::end(lineOffsets), offset, [](const LineInfo& it, RVA offset) {
-            return it.first < offset;
-        });
+        auto res = lower_bound(std::begin(lineOffsets), std::end(lineOffsets), offset,
+                               [](const LineInfo &it, RVA offset) { return it.first < offset; });
         if (res == std::end(lineOffsets)) {
             return lines.size() + 2;
         }
         return res->second;
     };
 
-
     RVA visibleTop = lineOffsets[0].first, visibleBottom = lineOffsets.back().first;
-    auto fitsInScreen = [&](const Arrow &a) {
-        return visibleBottom - visibleTop < a.length();
-    };
+    auto fitsInScreen = [&](const Arrow &a) { return visibleBottom - visibleTop < a.length(); };
 
-    std::sort(std::begin(arrows), std::end(arrows), [&](const Arrow& l, const Arrow& r) {
+    std::sort(std::begin(arrows), std::end(arrows), [&](const Arrow &l, const Arrow &r) {
         int lScreen = fitsInScreen(l), rScreen = fitsInScreen(r);
         if (lScreen != rScreen) {
             return lScreen < rScreen;
@@ -922,7 +920,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
 
     RVA max = 0;
     RVA min = RVA_MAX;
-    for (auto& it : arrows) {
+    for (auto &it : arrows) {
         min = std::min(it.min, min);
         max = std::max(it.max, max);
         it.level = 0;
@@ -932,7 +930,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     if (!arrows.empty()) {
         MinMaxAccumulateTree<uint32_t> maxLevelTree(max - min + 2);
         for (Arrow &arrow : arrows) {
-            RVA top = arrow.min >= min ? arrow.min - min + 1: 0;
+            RVA top = arrow.min >= min ? arrow.min - min + 1 : 0;
             RVA bottom = std::min(arrow.max - min, max - min) + 2;
             auto minMax = maxLevelTree.rangeMinMax(top, bottom);
             if (minMax.first > 1) {
@@ -949,12 +947,13 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     const qreal pixelRatio = qhelpers::devicePixelRatio(p.device());
     const Arrow visibleRange { lines.first().offset, lines.last().offset };
     // Draw the lines
-    for (const auto& arrow : arrows) {
+    for (const auto &arrow : arrows) {
         if (!visibleRange.intersects(arrow)) {
             continue;
         }
-        int lineOffset = int((distanceBetweenLines * arrow.level + distanceBetweenLines) * pixelRatio);
-        
+        int lineOffset =
+                int((distanceBetweenLines * arrow.level + distanceBetweenLines) * pixelRatio);
+
         p.setPen(arrow.up ? penUp : penDown);
         if (arrow.min == currOffset || arrow.max == currOffset) {
             QPen pen = p.pen();
@@ -962,7 +961,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
             p.setPen(pen);
         }
 
-        auto lineToPixels = [&] (int i) {
+        auto lineToPixels = [&](int i) {
             int offset = int(arrow.up ? std::floor(pixelRatio) : -std::floor(pixelRatio));
             return i * lineHeight + lineHeight / 2 + topOffset + offset;
         };
@@ -975,7 +974,8 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
 
         // Draw the lines
         p.drawLine(rightOffset, currentLineYPos, rightOffset - lineOffset, currentLineYPos); // left
-        p.drawLine(rightOffset - lineOffset, currentLineYPos, rightOffset - lineOffset, lineArrowY); // horizontal
+        p.drawLine(rightOffset - lineOffset, currentLineYPos, rightOffset - lineOffset,
+                   lineArrowY); // horizontal
 
         p.drawLine(rightOffset - lineOffset, lineArrowY, rightOffset, lineArrowY); // right
 
@@ -992,10 +992,10 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
         arrows.clear();
     }
 
-    const size_t eraseN = arrows.size() > arrowsSize ? arrows.size() - arrowsSize: 0;
+    const size_t eraseN = arrows.size() > arrowsSize ? arrows.size() - arrowsSize : 0;
     if (eraseN > 0) {
         const bool scrolledDown = lastBeginOffset > lines.first().offset;
-        std::sort(std::begin(arrows), std::end(arrows), [&](const Arrow& l, const Arrow& r) {
+        std::sort(std::begin(arrows), std::end(arrows), [&](const Arrow &l, const Arrow &r) {
             if (scrolledDown) {
                 return l.jmpFromOffset() < r.jmpFromOffset();
             } else {
@@ -1004,6 +1004,6 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
         });
         arrows.erase(std::end(arrows) - eraseN, std::end(arrows));
     }
-    
+
     lastBeginOffset = lines.first().offset;
 }

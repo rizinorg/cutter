@@ -14,7 +14,6 @@
 
 #include <vector>
 
-
 class DisassemblyTextEdit;
 class DisassemblyScrollArea;
 class DisassemblyContextMenu;
@@ -159,22 +158,22 @@ public:
 private:
     DisassemblyWidget *disas;
 
-    struct Arrow {
-        Arrow(RVA v1, RVA v2)
-            : min(v1), max(v2), 
-            level(0), up(false)
-        { 
-            if (min > max)  { 
+    struct Arrow
+    {
+        Arrow(RVA v1, RVA v2) : min(v1), max(v2), level(0), up(false)
+        {
+            if (min > max) {
                 std::swap(min, max);
                 up = true;
             }
         }
 
-        inline bool contains(RVA point) const
-        { return min <= point && max >= point; }
+        inline bool contains(RVA point) const { return min <= point && max >= point; }
 
-        inline bool intersects(const Arrow& other) const
-        { return std::max(min, other.min) <= std::min(max, other.max); }
+        inline bool intersects(const Arrow &other) const
+        {
+            return std::max(min, other.min) <= std::min(max, other.max);
+        }
 
         ut64 length() const { return max - min; }
 
@@ -182,10 +181,10 @@ private:
 
         RVA jmpToffset() const { return up ? min : max; }
 
-        RVA      min;
-        RVA      max;
+        RVA min;
+        RVA max;
         uint32_t level;
-        bool     up;
+        bool up;
     };
 
     const size_t arrowsSize = 128;
