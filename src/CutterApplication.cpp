@@ -133,7 +133,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     setStyle(new CutterProxyStyle());
 #endif // QT_VERSION_CHECK(5, 10, 0) < QT_VERSION
 
-    if (clOptions.args.empty()) {
+    if (clOptions.args.empty() && clOptions.fileOpenOptions.projectFile.isEmpty()) {
         // check if this is the first execution of Cutter in this computer
         // Note: the execution after the preferences been reset, will be considered as
         // first-execution
@@ -142,7 +142,8 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         }
         mainWindow->displayNewFileDialog();
     } else { // filename specified as positional argument
-        bool askOptions = clOptions.analLevel != AutomaticAnalysisLevel::Ask;
+        bool askOptions = (clOptions.analLevel != AutomaticAnalysisLevel::Ask)
+                || !clOptions.fileOpenOptions.projectFile.isEmpty();
         mainWindow->openNewFile(clOptions.fileOpenOptions, askOptions);
     }
 
@@ -330,6 +331,10 @@ bool CutterApplication::parseCommandLineOptions()
     QCommandLineOption scriptOption("i", QObject::tr("Run script file"), QObject::tr("file"));
     cmd_parser.addOption(scriptOption);
 
+    QCommandLineOption projectOption({ "p", "project" }, QObject::tr("Load project file"),
+                                     QObject::tr("project file"));
+    cmd_parser.addOption(projectOption);
+
     QCommandLineOption writeModeOption({ "w", "writemode" },
                                        QObject::tr("Open file in write mode"));
     cmd_parser.addOption(writeModeOption);
@@ -423,6 +428,8 @@ bool CutterApplication::parseCommandLineOptions()
 
         opts.fileOpenOptions.writeEnabled = cmd_parser.isSet(writeModeOption);
     }
+
+    opts.fileOpenOptions.projectFile = cmd_parser.value(projectOption);
 
     if (cmd_parser.isSet(pythonHomeOption)) {
         opts.pythonHome = cmd_parser.value(pythonHomeOption);

@@ -52,6 +52,10 @@ Options
 
    Run script file
 
+.. option:: -p, --project <file>
+  
+   Load project file 
+
 .. option:: -w, --writemode
 
    Open a file in write mode, instead of the default read-only mode.
