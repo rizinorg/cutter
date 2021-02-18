@@ -55,9 +55,7 @@ target_include_directories(Rizin INTERFACE
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/librz>")
 
 install(TARGETS Rizin EXPORT CutterTargets)
-if (APPLE)
-    install(DIRECTORY "${RIZIN_INSTALL_DIR}/" DESTINATION ".")
-elseif (WIN32)
+if (WIN32)
 	foreach(_lib ${RZ_LIBS} ${RZ_EXTRA_LIBS})
         install(FILES "${RIZIN_INSTALL_DIR}/${RZ_INSTALL_BINPATH}/${_lib}.dll" DESTINATION "${CMAKE_INSTALL_BINDIR}")
     endforeach()

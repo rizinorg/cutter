@@ -184,6 +184,7 @@ jobs:
                 -DCUTTER_PACKAGE_DEPENDENCIES=ON \
                 -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON \
                 -DCUTTER_PACKAGE_RZ_GHIDRA=ON \
+                -DCUTTER_PACKAGE_JSDEC=ON \
                 -DCMAKE_FRAMEWORK_PATH="$BREAKPAD_FRAMEWORK_DIR" \
                 -DCPACK_BUNDLE_APPLE_CERT_APP="-" \
                 .. && \
