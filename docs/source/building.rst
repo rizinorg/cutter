@@ -113,30 +113,52 @@ Requirements
 Cutter works on Windows 7 or newer.
 To compile Cutter it is necessary to have the following installed:
 
-* A version of Visual Studio (2015, 2017 and 2019 are supported)
-* CMake
-* Qt
+* A version of `Visual Studio <https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16>`_ (2015, 2017 and 2019 are supported)
+* `CMake <https://cmake.org/download/>`_
+* `Qt 5 <https://www.qt.io/download-qt-installer>`_
+* `Meson <https://mesonbuild.com/Getting-meson.html#installing-meson-with-pip>`_
+* `Ninja <https://github.com/ninja-build/ninja/releases/latest>`_
 
-Recommended Way
+Building Steps
 ~~~~~~~~~~~~~~~
 
 To build Cutter on Windows machines using CMake,
 you will have to make sure that the executables are available
 in your ``%PATH%`` environment variable.
 
+You can check if the binaries are available by opening PowerShell and 
+executing the following commands.
+
+.. code:: powershell
+
+   ninja --version
+   meson --version
+   cmake --version
+
+If they are not available, you can use PowerShell to add them to your PATH one by one:
+
+.. code:: powershell
+
+   $Env:Path += ";C:\enter\path\here"
+
+
 Note that the paths below may vary depending on your version of Qt and Visual Studio.
 
-.. code:: batch
+.. code:: powershell
+   
+   # First, set CMAKE_PREFIX_PATH to Qt5 intallation prefix
+   $Env:CMAKE_PREFIX_PATH = "C:\Qt\5.15.2\msvc2019_64\lib\cmake\Qt5"
 
-   set CMAKE_PREFIX_PATH=c:\Qt\qt-5.6.2-msvc2013-x86\5.6\msvc2013\lib\cmake
-   mkdir build
-   cd build
-   cmake-gui ..
+   # Then, add the following directory to your PATH
+   $Env:Path += ";C:\Qt\5.15.2\msvc2019_64\bin"
 
-Click ``Configure`` and select your version of Visual Studio from the list,
-for example ``Visual Studio 14 2015``.
-After the configuration is done, click ``Generate`` and you can open
-``Cutter.sln`` to compile the code as usual.
+   # Build Cutter
+   cmake -B build -DCUTTER_USE_BUNDLED_RIZIN=ON
+   cmake --build build
+
+
+After the compilation completes, the ``cutter.exe`` binary will be available in ``.\build\Debug\cutter.exe``.
+
 
 
 Building on macOS
