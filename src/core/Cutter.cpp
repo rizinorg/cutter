@@ -528,7 +528,8 @@ QJsonDocument CutterCore::parseJson(const char *res, const char *cmd)
     QJsonDocument doc = QJsonDocument::fromJson(json, &jsonError);
 
     if (jsonError.error != QJsonParseError::NoError) {
-        // don't call trimmed() before knowing that parsing failed to avoid copying huge jsons all the time
+        // don't call trimmed() before knowing that parsing failed to avoid copying huge jsons all
+        // the time
         if (json.trimmed().isEmpty()) {
             return doc;
         }
@@ -936,15 +937,15 @@ void CutterCore::seek(QString thing)
 
 void CutterCore::seekPrev()
 {
-    CORE_LOCK ();
-    rz_core_seek_undo (core);
+    CORE_LOCK();
+    rz_core_seek_undo(core);
     updateSeek();
 }
 
 void CutterCore::seekNext()
 {
-    CORE_LOCK ();
-    rz_core_seek_redo (core);
+    CORE_LOCK();
+    rz_core_seek_redo(core);
     updateSeek();
 }
 

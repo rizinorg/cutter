@@ -396,7 +396,6 @@ public:
     }
 };
 
-
 /**
  * @brief Structure for keeping track of minimum and maximum value set at each position.
  *
@@ -415,10 +414,13 @@ public:
  *  @endcode
  */
 template<class IntegerType>
-class MinMaxAccumulateTree : public LazySegmentTreeBase<std::pair<IntegerType, IntegerType>, std::pair<IntegerType, IntegerType>, MinMaxAccumulateTree<IntegerType>>
+class MinMaxAccumulateTree : public LazySegmentTreeBase<std::pair<IntegerType, IntegerType>,
+                                                        std::pair<IntegerType, IntegerType>,
+                                                        MinMaxAccumulateTree<IntegerType>>
 {
     // Could work with other types but that would require changing LIMITS
-    static_assert (std::is_integral<IntegerType>::value, "Template argument IntegerType must be integer");
+    static_assert(std::is_integral<IntegerType>::value,
+                  "Template argument IntegerType must be integer");
     using MinMax = std::pair<IntegerType, IntegerType>;
     using ValueType = MinMax;
     using ThisType = MinMaxAccumulateTree<IntegerType>;
@@ -428,13 +430,12 @@ class MinMaxAccumulateTree : public LazySegmentTreeBase<std::pair<IntegerType, I
 
     static constexpr MinMax LIMITS()
     {
-        return {std::numeric_limits<IntegerType>::max(),
-                std::numeric_limits<IntegerType>::min()};
+        return { std::numeric_limits<IntegerType>::max(), std::numeric_limits<IntegerType>::min() };
     }
 
     static MinMax Combine(const MinMax &a, const MinMax &b)
     {
-        return {std::min(a.first, b.first), std::max(a.second, b.second)};
+        return { std::min(a.first, b.first), std::max(a.second, b.second) };
     }
 
     void UpdateNode(NodePosition nodePos, ValueType value)
@@ -477,7 +478,7 @@ public:
         right = this->leaveIndexToPosition(right);
         this->pushDownFromRoot(left);
         this->pushDownFromRoot(right - 1);
-        MinMax pairValue{value, value};
+        MinMax pairValue { value, value };
         for (size_t l = left, r = right; l < r; l >>= 1, r >>= 1) {
             if (l & 1) {
                 UpdateNode(l, pairValue);

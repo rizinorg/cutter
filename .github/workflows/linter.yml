@@ -1,0 +1,46 @@
+name: "Linter"
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      clang-format: ${{ steps.filter.outputs.clang-format }}
+    steps:
+    - uses: actions/checkout@v2
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          clang-format:
+            - '**.cpp'
+            - '**.c'
+            - '**.h'
+            - '.github/workflows/linter.yml'
+
+  clang-format:
+    needs: changes
+    runs-on: ubuntu-20.04
+    if: ${{ needs.changes.outputs.clang-format == 'true' }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install wget
+      run: sudo apt --assume-yes install wget
+
+    - name: Install automatic llvm (stable branch)
+      run: sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+
+    - name: Install clang-format-11
+      run: sudo apt --assume-yes install clang-format-11
+
+    - name: Install gitpython
+      run: sudo pip install gitpython
+
+    - name: Run clang-format
+      run: |
+        find ./src -regex '.*\.\(cpp\|h\|c\)' -exec clang-format -style=file --dry-run --Werror {} \;
