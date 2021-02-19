@@ -4,7 +4,7 @@ Command-line Options
 Synopsis
 --------
 
-**Cutter** [*options*] [<*filename*>]
+**Cutter** [*options*] [<*filename*> | --project <*project*>]
 
 
 Options
