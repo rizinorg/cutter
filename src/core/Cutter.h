@@ -147,6 +147,7 @@ public:
     {
         return asyncCmdEsil(command.toUtf8().constData(), task);
     }
+    QString getRizinVersionReadable();
     QString getVersionInformation();
 
     QJsonDocument parseJson(const char *res, const char *cmd = nullptr);

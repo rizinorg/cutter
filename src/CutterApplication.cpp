@@ -30,6 +30,15 @@
 #    include <RzGhidraDecompiler.h>
 #endif
 
+// Rizin before 301e5af2170d9f3ed1edd658b0f9633f31fc4126
+// has RZ_GITTAP defined and uses it in rz_core_version().
+// After that, RZ_GITTAP is not defined anymore and RZ_VERSION is used.
+#ifdef RZ_GITTAP
+#define CUTTER_COMPILE_TIME_RZ_VERSION "" RZ_GITTAP
+#else
+#define CUTTER_COMPILE_TIME_RZ_VERSION "" RZ_VERSION
+#endif
+
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
 {
     // Setup application information
@@ -76,7 +85,8 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
     // Check rizin version
     QString rzversion = rz_core_version();
-    QString localVersion = "" RZ_GITTAP;
+    QString localVersion = CUTTER_COMPILE_TIME_RZ_VERSION;
+    qDebug() << rzversion << localVersion;
     if (rzversion != localVersion) {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);

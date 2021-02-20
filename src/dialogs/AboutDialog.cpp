@@ -25,8 +25,9 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDia
     ui->logoSvgWidget->load(Config()->getLogoFile());
 
     QString aboutString(
-            tr("Version") + " " CUTTER_VERSION_FULL "<br/>" + tr("Using rizin-") + RZ_GITTAP
-            + "<br/>" + buildQtVersionString() + "<p><b>" + tr("Optional Features:") + "</b><br/>"
+            tr("Version") + " " CUTTER_VERSION_FULL "<br/>" + tr("Using rizin ")
+            + Core()->getRizinVersionReadable() + "<br/>" + buildQtVersionString() + "<p><b>"
+            + tr("Optional Features:") + "</b><br/>"
             + QString("Python: %1<br/>")
                       .arg(
 #ifdef CUTTER_ENABLE_PYTHON
