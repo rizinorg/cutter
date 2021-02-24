@@ -18,6 +18,7 @@ struct InitialOptions
     enum class Endianness { Auto, Little, Big };
 
     QString filename;
+    QString projectFile;
 
     bool useVA = true;
     RVA binLoadAddr = RVA_INVALID;

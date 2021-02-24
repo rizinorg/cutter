@@ -4,7 +4,7 @@ Command-line Options
 Synopsis
 --------
 
-**Cutter** [*options*] [<*filename*>]
+**Cutter** [*options*] [<*filename*> | --project <*project*>]
 
 
 Options
@@ -51,6 +51,10 @@ Options
 .. option:: -i <file>
 
    Run script file
+
+.. option:: -p, --project <file>
+  
+   Load project file 
 
 .. option:: -w, --writemode
 

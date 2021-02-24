@@ -591,7 +591,13 @@ void MainWindow::displayInitialOptionsDialog(const InitialOptions &options, bool
     o->loadOptions(options);
 
     if (skipOptionsDialog) {
-        o->setupAndStartAnalysis();
+        if (!options.projectFile.isEmpty()) {
+            if (!openProject(options.projectFile)) {
+                displayNewFileDialog();
+            };
+        } else {
+            o->setupAndStartAnalysis();
+        }
     } else {
         o->show();
     }
