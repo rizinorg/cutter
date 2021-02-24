@@ -1248,7 +1248,7 @@ QString CutterCore::createFunctionAt(RVA addr)
 
 QString CutterCore::createFunctionAt(RVA addr, QString name)
 {
-    static const QRegularExpression regExp("[^a-zA-Z0-9_]");
+    static const QRegularExpression regExp("[^a-zA-Z0-9_.]");
     name.remove(regExp);
     QString ret = cmdRawAt(QString("af %1").arg(name), addr);
     emit functionsChanged();
@@ -3742,8 +3742,8 @@ QString CutterCore::nearestFlag(RVA offset, RVA *flagOffsetOut)
     auto r = cmdj(QString("fdj @") + QString::number(offset)).object();
     QString name = r.value("name").toString();
     if (flagOffsetOut) {
-        int queryOffset = r.value("offset").toInt(0);
-        *flagOffsetOut = offset + static_cast<RVA>(-queryOffset);
+        auto offsetValue = r.value("offset");
+        *flagOffsetOut = offsetValue.isUndefined() ? offset : offsetValue.toVariant().toULongLong();
     }
     return name;
 }

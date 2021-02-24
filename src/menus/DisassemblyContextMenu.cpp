@@ -811,10 +811,21 @@ void DisassemblyContextMenu::on_actionAddComment_triggered()
 void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
 {
     bool ok;
+    RVA flagOffset;
+    QString name = Core()->nearestFlag(offset, &flagOffset);
+    if (name.isEmpty() || flagOffset != offset) {
+        // Create a default name for the function
+        QString pfx = Config()->getConfigString("analysis.fcnprefix");
+        if (pfx.isEmpty()) {
+            pfx = QString("fcn");
+        }
+        name = pfx + QString::asprintf(".%llx", offset);
+    }
+
     // Create dialog
     QString functionName =
-            QInputDialog::getText(this, tr("New function %1").arg(RAddressString(offset)),
-                                  tr("Function name:"), QLineEdit::Normal, QString(), &ok);
+            QInputDialog::getText(this, tr("New function at %1").arg(RAddressString(offset)),
+                                  tr("Function name:"), QLineEdit::Normal, name, &ok);
 
     // If user accepted
     if (ok && !functionName.isEmpty()) {
