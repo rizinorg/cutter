@@ -108,6 +108,9 @@
           <property name="text">
            <string>Trace each step during continue in a trace session (dbg.trace_continue)</string>
           </property>
+          <property name="toolTip">
+           <string>Disabling this option means that stepping back after continue will return to the previous PC. Significantly improves performance.</string>
+          </property>
          </widget>
         </item>
        </layout>
