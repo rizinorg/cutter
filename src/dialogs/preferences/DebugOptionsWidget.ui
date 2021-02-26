@@ -6,74 +6,130 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>489</width>
-    <height>201</height>
+    <width>742</width>
+    <height>698</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Debug</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_1">
    <item>
-    <layout class="QFormLayout" name="formLayout">
-     <property name="fieldGrowthPolicy">
-      <enum>QFormLayout::ExpandingFieldsGrow</enum>
-     </property>
-     <property name="labelAlignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-     </property>
-     <item row="0" column="0">
-      <widget class="QLabel" name="pluginLabel">
-       <property name="text">
-        <string>Debug Plugin:</string>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <layout class="QFormLayout" name="formLayout_1">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
        </property>
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::ExpandingFieldsGrow</enum>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="pluginLabel">
+         <property name="text">
+          <string>Debug plugin:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="pluginComboBox"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="EsilOptions">
+       <property name="title">
+        <string>ESIL options</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetDefaultConstraint</enum>
+        </property>
+        <property name="topMargin">
+         <number>24</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="esilBreakOnInvalid">
+          <property name="text">
+           <string>Break esil execution when instruction is invalid (esil.breakoninvalid)</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QFormLayout" name="formLayout_2">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetDefaultConstraint</enum>
+          </property>
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="stackAddrLabel">
+            <property name="text">
+             <string>ESIL stack address:</string>
+            </property>
+            <property name="scaledContents">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="stackSizeLabel">
+            <property name="toolTip">
+             <string>Hide text when zooming out and it is smaller than the given value. Higher values can increase Performance.</string>
+            </property>
+            <property name="text">
+             <string>ESIL stack size:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="stackAddr"/>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="stackSize"/>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="pluginComboBox"/>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="esilstackAddr">
-       <property name="text">
-        <string>ESIL stack address:</string>
+     <item>
+      <widget class="QGroupBox" name="TraceOptions">
+       <property name="title">
+        <string>Trace options</string>
        </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="stackAddr">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="esilStackSize">
-       <property name="text">
-        <string>ESIL stack size:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QLineEdit" name="stackSize">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0" colspan="2">
-      <widget class="QCheckBox" name="esilBreakOnInvalid">
-       <property name="text">
-        <string>Break esil execution when instruction is invalid (esil.breakoninvalid)</string>
-       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="topMargin">
+         <number>24</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="traceContinue">
+          <property name="text">
+           <string>Trace each step during continue in a trace session (dbg.trace_continue)</string>
+          </property>
+          <property name="toolTip">
+           <string>Disabling this option means that stepping back after continue will return to the previous PC. Significantly improves performance.</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>

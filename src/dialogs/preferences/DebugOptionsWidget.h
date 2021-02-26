@@ -27,5 +27,4 @@ private slots:
     void updateStackAddr();
     void updateStackSize();
     void onDebugPluginChanged(const QString &index);
-    void on_esilBreakOnInvalid_toggled(bool checked);
 };

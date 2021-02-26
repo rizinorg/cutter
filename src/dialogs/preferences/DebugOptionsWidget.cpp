@@ -25,7 +25,13 @@ DebugOptionsWidget::~DebugOptionsWidget() {}
 
 void DebugOptionsWidget::updateDebugPlugin()
 {
+    ui->traceContinue->setChecked(Config()->getConfigBool("dbg.trace_continue"));
+    connect(ui->traceContinue, &QCheckBox::toggled, this,
+            [](bool checked) { Config()->setConfig("dbg.trace_continue", checked); });
     ui->esilBreakOnInvalid->setChecked(Config()->getConfigBool("esil.breakoninvalid"));
+    connect(ui->esilBreakOnInvalid, &QCheckBox::toggled, this,
+            [](bool checked) { Config()->setConfig("esil.breakoninvalid", checked); });
+
     disconnect(ui->pluginComboBox, &QComboBox::currentTextChanged, this,
                &DebugOptionsWidget::onDebugPluginChanged);
 
@@ -66,9 +72,4 @@ void DebugOptionsWidget::updateStackAddr()
     QString newAddr = ui->stackAddr->text();
     Core()->setConfig("esil.stack.addr", newAddr);
     ui->stackAddr->setPlaceholderText(newAddr);
-}
-
-void DebugOptionsWidget::on_esilBreakOnInvalid_toggled(bool checked)
-{
-    Config()->setConfig("esil.breakoninvalid", checked);
 }
