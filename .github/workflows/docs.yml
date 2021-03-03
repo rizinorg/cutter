@@ -24,7 +24,7 @@ jobs:
           cd ..
       - name: deploy docs
         run: |
-          openssl aes-256-cbc -K $encrypted_bd0ed4c1fd75_key -iv $encrypted_bd0ed4c1fd75_iv -in scripts/deploy_docs_rsa.enc -out scripts/deploy_docs_rsa -d
+          openssl aes-256-cbc -K $CUTTER_DOCS_KEY -iv $CUTTER_DOCS_IV -in scripts/deploy_docs_rsa.enc -out scripts/deploy_docs_rsa -d
           chmod 600 scripts/deploy_docs_rsa
           export GIT_SSH_COMMAND="/usr/bin/ssh -i $PWD/scripts/deploy_docs_rsa"
           git config --global user.name "Github Actions"
