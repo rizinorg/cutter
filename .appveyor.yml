@@ -64,17 +64,17 @@ artifacts:
   - path: "%ARTIFACT_PATH%"
     name: "%ARTIFACT_NAME%"
 
-deploy:
-  description: 'Cutter binaries'
-  provider: GitHub
-  auth_token:
-    secure: 2SmsqS2RaX2N5c9UwUcfBwNmMX64FfPAZFShLyxIkZXiC8vLaYCHToWxBYEuWRSk
-  artifact: "%ARTIFACT_NAME%"
-  draft: true
-  prerelease: true
-  on:
-    appveyor_repo_tag: true
-    DEPLOY: true
+#deploy:
+#  description: 'Cutter binaries'
+#  provider: GitHub
+#  auth_token:
+#    secure: 2SmsqS2RaX2N5c9UwUcfBwNmMX64FfPAZFShLyxIkZXiC8vLaYCHToWxBYEuWRSk
+#  artifact: "%ARTIFACT_NAME%"
+#  draft: true
+#  prerelease: true
+#  on:
+#    appveyor_repo_tag: true
+#    DEPLOY: true
 
 for:
   -
