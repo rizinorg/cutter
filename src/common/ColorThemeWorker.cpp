@@ -309,3 +309,11 @@ QStringList ColorThemeWorker::customThemes() const
     }
     return ret;
 }
+
+const QStringList &ColorThemeWorker::getRizinSpecificOptions()
+{
+    if (rizinSpecificOptions.isEmpty()) {
+        rizinSpecificOptions = Core()->cmdj("ecj").object().keys();
+    }
+    return rizinSpecificOptions;
+}

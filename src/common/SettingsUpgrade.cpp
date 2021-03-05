@@ -234,12 +234,35 @@ bool Cutter::shouldOfferSettingImport()
 
 static void importOldSettings()
 {
+    // QSettings
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QSettings r2CutterSettings(QSettings::IniFormat, QSettings::Scope::UserScope, PRE_RIZIN_ORG,
                                PRE_RIZIN_APP);
     QSettings newSettings;
     for (auto key : r2CutterSettings.allKeys()) {
         newSettings.setValue(key, r2CutterSettings.value(key));
+    }
+
+    // Color Themes
+    char *szThemes = rz_str_home(".local/share/radare2/cons");
+    QString r2ThemesPath = szThemes;
+    rz_mem_free(szThemes);
+    QDir r2ThemesDir(r2ThemesPath);
+    if (QFileInfo(r2ThemesPath).isDir()) {
+        QDir rzThemesDir(ThemeWorker().getCustomThemesPath());
+        if (!rzThemesDir.exists()) {
+            QDir().mkpath(rzThemesDir.absolutePath());
+        }
+        for (auto f : r2ThemesDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files)) {
+            auto dst = rzThemesDir.absoluteFilePath(f.fileName());
+            if (QDir(dst).exists()) {
+                qInfo() << "Theme" << dst << "already exists. Not overwriting with"
+                        << f.absoluteFilePath();
+                continue;
+            }
+            qInfo() << "Copying Theme" << f.absoluteFilePath() << "to" << dst;
+            QFile::copy(f.absoluteFilePath(), dst);
+        }
     }
 }
 
