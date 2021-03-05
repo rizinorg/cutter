@@ -108,7 +108,7 @@ if(CUTTER_PACKAGE_RZ_GHIDRA)
 		# installed Cutter.
 		ExternalProject_Add(rz-ghidra
 			GIT_REPOSITORY https://github.com/rizinorg/rz-ghidra
-			GIT_TAG master
+			GIT_TAG rz-0.1.1
 			CONFIGURE_COMMAND ""
 			BUILD_COMMAND ""
 			INSTALL_COMMAND ""
