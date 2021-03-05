@@ -77,17 +77,17 @@ The recommended way to build Cutter on Linux is by using CMake. Simply invoke CM
 .. code:: sh
 
    mkdir build && cd build
-   cmake -DCUTTER_USE_BUNDLED_RIZIN=ON ..
+   cmake ..
    cmake --build .
 
 If your operating system has a newer version of CMake (> v3.12) you can use this cleaner solution:
 
 .. code:: sh
 
-   cmake -B build -DCUTTER_USE_BUNDLED_RIZIN=ON
+   cmake -B build
    cmake --build build
 
-If you want to use Cutter with another version of Rizin you can omit ``-DCUTTER_USE_BUNDLED_RIZIN=ON``. Note that using a version of Rizin which isn't the version Cutter is using can cause issues and the compilation might fail.
+If you want to use Cutter with another version of Rizin you can set ``-DCUTTER_USE_BUNDLED_RIZIN=OFF``. Note that using a version of Rizin which isn't the version Cutter is using can cause issues and the compilation might fail.
 
 .. note::
 
@@ -153,7 +153,7 @@ Note that the paths below may vary depending on your version of Qt and Visual St
    $Env:Path += ";C:\Qt\5.15.2\msvc2019_64\bin"
 
    # Build Cutter
-   cmake -B build -DCUTTER_USE_BUNDLED_RIZIN=ON
+   cmake -B build
    cmake --build build
 
 
@@ -188,7 +188,7 @@ Recommended Way for dev builds
 
    mkdir build
    cd build
-   cmake .. -DCUTTER_USE_BUNDLED_RIZIN=ON -DCMAKE_PREFIX_PATH=/local/opt/qt5
+   cmake .. -DCMAKE_PREFIX_PATH=/local/opt/qt5
    make
 
 --------------
@@ -198,7 +198,7 @@ CMake Building Options
 
 Note that there are some major building options available:
 
-* ``CUTTER_USE_BUNDLED_RIZIN`` automatically compile Rizin from submodule.
+* ``CUTTER_USE_BUNDLED_RIZIN`` automatically compile Rizin from submodule (Enabled by default).
 * ``CUTTER_ENABLE_PYTHON`` compile with Python support.
 * ``CUTTER_ENABLE_PYTHON_BINDINGS`` automatically generate Python Bindings with Shiboken2, required for Python plugins!
 * ``CUTTER_ENABLE_KSYNTAXHIGHLIGHTING`` use KSyntaxHighlighting for code highlighting.

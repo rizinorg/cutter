@@ -10,7 +10,7 @@ Everyone has their own preferences for their favorite IDE or code editor.
 There are no strict requirements for using a specific one for Cutter development.
 Any IDE with good CMake integration should work well.
 
-For most development builds, unless you are working on packaging issues, it is recommended to use ``CUTTER_USE_BUNDLED_RIZIN=ON`` Cmake option. It is the easiest way to ensure that a compatible Rizin version is used, and helps you deal with different versions of Rizin when working with multiple Cutter branches. On Linux, in case you have multiple Rizin versions without ``CUTTER_USE_BUNDLED_RIZIN``, the ``PKG_CONFIG_PATH`` environment variable can be used to select the desired Rizin installation.
+For most development builds, unless you are working on packaging issues, it is recommended to build Cutter with the bundled version of Rizin. It is the default configuration and the easiest way to ensure that a compatible Rizin version is used and helps you deal with different versions of Rizin when working with multiple Cutter branches. In case you want to build Cutter with a different version of Rizin installed on your system, you can set `CUTTER_USE_BUNDLED_RIZIN=OFF`. On Linux, in case you have multiple Rizin versions without ``CUTTER_USE_BUNDLED_RIZIN``, the ``PKG_CONFIG_PATH`` environment variable can be used to select the desired Rizin installation.
 
 While `Qt Creator`_ has a builtin visual form and widget editor, not having it in other IDEs is not a major problem. It is also available as a standalone tool called Qt Designer and you can configure the file associations so that ``.ui`` files are opened using it. Depending on the ``.ui`` file and changes you want to make, it is sometimes easier to perform them by editing the ``.ui`` file as a text file. Essentially, ``.ui`` files are XML files. Most code editors should have some support for XML highlighting and possibly block folding.
 
@@ -47,12 +47,6 @@ The following instructions were made based on version 4.12.4 of Qt Creator. The 
 
 - Go to :menuselection:`File --> Open File or Project..` and select :file:`cutter/CMakeList.txt`
 - Select kit and press :guilabel:`Configure Project`
-- Configuration step might fail due to Rizin not being found, that's normal
-- Click :guilabel:`Projects` button with wrench icon on the left side of the screen
-- Click :menuselection:`Add --> Boolean` in the CMake section
-- Enter ``CUTTER_USE_BUNDLED_RIZIN`` as a key name and change the value to ON. In earlier Qt Creator versions it is necessary to do this during the initial kit selection and configuration step.
-- Click :guilabel:`Apply Configuration Changes`: The configuration should succeed now. In case of errors inspect the output log.
-
 
 Formatting using clang-format
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -93,9 +87,6 @@ Project setup
 Changing CMake configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 After the first configuration :kbd:`Ctrl-Shift-P`/:guilabel:`CMake: Edit CMake Cache` opens a text editor with all CMake options. Cutter specific ones mostly start with "CUTTER".
-
-.. note::
-    ``CUTTER_USE_BUNDLED_RIZIN`` option is also defined in ``.vscode/settings.json`` file and it will be overridden from there. It is set to ``ON`` by default as it is recommended during development.
 
 .. _vscode-debug-setup:
 
@@ -142,7 +133,6 @@ Pros and Cons
 Project setup
 ~~~~~~~~~~~~~
 - Go to :menuselection:`File --> Open` and select the folder in which you cloned Cutter
-- Go to :menuselection:`File --> Settings --> Build, Execution, Deployment --> CMake`. In the :guilabel:`CMake Options` field enter ``-DCUTTER_USE_BUNDLED_RIZIN=ON``
 - Open :file:`cutter/CMakeLists.txt` using the project file list on the left side of the screen
 - A yellow bar with a message :guilabel:`CMake project is not loaded` should appear, click :guilabel:`Load CMake project`
 
@@ -189,7 +179,7 @@ Project setup
 ~~~~~~~~~~~~~
 - Open folder in which you cloned Cutter source using Visual Studio
 - Open CMake settings configurator using either :menuselection:`Project --> CMake Settings` or by clicking :guilabel:`Open the CMake Settings Editor` in the overview page.
-- Check ``CUTTER_USE_BUNDLED_RIZIN`` option
+- Check options that you want Cutter to be built with, or leave it as-is for the default options.
 - If you are using vcpkg, Visual Studio should detect it automatically. The list of CMake options in the configurator should have some referring to vcpkg. If they are not there, specify the path to vcpkg toolchain file in the :guilabel:`CMake toolchain file` field.
 - If you are not using vcpkg, configure the path to Qt as mentioned in :ref:`windows CMake instructions<building:Building on Windows>`. You can specify the CMake flag in :guilabel:`CMake command arguments:` field.
 - To Ensure that VS debugger can display Qt types in a readable way, it is recommended to install `Qt Visual Studio Tools <https://marketplace.visualstudio.com/items?itemName=TheQtCompany.QtVisualStudioTools2019>`_ plugin. It will create a :file:`Documents/Visual Studio 2019/Visualizers/qt5.natvis` file. Once :file:`qt5.natvis` has been created you can uninstall the plugin.

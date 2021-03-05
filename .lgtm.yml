@@ -13,6 +13,6 @@ extraction:
     configure:
       command:
       - "pip3 install --upgrade --user meson"
-      - "cmake -B build -DCUTTER_USE_BUNDLED_RIZIN=ON"
+      - "cmake -B build"
     index:
       build_command: "cmake --build build"
