@@ -1,4 +1,6 @@
 #include "SettingsUpgrade.h"
+#include <QApplication>
+#include <QMessageBox>
 
 #include "common/ColorThemeWorker.h"
 
@@ -204,5 +206,79 @@ void Cutter::migrateThemes()
     if (themeVersion != THEME_VERSION_CURRENT) {
         removeObsoleteOptionsFromCustomThemes();
         settings.setValue(THEME_VERSION_KEY, THEME_VERSION_CURRENT);
+    }
+}
+
+static const char PRE_RIZIN_ORG[] = "RadareOrg";
+static const char PRE_RIZIN_APP[] = "Cutter";
+
+bool Cutter::shouldOfferSettingImport()
+{
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+    QSettings settings;
+    if (settings.contains("firstExecution")) {
+        return false;
+    }
+    QSettings r2CutterSettings(QSettings::IniFormat, QSettings::Scope::UserScope, PRE_RIZIN_ORG,
+                               PRE_RIZIN_APP);
+    QString f = r2CutterSettings.fileName();
+    if (r2CutterSettings.value("firstExecution", true) != QVariant(false)) {
+        return false; // no Cutter <= 1.12 settings to import
+    }
+    int version = r2CutterSettings.value("version", -1).toInt();
+    if (version < 1 || version > 6) {
+        return false; // version too new maybe it's from r2Cutter fork instead of pre-rizin Cutter.
+    }
+    return true;
+}
+
+static void importOldSettings()
+{
+    // QSettings
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+    QSettings r2CutterSettings(QSettings::IniFormat, QSettings::Scope::UserScope, PRE_RIZIN_ORG,
+                               PRE_RIZIN_APP);
+    QSettings newSettings;
+    for (auto key : r2CutterSettings.allKeys()) {
+        newSettings.setValue(key, r2CutterSettings.value(key));
+    }
+
+    // Color Themes
+    char *szThemes = rz_str_home(".local/share/radare2/cons");
+    QString r2ThemesPath = szThemes;
+    rz_mem_free(szThemes);
+    QDir r2ThemesDir(r2ThemesPath);
+    if (QFileInfo(r2ThemesPath).isDir()) {
+        QDir rzThemesDir(ThemeWorker().getCustomThemesPath());
+        if (!rzThemesDir.exists()) {
+            QDir().mkpath(rzThemesDir.absolutePath());
+        }
+        for (auto f : r2ThemesDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files)) {
+            auto dst = rzThemesDir.absoluteFilePath(f.fileName());
+            if (QDir(dst).exists()) {
+                qInfo() << "Theme" << dst << "already exists. Not overwriting with"
+                        << f.absoluteFilePath();
+                continue;
+            }
+            qInfo() << "Copying Theme" << f.absoluteFilePath() << "to" << dst;
+            QFile::copy(f.absoluteFilePath(), dst);
+        }
+    }
+}
+
+void Cutter::showSettingImportDialog(int &argc, char **argv)
+{
+    // Creating temporary QApplication because this happens before anything else in Cutter is
+    // initialized
+    QApplication temporaryApp(argc, argv);
+    QSettings r2CutterSettings(QSettings::IniFormat, QSettings::Scope::UserScope, PRE_RIZIN_ORG,
+                               PRE_RIZIN_APP);
+    QString oldFile = r2CutterSettings.fileName();
+    // Can't use message translations because settings have not been imported
+    auto result =
+            QMessageBox::question(nullptr, "Setting import",
+                                  QString("Do you want to import settings from %1?").arg(oldFile));
+    if (result == QMessageBox::Yes) {
+        importOldSettings();
     }
 }

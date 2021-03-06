@@ -18,11 +18,6 @@ class ColorThemeWorker : public QObject
     Q_OBJECT
 public:
     /**
-     * @brief rizinSpecificOptions is list of all available Rizin-only color options.
-     */
-    const QStringList rizinSpecificOptions = Core()->cmdj("ecj").object().keys();
-
-    /**
      * @brief cutterSpecificOptions is list of all available Cutter-only color options.
      */
     static const QStringList cutterSpecificOptions;
@@ -117,7 +112,17 @@ public:
      */
     QStringList customThemes() const;
 
+    QString getStandardThemesPath() { return standardRzThemesLocationPath; }
+    QString getCustomThemesPath() { return customRzThemesLocationPath; }
+
+    const QStringList &getRizinSpecificOptions();
+
 private:
+    /**
+     * @brief list of all available Rizin-only color options.
+     */
+    QStringList rizinSpecificOptions;
+
     QString standardRzThemesLocationPath;
     QString customRzThemesLocationPath;
 

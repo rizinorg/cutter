@@ -73,6 +73,12 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("rizin");
     QCoreApplication::setApplicationName("cutter");
 
+    // Importing settings after setting rename, needs separate handling in addition to regular version to version upgrade.
+    if (Cutter::shouldOfferSettingImport())
+    {
+        Cutter::showSettingImportDialog(argc, argv);
+    }
+
     Cutter::initializeSettings();
 
     QCoreApplication::setAttribute(

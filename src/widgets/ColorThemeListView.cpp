@@ -240,7 +240,7 @@ void ColorThemeListView::currentChanged(const QModelIndex &current, const QModel
 {
     ColorOption prev = previous.data(Qt::UserRole).value<ColorOption>();
     Config()->setColor(prev.optionName, prev.color);
-    if (ThemeWorker().rizinSpecificOptions.contains(prev.optionName)) {
+    if (ThemeWorker().getRizinSpecificOptions().contains(prev.optionName)) {
         Core()->cmdRaw(QString("ec %1 %2").arg(prev.optionName).arg(prev.color.name()));
     }
 
@@ -306,7 +306,7 @@ void ColorThemeListView::blinkTimeout()
 
     auto updateColor = [](const QString &name, const QColor &color) {
         Config()->setColor(name, color);
-        if (ThemeWorker().rizinSpecificOptions.contains(name)) {
+        if (ThemeWorker().getRizinSpecificOptions().contains(name)) {
             Core()->cmdRaw(QString("ec %1 %2").arg(name).arg(color.name()));
         }
     };
