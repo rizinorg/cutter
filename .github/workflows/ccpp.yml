@@ -93,7 +93,7 @@ jobs:
         then
           PACKAGE_ID="${{ github.event.ref }}"
         else
-          PACKAGE_ID="git-`date --iso-8601`-${{ format('{0}', github.sha) }}"
+          PACKAGE_ID="git-`date "+%Y-%m-%d"`-${{ format('{0}', github.sha) }}"
         fi
         PACKAGE_ID=${PACKAGE_ID##refs/tags/}
         echo PACKAGE_ID=$PACKAGE_ID >> $GITHUB_ENV
