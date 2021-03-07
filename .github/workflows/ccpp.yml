@@ -86,6 +86,17 @@ jobs:
       run: |
         # 0.56.1 doesn't work with python 3.5 on Ubuntu 16.04
         pip install meson==0.56.0
+    - name: Prepare package id
+      shell: bash
+      run: |
+        if [[ "${{ startsWith(github.event.ref, 'refs/tags')}}" = "true" ]]
+        then
+          PACKAGE_ID="${{ github.event.ref }}"
+        else
+          PACKAGE_ID="git-`date --iso-8601`-${{ format('{0}', github.sha) }}"
+        fi
+        PACKAGE_ID=${PACKAGE_ID##refs/tags/}
+        echo PACKAGE_ID=$PACKAGE_ID >> $GITHUB_ENV
     - name: cmake ubuntu
       if: contains(matrix.os, 'ubuntu')
       run: |
@@ -160,7 +171,7 @@ jobs:
             -ignore-glob=usr/share/RizinOrg/Cutter/plugins/native/librz_ghidra_cutter.so \
             -verbose=2
           find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
-          export APPIMAGE_FILE="Cutter-v$CUTTER_VERSION-x64.Linux.AppImage"
+          export APPIMAGE_FILE="Cutter-${PACKAGE_ID}-x64.Linux.AppImage"
           mv Cutter-*-x86_64.AppImage "$APPIMAGE_FILE"
           echo PACKAGE_NAME=$APPIMAGE_FILE >> $GITHUB_ENV
           echo UPLOAD_ASSET_TYPE=application/x-executable >> $GITHUB_ENV
@@ -176,6 +187,7 @@ jobs:
         source scripts/prepare_breakpad_macos.sh
         mkdir build
         cd build
+        PACKAGE_NAME=Cutter-${PACKAGE_ID}-Darwin
         cmake \
                 -DCMAKE_BUILD_TYPE=Release \
                 -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.9.dylib" \
@@ -190,13 +202,14 @@ jobs:
                 -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON \
                 -DCUTTER_PACKAGE_RZ_GHIDRA=ON \
                 -DCUTTER_PACKAGE_JSDEC=ON \
+                -DCPACK_PACKAGE_FILE_NAME="$PACKAGE_NAME" \
                 -DCMAKE_FRAMEWORK_PATH="$BREAKPAD_FRAMEWORK_DIR" \
                 -DCPACK_BUNDLE_APPLE_CERT_APP="-" \
                 .. && \
               make -j4;
         make package
         export CUTTER_VERSION=$(python3 ../scripts/get_version.py)
-        echo PACKAGE_NAME=Cutter-${CUTTER_VERSION}-Darwin.dmg >> $GITHUB_ENV
+        echo PACKAGE_NAME=${PACKAGE_NAME}.dmg >> $GITHUB_ENV
         echo UPLOAD_ASSET_TYPE=application/x-apple-diskimage >> $GITHUB_ENV
     - name: windows dependencies
       if: contains(matrix.os, 'windows')
@@ -217,7 +230,7 @@ jobs:
         cd
         mkdir build
         cd build
-        set PACKAGE_NAME=cutter-git-x64.Windows
+        set PACKAGE_NAME=cutter-%PACKAGE_ID%-x64.Windows
         cmake ^
           -DCMAKE_BUILD_TYPE=Release ^
           -DCUTTER_USE_BUNDLED_RIZIN=ON ^
