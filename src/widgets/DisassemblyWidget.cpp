@@ -874,10 +874,18 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
 
     using LineInfo = std::pair<RVA, int>;
     std::vector<LineInfo> lineOffsets;
-    lineOffsets.reserve(lines.size());
+    lineOffsets.reserve(lines.size() + arrows.size());
+
+    RVA minViewOffset = 0, maxViewOffset = 0;
+
+    if (lines.size() > 0) {
+        minViewOffset = maxViewOffset = lines[0].offset;
+    }
 
     for (int i = 0; i < lines.size(); i++) {
         lineOffsets.emplace_back(lines[i].offset, i);
+        minViewOffset = std::min(minViewOffset, lines[i].offset);
+        maxViewOffset = std::max(maxViewOffset, lines[i].offset);
         if (lines[i].arrow != RVA_INVALID) {
             Arrow a { lines[i].offset, lines[i].arrow };
             bool contains = std::find_if(std::begin(arrows), std::end(arrows),
@@ -891,24 +899,54 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
         }
     }
 
+    auto addOffsetOutsideScreen = [&](RVA offset) {
+        if (offset < minViewOffset || offset > maxViewOffset) {
+            lineOffsets.emplace_back(offset, -1);
+        }
+    };
+
+    // Assign sequential numbers to offsets outside screen while preserving their relative order.
+    // Preserving relative order helps reducing reordering while scrolling. Using sequential numbers
+    // allows using data structures designed for dense ranges.
+    for (auto &arrow : arrows) {
+        addOffsetOutsideScreen(arrow.min);
+        addOffsetOutsideScreen(arrow.max);
+    }
+    std::sort(lineOffsets.begin(), lineOffsets.end());
+    lineOffsets.erase(std::unique(lineOffsets.begin(), lineOffsets.end()), lineOffsets.end());
+    size_t firstVisibleLine = std::find_if(lineOffsets.begin(), lineOffsets.end(),
+                                           [](const LineInfo &line) { return line.second == 0; })
+            - lineOffsets.begin();
+    for (int i = int(firstVisibleLine) - 1; i >= 0; i--) {
+        // -1 to ensure end of arrrow is drawn outside screen
+        lineOffsets[i].second = i - firstVisibleLine - 1;
+    }
+    size_t firstLineAfter =
+            std::find_if(lineOffsets.begin(), lineOffsets.end(),
+                         [&](const LineInfo &line) { return line.first > maxViewOffset; })
+            - lineOffsets.begin();
+    for (size_t i = firstLineAfter; i < lineOffsets.size(); i++) {
+        lineOffsets[i].second = lines.size() + (i - firstLineAfter)
+                + 1; // +1 to ensure end of arrrow is drawn outside screen
+    }
+
     auto offsetToLine = [&](RVA offset) -> int {
         // binary search because linesPixPosition is sorted by offset
         if (lineOffsets.empty()) {
             return 0;
         }
         if (offset < lineOffsets[0].first) {
-            return -2;
+            return lineOffsets[0].second - 1;
         }
         auto res = lower_bound(std::begin(lineOffsets), std::end(lineOffsets), offset,
                                [](const LineInfo &it, RVA offset) { return it.first < offset; });
         if (res == std::end(lineOffsets)) {
-            return lines.size() + 2;
+            return lineOffsets.back().second + 1;
         }
         return res->second;
     };
 
-    RVA visibleTop = lineOffsets[0].first, visibleBottom = lineOffsets.back().first;
-    auto fitsInScreen = [&](const Arrow &a) { return visibleBottom - visibleTop < a.length(); };
+    auto fitsInScreen = [&](const Arrow &a) { return maxViewOffset - minViewOffset < a.length(); };
 
     std::sort(std::begin(arrows), std::end(arrows), [&](const Arrow &l, const Arrow &r) {
         int lScreen = fitsInScreen(l), rScreen = fitsInScreen(r);
@@ -918,25 +956,28 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
         return l.max != r.max ? l.max < r.max : l.min > r.min;
     });
 
-    RVA max = 0;
-    RVA min = RVA_MAX;
+    int minLine = 0, maxLine = 0;
     for (auto &it : arrows) {
-        min = std::min(it.min, min);
-        max = std::max(it.max, max);
+        minLine = std::min(offsetToLine(it.min), minLine);
+        maxLine = std::max(offsetToLine(it.max), maxLine);
         it.level = 0;
     }
 
+    const int MAX_ARROW_LINES = 1 << 18;
     uint32_t maxLevel = 0;
-    if (!arrows.empty()) {
-        MinMaxAccumulateTree<uint32_t> maxLevelTree(max - min + 2);
+    if (!arrows.empty() && maxLine - minLine < MAX_ARROW_LINES) {
+        // Limit maximum tree range to MAX_ARROW_LINES as sanity check, since the tree is designed
+        // for dense ranges. Under normal conditions due to amount lines fitting screen and number
+        // of arrows remembered should be few hundreds at most.
+        MinMaxAccumulateTree<uint32_t> maxLevelTree(maxLine - minLine + 2);
         for (Arrow &arrow : arrows) {
-            RVA top = arrow.min >= min ? arrow.min - min + 1 : 0;
-            RVA bottom = std::min(arrow.max - min, max - min) + 2;
+            int top = offsetToLine(arrow.min) - minLine;
+            int bottom = offsetToLine(arrow.max) - minLine + 1;
             auto minMax = maxLevelTree.rangeMinMax(top, bottom);
             if (minMax.first > 1) {
-                arrow.level = 1;
+                arrow.level = 1; // place bellow existing lines
             } else {
-                arrow.level = minMax.second + 1;
+                arrow.level = minMax.second + 1; // place on top of existing lines
                 maxLevel = std::max(maxLevel, arrow.level);
             }
             maxLevelTree.updateRange(top, bottom, arrow.level);
@@ -975,7 +1016,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
         // Draw the lines
         p.drawLine(rightOffset, currentLineYPos, rightOffset - lineOffset, currentLineYPos); // left
         p.drawLine(rightOffset - lineOffset, currentLineYPos, rightOffset - lineOffset,
-                   lineArrowY); // horizontal
+                   lineArrowY); // vertical
 
         p.drawLine(rightOffset - lineOffset, lineArrowY, rightOffset, lineArrowY); // right
 
