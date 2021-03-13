@@ -6,9 +6,9 @@ Building
  If you just want to use the latest Release version of Cutter, please note
  that we provide pre-compiled binaries for Windows, Linux, and macOS on
  our `release page <https://github.com/rizinorg/cutter/releases/latest>`_ and
- `CI page <https://github.com/rizinorg/cutter/actions/workflows/ccpp.yml?query=branch%3Amaster>`_ (requires logging in) for latest development builds.
+ `CI page <https://nightly.link/rizinorg/cutter/workflows/ccpp/master>`_ for latest development builds.
 
-This page describes how to do basic build from command line. If you are planning to modify Cutter it is recommended to also read :doc:`development environment setup</contributing/code/ide-setup>`.
+This page describes how to do a basic build from the command line. If you are planning to modify Cutter it is recommended to also read our :doc:`development environment setup</contributing/code/ide-setup>`.
 
 Getting the Source
 ------------------
@@ -109,18 +109,18 @@ You can now execute Cutter like this:
 
 Making Linux distribution specific packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-When making a distribution specific packages the default install target should give you a good starting point.
-It uses CMake builtin functionality and `GNUInstallDirs <https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html?highlight=gnu%20directories>`_ for
+When making a distribution specific package, the default install target should give you a good starting point.
+It uses CMake built-in functionality and `GNUInstallDirs <https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html?highlight=gnu%20directories>`_ for
 installing the executable, desktop file, headers and other files required for plugin compilation. See CMake documentation for adjusting installed file locations and properties.
 It shouldn't be necessary to manually copy files from plain build.
 
-It is recommended to build and package rizin as separate package so that it can be used with or without Cutter. Doing that will also give more control over the way rizin dependencies are handled. We are trying to maintain
+It is recommended to build and package rizin as a separate package so that it can be used with or without Cutter. Doing that will also give more control over the way rizin dependencies are handled. We are trying to maintain
 compatibility with latest rizin release at the time of Cutter release and making a new Cutter release when new rizin version is released.
 
-If you are packaging Cutter users will appreciate if you also package `rz-ghidra <https://github.com/rizinorg/rz-ghidra>`_ and `jsdec <https://github.com/rizinorg/jsdec>`_ decompilers as optional packages.
+If you are packaging Cutter, users will appreciate it if you also package `rz-ghidra <https://github.com/rizinorg/rz-ghidra>`_ and `jsdec <https://github.com/rizinorg/jsdec>`_ decompilers as optional packages.
 It should be possible to compile Cutter plugins against proper Cutter installation without having direct access to Cutter source code.
 
-If name Cutter or cutter conflicts with other packages or their content, rz-cutter can be used.
+If the names "Cutter" or "cutter" conflict with other packages or their content, "rz-cutter" can be used.
 
 CMAKE options:
 
