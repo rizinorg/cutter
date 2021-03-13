@@ -5,7 +5,10 @@ Building
 
  If you just want to use the latest Release version of Cutter, please note
  that we provide pre-compiled binaries for Windows, Linux, and macOS on
- our `release page. <https://github.com/rizinorg/cutter/releases/latest>`_
+ our `release page <https://github.com/rizinorg/cutter/releases/latest>`_ and
+ `CI page <https://github.com/rizinorg/cutter/actions/workflows/ccpp.yml?query=branch%3Amaster>`_ (requires logging in) for latest development builds.
+
+This page describes how to do basic build from command line. If you are planning to modify Cutter it is recommended to also read :doc:`development environment setup</contributing/code/ide-setup>`.
 
 Getting the Source
 ------------------
@@ -103,6 +106,30 @@ You can now execute Cutter like this:
 
    ./build/cutter
 
+
+Making Linux distribution specific packages
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When making a distribution specific packages the default install target should give you a good starting point.
+It uses CMake builtin functionality and `GNUInstallDirs <https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html?highlight=gnu%20directories>`_ for
+installing the executable, desktop file, headers and other files required for plugin compilation. See CMake documentation for adjusting installed file locations and properties.
+It shouldn't be necessary to manually copy files from plain build.
+
+It is recommended to build and package rizin as separate package so that it can be used with or without Cutter. Doing that will also give more control over the way rizin dependencies are handled. We are trying to maintain
+compatibility with latest rizin release at the time of Cutter release and making a new Cutter release when new rizin version is released.
+
+If you are packaging Cutter users will appreciate if you also package `rz-ghidra <https://github.com/rizinorg/rz-ghidra>`_ and `jsdec <https://github.com/rizinorg/jsdec>`_ decompilers as optional packages.
+It should be possible to compile Cutter plugins against proper Cutter installation without having direct access to Cutter source code.
+
+If name Cutter or cutter conflicts with other packages or their content, rz-cutter can be used.
+
+CMAKE options:
+
+* ``-DCMAKE_BUILD_TYPE=Release`` turn on release optimizations, unless your distro has more specific guidelines for common compiler options.
+* ``CUTTER_USE_BUNDLED_RIZIN=OFF`` turn off use of rizin from submodule to use previously packaged rizin. Note that ``CUTTER_USE_BUNDLED_RIZIN=ON`` doesn't install rizin in a way suitable for linux packaging without doing additional manual steps making packaging process more complex. Bundled rizin will also likely conflict with standalone rizin package.
+* Correct install prefix. By default CMake will install to /usr/local suitable for user builds. Change it according to your distro packaging guidelines.
+* ``CUTTER_ENABLE_PYTHON`` and  ``CUTTER_ENABLE_PYTHON_BINDINGS`` it is recommended to turn on for complete user experience. May require manual path specification on distros with multiple python versions.
+* ``CUTTER_ENABLE_GRAPHVIZ`` and ``CUTTER_ENABLE_KSYNTAXHIGHLIGHTING`` optional but nice to have since they are available on most distros.
+* ``CUTTER_EXTRA_PLUGIN_DIRS`` use it to specify additional plugin search locations if distro packaging guidelines require you placing them in locations Cutter doesn't use by default.
 
 Building on Windows
 -------------------
