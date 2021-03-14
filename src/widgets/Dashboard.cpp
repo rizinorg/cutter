@@ -32,47 +32,48 @@ Dashboard::~Dashboard() {}
 
 void Dashboard::updateContents()
 {
-    QJsonDocument docu = Core()->getFileInfo();
-    QJsonObject item = docu.object()["core"].toObject();
-    QJsonObject item2 = docu.object()["bin"].toObject();
+    RzBinInfo *info = Core()->getFileInfo();
+    //QJsonObject item = docu.object()["core"].toObject();
+    //QJsonObject item2 = docu.object()["bin"].toObject();
 
-    setPlainText(this->ui->fileEdit, item["file"].toString());
-    setPlainText(this->ui->formatEdit, item["format"].toString());
-    setPlainText(this->ui->modeEdit, item["mode"].toString());
-    setPlainText(this->ui->typeEdit, item["type"].toString());
-    setPlainText(this->ui->sizeEdit, qhelpers::formatBytecount(item["size"].toDouble()));
-    setPlainText(this->ui->fdEdit, QString::number(item["fd"].toDouble()));
+    setPlainText(this->ui->fileEdit, info->file);
+    //setPlainText(this->ui->formatEdit, info->format);
+    //setPlainText(this->ui->modeEdit, item["mode"].toString());
+    //setPlainText(this->ui->typeEdit, item["type"].toString());
+    //setPlainText(this->ui->sizeEdit, qhelpers::formatBytecount(item["size"].toDouble()));
+    //setPlainText(this->ui->fdEdit, QString::number(item["fd"].toDouble()));
 
-    setPlainText(this->ui->archEdit, item2["arch"].toString());
-    setPlainText(this->ui->langEdit, item2["lang"].toString().toUpper());
-    setPlainText(this->ui->classEdit, item2["class"].toString());
-    setPlainText(this->ui->machineEdit, item2["machine"].toString());
-    setPlainText(this->ui->osEdit, item2["os"].toString());
-    setPlainText(this->ui->subsysEdit, item2["subsys"].toString());
-    setPlainText(this->ui->endianEdit, item2["endian"].toString());
-    setPlainText(this->ui->compilationDateEdit, item2["compiled"].toString());
-    setPlainText(this->ui->compilerEdit, item2["compiler"].toString());
-    setPlainText(this->ui->bitsEdit, QString::number(item2["bits"].toDouble()));
+    setPlainText(this->ui->archEdit, info->arch);
+    setPlainText(this->ui->langEdit, info->lang);
+    setPlainText(this->ui->classEdit, info->bclass);
+    setPlainText(this->ui->machineEdit, info->machine);
+    setPlainText(this->ui->osEdit, info->os);
+    setPlainText(this->ui->subsysEdit, info->subsystem);
+    setPlainText(this->ui->endianEdit, info->big_endian ? "big" : "little");
+    //setPlainText(this->ui->compilationDateEdit, COMPILED_TODO);
+    setPlainText(this->ui->compilerEdit, info->compiler);
+    setPlainText(this->ui->bitsEdit, QString(info->bits));
 
-    if (!item2["relro"].toString().isEmpty()) {
-        QString relro = item2["relro"].toString().section(QLatin1Char(' '), 0, 0);
-        relro[0] = relro[0].toUpper();
-        setPlainText(this->ui->relroEdit, relro);
-    } else {
-        setPlainText(this->ui->relroEdit, "N/A");
-    }
+    // TODO
+    //if (!info->relro) {
+    //    QString relro = item2["relro"].toString().section(QLatin1Char(' '), 0, 0);
+    //    relro[0] = relro[0].toUpper();
+    //    setPlainText(this->ui->relroEdit, relro);
+    //} else {
+    //    setPlainText(this->ui->relroEdit, "N/A");
+    //}
 
-    setPlainText(this->ui->baddrEdit, RzAddressString(item2["baddr"].toVariant().toULongLong()));
+    setPlainText(this->ui->baddrEdit, RzAddressString(info->baddr));
 
     // set booleans
-    setBool(this->ui->vaEdit, item2, "va");
-    setBool(this->ui->canaryEdit, item2, "canary");
-    setBool(this->ui->cryptoEdit, item2, "crypto");
-    setBool(this->ui->nxEdit, item2, "nx");
-    setBool(this->ui->picEdit, item2, "pic");
-    setBool(this->ui->staticEdit, item2, "static");
-    setBool(this->ui->strippedEdit, item2, "stripped");
-    setBool(this->ui->relocsEdit, item2, "relocs");
+    setBool(this->ui->vaEdit, info->has_va);
+    setBool(this->ui->canaryEdit, info->has_canary);
+    setBool(this->ui->cryptoEdit, info->has_crypto);
+    setBool(this->ui->nxEdit, info->has_nx);
+    setBool(this->ui->picEdit, info->has_pi);
+    // setBool(this->ui->staticEdit, info->h); // TODO
+    setBool(this->ui->strippedEdit, RZ_BIN_DBG_STRIPPED & info->dbg_info);
+    setBool(this->ui->relocsEdit, RZ_BIN_DBG_RELOCS & info->dbg_info);
 
     // Add file hashes, analysis info and libraries
 
@@ -240,19 +241,15 @@ void Dashboard::setPlainText(QLineEdit *textBox, const QString &text)
 }
 
 /**
- * @brief Set the text of a QLineEdit as True, False or N/A if it does not exist
+ * @brief Set the text of a QLineEdit as True or False
  * @param textBox
- * @param isTrue
+ * @param val
  */
-void Dashboard::setBool(QLineEdit *textBox, const QJsonObject &jsonObject, const QString &key)
+void Dashboard::setBool(QLineEdit *textBox, int val)
 {
-    if (jsonObject.contains(key)) {
-        if (jsonObject[key].toBool()) {
-            setPlainText(textBox, tr("True"));
-        } else {
-            setPlainText(textBox, tr("False"));
-        }
+    if (val) {
+        setPlainText(textBox, tr("True"));
     } else {
-        setPlainText(textBox, tr("N/A"));
+        setPlainText(textBox, tr("False"));
     }
 }
