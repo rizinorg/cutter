@@ -122,10 +122,10 @@ It should be possible to compile Cutter plugins against proper Cutter installati
 
 If the names "Cutter" or "cutter" conflict with other packages or their content, "rz-cutter" can be used.
 
-CMAKE options:
+:Configuration for packaging:
 
 * ``-DCMAKE_BUILD_TYPE=Release`` turn on release optimizations, unless your distro has more specific guidelines for common compiler options.
-* ``CUTTER_USE_BUNDLED_RIZIN=OFF`` turn off use of rizin from submodule to use previously packaged rizin. Note that ``CUTTER_USE_BUNDLED_RIZIN=ON`` doesn't install rizin in a way suitable for linux packaging without doing additional manual steps making packaging process more complex. Bundled rizin will also likely conflict with standalone rizin package.
+* ``CUTTER_USE_BUNDLED_RIZIN=OFF`` turn off use of rizin from submodule to use previously packaged rizin. Note that keeping it on doesn't install rizin in a way suitable for linux packaging without doing additional manual steps making packaging process more complex. Bundled rizin will also likely conflict with standalone rizin package.
 * Correct install prefix. By default CMake will install to /usr/local suitable for user builds. Change it according to your distro packaging guidelines.
 * ``CUTTER_ENABLE_PYTHON`` and  ``CUTTER_ENABLE_PYTHON_BINDINGS`` it is recommended to turn on for complete user experience. May require manual path specification on distros with multiple python versions.
 * ``CUTTER_ENABLE_GRAPHVIZ`` and ``CUTTER_ENABLE_KSYNTAXHIGHLIGHTING`` optional but nice to have since they are available on most distros.
