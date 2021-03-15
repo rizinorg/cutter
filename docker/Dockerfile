@@ -30,7 +30,7 @@ RUN apk add --no-cache \
 RUN git clone --recurse-submodules https://github.com/rizinorg/cutter.git /opt/cutter && \
     mkdir -p /opt/cutter/build && \
     cd /opt/cutter/build && \
-    cmake -DCUTTER_USE_BUNDLED_RIZIN=ON .. && \
+    cmake .. && \
     cmake --build . -j $(grep -c ^processor /proc/cpuinfo)
 
 FROM alpine:latest AS runner

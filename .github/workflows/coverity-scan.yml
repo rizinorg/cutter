@@ -41,7 +41,7 @@ jobs:
           export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
           mkdir build
           cd build
-          cmake -DCUTTER_USE_BUNDLED_RIZIN=ON ..
+          cmake ..
 
       - name: Build with cov-build
         run: |
