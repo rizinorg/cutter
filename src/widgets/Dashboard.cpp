@@ -33,19 +33,32 @@ Dashboard::~Dashboard() {}
 void Dashboard::updateContents()
 {
     RzBinInfo info = { };
-    RzBinInfo *tmpInfo = rz_bin_get_info(Core()->core()->bin);
+    RzBin *bin = Core()->core()->bin;
+
+    RzBinInfo *tmpInfo = rz_bin_get_info(bin);
     if (tmpInfo) {
 	info = *tmpInfo;
     }
-    //QJsonObject item = docu.object()["core"].toObject();
-    //QJsonObject item2 = docu.object()["bin"].toObject();
+
+    RzBinFile *binfile = rz_bin_cur(bin);
+    RzBinPlugin *plugin = rz_bin_file_cur_plugin(binfile);
+
+    int fd = rz_io_fd_get_current(Core()->core()->io);
+    RzIODesc *desc = rz_io_desc_get(Core()->core()->io, fd);
 
     setPlainText(this->ui->fileEdit, info.file);
-    //setPlainText(this->ui->formatEdit, info->format);
-    //setPlainText(this->ui->modeEdit, item["mode"].toString());
-    //setPlainText(this->ui->typeEdit, item["type"].toString());
-    //setPlainText(this->ui->sizeEdit, qhelpers::formatBytecount(item["size"].toDouble()));
-    //setPlainText(this->ui->fdEdit, QString::number(item["fd"].toDouble()));
+    if (plugin) {
+        setPlainText(this->ui->formatEdit, plugin->name);
+    }
+    if (desc) {
+	setPlainText(this->ui->modeEdit, rz_str_rwx_i(desc->perm & RZ_PERM_RWX));
+        setPlainText(this->ui->fdEdit, QString::number(desc->fd));
+	ut64 fsz = rz_io_desc_size(desc);
+	if (fsz != UT64_MAX) {
+	    setPlainText(this->ui->sizeEdit, qhelpers::formatBytecount(fsz));
+	}
+    }
+    setPlainText(this->ui->typeEdit, info.type);
 
     setPlainText(this->ui->archEdit, info.arch);
     setPlainText(this->ui->langEdit, info.lang);
@@ -54,19 +67,15 @@ void Dashboard::updateContents()
     setPlainText(this->ui->osEdit, info.os);
     setPlainText(this->ui->subsysEdit, info.subsystem);
     setPlainText(this->ui->endianEdit, info.big_endian ? "big" : "little");
-    //setPlainText(this->ui->compilationDateEdit, XXX); // TODO
     setPlainText(this->ui->compilerEdit, info.compiler);
     setPlainText(this->ui->bitsEdit, QString::number(info.bits));
 
-    // TODO: Compute that properly in Rizin and store it in the rz_bin_t structure
-    //if (!info->relro) {
-    //    QString relro = item2["relro"].toString().section(QLatin1Char(' '), 0, 0);
-    //    relro[0] = relro[0].toUpper();
-    //    setPlainText(this->ui->relroEdit, relro);
-    //} else {
-    //    setPlainText(this->ui->relroEdit, "N/A");
-    //}
-
+    // TODO: Remaining work: 
+    // - find a proper way to store/compute compilation date in Rizin
+    // - find a proper way to store/compute relro information in Rizin
+    // - find a proper way to clean up the mess above and below in Rizin
+    setPlainText(this->ui->compilationDateEdit, "N/A");
+    setPlainText(this->ui->relroEdit, "N/A");
     setPlainText(this->ui->baddrEdit, RzAddressString(info.baddr));
 
     // set booleans
@@ -80,7 +89,6 @@ void Dashboard::updateContents()
     setBool(this->ui->relocsEdit, RZ_BIN_DBG_RELOCS & info.dbg_info);
 
     // Add file hashes, analysis info and libraries
-
     QJsonObject hashes = Core()->cmdj("itj").object();
 
     // Delete hashesWidget if it isn't null to avoid duplicate components
