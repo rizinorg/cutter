@@ -674,7 +674,7 @@ bool CutterCore::mapFile(QString path, RVA mapaddr)
 {
     CORE_LOCK();
     RVA addr = mapaddr != RVA_INVALID ? mapaddr : 0;
-    RzBinInfo *info = Core()->getFileInfo();
+    RzBinInfo *info = rz_bin_get_info(Core()->core()->bin);
     if (!info) {
         return false;
     }
@@ -1309,13 +1309,6 @@ bool CutterCore::registerDecompiler(Decompiler *decompiler)
     decompiler->setParent(this);
     decompilers.push_back(decompiler);
     return true;
-}
-
-RzBinInfo *CutterCore::getFileInfo()
-{
-    CORE_LOCK();
-    RzBinInfo *info = rz_bin_get_info(core->bin);
-    return info;
 }
 
 QJsonDocument CutterCore::getFileVersionInfo()
