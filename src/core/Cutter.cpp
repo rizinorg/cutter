@@ -1508,7 +1508,7 @@ QJsonObject CutterCore::getAddrRefs(RVA addr, int depth)
     }
 
     // Try to telescope further if depth permits it
-    if ((type & RZ_ANALYSIS_ADDR_TYPE_READ) && !(type & RZ_ANALYSIS_ADDR_TYPE_EXEC)) {
+    if ((type & RZ_ANALYSIS_ADDR_TYPE_READ)) {
         buf.resize(64);
         ut32 *n32 = (ut32 *)buf.data();
         ut64 *n64 = (ut64 *)buf.data();
@@ -1517,7 +1517,7 @@ QJsonObject CutterCore::getAddrRefs(RVA addr, int depth)
         // The value of the next address will serve as an indication that there's more to
         // telescope if we have reached the depth limit
         json["value"] = QString::number(n);
-        if (depth && n != addr) {
+        if (depth && n != addr && !(type & RZ_ANALYSIS_ADDR_TYPE_EXEC)) {
             // Make sure we aren't telescoping the same address
             QJsonObject ref = getAddrRefs(n, depth - 1);
             if (!ref.empty() && !ref["type"].isNull()) {
