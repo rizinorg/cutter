@@ -791,5 +791,8 @@ void Configuration::addRecentProject(QString file)
     QStringList files = getRecentProjects();
     files.removeAll(file);
     files.prepend(file);
+    
+    // Make sure we don't keep duplicate entries
+    files.removeDuplicates();
     setRecentProjects(files);
 }
