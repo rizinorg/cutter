@@ -180,6 +180,7 @@ jobs:
       shell: bash
       if: contains(matrix.os, 'macos')
       run: |
+        export MACOSX_DEPLOYMENT_TARGET=10.14
         scripts/fetch_deps.sh
         source cutter-deps/env.sh
         set -euo pipefail
