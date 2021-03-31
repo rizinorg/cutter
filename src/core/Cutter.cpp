@@ -1764,7 +1764,7 @@ void CutterCore::attachRemote(const QString &uri)
     }
 
     // connect to a debugger with the given plugin
-    asyncCmd("e cfg.debug = true; oodf " + uri, debugTask);
+    asyncCmd("e cfg.debug=true; oodf " + uri, debugTask);
     emit debugTaskStateChanged();
 
     connect(debugTask.data(), &RizinTask::finished, this, [this, uri]() {
