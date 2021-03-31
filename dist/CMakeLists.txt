@@ -81,10 +81,10 @@ if(APPLE)
 	get_filename_component(QT_PREFIX "${MACDEPLOYQT_PATH}/../.." ABSOLUTE)
 	list(APPEND RZ_GHIDRA_PREFIX_PATH "${QT_PREFIX}")
 	set(RIZIN_INSTALL_PLUGDIR "share/rizin/plugins") # escaped backslash on purpose, should be evaluated later
-	
+
 	if (CUTTER_PACKAGE_JSDEC AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
 		install(CODE "
-			execute_process(COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/jsdec.sh\" --prefix=\${CMAKE_INSTALL_PREFIX} 
+			execute_process(COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/jsdec.sh\" --prefix=\${CMAKE_INSTALL_PREFIX}
 								\"-Drizin_incdir=\${CMAKE_INSTALL_PREFIX}/include/librz\"
 								\"-Drizin_libdir=\${CMAKE_INSTALL_PREFIX}/lib\"
 							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
@@ -109,7 +109,8 @@ if(CUTTER_PACKAGE_RZ_GHIDRA)
 		# installed Cutter.
 		ExternalProject_Add(rz-ghidra
 			GIT_REPOSITORY https://github.com/rizinorg/rz-ghidra
-			GIT_TAG rz-0.1.1
+			GIT_TAG v0.2.0
+			#GIT_SHALLOW ON # disable this line when using commit hash
 			CONFIGURE_COMMAND ""
 			BUILD_COMMAND ""
 			INSTALL_COMMAND ""

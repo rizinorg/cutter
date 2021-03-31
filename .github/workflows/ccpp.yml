@@ -153,7 +153,6 @@ jobs:
           export VERSION=$CUTTER_VERSION
           ninja install
           "../scripts/appimage_embed_python.sh" appdir
-          # "../scripts/rz-ghidra.sh" -DCMAKE_INSTALL_PREFIX="`pwd`/appdir/usr" -DBUILD_CUTTER_PLUGIN=ON -DCUTTER_SOURCE_DIR="`pwd`/.."
           APP_PREFIX=`pwd`/appdir/usr
           # export LD_LIBRARY_PATH=${APP_PREFIX}/lib:$Shiboken2_ROOT/lib
           export PATH=$PATH:${APP_PREFIX}/bin
