@@ -167,7 +167,7 @@ jobs:
             -appimage \
             -no-strip -exclude-libs=libnss3.so,libnssutil3.so,libqjp2.so \
             -ignore-glob=usr/lib/python3.9/**/* \
-            -ignore-glob=usr/share/RizinOrg/Cutter/plugins/native/librz_ghidra_cutter.so \
+            -ignore-glob=usr/share/rizin/cutter/plugins/native/librz_ghidra_cutter.so \
             -verbose=2
           find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
           export APPIMAGE_FILE="Cutter-${PACKAGE_ID}-x64.Linux.AppImage"
