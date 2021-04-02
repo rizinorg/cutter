@@ -1,4 +1,4 @@
-set(CUTTER_DIR_NAME "RizinOrg/Cutter")
+set(CUTTER_DIR_NAME "rizin/cutter")
 if(WIN32)
     set(CMAKE_INSTALL_BINDIR "." CACHE PATH "Executable install directory")
     set(CMAKE_INSTALL_INCLUDEDIR "include" CACHE PATH "Include install directory")
