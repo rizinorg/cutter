@@ -12,7 +12,7 @@ MACOS_MD5=f921c007430eec38b06acef8cc0fe42a
 MACOS_URL=https://github.com/rizinorg/cutter-deps/releases/download/v14/cutter-deps-macos.tar.gz
 
 WIN_FILE="cutter-deps-win.tar.gz"
-WIN_MD5=3fbfa9432a67c6e786be296d3a455999
+WIN_MD5=09aa544e62cdd786df3598f1ff340f9e
 WIN_URL=https://github.com/rizinorg/cutter-deps/releases/download/v14/cutter-deps-win.tar.gz
 
 if [ "$OS" == "Windows_NT" ]; then
