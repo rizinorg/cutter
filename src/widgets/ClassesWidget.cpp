@@ -525,7 +525,7 @@ ClassesSortFilterProxyModel::ClassesSortFilterProxyModel(QObject *parent)
 bool ClassesSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
-    return index.data(ClassesModel::NameRole).toString().contains(filterRegExp());
+    return qhelpers::filterStringContains(index.data(ClassesModel::NameRole).toString(), this);
 }
 
 bool ClassesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

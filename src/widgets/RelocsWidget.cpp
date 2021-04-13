@@ -93,7 +93,7 @@ bool RelocsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) cons
     QModelIndex index = sourceModel()->index(row, 0, parent);
     auto reloc = index.data(RelocsModel::RelocDescriptionRole).value<RelocDescription>();
 
-    return reloc.name.contains(filterRegExp());
+    return qhelpers::filterStringContains(reloc.name, this);
 }
 
 bool RelocsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

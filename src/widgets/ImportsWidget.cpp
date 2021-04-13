@@ -123,7 +123,7 @@ bool ImportsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) con
     QModelIndex index = sourceModel()->index(row, 0, parent);
     auto import = index.data(ImportsModel::ImportDescriptionRole).value<ImportDescription>();
 
-    return import.name.contains(filterRegExp());
+    return qhelpers::filterStringContains(import.name, this);
 }
 
 bool ImportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
