@@ -61,9 +61,9 @@ private slots:
     void refreshRelocs();
 
 private:
+    QList<RelocDescription> relocs;
     RelocsModel *relocsModel;
     RelocsProxyModel *relocsProxyModel;
-    QList<RelocDescription> relocs;
 };
 
 #endif // RELOCSWIDGET_H
