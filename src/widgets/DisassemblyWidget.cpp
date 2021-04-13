@@ -650,8 +650,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         && (obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
-        const QTextCursor &cursor =
-                mDisasTextEdit->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
+        const QTextCursor &cursor = mDisasTextEdit->cursorForPosition(mouseEvent->pos());
         jumpToOffsetUnderCursor(cursor);
 
         return true;

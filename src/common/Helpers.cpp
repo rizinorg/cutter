@@ -286,4 +286,23 @@ bool filterStringContains(const QString &string, const QSortFilterProxyModel *mo
     return string.contains(model->filterRegularExpression());
 #endif
 }
+
+QPointF mouseEventPos(QMouseEvent *ev)
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    return ev->localPos();
+#else
+    return ev->position();
+#endif
+}
+
+QPoint mouseEventGlobalPos(QMouseEvent *ev)
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    return ev->globalPos();
+#else
+    return ev->globalPosition().toPoint();
+#endif
+}
+
 } // end namespace
