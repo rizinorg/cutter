@@ -459,6 +459,11 @@ if(CUTTER_ENABLE_CRASH_REPORTS)
 endif()
 
 target_link_libraries(Cutter PUBLIC ${QT_PREFIX}::Core ${QT_PREFIX}::Widgets ${QT_PREFIX}::Gui PRIVATE  ${QT_PREFIX}::Svg ${QT_PREFIX}::Network)
+if (CUTTER_QT6)
+    target_link_libraries(Cutter PUBLIC Qt6::Core5Compat Qt6::SvgWidgets)
+    target_link_libraries(Cutter PRIVATE Qt6::OpenGLWidgets)
+endif()
+
 target_link_libraries(Cutter PUBLIC ${RIZIN_TARGET})
 if(CUTTER_ENABLE_PYTHON)
     if (WIN32)
