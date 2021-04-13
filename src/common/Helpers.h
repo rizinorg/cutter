@@ -23,6 +23,7 @@ class QAction;
 class QMenu;
 class QPaintDevice;
 class QComboBox;
+class QSortFilterProxyModel;
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
 #    define CUTTER_QT_SKIP_EMPTY_PARTS QString::SkipEmptyParts
@@ -83,6 +84,7 @@ CUTTER_EXPORT void selectIndexByData(QComboBox *comboBox, QVariant data, int def
  */
 CUTTER_EXPORT void emitColumnChanged(QAbstractItemModel *model, int column);
 
+CUTTER_EXPORT bool filterStringContains(const QString &string, const QSortFilterProxyModel *model);
 } // qhelpers
 
 #endif // HELPERS_H

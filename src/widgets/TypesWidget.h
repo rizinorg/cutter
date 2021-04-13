@@ -50,10 +50,9 @@ class TypesSortFilterProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 
-    friend TypesWidget;
-
 public:
     TypesSortFilterProxyModel(TypesModel *source_model, QObject *parent = nullptr);
+    void setCategory(QString category);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;

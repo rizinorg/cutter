@@ -368,7 +368,8 @@ bool FunctionSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &
     QModelIndex index = sourceModel()->index(row, 0, parent);
     FunctionDescription function =
             index.data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-    return function.name.contains(filterRegExp());
+
+    return qhelpers::filterStringContains(function.name, this);
 }
 
 bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

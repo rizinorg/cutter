@@ -90,7 +90,7 @@ bool RegisterRefProxyModel::filterAcceptsRow(int row, const QModelIndex &parent)
     QModelIndex index = sourceModel()->index(row, 0, parent);
     RegisterRefDescription item = index.data(RegisterRefModel::RegisterRefDescriptionRole)
                                           .value<RegisterRefDescription>();
-    return item.reg.contains(filterRegExp());
+    return qhelpers::filterStringContains(item.reg, this);
 }
 
 bool RegisterRefProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

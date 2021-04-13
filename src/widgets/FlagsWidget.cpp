@@ -107,7 +107,7 @@ bool FlagsSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &par
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
     FlagDescription flag = index.data(FlagsModel::FlagDescriptionRole).value<FlagDescription>();
-    return flag.name.contains(filterRegExp()) || flag.realname.contains(filterRegExp());
+    return qhelpers::filterStringContains(flag.name, this);
 }
 
 bool FlagsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

@@ -103,15 +103,26 @@ StringsProxyModel::StringsProxyModel(StringsModel *sourceModel, QObject *parent)
     setSortCaseSensitivity(Qt::CaseInsensitive);
 }
 
+void StringsProxyModel::setSelectedSection(QString section)
+{
+    selectedSection = section;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    invalidateFilter();
+#else
+    invalidateRowsFilter();
+#endif
+}
+
 bool StringsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
     StringDescription str =
             index.data(StringsModel::StringDescriptionRole).value<StringDescription>();
-    if (selectedSection.isEmpty())
-        return str.string.contains(filterRegExp());
-    else
-        return selectedSection == str.section && str.string.contains(filterRegExp());
+    if (selectedSection.isEmpty()) {
+        return qhelpers::filterStringContains(str.string, this);
+    } else {
+        return selectedSection == str.section && qhelpers::filterStringContains(str.string, this);
+    }
 }
 
 bool StringsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
@@ -198,8 +209,7 @@ StringsWidget::StringsWidget(MainWindow *main)
             [this]() { qhelpers::emitColumnChanged(model, StringsModel::CommentColumn); });
 
     connect(ui->quickFilterView->comboBox(), &QComboBox::currentTextChanged, this, [this]() {
-        proxyModel->selectedSection = ui->quickFilterView->comboBox()->currentData().toString();
-        proxyModel->setFilterRegExp(proxyModel->filterRegExp());
+        proxyModel->setSelectedSection(ui->quickFilterView->comboBox()->currentData().toString());
         tree->showItemsNumber(proxyModel->rowCount());
     });
 
@@ -237,7 +247,7 @@ void StringsWidget::refreshSectionCombo()
         combo->addItem(section, section);
     }
 
-    proxyModel->selectedSection.clear();
+    proxyModel->setSelectedSection(QString());
 }
 
 void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings)

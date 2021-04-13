@@ -278,4 +278,12 @@ void emitColumnChanged(QAbstractItemModel *model, int column)
     }
 }
 
+bool filterStringContains(const QString &string, const QSortFilterProxyModel *model)
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    return string.contains(model->filterRegExp());
+#else
+    return string.contains(model->filterRegularExpression());
+#endif
+}
 } // end namespace
