@@ -103,9 +103,9 @@ private slots:
     void refreshImports();
 
 private:
+    QList<ImportDescription> imports;
     ImportsModel *importsModel;
     ImportsProxyModel *importsProxyModel;
-    QList<ImportDescription> imports;
 
     void highlightUnsafe();
 };
