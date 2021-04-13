@@ -1168,7 +1168,7 @@ void HexWidget::updateMetrics()
 {
     QFontMetricsF fontMetrics(this->monospaceFont);
     lineHeight = fontMetrics.height();
-    charWidth = fontMetrics.width(QLatin1Char('F'));
+    charWidth = fontMetrics.maxWidth();
 
     updateCounts();
     updateAreasHeight();

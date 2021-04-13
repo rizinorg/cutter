@@ -97,7 +97,7 @@ void CutterGraphView::initFont()
     setFont(Config()->getFont());
     QFontMetricsF metrics(font());
     baseline = int(metrics.ascent());
-    charWidth = metrics.width('X');
+    charWidth = metrics.maxWidth();
     charHeight = static_cast<int>(metrics.height());
     charOffset = 0;
     mFontMetrics.reset(new CachedFontMetrics<qreal>(font()));

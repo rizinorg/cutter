@@ -47,7 +47,7 @@ void ColorThemeComboBox::updateFromConfig(bool interfaceThemeChanged)
         }
     }
     setMinimumContentsLength(maxThemeLen);
-    setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+    setSizeAdjustPolicy(QComboBox::AdjustToContents);
 }
 
 void ColorThemeComboBox::onCurrentIndexChanged(int index)

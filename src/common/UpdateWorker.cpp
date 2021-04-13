@@ -12,6 +12,7 @@
 #    include <QDesktopServices>
 #    include <QtNetwork/QNetworkReply>
 #    include <QtNetwork/QNetworkRequest>
+#    include <QStandardPaths>
 
 #    include <QProgressDialog>
 #    include <QPushButton>
@@ -57,7 +58,12 @@ void UpdateWorker::download(QString filename, QString version)
     downloadFile.open(QIODevice::WriteOnly);
 
     QNetworkRequest request;
+#    if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0) && QT_VERSION < QT_VERSION_CHECK(5, 9, 0)
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+#    elif QT_VERSION >= QT_VERSION_CHECK(5, 9, 0)
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
+                         QNetworkRequest::RedirectPolicy::NoLessSafeRedirectPolicy);
+#    endif
     QUrl url(QString("https://github.com/rizinorg/cutter/releases/"
                      "download/v%1/%2")
                      .arg(version)

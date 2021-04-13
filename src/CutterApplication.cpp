@@ -44,7 +44,9 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     // Setup application information
     setApplicationVersion(CUTTER_VERSION_FULL);
     setWindowIcon(QIcon(":/img/cutter.svg"));
-    setAttribute(Qt::AA_UseHighDpiPixmaps);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    setAttribute(Qt::AA_UseHighDpiPixmaps); // always enabled on Qt >= 6.0.0
+#endif
     setLayoutDirection(Qt::LeftToRight);
 
     // WARN!!! Put initialization code below this line. Code above this line is mandatory to be run
