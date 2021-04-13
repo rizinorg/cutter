@@ -1,5 +1,7 @@
 #include "JsonModel.h"
 
+#include <QIODevice>
+
 JsonModel::JsonModel(QObject *parent) : QAbstractItemModel(parent)
 {
     mRootItem = new JsonTreeItem;

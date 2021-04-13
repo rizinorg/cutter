@@ -1600,9 +1600,11 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
     };
 
     auto copyVariablesToPositions = [&](const std::vector<int> &solution, bool horizontal = false) {
+#ifndef NDEBUG
         for (auto v : solution) {
             assert(v >= 0);
         }
+#endif
         size_t variableIndex = blockMapping.size();
         for (auto &blockIt : *state.blocks) {
             auto &block = blockIt.second;
