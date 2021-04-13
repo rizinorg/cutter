@@ -156,8 +156,7 @@ void GraphView::cleanupEdges(GraphLayout::Graph &graph)
 
 void GraphView::beginMouseDrag(QMouseEvent *event)
 {
-    scroll_base_x = event->x();
-    scroll_base_y = event->y();
+    scrollBase = event->pos();
     scroll_mode = true;
     setCursor(Qt::ClosedHandCursor);
     viewport()->grabMouse();
@@ -690,10 +689,8 @@ void GraphView::mousePressEvent(QMouseEvent *event)
 void GraphView::mouseMoveEvent(QMouseEvent *event)
 {
     if (scroll_mode) {
-        addViewOffset(QPoint(scroll_base_x - event->x(), scroll_base_y - event->y())
-                      / current_scale);
-        scroll_base_x = event->x();
-        scroll_base_y = event->y();
+        addViewOffset((scrollBase - event->pos()) / current_scale);
+        scrollBase = event->pos();
         viewport()->update();
     }
 }

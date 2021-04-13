@@ -135,8 +135,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     addAction(&actionXRefs);
 
     initAction(&actionXRefsForVariables, tr("X-Refs for local variables"),
-               SLOT(on_actionXRefsForVariables_triggered()),
-               QKeySequence({ Qt::SHIFT + Qt::Key_X }));
+               SLOT(on_actionXRefsForVariables_triggered()), QKeySequence(Qt::SHIFT | Qt::Key_X));
     addAction(&actionXRefsForVariables);
 
     initAction(&actionDisplayOptions, tr("Show Options"), SLOT(on_actionDisplayOptions_triggered()),
@@ -302,7 +301,7 @@ void DisassemblyContextMenu::addBreakpointMenu()
                SLOT(on_actionAddBreakpoint_triggered()), getAddBPSequence());
     breakpointMenu->addAction(&actionAddBreakpoint);
     initAction(&actionAdvancedBreakpoint, tr("Advanced breakpoint"),
-               SLOT(on_actionAdvancedBreakpoint_triggered()), QKeySequence(Qt::CTRL + Qt::Key_F2));
+               SLOT(on_actionAdvancedBreakpoint_triggered()), QKeySequence(Qt::CTRL | Qt::Key_F2));
     breakpointMenu->addAction(&actionAdvancedBreakpoint);
 }
 
@@ -675,7 +674,7 @@ QKeySequence DisassemblyContextMenu::getLinkTypeSequence() const
 
 QList<QKeySequence> DisassemblyContextMenu::getAddBPSequence() const
 {
-    return { Qt::Key_F2, Qt::CTRL + Qt::Key_B };
+    return { Qt::Key_F2, Qt::CTRL | Qt::Key_B };
 }
 
 QKeySequence DisassemblyContextMenu::getDefineNewFunctionSequence() const
@@ -685,7 +684,7 @@ QKeySequence DisassemblyContextMenu::getDefineNewFunctionSequence() const
 
 QKeySequence DisassemblyContextMenu::getEditFunctionSequence() const
 {
-    return { Qt::SHIFT + Qt::Key_P };
+    return { Qt::SHIFT | Qt::Key_P };
 }
 
 QKeySequence DisassemblyContextMenu::getUndefineFunctionSequence() const

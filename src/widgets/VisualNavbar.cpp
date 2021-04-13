@@ -240,10 +240,11 @@ void VisualNavbar::on_seekChanged(RVA addr)
 
 void VisualNavbar::mousePressEvent(QMouseEvent *event)
 {
-    qreal x = event->localPos().x();
+    qreal x = qhelpers::mouseEventPos(event).x();
     RVA address = localXToAddress(x);
     if (address != RVA_INVALID) {
-        QToolTip::showText(event->globalPos(), toolTipForAddress(address), this);
+        auto tooltipPos = qhelpers::mouseEventGlobalPos(event);
+        QToolTip::showText(tooltipPos, toolTipForAddress(address), this, this->rect());
         if (event->buttons() & Qt::LeftButton) {
             event->accept();
             Core()->seek(address);

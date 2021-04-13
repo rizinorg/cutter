@@ -68,15 +68,15 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main),
     actionContinueUntilCall = new QAction(continueUCLabel, this);
     actionContinueUntilSyscall = new QAction(continueUSLabel, this);
     actionContinueBack = new QAction(continueBackIcon, continueBackLabel, this);
-    actionContinueBack->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F5));
+    actionContinueBack->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F5));
     actionStep = new QAction(stepLabel, this);
     actionStep->setShortcut(QKeySequence(Qt::Key_F7));
     actionStepOver = new QAction(stepOverLabel, this);
     actionStepOver->setShortcut(QKeySequence(Qt::Key_F8));
     actionStepOut = new QAction(stepOutLabel, this);
-    actionStepOut->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F8));
+    actionStepOut->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F8));
     actionStepBack = new QAction(stepBackIcon, stepBackLabel, this);
-    actionStepBack->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F7));
+    actionStepBack->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F7));
     actionTrace = new QAction(startTraceIcon, startTraceLabel, this);
 
     QToolButton *startButton = new QToolButton;
