@@ -244,7 +244,8 @@ bool Configuration::setLocaleByName(const QString &language)
             QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript, QLocale::AnyCountry);
 
     for (auto &it : allLocales) {
-        if (QString::compare(it.nativeLanguageName(), language, Qt::CaseInsensitive) == 0) {
+        if (QString::compare(it.nativeLanguageName(), language, Qt::CaseInsensitive) == 0 ||
+            it.name() == language) {
             setLocale(it);
             return true;
         }
@@ -650,14 +651,16 @@ QStringList Configuration::getAvailableTranslations()
             QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript, QLocale::AnyCountry);
 
     for (auto i : fileNames) {
-        QString localeName = i.mid(sizeof("cutter_") - 1, 2);
-        for (auto j : allLocales) {
-            if (j.name().startsWith(localeName)) {
-                currLanguageName = j.nativeLanguageName();
-                currLanguageName = currLanguageName.at(0).toUpper()
-                        + currLanguageName.right(currLanguageName.length() - 1);
+        QString localeName = i.mid(sizeof("cutter_") - 1, 2); // TODO:#2321 don't asume 2 characters
+        // language code is sometimes 3 characters, and there could also be language_COUNTRY. Qt supports that.
+        QLocale locale(localeName);
+        if (locale.language() != QLocale::C) {
+            currLanguageName = locale.nativeLanguageName();
+            if (currLanguageName.isEmpty()) { // Qt doesn't have native language name for some languages
+                currLanguageName = QLocale::languageToString(locale.language());
+            }
+            if (!currLanguageName.isEmpty()) {
                 languages << currLanguageName;
-                break;
             }
         }
     }
