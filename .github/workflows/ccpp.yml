@@ -187,7 +187,7 @@ jobs:
         source scripts/prepare_breakpad_macos.sh
         mkdir build
         cd build
-        PACKAGE_NAME=Cutter-${PACKAGE_ID}-Darwin
+        PACKAGE_NAME=Cutter-${PACKAGE_ID}-x64.macOS
         cmake \
                 -DCMAKE_BUILD_TYPE=Release \
                 -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.9.dylib" \
