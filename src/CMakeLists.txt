@@ -554,5 +554,5 @@ if(UNIX AND NOT APPLE)
     install(FILES "re.rizin.cutter.appdata.xml"
         DESTINATION "share/metainfo")
     install(FILES "cutter.1"
-        DESTINATION "man/man1")
+        DESTINATION "share/man/man1")
 endif()
