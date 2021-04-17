@@ -14,6 +14,10 @@ else()
     set(MESON_OPTIONS "--prefix=${RIZIN_INSTALL_DIR}" --libdir=lib)
 endif()
 
+if (CUTTER_ENABLE_PACKAGING)
+    list(APPEND MESON_OPTIONS "-Dportable=true")
+endif()
+
 find_program(MESON meson)
 if(NOT MESON)
     message(FATAL_ERROR "Failed to find meson, which is required to build bundled rizin")

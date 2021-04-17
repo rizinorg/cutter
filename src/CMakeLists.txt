@@ -522,6 +522,10 @@ if(APPLE AND CUTTER_ENABLE_PACKAGING AND CUTTER_USE_BUNDLED_RIZIN)
 	target_compile_definitions(Cutter PRIVATE MACOS_RZ_BUNDLED)
 endif()
 
+if(CUTTER_ENABLE_PACKAGING)
+    target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_PACKAGING)
+endif()
+
 include(Translations)
 
 # Install files
