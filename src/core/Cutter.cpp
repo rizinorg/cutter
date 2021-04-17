@@ -183,6 +183,13 @@ CutterCore *CutterCore::instance()
 
 void CutterCore::initialize(bool loadPlugins)
 {
+    auto prefix = QDir(QCoreApplication::applicationDirPath());
+
+#if defined(CUTTER_ENABLE_PACKAGING) && defined(Q_OS_WIN)
+    auto prefixBytes = prefix.absolutePath().toUtf8();
+    rz_sys_prefix(prefixBytes.constData());
+#endif
+
     rz_cons_new(); // initialize console
     core_ = rz_core_new();
     rz_core_task_sync_begin(&core_->tasks);
@@ -190,13 +197,6 @@ void CutterCore::initialize(bool loadPlugins)
     CORE_LOCK();
 
     rz_event_hook(core_->analysis->ev, RZ_EVENT_ALL, cutterREventCallback, this);
-
-    auto prefix = QDir(QCoreApplication::applicationDirPath());
-
-#if defined(CUTTER_ENABLE_PACKAGING) && defined(Q_OS_WIN)
-    auto prefixBytes = prefix.absolutePath().toUtf8();
-    rz_sys_prefix(prefixBytes.constData());
-#endif
 
 #if defined(APPIMAGE) || defined(MACOS_RZ_BUNDLED)
 #    ifdef APPIMAGE
