@@ -109,11 +109,6 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     Python()->initialize();
 #endif
 
-#ifdef Q_OS_WIN
-    // Redefine rz_sys_prefix() behaviour
-    qputenv("RZ_ALT_SRC_DIR", "1");
-#endif
-
     Core()->initialize(clOptions.enableRizinPlugins);
     Core()->setSettings();
     Config()->loadInitial();
@@ -193,7 +188,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     }
 #endif
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && defined(CUTTER_ENABLE_PACKAGING)
     {
 #    ifdef CUTTER_BUNDLE_JSDEC
         qputenv("JSDEC_HOME", "lib\\plugins\\jsdec");

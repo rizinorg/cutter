@@ -183,6 +183,13 @@ CutterCore *CutterCore::instance()
 
 void CutterCore::initialize(bool loadPlugins)
 {
+    auto prefix = QDir(QCoreApplication::applicationDirPath());
+
+#if defined(CUTTER_ENABLE_PACKAGING) && defined(Q_OS_WIN)
+    auto prefixBytes = prefix.absolutePath().toUtf8();
+    rz_sys_prefix(prefixBytes.constData());
+#endif
+
     rz_cons_new(); // initialize console
     core_ = rz_core_new();
     rz_core_task_sync_begin(&core_->tasks);
@@ -192,7 +199,6 @@ void CutterCore::initialize(bool loadPlugins)
     rz_event_hook(core_->analysis->ev, RZ_EVENT_ALL, cutterREventCallback, this);
 
 #if defined(APPIMAGE) || defined(MACOS_RZ_BUNDLED)
-    auto prefix = QDir(QCoreApplication::applicationDirPath());
 #    ifdef APPIMAGE
     // Executable is in appdir/bin
     prefix.cdUp();
@@ -203,8 +209,8 @@ void CutterCore::initialize(bool loadPlugins)
     prefix.cd("Resources");
     qInfo() << "Setting Rizin prefix =" << prefix.absolutePath()
             << " for macOS Application Bundle.";
-#    endif
     setConfig("dir.prefix", prefix.absolutePath());
+#    endif
 
     auto pluginsDir = prefix;
     if (pluginsDir.cd("share/rizin/plugins")) {

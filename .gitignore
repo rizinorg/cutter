@@ -83,7 +83,7 @@ docs/source/_build
 !/.vscode/extensions.json
 
 # Visual Studio CMake
-src/out
+/out
 .vs
 
 # cutter-deps
