@@ -3481,7 +3481,7 @@ QString CutterCore::addTypes(const char *str)
 {
     CORE_LOCK();
     char *error_msg = nullptr;
-    char *parsed = rz_parse_c_string(core->analysis, str, &error_msg);
+    char *parsed = rz_type_parse_c_string(core->analysis->typedb, str, &error_msg);
     QString error;
 
     if (!parsed) {
@@ -3492,7 +3492,7 @@ QString CutterCore::addTypes(const char *str)
         return error;
     }
 
-    rz_analysis_save_parsed_type(core->analysis, parsed);
+	rz_type_db_save_parsed_type(core->analysis->typedb, parsed);
     rz_mem_free(parsed);
 
     if (error_msg) {
