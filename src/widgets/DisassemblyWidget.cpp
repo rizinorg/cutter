@@ -870,16 +870,17 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     p.fillRect(event->rect(), Config()->getColor("gui.background").darker(115));
 
     QList<DisassemblyLine> lines = disas->getLines();
+    if (lines.size() == 0) {
+        // No line to print, abort early
+        return;
+    }
 
     using LineInfo = std::pair<RVA, int>;
     std::vector<LineInfo> lineOffsets;
     lineOffsets.reserve(lines.size() + arrows.size());
 
     RVA minViewOffset = 0, maxViewOffset = 0;
-
-    if (lines.size() > 0) {
-        minViewOffset = maxViewOffset = lines[0].offset;
-    }
+    minViewOffset = maxViewOffset = lines[0].offset;
 
     for (int i = 0; i < lines.size(); i++) {
         lineOffsets.emplace_back(lines[i].offset, i);
