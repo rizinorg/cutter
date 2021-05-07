@@ -14,8 +14,8 @@ mkdir $BREAKPAD_DUMP_SYMS_DIR
 cd breakpad
 git checkout 4d550cceca107f36c4bc1ea1126b7d32cc50f424
 git apply "$SCRIPTPATH/breakpad_macos.patch"
-cd src/client/mac/ && xcodebuild -sdk macosx
-cp -R build/Release/Breakpad.framework "$BREAKPAD_FRAMEWORK_DIR"
+cd src/client/mac/ && xcodebuild -sdk macosx MACOSX_DEPLOYMENT_TARGET=10.14
+cp -R build/Release/Breakpad.framework "$BREAKPAD_FRAMEWORK_DIR" 
 
 cd $DIR/breakpad
 cp -R src/. framework/Breakpad.framework/Headers

@@ -51,9 +51,9 @@ ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject(parent)
 
 QColor ColorThemeWorker::mergeColors(const QColor &upper, const QColor &lower) const
 {
-    qreal r1, g1, b1, a1;
-    qreal r2, g2, b2, a2;
-    qreal r, g, b, a;
+    qhelpers::ColorFloat r1, g1, b1, a1;
+    qhelpers::ColorFloat r2, g2, b2, a2;
+    qhelpers::ColorFloat r, g, b, a;
 
     upper.getRgbF(&r1, &g1, &b1, &a1);
     lower.getRgbF(&r2, &g2, &b2, &a2);

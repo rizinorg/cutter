@@ -372,6 +372,7 @@ bool ColorSettingsModel::setData(const QModelIndex &index, const QVariant &value
 
 void ColorSettingsModel::updateTheme()
 {
+    beginResetModel();
     theme.clear();
     QJsonObject obj = ThemeWorker().getTheme(Config()->getColorTheme()).object();
 
@@ -391,9 +392,7 @@ void ColorSettingsModel::updateTheme()
         int r = s1.compare(s2, Qt::CaseSensitivity::CaseInsensitive);
         return r < 0;
     });
-    if (!theme.isEmpty()) {
-        dataChanged(index(0), index(theme.size() - 1));
-    }
+    endResetModel();
 }
 
 QJsonDocument ColorSettingsModel::getTheme() const

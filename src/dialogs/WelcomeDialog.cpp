@@ -26,7 +26,6 @@ WelcomeDialog::WelcomeDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Welc
     QStringList langs = Config()->getAvailableTranslations();
     ui->languageComboBox->addItems(langs);
     QString curr = Config()->getCurrLocale().nativeLanguageName();
-    curr = curr.at(0).toUpper() + curr.right(curr.length() - 1);
     if (!langs.contains(curr)) {
         curr = "English";
     }
@@ -64,7 +63,7 @@ void WelcomeDialog::on_themeComboBox_currentIndexChanged(int index)
  */
 void WelcomeDialog::onLanguageComboBox_currentIndexChanged(int index)
 {
-    QString language = ui->languageComboBox->itemText(index).toLower();
+    QString language = ui->languageComboBox->itemText(index);
     Config()->setLocaleByName(language);
 
     QMessageBox mb;

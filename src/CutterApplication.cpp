@@ -44,7 +44,9 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     // Setup application information
     setApplicationVersion(CUTTER_VERSION_FULL);
     setWindowIcon(QIcon(":/img/cutter.svg"));
-    setAttribute(Qt::AA_UseHighDpiPixmaps);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    setAttribute(Qt::AA_UseHighDpiPixmaps); // always enabled on Qt >= 6.0.0
+#endif
     setLayoutDirection(Qt::LeftToRight);
 
     // WARN!!! Put initialization code below this line. Code above this line is mandatory to be run
@@ -107,11 +109,6 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         Python()->setPythonHome(clOptions.pythonHome);
     }
     Python()->initialize();
-#endif
-
-#ifdef Q_OS_WIN
-    // Redefine rz_sys_prefix() behaviour
-    qputenv("RZ_ALT_SRC_DIR", "1");
 #endif
 
     Core()->initialize(clOptions.enableRizinPlugins);
@@ -193,7 +190,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     }
 #endif
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && defined(CUTTER_ENABLE_PACKAGING)
     {
 #    ifdef CUTTER_BUNDLE_JSDEC
         qputenv("JSDEC_HOME", "lib\\plugins\\jsdec");

@@ -77,7 +77,7 @@ ConsoleWidget::ConsoleWidget(MainWindow *main)
     addAction(actionClear);
 
     // Ctrl+l to clear the output
-    actionClear->setShortcut(Qt::CTRL + Qt::Key_L);
+    actionClear->setShortcut(Qt::CTRL | Qt::Key_L);
     actionClear->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     actions.append(actionClear);
 

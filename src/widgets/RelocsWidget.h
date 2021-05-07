@@ -19,13 +19,13 @@ class RelocsModel : public AddressableItemModel<QAbstractTableModel>
     friend RelocsWidget;
 
 private:
-    QList<RelocDescription> *relocs;
+    QList<RelocDescription> relocs;
 
 public:
     enum Column { VAddrColumn = 0, TypeColumn, NameColumn, CommentColumn, ColumnCount };
     enum Role { RelocDescriptionRole = Qt::UserRole, AddressRole };
 
-    RelocsModel(QList<RelocDescription> *relocs, QObject *parent = nullptr);
+    RelocsModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;
@@ -35,6 +35,8 @@ public:
 
     RVA address(const QModelIndex &index) const override;
     QString name(const QModelIndex &index) const override;
+
+    void reload();
 };
 
 class RelocsProxyModel : public AddressableFilterProxyModel
@@ -63,7 +65,6 @@ private slots:
 private:
     RelocsModel *relocsModel;
     RelocsProxyModel *relocsProxyModel;
-    QList<RelocDescription> relocs;
 };
 
 #endif // RELOCSWIDGET_H

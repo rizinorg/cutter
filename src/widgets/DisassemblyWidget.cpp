@@ -64,7 +64,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     // Setup the disassembly content
     auto *layout = new QHBoxLayout;
     layout->addWidget(mDisasTextEdit);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     mDisasScrollArea->viewport()->setLayout(layout);
     splitter->addWidget(mDisasScrollArea);
     mDisasScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
@@ -650,8 +650,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         && (obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
-        const QTextCursor &cursor =
-                mDisasTextEdit->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
+        const QTextCursor &cursor = mDisasTextEdit->cursorForPosition(mouseEvent->pos());
         jumpToOffsetUnderCursor(cursor);
 
         return true;

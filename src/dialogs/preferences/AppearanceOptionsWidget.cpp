@@ -33,7 +33,6 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
     ui->languageComboBox->addItems(langs);
 
     QString curr = Config()->getCurrLocale().nativeLanguageName();
-    curr = curr.at(0).toUpper() + curr.right(curr.length() - 1);
     if (!langs.contains(curr)) {
         curr = "English";
     }

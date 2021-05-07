@@ -195,7 +195,7 @@ bool CommentsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) co
     QModelIndex index = sourceModel()->index(row, 0, parent);
     auto comment = index.data(CommentsModel::CommentDescriptionRole).value<CommentDescription>();
 
-    return comment.name.contains(filterRegExp());
+    return qhelpers::filterStringContains(comment.name, this);
 }
 
 bool CommentsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

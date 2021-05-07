@@ -174,7 +174,7 @@ bool ThreadsFilterModel::filterAcceptsRow(int row, const QModelIndex &parent) co
     // All columns are checked for a match
     for (int i = COLUMN_PID; i <= COLUMN_PATH; ++i) {
         QModelIndex index = sourceModel()->index(row, i, parent);
-        if (sourceModel()->data(index).toString().contains(filterRegExp())) {
+        if (qhelpers::filterStringContains(sourceModel()->data(index).toString(), this)) {
             return true;
         }
     }

@@ -52,7 +52,7 @@ private:
                            "OemToChar|OemToCharA|OemToCharW|CharToOemBuffA|CharToOemBuffW|alloca|_"
                            "alloca|strlen|wcslen|_mbslen|_mbstrlen|StrLen|lstrlen|"
                            "ChangeWindowMessageFilter)\\z"));
-    QList<ImportDescription> *imports;
+    QList<ImportDescription> imports;
 
 public:
     enum Column {
@@ -66,7 +66,7 @@ public:
     };
     enum Role { ImportDescriptionRole = Qt::UserRole, AddressRole };
 
-    ImportsModel(QList<ImportDescription> *imports, QObject *parent = nullptr);
+    ImportsModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;
@@ -77,6 +77,7 @@ public:
     RVA address(const QModelIndex &index) const override;
     QString name(const QModelIndex &index) const override;
     QString libname(const QModelIndex &index) const;
+    void reload();
 };
 
 class ImportsProxyModel : public AddressableFilterProxyModel
@@ -105,7 +106,6 @@ private slots:
 private:
     ImportsModel *importsModel;
     ImportsProxyModel *importsProxyModel;
-    QList<ImportDescription> imports;
 
     void highlightUnsafe();
 };

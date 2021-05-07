@@ -6,14 +6,11 @@
 #include <QShortcut>
 #include <QTreeWidget>
 
-RelocsModel::RelocsModel(QList<RelocDescription> *relocs, QObject *parent)
-    : AddressableItemModel<QAbstractTableModel>(parent), relocs(relocs)
-{
-}
+RelocsModel::RelocsModel(QObject *parent) : AddressableItemModel<QAbstractTableModel>(parent) {}
 
 int RelocsModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : relocs->count();
+    return parent.isValid() ? 0 : relocs.count();
 }
 
 int RelocsModel::columnCount(const QModelIndex &) const
@@ -23,7 +20,7 @@ int RelocsModel::columnCount(const QModelIndex &) const
 
 QVariant RelocsModel::data(const QModelIndex &index, int role) const
 {
-    const RelocDescription &reloc = relocs->at(index.row());
+    const RelocDescription &reloc = relocs.at(index.row());
     switch (role) {
     case Qt::DisplayRole:
         switch (index.column()) {
@@ -67,14 +64,21 @@ QVariant RelocsModel::headerData(int section, Qt::Orientation, int role) const
 
 RVA RelocsModel::address(const QModelIndex &index) const
 {
-    const RelocDescription &reloc = relocs->at(index.row());
+    const RelocDescription &reloc = relocs.at(index.row());
     return reloc.vaddr;
 }
 
 QString RelocsModel::name(const QModelIndex &index) const
 {
-    const RelocDescription &reloc = relocs->at(index.row());
+    const RelocDescription &reloc = relocs.at(index.row());
     return reloc.name;
+}
+
+void RelocsModel::reload()
+{
+    beginResetModel();
+    relocs = Core()->getAllRelocs();
+    endResetModel();
 }
 
 RelocsProxyModel::RelocsProxyModel(RelocsModel *sourceModel, QObject *parent)
@@ -89,7 +93,7 @@ bool RelocsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) cons
     QModelIndex index = sourceModel()->index(row, 0, parent);
     auto reloc = index.data(RelocsModel::RelocDescriptionRole).value<RelocDescription>();
 
-    return reloc.name.contains(filterRegExp());
+    return qhelpers::filterStringContains(reloc.name, this);
 }
 
 bool RelocsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
@@ -121,7 +125,7 @@ bool RelocsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &righ
 
 RelocsWidget::RelocsWidget(MainWindow *main)
     : ListDockWidget(main),
-      relocsModel(new RelocsModel(&relocs, this)),
+      relocsModel(new RelocsModel(this)),
       relocsProxyModel(new RelocsProxyModel(relocsModel, this))
 {
     setWindowTitle(tr("Relocs"));
@@ -140,8 +144,6 @@ RelocsWidget::~RelocsWidget() {}
 
 void RelocsWidget::refreshRelocs()
 {
-    relocsModel->beginResetModel();
-    relocs = Core()->getAllRelocs();
-    relocsModel->endResetModel();
+    relocsModel->reload();
     qhelpers::adjustColumns(ui->treeView, 3, 0);
 }

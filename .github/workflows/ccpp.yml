@@ -43,7 +43,7 @@ jobs:
     - name: apt dependencies
       if: contains(matrix.os, 'ubuntu')
       run: |
-        sudo apt-get install libgraphviz-dev mesa-common-dev libxkbcommon-x11-dev
+        sudo apt-get install libgraphviz-dev mesa-common-dev libxkbcommon-x11-dev libclang-8-dev llvm-8
         if [[ "${{ matrix.os }}" = "ubuntu-16.04" ]]
         then
           sudo apt-get install ninja-build/xenial-backports libxcb1-dev libxkbcommon-dev libxcb-*-dev
@@ -153,7 +153,6 @@ jobs:
           export VERSION=$CUTTER_VERSION
           ninja install
           "../scripts/appimage_embed_python.sh" appdir
-          # "../scripts/rz-ghidra.sh" -DCMAKE_INSTALL_PREFIX="`pwd`/appdir/usr" -DBUILD_CUTTER_PLUGIN=ON -DCUTTER_SOURCE_DIR="`pwd`/.."
           APP_PREFIX=`pwd`/appdir/usr
           # export LD_LIBRARY_PATH=${APP_PREFIX}/lib:$Shiboken2_ROOT/lib
           export PATH=$PATH:${APP_PREFIX}/bin
@@ -168,7 +167,7 @@ jobs:
             -appimage \
             -no-strip -exclude-libs=libnss3.so,libnssutil3.so,libqjp2.so \
             -ignore-glob=usr/lib/python3.9/**/* \
-            -ignore-glob=usr/share/RizinOrg/Cutter/plugins/native/librz_ghidra_cutter.so \
+            -ignore-glob=usr/share/rizin/cutter/plugins/native/librz_ghidra_cutter.so \
             -verbose=2
           find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
           export APPIMAGE_FILE="Cutter-${PACKAGE_ID}-x64.Linux.AppImage"
@@ -180,6 +179,7 @@ jobs:
       shell: bash
       if: contains(matrix.os, 'macos')
       run: |
+        export MACOSX_DEPLOYMENT_TARGET=10.14
         scripts/fetch_deps.sh
         source cutter-deps/env.sh
         set -euo pipefail
@@ -187,7 +187,7 @@ jobs:
         source scripts/prepare_breakpad_macos.sh
         mkdir build
         cd build
-        PACKAGE_NAME=Cutter-${PACKAGE_ID}-Darwin
+        PACKAGE_NAME=Cutter-${PACKAGE_ID}-x64.macOS
         cmake \
                 -DCMAKE_BUILD_TYPE=Release \
                 -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.9.dylib" \

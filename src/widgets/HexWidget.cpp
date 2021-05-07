@@ -116,7 +116,7 @@ HexWidget::HexWidget(QWidget *parent)
 
     actionCopyAddress = new QAction(tr("Copy address"), this);
     actionCopyAddress->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    actionCopyAddress->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_C);
+    actionCopyAddress->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_C);
     connect(actionCopyAddress, &QAction::triggered, this, &HexWidget::copyAddress);
     addAction(actionCopyAddress);
 
@@ -472,7 +472,7 @@ void HexWidget::mouseMoveEvent(QMouseEvent *event)
 
     QString metaData = getFlagsAndComment(mouseAddr);
     if (!metaData.isEmpty() && itemArea.contains(pos)) {
-        QToolTip::showText(event->globalPos(), metaData.replace(",", ", "), this);
+        QToolTip::showText(mapToGlobal(event->pos()), metaData.replace(",", ", "), this);
     } else {
         QToolTip::hideText();
     }
@@ -1168,7 +1168,7 @@ void HexWidget::updateMetrics()
 {
     QFontMetricsF fontMetrics(this->monospaceFont);
     lineHeight = fontMetrics.height();
-    charWidth = fontMetrics.width(QLatin1Char('F'));
+    charWidth = fontMetrics.maxWidth();
 
     updateCounts();
     updateAreasHeight();

@@ -11,6 +11,7 @@
 #include "CutterPlugin.h"
 #include "CutterConfig.h"
 #include "common/Helpers.h"
+#include "common/ResourcePaths.h"
 
 #include <QDir>
 #include <QCoreApplication>
@@ -95,20 +96,10 @@ void PluginManager::destroyPlugins()
 QVector<QDir> PluginManager::getPluginDirectories() const
 {
     QVector<QDir> result;
-    QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
+    QStringList locations = Cutter::standardLocations(QStandardPaths::AppDataLocation);
     for (auto &location : locations) {
         result.push_back(QDir(location).filePath("plugins"));
     }
-
-#ifdef APPIMAGE
-    {
-        auto plugdir = QDir(QCoreApplication::applicationDirPath()); // appdir/bin
-        plugdir.cdUp(); // appdir
-        if (plugdir.cd("share/RizinOrg/Cutter/plugins")) { // appdir/share/RizinOrg/Cutter/plugins
-            result.push_back(plugdir);
-        }
-    }
-#endif
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 6, 0) && defined(Q_OS_UNIX)
     QChar listSeparator = ':';

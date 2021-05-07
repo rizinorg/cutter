@@ -166,7 +166,8 @@ void ProcessesWidget::onActivated(const QModelIndex &index)
     for (QJsonValue value : processesValues) {
         QString status = value.toObject()["status"].toString();
         if (pid == value.toObject()["pid"].toInt()) {
-            if (QString(RZ_DBG_PROC_ZOMBIE) == status || QString(RZ_DBG_PROC_DEAD) == status) {
+            if (QString(QChar(RZ_DBG_PROC_ZOMBIE)) == status
+                || QString(QChar(RZ_DBG_PROC_DEAD)) == status) {
                 QMessageBox msgBox;
                 msgBox.setText(tr("Unable to switch to the requested process."));
                 msgBox.exec();
@@ -191,7 +192,7 @@ bool ProcessesFilterModel::filterAcceptsRow(int row, const QModelIndex &parent) 
     // All columns are checked for a match
     for (int i = COLUMN_PID; i <= COLUMN_PATH; ++i) {
         QModelIndex index = sourceModel()->index(row, i, parent);
-        if (sourceModel()->data(index).toString().contains(filterRegExp())) {
+        if (qhelpers::filterStringContains(sourceModel()->data(index).toString(), this)) {
             return true;
         }
     }

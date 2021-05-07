@@ -91,15 +91,24 @@ TypesSortFilterProxyModel::TypesSortFilterProxyModel(TypesModel *source_model, Q
     setSourceModel(source_model);
 }
 
+void TypesSortFilterProxyModel::setCategory(QString category)
+{
+    selectedCategory = category;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    invalidateFilter();
+#else
+    invalidateRowsFilter();
+#endif
+}
+
 bool TypesSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
     TypeDescription exp = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
-    if (selectedCategory.isEmpty()) {
-        return exp.type.contains(filterRegExp());
-    } else {
-        return selectedCategory == exp.category && exp.type.contains(filterRegExp());
+    if (!selectedCategory.isEmpty() && selectedCategory != exp.category) {
+        return false;
     }
+    return qhelpers::filterStringContains(exp.type, this);
 }
 
 bool TypesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
@@ -169,9 +178,7 @@ TypesWidget::TypesWidget(MainWindow *main)
     connect(Core(), &CutterCore::refreshAll, this, &TypesWidget::refreshTypes);
 
     connect(ui->quickFilterView->comboBox(), &QComboBox::currentTextChanged, this, [this]() {
-        types_proxy_model->selectedCategory =
-                ui->quickFilterView->comboBox()->currentData().toString();
-        types_proxy_model->setFilterRegExp(types_proxy_model->filterRegExp());
+        types_proxy_model->setCategory(ui->quickFilterView->comboBox()->currentData().toString());
         tree->showItemsNumber(types_proxy_model->rowCount());
     });
 
@@ -213,7 +220,7 @@ void TypesWidget::refreshCategoryCombo(const QStringList &categories)
         combo->addItem(category, category);
     }
 
-    types_proxy_model->selectedCategory.clear();
+    types_proxy_model->setCategory(QString());
 }
 
 void TypesWidget::setScrollMode()

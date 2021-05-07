@@ -189,9 +189,7 @@ private:
 
     std::unique_ptr<GraphLayout> graphLayoutSystem;
 
-    // Scrolling data
-    int scroll_base_x = 0;
-    int scroll_base_y = 0;
+    QPoint scrollBase;
     bool scroll_mode = false;
 
     bool useGL;
