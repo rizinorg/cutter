@@ -1556,6 +1556,11 @@ QJsonDocument CutterCore::getProcessThreads(int pid)
     }
 }
 
+QJsonDocument CutterCore::getHeap()
+{
+    return cmdj("dmhj");
+}
+
 QJsonDocument CutterCore::getChildProcesses(int pid)
 {
     // Return the currently debugged process and it's children

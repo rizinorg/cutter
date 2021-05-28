@@ -397,6 +397,11 @@ public:
      */
     QJsonDocument getChildProcesses(int pid);
     QJsonDocument getBacktrace();
+    /**
+     * @brief Get a list of heap chunks
+     * @return JSON object result of dmhj
+     */
+    QJsonDocument getHeap();
     void startDebug();
     void startEmulation();
     /**
