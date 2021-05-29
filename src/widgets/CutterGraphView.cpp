@@ -90,7 +90,6 @@ CutterGraphView::CutterGraphView(QWidget *parent)
 
 QPoint CutterGraphView::getTextOffset(int line) const
 {
-    int padding = static_cast<int>(2 * charWidth);
     return QPoint(padding, padding + line * charHeight);
 }
 
@@ -99,7 +98,12 @@ void CutterGraphView::initFont()
     setFont(Config()->getFont());
     QFontMetricsF metrics(font());
     baseline = int(metrics.ascent());
-    charWidth = metrics.maxWidth();
+#if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
+    ACharWidth = metrics.width('A');
+#else
+    ACharWidth = metrics.horizontalAdvance('A');
+#endif
+    padding = ACharWidth;
     charHeight = static_cast<int>(metrics.height());
     charOffset = 0;
     mFontMetrics.reset(new CachedFontMetrics<qreal>(font()));

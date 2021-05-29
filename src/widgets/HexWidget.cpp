@@ -1168,7 +1168,11 @@ void HexWidget::updateMetrics()
 {
     QFontMetricsF fontMetrics(this->monospaceFont);
     lineHeight = fontMetrics.height();
-    charWidth = fontMetrics.maxWidth();
+#if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
+    charWidth = fontMetrics.width('A');
+#else
+    charWidth = fontMetrics.horizontalAdvance('A');
+#endif
 
     updateCounts();
     updateAreasHeight();

@@ -88,8 +88,6 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
 {
     QRectF blockRect(block.x, block.y, block.width, block.height);
 
-    const qreal padding = charWidth;
-
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
     p.setFont(Config()->getFont());
@@ -113,7 +111,7 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
 
     // Stop rendering text when it's too small
     auto transform = p.combinedTransform();
-    QRect screenChar = transform.mapRect(QRect(0, 0, charWidth, charHeight));
+    QRect screenChar = transform.mapRect(QRect(0, 0, ACharWidth, charHeight));
 
     if (screenChar.width() < Config()->getGraphMinFontSize()) {
         return;
@@ -156,9 +154,8 @@ void SimpleTextGraphView::addBlock(GraphLayout::GraphBlock block, const QString 
 
     int height = 1;
     int width = mFontMetrics->width(text);
-    int extra = static_cast<int>(2 * charWidth);
-    block.width = static_cast<int>(width + extra);
-    block.height = (height * charHeight) + extra;
+    block.width = static_cast<int>(width + padding);
+    block.height = (height * charHeight) + padding;
     GraphView::addBlock(std::move(block));
 }
 

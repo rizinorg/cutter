@@ -347,16 +347,15 @@ void DisassemblerGraphView::prepareGraphNode(GraphBlock &block)
             height += 1;
         }
     }
-    int extra = static_cast<int>(4 * charWidth + 4);
-    block.width = static_cast<int>(width + extra + charWidth);
+    int extra = static_cast<int>(2 * padding + 4);
+    qreal indent = ACharWidth;
+    block.width = static_cast<int>(width + extra + indent);
     block.height = (height * charHeight) + extra;
 }
 
 void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive)
 {
     QRectF blockRect(block.x, block.y, block.width, block.height);
-
-    const qreal padding = 2 * charWidth;
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
@@ -412,11 +411,13 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
 
     // Stop rendering text when it's too small
     auto transform = p.combinedTransform();
-    QRect screenChar = transform.mapRect(QRect(0, 0, charWidth, charHeight));
+    QRect screenChar = transform.mapRect(QRect(0, 0, ACharWidth, charHeight));
 
     if (screenChar.width() < Config()->getGraphMinFontSize()) {
         return;
     }
+
+    qreal indent = ACharWidth;
 
     // Highlight selected tokens
     if (interactive && highlight_token != nullptr) {
@@ -436,20 +437,21 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
                 }
 
                 qreal widthBefore = mFontMetrics->width(instr.plainText.left(pos));
-                if (charWidth * 3 + widthBefore > block.width - (10 + padding)) {
+                qreal textOffset = padding + indent;
+                if (textOffset + widthBefore > block.width - (10 + padding)) {
                     continue;
                 }
 
                 qreal highlightWidth = tokenWidth;
-                if (charWidth * 3 + widthBefore + tokenWidth >= block.width - (10 + padding)) {
+                if (textOffset + widthBefore + tokenWidth >= block.width - (10 + padding)) {
                     highlightWidth = block.width - widthBefore - (10 + 2 * padding);
                 }
 
                 QColor selectionColor = ConfigColor("wordHighlight");
 
-                p.fillRect(QRectF(block.x + charWidth * 3 + widthBefore, y, highlightWidth,
-                                  charHeight),
-                           selectionColor);
+                p.fillRect(
+                        QRectF(block.x + textOffset + widthBefore, y, highlightWidth, charHeight),
+                        selectionColor);
             }
 
             y += int(instr.text.lines.size()) * charHeight;
@@ -467,7 +469,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
 
     auto bih = Core()->getBIHighlighter();
     for (const Instr &instr : db.instrs) {
-        const QRect instrRect = QRect(static_cast<int>(block.x + charWidth), y,
+        const QRect instrRect = QRect(static_cast<int>(block.x + indent), y,
                                       static_cast<int>(block.width - (10 + padding)),
                                       int(instr.text.lines.size()) * charHeight);
 
@@ -489,17 +491,8 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
         }
 
         for (auto &line : instr.text.lines) {
-            int rectSize = qRound(charWidth);
-            if (rectSize % 2) {
-                rectSize++;
-            }
-            // Assume charWidth <= charHeight
-            // TODO: Breakpoint/Cip stuff
-            QRectF bpRect(x - rectSize / 3.0, y + (charHeight - rectSize) / 2.0, rectSize,
-                          rectSize);
-            Q_UNUSED(bpRect);
 
-            RichTextPainter::paintRichText<qreal>(&p, x + charWidth, y, block.width - charWidth,
+            RichTextPainter::paintRichText<qreal>(&p, x + indent, y, block.width - padding,
                                                   charHeight, 0, line, mFontMetrics.get());
             y += charHeight;
         }
@@ -615,7 +608,7 @@ QRectF DisassemblerGraphView::getInstrRect(GraphView::GraphBlock &block, RVA add
             }
             QPointF topLeft = getInstructionOffset(db, static_cast<int>(firstLineWithAddr));
             return QRectF(topLeft,
-                          QSizeF(block.width - 4 * charWidth,
+                          QSizeF(block.width - 2 * padding,
                                  charHeight * int(currentLine - firstLineWithAddr)));
         }
         currentLine += instr.text.lines.size();
@@ -771,7 +764,7 @@ void DisassemblerGraphView::copySelection()
 
 DisassemblerGraphView::Token *DisassemblerGraphView::getToken(Instr *instr, int x)
 {
-    x -= (int)(3 * charWidth); // Ignore left margin
+    x -= (int)(padding + ACharWidth); // Ignore left margin
     if (x < 0) {
         return nullptr;
     }
