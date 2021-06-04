@@ -53,7 +53,8 @@ if(WIN32)
 			syscall
 			socket
 			magic
-			crypto)
+			crypto
+			type)
 
 	set(Rizin_LIBRARIES "")
 	set(Rizin_LIBRARIES_VARS "")

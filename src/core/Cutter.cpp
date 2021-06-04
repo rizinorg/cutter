@@ -659,7 +659,7 @@ bool CutterCore::tryFile(QString path, bool rw)
         return false;
     }
 
-    rz_core_file_close(core, cf);
+    rz_core_file_close(cf);
 
     return true;
 }
@@ -2873,23 +2873,20 @@ QList<RelocDescription> CutterCore::getAllRelocs()
     QList<RelocDescription> ret;
 
     if (core && core->bin && core->bin->cur && core->bin->cur->o) {
-        auto relocs = core->bin->cur->o->relocs;
-        RBIter iter;
-        RzBinReloc *br;
-        rz_rbtree_foreach(relocs, iter, br, RzBinReloc, vrb)
-        {
-            RelocDescription reloc;
+        auto relocs = rz_bin_object_patch_relocs(core->bin->cur, core->bin->cur->o);
+        for (size_t i = 0; i < relocs->relocs_count; i++) {
+            RzBinReloc *reloc = relocs->relocs[i];
+            RelocDescription desc;
+            desc.vaddr = reloc->vaddr;
+            desc.paddr = reloc->paddr;
+            desc.type = (reloc->additive ? "ADD_" : "SET_") + QString::number(reloc->type);
 
-            reloc.vaddr = br->vaddr;
-            reloc.paddr = br->paddr;
-            reloc.type = (br->additive ? "ADD_" : "SET_") + QString::number(br->type);
-
-            if (br->import)
-                reloc.name = br->import->name;
+            if (reloc->import)
+                desc.name = reloc->import->name;
             else
-                reloc.name = QString("reloc_%1").arg(QString::number(br->vaddr, 16));
+                desc.name = QString("reloc_%1").arg(QString::number(reloc->vaddr, 16));
 
-            ret << reloc;
+            ret << desc;
         }
     }
 
@@ -3481,7 +3478,7 @@ QString CutterCore::addTypes(const char *str)
 {
     CORE_LOCK();
     char *error_msg = nullptr;
-    char *parsed = rz_parse_c_string(core->analysis, str, &error_msg);
+    char *parsed = rz_type_parse_c_string(core->analysis->typedb, str, &error_msg);
     QString error;
 
     if (!parsed) {
@@ -3492,7 +3489,7 @@ QString CutterCore::addTypes(const char *str)
         return error;
     }
 
-    rz_analysis_save_parsed_type(core->analysis, parsed);
+    rz_type_db_save_parsed_type(core->analysis->typedb, parsed);
     rz_mem_free(parsed);
 
     if (error_msg) {
@@ -3922,7 +3919,7 @@ QString CutterCore::getVersionInformation()
         { "rz_crypto", &rz_crypto_version },
         { "rz_bp", &rz_bp_version },
         { "rz_debug", &rz_debug_version },
-        { "rz_hash", &rz_hash_version },
+        { "rz_msg_digest", &rz_msg_digest_version },
         { "rz_io", &rz_io_version },
 #if !USE_LIB_MAGIC
         { "rz_magic", &rz_magic_version },
