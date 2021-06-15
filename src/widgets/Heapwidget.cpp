@@ -16,7 +16,7 @@ HeapWidget::HeapWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::He
     viewHeap->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     viewHeap->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
 
-    ui->verticalLayout_heap->addWidget(viewHeap);
+    ui->verticalLayout->addWidget(viewHeap);
     connect(Core(), &CutterCore::refreshAll, this, &HeapWidget::updateContents);
     connect(Core(), &CutterCore::debugTaskStateChanged, this, &HeapWidget::updateContents);
 }
