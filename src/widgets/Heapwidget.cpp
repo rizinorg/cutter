@@ -12,11 +12,9 @@ HeapWidget::HeapWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::He
 
     viewHeap->setFont(Config()->getFont());
     viewHeap->setModel(modelHeap);
-    viewHeap->setShowGrid(false);
-    viewHeap->setSortingEnabled(true);
-    viewHeap->setAutoScroll(false);
     viewHeap->verticalHeader()->hide();
     viewHeap->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    viewHeap->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
 
     ui->verticalLayout_heap->addWidget(viewHeap);
     connect(Core(), &CutterCore::refreshAll, this, &HeapWidget::updateContents);
