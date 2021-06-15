@@ -1556,9 +1556,33 @@ QJsonDocument CutterCore::getProcessThreads(int pid)
     }
 }
 
-QJsonDocument CutterCore::getHeap()
+QVector<Chunk> CutterCore::getHeap()
 {
-    return cmdj("dmhj");
+    CORE_LOCK();
+    auto *main_arena = (MallocState *)malloc(sizeof(MallocState));
+    QVector<Chunk> p_chunks;
+    ut64 m_arena;
+    if (!rz_resolve_main_arena_64(core, &m_arena)) {
+        return p_chunks;
+    }
+    if (!rz_update_main_arena_64(core, m_arena, main_arena)) {
+        return p_chunks;
+    }
+    RzList *chunks = rz_get_heap_chunks_list_64(core, main_arena, m_arena, m_arena);
+    RzListIter *iter;
+    void *pos;
+    rz_list_foreach(chunks, iter, pos)
+    {
+        Chunk chunk;
+        auto *data = (RzHeapChunkListItem *)pos;
+        chunk.offset = data->addr;
+        chunk.size = (int)data->size;
+        chunk.status = QString(data->status);
+        p_chunks.append(chunk);
+    }
+    free(main_arena);
+    rz_list_free(chunks);
+    return p_chunks;
 }
 
 QJsonDocument CutterCore::getChildProcesses(int pid)

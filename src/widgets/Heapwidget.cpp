@@ -38,18 +38,9 @@ void HeapWidget::updateContents()
 
 void HeapModel::reload()
 {
-    QJsonDocument heapItems = Core()->getHeap();
     beginResetModel();
     values.clear();
-    QJsonArray chunks = heapItems["chunks"].toArray();
-    for (const QJsonValue &val : chunks) {
-        QJsonObject qjo = val.toObject();
-        Chunk chunk;
-        chunk.offset = qjo["addr"].toVariant().toULongLong();
-        chunk.size = qjo["size"].toVariant().toInt();
-        chunk.status = qjo["status"].toVariant().toString();
-        values.push_back(chunk);
-    }
+    values = Core()->getHeap();
     endResetModel();
 }
 

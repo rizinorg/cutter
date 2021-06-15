@@ -14,12 +14,7 @@ class HeapModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    struct Chunk
-    {
-        RVA offset;
-        QString status;
-        int size;
-    };
+
     HeapModel(QObject *parent = nullptr);
     enum Column { OffsetColumn = 0, SizeColumn, StatusColumn, ColumnCount };
     void reload();

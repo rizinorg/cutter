@@ -399,9 +399,9 @@ public:
     QJsonDocument getBacktrace();
     /**
      * @brief Get a list of heap chunks
-     * @return JSON object result of dmhj
+     * @return Uses RZ_API rz_get_heap_chunks_list_64 to get list of chunks
      */
-    QJsonDocument getHeap();
+    QVector<Chunk> getHeap();
     void startDebug();
     void startEmulation();
     /**
