@@ -71,7 +71,7 @@
 #include "widgets/HexWidget.h"
 #include "widgets/RizinGraphWidget.h"
 #include "widgets/CallGraph.h"
-#include "widgets/Heapwidget.h"
+#include "widgets/HeapWidget.h"
 
 // Qt Headers
 #include <QActionGroup>

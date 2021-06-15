@@ -1,6 +1,6 @@
 #include <QJsonArray>
 #include <QJsonObject>
-#include "Heapwidget.h"
+#include "HeapWidget.h"
 #include "ui_Heapwidget.h"
 
 #include "core/MainWindow.h"
