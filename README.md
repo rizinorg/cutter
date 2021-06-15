@@ -58,5 +58,5 @@ Please use the following channels to ask for help from Cutter developers and com
 
 - **Telegram:** https://t.me/cutter_re
 - **Mattermost:** https://im.rizin.re
-- **IRC:** #cutter on irc.freenode.net
+- **IRC:** #cutter on https://web.libera.chat/
 - **Twitter:** [@cutter_re](https://twitter.com/cutter_re)
