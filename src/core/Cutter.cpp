@@ -1562,15 +1562,15 @@ QVector<Chunk> CutterCore::getHeap()
     auto *main_arena = new MallocState();
     QVector<Chunk> p_chunks;
     ut64 m_arena;
-    if (!rz_resolve_main_arena_64(core, &m_arena)) {
+    if (!rz_heap_resolve_main_arena_64(core, &m_arena)) {
         free(main_arena);
         return p_chunks;
     }
-    if (!rz_update_main_arena_64(core, m_arena, main_arena)) {
+    if (!rz_heap_update_main_arena_64(core, m_arena, main_arena)) {
         free(main_arena);
         return p_chunks;
     }
-    RzList *chunks = rz_get_heap_chunks_list_64(core, main_arena, m_arena, m_arena);
+    RzList *chunks = rz_heap_chunks_list_64(core, main_arena, m_arena, m_arena);
     RzListIter *iter;
     void *pos;
     rz_list_foreach(chunks, iter, pos)
