@@ -13,13 +13,14 @@ HeapWidget::HeapWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::He
     viewHeap->setFont(Config()->getFont());
     viewHeap->setModel(modelHeap);
     viewHeap->verticalHeader()->hide();
-    viewHeap->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    // change the scroll mode to ScrollPerPixel
     viewHeap->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     viewHeap->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-
     ui->verticalLayout->addWidget(viewHeap);
+
     connect(Core(), &CutterCore::refreshAll, this, &HeapWidget::updateContents);
     connect(Core(), &CutterCore::debugTaskStateChanged, this, &HeapWidget::updateContents);
+    connect(viewHeap, &QAbstractItemView::doubleClicked, this, &HeapWidget::onDoubleClicked);
 }
 
 HeapWidget::~HeapWidget()
@@ -94,5 +95,18 @@ QVariant HeapModel::headerData(int section, Qt::Orientation orientation, int rol
         }
     default:
         return QVariant();
+    }
+}
+
+void HeapWidget::onDoubleClicked(const QModelIndex &index)
+{
+    if (!index.isValid()) {
+        return;
+    }
+    int column = index.column();
+    if (column == HeapModel::OffsetColumn) {
+        QString item = index.data().toString();
+        Core()->seek(item);
+        mainWindow->showMemoryWidget(MemoryWidgetType::Hexdump);
     }
 }
