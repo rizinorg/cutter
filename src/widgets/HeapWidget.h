@@ -6,6 +6,7 @@
 #include "core/Cutter.h"
 #include <QTableView>
 #include <QComboBox>
+#include <AddressableItemContextMenu.h>
 
 namespace Ui {
 class HeapWidget;
@@ -23,8 +24,8 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     RVA arena_addr = 0;
-private:
 
+private:
     QVector<Chunk> values;
 };
 
@@ -39,6 +40,8 @@ private slots:
     void updateContents();
     void onDoubleClicked(const QModelIndex &index);
     void onArenaSelected(int index);
+    void customMenuRequested(QPoint pos);
+    void onCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
 
 private:
     void updateArenas();
@@ -48,6 +51,7 @@ private:
     QComboBox *arenaSelectorView = new QComboBox(this);
     HeapModel *modelHeap = new HeapModel(this);
     QVector<Arena> arenas;
+    AddressableItemContextMenu addressableItemContextMenu;
 };
 
 #endif // HEAPWIDGET_H

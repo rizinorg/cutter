@@ -6,7 +6,8 @@
 #include "core/MainWindow.h"
 #include "QHeaderView"
 
-HeapWidget::HeapWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::HeapWidget)
+HeapWidget::HeapWidget(MainWindow *main)
+    : CutterDockWidget(main), ui(new Ui::HeapWidget), addressableItemContextMenu(this, main)
 {
     ui->setupUi(this);
 
@@ -18,12 +19,16 @@ HeapWidget::HeapWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::He
     viewHeap->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->verticalLayout->addWidget(viewHeap);
     ui->verticalLayout->addWidget(arenaSelectorView);
-
+    viewHeap->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(Core(), &CutterCore::refreshAll, this, &HeapWidget::updateContents);
     connect(Core(), &CutterCore::debugTaskStateChanged, this, &HeapWidget::updateContents);
     connect(viewHeap, &QAbstractItemView::doubleClicked, this, &HeapWidget::onDoubleClicked);
     connect<void (QComboBox::*)(int)>(arenaSelectorView, &QComboBox::currentIndexChanged, this,
                                       &HeapWidget::onArenaSelected);
+    connect(viewHeap, &QWidget::customContextMenuRequested, this, &HeapWidget::customMenuRequested);
+    connect(viewHeap->selectionModel(), &QItemSelectionModel::currentChanged, this,
+            &HeapWidget::onCurrentChanged);
+    addActions(addressableItemContextMenu.actions());
 }
 
 HeapWidget::~HeapWidget()
@@ -66,6 +71,11 @@ void HeapWidget::updateChunks()
 {
     modelHeap->reload();
     viewHeap->resizeColumnsToContents();
+}
+
+void HeapWidget::customMenuRequested(QPoint pos)
+{
+    addressableItemContextMenu.exec(viewHeap->viewport()->mapToGlobal(pos));
 }
 
 void HeapModel::reload()
@@ -141,4 +151,14 @@ void HeapWidget::onDoubleClicked(const QModelIndex &index)
         Core()->seek(item);
         mainWindow->showMemoryWidget(MemoryWidgetType::Hexdump);
     }
+}
+
+void HeapWidget::onCurrentChanged(const QModelIndex &current, const QModelIndex &prev)
+{
+    Q_UNUSED(current)
+    Q_UNUSED(prev)
+    auto currentIndex = viewHeap->selectionModel()->currentIndex();
+    QString offsetString =
+            currentIndex.sibling(currentIndex.row(), HeapModel::OffsetColumn).data().toString();
+    addressableItemContextMenu.setTarget(Core()->math(offsetString));
 }
