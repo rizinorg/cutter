@@ -1556,21 +1556,23 @@ QJsonDocument CutterCore::getProcessThreads(int pid)
     }
 }
 
-QVector<Chunk> CutterCore::getHeap()
+QVector<Chunk> CutterCore::getHeap(RVA arena)
 {
     CORE_LOCK();
-    auto *main_arena = new MallocState();
-    QVector<Chunk> p_chunks;
+    QVector<Chunk> chunks_vector;
+    RzList *arenas = rz_heap_arenas_list(core);
+    if (arenas->length == 0) {
+        rz_list_free(arenas);
+        return chunks_vector;
+    }
     ut64 m_arena;
-    if (!rz_heap_resolve_main_arena_64(core, &m_arena)) {
-        free(main_arena);
-        return p_chunks;
+    if (!arena) {
+        /* get base address of main arena */
+        m_arena = ((RzArenaListItem *)arenas->head->data)->addr;
+    } else {
+        m_arena = arena;
     }
-    if (!rz_heap_update_main_arena_64(core, m_arena, main_arena)) {
-        free(main_arena);
-        return p_chunks;
-    }
-    RzList *chunks = rz_heap_chunks_list_64(core, main_arena, m_arena, m_arena);
+    RzList *chunks = rz_heap_chunks_list(core, m_arena);
     RzListIter *iter;
     void *pos;
     rz_list_foreach(chunks, iter, pos)
@@ -1580,11 +1582,30 @@ QVector<Chunk> CutterCore::getHeap()
         chunk.offset = data->addr;
         chunk.size = (int)data->size;
         chunk.status = QString(data->status);
-        p_chunks.append(chunk);
+        chunks_vector.append(chunk);
     }
-    free(main_arena);
     rz_list_free(chunks);
-    return p_chunks;
+    rz_list_free(arenas);
+    return chunks_vector;
+}
+
+QVector<Arena> CutterCore::getArenas()
+{
+    CORE_LOCK();
+    QVector<Arena> arena_vector;
+    RzList *arenas = rz_heap_arenas_list(core);
+    RzListIter *iter;
+    void *pos;
+    rz_list_foreach(arenas, iter, pos)
+    {
+        Arena arena;
+        auto *data = (RzArenaListItem *)pos;
+        arena.offset = data->addr;
+        arena.type = QString(data->type);
+        arena_vector.append(arena);
+    }
+    rz_list_free(arenas);
+    return arena_vector;
 }
 
 QJsonDocument CutterCore::getChildProcesses(int pid)

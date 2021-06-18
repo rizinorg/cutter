@@ -371,6 +371,12 @@ struct Chunk
     int size;
 };
 
+struct Arena
+{
+    RVA offset;
+    QString type;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)

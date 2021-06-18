@@ -17,10 +17,13 @@ HeapWidget::HeapWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::He
     viewHeap->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     viewHeap->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->verticalLayout->addWidget(viewHeap);
+    ui->verticalLayout->addWidget(arenaSelectorView);
 
     connect(Core(), &CutterCore::refreshAll, this, &HeapWidget::updateContents);
     connect(Core(), &CutterCore::debugTaskStateChanged, this, &HeapWidget::updateContents);
     connect(viewHeap, &QAbstractItemView::doubleClicked, this, &HeapWidget::onDoubleClicked);
+    connect<void (QComboBox::*)(int)>(arenaSelectorView, &QComboBox::currentIndexChanged, this,
+                                      &HeapWidget::onArenaSelected);
 }
 
 HeapWidget::~HeapWidget()
@@ -30,7 +33,36 @@ HeapWidget::~HeapWidget()
 
 HeapModel::HeapModel(QObject *parent) : QAbstractTableModel(parent) {}
 
+void HeapWidget::updateArenas()
+{
+    arenas = Core()->getArenas();
+    int currentIndex = arenaSelectorView->currentIndex();
+    arenaSelectorView->clear();
+    for (auto &arena : arenas) {
+        arenaSelectorView->addItem(RAddressString(arena.offset)
+                                   + QString(" (" + arena.type + " Arena)"));
+    }
+    if (arenaSelectorView->count() < currentIndex || currentIndex == -1) {
+        currentIndex = 0;
+    }
+    arenaSelectorView->setCurrentIndex(currentIndex);
+}
+void HeapWidget::onArenaSelected(int index)
+{
+    if (index == -1) {
+        modelHeap->arena_addr = 0;
+    } else {
+        modelHeap->arena_addr = arenas[index].offset;
+    }
+    updateChunks();
+}
 void HeapWidget::updateContents()
+{
+    updateArenas();
+    updateChunks();
+}
+
+void HeapWidget::updateChunks()
 {
     modelHeap->reload();
     viewHeap->resizeColumnsToContents();
@@ -40,7 +72,7 @@ void HeapModel::reload()
 {
     beginResetModel();
     values.clear();
-    values = Core()->getHeap();
+    values = Core()->getHeap(arena_addr);
     endResetModel();
 }
 

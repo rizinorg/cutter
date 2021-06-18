@@ -401,7 +401,8 @@ public:
      * @brief Get a list of heap chunks
      * @return Uses RZ_API rz_get_heap_chunks_list_64 to get list of chunks
      */
-    QVector<Chunk> getHeap();
+    QVector<Chunk> getHeap(RVA arena_addr);
+    QVector<Arena> getArenas();
     void startDebug();
     void startEmulation();
     /**
