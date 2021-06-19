@@ -169,7 +169,9 @@ void HeapWidget::onCurrentChanged(const QModelIndex &current, const QModelIndex 
 
 void HeapWidget::viewChunkInfo()
 {
-    qDebug() << "Chunk info detailed";
-    HeapInfoDialog heapInfoDialog(this);
+    auto currentIndex = viewHeap->selectionModel()->currentIndex();
+    QString offsetString =
+            currentIndex.sibling(currentIndex.row(), HeapModel::OffsetColumn).data().toString();
+    HeapInfoDialog heapInfoDialog(Core()->math(offsetString), this);
     heapInfoDialog.exec();
 }
