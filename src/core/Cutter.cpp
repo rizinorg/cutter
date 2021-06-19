@@ -1608,6 +1608,12 @@ QVector<Arena> CutterCore::getArenas()
     return arena_vector;
 }
 
+RzHeapChunkSimple *CutterCore::getHeapChunk(ut64 addr)
+{
+    CORE_LOCK();
+    return rz_heap_chunk(core, addr);
+}
+
 QJsonDocument CutterCore::getChildProcesses(int pid)
 {
     // Return the currently debugged process and it's children

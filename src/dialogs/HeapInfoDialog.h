@@ -13,13 +13,14 @@ class HeapInfoDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit HeapInfoDialog(RVA offset, QWidget *parent = nullptr);
+    explicit HeapInfoDialog(RVA offset, QString status, QWidget *parent = nullptr);
     ~HeapInfoDialog();
 
 private:
     Ui::HeapInfoDialog *ui;
     void updateFields();
-    RVA offset{};
+    RVA offset;
+    QString status;
 };
 
 #endif // HEAPINFODIALOG_H

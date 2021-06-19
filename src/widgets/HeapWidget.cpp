@@ -172,6 +172,8 @@ void HeapWidget::viewChunkInfo()
     auto currentIndex = viewHeap->selectionModel()->currentIndex();
     QString offsetString =
             currentIndex.sibling(currentIndex.row(), HeapModel::OffsetColumn).data().toString();
-    HeapInfoDialog heapInfoDialog(Core()->math(offsetString), this);
+    QString status =
+            currentIndex.sibling(currentIndex.row(), HeapModel::StatusColumn).data().toString();
+    HeapInfoDialog heapInfoDialog(Core()->math(offsetString), status, this);
     heapInfoDialog.exec();
 }

@@ -399,10 +399,11 @@ public:
     QJsonDocument getBacktrace();
     /**
      * @brief Get a list of heap chunks
-     * @return Uses RZ_API rz_get_heap_chunks_list_64 to get list of chunks
+     * @return Uses RZ_API rz_heap_chunks_list to get list of chunks
      */
     QVector<Chunk> getHeap(RVA arena_addr);
     QVector<Arena> getArenas();
+    RzHeapChunkSimple *getHeapChunk(ut64 addr);
     void startDebug();
     void startEmulation();
     /**
