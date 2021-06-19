@@ -7,6 +7,12 @@ HeapInfoDialog::HeapInfoDialog(RVA offset, QString status, QWidget *parent)
     : QDialog(parent), ui(new Ui::HeapInfoDialog), offset(offset), status(std::move(status))
 {
     ui->setupUi(this);
+    this->ui->rbIM->setAttribute(Qt::WA_TransparentForMouseEvents);
+    this->ui->rbIM->setFocusPolicy(Qt::NoFocus);
+    this->ui->rbNMA->setAttribute(Qt::WA_TransparentForMouseEvents);
+    this->ui->rbNMA->setFocusPolicy(Qt::NoFocus);
+    this->ui->rbPI->setAttribute(Qt::WA_TransparentForMouseEvents);
+    this->ui->rbPI->setFocusPolicy(Qt::NoFocus);
     updateFields();
 }
 
@@ -21,6 +27,9 @@ void HeapInfoDialog::updateFields()
                          + QString("(" + status + ")"));
     this->ui->baseEdit->setText(RAddressString(offset));
     RzHeapChunkSimple *chunk = Core()->getHeapChunk(offset);
+    if (!chunk) {
+        return;
+    }
     this->ui->sizeEdit->setText(RHexString(chunk->size));
     this->ui->bkEdit->setText(RAddressString(chunk->bk));
     this->ui->fdEdit->setText(RAddressString(chunk->fd));

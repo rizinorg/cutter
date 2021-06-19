@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>453</width>
-    <height>246</height>
+    <height>263</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,6 +25,9 @@
      </item>
      <item row="0" column="1">
       <widget class="QLineEdit" name="baseEdit">
+       <property name="toolTip">
+        <string>Base address of the chunk</string>
+       </property>
        <property name="readOnly">
         <bool>true</bool>
        </property>
@@ -39,6 +42,9 @@
      </item>
      <item row="1" column="1">
       <widget class="QLineEdit" name="sizeEdit">
+       <property name="toolTip">
+        <string>Size of the heap chunk including metadata</string>
+       </property>
        <property name="readOnly">
         <bool>true</bool>
        </property>
@@ -53,6 +59,9 @@
      </item>
      <item row="3" column="1">
       <widget class="QLineEdit" name="fdEdit">
+       <property name="toolTip">
+        <string>Link to next free chunk in bin's linked list</string>
+       </property>
        <property name="readOnly">
         <bool>true</bool>
        </property>
@@ -67,13 +76,23 @@
      </item>
      <item row="4" column="1">
       <widget class="QLineEdit" name="bkEdit">
+       <property name="toolTip">
+        <string>Link to previous free chunk in bin's linked list</string>
+       </property>
        <property name="readOnly">
         <bool>true</bool>
        </property>
       </widget>
      </item>
      <item row="5" column="1">
-      <widget class="QLineEdit" name="fdnsEdit"/>
+      <widget class="QLineEdit" name="fdnsEdit">
+       <property name="toolTip">
+        <string>Link to next larger free chunk (only for large chunks)</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="5" column="0">
       <widget class="QLabel" name="label_3">
@@ -90,10 +109,24 @@
       </widget>
      </item>
      <item row="6" column="1">
-      <widget class="QLineEdit" name="bknsEdit"/>
+      <widget class="QLineEdit" name="bknsEdit">
+       <property name="toolTip">
+        <string>Link to next smaller free chunk (for large chunks)</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="prevSizeEdit"/>
+      <widget class="QLineEdit" name="prevSizeEdit">
+       <property name="toolTip">
+        <string>Size of previous chunk (if free)</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="label_7">

@@ -1,8 +1,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include "HeapWidget.h"
-#include "ui_Heapwidget.h"
-
+#include "ui_HeapWidget.h"
 #include "core/MainWindow.h"
 #include "QHeaderView"
 #include "dialogs/HeapInfoDialog.h"
