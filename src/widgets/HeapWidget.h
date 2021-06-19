@@ -42,6 +42,7 @@ private slots:
     void onArenaSelected(int index);
     void customMenuRequested(QPoint pos);
     void onCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
+    void viewChunkInfo();
 
 private:
     void updateArenas();
@@ -51,6 +52,7 @@ private:
     QComboBox *arenaSelectorView = new QComboBox(this);
     HeapModel *modelHeap = new HeapModel(this);
     QVector<Arena> arenas;
+    QAction *chunkInfoAction;
     AddressableItemContextMenu addressableItemContextMenu;
 };
 

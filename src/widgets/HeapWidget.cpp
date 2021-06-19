@@ -5,6 +5,7 @@
 
 #include "core/MainWindow.h"
 #include "QHeaderView"
+#include "dialogs/HeapInfoDialog.h"
 
 HeapWidget::HeapWidget(MainWindow *main)
     : CutterDockWidget(main), ui(new Ui::HeapWidget), addressableItemContextMenu(this, main)
@@ -19,6 +20,7 @@ HeapWidget::HeapWidget(MainWindow *main)
     viewHeap->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->verticalLayout->addWidget(viewHeap);
     ui->verticalLayout->addWidget(arenaSelectorView);
+    chunkInfoAction = new QAction(tr("Detailed Chunk View"));
     viewHeap->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(Core(), &CutterCore::refreshAll, this, &HeapWidget::updateContents);
     connect(Core(), &CutterCore::debugTaskStateChanged, this, &HeapWidget::updateContents);
@@ -28,6 +30,8 @@ HeapWidget::HeapWidget(MainWindow *main)
     connect(viewHeap, &QWidget::customContextMenuRequested, this, &HeapWidget::customMenuRequested);
     connect(viewHeap->selectionModel(), &QItemSelectionModel::currentChanged, this,
             &HeapWidget::onCurrentChanged);
+    connect(chunkInfoAction, &QAction::triggered, this, &HeapWidget::viewChunkInfo);
+    addressableItemContextMenu.addAction(chunkInfoAction);
     addActions(addressableItemContextMenu.actions());
 }
 
@@ -161,4 +165,11 @@ void HeapWidget::onCurrentChanged(const QModelIndex &current, const QModelIndex 
     QString offsetString =
             currentIndex.sibling(currentIndex.row(), HeapModel::OffsetColumn).data().toString();
     addressableItemContextMenu.setTarget(Core()->math(offsetString));
+}
+
+void HeapWidget::viewChunkInfo()
+{
+    qDebug() << "Chunk info detailed";
+    HeapInfoDialog heapInfoDialog(this);
+    heapInfoDialog.exec();
 }
