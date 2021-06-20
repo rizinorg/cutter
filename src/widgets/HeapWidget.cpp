@@ -19,7 +19,7 @@ HeapWidget::HeapWidget(MainWindow *main)
     viewHeap->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->verticalLayout->addWidget(viewHeap);
     ui->verticalLayout->addWidget(arenaSelectorView);
-    chunkInfoAction = new QAction(tr("Detailed Chunk View"));
+    chunkInfoAction = new QAction(tr("Detailed Chunk Info"), this);
     viewHeap->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(Core(), &CutterCore::refreshAll, this, &HeapWidget::updateContents);
     connect(Core(), &CutterCore::debugTaskStateChanged, this, &HeapWidget::updateContents);
