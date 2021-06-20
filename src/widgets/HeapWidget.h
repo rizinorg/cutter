@@ -54,6 +54,7 @@ private:
     QVector<Arena> arenas;
     QAction *chunkInfoAction;
     AddressableItemContextMenu addressableItemContextMenu;
+    RefreshDeferrer *refreshDeferrer;
 };
 
 #endif // HEAPWIDGET_H

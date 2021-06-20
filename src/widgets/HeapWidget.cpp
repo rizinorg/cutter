@@ -32,6 +32,7 @@ HeapWidget::HeapWidget(MainWindow *main)
     connect(chunkInfoAction, &QAction::triggered, this, &HeapWidget::viewChunkInfo);
     addressableItemContextMenu.addAction(chunkInfoAction);
     addActions(addressableItemContextMenu.actions());
+    refreshDeferrer = createRefreshDeferrer([this]() { updateContents(); });
 }
 
 HeapWidget::~HeapWidget()
@@ -66,6 +67,9 @@ void HeapWidget::onArenaSelected(int index)
 }
 void HeapWidget::updateContents()
 {
+    if (!refreshDeferrer->attemptRefresh(nullptr) || Core()->isDebugTaskInProgress()) {
+        return;
+    }
     updateArenas();
     updateChunks();
 }
