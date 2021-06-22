@@ -398,11 +398,25 @@ public:
     QJsonDocument getChildProcesses(int pid);
     QJsonDocument getBacktrace();
     /**
-     * @brief Get a list of heap chunks
-     * @return Uses RZ_API rz_heap_chunks_list to get list of chunks
+     * @brief Get a list of heap chunks. (glibc)
+     * Uses RZ_API rz_heap_chunks_list to get vector of chunks
+     * @param arena_addr base address for the arena
+     * @return Vector of heap chunks for the given arena
      */
     QVector<Chunk> getHeap(RVA arena_addr);
+
+    /**
+     * @brief Get a list arenas of the glibc heap
+     * Uses RZ_API rz_heap_arenas_list to get list of arenas
+     * @return Vector of arenas
+     */
     QVector<Arena> getArenas();
+
+    /**
+     * @brief Get detailed information about a heap chunk (glibc)
+     * Uses RZ_API rz_heap_chunk
+     * @return RzHeapChunkSimple struct pointer for the heap chunk
+     */
     RzHeapChunkSimple *getHeapChunk(ut64 addr);
     void startDebug();
     void startEmulation();
