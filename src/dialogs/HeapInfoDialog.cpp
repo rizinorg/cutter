@@ -36,13 +36,13 @@ void HeapInfoDialog::updateFields()
     this->ui->bknsEdit->setText(RAddressString(chunk->bk_nextsize));
     this->ui->fdnsEdit->setText(RAddressString(chunk->fd_nextsize));
     this->ui->prevSizeEdit->setText(RHexString(chunk->prev_size));
-    if (chunk->IM) {
+    if (chunk->is_mmapped) {
         this->ui->rbIM->setChecked(true);
     }
-    if (chunk->PI) {
+    if (chunk->prev_inuse) {
         this->ui->rbPI->setChecked(true);
     }
-    if (chunk->NMA) {
+    if (chunk->non_main_arena) {
         this->ui->rbNMA->setChecked(true);
     }
     free(chunk);
