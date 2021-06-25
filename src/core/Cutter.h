@@ -403,7 +403,7 @@ public:
      * @param arena_addr base address for the arena
      * @return Vector of heap chunks for the given arena
      */
-    QVector<Chunk> getHeap(RVA arena_addr);
+    QVector<Chunk> getHeapChunks(RVA arena_addr);
 
     /**
      * @brief Get a list arenas of the glibc heap
@@ -477,6 +477,7 @@ public:
     bool currentlyDebugging = false;
     bool currentlyEmulating = false;
     bool currentlyTracing = false;
+    bool currentlyRemoteDebugging = false;
     int currentlyAttachedToPID = -1;
     QString currentlyOpenFile;
 

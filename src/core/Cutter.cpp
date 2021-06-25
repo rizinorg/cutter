@@ -1556,7 +1556,7 @@ QJsonDocument CutterCore::getProcessThreads(int pid)
     }
 }
 
-QVector<Chunk> CutterCore::getHeap(RVA arena)
+QVector<Chunk> CutterCore::getHeapChunks(RVA arena_addr)
 {
     CORE_LOCK();
     QVector<Chunk> chunks_vector;
@@ -1566,11 +1566,11 @@ QVector<Chunk> CutterCore::getHeap(RVA arena)
         return chunks_vector;
     }
     ut64 m_arena;
-    if (!arena) {
+    if (!arena_addr) {
         /* get base address of main arena */
         m_arena = ((RzArenaListItem *)arenas->head->data)->addr;
     } else {
-        m_arena = arena;
+        m_arena = arena_addr;
     }
     RzList *chunks = rz_heap_chunks_list(core, m_arena);
     RzListIter *iter;
@@ -1861,6 +1861,7 @@ void CutterCore::attachRemote(const QString &uri)
             emit toggleDebugView();
         }
 
+        currentlyRemoteDebugging = true;
         emit codeRebased();
         emit attachedRemote(true);
         emit debugTaskStateChanged();

@@ -89,7 +89,7 @@ void HeapModel::reload()
 {
     beginResetModel();
     values.clear();
-    values = Core()->getHeap(arena_addr);
+    values = Core()->getHeapChunks(arena_addr);
     endResetModel();
 }
 

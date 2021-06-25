@@ -141,6 +141,9 @@
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <widget class="QRadioButton" name="rbNMA">
+       <property name="toolTip">
+        <string>If the chunk was obtained from a non-main arena</string>
+       </property>
        <property name="text">
         <string>NON_MAIN_ARENA</string>
        </property>
@@ -154,6 +157,9 @@
      </item>
      <item>
       <widget class="QRadioButton" name="rbIM">
+       <property name="toolTip">
+        <string>The chunk was obtained with mmap()</string>
+       </property>
        <property name="text">
         <string>IS_MMAPED</string>
        </property>
@@ -167,6 +173,9 @@
      </item>
      <item>
       <widget class="QRadioButton" name="rbPI">
+       <property name="toolTip">
+        <string>Previous adjacent chunk is in use</string>
+       </property>
        <property name="text">
         <string>PREV_INUSE</string>
        </property>

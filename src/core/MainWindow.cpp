@@ -1270,10 +1270,13 @@ void MainWindow::showZenDocks()
 
 void MainWindow::showDebugDocks()
 {
-    const QList<QDockWidget *> debugDocks = { functionsDock, stringsDock,   searchDock,
-                                              stackDock,     registersDock, backtraceDock,
-                                              threadsDock,   memoryMapDock, breakpointDock,
-                                              heapDock };
+    QList<QDockWidget *> debugDocks = {
+        functionsDock, stringsDock, searchDock,    stackDock,      registersDock,
+        backtraceDock, threadsDock, memoryMapDock, breakpointDock,
+    };
+    if (QSysInfo::kernelType() == "linux" || Core()->currentlyRemoteDebugging) {
+        debugDocks.append(heapDock);
+    }
     functionDockWidthToRestore = functionsDock->maximumWidth();
     functionsDock->setMaximumWidth(200);
     auto registerWidth = qhelpers::forceWidth(registersDock, std::min(500, this->width() / 4));
