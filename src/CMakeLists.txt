@@ -143,6 +143,7 @@ set(SOURCES
     common/DecompilerHighlighter.cpp
     widgets/HeapWidget.cpp
     dialogs/HeapInfoDialog.cpp
+    widgets/HeapDockWidget.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -298,6 +299,7 @@ set(HEADER_FILES
     common/DecompilerHighlighter.h
     widgets/HeapWidget.h
     dialogs/HeapInfoDialog.h
+    widgets/HeapDockWidget.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -366,6 +368,7 @@ set(UI_FILES
     dialogs/preferences/AnalOptionsWidget.ui
     widgets/HeapWidget.ui
     dialogs/HeapInfoDialog.ui
+    widgets/HeapDockWidget.ui
 )
 set(QRC_FILES
     resources.qrc

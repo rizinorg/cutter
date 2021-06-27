@@ -71,7 +71,7 @@
 #include "widgets/HexWidget.h"
 #include "widgets/RizinGraphWidget.h"
 #include "widgets/CallGraph.h"
-#include "widgets/HeapWidget.h"
+#include "widgets/HeapDockWidget.h"
 
 // Qt Headers
 #include <QActionGroup>
@@ -383,7 +383,7 @@ void MainWindow::initDocks()
                                              memoryMapDock = new MemoryMapWidget(this),
                                              breakpointDock = new BreakpointWidget(this),
                                              registerRefsDock = new RegisterRefsWidget(this),
-                                             heapDock = new HeapWidget(this) };
+                                             heapDock = new HeapDockWidget(this) };
 
     QList<CutterDockWidget *> infoDocks = {
         classesDock = new ClassesWidget(this),
