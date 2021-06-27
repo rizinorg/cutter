@@ -141,9 +141,9 @@ set(SOURCES
     widgets/AddressableDockWidget.cpp
     dialogs/preferences/AnalOptionsWidget.cpp
     common/DecompilerHighlighter.cpp
-    widgets/HeapWidget.cpp
     dialogs/HeapInfoDialog.cpp
     widgets/HeapDockWidget.cpp
+    widgets/GlibcHeapWidget.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -297,9 +297,9 @@ set(HEADER_FILES
     widgets/AddressableDockWidget.h
     dialogs/preferences/AnalOptionsWidget.h
     common/DecompilerHighlighter.h
-    widgets/HeapWidget.h
     dialogs/HeapInfoDialog.h
     widgets/HeapDockWidget.h
+    widgets/GlibcHeapWidget.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -366,9 +366,9 @@ set(UI_FILES
     dialogs/LayoutManager.ui
     widgets/RizinGraphWidget.ui
     dialogs/preferences/AnalOptionsWidget.ui
-    widgets/HeapWidget.ui
     dialogs/HeapInfoDialog.ui
     widgets/HeapDockWidget.ui
+    widgets/GlibcHeapWidget.ui
 )
 set(QRC_FILES
     resources.qrc
