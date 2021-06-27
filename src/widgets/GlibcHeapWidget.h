@@ -12,11 +12,11 @@ namespace Ui {
 class GlibcHeapWidget;
 }
 
-class HeapModel : public QAbstractTableModel
+class GlibcHeapModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit HeapModel(QObject *parent = nullptr);
+    explicit GlibcHeapModel(QObject *parent = nullptr);
     enum Column { OffsetColumn = 0, SizeColumn, StatusColumn, ColumnCount };
     void reload();
     int rowCount(const QModelIndex &parent) const override;
@@ -50,7 +50,7 @@ private:
     Ui::GlibcHeapWidget *ui;
     QTableView *viewHeap = new QTableView(this);
     QComboBox *arenaSelectorView = new QComboBox(this);
-    HeapModel *modelHeap = new HeapModel(this);
+    GlibcHeapModel *modelHeap = new GlibcHeapModel(this);
     QVector<Arena> arenas;
     QAction *chunkInfoAction;
     AddressableItemContextMenu addressableItemContextMenu;

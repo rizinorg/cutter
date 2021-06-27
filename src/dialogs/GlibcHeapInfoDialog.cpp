@@ -7,9 +7,14 @@ GlibcHeapInfoDialog::GlibcHeapInfoDialog(RVA offset, QString status, QWidget *pa
     : QDialog(parent), ui(new Ui::GlibcHeapInfoDialog), offset(offset), status(std::move(status))
 {
     ui->setupUi(this);
+
+    // disable all the radio buttons for flag field so they are not user editable
     this->ui->rbIM->setEnabled(false);
     this->ui->rbNMA->setEnabled(false);
     this->ui->rbPI->setEnabled(false);
+
+    this->setWindowTitle(QString("Chunk @ ") + RAddressString(offset)
+                         + QString("(" + this->status + ")"));
     updateFields();
 }
 
@@ -20,13 +25,14 @@ GlibcHeapInfoDialog::~GlibcHeapInfoDialog()
 
 void GlibcHeapInfoDialog::updateFields()
 {
-    this->setWindowTitle(QString("Chunk @ ") + RAddressString(offset)
-                         + QString("(" + status + ")"));
-    this->ui->baseEdit->setText(RAddressString(offset));
+    // get data about the heap chunk from the API
     RzHeapChunkSimple *chunk = Core()->getHeapChunk(offset);
     if (!chunk) {
         return;
     }
+
+    // Update the information in the widget
+    this->ui->baseEdit->setText(RAddressString(offset));
     this->ui->sizeEdit->setText(RHexString(chunk->size));
     this->ui->bkEdit->setText(RAddressString(chunk->bk));
     this->ui->fdEdit->setText(RAddressString(chunk->fd));
@@ -42,5 +48,6 @@ void GlibcHeapInfoDialog::updateFields()
     if (chunk->non_main_arena) {
         this->ui->rbNMA->setChecked(true);
     }
+
     free(chunk);
 }

@@ -400,13 +400,14 @@ public:
     /**
      * @brief Get a list of heap chunks
      * Uses RZ_API rz_heap_chunks_list to get vector of chunks
+     * If arena_addr is zero return the chunks for main arena
      * @param arena_addr base address for the arena
      * @return Vector of heap chunks for the given arena
      */
     QVector<Chunk> getHeapChunks(RVA arena_addr);
 
     /**
-     * @brief Get a list arenas of heap
+     * @brief Get a list of heap arenas
      * Uses RZ_API rz_heap_arenas_list to get list of arenas
      * @return Vector of arenas
      */
