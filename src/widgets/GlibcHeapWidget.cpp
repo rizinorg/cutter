@@ -2,7 +2,7 @@
 #include "ui_GlibcHeapWidget.h"
 #include "core/MainWindow.h"
 #include "QHeaderView"
-#include "dialogs/HeapInfoDialog.h"
+#include "dialogs/GlibcHeapInfoDialog.h"
 
 GlibcHeapWidget::GlibcHeapWidget(MainWindow *main, QWidget *parent)
     : QWidget(parent),
@@ -182,6 +182,6 @@ void GlibcHeapWidget::viewChunkInfo()
             currentIndex.sibling(currentIndex.row(), HeapModel::OffsetColumn).data().toString();
     QString status =
             currentIndex.sibling(currentIndex.row(), HeapModel::StatusColumn).data().toString();
-    HeapInfoDialog heapInfoDialog(Core()->math(offsetString), status, this);
+    GlibcHeapInfoDialog heapInfoDialog(Core()->math(offsetString), status, this);
     heapInfoDialog.exec();
 }

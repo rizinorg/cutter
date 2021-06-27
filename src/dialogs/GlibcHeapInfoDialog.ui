@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>HeapInfoDialog</class>
- <widget class="QDialog" name="HeapInfoDialog">
+ <class>GlibcHeapInfoDialog</class>
+ <widget class="QDialog" name="GlibcHeapInfoDialog">
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -1,10 +1,10 @@
-#include "HeapInfoDialog.h"
+#include "GlibcHeapInfoDialog.h"
 
 #include <utility>
-#include "ui_HeapInfoDialog.h"
+#include "ui_GlibcHeapInfoDialog.h"
 
-HeapInfoDialog::HeapInfoDialog(RVA offset, QString status, QWidget *parent)
-    : QDialog(parent), ui(new Ui::HeapInfoDialog), offset(offset), status(std::move(status))
+GlibcHeapInfoDialog::GlibcHeapInfoDialog(RVA offset, QString status, QWidget *parent)
+    : QDialog(parent), ui(new Ui::GlibcHeapInfoDialog), offset(offset), status(std::move(status))
 {
     ui->setupUi(this);
     this->ui->rbIM->setEnabled(false);
@@ -13,12 +13,12 @@ HeapInfoDialog::HeapInfoDialog(RVA offset, QString status, QWidget *parent)
     updateFields();
 }
 
-HeapInfoDialog::~HeapInfoDialog()
+GlibcHeapInfoDialog::~GlibcHeapInfoDialog()
 {
     delete ui;
 }
 
-void HeapInfoDialog::updateFields()
+void GlibcHeapInfoDialog::updateFields()
 {
     this->setWindowTitle(QString("Chunk @ ") + RAddressString(offset)
                          + QString("(" + status + ")"));

@@ -5,19 +5,19 @@
 #include "core/Cutter.h"
 
 namespace Ui {
-class HeapInfoDialog;
+class GlibcHeapInfoDialog;
 }
 
-class HeapInfoDialog : public QDialog
+class GlibcHeapInfoDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit HeapInfoDialog(RVA offset, QString status, QWidget *parent = nullptr);
-    ~HeapInfoDialog();
+    explicit GlibcHeapInfoDialog(RVA offset, QString status, QWidget *parent = nullptr);
+    ~GlibcHeapInfoDialog();
 
 private:
-    Ui::HeapInfoDialog *ui;
+    Ui::GlibcHeapInfoDialog *ui;
     void updateFields();
     RVA offset;
     QString status;
