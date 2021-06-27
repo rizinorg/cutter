@@ -141,7 +141,7 @@ set(SOURCES
     widgets/AddressableDockWidget.cpp
     dialogs/preferences/AnalOptionsWidget.cpp
     common/DecompilerHighlighter.cpp
-        dialogs/GlibcHeapInfoDialog.cpp
+    dialogs/GlibcHeapInfoDialog.cpp
     widgets/HeapDockWidget.cpp
     widgets/GlibcHeapWidget.cpp
 )
@@ -297,7 +297,7 @@ set(HEADER_FILES
     widgets/AddressableDockWidget.h
     dialogs/preferences/AnalOptionsWidget.h
     common/DecompilerHighlighter.h
-        dialogs/GlibcHeapInfoDialog.h
+    dialogs/GlibcHeapInfoDialog.h
     widgets/HeapDockWidget.h
     widgets/GlibcHeapWidget.h
 )
@@ -366,7 +366,7 @@ set(UI_FILES
     dialogs/LayoutManager.ui
     widgets/RizinGraphWidget.ui
     dialogs/preferences/AnalOptionsWidget.ui
-        dialogs/GlibcHeapInfoDialog.ui
+    dialogs/GlibcHeapInfoDialog.ui
     widgets/HeapDockWidget.ui
     widgets/GlibcHeapWidget.ui
 )
