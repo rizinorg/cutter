@@ -15,8 +15,11 @@ class HeapDockWidget : public CutterDockWidget
 public:
     explicit HeapDockWidget(MainWindow *main);
     ~HeapDockWidget();
+private slots:
+    void onAllocatorSelected(int index);
 
 private:
+    enum Allocator {Glibc = 0, AllocatorCount};
     Ui::HeapDockWidget *ui;
 };
 
