@@ -364,6 +364,19 @@ struct RegisterRefValueDescription
     QString ref;
 };
 
+struct Chunk
+{
+    RVA offset;
+    QString status;
+    int size;
+};
+
+struct Arena
+{
+    RVA offset;
+    QString type;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)

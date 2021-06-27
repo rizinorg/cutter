@@ -1556,6 +1556,69 @@ QJsonDocument CutterCore::getProcessThreads(int pid)
     }
 }
 
+QVector<Chunk> CutterCore::getHeapChunks(RVA arena_addr)
+{
+    CORE_LOCK();
+    QVector<Chunk> chunks_vector;
+    ut64 m_arena;
+
+    if (!arena_addr) {
+        // if arena_addr is zero get base address of main arena
+        RzList *arenas = rz_heap_arenas_list(core);
+        if (arenas->length == 0) {
+            rz_list_free(arenas);
+            return chunks_vector;
+        }
+        m_arena = ((RzArenaListItem *)arenas->head->data)->addr;
+        rz_list_free(arenas);
+    } else {
+        m_arena = arena_addr;
+    }
+
+    // Get chunks using api and store them in a chunks_vector
+    RzList *chunks = rz_heap_chunks_list(core, m_arena);
+    RzListIter *iter;
+    RzHeapChunkListItem *data;
+    CutterRListForeach(chunks, iter, RzHeapChunkListItem, data)
+    {
+        Chunk chunk;
+        chunk.offset = data->addr;
+        chunk.size = (int)data->size;
+        chunk.status = QString(data->status);
+        chunks_vector.append(chunk);
+    }
+
+    rz_list_free(chunks);
+    return chunks_vector;
+}
+
+QVector<Arena> CutterCore::getArenas()
+{
+    CORE_LOCK();
+    QVector<Arena> arena_vector;
+
+    // get arenas using API and store them in arena_vector
+    RzList *arenas = rz_heap_arenas_list(core);
+    RzListIter *iter;
+    RzArenaListItem *data;
+    CutterRListForeach(arenas, iter, RzArenaListItem, data)
+    {
+        Arena arena;
+        arena.offset = data->addr;
+        arena.type = QString(data->type);
+        arena_vector.append(arena);
+    }
+
+    rz_list_free(arenas);
+    return arena_vector;
+}
+
+RzHeapChunkSimple *CutterCore::getHeapChunk(ut64 addr)
+{
+    CORE_LOCK();
+    return rz_heap_chunk(core, addr);
+}
+
 QJsonDocument CutterCore::getChildProcesses(int pid)
 {
     // Return the currently debugged process and it's children
@@ -1803,6 +1866,7 @@ void CutterCore::attachRemote(const QString &uri)
             emit toggleDebugView();
         }
 
+        currentlyRemoteDebugging = true;
         emit codeRebased();
         emit attachedRemote(true);
         emit debugTaskStateChanged();
@@ -1873,6 +1937,7 @@ void CutterCore::stopDebug()
 
     currentlyDebugging = false;
     currentlyTracing = false;
+    currentlyRemoteDebugging = false;
     emit debugTaskStateChanged();
 
     if (currentlyEmulating) {

@@ -71,6 +71,7 @@
 #include "widgets/HexWidget.h"
 #include "widgets/RizinGraphWidget.h"
 #include "widgets/CallGraph.h"
+#include "widgets/HeapDockWidget.h"
 
 // Qt Headers
 #include <QActionGroup>
@@ -374,12 +375,15 @@ void MainWindow::initDocks()
     commentsDock = new CommentsWidget(this);
     stringsDock = new StringsWidget(this);
 
-    QList<CutterDockWidget *> debugDocks = {
-        stackDock = new StackWidget(this),           threadsDock = new ThreadsWidget(this),
-        processesDock = new ProcessesWidget(this),   backtraceDock = new BacktraceWidget(this),
-        registersDock = new RegistersWidget(this),   memoryMapDock = new MemoryMapWidget(this),
-        breakpointDock = new BreakpointWidget(this), registerRefsDock = new RegisterRefsWidget(this)
-    };
+    QList<CutterDockWidget *> debugDocks = { stackDock = new StackWidget(this),
+                                             threadsDock = new ThreadsWidget(this),
+                                             processesDock = new ProcessesWidget(this),
+                                             backtraceDock = new BacktraceWidget(this),
+                                             registersDock = new RegistersWidget(this),
+                                             memoryMapDock = new MemoryMapWidget(this),
+                                             breakpointDock = new BreakpointWidget(this),
+                                             registerRefsDock = new RegisterRefsWidget(this),
+                                             heapDock = new HeapDockWidget(this) };
 
     QList<CutterDockWidget *> infoDocks = {
         classesDock = new ClassesWidget(this),
@@ -709,7 +713,8 @@ RzProjectErr MainWindow::saveProjectAs(bool *canceled)
     QFileDialog fileDialog(this);
     // Append 'rzdb' suffix if it does not exist
     fileDialog.setDefaultSuffix("rzdb");
-    QString file = fileDialog.getSaveFileName(this, tr("Save Project"), projectFile, PROJECT_FILE_FILTER);
+    QString file =
+            fileDialog.getSaveFileName(this, tr("Save Project"), projectFile, PROJECT_FILE_FILTER);
     if (file.isEmpty()) {
         if (canceled) {
             *canceled = true;
@@ -918,6 +923,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(stackDock, backtraceDock);
     tabifyDockWidget(backtraceDock, threadsDock);
     tabifyDockWidget(threadsDock, processesDock);
+    tabifyDockWidget(processesDock, heapDock);
 
     for (auto dock : pluginDocks) {
         dockOnMainArea(dock);
@@ -928,7 +934,7 @@ bool MainWindow::isDebugWidget(QDockWidget *dock) const
 {
     return dock == stackDock || dock == registersDock || dock == backtraceDock
             || dock == threadsDock || dock == memoryMapDock || dock == breakpointDock
-            || dock == processesDock || dock == registerRefsDock;
+            || dock == processesDock || dock == registerRefsDock || dock == heapDock;
 }
 
 bool MainWindow::isExtraMemoryWidget(QDockWidget *dock) const
@@ -1264,9 +1270,13 @@ void MainWindow::showZenDocks()
 
 void MainWindow::showDebugDocks()
 {
-    const QList<QDockWidget *> debugDocks = { functionsDock, stringsDock,   searchDock,
-                                              stackDock,     registersDock, backtraceDock,
-                                              threadsDock,   memoryMapDock, breakpointDock };
+    QList<QDockWidget *> debugDocks = {
+        functionsDock, stringsDock, searchDock,    stackDock,      registersDock,
+        backtraceDock, threadsDock, memoryMapDock, breakpointDock,
+    };
+    if (QSysInfo::kernelType() == "linux" || Core()->currentlyRemoteDebugging) {
+        debugDocks.append(heapDock);
+    }
     functionDockWidthToRestore = functionsDock->maximumWidth();
     functionsDock->setMaximumWidth(200);
     auto registerWidth = qhelpers::forceWidth(registersDock, std::min(500, this->width() / 4));
