@@ -54,7 +54,7 @@ private:
     QVector<Arena> arenas;
     QAction *chunkInfoAction;
     AddressableItemContextMenu addressableItemContextMenu;
-    RefreshDeferrer *refreshDeferrer{};
+    RefreshDeferrer *refreshDeferrer {};
     MainWindow *main;
 };
 

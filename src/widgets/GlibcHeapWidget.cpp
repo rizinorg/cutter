@@ -34,7 +34,8 @@ GlibcHeapWidget::GlibcHeapWidget(MainWindow *main, QWidget *parent)
     connect(chunkInfoAction, &QAction::triggered, this, &GlibcHeapWidget::viewChunkInfo);
     addressableItemContextMenu.addAction(chunkInfoAction);
     addActions(addressableItemContextMenu.actions());
-    //     refreshDeferrer = createRefreshDeferrer([this]() { updateContents(); });
+    refreshDeferrer = dynamic_cast<CutterDockWidget *>(parent)->createRefreshDeferrer(
+            [this]() { updateContents(); });
 }
 
 GlibcHeapWidget::~GlibcHeapWidget()
@@ -69,10 +70,7 @@ void GlibcHeapWidget::onArenaSelected(int index)
 }
 void GlibcHeapWidget::updateContents()
 {
-    //    if (!refreshDeferrer->attemptRefresh(nullptr) || Core()->isDebugTaskInProgress()) {
-    //        return;
-    //    }
-    if (Core()->isDebugTaskInProgress()) {
+    if (!refreshDeferrer->attemptRefresh(nullptr) || Core()->isDebugTaskInProgress()) {
         return;
     }
     updateArenas();
