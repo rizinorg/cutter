@@ -7,12 +7,9 @@ HeapInfoDialog::HeapInfoDialog(RVA offset, QString status, QWidget *parent)
     : QDialog(parent), ui(new Ui::HeapInfoDialog), offset(offset), status(std::move(status))
 {
     ui->setupUi(this);
-    this->ui->rbIM->setAttribute(Qt::WA_TransparentForMouseEvents);
-    this->ui->rbIM->setFocusPolicy(Qt::NoFocus);
-    this->ui->rbNMA->setAttribute(Qt::WA_TransparentForMouseEvents);
-    this->ui->rbNMA->setFocusPolicy(Qt::NoFocus);
-    this->ui->rbPI->setAttribute(Qt::WA_TransparentForMouseEvents);
-    this->ui->rbPI->setFocusPolicy(Qt::NoFocus);
+    this->ui->rbIM->setEnabled(false);
+    this->ui->rbNMA->setEnabled(false);
+    this->ui->rbPI->setEnabled(false);
     updateFields();
 }
 
