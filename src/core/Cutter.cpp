@@ -1932,6 +1932,7 @@ void CutterCore::stopDebug()
 
     currentlyDebugging = false;
     currentlyTracing = false;
+    currentlyRemoteDebugging = false;
     emit debugTaskStateChanged();
 
     if (currentlyEmulating) {
