@@ -12,11 +12,14 @@ GlibcHeapBinsDialog::GlibcHeapBinsDialog(RVA m_state, QWidget *parent)
     ui->viewBins->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->viewBins->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->viewBins->verticalHeader()->hide();
-    binsModel->reload();
     ui->viewBins->resizeColumnsToContents();
-    this->setWindowTitle(tr("Bins info for arena @ ") + RAddressString(m_state));
+
     connect(ui->viewBins->selectionModel(), &QItemSelectionModel::currentChanged, this,
             &GlibcHeapBinsDialog::onCurrentChanged);
+
+    binsModel->reload();
+
+    this->setWindowTitle(tr("Bins info for arena @ ") + RAddressString(m_state));
 }
 
 GlibcHeapBinsDialog::~GlibcHeapBinsDialog()
@@ -34,6 +37,7 @@ void GlibcHeapBinsDialog::onCurrentChanged(const QModelIndex &current, const QMo
 
 void GlibcHeapBinsDialog::setChainInfo(int index)
 {
+    // get chunks for the selected bin and construct chain info string
     RzListIter *iter;
     RzHeapChunkListItem *item;
     RzList *chunks = binsModel->getChunks(index);
@@ -42,10 +46,14 @@ void GlibcHeapBinsDialog::setChainInfo(int index)
     {
         chainInfo += " → " + RAddressString(item->addr);
     }
+
+    // Add bin message at the end of the list
+    // responsible for messages like corrupted list, double free
     QString message = binsModel->getBinMessage(index);
     if (!message.isEmpty()) {
         chainInfo += " " + message;
     }
+
     ui->chainInfoEdit->setPlainText(chainInfo);
 }
 
@@ -76,7 +84,9 @@ QVariant BinsModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= values.count())
         return QVariant();
+
     const auto &item = values.at(index.row());
+
     switch (role) {
     case Qt::DisplayRole:
         switch (index.column()) {
@@ -102,6 +112,7 @@ QVariant BinsModel::data(const QModelIndex &index, int role) const
 QVariant BinsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     Q_UNUSED(orientation);
+
     switch (role) {
     case Qt::DisplayRole:
         switch (section) {
