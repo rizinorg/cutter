@@ -1,5 +1,6 @@
 #include "GlibcHeapBinsDialog.h"
 #include "ui_GlibcHeapBinsDialog.h"
+#include "GlibcHeapInfoDialog.h"
 
 GlibcHeapBinsDialog::GlibcHeapBinsDialog(RVA m_state, QWidget *parent)
     : QDialog(parent),
@@ -16,6 +17,8 @@ GlibcHeapBinsDialog::GlibcHeapBinsDialog(RVA m_state, QWidget *parent)
 
     connect(ui->viewBins->selectionModel(), &QItemSelectionModel::currentChanged, this,
             &GlibcHeapBinsDialog::onCurrentChanged);
+    connect(ui->lineEdit, &QLineEdit::returnPressed, this,
+            &GlibcHeapBinsDialog::showHeapInfoDialog);
 
     binsModel->reload();
     ui->viewBins->resizeColumnsToContents();
@@ -58,6 +61,25 @@ void GlibcHeapBinsDialog::setChainInfo(int index)
     ui->chainInfoEdit->setPlainText(chainInfo);
 }
 
+void GlibcHeapBinsDialog::showHeapInfoDialog()
+{
+    QString str = ui->lineEdit->text();
+    if (!str.isEmpty()) {
+        // summon glibcHeapInfoDialog box with the offset entered
+        RVA offset = Core()->math(str);
+        if (!offset) {
+            ui->lineEdit->setText(QString());
+            return;
+        }
+
+        GlibcHeapInfoDialog dialog(offset, QString(), this);
+        dialog.exec();
+    }
+
+    // clear the lineEdit after showing dialog box
+    ui->lineEdit->clear();
+}
+
 BinsModel::BinsModel(RVA arena_addr, QObject *parent)
     : QAbstractTableModel(parent), arena_addr(arena_addr)
 {
@@ -98,7 +120,7 @@ QVariant BinsModel::data(const QModelIndex &index, int role) const
         case BkColumn:
             return (item->bk == 0) ? tr("N/A") : RAddressString(item->bk);
         case TypeColumn:
-            return QString(item->type);
+            return tr(item->type);
         case CountColumn:
             return rz_list_length(item->chunks);
         case SizeColumn:

@@ -13,8 +13,13 @@ GlibcHeapInfoDialog::GlibcHeapInfoDialog(RVA offset, QString status, QWidget *pa
     this->ui->rbNMA->setEnabled(false);
     this->ui->rbPI->setEnabled(false);
 
-    this->setWindowTitle(QString("Chunk @ ") + RAddressString(offset)
-                         + QString("(" + this->status + ")"));
+    // set window title
+    QString windowTitle = tr("Chunk @ ") + RAddressString(offset);
+    if (!this->status.isEmpty()) {
+        windowTitle += QString("(" + this->status + ")");
+    }
+    this->setWindowTitle(windowTitle);
+
     updateFields();
 }
 

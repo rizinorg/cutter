@@ -46,6 +46,8 @@ public:
     ~GlibcHeapBinsDialog();
     void onCurrentChanged(const QModelIndex &current, const QModelIndex &prev);
     void setChainInfo(int index);
+private slots:
+    void showHeapInfoDialog();
 
 private:
     Ui::GlibcHeapBinsDialog *ui;
