@@ -132,6 +132,24 @@ QVariant BinsModel::headerData(int section, Qt::Orientation orientation, int rol
         default:
             return QVariant();
         }
+
+    case Qt::ToolTipRole:
+        switch (section) {
+        case BinNumColumn:
+            return tr("Bin number in NBINS or fastbinsY array");
+        case FdColumn:
+            return tr("Pointer to first chunk of the bin");
+        case BkColumn:
+            return tr("Pointer to last chunk of the bin");
+        case TypeColumn:
+            return tr("Type of bin");
+        case CountColumn:
+            return tr("Number of chunks in the bin");
+        case SizeColumn:
+            return tr("Size of all chunks in the bin");
+        default:
+            return QVariant();
+        }
     default:
         return QVariant();
     }
