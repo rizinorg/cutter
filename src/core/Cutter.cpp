@@ -1629,7 +1629,7 @@ QVector<RzHeapBin *> CutterCore::getHeapBins(ut64 arena_addr)
         return bins_vector;
     }
 
-    // get chunks for small, large, unsorted bins
+    // get small, large, unsorted bins
     for (int i = 0; i <= NBINS - 2; i++) {
         RzHeapBin *bin = rz_heap_bin_content(core, arena, i);
         if (!bin) {
@@ -1641,7 +1641,7 @@ QVector<RzHeapBin *> CutterCore::getHeapBins(ut64 arena_addr)
         }
         bins_vector.append(bin);
     }
-    // get chunks for fastbins
+    // get fastbins
     for (int i = 0; i < 10; i++) {
         RzHeapBin *bin = rz_heap_fastbin_content(core, arena, i);
         if (!bin) {

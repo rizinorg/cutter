@@ -18,6 +18,7 @@ GlibcHeapBinsDialog::GlibcHeapBinsDialog(RVA m_state, QWidget *parent)
             &GlibcHeapBinsDialog::onCurrentChanged);
 
     binsModel->reload();
+    ui->viewBins->resizeColumnsToContents();
 
     this->setWindowTitle(tr("Bins info for arena @ ") + RAddressString(m_state));
 }
@@ -119,15 +120,15 @@ QVariant BinsModel::headerData(int section, Qt::Orientation orientation, int rol
         case BinNumColumn:
             return tr("#");
         case FdColumn:
-            return tr("fd");
+            return tr("Fd");
         case BkColumn:
-            return tr("bk");
+            return tr("Bk");
         case TypeColumn:
-            return tr("type");
+            return tr("Type");
         case CountColumn:
-            return tr("chunks cnt");
+            return tr("Chunks count");
         case SizeColumn:
-            return tr("chunks size");
+            return tr("Chunks size");
         default:
             return QVariant();
         }
