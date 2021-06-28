@@ -77,13 +77,15 @@ QVariant BinsModel::data(const QModelIndex &index, int role) const
         case BinNumColumn:
             return item->bin_num;
         case FdColumn:
-            return RAddressString(item->fd);
+            return (item->fd == 0) ? tr("N/A") : RAddressString(item->fd);
         case BkColumn:
-            return RAddressString(item->bk);
+            return (item->bk == 0) ? tr("N/A") : RAddressString(item->bk);
         case TypeColumn:
             return QString(item->type);
         case CountColumn:
             return rz_list_length(item->chunks);
+        case SizeColumn:
+            return (item->size == 0) ? tr("N/A") : RHexString(item->size);
         default:
             return QVariant();
         }
@@ -106,7 +108,9 @@ QVariant BinsModel::headerData(int section, Qt::Orientation orientation, int rol
         case TypeColumn:
             return tr("type");
         case CountColumn:
-            return tr("#chunks");
+            return tr("chunks cnt");
+        case SizeColumn:
+            return tr("chunks size");
         default:
             return QVariant();
         }

@@ -14,7 +14,15 @@ class BinsModel : public QAbstractTableModel
     Q_OBJECT
 public:
     explicit BinsModel(RVA arena_addr, QObject *parent = nullptr);
-    enum Column { TypeColumn = 0, BinNumColumn, FdColumn, BkColumn, CountColumn, ColumnCount };
+    enum Column {
+        TypeColumn = 0,
+        BinNumColumn,
+        FdColumn,
+        BkColumn,
+        CountColumn,
+        SizeColumn,
+        ColumnCount
+    };
     void reload();
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;
