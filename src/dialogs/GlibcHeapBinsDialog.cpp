@@ -31,6 +31,7 @@ void GlibcHeapBinsDialog::onCurrentChanged(const QModelIndex &current, const QMo
     auto currentIndex = ui->viewBins->selectionModel()->currentIndex();
     setChainInfo(currentIndex.row());
 }
+
 void GlibcHeapBinsDialog::setChainInfo(int index)
 {
     RzListIter *iter;
@@ -47,10 +48,12 @@ void GlibcHeapBinsDialog::setChainInfo(int index)
     }
     ui->chainInfoEdit->setPlainText(chainInfo);
 }
+
 BinsModel::BinsModel(RVA arena_addr, QObject *parent)
     : QAbstractTableModel(parent), arena_addr(arena_addr)
 {
 }
+
 void BinsModel::reload()
 {
     beginResetModel();
@@ -58,14 +61,17 @@ void BinsModel::reload()
     values = Core()->getHeapBins(arena_addr);
     endResetModel();
 }
+
 int BinsModel::rowCount(const QModelIndex &) const
 {
     return values.size();
 }
+
 int BinsModel::columnCount(const QModelIndex &) const
 {
     return ColumnCount;
 }
+
 QVariant BinsModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= values.count())
@@ -125,10 +131,12 @@ void BinsModel::clearData()
         rz_heap_bin_free_64(item);
     }
 }
+
 RzList *BinsModel::getChunks(int index)
 {
     return values[index]->chunks;
 }
+
 QString BinsModel::getBinMessage(int index)
 {
     if (values[index]->message) {
