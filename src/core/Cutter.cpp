@@ -1619,6 +1619,41 @@ RzHeapChunkSimple *CutterCore::getHeapChunk(ut64 addr)
     return rz_heap_chunk(core, addr);
 }
 
+QVector<RzHeapBin *> CutterCore::getHeapBins(ut64 arena_addr)
+{
+    CORE_LOCK();
+    QVector<RzHeapBin *> bins_vector;
+    MallocState *arena = rz_heap_get_arena(core, arena_addr);
+    if (!arena) {
+        return bins_vector;
+    }
+    // small large unsorted
+    for (int i = 0; i <= NBINS - 2; i++) {
+        RzHeapBin *bin = rz_heap_bin_content(core, arena, i);
+        if (!bin) {
+            continue;
+        }
+        if (!rz_list_length(bin->chunks)) {
+            rz_heap_bin_free_64(bin);
+            continue;
+        }
+        bins_vector.append(bin);
+    }
+    // fastbins
+    for (int i = 0; i < 10; i++) {
+        RzHeapBin *bin = rz_heap_fastbin_content(core, arena, i);
+        if (!bin) {
+            continue;
+        }
+        if (!rz_list_length(bin->chunks)) {
+            rz_heap_bin_free_64(bin);
+            continue;
+        }
+        bins_vector.append(bin);
+    }
+    return bins_vector;
+}
+
 QJsonDocument CutterCore::getChildProcesses(int pid)
 {
     // Return the currently debugged process and it's children
