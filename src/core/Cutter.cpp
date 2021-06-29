@@ -2939,6 +2939,9 @@ QList<RelocDescription> CutterCore::getAllRelocs()
 
     if (core && core->bin && core->bin->cur && core->bin->cur->o) {
         auto relocs = rz_bin_object_patch_relocs(core->bin->cur, core->bin->cur->o);
+        if (!relocs) {
+            return ret;
+        }
         for (size_t i = 0; i < relocs->relocs_count; i++) {
             RzBinReloc *reloc = relocs->relocs[i];
             RelocDescription desc;
