@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QAbstractTableModel>
 #include "core/Cutter.h"
+#include <MainWindow.h>
+#include <HeapBinsGraphView.h>
 
 namespace Ui {
 class GlibcHeapBinsDialog;
@@ -42,10 +44,11 @@ class GlibcHeapBinsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit GlibcHeapBinsDialog(RVA m_state, QWidget *parent = nullptr);
+    explicit GlibcHeapBinsDialog(RVA i, MainWindow *main, QWidget *parent);
     ~GlibcHeapBinsDialog();
     void onCurrentChanged(const QModelIndex &current, const QModelIndex &prev);
     void setChainInfo(int index);
+    void setGraphView(int index);
 private slots:
     void showHeapInfoDialog();
 
@@ -53,6 +56,8 @@ private:
     Ui::GlibcHeapBinsDialog *ui;
     RVA m_state;
     BinsModel *binsModel {};
+    HeapBinsGraphView *graphView;
+    MainWindow *main;
 };
 
 #endif // GLIBCHEAPBINSDIALOG_H

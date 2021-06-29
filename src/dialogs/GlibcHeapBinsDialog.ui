@@ -4,10 +4,10 @@
  <widget class="QDialog" name="GlibcHeapBinsDialog">
   <property name="geometry">
    <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>612</width>
-    <height>438</height>
+       <x>0</x>
+       <y>0</y>
+       <width>883</width>
+       <height>544</height>
    </rect>
   </property>
   <property name="windowTitle">

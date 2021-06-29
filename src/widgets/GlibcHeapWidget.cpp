@@ -211,6 +211,6 @@ void GlibcHeapWidget::viewChunkInfo()
 
 void GlibcHeapWidget::viewBinInfo()
 {
-    GlibcHeapBinsDialog heapBinsDialog(modelHeap->arena_addr, this);
+    GlibcHeapBinsDialog heapBinsDialog(modelHeap->arena_addr, main, this);
     heapBinsDialog.exec();
 }

@@ -1631,7 +1631,7 @@ QVector<RzHeapBin *> CutterCore::getHeapBins(ut64 arena_addr)
 
     // get small, large, unsorted bins
     for (int i = 0; i <= NBINS - 2; i++) {
-        RzHeapBin *bin = rz_heap_bin_content(core, arena, i);
+        RzHeapBin *bin = rz_heap_bin_content(core, arena, i, arena_addr);
         if (!bin) {
             continue;
         }

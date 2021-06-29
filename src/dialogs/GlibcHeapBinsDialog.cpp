@@ -3,11 +3,12 @@
 #include "ui_GlibcHeapBinsDialog.h"
 #include "GlibcHeapInfoDialog.h"
 
-GlibcHeapBinsDialog::GlibcHeapBinsDialog(RVA m_state, QWidget *parent)
+GlibcHeapBinsDialog::GlibcHeapBinsDialog(RVA m_state, MainWindow *main, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::GlibcHeapBinsDialog),
       m_state(m_state),
-      binsModel(new BinsModel(m_state, this))
+      binsModel(new BinsModel(m_state, this)),
+      main(main)
 {
     ui->setupUi(this);
     ui->viewBins->setModel(binsModel);
@@ -23,8 +24,7 @@ GlibcHeapBinsDialog::GlibcHeapBinsDialog(RVA m_state, QWidget *parent)
 
     binsModel->reload();
     ui->viewBins->resizeColumnsToContents();
-    ui->horizontalLayout->addWidget(new HeapBinsGraphView(this, binsModel->values[1]));
-
+    graphView = nullptr;
     this->setWindowTitle(tr("Bins info for arena @ ") + RAddressString(m_state));
 }
 
@@ -39,6 +39,7 @@ void GlibcHeapBinsDialog::onCurrentChanged(const QModelIndex &current, const QMo
     Q_UNUSED(prev);
     auto currentIndex = ui->viewBins->selectionModel()->currentIndex();
     setChainInfo(currentIndex.row());
+    setGraphView(currentIndex.row());
 }
 
 void GlibcHeapBinsDialog::setChainInfo(int index)
@@ -80,6 +81,16 @@ void GlibcHeapBinsDialog::showHeapInfoDialog()
 
     // clear the lineEdit after showing dialog box
     ui->lineEdit->clear();
+}
+void GlibcHeapBinsDialog::setGraphView(int index)
+{
+    if (graphView) {
+        ui->horizontalLayout->removeWidget(graphView);
+        delete graphView;
+    }
+    graphView = new HeapBinsGraphView(this, binsModel->values[index], main);
+    ui->horizontalLayout->addWidget(graphView);
+    graphView->refreshView();
 }
 
 BinsModel::BinsModel(RVA arena_addr, QObject *parent)
