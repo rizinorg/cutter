@@ -32,9 +32,9 @@ public:
     RVA arena_addr = 0;
     RzList *getChunks(int index);
     QString getBinMessage(int index);
+    QVector<RzHeapBin *> values;
 
 private:
-    QVector<RzHeapBin *> values;
 };
 
 class GlibcHeapBinsDialog : public QDialog

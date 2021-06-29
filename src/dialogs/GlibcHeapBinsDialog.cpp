@@ -1,3 +1,4 @@
+#include <HeapBinsGraphView.h>
 #include "GlibcHeapBinsDialog.h"
 #include "ui_GlibcHeapBinsDialog.h"
 #include "GlibcHeapInfoDialog.h"
@@ -22,6 +23,7 @@ GlibcHeapBinsDialog::GlibcHeapBinsDialog(RVA m_state, QWidget *parent)
 
     binsModel->reload();
     ui->viewBins->resizeColumnsToContents();
+    ui->horizontalLayout->addWidget(new HeapBinsGraphView(this, binsModel->values[1]));
 
     this->setWindowTitle(tr("Bins info for arena @ ") + RAddressString(m_state));
 }

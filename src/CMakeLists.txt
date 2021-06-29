@@ -134,18 +134,19 @@ set(SOURCES
     common/CutterLayout.cpp
     widgets/GraphHorizontalAdapter.cpp
     common/ResourcePaths.cpp
-    widgets/CutterGraphView.cpp
-    widgets/SimpleTextGraphView.cpp
-    widgets/RizinGraphWidget.cpp
-    widgets/CallGraph.cpp
-    widgets/AddressableDockWidget.cpp
-    dialogs/preferences/AnalOptionsWidget.cpp
-    common/DecompilerHighlighter.cpp
-    dialogs/GlibcHeapInfoDialog.cpp
-    widgets/HeapDockWidget.cpp
-    widgets/GlibcHeapWidget.cpp
+        widgets/CutterGraphView.cpp
+        widgets/SimpleTextGraphView.cpp
+        widgets/RizinGraphWidget.cpp
+        widgets/CallGraph.cpp
+        widgets/AddressableDockWidget.cpp
+        dialogs/preferences/AnalOptionsWidget.cpp
+        common/DecompilerHighlighter.cpp
+        dialogs/GlibcHeapInfoDialog.cpp
+        widgets/HeapDockWidget.cpp
+        widgets/GlibcHeapWidget.cpp
         dialogs/GlibcHeapBinsDialog.cpp
-)
+        widgets/HeapBinsGraphView.cpp
+        )
 set(HEADER_FILES
     core/Cutter.h
     core/CutterCommon.h
@@ -290,19 +291,20 @@ set(HEADER_FILES
     common/BinaryTrees.h
     common/LinkedListPool.h
     widgets/GraphHorizontalAdapter.h
-    common/ResourcePaths.h
-    widgets/CutterGraphView.h
-    widgets/SimpleTextGraphView.h
-    widgets/RizinGraphWidget.h
-    widgets/CallGraph.h
-    widgets/AddressableDockWidget.h
-    dialogs/preferences/AnalOptionsWidget.h
-    common/DecompilerHighlighter.h
-    dialogs/GlibcHeapInfoDialog.h
-    widgets/HeapDockWidget.h
+        common/ResourcePaths.h
+        widgets/CutterGraphView.h
+        widgets/SimpleTextGraphView.h
+        widgets/RizinGraphWidget.h
+        widgets/CallGraph.h
+        widgets/AddressableDockWidget.h
+        dialogs/preferences/AnalOptionsWidget.h
+        common/DecompilerHighlighter.h
+        dialogs/GlibcHeapInfoDialog.h
+        widgets/HeapDockWidget.h
         widgets/GlibcHeapWidget.h
         dialogs/GlibcHeapBinsDialog.h
-)
+        widgets/HeapBinsGraphView.h
+        )
 set(UI_FILES
     dialogs/AboutDialog.ui
     dialogs/EditStringDialog.ui
@@ -360,19 +362,19 @@ set(UI_FILES
     dialogs/WelcomeDialog.ui
     dialogs/EditMethodDialog.ui
     dialogs/TypesInteractionDialog.ui
-    widgets/SdbWidget.ui
-    dialogs/LinkTypeDialog.ui
-    widgets/ColorPicker.ui
-    dialogs/preferences/ColorThemeEditDialog.ui
-    widgets/ListDockWidget.ui
-    dialogs/LayoutManager.ui
-    widgets/RizinGraphWidget.ui
-    dialogs/preferences/AnalOptionsWidget.ui
-    dialogs/GlibcHeapInfoDialog.ui
-    widgets/HeapDockWidget.ui
+        widgets/SdbWidget.ui
+        dialogs/LinkTypeDialog.ui
+        widgets/ColorPicker.ui
+        dialogs/preferences/ColorThemeEditDialog.ui
+        widgets/ListDockWidget.ui
+        dialogs/LayoutManager.ui
+        widgets/RizinGraphWidget.ui
+        dialogs/preferences/AnalOptionsWidget.ui
+        dialogs/GlibcHeapInfoDialog.ui
+        widgets/HeapDockWidget.ui
         widgets/GlibcHeapWidget.ui
         dialogs/GlibcHeapBinsDialog.ui
-)
+        )
 set(QRC_FILES
     resources.qrc
     themes/native/native.qrc
