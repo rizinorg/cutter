@@ -14,6 +14,7 @@ GlibcHeapWidget::GlibcHeapWidget(MainWindow *main, QWidget *parent)
     ui->setupUi(this);
     viewHeap = ui->tableView;
     arenaSelectorView = ui->arenaSelector;
+
     viewHeap->setFont(Config()->getFont());
     viewHeap->setModel(modelHeap);
     viewHeap->verticalHeader()->hide();
@@ -21,9 +22,6 @@ GlibcHeapWidget::GlibcHeapWidget(MainWindow *main, QWidget *parent)
     viewHeap->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     viewHeap->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     viewHeap->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    ui->verticalLayout->addWidget(viewHeap);
-    ui->verticalLayout->addWidget(arenaSelectorView);
 
     chunkInfoAction = new QAction(tr("Detailed Chunk Info"), this);
     binInfoAction = new QAction(tr("Bins Info"), this);
