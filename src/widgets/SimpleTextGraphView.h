@@ -55,7 +55,8 @@ protected:
      * Needs to cleanup the old graph and use addBlock() to create new nodes.
      */
     virtual void loadCurrentGraph() = 0;
-    void addBlock(GraphLayout::GraphBlock block, const QString &content, RVA address = RVA_INVALID);
+    virtual void addBlock(GraphLayout::GraphBlock block, const QString &content,
+                          RVA address = RVA_INVALID);
     /**
      * @brief Enable or disable address interactions for nodes.
      * If enabled node addresses need to be specified when calling addBlock(). Adds address related

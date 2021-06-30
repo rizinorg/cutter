@@ -22,6 +22,9 @@ public:
 
 protected:
     void loadCurrentGraph() override;
+    void drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive) override;
+    void addBlock(GraphLayout::GraphBlock block, const QString &text,
+                  RVA address = RVA_INVALID) override;
 
 private:
     RzHeapBin *heapBin;

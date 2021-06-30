@@ -20,7 +20,10 @@ void HeapBinsGraphView::loadCurrentGraph()
     RzHeapChunkListItem *item;
     QVector<GraphHeapChunk> chunks;
 
-    // store chunks in a vector from the list for easy access
+    // if the bin is a fastbin or not
+    bool fast = QString(heapBin->type) == QString("Fast");
+
+    // store info about the chunks in a vector for easy access
     CutterRListForeach(heapBin->chunks, iter, RzHeapChunkListItem, item)
     {
         GraphHeapChunk graphHeapChunk;
@@ -29,8 +32,13 @@ void HeapBinsGraphView::loadCurrentGraph()
         if (!chunkInfo) {
             break;
         }
-        QString content = "Base: " + RAddressString(chunkInfo->addr)
-                + " Size: " + RHexString(chunkInfo->size);
+        QString content = "Chunk @ " + RAddressString(chunkInfo->addr) + "\nSize: "
+                + RHexString(chunkInfo->size) + "\nFd: " + RAddressString(chunkInfo->fd);
+
+        // fastbins lack bk pointer
+        if (!fast) {
+            content += "\nBk: " + RAddressString(chunkInfo->bk);
+        }
         graphHeapChunk.fd = chunkInfo->fd;
         graphHeapChunk.bk = chunkInfo->bk;
         graphHeapChunk.content = content;
@@ -38,7 +46,7 @@ void HeapBinsGraphView::loadCurrentGraph()
         free(chunkInfo);
     }
 
-    bool fast = QString(heapBin->type) == QString("Fast");
+    // fast bins have single linked list and other bins have double linked list
     if (fast) {
         display_single_linked_list(chunks);
     } else {
@@ -51,20 +59,22 @@ void HeapBinsGraphView::loadCurrentGraph()
 
 void HeapBinsGraphView::display_single_linked_list(QVector<GraphHeapChunk> chunks)
 {
+    // add the graph block for the bin
     GraphLayout::GraphBlock gbBin;
     gbBin.entry = 1;
     gbBin.edges.emplace_back(heapBin->fd);
     QString content = tr(heapBin->type) + tr("bin ") + QString::number(heapBin->bin_num);
+    content += "\nFd: " + RAddressString(heapBin->fd);
     addBlock(gbBin, content);
 
-    // add the blocks for the chunks
+    // add the graph blocks for the chunks
     for (int i = 0; i < chunks.size(); i++) {
         GraphLayout::GraphBlock gbChunk;
         gbChunk.entry = chunks[i].addr;
         gbChunk.edges.emplace_back(chunks[i].fd);
 
         if (i == chunks.size() - 1 && heapBin->message) {
-            chunks[i].content += " " + QString(heapBin->message);
+            chunks[i].content += "\n" + QString(heapBin->message);
         }
 
         addBlock(gbChunk, chunks[i].content, chunks[i].addr);
@@ -80,13 +90,16 @@ void HeapBinsGraphView::display_single_linked_list(QVector<GraphHeapChunk> chunk
 
 void HeapBinsGraphView::display_double_linked_list(QVector<GraphHeapChunk> chunks)
 {
-    // add the block for the bin
+    // add the graph block for the bin
     GraphLayout::GraphBlock gbBin;
     gbBin.entry = heapBin->addr;
     gbBin.edges.emplace_back(heapBin->fd);
     gbBin.edges.emplace_back(heapBin->bk);
     QString content = tr(heapBin->type) + tr("bin ") + QString::number(heapBin->bin_num) + tr(" @ ")
             + RAddressString(heapBin->addr);
+    content += "\nFd: " + RAddressString(heapBin->fd);
+    content += "\nBk: " + RAddressString(heapBin->bk);
+
     addBlock(gbBin, content, heapBin->addr);
 
     // add the blocks for the chunks
@@ -98,9 +111,73 @@ void HeapBinsGraphView::display_double_linked_list(QVector<GraphHeapChunk> chunk
 
         // if last chunk and there is message then show it in the chunk
         if (i == chunks.size() - 1 && heapBin->message) {
-            chunks[i].content += " " + QString(heapBin->message);
+            chunks[i].content += "\n" + QString(heapBin->message);
         }
 
         addBlock(gbChunk, chunks[i].content, chunks[i].addr);
     }
+}
+
+// overriding this function from SimpleTextGraphView to support multiline text in graph block
+// most code is shared from that implementation
+void HeapBinsGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive)
+{
+    QRectF blockRect(block.x, block.y, block.width, block.height);
+
+    p.setPen(Qt::black);
+    p.setBrush(Qt::gray);
+    p.setFont(Config()->getFont());
+    p.drawRect(blockRect);
+
+    // Render node
+    auto &content = blockContent[block.entry];
+
+    p.setPen(QColor(0, 0, 0, 0));
+    p.setBrush(QColor(0, 0, 0, 100));
+    p.setPen(QPen(graphNodeColor, 1));
+
+    bool blockSelected = interactive && (block.entry == selectedBlock);
+    if (blockSelected) {
+        p.setBrush(disassemblySelectedBackgroundColor);
+    } else {
+        p.setBrush(disassemblyBackgroundColor);
+    }
+    // Draw basic block background
+    p.drawRect(blockRect);
+
+    // Stop rendering text when it's too small
+    auto transform = p.combinedTransform();
+    QRect screenChar = transform.mapRect(QRect(0, 0, ACharWidth, charHeight));
+
+    if (screenChar.width() < Config()->getGraphMinFontSize()) {
+        return;
+    }
+
+    p.setPen(palette().color(QPalette::WindowText));
+
+    // Render node text
+    // the only change from SimpleTextGraphView implementation
+    p.drawText(blockRect, Qt::AlignCenter, content.text);
+}
+
+// overriding this function to support multiline text in graph blocks
+void HeapBinsGraphView::addBlock(GraphLayout::GraphBlock block, const QString &text, RVA address)
+{
+    auto &content = blockContent[block.entry];
+    content.text = text;
+    content.address = address;
+
+    int height = 1;
+    double width = 0;
+
+    // split text into different lines
+    auto lines = text.split(QRegExp("[\n]"), QString::SkipEmptyParts);
+
+    // width of the block is the maximum width of a line
+    for (QString &line : lines) {
+        width = std::max(mFontMetrics->width(line), width);
+    }
+    block.width = static_cast<int>(width + padding);
+    block.height = (height * charHeight) * lines.length() + padding;
+    GraphView::addBlock(std::move(block));
 }
