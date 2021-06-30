@@ -8,6 +8,7 @@
 HeapBinsGraphView::HeapBinsGraphView(QWidget *parent, RzHeapBin *bin, MainWindow *main)
     : SimpleTextGraphView(parent, main), heapBin(bin)
 {
+    enableAddresses(true);
 }
 
 void HeapBinsGraphView::loadCurrentGraph()
@@ -53,7 +54,8 @@ void HeapBinsGraphView::display_single_linked_list(QVector<GraphHeapChunk> chunk
     GraphLayout::GraphBlock gbBin;
     gbBin.entry = 1;
     gbBin.edges.emplace_back(heapBin->fd);
-    addBlock(gbBin, tr(heapBin->type) + tr("bin ") + QString::number(heapBin->bin_num));
+    QString content = tr(heapBin->type) + tr("bin ") + QString::number(heapBin->bin_num);
+    addBlock(gbBin, content);
 
     // add the blocks for the chunks
     for (int i = 0; i < chunks.size(); i++) {
@@ -65,14 +67,14 @@ void HeapBinsGraphView::display_single_linked_list(QVector<GraphHeapChunk> chunk
             chunks[i].content += " " + QString(heapBin->message);
         }
 
-        addBlock(gbChunk, chunks[i].content);
+        addBlock(gbChunk, chunks[i].content, chunks[i].addr);
     }
 
     // add the END block if no message
     if (!heapBin->message) {
         GraphLayout::GraphBlock gbEnd;
         gbEnd.entry = 0;
-        addBlock(gbEnd, "END");
+        addBlock(gbEnd, "END", 0);
     }
 }
 
@@ -83,10 +85,9 @@ void HeapBinsGraphView::display_double_linked_list(QVector<GraphHeapChunk> chunk
     gbBin.entry = heapBin->addr;
     gbBin.edges.emplace_back(heapBin->fd);
     gbBin.edges.emplace_back(heapBin->bk);
-
-    addBlock(gbBin,
-             tr(heapBin->type) + tr("bin ") + QString::number(heapBin->bin_num) + tr(" @ ")
-                     + RAddressString(heapBin->addr));
+    QString content = tr(heapBin->type) + tr("bin ") + QString::number(heapBin->bin_num) + tr(" @ ")
+            + RAddressString(heapBin->addr);
+    addBlock(gbBin, content, heapBin->addr);
 
     // add the blocks for the chunks
     for (int i = 0; i < chunks.size(); i++) {
@@ -100,6 +101,6 @@ void HeapBinsGraphView::display_double_linked_list(QVector<GraphHeapChunk> chunk
             chunks[i].content += " " + QString(heapBin->message);
         }
 
-        addBlock(gbChunk, chunks[i].content);
+        addBlock(gbChunk, chunks[i].content, chunks[i].addr);
     }
 }
