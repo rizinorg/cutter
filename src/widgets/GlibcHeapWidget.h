@@ -49,8 +49,8 @@ private:
     void updateArenas();
     void updateChunks();
     Ui::GlibcHeapWidget *ui;
-    QTableView *viewHeap = new QTableView(this);
-    QComboBox *arenaSelectorView = new QComboBox(this);
+    QTableView *viewHeap;
+    QComboBox *arenaSelectorView;
     GlibcHeapModel *modelHeap = new GlibcHeapModel(this);
     QVector<Arena> arenas;
     QAction *chunkInfoAction;

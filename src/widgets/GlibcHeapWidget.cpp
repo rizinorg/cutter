@@ -12,7 +12,8 @@ GlibcHeapWidget::GlibcHeapWidget(MainWindow *main, QWidget *parent)
       main(main)
 {
     ui->setupUi(this);
-
+    viewHeap = ui->tableView;
+    arenaSelectorView = ui->arenaSelector;
     viewHeap->setFont(Config()->getFont());
     viewHeap->setModel(modelHeap);
     viewHeap->verticalHeader()->hide();
@@ -38,6 +39,7 @@ GlibcHeapWidget::GlibcHeapWidget(MainWindow *main, QWidget *parent)
             &GlibcHeapWidget::onCurrentChanged);
     connect(chunkInfoAction, &QAction::triggered, this, &GlibcHeapWidget::viewChunkInfo);
     connect(binInfoAction, &QAction::triggered, this, &GlibcHeapWidget::viewBinInfo);
+    connect(ui->binsButton, &QPushButton::clicked, this, &GlibcHeapWidget::viewBinInfo);
 
     addressableItemContextMenu.addAction(chunkInfoAction);
     addressableItemContextMenu.addAction(binInfoAction);
