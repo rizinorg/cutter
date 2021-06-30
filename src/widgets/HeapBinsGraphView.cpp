@@ -60,15 +60,18 @@ void HeapBinsGraphView::display_single_linked_list(QVector<GraphHeapChunk> chunk
         GraphLayout::GraphBlock gbChunk;
         gbChunk.entry = chunks[i].addr;
         gbChunk.edges.emplace_back(chunks[i].fd);
+
+        if (i == chunks.size() - 1 && heapBin->message) {
+            chunks[i].content += " " + QString(heapBin->message);
+        }
+
         addBlock(gbChunk, chunks[i].content);
     }
 
-    // add the END or message block
-    GraphLayout::GraphBlock gbEnd;
-    gbEnd.entry = 0;
-    if (heapBin->message) {
-        addBlock(gbEnd, heapBin->message);
-    } else {
+    // add the END block if no message
+    if (!heapBin->message) {
+        GraphLayout::GraphBlock gbEnd;
+        gbEnd.entry = 0;
         addBlock(gbEnd, "END");
     }
 }
@@ -91,13 +94,12 @@ void HeapBinsGraphView::display_double_linked_list(QVector<GraphHeapChunk> chunk
         gbChunk.entry = chunks[i].addr;
         gbChunk.edges.emplace_back(chunks[i].fd);
         gbChunk.edges.emplace_back(chunks[i].bk);
-        addBlock(gbChunk, chunks[i].content);
-    }
 
-    // add the block for the end message if any
-    if (heapBin->message) {
-        GraphLayout::GraphBlock gbEnd;
-        gbEnd.entry = -1;
-        addBlock(gbEnd, heapBin->message);
+        // if last chunk and there is message then show it in the chunk
+        if (i == chunks.size() - 1 && heapBin->message) {
+            chunks[i].content += " " + QString(heapBin->message);
+        }
+
+        addBlock(gbChunk, chunks[i].content);
     }
 }
