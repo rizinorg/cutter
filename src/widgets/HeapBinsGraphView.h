@@ -1,7 +1,3 @@
-//
-// Created by Pulak Malhotra on 29/06/21.
-//
-
 #ifndef CUTTER_HEAPBINSGRAPHVIEW_H
 #define CUTTER_HEAPBINSGRAPHVIEW_H
 #include "SimpleTextGraphView.h"

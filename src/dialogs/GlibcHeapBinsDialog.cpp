@@ -78,10 +78,8 @@ void GlibcHeapBinsDialog::showHeapInfoDialog()
         GlibcHeapInfoDialog dialog(offset, QString(), this);
         dialog.exec();
     }
-
-    // clear the lineEdit after showing dialog box
-    ui->lineEdit->clear();
 }
+
 void GlibcHeapBinsDialog::setGraphView(int index)
 {
     if (graphView) {

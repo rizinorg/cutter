@@ -1,7 +1,3 @@
-//
-// Created by Pulak Malhotra on 29/06/21.
-//
-
 #include <Configuration.h>
 #include "HeapBinsGraphView.h"
 
