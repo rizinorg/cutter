@@ -1,10 +1,24 @@
 #include <Configuration.h>
+#include <dialogs/GlibcHeapInfoDialog.h>
 #include "HeapBinsGraphView.h"
 
 HeapBinsGraphView::HeapBinsGraphView(QWidget *parent, RzHeapBin *bin, MainWindow *main)
     : SimpleTextGraphView(parent, main), heapBin(bin)
 {
+
+    chunkInfoAction = new QAction(tr("Detailed Chunk Info"), this);
+    addressableItemContextMenu.addAction(chunkInfoAction);
+    addAction(chunkInfoAction);
+
+    connect(chunkInfoAction, &QAction::triggered, this, &HeapBinsGraphView::viewChunkInfo);
+
     enableAddresses(true);
+}
+
+void HeapBinsGraphView::viewChunkInfo()
+{
+    GlibcHeapInfoDialog heapInfoDialog(selectedBlock, QString(), this);
+    heapInfoDialog.exec();
 }
 
 void HeapBinsGraphView::loadCurrentGraph()
@@ -176,4 +190,26 @@ void HeapBinsGraphView::addBlock(GraphLayout::GraphBlock block, const QString &t
     block.width = static_cast<int>(width + padding);
     block.height = (height * charHeight) * lines.length() + padding;
     GraphView::addBlock(std::move(block));
+}
+
+// overriding to support detailed heap info action in context menu
+void HeapBinsGraphView::blockContextMenuRequested(GraphView::GraphBlock &block,
+                                                  QContextMenuEvent *event, QPoint /*pos*/)
+{
+    if (haveAddresses) {
+        const auto &content = blockContent[block.entry];
+        selectedBlock = content.address;
+        addressableItemContextMenu.setTarget(content.address, content.text);
+        QPoint pos = event->globalPos();
+
+        if (event->reason() != QContextMenuEvent::Mouse) {
+            QPoint blockPosition(block.x + block.width / 2, block.y + block.height / 2);
+            blockPosition = logicalToViewCoordinates(blockPosition);
+            if (viewport()->rect().contains(blockPosition)) {
+                pos = mapToGlobal(blockPosition);
+            }
+        }
+        addressableItemContextMenu.exec(pos);
+        event->accept();
+    }
 }

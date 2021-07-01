@@ -21,11 +21,18 @@ protected:
     void drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive) override;
     void addBlock(GraphLayout::GraphBlock block, const QString &text,
                   RVA address = RVA_INVALID) override;
+    void blockContextMenuRequested(GraphView::GraphBlock &block, QContextMenuEvent *event,
+                                   QPoint) override;
+
+private slots:
+    void viewChunkInfo();
 
 private:
     RzHeapBin *heapBin;
     void display_single_linked_list(QVector<GraphHeapChunk>);
     void display_double_linked_list(QVector<GraphHeapChunk>);
+    QAction *chunkInfoAction;
+    RVA selectedBlock;
 };
 
 #endif // CUTTER_HEAPBINSGRAPHVIEW_H
