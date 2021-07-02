@@ -419,6 +419,7 @@ public:
      * @return RzHeapChunkSimple struct pointer for the heap chunk
      */
     RzHeapChunkSimple *getHeapChunk(ut64 addr);
+    QVector<RzHeapBin *> getHeapBins(ut64 arena_addr);
     void startDebug();
     void startEmulation();
     /**

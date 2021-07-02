@@ -43,16 +43,18 @@ private slots:
     void customMenuRequested(QPoint pos);
     void onCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
     void viewChunkInfo();
+    void viewBinInfo();
 
 private:
     void updateArenas();
     void updateChunks();
     Ui::GlibcHeapWidget *ui;
-    QTableView *viewHeap = new QTableView(this);
-    QComboBox *arenaSelectorView = new QComboBox(this);
+    QTableView *viewHeap;
+    QComboBox *arenaSelectorView;
     GlibcHeapModel *modelHeap = new GlibcHeapModel(this);
     QVector<Arena> arenas;
     QAction *chunkInfoAction;
+    QAction *binInfoAction;
     AddressableItemContextMenu addressableItemContextMenu;
     RefreshDeferrer *refreshDeferrer {};
     MainWindow *main;

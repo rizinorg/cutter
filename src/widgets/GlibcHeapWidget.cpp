@@ -1,3 +1,4 @@
+#include <dialogs/GlibcHeapBinsDialog.h>
 #include "GlibcHeapWidget.h"
 #include "ui_GlibcHeapWidget.h"
 #include "core/MainWindow.h"
@@ -11,6 +12,8 @@ GlibcHeapWidget::GlibcHeapWidget(MainWindow *main, QWidget *parent)
       main(main)
 {
     ui->setupUi(this);
+    viewHeap = ui->tableView;
+    arenaSelectorView = ui->arenaSelector;
 
     viewHeap->setFont(Config()->getFont());
     viewHeap->setModel(modelHeap);
@@ -18,10 +21,10 @@ GlibcHeapWidget::GlibcHeapWidget(MainWindow *main, QWidget *parent)
     // change the scroll mode to ScrollPerPixel
     viewHeap->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     viewHeap->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-    ui->verticalLayout->addWidget(viewHeap);
-    ui->verticalLayout->addWidget(arenaSelectorView);
-    chunkInfoAction = new QAction(tr("Detailed Chunk Info"), this);
     viewHeap->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    chunkInfoAction = new QAction(tr("Detailed Chunk Info"), this);
+    binInfoAction = new QAction(tr("Bins Info"), this);
 
     connect(Core(), &CutterCore::refreshAll, this, &GlibcHeapWidget::updateContents);
     connect(Core(), &CutterCore::debugTaskStateChanged, this, &GlibcHeapWidget::updateContents);
@@ -33,8 +36,11 @@ GlibcHeapWidget::GlibcHeapWidget(MainWindow *main, QWidget *parent)
     connect(viewHeap->selectionModel(), &QItemSelectionModel::currentChanged, this,
             &GlibcHeapWidget::onCurrentChanged);
     connect(chunkInfoAction, &QAction::triggered, this, &GlibcHeapWidget::viewChunkInfo);
+    connect(binInfoAction, &QAction::triggered, this, &GlibcHeapWidget::viewBinInfo);
+    connect(ui->binsButton, &QPushButton::clicked, this, &GlibcHeapWidget::viewBinInfo);
 
     addressableItemContextMenu.addAction(chunkInfoAction);
+    addressableItemContextMenu.addAction(binInfoAction);
     addActions(addressableItemContextMenu.actions());
 
     refreshDeferrer = dynamic_cast<CutterDockWidget *>(parent)->createRefreshDeferrer(
@@ -201,4 +207,10 @@ void GlibcHeapWidget::viewChunkInfo()
 
     GlibcHeapInfoDialog heapInfoDialog(Core()->math(offsetString), status, this);
     heapInfoDialog.exec();
+}
+
+void GlibcHeapWidget::viewBinInfo()
+{
+    GlibcHeapBinsDialog heapBinsDialog(modelHeap->arena_addr, main, this);
+    heapBinsDialog.exec();
 }
