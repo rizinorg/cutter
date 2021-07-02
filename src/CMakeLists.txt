@@ -146,7 +146,7 @@ set(SOURCES
     widgets/GlibcHeapWidget.cpp
     dialogs/GlibcHeapBinsDialog.cpp
     widgets/HeapBinsGraphView.cpp
-        )
+)
 set(HEADER_FILES
     core/Cutter.h
     core/CutterCommon.h
@@ -304,7 +304,7 @@ set(HEADER_FILES
     widgets/GlibcHeapWidget.h
     dialogs/GlibcHeapBinsDialog.h
     widgets/HeapBinsGraphView.h
-        )
+)
 set(UI_FILES
     dialogs/AboutDialog.ui
     dialogs/EditStringDialog.ui
@@ -374,7 +374,7 @@ set(UI_FILES
     widgets/HeapDockWidget.ui
     widgets/GlibcHeapWidget.ui
     dialogs/GlibcHeapBinsDialog.ui
-        )
+)
 set(QRC_FILES
     resources.qrc
     themes/native/native.qrc

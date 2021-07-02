@@ -5,7 +5,6 @@
 HeapBinsGraphView::HeapBinsGraphView(QWidget *parent, RzHeapBin *bin, MainWindow *main)
     : SimpleTextGraphView(parent, main), heapBin(bin)
 {
-
     chunkInfoAction = new QAction(tr("Detailed Chunk Info"), this);
     addressableItemContextMenu.addAction(chunkInfoAction);
     addAction(chunkInfoAction);
