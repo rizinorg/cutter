@@ -1653,7 +1653,21 @@ QVector<RzHeapBin *> CutterCore::getHeapBins(ut64 arena_addr)
         }
         bins_vector.append(bin);
     }
-
+    // get tcache bins
+    RzList *tcache_bins = rz_heap_tcache_content(core, arena_addr);
+    RzListIter *iter;
+    RzHeapBin *bin;
+    CutterRListForeach(tcache_bins, iter, RzHeapBin, bin)
+    {
+        if (!bin) {
+            continue;
+        }
+        if (!rz_list_length(bin->chunks)) {
+            rz_heap_bin_free_64(bin);
+            continue;
+        }
+        bins_vector.append(bin);
+    }
     return bins_vector;
 }
 
