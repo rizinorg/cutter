@@ -375,6 +375,12 @@ struct Arena
 {
     RVA offset;
     QString type;
+    ut64 top;
+    ut64 last_remainder;
+    ut64 next;
+    ut64 next_free;
+    ut64 system_mem;
+    ut64 max_system_mem;
 };
 
 Q_DECLARE_METATYPE(FunctionDescription)
