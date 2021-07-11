@@ -86,5 +86,10 @@ void GlibcHeapInfoDialog::saveChunkInfo()
     }
     if (Core()->writeHeapChunk(&chunkSimple)) {
         updateFields();
+        QMessageBox::information(this, tr("Chunk saved"),
+                                 tr("Chunk header successfully overwritten"));
+    } else {
+        QMessageBox::information(this, tr("Chunk not saved"),
+                                 tr("Chunk header not successfully overwritten"));
     }
 }
