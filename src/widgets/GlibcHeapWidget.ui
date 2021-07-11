@@ -19,25 +19,38 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QComboBox" name="arenaSelector"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="binsButton">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>View bins info for an arena</string>
-       </property>
-       <property name="text">
-        <string>Bins</string>
-       </property>
-      </widget>
-     </item>
+        <item>
+            <widget class="QComboBox" name="arenaSelector"/>
+        </item>
+        <item>
+            <widget class="QPushButton" name="arenaButton">
+                <property name="sizePolicy">
+                    <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                    </sizepolicy>
+                </property>
+                <property name="text">
+                    <string>Arena</string>
+                </property>
+            </widget>
+        </item>
+        <item>
+            <widget class="QPushButton" name="binsButton">
+                <property name="sizePolicy">
+                    <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                    </sizepolicy>
+                </property>
+                <property name="toolTip">
+                    <string>View bins info for an arena</string>
+                </property>
+                <property name="text">
+                    <string>Bins</string>
+                </property>
+            </widget>
+        </item>
     </layout>
    </item>
   </layout>

@@ -8,11 +8,6 @@ GlibcHeapInfoDialog::GlibcHeapInfoDialog(RVA offset, QString status, QWidget *pa
 {
     ui->setupUi(this);
 
-    //    // disable all the radio buttons for flag field so they are not user editable
-    //    this->ui->rbIM->setEnabled(false);
-    //    this->ui->rbNMA->setEnabled(false);
-    //    this->ui->rbPI->setEnabled(false);
-
     // set window title
     QString windowTitle = tr("Chunk @ ") + RAddressString(offset);
     if (!this->status.isEmpty()) {
