@@ -16,6 +16,9 @@ public:
     explicit GlibcHeapInfoDialog(RVA offset, QString status, QWidget *parent = nullptr);
     ~GlibcHeapInfoDialog();
 
+private slots:
+    void saveChunkInfo();
+
 private:
     Ui::GlibcHeapInfoDialog *ui;
     void updateFields();

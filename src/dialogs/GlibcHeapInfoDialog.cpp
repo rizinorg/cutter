@@ -8,10 +8,10 @@ GlibcHeapInfoDialog::GlibcHeapInfoDialog(RVA offset, QString status, QWidget *pa
 {
     ui->setupUi(this);
 
-    // disable all the radio buttons for flag field so they are not user editable
-    this->ui->rbIM->setEnabled(false);
-    this->ui->rbNMA->setEnabled(false);
-    this->ui->rbPI->setEnabled(false);
+    //    // disable all the radio buttons for flag field so they are not user editable
+    //    this->ui->rbIM->setEnabled(false);
+    //    this->ui->rbNMA->setEnabled(false);
+    //    this->ui->rbPI->setEnabled(false);
 
     // set window title
     QString windowTitle = tr("Chunk @ ") + RAddressString(offset);
@@ -19,6 +19,8 @@ GlibcHeapInfoDialog::GlibcHeapInfoDialog(RVA offset, QString status, QWidget *pa
         windowTitle += QString("(" + this->status + ")");
     }
     this->setWindowTitle(windowTitle);
+
+    connect(ui->saveButton, &QPushButton::clicked, this, &GlibcHeapInfoDialog::saveChunkInfo);
 
     updateFields();
 }
@@ -46,13 +48,48 @@ void GlibcHeapInfoDialog::updateFields()
     this->ui->prevSizeEdit->setText(RHexString(chunk->prev_size));
     if (chunk->is_mmapped) {
         this->ui->rbIM->setChecked(true);
+    } else {
+        this->ui->rbIM->setChecked(false);
     }
     if (chunk->prev_inuse) {
         this->ui->rbPI->setChecked(true);
+    } else {
+        this->ui->rbPI->setChecked(false);
     }
     if (chunk->non_main_arena) {
         this->ui->rbNMA->setChecked(true);
+    } else {
+        this->ui->rbNMA->setChecked(false);
     }
 
     free(chunk);
+}
+
+void GlibcHeapInfoDialog::saveChunkInfo()
+{
+    RzHeapChunkSimple chunkSimple;
+    chunkSimple.size = Core()->math(ui->sizeEdit->text());
+    chunkSimple.fd = Core()->math(ui->fdEdit->text());
+    chunkSimple.bk = Core()->math(ui->bkEdit->text());
+    chunkSimple.fd_nextsize = Core()->math(ui->fdnsEdit->text());
+    chunkSimple.bk_nextsize = Core()->math(ui->bknsEdit->text());
+    chunkSimple.addr = offset;
+    if (ui->rbIM->isChecked()) {
+        chunkSimple.is_mmapped = true;
+    } else {
+        chunkSimple.is_mmapped = false;
+    }
+    if (ui->rbNMA->isChecked()) {
+        chunkSimple.non_main_arena = true;
+    } else {
+        chunkSimple.non_main_arena = false;
+    }
+    if (ui->rbPI->isChecked()) {
+        chunkSimple.prev_inuse = true;
+    } else {
+        chunkSimple.prev_inuse = false;
+    }
+    if (Core()->writeHeapChunk(&chunkSimple)) {
+        updateFields();
+    }
 }

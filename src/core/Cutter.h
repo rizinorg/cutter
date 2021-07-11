@@ -420,6 +420,7 @@ public:
      */
     RzHeapChunkSimple *getHeapChunk(ut64 addr);
     QVector<RzHeapBin *> getHeapBins(ut64 arena_addr);
+    bool writeHeapChunk(RzHeapChunkSimple *chunkSimple);
     void startDebug();
     void startEmulation();
     /**

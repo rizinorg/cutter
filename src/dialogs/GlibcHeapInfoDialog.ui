@@ -46,7 +46,7 @@
         <string>Size of the heap chunk including metadata</string>
        </property>
        <property name="readOnly">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -63,7 +63,7 @@
         <string>Link to next free chunk in bin's linked list</string>
        </property>
        <property name="readOnly">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -80,7 +80,7 @@
         <string>Link to previous free chunk in bin's linked list</string>
        </property>
        <property name="readOnly">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -90,7 +90,7 @@
         <string>Link to next larger free chunk (only for large chunks)</string>
        </property>
        <property name="readOnly">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -114,7 +114,7 @@
         <string>Link to next smaller free chunk (for large chunks)</string>
        </property>
        <property name="readOnly">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -124,7 +124,7 @@
         <string>Size of previous chunk (if free)</string>
        </property>
        <property name="readOnly">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -188,6 +188,13 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QPushButton" name="saveButton">
+     <property name="text">
+      <string>Save</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

@@ -1671,6 +1671,12 @@ QVector<RzHeapBin *> CutterCore::getHeapBins(ut64 arena_addr)
     return bins_vector;
 }
 
+bool CutterCore::writeHeapChunk(RzHeapChunkSimple *chunk_simple)
+{
+    CORE_LOCK();
+    return rz_heap_write_chunk(core, chunk_simple);
+}
+
 QJsonDocument CutterCore::getChildProcesses(int pid)
 {
     // Return the currently debugged process and it's children
