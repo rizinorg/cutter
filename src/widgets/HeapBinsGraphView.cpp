@@ -76,7 +76,12 @@ void HeapBinsGraphView::display_single_linked_list(QVector<GraphHeapChunk> chunk
     gbBin.entry = 1;
     gbBin.edges.emplace_back(heapBin->fd);
     QString content = tr(heapBin->type) + tr("bin ") + QString::number(heapBin->bin_num);
-    content += "\nFd: " + RAddressString(heapBin->fd);
+    if (tcache) {
+        // fd is calculated from entry using entry - HDR_SZ
+        content += "\nEntry: " + RAddressString(heapBin->fd + 0x10);
+    } else {
+        content += "\nFd: " + RAddressString(heapBin->fd);
+    }
     addBlock(gbBin, content);
 
     // add the graph blocks for the chunks
