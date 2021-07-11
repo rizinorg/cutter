@@ -214,3 +214,5 @@ void GlibcHeapWidget::viewBinInfo()
     GlibcHeapBinsDialog heapBinsDialog(modelHeap->arena_addr, main, this);
     heapBinsDialog.exec();
 }
+
+void GlibcHeapWidget::viewArenaInfo() {}

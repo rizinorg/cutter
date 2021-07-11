@@ -44,6 +44,7 @@ private slots:
     void onCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
     void viewChunkInfo();
     void viewBinInfo();
+    void viewArenaInfo();
 
 private:
     void updateArenas();
