@@ -1606,6 +1606,21 @@ QVector<Arena> CutterCore::getArenas()
         Arena arena;
         arena.offset = data->addr;
         arena.type = QString(data->type);
+        if (core->rasm->bits == 64) {
+            arena.last_remainder = data->arena->last_remainder_64;
+            arena.top = data->arena->top_64;
+            arena.next = data->arena->next_64;
+            arena.next_free = data->arena->next_free_64;
+            arena.system_mem = data->arena->system_mem_64;
+            arena.max_system_mem = data->arena->max_system_mem_64;
+        } else {
+            arena.last_remainder = data->arena->last_remainder_32;
+            arena.top = data->arena->top_32;
+            arena.next = data->arena->next_32;
+            arena.next_free = data->arena->next_free_32;
+            arena.system_mem = data->arena->system_mem_32;
+            arena.max_system_mem = data->arena->max_system_mem_32;
+        }
         arena_vector.append(arena);
     }
 
@@ -1653,8 +1668,28 @@ QVector<RzHeapBin *> CutterCore::getHeapBins(ut64 arena_addr)
         }
         bins_vector.append(bin);
     }
-
+    // get tcache bins
+    RzList *tcache_bins = rz_heap_tcache_content(core, arena_addr);
+    RzListIter *iter;
+    RzHeapBin *bin;
+    CutterRListForeach(tcache_bins, iter, RzHeapBin, bin)
+    {
+        if (!bin) {
+            continue;
+        }
+        if (!rz_list_length(bin->chunks)) {
+            rz_heap_bin_free_64(bin);
+            continue;
+        }
+        bins_vector.append(bin);
+    }
     return bins_vector;
+}
+
+bool CutterCore::writeHeapChunk(RzHeapChunkSimple *chunk_simple)
+{
+    CORE_LOCK();
+    return rz_heap_write_chunk(core, chunk_simple);
 }
 
 QJsonDocument CutterCore::getChildProcesses(int pid)
