@@ -215,7 +215,7 @@ Recommended Way for dev builds
 
    mkdir build
    cd build
-   cmake .. -DCMAKE_PREFIX_PATH=/local/opt/qt5
+   cmake .. -DCMAKE_PREFIX_PATH=/usr/local/opt/qt5
    make
 
 --------------
