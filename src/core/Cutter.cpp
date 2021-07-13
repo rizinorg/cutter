@@ -1592,6 +1592,12 @@ QVector<Chunk> CutterCore::getHeapChunks(RVA arena_addr)
     return chunks_vector;
 }
 
+int CutterCore::getArchBits()
+{
+    CORE_LOCK();
+    return core->dbg->bits;
+}
+
 QVector<Arena> CutterCore::getArenas()
 {
     CORE_LOCK();

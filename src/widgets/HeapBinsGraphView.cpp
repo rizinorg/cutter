@@ -11,6 +11,9 @@ HeapBinsGraphView::HeapBinsGraphView(QWidget *parent, RzHeapBin *bin, MainWindow
 
     connect(chunkInfoAction, &QAction::triggered, this, &HeapBinsGraphView::viewChunkInfo);
 
+    bits = Core()->getArchBits();
+    qDebug() << "bits are " << bits;
+
     enableAddresses(true);
 }
 
@@ -70,15 +73,14 @@ void HeapBinsGraphView::loadCurrentGraph()
 void HeapBinsGraphView::display_single_linked_list(QVector<GraphHeapChunk> chunks)
 {
     bool tcache = QString(heapBin->type) == QString("Tcache");
-
+    int ptrSize = bits;
     // add the graph block for the bin
     GraphLayout::GraphBlock gbBin;
     gbBin.entry = 1;
     gbBin.edges.emplace_back(heapBin->fd);
     QString content = tr(heapBin->type) + tr("bin ") + QString::number(heapBin->bin_num);
     if (tcache) {
-        // fd is calculated from entry using entry - HDR_SZ
-        content += "\nEntry: " + RAddressString(heapBin->fd + 0x10);
+        content += "\nEntry: " + RAddressString(heapBin->fd);
     } else {
         content += "\nFd: " + RAddressString(heapBin->fd);
     }
@@ -90,7 +92,8 @@ void HeapBinsGraphView::display_single_linked_list(QVector<GraphHeapChunk> chunk
         gbChunk.entry = chunks[i].addr;
 
         if (tcache && chunks[i].fd) {
-            gbChunk.edges.emplace_back(chunks[i].fd - TC_HDR_SZ);
+            // base_address = address - 2 * PTR_SIZE
+            gbChunk.edges.emplace_back(chunks[i].fd - 2 * ptrSize);
         } else {
             gbChunk.edges.emplace_back(chunks[i].fd);
         }
