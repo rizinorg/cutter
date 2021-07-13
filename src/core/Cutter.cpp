@@ -1612,21 +1612,12 @@ QVector<Arena> CutterCore::getArenas()
         Arena arena;
         arena.offset = data->addr;
         arena.type = QString(data->type);
-        if (core->rasm->bits == 64) {
-            arena.last_remainder = data->arena->last_remainder_64;
-            arena.top = data->arena->top_64;
-            arena.next = data->arena->next_64;
-            arena.next_free = data->arena->next_free_64;
-            arena.system_mem = data->arena->system_mem_64;
-            arena.max_system_mem = data->arena->max_system_mem_64;
-        } else {
-            arena.last_remainder = data->arena->last_remainder_32;
-            arena.top = data->arena->top_32;
-            arena.next = data->arena->next_32;
-            arena.next_free = data->arena->next_free_32;
-            arena.system_mem = data->arena->system_mem_32;
-            arena.max_system_mem = data->arena->max_system_mem_32;
-        }
+        arena.last_remainder = data->arena->last_remainder;
+        arena.top = data->arena->top;
+        arena.next = data->arena->next;
+        arena.next_free = data->arena->next_free;
+        arena.system_mem = data->arena->system_mem;
+        arena.max_system_mem = data->arena->max_system_mem;
         arena_vector.append(arena);
     }
 
