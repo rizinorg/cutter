@@ -12,7 +12,6 @@ HeapBinsGraphView::HeapBinsGraphView(QWidget *parent, RzHeapBin *bin, MainWindow
     connect(chunkInfoAction, &QAction::triggered, this, &HeapBinsGraphView::viewChunkInfo);
 
     bits = Core()->getArchBits();
-    qDebug() << "bits are " << bits;
 
     enableAddresses(true);
 }

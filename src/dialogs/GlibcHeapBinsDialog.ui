@@ -4,10 +4,10 @@
  <widget class="QDialog" name="GlibcHeapBinsDialog">
   <property name="geometry">
    <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>883</width>
-       <height>544</height>
+    <x>0</x>
+    <y>0</y>
+    <width>883</width>
+    <height>544</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,7 +27,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QPlainTextEdit" name="chainInfoEdit"/>
+      <widget class="QPlainTextEdit" name="chainInfoEdit">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout3">

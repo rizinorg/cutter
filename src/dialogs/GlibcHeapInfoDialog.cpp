@@ -62,34 +62,50 @@ void GlibcHeapInfoDialog::updateFields()
 
 void GlibcHeapInfoDialog::saveChunkInfo()
 {
-    RzHeapChunkSimple chunkSimple;
-    chunkSimple.size = Core()->math(ui->sizeEdit->text());
-    chunkSimple.fd = Core()->math(ui->fdEdit->text());
-    chunkSimple.bk = Core()->math(ui->bkEdit->text());
-    chunkSimple.fd_nextsize = Core()->math(ui->fdnsEdit->text());
-    chunkSimple.bk_nextsize = Core()->math(ui->bknsEdit->text());
-    chunkSimple.addr = offset;
-    if (ui->rbIM->isChecked()) {
-        chunkSimple.is_mmapped = true;
-    } else {
-        chunkSimple.is_mmapped = false;
-    }
-    if (ui->rbNMA->isChecked()) {
-        chunkSimple.non_main_arena = true;
-    } else {
-        chunkSimple.non_main_arena = false;
-    }
-    if (ui->rbPI->isChecked()) {
-        chunkSimple.prev_inuse = true;
-    } else {
-        chunkSimple.prev_inuse = false;
-    }
-    if (Core()->writeHeapChunk(&chunkSimple)) {
-        updateFields();
-        QMessageBox::information(this, tr("Chunk saved"),
-                                 tr("Chunk header successfully overwritten"));
-    } else {
-        QMessageBox::information(this, tr("Chunk not saved"),
-                                 tr("Chunk header not successfully overwritten"));
+    QMessageBox msgBox;
+    msgBox.setText("Do you want to overwrite chunk metadata?");
+    msgBox.setInformativeText(
+            "Any field which cannot be converted to a valid integer will be saved as zero");
+    msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Save);
+
+    int ret = msgBox.exec();
+    switch (ret) {
+    case QMessageBox::Save:
+        // Save was clicked
+        RzHeapChunkSimple chunkSimple;
+        chunkSimple.size = Core()->math(ui->sizeEdit->text());
+        chunkSimple.fd = Core()->math(ui->fdEdit->text());
+        chunkSimple.bk = Core()->math(ui->bkEdit->text());
+        chunkSimple.fd_nextsize = Core()->math(ui->fdnsEdit->text());
+        chunkSimple.bk_nextsize = Core()->math(ui->bknsEdit->text());
+        chunkSimple.addr = offset;
+        if (ui->rbIM->isChecked()) {
+            chunkSimple.is_mmapped = true;
+        } else {
+            chunkSimple.is_mmapped = false;
+        }
+        if (ui->rbNMA->isChecked()) {
+            chunkSimple.non_main_arena = true;
+        } else {
+            chunkSimple.non_main_arena = false;
+        }
+        if (ui->rbPI->isChecked()) {
+            chunkSimple.prev_inuse = true;
+        } else {
+            chunkSimple.prev_inuse = false;
+        }
+        if (Core()->writeHeapChunk(&chunkSimple)) {
+            updateFields();
+            QMessageBox::information(this, tr("Chunk saved"),
+                                     tr("Chunk header successfully overwritten"));
+        } else {
+            QMessageBox::information(this, tr("Chunk not saved"),
+                                     tr("Chunk header not successfully overwritten"));
+        }
+        break;
+    case QMessageBox::Cancel:
+        // Cancel was clicked
+        break;
     }
 }
