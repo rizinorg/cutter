@@ -1,4 +1,5 @@
 #include <dialogs/GlibcHeapBinsDialog.h>
+#include <dialogs/ArenaInfoDialog.h>
 #include "GlibcHeapWidget.h"
 #include "ui_GlibcHeapWidget.h"
 #include "core/MainWindow.h"
@@ -38,6 +39,7 @@ GlibcHeapWidget::GlibcHeapWidget(MainWindow *main, QWidget *parent)
     connect(chunkInfoAction, &QAction::triggered, this, &GlibcHeapWidget::viewChunkInfo);
     connect(binInfoAction, &QAction::triggered, this, &GlibcHeapWidget::viewBinInfo);
     connect(ui->binsButton, &QPushButton::clicked, this, &GlibcHeapWidget::viewBinInfo);
+    connect(ui->arenaButton, &QPushButton::clicked, this, &GlibcHeapWidget::viewArenaInfo);
 
     addressableItemContextMenu.addAction(chunkInfoAction);
     addressableItemContextMenu.addAction(binInfoAction);
@@ -213,4 +215,19 @@ void GlibcHeapWidget::viewBinInfo()
 {
     GlibcHeapBinsDialog heapBinsDialog(modelHeap->arena_addr, main, this);
     heapBinsDialog.exec();
+}
+
+void GlibcHeapWidget::viewArenaInfo()
+{
+    // find the active arena
+    Arena currentArena;
+    for (auto &arena : arenas) {
+        if (arena.offset == modelHeap->arena_addr) {
+            currentArena = arena;
+            break;
+        }
+    }
+
+    ArenaInfoDialog arenaInfoDialog(currentArena, this);
+    arenaInfoDialog.exec();
 }

@@ -419,7 +419,20 @@ public:
      * @return RzHeapChunkSimple struct pointer for the heap chunk
      */
     RzHeapChunkSimple *getHeapChunk(ut64 addr);
+    /**
+     * @brief Get heap bins of an arena with given base address
+     * (including large, small, fast, unsorted, tcache)
+     * @param arena_addr Base address of the arena
+     * @return QVector of non empty RzHeapBin pointers
+     */
     QVector<RzHeapBin *> getHeapBins(ut64 arena_addr);
+    /**
+     * @brief Write the given chunk header to memory
+     * @param chunkSimple RzHeapChunkSimple pointer of the chunk to be written
+     * @return true if the write succeeded else false
+     */
+    bool writeHeapChunk(RzHeapChunkSimple *chunkSimple);
+    int getArchBits();
     void startDebug();
     void startEmulation();
     /**

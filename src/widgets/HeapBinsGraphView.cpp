@@ -11,6 +11,8 @@ HeapBinsGraphView::HeapBinsGraphView(QWidget *parent, RzHeapBin *bin, MainWindow
 
     connect(chunkInfoAction, &QAction::triggered, this, &HeapBinsGraphView::viewChunkInfo);
 
+    bits = Core()->getArchBits();
+
     enableAddresses(true);
 }
 
@@ -30,7 +32,8 @@ void HeapBinsGraphView::loadCurrentGraph()
     QVector<GraphHeapChunk> chunks;
 
     // if the bin is a fastbin or not
-    bool fast = QString(heapBin->type) == QString("Fast");
+    bool singleLinkedBin = QString(heapBin->type) == QString("Fast")
+            || QString(heapBin->type) == QString("Tcache");
 
     // store info about the chunks in a vector for easy access
     CutterRListForeach(heapBin->chunks, iter, RzHeapChunkListItem, item)
@@ -45,7 +48,7 @@ void HeapBinsGraphView::loadCurrentGraph()
                 + RHexString(chunkInfo->size) + "\nFd: " + RAddressString(chunkInfo->fd);
 
         // fastbins lack bk pointer
-        if (!fast) {
+        if (!singleLinkedBin) {
             content += "\nBk: " + RAddressString(chunkInfo->bk);
         }
         graphHeapChunk.fd = chunkInfo->fd;
@@ -55,8 +58,8 @@ void HeapBinsGraphView::loadCurrentGraph()
         free(chunkInfo);
     }
 
-    // fast bins have single linked list and other bins have double linked list
-    if (fast) {
+    // fast and tcache bins have single linked list and other bins have double linked list
+    if (singleLinkedBin) {
         display_single_linked_list(chunks);
     } else {
         display_double_linked_list(chunks);
@@ -68,19 +71,31 @@ void HeapBinsGraphView::loadCurrentGraph()
 
 void HeapBinsGraphView::display_single_linked_list(QVector<GraphHeapChunk> chunks)
 {
+    bool tcache = QString(heapBin->type) == QString("Tcache");
+    int ptrSize = bits;
     // add the graph block for the bin
     GraphLayout::GraphBlock gbBin;
     gbBin.entry = 1;
     gbBin.edges.emplace_back(heapBin->fd);
     QString content = tr(heapBin->type) + tr("bin ") + QString::number(heapBin->bin_num);
-    content += "\nFd: " + RAddressString(heapBin->fd);
+    if (tcache) {
+        content += "\nEntry: " + RAddressString(heapBin->fd);
+    } else {
+        content += "\nFd: " + RAddressString(heapBin->fd);
+    }
     addBlock(gbBin, content);
 
     // add the graph blocks for the chunks
     for (int i = 0; i < chunks.size(); i++) {
         GraphLayout::GraphBlock gbChunk;
         gbChunk.entry = chunks[i].addr;
-        gbChunk.edges.emplace_back(chunks[i].fd);
+
+        if (tcache && chunks[i].fd) {
+            // base_address = address - 2 * PTR_SIZE
+            gbChunk.edges.emplace_back(chunks[i].fd - 2 * ptrSize);
+        } else {
+            gbChunk.edges.emplace_back(chunks[i].fd);
+        }
 
         if (i == chunks.size() - 1 && heapBin->message) {
             chunks[i].content += "\n" + QString(heapBin->message);
