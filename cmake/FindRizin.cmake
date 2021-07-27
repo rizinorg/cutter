@@ -16,21 +16,6 @@
 #  Rizin_LIBRARY_<name> - Path to library rz_<name>
 
 if(WIN32)
-	find_path(Rizin_INCLUDE_DIRS
-			NAMES rz_core.h rz_bin.h rz_util.h
-			HINTS
-				"$ENV{HOME}/bin/prefix/rizin/include/librz"
-				/usr/local/include/libr
-				/usr/include/librz)
-        find_path(SDB_INCLUDE_DIR
-			NAMES sdb.h sdbht.h sdb_version.h
-			HINTS
-				"$ENV{HOME}/bin/prefix/rizin/include/librz/sdb"
-				/usr/local/include/librz/sdb
-				/usr/include/librz/sdb)
-
-        list(APPEND Rizin_INCLUDE_DIRS ${SDB_INCLUDE_DIR})
-
 	set(Rizin_LIBRARY_NAMES
 			core
 			config
@@ -56,29 +41,41 @@ if(WIN32)
 			crypto
 			type)
 
-	set(Rizin_LIBRARIES "")
-	set(Rizin_LIBRARIES_VARS "")
-	foreach(libname ${Rizin_LIBRARY_NAMES})
-		find_library(Rizin_LIBRARY_${libname}
-				rz_${libname}
-				HINTS
-					"$ENV{HOME}/bin/prefix/rizin/lib"
-					/usr/local/lib
-					/usr/lib)
+	find_program(RIZIN_EXECUTABLE rizin)
+	if(RIZIN_EXECUTABLE)
+		execute_process(COMMAND powershell "(${RIZIN_EXECUTABLE} -H | Select-String -Pattern '^RZ_INCDIR=(.*$)').Matches.Groups[1].value" OUTPUT_VARIABLE RZ_INCDIR)
+		string(REGEX REPLACE "\n$" "" RZ_INCDIR "${RZ_INCDIR}")
+		find_path(Rizin_INCLUDE_DIRS
+				NAMES rz_core.h rz_bin.h rz_util.h
+				HINTS "${RZ_INCDIR}")
 
-		list(APPEND Rizin_LIBRARIES ${Rizin_LIBRARY_${libname}})
-		list(APPEND Rizin_LIBRARIES_VARS "Rizin_LIBRARY_${libname}")
-	endforeach()
+		find_path(SDB_INCLUDE_DIR
+				NAMES sdb.h sdbht.h sdb_version.h
+				HINTS "${RZ_INCDIR}/sdb")
 
-	set(Rizin_LIBRARY_DIRS "")
+		list(APPEND Rizin_INCLUDE_DIRS ${SDB_INCLUDE_DIR})
 
-	add_library(Rizin::librz UNKNOWN IMPORTED)
-	set_target_properties(Rizin::librz PROPERTIES
-			IMPORTED_LOCATION "${Rizin_LIBRARY_core}"
-			IMPORTED_LINK_INTERFACE_LIBRARIES "${Rizin_LIBRARIES}"
-			INTERFACE_LINK_DIRECTORIES "${Rizin_LIBRARY_DIRS}"
-			INTERFACE_INCLUDE_DIRECTORIES "${Rizin_INCLUDE_DIRS}")
-	set(Rizin_TARGET Rizin::librz)
+		string(REGEX MATCH "^RZ_LIBDIR=(.*)$" RZ_LIBDIR RZ_OUTPUT)
+		set(Rizin_LIBRARIES "")
+		set(Rizin_LIBRARIES_VARS "")
+		foreach(libname ${Rizin_LIBRARY_NAMES})
+			find_library(Rizin_LIBRARY_${libname}
+					rz_${libname}
+					HINTS CMAKE_MATCH_<0>)
+
+			list(APPEND Rizin_LIBRARIES ${Rizin_LIBRARY_${libname}})
+			list(APPEND Rizin_LIBRARIES_VARS "Rizin_LIBRARY_${libname}")
+		endforeach()
+
+		set(Rizin_LIBRARY_DIRS "")
+		add_library(Rizin::librz UNKNOWN IMPORTED)
+		set_target_properties(Rizin::librz PROPERTIES
+				IMPORTED_LOCATION "${Rizin_LIBRARY_core}"
+				IMPORTED_LINK_INTERFACE_LIBRARIES "${Rizin_LIBRARIES}"
+				INTERFACE_LINK_DIRECTORIES "${Rizin_LIBRARY_DIRS}"
+				INTERFACE_INCLUDE_DIRECTORIES "${Rizin_INCLUDE_DIRS}")
+		set(Rizin_TARGET Rizin::librz)
+	endif()
 else()
 	# support installation locations used by rizin scripts like sys/user.sh and sys/install.sh
 	if(CUTTER_USE_ADDITIONAL_RIZIN_PATHS)
