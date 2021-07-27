@@ -249,10 +249,10 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main),
 
 void DebugActions::setButtonVisibleIfMainExists()
 {
-    // Use cmd because cmdRaw would not handle multiple commands concatenated
-    int mainExists = Core()->cmd("f?sym.main; ??").toInt();
+    RzCoreLocked core(Core()->core());
     // if main is not a flag we hide the continue until main button
-    if (!mainExists) {
+    if (!rz_flag_get(Core()->core()->flags, "sym.main")
+        && !rz_flag_get(Core()->core()->flags, "main")) {
         actionContinueUntilMain->setVisible(false);
         continueUntilButton->setDefaultAction(actionContinueUntilCall);
     }
@@ -273,8 +273,15 @@ void DebugActions::showDebugWarning()
 
 void DebugActions::continueUntilMain()
 {
-    QString mainAddr = Core()->cmdRaw("?v sym.main");
-    Core()->continueUntilDebug(mainAddr);
+    RzCoreLocked core(Core()->core());
+    RzFlagItem *main_flag = rz_flag_get(Core()->core()->flags, "sym.main");
+    if (!main_flag) {
+        main_flag = rz_flag_get(Core()->core()->flags, "main");
+        if (!main_flag) {
+            return;
+        }
+    }
+    Core()->continueUntilDebug(QString::number(main_flag->offset));
 }
 
 void DebugActions::attachRemoteDebugger()
