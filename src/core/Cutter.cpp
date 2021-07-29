@@ -3616,22 +3616,12 @@ QString CutterCore::addTypes(const char *str)
 {
     CORE_LOCK();
     char *error_msg = nullptr;
-    char *parsed = rz_type_parse_c_string(core->analysis->typedb, str, &error_msg);
+    int result = rz_type_parse_string(core->analysis->typedb, str, &error_msg);
+    // TODO fix adding and parsing types
     QString error;
 
-    if (!parsed) {
-        if (error_msg) {
-            error = error_msg;
-            rz_mem_free(error_msg);
-        }
-        return error;
-    }
-
-    rz_type_db_save_parsed_type(core->analysis->typedb, parsed);
-    rz_mem_free(parsed);
-
-    if (error_msg) {
-        error = error_msg;
+    if (result && error_msg) {
+        error = QString(error_msg);
         rz_mem_free(error_msg);
     }
 
