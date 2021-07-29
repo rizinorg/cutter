@@ -53,6 +53,10 @@ QVariant WindowsHeapModel::data(const QModelIndex &index, int role) const
             return RAddressString(item.userAddress);
         case SizeColumn:
             return item.size;
+        case UnusedColumn:
+            return item.unusedBytes;
+        case GranularityColumn:
+            return item.granularity;
         case TypeColumn:
             return item.type;
         default:
@@ -75,6 +79,10 @@ QVariant WindowsHeapModel::headerData(int section, Qt::Orientation orientation, 
             return tr("User Address");
         case SizeColumn:
             return tr("Size");
+        case GranularityColumn:
+            return tr("Granularity");
+        case UnusedColumn:
+            return tr("Unused");
         case TypeColumn:
             return tr("Type");
         default:

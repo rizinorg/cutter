@@ -15,7 +15,15 @@ class WindowsHeapModel : public QAbstractTableModel
     Q_OBJECT
 public:
     explicit WindowsHeapModel(QObject *parent = nullptr);
-    enum Column { HeaderAddColumn = 0, UserAddColumn, SizeColumn, TypeColumn, ColumnCount };
+    enum Column {
+        HeaderAddColumn = 0,
+        UserAddColumn,
+        SizeColumn,
+        GranularityColumn,
+        UnusedColumn,
+        TypeColumn,
+        ColumnCount
+    };
     void reload();
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;
