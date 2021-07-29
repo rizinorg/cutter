@@ -1592,6 +1592,33 @@ QVector<Chunk> CutterCore::getHeapChunks(RVA arena_addr)
     return chunks_vector;
 }
 
+QVector<HeapBlock> CutterCore::getHeapBlocks()
+{
+    CORE_LOCK();
+    QVector<HeapBlock> blocks_vector;
+    RzList *blocks = rz_heap_windows_blocks_list(core);
+    if (!blocks || !rz_list_length(blocks)) {
+        rz_list_free(blocks);
+        return blocks_vector;
+    }
+
+    RzListIter *iter;
+    RzWindowsHeapBlock *data;
+    CutterRListForeach(blocks, iter, RzWindowsHeapBlock, data)
+    {
+        HeapBlock block;
+        block.headerAddress = data->headerAddress;
+        block.userAddress = data->userAddress;
+        block.granularity = data->granularity;
+        block.unusedBytes = data->unusedBytes;
+        block.size = data->size;
+        block.type = QString(data->type);
+
+        blocks_vector.append(block);
+    }
+    return blocks_vector;
+}
+
 int CutterCore::getArchBits()
 {
     CORE_LOCK();

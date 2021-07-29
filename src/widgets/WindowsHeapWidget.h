@@ -40,6 +40,7 @@ private:
     Ui::WindowsHeapWidget *ui;
     QTableView *viewHeap;
     WindowsHeapModel *modelHeap = new WindowsHeapModel(this);
+    RefreshDeferrer *refreshDeferrer {};
 };
 
 #endif // WINDOWSHEAPWIDGET_H

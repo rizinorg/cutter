@@ -12,6 +12,12 @@ WindowsHeapWidget::WindowsHeapWidget(MainWindow *main, QWidget *parent)
     // change the scroll mode to ScrollPerPixel
     viewHeap->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     viewHeap->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+
+    connect(Core(), &CutterCore::refreshAll, this, &WindowsHeapWidget::updateContents);
+    connect(Core(), &CutterCore::debugTaskStateChanged, this, &WindowsHeapWidget::updateContents);
+
+    refreshDeferrer = dynamic_cast<CutterDockWidget *>(parent)->createRefreshDeferrer(
+            [this]() { updateContents(); });
 }
 
 WindowsHeapWidget::~WindowsHeapWidget()
@@ -21,6 +27,10 @@ WindowsHeapWidget::~WindowsHeapWidget()
 
 void WindowsHeapWidget::updateContents()
 {
+    if (!refreshDeferrer->attemptRefresh(nullptr) || Core()->isDebugTaskInProgress()) {
+        return;
+    }
+
     modelHeap->reload();
     viewHeap->resizeColumnsToContents();
 }
@@ -89,6 +99,6 @@ void WindowsHeapModel::reload()
 {
     beginResetModel();
     values.clear();
-    // Call cutter core here for data
+    values = Core()->getHeapBlocks();
     endResetModel();
 }

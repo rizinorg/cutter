@@ -388,7 +388,8 @@ struct HeapBlock
     RVA headerAddress;
     RVA userAddress;
     RVA size;
-    RVA unused_bytes;
+    RVA unusedBytes;
+    RVA granularity;
     QString type;
 };
 
