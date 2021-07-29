@@ -1,6 +1,7 @@
 #include "HeapDockWidget.h"
 #include "ui_HeapDockWidget.h"
 #include "widgets/GlibcHeapWidget.h"
+#include "WindowsHeapWidget.h"
 
 HeapDockWidget::HeapDockWidget(MainWindow *main)
     : CutterDockWidget(main), ui(new Ui::HeapDockWidget), main(main)
@@ -8,6 +9,7 @@ HeapDockWidget::HeapDockWidget(MainWindow *main)
     ui->setupUi(this);
 
     ui->allocatorSelector->addItem("Glibc Heap");
+    ui->allocatorSelector->addItem("Windows Heap");
     ui->verticalLayout->setMargin(0);
 
     connect<void (QComboBox::*)(int)>(ui->allocatorSelector, &QComboBox::currentIndexChanged, this,
@@ -36,6 +38,9 @@ void HeapDockWidget::onAllocatorSelected(int index)
     // change widget depending upon selected allocator
     if (index == Glibc) {
         currentHeapWidget = new GlibcHeapWidget(main, this);
+    } else if (index == Windows) {
+        currentHeapWidget = new WindowsHeapWidget(main, this);
     }
+
     ui->verticalLayout->addWidget(currentHeapWidget);
 }

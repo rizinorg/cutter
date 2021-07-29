@@ -383,6 +383,15 @@ struct Arena
     ut64 max_system_mem;
 };
 
+struct HeapBlock
+{
+    RVA headerAddress;
+    RVA userAddress;
+    RVA size;
+    RVA unused_bytes;
+    QString type;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
