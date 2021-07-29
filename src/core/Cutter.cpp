@@ -1616,6 +1616,8 @@ QVector<HeapBlock> CutterCore::getHeapBlocks()
 
         blocks_vector.append(block);
     }
+
+    rz_list_free(blocks);
     return blocks_vector;
 }
 

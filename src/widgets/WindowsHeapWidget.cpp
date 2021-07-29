@@ -18,6 +18,8 @@ WindowsHeapWidget::WindowsHeapWidget(MainWindow *main, QWidget *parent)
 
     refreshDeferrer = dynamic_cast<CutterDockWidget *>(parent)->createRefreshDeferrer(
             [this]() { updateContents(); });
+
+    updateContents();
 }
 
 WindowsHeapWidget::~WindowsHeapWidget()
