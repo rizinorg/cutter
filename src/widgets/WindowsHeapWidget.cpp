@@ -1,3 +1,4 @@
+#include <dialogs/WindowsHeapDialog.h>
 #include "WindowsHeapWidget.h"
 #include "ui_WindowsHeapWidget.h"
 
@@ -15,6 +16,7 @@ WindowsHeapWidget::WindowsHeapWidget(MainWindow *main, QWidget *parent)
 
     connect(Core(), &CutterCore::refreshAll, this, &WindowsHeapWidget::updateContents);
     connect(Core(), &CutterCore::debugTaskStateChanged, this, &WindowsHeapWidget::updateContents);
+    connect(ui->heapButton, &QPushButton::clicked, this, &WindowsHeapWidget::viewHeapInfo);
 
     refreshDeferrer = dynamic_cast<CutterDockWidget *>(parent)->createRefreshDeferrer(
             [this]() { updateContents(); });
@@ -25,6 +27,12 @@ WindowsHeapWidget::WindowsHeapWidget(MainWindow *main, QWidget *parent)
 WindowsHeapWidget::~WindowsHeapWidget()
 {
     delete ui;
+}
+
+void WindowsHeapWidget::viewHeapInfo()
+{
+    WindowsHeapDialog windowsHeapDialog(this);
+    windowsHeapDialog.exec();
 }
 
 void WindowsHeapWidget::updateContents()

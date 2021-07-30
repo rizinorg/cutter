@@ -433,6 +433,7 @@ public:
      */
     bool writeHeapChunk(RzHeapChunkSimple *chunkSimple);
     QVector<HeapBlock> getHeapBlocks();
+    QVector<WindowsHeapInfo> getWindowsHeaps();
     int getArchBits();
     void startDebug();
     void startEmulation();

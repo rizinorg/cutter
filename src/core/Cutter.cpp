@@ -1621,6 +1621,33 @@ QVector<HeapBlock> CutterCore::getHeapBlocks()
     return blocks_vector;
 }
 
+QVector<WindowsHeapInfo> CutterCore::getWindowsHeaps()
+{
+    CORE_LOCK();
+    QVector<WindowsHeapInfo> heaps_vector;
+    RzList *heaps = rz_heap_windows_heap_list(core);
+    if (!heaps || !rz_list_length(heaps)) {
+        rz_list_free(heaps);
+        return heaps_vector;
+    }
+
+    RzListIter *iter;
+    RzWindowsHeapInfo *data;
+    CutterRListForeach(heaps, iter, RzWindowsHeapInfo, data)
+    {
+        WindowsHeapInfo block;
+        block.base = data->base;
+        block.blockCount = data->blockCount;
+        block.allocated = data->allocated;
+        block.committed = data->committed;
+
+        heaps_vector.append(block);
+    }
+
+    rz_list_free(heaps);
+    return heaps_vector;
+}
+
 int CutterCore::getArchBits()
 {
     CORE_LOCK();

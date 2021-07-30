@@ -387,10 +387,18 @@ struct HeapBlock
 {
     RVA headerAddress;
     RVA userAddress;
-    RVA size;
-    RVA unusedBytes;
-    RVA granularity;
+    ut64 size;
+    ut64 unusedBytes;
+    ut64 granularity;
     QString type;
+};
+
+struct WindowsHeapInfo
+{
+    RVA base;
+    ut64 committed;
+    ut64 allocated;
+    ut64 blockCount;
 };
 
 Q_DECLARE_METATYPE(FunctionDescription)

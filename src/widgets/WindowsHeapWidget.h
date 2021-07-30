@@ -43,6 +43,7 @@ public:
     ~WindowsHeapWidget();
 private slots:
     void updateContents();
+    void viewHeapInfo();
 
 private:
     Ui::WindowsHeapWidget *ui;
