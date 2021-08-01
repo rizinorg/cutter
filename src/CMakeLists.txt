@@ -148,7 +148,7 @@ set(SOURCES
     widgets/HeapBinsGraphView.cpp
     dialogs/ArenaInfoDialog.cpp
     widgets/WindowsHeapWidget.cpp
-        dialogs/WindowsHeapDialog.cpp
+    dialogs/WindowsHeapDialog.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -308,8 +308,8 @@ set(HEADER_FILES
     dialogs/GlibcHeapBinsDialog.h
     widgets/HeapBinsGraphView.h
     dialogs/ArenaInfoDialog.h
-        widgets/WindowsHeapWidget.h
-        dialogs/WindowsHeapDialog.h
+    widgets/WindowsHeapWidget.h
+    dialogs/WindowsHeapDialog.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -381,8 +381,8 @@ set(UI_FILES
     widgets/GlibcHeapWidget.ui
     dialogs/GlibcHeapBinsDialog.ui
     dialogs/ArenaInfoDialog.ui
-        widgets/WindowsHeapWidget.ui
-        dialogs/WindowsHeapDialog.ui
+    widgets/WindowsHeapWidget.ui
+    dialogs/WindowsHeapDialog.ui
 )
 set(QRC_FILES
     resources.qrc
