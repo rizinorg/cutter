@@ -3585,8 +3585,7 @@ QList<TypeDescription> CutterCore::getAllPrimitiveTypes()
         TypeDescription exp;
 
         exp.type = typeObject[RJsonKey::type].toString();
-        exp.size = typeObject[RJsonKey::size].toVariant().toULongLong();
-        exp.format = typeObject[RJsonKey::format].toString();
+        exp.size = (int)typeObject[RJsonKey::size].toVariant().toULongLong();
         exp.category = tr("Primitive");
         primitiveTypes << exp;
     }
@@ -3605,8 +3604,7 @@ QList<TypeDescription> CutterCore::getAllUnions()
 
         TypeDescription exp;
 
-        exp.type = typeObject[RJsonKey::type].toString();
-        exp.size = typeObject[RJsonKey::size].toVariant().toULongLong();
+        exp.type = typeObject[RJsonKey::name].toString();
         exp.category = "Union";
         unions << exp;
     }
@@ -3625,8 +3623,8 @@ QList<TypeDescription> CutterCore::getAllStructs()
 
         TypeDescription exp;
 
-        exp.type = typeObject[RJsonKey::type].toString();
-        exp.size = typeObject[RJsonKey::size].toVariant().toULongLong();
+        exp.type = typeObject[RJsonKey::name].toString();
+        exp.size = 0;
         exp.category = "Struct";
         structs << exp;
     }
@@ -3640,9 +3638,12 @@ QList<TypeDescription> CutterCore::getAllEnums()
     QList<TypeDescription> enums;
 
     QJsonObject typesObject = cmdj("tej").object();
-    for (QString key : typesObject.keys()) {
+    for (const QJsonValue value : typesObject.keys()) {
+        QJsonObject typeObject = value.toObject();
+
         TypeDescription exp;
-        exp.type = key;
+
+        exp.type = typeObject[RJsonKey::name].toString();
         exp.size = 0;
         exp.category = "Enum";
         enums << exp;
@@ -3657,9 +3658,12 @@ QList<TypeDescription> CutterCore::getAllTypedefs()
     QList<TypeDescription> typeDefs;
 
     QJsonObject typesObject = cmdj("ttj").object();
-    for (QString key : typesObject.keys()) {
+    for (const QJsonValue value : typesObject.keys()) {
+        QJsonObject typeObject = value.toObject();
+
         TypeDescription exp;
-        exp.type = key;
+
+        exp.type = typeObject[RJsonKey::name].toString();
         exp.size = 0;
         exp.category = "Typedef";
         typeDefs << exp;
