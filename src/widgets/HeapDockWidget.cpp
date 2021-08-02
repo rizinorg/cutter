@@ -15,8 +15,14 @@ HeapDockWidget::HeapDockWidget(MainWindow *main)
     connect<void (QComboBox::*)(int)>(ui->allocatorSelector, &QComboBox::currentIndexChanged, this,
                                       &HeapDockWidget::onAllocatorSelected);
 
-    // select Glibc heap by default
-    onAllocatorSelected(0);
+    // select default heap depending upon kernel type
+    if (QSysInfo::kernelType() == "linux") {
+        ui->allocatorSelector->setCurrentIndex(Glibc);
+        onAllocatorSelected(Glibc);
+    } else if (QSysInfo::kernelType() == "winnt") {
+        ui->allocatorSelector->setCurrentIndex(Windows);
+        onAllocatorSelected(Windows);
+    }
 }
 
 HeapDockWidget::~HeapDockWidget()
