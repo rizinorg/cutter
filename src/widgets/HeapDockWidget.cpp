@@ -45,7 +45,7 @@ void HeapDockWidget::onAllocatorSelected(int index)
     if (index == Glibc) {
         currentHeapWidget = new GlibcHeapWidget(main, this);
     } else if (index == Windows) {
-        currentHeapWidget = new WindowsHeapWidget(main, this);
+        currentHeapWidget = new WindowsHeapWidget(this);
     }
 
     ui->verticalLayout->addWidget(currentHeapWidget);

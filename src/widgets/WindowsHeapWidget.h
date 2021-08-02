@@ -39,7 +39,7 @@ class WindowsHeapWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit WindowsHeapWidget(MainWindow *main, QWidget *parent);
+    explicit WindowsHeapWidget(QWidget *parent);
     ~WindowsHeapWidget();
 private slots:
     void updateContents();

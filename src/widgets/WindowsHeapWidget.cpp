@@ -2,7 +2,7 @@
 #include "WindowsHeapWidget.h"
 #include "ui_WindowsHeapWidget.h"
 
-WindowsHeapWidget::WindowsHeapWidget(MainWindow *main, QWidget *parent)
+WindowsHeapWidget::WindowsHeapWidget(QWidget *parent)
     : QWidget(parent), ui(new Ui::WindowsHeapWidget)
 {
     ui->setupUi(this);
