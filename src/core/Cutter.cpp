@@ -3545,7 +3545,7 @@ QList<TypeDescription> CutterCore::getAllPrimitiveTypes()
 
         exp.type = typeObject[RJsonKey::type].toString();
         exp.size = (int)typeObject[RJsonKey::size].toVariant().toULongLong();
-        exp.category = tr("Primitive");
+        exp.category = "Primitive";
         primitiveTypes << exp;
     }
 
