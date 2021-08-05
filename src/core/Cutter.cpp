@@ -3562,15 +3562,30 @@ QList<VTableDescription> CutterCore::getAllVTables()
 
 QList<TypeDescription> CutterCore::getAllTypes()
 {
-    QList<TypeDescription> types;
+    CORE_LOCK();
+    QList<TypeDescription> types_desc;
+    RzList *types = rz_type_db_get_base_types(core->analysis->typedb);
+    RzListIter *it;
+    RzBaseType *btype;
 
-    types.append(getAllPrimitiveTypes());
-    types.append(getAllUnions());
-    types.append(getAllStructs());
-    types.append(getAllEnums());
-    types.append(getAllTypedefs());
+    CutterRListForeach(types, it, RzBaseType, btype)
+    {
+        TypeDescription typeDescription;
+        typeDescription.type = btype->name;
+        if (btype->kind == RZ_BASE_TYPE_KIND_STRUCT) {
+            typeDescription.category = "Struct";
+        } else if (btype->kind == RZ_BASE_TYPE_KIND_ENUM) {
+            typeDescription.category = "Enum";
+        } else if (btype->kind == RZ_BASE_TYPE_KIND_ATOMIC) {
+            typeDescription.category = "Primitive";
+        } else if (btype->kind == RZ_BASE_TYPE_KIND_TYPEDEF) {
+            typeDescription.category = "Typedef";
+        }
+        typeDescription.size = btype->size;
+        types_desc << typeDescription;
+    }
 
-    return types;
+    return types_desc;
 }
 
 QList<TypeDescription> CutterCore::getAllPrimitiveTypes()
@@ -3677,7 +3692,7 @@ QString CutterCore::addTypes(const char *str)
     CORE_LOCK();
     char *error_msg = nullptr;
     int result = rz_type_parse_string(core->analysis->typedb, str, &error_msg);
-    // TODO fix adding and parsing types
+
     QString error;
 
     if (result && error_msg) {
@@ -3695,16 +3710,23 @@ QString CutterCore::getTypeAsC(QString name, QString category)
     if (name.isEmpty() || category.isEmpty()) {
         return output;
     }
-    QString typeName = sanitizeStringForCommand(name);
+
+    const char *name_char = name.toStdString().c_str();
+    RzBaseType *rzBaseType;
+
     if (category == "Struct") {
-        output = cmdRaw(QString("tsc %1").arg(typeName));
+        rzBaseType = rz_type_db_get_struct(core->analysis->typedb, name_char);
     } else if (category == "Union") {
-        output = cmdRaw(QString("tuc %1").arg(typeName));
+        rzBaseType = rz_type_db_get_union(core->analysis->typedb, name_char);
     } else if (category == "Enum") {
-        output = cmdRaw(QString("tec %1").arg(typeName));
+        rzBaseType = rz_type_db_get_enum(core->analysis->typedb, name_char);
     } else if (category == "Typedef") {
-        output = cmdRaw(QString("ttc %1").arg(typeName));
+        rzBaseType = rz_type_db_get_typedef(core->analysis->typedb, name_char);
     }
+
+    char *output_char = rz_type_db_base_type_as_string(core->analysis->typedb, rzBaseType);
+
+    output = QString(output_char);
     return output;
 }
 
