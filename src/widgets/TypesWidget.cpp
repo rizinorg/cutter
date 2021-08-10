@@ -39,8 +39,6 @@ QVariant TypesModel::data(const QModelIndex &index, int role) const
             return exp.type;
         case SIZE:
             return exp.size ? exp.size : QVariant();
-        case FORMAT:
-            return exp.format;
         case CATEGORY:
             return exp.category;
         default:
@@ -62,8 +60,6 @@ QVariant TypesModel::headerData(int section, Qt::Orientation, int role) const
             return tr("Type / Name");
         case SIZE:
             return tr("Size");
-        case FORMAT:
-            return tr("Format");
         case CATEGORY:
             return tr("Category");
         default:
@@ -122,8 +118,6 @@ bool TypesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIn
         return left_exp.type < right_exp.type;
     case TypesModel::SIZE:
         return left_exp.size < right_exp.size;
-    case TypesModel::FORMAT:
-        return left_exp.format < right_exp.format;
     case TypesModel::CATEGORY:
         return left_exp.category < right_exp.category;
     default:
@@ -183,10 +177,11 @@ TypesWidget::TypesWidget(MainWindow *main)
     });
 
     actionViewType = new QAction(tr("View Type"), this);
-    actionEditType = new QAction(tr("Edit Type"), this);
+    // disable option to edit types till there is an RZ API for it
+    // actionEditType = new QAction(tr("Edit Type"), this);
 
     connect(actionViewType, &QAction::triggered, [this]() { viewType(true); });
-    connect(actionEditType, &QAction::triggered, [this]() { viewType(false); });
+    // connect(actionEditType, &QAction::triggered, [this]() { viewType(false); });
     connect(ui->typesTreeView, &QTreeView::doubleClicked, this,
             &TypesWidget::typeItemDoubleClicked);
 }
@@ -217,6 +212,9 @@ void TypesWidget::refreshCategoryCombo(const QStringList &categories)
     combo->addItem(tr("(All)"));
 
     for (const QString &category : categories) {
+        if (category.isEmpty()) {
+            continue;
+        }
         combo->addItem(category, category);
     }
 
@@ -240,7 +238,7 @@ void TypesWidget::showTypesContextMenu(const QPoint &pt)
         if (t.category != "Primitive") {
             // Add "Link To Address" option
             menu.addAction(actionViewType);
-            menu.addAction(actionEditType);
+            //  menu.addAction(actionEditType);
             if (t.category == "Struct") {
                 menu.addAction(ui->actionLink_Type_To_Address);
             }
@@ -276,7 +274,7 @@ void TypesWidget::on_actionExport_Types_triggered()
     }
     QTextStream fileOut(&file);
     for (const auto &type : types) {
-        if (type.category == "Primitive"){
+        if (type.category == "Primitive") {
             continue;
         }
         fileOut << Core()->getTypeAsC(type.type, type.category) << "\n";

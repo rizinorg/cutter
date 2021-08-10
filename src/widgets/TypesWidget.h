@@ -31,7 +31,7 @@ private:
     QList<TypeDescription> *types;
 
 public:
-    enum Columns { TYPE = 0, SIZE, FORMAT, CATEGORY, COUNT };
+    enum Columns { TYPE = 0, SIZE, CATEGORY, COUNT };
     static const int TypeDescriptionRole = Qt::UserRole;
 
     TypesModel(QList<TypeDescription> *types, QObject *parent = nullptr);

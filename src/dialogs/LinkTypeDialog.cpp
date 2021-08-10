@@ -59,7 +59,7 @@ void LinkTypeDialog::done(int r)
                 Core()->cmdRaw("tl- " + address);
             } else {
                 // Create link
-                Core()->cmdRaw(QString("tl %1 = %2").arg(type).arg(address));
+                Core()->cmdRaw(QString("tl %1 %2").arg(type).arg(address));
             }
             QDialog::done(r);
 
