@@ -1957,8 +1957,10 @@ void CutterCore::attachDebug(int pid)
         offsetPriorDebugging = getOffset();
     }
 
+    QString attach_command = currentlyOpenFile.isEmpty() ? "o" : "oodf";
     // attach to process with dbg plugin
-    asyncCmd("e cfg.debug = true; oodf dbg://" + QString::number(pid), debugTask);
+    asyncCmd("e cfg.debug=true;" + attach_command + " dbg://" + QString::number(pid), debugTask);
+
     emit debugTaskStateChanged();
 
     connect(debugTask.data(), &RizinTask::finished, this, [this, pid]() {
