@@ -432,6 +432,8 @@ public:
      * @return true if the write succeeded else false
      */
     bool writeHeapChunk(RzHeapChunkSimple *chunkSimple);
+    QVector<HeapBlock> getHeapBlocks();
+    QVector<WindowsHeapInfo> getWindowsHeaps();
     int getArchBits();
     void startDebug();
     void startEmulation();

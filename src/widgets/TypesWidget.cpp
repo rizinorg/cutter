@@ -275,7 +275,12 @@ void TypesWidget::on_actionExport_Types_triggered()
         return;
     }
     QTextStream fileOut(&file);
-    fileOut << Core()->cmdRaw("tc");
+    for (const auto &type : types) {
+        if (type.category == "Primitive"){
+            continue;
+        }
+        fileOut << Core()->getTypeAsC(type.type, type.category) << "\n";
+    }
     file.close();
 }
 
