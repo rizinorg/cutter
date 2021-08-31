@@ -26,10 +26,10 @@ jobs:
           - os: windows-2016
             package: true
           - os: ubuntu-18.04 # ensure that Cutter can be built at least in basic config on Ubuntu 18.04 using sytem libraries
-            python-version: 3.5.10
+            # python-version: 3.5.10
             system-deps: true
-            cc-override: '/usr/bin/gcc-5'
-            cxx-override: '/usr/bin/g++-5'
+            # cc-override: '/usr/bin/gcc-5'
+            # cxx-override: '/usr/bin/g++-5'
           - os: ubuntu-18.04 # release package build
             system-deps: false
             package: true
