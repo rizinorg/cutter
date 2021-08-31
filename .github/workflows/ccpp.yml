@@ -26,10 +26,10 @@ jobs:
           - os: windows-2016
             package: true
           - os: ubuntu-18.04 # ensure that Cutter can be built at least in basic config on Ubuntu 18.04 using sytem libraries
-            # python-version: 3.5.10
+            python-version: 3.6.9
             system-deps: true
-            # cc-override: '/usr/bin/gcc-5'
-            # cxx-override: '/usr/bin/g++-5'
+            cc-override: '/usr/bin/gcc-7'
+            cxx-override: '/usr/bin/g++-7'
           - os: ubuntu-18.04 # release package build
             system-deps: false
             package: true
@@ -43,29 +43,7 @@ jobs:
     - name: apt dependencies
       if: contains(matrix.os, 'ubuntu')
       run: |
-        sudo apt-get install libgraphviz-dev mesa-common-dev libxkbcommon-x11-dev libclang-8-dev llvm-8
-        if [[ "${{ matrix.os }}" = "ubuntu-16.04" ]]
-        then
-          sudo apt-get install ninja-build/xenial-backports libxcb1-dev libxkbcommon-dev libxcb-*-dev
-          if [[ "${{ matrix.system-deps }}" = "true" ]]
-          then
-            sudo apt-get install cmake
-            sudo apt-get install --allow-downgrades \
-                g++-5=5.4.\* \
-                gcc-5=5.4.\* \
-                gcc-5-base=5.4.\* \
-                libstdc++-5-dev=5.4.\* \
-                cpp-5=5.4.\* \
-                libgcc-5-dev=5.4.\* \
-                libasan2=5.4.\* \
-                libmpx0=5.4.\*
-           fi
-           # make sure cmake that was just installed is at the front of path before
-           # additional software installed by GitHub
-           echo /usr/bin >> $GITHUB_PATH
-        else
-          sudo apt-get install ninja-build
-        fi
+        sudo apt-get install libgraphviz-dev mesa-common-dev libxkbcommon-x11-dev libclang-8-dev llvm-8 ninja-build
         if [[ "${{ matrix.system-deps }}" = "true" ]]
         then
           sudo apt-get install qt5-default libqt5svg5-dev qttools5-dev qttools5-dev-tools
@@ -84,8 +62,7 @@ jobs:
         brew install pkg-config
     - name: py dependencies
       run: |
-        # 0.56.1 doesn't work with python 3.5 on Ubuntu 16.04
-        pip install meson #==0.56.0
+        pip install meson
     - name: Prepare package id
       shell: bash
       run: |
