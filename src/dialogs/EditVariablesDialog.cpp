@@ -84,26 +84,18 @@ void EditVariablesDialog::updateFields()
     ui->typeComboBox->setCurrentText(desc.type);
 }
 
+static void addTypeDescriptionsToComboBox(QComboBox *comboBox, QList<TypeDescription> list) {
+    for (const TypeDescription &thisType : list) {
+        comboBox->addItem(thisType.type);
+    }
+    comboBox->insertSeparator(comboBox->count());
+}
+
 void EditVariablesDialog::populateTypesComboBox()
 {
-    // gets all loaded types, structures and enums and puts them in a list
+    addTypeDescriptionsToComboBox(ui->typeComboBox, Core()->getAllStructs());
+    addTypeDescriptionsToComboBox(ui->typeComboBox, Core()->getAllPrimitiveTypes());
+    addTypeDescriptionsToComboBox(ui->typeComboBox, Core()->getAllEnums());
+    addTypeDescriptionsToComboBox(ui->typeComboBox, Core()->getAllTypedefs());
 
-    QStringList userStructures;
-    QStringList userEnumerations;
-    QList<TypeDescription> primitiveTypesTypeList;
-
-    userStructures = Core()->cmdList("ts");
-    ui->typeComboBox->addItems(userStructures);
-    ui->typeComboBox->insertSeparator(ui->typeComboBox->count());
-
-    primitiveTypesTypeList = Core()->getAllPrimitiveTypes();
-
-    for (const TypeDescription &thisType : primitiveTypesTypeList) {
-        ui->typeComboBox->addItem(thisType.type);
-    }
-
-    ui->typeComboBox->insertSeparator(ui->typeComboBox->count());
-
-    userEnumerations = Core()->cmdList("te");
-    ui->typeComboBox->addItems(userEnumerations);
 }

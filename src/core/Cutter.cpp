@@ -3519,145 +3519,88 @@ QList<TypeDescription> CutterCore::getAllTypes()
     return types;
 }
 
-QList<TypeDescription> CutterCore::getAllPrimitiveTypes()
+QList<TypeDescription> CutterCore::getBaseType(RzBaseTypeKind kind, const char *category)
 {
     CORE_LOCK();
-    QList<TypeDescription> primitiveTypes;
+    QList<TypeDescription> types;
 
-    QJsonArray typesArray = cmdj("tj").array();
-    for (const QJsonValue &value : typesArray) {
-        QJsonObject typeObject = value.toObject();
+    RzList *ts = rz_type_db_get_base_types_of_kind(core->analysis->typedb, kind);
+    RzBaseType *type;
+    RzListIter *iter;
 
+    CutterRListForeach (ts, iter, RzBaseType, type) {
         TypeDescription exp;
 
-        exp.type = typeObject[RJsonKey::type].toString();
-        exp.size = typeObject[RJsonKey::size].toVariant().toULongLong();
-        exp.format = typeObject[RJsonKey::format].toString();
-        exp.category = tr("Primitive");
-        primitiveTypes << exp;
+        exp.type = type->name;
+        exp.size = rz_type_db_base_get_bitsize(core->analysis->typedb, type);
+        exp.format = rz_type_format(core->analysis->typedb, type->name);
+        exp.category = tr(category);
+        types << exp;
     }
+    rz_list_free(ts);
 
-    return primitiveTypes;
+    return types;
+}
+
+QList<TypeDescription> CutterCore::getAllPrimitiveTypes()
+{
+    return getBaseType(RZ_BASE_TYPE_KIND_ATOMIC, "Primitive");
 }
 
 QList<TypeDescription> CutterCore::getAllUnions()
 {
-    CORE_LOCK();
-    QList<TypeDescription> unions;
-
-    QJsonArray typesArray = cmdj("tuj").array();
-    for (const QJsonValue value : typesArray) {
-        QJsonObject typeObject = value.toObject();
-
-        TypeDescription exp;
-
-        exp.type = typeObject[RJsonKey::type].toString();
-        exp.size = typeObject[RJsonKey::size].toVariant().toULongLong();
-        exp.category = "Union";
-        unions << exp;
-    }
-
-    return unions;
+    return getBaseType(RZ_BASE_TYPE_KIND_UNION, "Union");
 }
 
 QList<TypeDescription> CutterCore::getAllStructs()
 {
-    CORE_LOCK();
-    QList<TypeDescription> structs;
-
-    QJsonArray typesArray = cmdj("tsj").array();
-    for (const QJsonValue value : typesArray) {
-        QJsonObject typeObject = value.toObject();
-
-        TypeDescription exp;
-
-        exp.type = typeObject[RJsonKey::type].toString();
-        exp.size = typeObject[RJsonKey::size].toVariant().toULongLong();
-        exp.category = "Struct";
-        structs << exp;
-    }
-
-    return structs;
+    return getBaseType(RZ_BASE_TYPE_KIND_STRUCT, "Struct");
 }
 
 QList<TypeDescription> CutterCore::getAllEnums()
 {
-    CORE_LOCK();
-    QList<TypeDescription> enums;
-
-    QJsonObject typesObject = cmdj("tej").object();
-    for (QString key : typesObject.keys()) {
-        TypeDescription exp;
-        exp.type = key;
-        exp.size = 0;
-        exp.category = "Enum";
-        enums << exp;
-    }
-
-    return enums;
+    return getBaseType(RZ_BASE_TYPE_KIND_ENUM, "Enum");
 }
 
 QList<TypeDescription> CutterCore::getAllTypedefs()
 {
-    CORE_LOCK();
-    QList<TypeDescription> typeDefs;
-
-    QJsonObject typesObject = cmdj("ttj").object();
-    for (QString key : typesObject.keys()) {
-        TypeDescription exp;
-        exp.type = key;
-        exp.size = 0;
-        exp.category = "Typedef";
-        typeDefs << exp;
-    }
-
-    return typeDefs;
+    return getBaseType(RZ_BASE_TYPE_KIND_TYPEDEF, "Typedef");
 }
 
 QString CutterCore::addTypes(const char *str)
 {
     CORE_LOCK();
     char *error_msg = nullptr;
-    char *parsed = rz_type_parse_c_string(core->analysis->typedb, str, &error_msg);
+    int parsed = rz_type_parse_string(core->analysis->typedb, str, &error_msg);
     QString error;
 
-    if (!parsed) {
-        if (error_msg) {
-            error = error_msg;
-            rz_mem_free(error_msg);
-        }
-        return error;
-    }
-
-    rz_type_db_save_parsed_type(core->analysis->typedb, parsed);
-    rz_mem_free(parsed);
-
-    if (error_msg) {
+    if (!parsed && error_msg) {
         error = error_msg;
         rz_mem_free(error_msg);
+    } else if (!parsed) {
+        error = QString("Failed to load new type %1").arg(str);
     }
 
     return error;
 }
 
-QString CutterCore::getTypeAsC(QString name, QString category)
+QString CutterCore::getTypeAsC(QString name)
 {
     CORE_LOCK();
     QString output = "Failed to fetch the output.";
-    if (name.isEmpty() || category.isEmpty()) {
+    if (name.isEmpty()) {
         return output;
     }
-    QString typeName = sanitizeStringForCommand(name);
-    if (category == "Struct") {
-        output = cmdRaw(QString("tsc %1").arg(typeName));
-    } else if (category == "Union") {
-        output = cmdRaw(QString("tuc %1").arg(typeName));
-    } else if (category == "Enum") {
-        output = cmdRaw(QString("tec %1").arg(typeName));
-    } else if (category == "Typedef") {
-        output = cmdRaw(QString("ttc %1").arg(typeName));
-    }
-    return output;
+    char *earg = rz_cmd_escape_arg(name.toUtf8().constData(), RZ_CMD_ESCAPE_ONE_ARG);
+    // TODO: use API for `tc` command once available
+    QString result = cmd(QString("tc %1").arg(earg));
+    free(earg);
+    return result;
+}
+
+bool CutterCore::deleteType(const char *typeName) {
+    CORE_LOCK();
+    return rz_type_db_del(core->analysis->typedb, typeName);
 }
 
 bool CutterCore::isAddressMapped(RVA addr)
