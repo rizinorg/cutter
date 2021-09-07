@@ -76,7 +76,7 @@ QVariant TypesModel::headerData(int section, Qt::Orientation, int role) const
 
 bool TypesModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    Core()->cmdRaw("t-" + types->at(row).type);
+    Core()->deleteType(types->at(row).type);
     beginRemoveRows(parent, row, row + count - 1);
     while (count--) {
         types->removeAt(row);
@@ -275,7 +275,8 @@ void TypesWidget::on_actionExport_Types_triggered()
         return;
     }
     QTextStream fileOut(&file);
-    fileOut << Core()->cmdRaw("tc");
+    // TODO: use API for `tc` command once available
+    fileOut << Core()->cmd("tc");
     file.close();
 }
 
@@ -304,7 +305,7 @@ void TypesWidget::viewType(bool readOnly)
     } else {
         dialog.setWindowTitle(tr("View Type: ") + t.type + tr(" (Read Only)"));
     }
-    dialog.fillTextArea(Core()->getTypeAsC(t.type, t.category));
+    dialog.fillTextArea(Core()->getTypeAsC(t.type));
     dialog.exec();
 }
 
@@ -351,7 +352,7 @@ void TypesWidget::typeItemDoubleClicked(const QModelIndex &index)
     if (t.category == "Primitive") {
         return;
     }
-    dialog.fillTextArea(Core()->getTypeAsC(t.type, t.category));
+    dialog.fillTextArea(Core()->getTypeAsC(t.type));
     dialog.setWindowTitle(tr("View Type: ") + t.type + tr(" (Read Only)"));
     dialog.exec();
 }

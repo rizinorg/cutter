@@ -31,7 +31,7 @@ private:
     QList<TypeDescription> *types;
 
 public:
-    enum Columns { TYPE = 0, SIZE, FORMAT, CATEGORY, COUNT };
+    enum Columns { TYPE = 0, SIZE, CATEGORY, FORMAT, COUNT };
     static const int TypeDescriptionRole = Qt::UserRole;
 
     TypesModel(QList<TypeDescription> *types, QObject *parent = nullptr);
@@ -81,7 +81,7 @@ private slots:
     /**
      * @brief Executed on clicking the Export Types option in the context menu
      * It shows the user a file dialog box to select a file where the types
-     * will be exported. It uses the "tc" command of Rizin to export the types.
+     * will be exported.
      */
     void on_actionExport_Types_triggered();
 

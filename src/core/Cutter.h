@@ -590,11 +590,10 @@ public:
 
     /**
      * @brief Fetching the C representation of a given Type
-     * @param name - the name or the type of the given Type / Struct
-     * @param category - the category of the given Type (Struct, Union, Enum, ...)
+     * @param name - the name or the type of the given Type
      * @return The type decleration as C output
      */
-    QString getTypeAsC(QString name, QString category);
+    QString getTypeAsC(QString name);
 
     /**
      * @brief Adds new types
@@ -607,6 +606,13 @@ public:
      */
     QString addTypes(const char *str);
     QString addTypes(const QString &str) { return addTypes(str.toUtf8().constData()); }
+
+    /**
+     * @brief Remove a type
+     * @param typeName Name of the type to remove
+     */
+    bool deleteType(const char *typeName);
+    bool deleteType(QString typeName) { return deleteType(typeName.toUtf8().constData()); }
 
     /**
      * @brief Checks if the given address is mapped to a region
@@ -788,6 +794,7 @@ private:
     RizinTaskDialog *debugTaskDialog;
 
     QVector<QString> getCutterRCFilePaths() const;
+    QList<TypeDescription> getBaseType(RzBaseTypeKind kind, const char *category);
 };
 
 class CUTTER_EXPORT RzCoreLocked
