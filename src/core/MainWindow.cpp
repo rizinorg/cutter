@@ -695,7 +695,7 @@ RzProjectErr MainWindow::saveProject(bool *canceled)
     if (canceled) {
         *canceled = false;
     }
-    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData());
+    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData(), false);
     if (err == RZ_PROJECT_ERR_SUCCESS) {
         Config()->addRecentProject(file);
     }
@@ -724,7 +724,7 @@ RzProjectErr MainWindow::saveProjectAs(bool *canceled)
     if (canceled) {
         *canceled = false;
     }
-    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData());
+    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData(), false);
     if (err == RZ_PROJECT_ERR_SUCCESS) {
         Config()->addRecentProject(file);
     }
