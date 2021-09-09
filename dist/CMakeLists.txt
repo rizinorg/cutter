@@ -110,7 +110,8 @@ if(CUTTER_PACKAGE_RZ_GHIDRA)
 		ExternalProject_Add(rz-ghidra
 			GIT_REPOSITORY https://github.com/rizinorg/rz-ghidra
 			#GIT_TAG v0.2.0
-			GIT_TAG dev
+			GIT_TAG 40ea3766d1bb283e255e31b9e7c3a61885dd3cb0
+			#GIT_TAG dev
 			#GIT_SHALLOW ON # disable this line when using commit hash
 			CONFIGURE_COMMAND ""
 			BUILD_COMMAND ""
