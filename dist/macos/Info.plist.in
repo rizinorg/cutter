@@ -7,9 +7,9 @@
 	<key>CFBundleExecutable</key>
 	<string>cutter</string>
 	<key>CFBundleVersion</key>
-	<string>@FULL_VERSION@</string>
+	<string>@CUTTER_VERSION_FULL@</string>
 	<key>CFBundleShortVersionString</key>
-	<string>@FULL_VERSION@</string>
+	<string>@CUTTER_VERSION_FULL@</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Licensed under the GPLv3 by the Cutter developers.</string>
 	<key>CFBundleIconFile</key>
