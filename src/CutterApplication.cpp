@@ -170,7 +170,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     }
 #endif
 
-#ifdef Q_OS_MACOS
+#if defined(Q_OS_MACOS) && defined(CUTTER_ENABLE_PACKAGING)
     {
         auto rzprefix = QDir(QCoreApplication::applicationDirPath()); // Contents/MacOS
         rzprefix.cdUp(); // Contents
