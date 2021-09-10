@@ -48,7 +48,7 @@ jobs:
         if [[ "${{ matrix.os }}" = "ubuntu-18.04" ]]
         then
           # install additional packages needed for appimage
-          sudo apt-get install libxcb1-dev libxkbcommon-dev libxcb-*-dev libegl1-mesa libegl1
+          sudo apt-get install libxcb1-dev libxkbcommon-dev libxcb-*-dev libegl1
         fi
         if [[ "${{ matrix.system-deps }}" = "true" ]]
         then
