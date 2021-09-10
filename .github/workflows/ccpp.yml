@@ -135,7 +135,7 @@ jobs:
           # export LD_LIBRARY_PATH=${APP_PREFIX}/lib:$Shiboken2_ROOT/lib
           export PATH=$PATH:${APP_PREFIX}/bin
           "../scripts/jsdec.sh" --prefix=`pwd`/appdir/usr
-          wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/6/linuxdeployqt-6-x86_64.AppImage"
+          wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x linuxdeployqt*.AppImage
           rm -fv "../cutter-deps/qt/plugins/imageformats/libqjp2.so"
           # ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -executable=./appdir/usr/bin/python3 -bundle-non-qt-libs -no-strip -exclude-libs=libnss3.so,libnssutil3.so,libqjp2.so -ignore-glob=usr/lib/python3.9/**/* -verbose=2
