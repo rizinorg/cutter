@@ -96,6 +96,16 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     bool varsubEnabled = Config()->getConfigBool("asm.sub.var");
     ui->varsubOnlyCheckBox->setEnabled(varsubEnabled);
 
+    ui->asmComboBox->blockSignals(true);
+    if (Config()->getConfigBool("asm.esil")) {
+        ui->asmComboBox->setCurrentIndex(1);
+    } else if (Config()->getConfigBool("asm.pseudo")) {
+        ui->asmComboBox->setCurrentIndex(2);
+    } else {
+        ui->asmComboBox->setCurrentIndex(0);
+    }
+    ui->asmComboBox->blockSignals(false);
+
     QString currentSyntax = Config()->getConfigString("asm.syntax");
     for (int i = 0; i < ui->syntaxComboBox->count(); i++) {
         if (ui->syntaxComboBox->itemData(i) == currentSyntax) {
