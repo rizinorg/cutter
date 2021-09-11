@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-16.04, macos-latest, windows-2016]
+        os: [ubuntu-20.04, ubuntu-18.04, macos-latest, windows-2016]
         python-version: [3.7.x]
         system-deps: [false]
         cc-override: [default]
@@ -25,12 +25,12 @@ jobs:
         include:
           - os: windows-2016
             package: true
-          - os: ubuntu-16.04 # ensure that Cutter can be built at least in basic config on Ubuntu 16.04 using sytem libraries
-            python-version: 3.5.10
+          - os: ubuntu-18.04 # ensure that Cutter can be built at least in basic config on Ubuntu 18.04 using sytem libraries
+            python-version: 3.6.x
             system-deps: true
-            cc-override: '/usr/bin/gcc-5'
-            cxx-override: '/usr/bin/g++-5'
-          - os: ubuntu-16.04 # release package build
+            cc-override: '/usr/bin/gcc-7'
+            cxx-override: '/usr/bin/g++-7'
+          - os: ubuntu-18.04 # release package build
             system-deps: false
             package: true
       # Prevent one job from pausing the rest
@@ -43,28 +43,12 @@ jobs:
     - name: apt dependencies
       if: contains(matrix.os, 'ubuntu')
       run: |
-        sudo apt-get install libgraphviz-dev mesa-common-dev libxkbcommon-x11-dev libclang-8-dev llvm-8
-        if [[ "${{ matrix.os }}" = "ubuntu-16.04" ]]
+        sudo apt-get update
+        sudo apt-get install libgraphviz-dev mesa-common-dev libxkbcommon-x11-dev libclang-8-dev llvm-8 ninja-build
+        if [[ "${{ matrix.os }}" = "ubuntu-18.04" ]]
         then
-          sudo apt-get install ninja-build/xenial-backports libxcb1-dev libxkbcommon-dev libxcb-*-dev
-          if [[ "${{ matrix.system-deps }}" = "true" ]]
-          then
-            sudo apt-get install cmake
-            sudo apt-get install --allow-downgrades \
-                g++-5=5.4.\* \
-                gcc-5=5.4.\* \
-                gcc-5-base=5.4.\* \
-                libstdc++-5-dev=5.4.\* \
-                cpp-5=5.4.\* \
-                libgcc-5-dev=5.4.\* \
-                libasan2=5.4.\* \
-                libmpx0=5.4.\*
-           fi
-           # make sure cmake that was just installed is at the front of path before
-           # additional software installed by GitHub
-           echo /usr/bin >> $GITHUB_PATH
-        else
-          sudo apt-get install ninja-build
+          # install additional packages needed for appimage
+          sudo apt-get install libxcb1-dev libxkbcommon-dev libxcb-*-dev libegl1
         fi
         if [[ "${{ matrix.system-deps }}" = "true" ]]
         then
@@ -84,8 +68,7 @@ jobs:
         brew install pkg-config
     - name: py dependencies
       run: |
-        # 0.56.1 doesn't work with python 3.5 on Ubuntu 16.04
-        pip install meson==0.56.0
+        pip install meson
     - name: Prepare package id
       shell: bash
       run: |
@@ -157,7 +140,7 @@ jobs:
           # export LD_LIBRARY_PATH=${APP_PREFIX}/lib:$Shiboken2_ROOT/lib
           export PATH=$PATH:${APP_PREFIX}/bin
           "../scripts/jsdec.sh" --prefix=`pwd`/appdir/usr
-          wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/6/linuxdeployqt-6-x86_64.AppImage"
+          wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x linuxdeployqt*.AppImage
           rm -fv "../cutter-deps/qt/plugins/imageformats/libqjp2.so"
           # ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -executable=./appdir/usr/bin/python3 -bundle-non-qt-libs -no-strip -exclude-libs=libnss3.so,libnssutil3.so,libqjp2.so -ignore-glob=usr/lib/python3.9/**/* -verbose=2
