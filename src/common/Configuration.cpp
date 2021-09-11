@@ -288,6 +288,14 @@ void Configuration::loadNativeStylesheet()
         f.open(QFile::ReadOnly | QFile::Text);
         QTextStream ts(&f);
         QString stylesheet = ts.readAll();
+#ifdef Q_OS_MACOS
+		QFile mf(":native/native-macos.qss");
+		if (mf.exists()) {
+			mf.open(QFile::ReadOnly | QFile::Text);
+			QTextStream mts(&mf);
+			stylesheet += "\n" + mts.readAll();
+		}
+#endif
         qApp->setStyleSheet(stylesheet);
     }
 
