@@ -8,3 +8,7 @@ QDockWidget::title {
 	background: palette(window);
 }
 
+QDockWidget {
+	titlebar-close-icon: url(:/native/macos-close.svg);
+	titlebar-normal-icon: url(:/native/macos-float.svg);
+}

@@ -2,5 +2,7 @@
   <qresource prefix="native">
       <file>native.qss</file>
       <file>native-macos.qss</file>
+	  <file>macos-close.svg</file>
+	  <file>macos-float.svg</file>
   </qresource>
 </RCC>
