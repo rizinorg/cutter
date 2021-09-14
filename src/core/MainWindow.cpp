@@ -1129,12 +1129,13 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
 
     RzListIter *it;
     RzCoreSeekItem *undo;
-    RzList *list = rz_core_seek_list(Core()->core());
+    RzCoreLocked core(Core());
+    RzList *list = rz_core_seek_list(core);
 
     bool history = true;
     QList<QAction *> actions;
     CutterRListForeach(list, it, RzCoreSeekItem, undo) {
-        RzFlagItem *f = rz_flag_get_at(Core()->core()->flags, undo->offset, true);
+        RzFlagItem *f = rz_flag_get_at(core->flags, undo->offset, true);
         char *fname = NULL;
         if (f) {
             if (f->offset != undo->offset) {
