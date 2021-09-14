@@ -22,9 +22,15 @@ TypesInteractionDialog::TypesInteractionDialog(QWidget *parent, bool readOnly)
     syntaxHighLighter = Config()->createSyntaxHighlighter(ui->plainTextEdit->document());
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     ui->plainTextEdit->setReadOnly(readOnly);
+    this->typeName = "";
 }
 
 TypesInteractionDialog::~TypesInteractionDialog() {}
+
+void TypesInteractionDialog::setTypeName(QString name)
+{
+    this->typeName = name;
+}
 
 void TypesInteractionDialog::on_selectFileButton_clicked()
 {
@@ -57,8 +63,11 @@ void TypesInteractionDialog::on_plainTextEdit_textChanged()
 void TypesInteractionDialog::done(int r)
 {
     if (r == QDialog::Accepted) {
-        QString error = Core()->addTypes(ui->plainTextEdit->toPlainText());
-        if (error.isEmpty()) {
+        RzCoreLocked core(Core());
+        bool edited = rz_type_db_edit_base_type(
+                core->analysis->typedb, this->typeName.toUtf8().constData(),
+                ui->plainTextEdit->toPlainText().toUtf8().constData());
+        if (edited) {
             emit newTypesLoaded();
             QDialog::done(r);
             return;
@@ -67,7 +76,6 @@ void TypesInteractionDialog::done(int r)
         QMessageBox popup(this);
         popup.setWindowTitle(tr("Error"));
         popup.setText(tr("There was some error while loading new types"));
-        popup.setDetailedText(error);
         popup.setStandardButtons(QMessageBox::Ok);
         popup.exec();
     } else {

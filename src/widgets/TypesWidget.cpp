@@ -76,7 +76,8 @@ QVariant TypesModel::headerData(int section, Qt::Orientation, int role) const
 
 bool TypesModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    Core()->deleteType(types->at(row).type);
+    RzCoreLocked core(Core());
+    rz_type_db_del(core->analysis->typedb, types->at(row).type.toUtf8().constData());
     beginRemoveRows(parent, row, row + count - 1);
     while (count--) {
         types->removeAt(row);
@@ -282,9 +283,17 @@ void TypesWidget::on_actionExport_Types_triggered()
 
 void TypesWidget::on_actionLoad_New_Types_triggered()
 {
+    QModelIndex index = ui->typesTreeView->currentIndex();
+    if (!index.isValid()) {
+        return;
+    }
+
+    TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+
     TypesInteractionDialog dialog(this);
     connect(&dialog, &TypesInteractionDialog::newTypesLoaded, this, &TypesWidget::refreshTypes);
     dialog.setWindowTitle(tr("Load New Types"));
+    dialog.setTypeName(t.type);
     dialog.exec();
 }
 
@@ -306,6 +315,7 @@ void TypesWidget::viewType(bool readOnly)
         dialog.setWindowTitle(tr("View Type: ") + t.type + tr(" (Read Only)"));
     }
     dialog.fillTextArea(Core()->getTypeAsC(t.type));
+    dialog.setTypeName(t.type);
     dialog.exec();
 }
 
@@ -354,5 +364,6 @@ void TypesWidget::typeItemDoubleClicked(const QModelIndex &index)
     }
     dialog.fillTextArea(Core()->getTypeAsC(t.type));
     dialog.setWindowTitle(tr("View Type: ") + t.type + tr(" (Read Only)"));
+    dialog.setTypeName(t.type);
     dialog.exec();
 }

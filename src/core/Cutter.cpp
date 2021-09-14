@@ -3571,23 +3571,6 @@ QList<TypeDescription> CutterCore::getAllTypedefs()
     return getBaseType(RZ_BASE_TYPE_KIND_TYPEDEF, "Typedef");
 }
 
-QString CutterCore::addTypes(const char *str)
-{
-    CORE_LOCK();
-    char *error_msg = nullptr;
-    int parsed = rz_type_parse_string(core->analysis->typedb, str, &error_msg);
-    QString error;
-
-    if (!parsed && error_msg) {
-        error = error_msg;
-        rz_mem_free(error_msg);
-    } else if (!parsed) {
-        error = QString("Failed to load new type %1").arg(str);
-    }
-
-    return error;
-}
-
 QString CutterCore::getTypeAsC(QString name)
 {
     CORE_LOCK();
@@ -3600,11 +3583,6 @@ QString CutterCore::getTypeAsC(QString name)
     QString result = cmd(QString("tc %1").arg(earg));
     free(earg);
     return result;
-}
-
-bool CutterCore::deleteType(const char *typeName) {
-    CORE_LOCK();
-    return rz_type_db_del(core->analysis->typedb, typeName);
 }
 
 bool CutterCore::isAddressMapped(RVA addr)
