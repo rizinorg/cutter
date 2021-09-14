@@ -29,7 +29,7 @@ QVariant HeadersModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case OffsetColumn:
-            return RAddressString(header.vaddr);
+            return RzAddressString(header.vaddr);
         case NameColumn:
             return header.name;
         case ValueColumn:

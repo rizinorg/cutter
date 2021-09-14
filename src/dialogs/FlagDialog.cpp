@@ -21,9 +21,9 @@ FlagDialog::FlagDialog(RVA offset, QWidget *parent)
     ui->sizeEdit->setValidator(size_validator);
     if (flag) {
         ui->nameEdit->setText(flag->name);
-        ui->labelAction->setText(tr("Edit flag at %1").arg(RAddressString(offset)));
+        ui->labelAction->setText(tr("Edit flag at %1").arg(RzAddressString(offset)));
     } else {
-        ui->labelAction->setText(tr("Add flag at %1").arg(RAddressString(offset)));
+        ui->labelAction->setText(tr("Add flag at %1").arg(RzAddressString(offset)));
     }
 
     // Connect slots

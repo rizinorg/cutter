@@ -38,7 +38,7 @@ QVariant ImportsModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case ImportsModel::AddressColumn:
-            return RAddressString(import.plt);
+            return RzAddressString(import.plt);
         case ImportsModel::TypeColumn:
             return import.type;
         case ImportsModel::SafetyColumn:

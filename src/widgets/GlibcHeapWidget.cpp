@@ -66,7 +66,7 @@ void GlibcHeapWidget::updateArenas()
 
     // add the new arenas to the arena selector
     for (auto &arena : arenas) {
-        arenaSelectorView->addItem(RAddressString(arena.offset)
+        arenaSelectorView->addItem(RzAddressString(arena.offset)
                                    + QString(" (" + arena.type + " Arena)"));
     }
 
@@ -138,9 +138,9 @@ QVariant GlibcHeapModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case OffsetColumn:
-            return RAddressString(item.offset);
+            return RzAddressString(item.offset);
         case SizeColumn:
-            return RHexString(item.size);
+            return RzHexString(item.size);
         case StatusColumn:
             return item.status;
         default:

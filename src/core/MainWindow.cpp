@@ -619,7 +619,7 @@ bool MainWindow::openProject(const QString &file)
         const char *s = rz_project_err_message(err);
         QString msg = tr("Failed to open project: %1").arg(QString::fromUtf8(s));
         RzListIter *it;
-        CutterRListForeach(res, it, const char, s) { msg += "\n" + QString::fromUtf8(s); }
+        CutterRzListForeach(res, it, const char, s) { msg += "\n" + QString::fromUtf8(s); }
         QMessageBox::critical(this, tr("Open Project"), msg);
         rz_list_free(res);
         return false;
@@ -1134,7 +1134,7 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
 
     bool history = true;
     QList<QAction *> actions;
-    CutterRListForeach(list, it, RzCoreSeekItem, undo) {
+    CutterRzListForeach(list, it, RzCoreSeekItem, undo) {
         RzFlagItem *f = rz_flag_get_at(core->flags, undo->offset, true);
         char *fname = NULL;
         if (f) {
@@ -1151,7 +1151,7 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
             history = false;
         }
         if (history != redo || current) { // Include current in both directions
-            QString addressString = RAddressString(offset);
+            QString addressString = RzAddressString(offset);
 
             QString toolTip =
                     QString("%1 %2").arg(addressString, name); // show non truncated name in tooltip

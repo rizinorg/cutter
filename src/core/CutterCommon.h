@@ -15,11 +15,11 @@
 #endif // Q_OS_WIN
 
 // Rizin list iteration macros
-#define CutterRListForeach(list, it, type, x)                                                      \
+#define CutterRzListForeach(list, it, type, x)                                                      \
     if (list)                                                                                      \
         for (it = list->head; it && ((x = static_cast<type *>(it->data))); it = it->n)
 
-#define CutterRVectorForeach(vec, it, type)                                                        \
+#define CutterRzVectorForeach(vec, it, type)                                                        \
     if ((vec) && (vec)->a)                                                                         \
         for (it = (type *)(vec)->a;                                                                \
              (char *)it != (char *)(vec)->a + ((vec)->len * (vec)->elem_size);                     \
@@ -44,17 +44,17 @@ typedef ut64 RVA;
  */
 #define RVA_INVALID RVA_MAX
 
-inline QString RAddressString(RVA addr)
+inline QString RzAddressString(RVA addr)
 {
     return QString::asprintf("%#010llx", addr);
 }
 
-inline QString RSizeString(RVA size)
+inline QString RzSizeString(RVA size)
 {
     return QString::asprintf("%#llx", size);
 }
 
-inline QString RHexString(RVA size)
+inline QString RzHexString(RVA size)
 {
     return QString::asprintf("%#llx", size);
 }

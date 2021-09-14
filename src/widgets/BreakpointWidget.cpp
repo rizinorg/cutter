@@ -55,7 +55,7 @@ QVariant BreakpointModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case AddrColumn:
-            return RAddressString(breakpoint.addr);
+            return RzAddressString(breakpoint.addr);
         case NameColumn:
             return breakpoint.name;
         case TypeColumn:

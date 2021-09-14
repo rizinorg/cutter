@@ -223,7 +223,7 @@ void ConsoleWidget::executeCommand(const QString &command)
     }
     ui->rzInputLineEdit->setEnabled(false);
 
-    QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + command;
+    QString cmd_line = "[" + RzAddressString(Core()->getOffset()) + "]> " + command;
     addOutput(cmd_line);
 
     RVA oldOffset = Core()->getOffset();

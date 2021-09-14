@@ -153,7 +153,7 @@ void StackModel::reload()
         Item item;
 
         item.offset = stackItem["addr"].toVariant().toULongLong();
-        item.value = RAddressString(stackItem["value"].toVariant().toULongLong());
+        item.value = RzAddressString(stackItem["value"].toVariant().toULongLong());
         item.refDesc = Core()->formatRefDesc(stackItem["ref"].toObject());
 
         values.push_back(item);
@@ -182,7 +182,7 @@ QVariant StackModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case OffsetColumn:
-            return RAddressString(item.offset);
+            return RzAddressString(item.offset);
         case ValueColumn:
             return item.value;
         case DescriptionColumn:

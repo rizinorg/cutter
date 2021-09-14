@@ -32,7 +32,7 @@ QVariant SymbolsModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case SymbolsModel::AddressColumn:
-            return RAddressString(symbol.vaddr);
+            return RzAddressString(symbol.vaddr);
         case SymbolsModel::TypeColumn:
             return QString("%1 %2").arg(symbol.bind, symbol.type).trimmed();
         case SymbolsModel::NameColumn:

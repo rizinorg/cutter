@@ -47,7 +47,7 @@ QVariant VTableModel::data(const QModelIndex &index, int role) const
             case NAME:
                 return res.name;
             case ADDRESS:
-                return RAddressString(res.addr);
+                return RzAddressString(res.addr);
             }
             break;
         case VTableDescriptionRole:
@@ -62,7 +62,7 @@ QVariant VTableModel::data(const QModelIndex &index, int role) const
             case NAME:
                 return tr("VTable") + " " + QString::number(index.row() + 1);
             case ADDRESS:
-                return RAddressString(vtables->at(index.row()).addr);
+                return RzAddressString(vtables->at(index.row()).addr);
             }
             break;
         case VTableDescriptionRole: {

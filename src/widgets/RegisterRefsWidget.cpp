@@ -189,7 +189,7 @@ void RegisterRefsWidget::refreshRegisterRef()
     for (const QJsonObject &reg : regRefs) {
         RegisterRefDescription desc;
 
-        desc.value = RAddressString(reg["value"].toVariant().toULongLong());
+        desc.value = RzAddressString(reg["value"].toVariant().toULongLong());
         desc.reg = reg["name"].toVariant().toString();
         desc.refDesc = Core()->formatRefDesc(reg["ref"].toObject());
 

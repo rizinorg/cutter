@@ -120,7 +120,7 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
             case TYPE:
                 return tr("method");
             case OFFSET:
-                return meth->addr == RVA_INVALID ? QString() : RAddressString(meth->addr);
+                return meth->addr == RVA_INVALID ? QString() : RzAddressString(meth->addr);
             case VTABLE:
                 return meth->vtableOffset < 0 ? QString() : QString("+%1").arg(meth->vtableOffset);
             default:
@@ -144,7 +144,7 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
             case TYPE:
                 return tr("field");
             case OFFSET:
-                return field->addr == RVA_INVALID ? QString() : RAddressString(field->addr);
+                return field->addr == RVA_INVALID ? QString() : RzAddressString(field->addr);
             default:
                 return QVariant();
             }
@@ -186,9 +186,9 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
             case TYPE:
                 return tr("class");
             case OFFSET:
-                return cls->addr == RVA_INVALID ? QString() : RAddressString(cls->addr);
+                return cls->addr == RVA_INVALID ? QString() : RzAddressString(cls->addr);
             case VTABLE:
-                return cls->vtableAddr == RVA_INVALID ? QString() : RAddressString(cls->vtableAddr);
+                return cls->vtableAddr == RVA_INVALID ? QString() : RzAddressString(cls->vtableAddr);
             default:
                 return QVariant();
             }
@@ -457,7 +457,7 @@ QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
                 case TYPE:
                     return tr("method");
                 case OFFSET:
-                    return meth.addr == RVA_INVALID ? QString() : RAddressString(meth.addr);
+                    return meth.addr == RVA_INVALID ? QString() : RzAddressString(meth.addr);
                 case VTABLE:
                     return meth.vtableOffset < 0 ? QString()
                                                  : QString("+%1").arg(meth.vtableOffset);
@@ -493,7 +493,7 @@ QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
                 case TYPE:
                     return tr("vtable");
                 case OFFSET:
-                    return RAddressString(vtable.addr);
+                    return RzAddressString(vtable.addr);
                 default:
                     return QVariant();
                 }

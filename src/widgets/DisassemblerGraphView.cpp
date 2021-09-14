@@ -179,7 +179,7 @@ void DisassemblerGraphView::loadCurrentGraph()
     RzAnalysisFunction *fcn = Core()->functionIn(seekable->getOffset());
     if (fcn) {
         currentFcnAddr = fcn->addr;
-        QJsonDocument functionsDoc = Core()->cmdj("agJ " + RAddressString(fcn->addr));
+        QJsonDocument functionsDoc = Core()->cmdj("agJ " + RzAddressString(fcn->addr));
         functions = functionsDoc.array();
     }
 
@@ -236,7 +236,7 @@ void DisassemblerGraphView::loadCurrentGraph()
         db.entry = block_entry;
         if (Config()->getGraphBlockEntryOffset()) {
             // QColor(0,0,0,0) is transparent
-            db.header_text = Text("[" + RAddressString(db.entry) + "]", ConfigColor("offset"),
+            db.header_text = Text("[" + RzAddressString(db.entry) + "]", ConfigColor("offset"),
                                   QColor(0, 0, 0, 0));
         }
         db.true_path = RVA_INVALID;

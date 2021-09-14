@@ -36,9 +36,9 @@ QVariant FlagsModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case SIZE:
-            return RSizeString(flag.size);
+            return RzSizeString(flag.size);
         case OFFSET:
-            return RAddressString(flag.offset);
+            return RzAddressString(flag.offset);
         case NAME:
             return flag.name;
         case REALNAME:

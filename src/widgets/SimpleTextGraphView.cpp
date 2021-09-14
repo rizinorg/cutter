@@ -222,7 +222,7 @@ void SimpleTextGraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEven
                                          QPoint /*pos*/)
 {
     if (haveAddresses) {
-        QToolTip::showText(event->globalPos(), RAddressString(blockContent[block.entry].address));
+        QToolTip::showText(event->globalPos(), RzAddressString(blockContent[block.entry].address));
     }
 }
 

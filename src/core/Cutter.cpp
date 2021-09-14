@@ -686,13 +686,13 @@ bool CutterCore::mapFile(QString path, RVA mapaddr)
 
 void CutterCore::renameFunction(const RVA offset, const QString &newName)
 {
-    cmdRaw("afn " + newName + " " + RAddressString(offset));
+    cmdRaw("afn " + newName + " " + RzAddressString(offset));
     emit functionRenamed(offset, newName);
 }
 
 void CutterCore::delFunction(RVA addr)
 {
-    cmdRaw("af- " + RAddressString(addr));
+    cmdRaw("af- " + RzAddressString(addr));
     emit functionsChanged();
 }
 
@@ -728,7 +728,7 @@ void CutterCore::delFlag(const QString &name)
 
 QString CutterCore::getInstructionBytes(RVA addr)
 {
-    return cmdj("aoj @ " + RAddressString(addr))
+    return cmdj("aoj @ " + RzAddressString(addr))
             .array()
             .first()
             .toObject()[RJsonKey::bytes]
@@ -737,7 +737,7 @@ QString CutterCore::getInstructionBytes(RVA addr)
 
 QString CutterCore::getInstructionOpcode(RVA addr)
 {
-    return cmdj("aoj @ " + RAddressString(addr))
+    return cmdj("aoj @ " + RzAddressString(addr))
             .array()
             .first()
             .toObject()[RJsonKey::opcode]
@@ -1364,7 +1364,7 @@ RefDescription CutterCore::formatRefDesc(QJsonObject refItem)
                 break;
             }
             if (!refItem["value"].isNull()) {
-                appendVar(desc.ref, RAddressString(refItem["value"].toVariant().toULongLong()), " ",
+                appendVar(desc.ref, RzAddressString(refItem["value"].toVariant().toULongLong()), " ",
                           "");
             }
             refItem = refItem["ref"].toObject();
@@ -1579,7 +1579,7 @@ QVector<Chunk> CutterCore::getHeapChunks(RVA arena_addr)
     RzList *chunks = rz_heap_chunks_list(core, m_arena);
     RzListIter *iter;
     RzHeapChunkListItem *data;
-    CutterRListForeach(chunks, iter, RzHeapChunkListItem, data)
+    CutterRzListForeach(chunks, iter, RzHeapChunkListItem, data)
     {
         Chunk chunk;
         chunk.offset = data->addr;
@@ -1607,7 +1607,7 @@ QVector<Arena> CutterCore::getArenas()
     RzList *arenas = rz_heap_arenas_list(core);
     RzListIter *iter;
     RzArenaListItem *data;
-    CutterRListForeach(arenas, iter, RzArenaListItem, data)
+    CutterRzListForeach(arenas, iter, RzArenaListItem, data)
     {
         Arena arena;
         arena.offset = data->addr;
@@ -1669,7 +1669,7 @@ QVector<RzHeapBin *> CutterCore::getHeapBins(ut64 arena_addr)
     RzList *tcache_bins = rz_heap_tcache_content(core, arena_addr);
     RzListIter *iter;
     RzHeapBin *bin;
-    CutterRListForeach(tcache_bins, iter, RzHeapBin, bin)
+    CutterRzListForeach(tcache_bins, iter, RzHeapBin, bin)
     {
         if (!bin) {
             continue;
@@ -2458,7 +2458,7 @@ void CutterCore::updateBreakpoint(int index, const BreakpointDescription &config
 
 void CutterCore::delBreakpoint(RVA addr)
 {
-    cmdRaw("db- " + RAddressString(addr));
+    cmdRaw("db- " + RzAddressString(addr));
     emit breakpointsChanged(addr);
 }
 
@@ -2470,13 +2470,13 @@ void CutterCore::delAllBreakpoints()
 
 void CutterCore::enableBreakpoint(RVA addr)
 {
-    cmdRaw("dbe " + RAddressString(addr));
+    cmdRaw("dbe " + RzAddressString(addr));
     emit breakpointsChanged(addr);
 }
 
 void CutterCore::disableBreakpoint(RVA addr)
 {
-    cmdRaw("dbd " + RAddressString(addr));
+    cmdRaw("dbd " + RzAddressString(addr));
     emit breakpointsChanged(addr);
 }
 
@@ -2685,7 +2685,7 @@ QList<RVA> CutterCore::getSeekHistory()
     RzListIter *it;
     RzCoreSeekItem *undo;
     RzList *list = rz_core_seek_list(core);
-    CutterRListForeach(list, it, RzCoreSeekItem, undo) { ret << undo->offset; }
+    CutterRzListForeach(list, it, RzCoreSeekItem, undo) { ret << undo->offset; }
 
     return ret;
 }
@@ -2697,7 +2697,7 @@ QStringList CutterCore::getAsmPluginNames()
     QStringList ret;
 
     RzAsmPlugin *ap;
-    CutterRListForeach(core->rasm->plugins, it, RzAsmPlugin, ap) { ret << ap->name; }
+    CutterRzListForeach(core->rasm->plugins, it, RzAsmPlugin, ap) { ret << ap->name; }
 
     return ret;
 }
@@ -2709,7 +2709,7 @@ QStringList CutterCore::getAnalPluginNames()
     QStringList ret;
 
     RzAnalysisPlugin *ap;
-    CutterRListForeach(core->analysis->plugins, it, RzAnalysisPlugin, ap) { ret << ap->name; }
+    CutterRzListForeach(core->analysis->plugins, it, RzAnalysisPlugin, ap) { ret << ap->name; }
 
     return ret;
 }
@@ -2792,7 +2792,7 @@ QList<RzAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
     QList<RzAsmPluginDescription> ret;
 
     RzAsmPlugin *ap;
-    CutterRListForeach(core->rasm->plugins, it, RzAsmPlugin, ap)
+    CutterRzListForeach(core->rasm->plugins, it, RzAsmPlugin, ap)
     {
         RzAsmPluginDescription plugin;
 
@@ -2819,7 +2819,7 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
 
     RzListIter *iter;
     RzAnalysisFunction *fcn;
-    CutterRListForeach(core->analysis->fcns, iter, RzAnalysisFunction, fcn)
+    CutterRzListForeach(core->analysis->fcns, iter, RzAnalysisFunction, fcn)
     {
         FunctionDescription function;
         function.offset = fcn->addr;
@@ -2900,7 +2900,7 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
 
     RzBinSymbol *bs;
     if (core && core->bin && core->bin->cur && core->bin->cur->o) {
-        CutterRListForeach(core->bin->cur->o->symbols, it, RzBinSymbol, bs)
+        CutterRzListForeach(core->bin->cur->o->symbols, it, RzBinSymbol, bs)
         {
             QString type = QString(bs->bind) + " " + QString(bs->type);
             SymbolDescription symbol;
@@ -2914,7 +2914,7 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
         /* list entrypoints as symbols too */
         int n = 0;
         RzBinAddr *entry;
-        CutterRListForeach(core->bin->cur->o->entries, it, RzBinAddr, entry)
+        CutterRzListForeach(core->bin->cur->o->entries, it, RzBinAddr, entry)
         {
             SymbolDescription symbol;
             symbol.vaddr = entry->vaddr;
@@ -3335,7 +3335,7 @@ QList<AnalMethodDescription> CutterCore::getAnalClassMethods(const QString &cls)
 
     ret.reserve(static_cast<int>(meths->len));
     RzAnalysisMethod *meth;
-    CutterRVectorForeach(meths, meth, RzAnalysisMethod)
+    CutterRzVectorForeach(meths, meth, RzAnalysisMethod)
     {
         AnalMethodDescription desc;
         desc.name = QString::fromUtf8(meth->name);
@@ -3360,7 +3360,7 @@ QList<AnalBaseClassDescription> CutterCore::getAnalClassBaseClasses(const QStrin
 
     ret.reserve(static_cast<int>(bases->len));
     RzAnalysisBaseClass *base;
-    CutterRVectorForeach(bases, base, RzAnalysisBaseClass)
+    CutterRzVectorForeach(bases, base, RzAnalysisBaseClass)
     {
         AnalBaseClassDescription desc;
         desc.id = QString::fromUtf8(base->id);
@@ -3385,7 +3385,7 @@ QList<AnalVTableDescription> CutterCore::getAnalClassVTables(const QString &cls)
 
     acVtables.reserve(static_cast<int>(vtables->len));
     RzAnalysisVTable *vtable;
-    CutterRVectorForeach(vtables, vtable, RzAnalysisVTable)
+    CutterRzVectorForeach(vtables, vtable, RzAnalysisVTable)
     {
         AnalVTableDescription desc;
         desc.id = QString::fromUtf8(vtable->id);
@@ -3528,7 +3528,7 @@ QList<TypeDescription> CutterCore::getBaseType(RzBaseTypeKind kind, const char *
     RzBaseType *type;
     RzListIter *iter;
 
-    CutterRListForeach (ts, iter, RzBaseType, type) {
+    CutterRzListForeach (ts, iter, RzBaseType, type) {
         TypeDescription exp;
 
         exp.type = type->name;
@@ -3739,9 +3739,9 @@ QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, boo
                 xref.from = addr;
                 xref.to = addr;
                 if (findWrites) {
-                    xref.from_str = RAddressString(addr);
+                    xref.from_str = RzAddressString(addr);
                 } else {
-                    xref.to_str = RAddressString(addr);
+                    xref.to_str = RzAddressString(addr);
                 }
                 xrefList << xref;
             }
@@ -3775,14 +3775,14 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
 
         xref.from = xrefObject[RJsonKey::from].toVariant().toULongLong();
         if (!to) {
-            xref.from_str = RAddressString(xref.from);
+            xref.from_str = RzAddressString(xref.from);
         } else {
             QString fcn = xrefObject[RJsonKey::fcn_name].toString();
             if (!fcn.isEmpty()) {
                 RVA fcnAddr = xrefObject[RJsonKey::fcn_addr].toVariant().toULongLong();
                 xref.from_str = fcn + " + 0x" + QString::number(xref.from - fcnAddr, 16);
             } else {
-                xref.from_str = RAddressString(xref.from);
+                xref.from_str = RzAddressString(xref.from);
             }
         }
 

@@ -336,7 +336,7 @@ void TypesWidget::on_actionLink_Type_To_Address_triggered()
     if (index.isValid()) {
         TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
         dialog.setDefaultType(t.type);
-        dialog.setDefaultAddress(RAddressString(Core()->getOffset()));
+        dialog.setDefaultAddress(RzAddressString(Core()->getOffset()));
         dialog.exec();
     }
 }

@@ -114,7 +114,7 @@ QVariant CommentsModel::data(const QModelIndex &index, int role) const
             if (isSubnode) {
                 switch (index.column()) {
                 case OffsetNestedColumn:
-                    return RAddressString(comment.offset);
+                    return RzAddressString(comment.offset);
                 case CommentNestedColumn:
                     return comment.name;
                 default:
@@ -126,7 +126,7 @@ QVariant CommentsModel::data(const QModelIndex &index, int role) const
         } else {
             switch (index.column()) {
             case CommentsModel::OffsetColumn:
-                return RAddressString(comment.offset);
+                return RzAddressString(comment.offset);
             case CommentsModel::FunctionColumn:
                 return Core()->cmdFunctionAt(comment.offset);
             case CommentsModel::CommentColumn:

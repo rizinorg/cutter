@@ -176,7 +176,7 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
     }
 
     if (options.binLoadAddr != RVA_INVALID) {
-        ui->entry_loadOffset->setText(RAddressString(options.binLoadAddr));
+        ui->entry_loadOffset->setText(RzAddressString(options.binLoadAddr));
     }
 
     ui->writeCheckBox->setChecked(options.writeEnabled);
