@@ -585,7 +585,7 @@ QStringList CutterCore::autocomplete(const QString &cmd, RzLinePromptType prompt
 
 /**
  * @brief CutterCore::loadFile
- * Load initial file. TODO Maybe use the "o" commands?
+ * Load initial file.
  * @param path File path
  * @param baddr Base (RzBin) address
  * @param mapaddr Map address
@@ -2682,10 +2682,10 @@ QList<RVA> CutterCore::getSeekHistory()
 {
     CORE_LOCK();
     QList<RVA> ret;
-
-    QJsonArray jsonArray = cmdj("sj").array();
-    for (const QJsonValue &value : jsonArray)
-        ret << value.toVariant().toULongLong();
+    RzListIter *it;
+    RzCoreSeekItem *undo;
+    RzList *list = rz_core_seek_list(core);
+    CutterRListForeach(list, it, RzCoreSeekItem, undo) { ret << undo->offset; }
 
     return ret;
 }

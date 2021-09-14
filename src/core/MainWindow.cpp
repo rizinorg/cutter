@@ -1127,14 +1127,25 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
     // not too short so that reasonable length c++ names can be seen most of the time
     const int MAX_NAME_LENGTH = 64;
 
-    auto hist = Core()->cmdj("sj");
+    RzListIter *it;
+    RzCoreSeekItem *undo;
+    RzList *list = rz_core_seek_list(Core()->core());
+
     bool history = true;
     QList<QAction *> actions;
-    for (auto item : Core()->cmdj("sj").array()) {
-        QJsonObject obj = item.toObject();
-        QString name = obj["name"].toString();
-        RVA offset = obj["offset"].toVariant().toULongLong();
-        bool current = obj["current"].toBool(false);
+    CutterRListForeach(list, it, RzCoreSeekItem, undo) {
+        RzFlagItem *f = rz_flag_get_at(Core()->core()->flags, undo->offset, true);
+        char *fname = NULL;
+        if (f) {
+            if (f->offset != undo->offset) {
+                fname = rz_str_newf("%s+%" PFMT64d, f->name, undo->offset - f->offset);
+            } else {
+                fname = strdup(f->name);
+            }
+        }
+        QString name = fname;
+        RVA offset = undo->offset;
+        bool current = undo->is_current;
         if (current) {
             history = false;
         }
