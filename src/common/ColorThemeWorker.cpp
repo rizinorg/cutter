@@ -131,9 +131,10 @@ QJsonDocument ColorThemeWorker::getTheme(const QString &themeName) const
     QString curr = Config()->getColorTheme();
 
     if (themeName != curr) {
-        Core()->cmdRaw(QString("eco %1").arg(themeName));
+        RzCoreLocked core(Core());
+        rz_core_load_theme(core, themeName.toUtf8().constData());
         theme = Core()->cmdj("ecj").object().toVariantMap();
-        Core()->cmdRaw(QString("eco %1").arg(curr));
+        rz_core_load_theme(core, curr.toUtf8().constData());
     } else {
         theme = Core()->cmdj("ecj").object().toVariantMap();
     }
