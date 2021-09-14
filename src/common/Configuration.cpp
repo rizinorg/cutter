@@ -21,10 +21,17 @@
  * and for light - only light ones.
  */
 const QHash<QString, ColorFlags> Configuration::relevantThemes = {
-    { "ayu", DarkFlag },     { "consonance", DarkFlag }, { "darkda", DarkFlag },
-    { "onedark", DarkFlag }, { "solarized", DarkFlag },  { "zenburn", DarkFlag },
-    { "cutter", LightFlag }, { "dark", LightFlag },      { "matrix", LightFlag },
-    { "tango", LightFlag },  { "white", LightFlag }
+    { "ayu", DarkFlag },    { "basic", DarkFlag },  { "behelit", DarkFlag },
+    { "bold", DarkFlag },   { "bright", DarkFlag }, { "consonance", DarkFlag },
+    { "darkda", DarkFlag }, { "defragger", DarkFlag },  { "focus", DarkFlag },
+    { "gentoo", DarkFlag }, { "lima", DarkFlag },   { "monokai", DarkFlag },
+    { "ogray", DarkFlag },  { "onedark", DarkFlag },    { "pink", DarkFlag },
+    { "rasta", DarkFlag },  { "sepia", DarkFlag },  { "smyck", DarkFlag },
+    { "solarized", DarkFlag },  { "twilight", DarkFlag },   { "white2", DarkFlag },
+    { "xvilka", DarkFlag }, { "zenburn", DarkFlag },
+    { "cga", LightFlag },   { "cutter", LightFlag },    { "dark", LightFlag },
+    { "gb", LightFlag },    { "matrix", LightFlag },    { "tango", LightFlag },
+    { "white", LightFlag }
 };
 static const QString DEFAULT_LIGHT_COLOR_THEME = "cutter";
 static const QString DEFAULT_DARK_COLOR_THEME = "ayu";
