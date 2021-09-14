@@ -57,13 +57,13 @@ QVariant SectionsModel::data(const QModelIndex &index, int role) const
         case SectionsModel::NameColumn:
             return section.name;
         case SectionsModel::SizeColumn:
-            return RSizeString(section.size);
+            return RzSizeString(section.size);
         case SectionsModel::AddressColumn:
-            return RAddressString(section.vaddr);
+            return RzAddressString(section.vaddr);
         case SectionsModel::EndAddressColumn:
-            return RAddressString(section.vaddr + section.vsize);
+            return RzAddressString(section.vaddr + section.vsize);
         case SectionsModel::VirtualSizeColumn:
-            return RSizeString(section.vsize);
+            return RzSizeString(section.vsize);
         case SectionsModel::PermissionsColumn:
             return section.perm;
         case SectionsModel::EntropyColumn:
@@ -368,8 +368,8 @@ void AbstractAddrDock::updateDock()
         rect->setBrush(QBrush(idx.data(Qt::DecorationRole).value<QColor>()));
         addrDockScene->addItem(rect);
 
-        addTextItem(textColor, QPoint(0, y), RAddressString(addr));
-        addTextItem(textColor, QPoint(rectOffset, y), RSizeString(size));
+        addTextItem(textColor, QPoint(0, y), RzAddressString(addr));
+        addTextItem(textColor, QPoint(rectOffset, y), RzSizeString(size));
         addTextItem(textColor, QPoint(rectOffset + rectWidth, y), name);
 
         addrDockScene->namePosYMap[name] = y;
@@ -458,7 +458,7 @@ void AddrDockScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     RVA addr = getAddrFromPos((int)event->scenePos().y(), false);
     if (addr != RVA_INVALID) {
-        QToolTip::showText(event->screenPos(), RAddressString(addr));
+        QToolTip::showText(event->screenPos(), RzAddressString(addr));
         if (event->buttons() & Qt::LeftButton) {
             RVA seekAddr = getAddrFromPos((int)event->scenePos().y(), true);
             disableCenterOn = true;

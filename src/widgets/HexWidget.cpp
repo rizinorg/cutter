@@ -682,7 +682,7 @@ void HexWidget::copyAddress()
         addr = selection.start();
     }
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(RAddressString(addr));
+    clipboard->setText(RzAddressString(addr));
 }
 
 void HexWidget::onRangeDialogAccepted()

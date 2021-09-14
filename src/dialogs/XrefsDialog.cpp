@@ -136,7 +136,7 @@ void XrefsDialog::updatePreview(RVA addr)
     ui->previewTextEdit->document()->setHtml(disas);
 
     // Does it make any sense?
-    ui->previewTextEdit->find(normalizeAddr(RAddressString(addr)), QTextDocument::FindBackward);
+    ui->previewTextEdit->find(normalizeAddr(RzAddressString(addr)), QTextDocument::FindBackward);
     ui->previewTextEdit->moveCursor(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
 }
 

@@ -89,7 +89,7 @@ void EditMethodDialog::setClass(const QString &className)
 void EditMethodDialog::setMethod(const AnalMethodDescription &desc)
 {
     ui->nameEdit->setText(desc.name);
-    ui->addressEdit->setText(desc.addr != RVA_INVALID ? RAddressString(desc.addr) : nullptr);
+    ui->addressEdit->setText(desc.addr != RVA_INVALID ? RzAddressString(desc.addr) : nullptr);
 
     if (desc.vtableOffset >= 0) {
         ui->virtualCheckBox->setChecked(true);

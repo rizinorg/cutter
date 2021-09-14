@@ -130,18 +130,18 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             if (subnode) {
                 switch (index.row()) {
                 case 0:
-                    return tr("Offset: %1").arg(RAddressString(function.offset));
+                    return tr("Offset: %1").arg(RzAddressString(function.offset));
                 case 1:
-                    return tr("Size: %1").arg(RSizeString(function.linearSize));
+                    return tr("Size: %1").arg(RzSizeString(function.linearSize));
                 case 2:
                     return tr("Import: %1")
                             .arg(functionIsImport(function.offset) ? tr("true") : tr("false"));
                 case 3:
-                    return tr("Nargs: %1").arg(RSizeString(function.nargs));
+                    return tr("Nargs: %1").arg(RzSizeString(function.nargs));
                 case 4:
-                    return tr("Nbbs: %1").arg(RSizeString(function.nbbs));
+                    return tr("Nbbs: %1").arg(RzSizeString(function.nbbs));
                 case 5:
-                    return tr("Nlocals: %1").arg(RSizeString(function.nlocals));
+                    return tr("Nlocals: %1").arg(RzSizeString(function.nlocals));
                 case 6:
                     return tr("Call type: %1").arg(function.calltype);
                 case 7:
@@ -164,7 +164,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             case ImportColumn:
                 return functionIsImport(function.offset) ? tr("true") : tr("false");
             case OffsetColumn:
-                return RAddressString(function.offset);
+                return RzAddressString(function.offset);
             case NargsColumn:
                 return QString::number(function.nargs);
             case NlocalsColumn:

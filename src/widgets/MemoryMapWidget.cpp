@@ -30,9 +30,9 @@ QVariant MemoryMapModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case AddrStartColumn:
-            return RAddressString(memoryMap.addrStart);
+            return RzAddressString(memoryMap.addrStart);
         case AddrEndColumn:
-            return RAddressString(memoryMap.addrEnd);
+            return RzAddressString(memoryMap.addrEnd);
         case NameColumn:
             return memoryMap.name;
         case PermColumn:

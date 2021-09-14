@@ -43,12 +43,12 @@ void VersionInfoDialog::fillVersionInfo()
 
         QTreeWidgetItem *addrItemL = new QTreeWidgetItem();
         addrItemL->setText(0, "Address:");
-        addrItemL->setText(1, RAddressString(versym["address"].toDouble()));
+        addrItemL->setText(1, RzAddressString(versym["address"].toDouble()));
         ui->leftTreeWidget->addTopLevelItem(addrItemL);
 
         QTreeWidgetItem *offItemL = new QTreeWidgetItem();
         offItemL->setText(0, "Offset:");
-        offItemL->setText(1, RAddressString(versym["offset"].toDouble()));
+        offItemL->setText(1, RzAddressString(versym["offset"].toDouble()));
         ui->leftTreeWidget->addTopLevelItem(offItemL);
 
         QTreeWidgetItem *linkItemL = new QTreeWidgetItem();
@@ -66,7 +66,7 @@ void VersionInfoDialog::fillVersionInfo()
         for (QJsonValue val : versym["entries"].toArray()) {
             QJsonObject obj = val.toObject();
             QTreeWidgetItem *tempItem = new QTreeWidgetItem();
-            tempItem->setText(0, RAddressString(obj["idx"].toDouble()));
+            tempItem->setText(0, RzAddressString(obj["idx"].toDouble()));
             tempItem->setText(1, obj["value"].toString());
             entriesItemL->addChild(tempItem);
         }
@@ -83,12 +83,12 @@ void VersionInfoDialog::fillVersionInfo()
 
         QTreeWidgetItem *addrItemR = new QTreeWidgetItem();
         addrItemR->setText(0, "Address:");
-        addrItemR->setText(1, RAddressString(verneed["address"].toDouble()));
+        addrItemR->setText(1, RzAddressString(verneed["address"].toDouble()));
         ui->rightTreeWidget->addTopLevelItem(addrItemR);
 
         QTreeWidgetItem *offItemR = new QTreeWidgetItem();
         offItemR->setText(0, "Offset:");
-        offItemR->setText(1, RAddressString(verneed["offset"].toDouble()));
+        offItemR->setText(1, RzAddressString(verneed["offset"].toDouble()));
         ui->rightTreeWidget->addTopLevelItem(offItemR);
 
         QTreeWidgetItem *linkItemR = new QTreeWidgetItem();
@@ -107,7 +107,7 @@ void VersionInfoDialog::fillVersionInfo()
             QJsonObject parentObj = parentVal.toObject();
             QTreeWidgetItem *parentItem = new QTreeWidgetItem();
             QString parentString;
-            parentItem->setText(0, RAddressString(parentObj["idx"].toDouble()));
+            parentItem->setText(0, RzAddressString(parentObj["idx"].toDouble()));
             parentString.append("Version: " + QString::number(parentObj["vn_version"].toDouble())
                                 + "\t");
             parentString.append("File: " + parentObj["file_name"].toString());
@@ -117,7 +117,7 @@ void VersionInfoDialog::fillVersionInfo()
                 QJsonObject childObj = childVal.toObject();
                 QTreeWidgetItem *childItem = new QTreeWidgetItem();
                 QString childString;
-                childItem->setText(0, RAddressString(childObj["idx"].toDouble()));
+                childItem->setText(0, RzAddressString(childObj["idx"].toDouble()));
                 childString.append("Name: " + childObj["name"].toString() + "\t");
                 childString.append("Flags: " + childObj["flags"].toString() + "\t");
                 childString.append("Version: " + QString::number(childObj["version"].toDouble()));
@@ -147,7 +147,7 @@ void VersionInfoDialog::fillVersionInfo()
             QTreeWidgetItem *tempItem = new QTreeWidgetItem();
             tempItem->setText(0, key);
             if (vs[key].isDouble())
-                tempItem->setText(1, RHexString(vs[key].toDouble()));
+                tempItem->setText(1, RzHexString(vs[key].toDouble()));
             else
                 tempItem->setText(1, vs[key].toString());
             ui->leftTreeWidget->addTopLevelItem(tempItem);

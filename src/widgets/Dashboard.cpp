@@ -62,7 +62,7 @@ void Dashboard::updateContents()
         setPlainText(this->ui->relroEdit, "N/A");
     }
 
-    setPlainText(this->ui->baddrEdit, RAddressString(item2["baddr"].toVariant().toULongLong()));
+    setPlainText(this->ui->baddrEdit, RzAddressString(item2["baddr"].toVariant().toULongLong()));
 
     // set booleans
     setBool(this->ui->vaEdit, item2, "va");

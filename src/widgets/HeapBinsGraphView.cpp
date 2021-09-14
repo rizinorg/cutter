@@ -36,7 +36,7 @@ void HeapBinsGraphView::loadCurrentGraph()
             || QString(heapBin->type) == QString("Tcache");
 
     // store info about the chunks in a vector for easy access
-    CutterRListForeach(heapBin->chunks, iter, RzHeapChunkListItem, item)
+    CutterRzListForeach(heapBin->chunks, iter, RzHeapChunkListItem, item)
     {
         GraphHeapChunk graphHeapChunk;
         graphHeapChunk.addr = item->addr;
@@ -44,12 +44,12 @@ void HeapBinsGraphView::loadCurrentGraph()
         if (!chunkInfo) {
             break;
         }
-        QString content = "Chunk @ " + RAddressString(chunkInfo->addr) + "\nSize: "
-                + RHexString(chunkInfo->size) + "\nFd: " + RAddressString(chunkInfo->fd);
+        QString content = "Chunk @ " + RzAddressString(chunkInfo->addr) + "\nSize: "
+                + RzHexString(chunkInfo->size) + "\nFd: " + RzAddressString(chunkInfo->fd);
 
         // fastbins lack bk pointer
         if (!singleLinkedBin) {
-            content += "\nBk: " + RAddressString(chunkInfo->bk);
+            content += "\nBk: " + RzAddressString(chunkInfo->bk);
         }
         graphHeapChunk.fd = chunkInfo->fd;
         graphHeapChunk.bk = chunkInfo->bk;
@@ -79,9 +79,9 @@ void HeapBinsGraphView::display_single_linked_list(QVector<GraphHeapChunk> chunk
     gbBin.edges.emplace_back(heapBin->fd);
     QString content = tr(heapBin->type) + tr("bin ") + QString::number(heapBin->bin_num);
     if (tcache) {
-        content += "\nEntry: " + RAddressString(heapBin->fd);
+        content += "\nEntry: " + RzAddressString(heapBin->fd);
     } else {
-        content += "\nFd: " + RAddressString(heapBin->fd);
+        content += "\nFd: " + RzAddressString(heapBin->fd);
     }
     addBlock(gbBin, content);
 
@@ -120,9 +120,9 @@ void HeapBinsGraphView::display_double_linked_list(QVector<GraphHeapChunk> chunk
     gbBin.edges.emplace_back(heapBin->fd);
     gbBin.edges.emplace_back(heapBin->bk);
     QString content = tr(heapBin->type) + tr("bin ") + QString::number(heapBin->bin_num) + tr(" @ ")
-            + RAddressString(heapBin->addr);
-    content += "\nFd: " + RAddressString(heapBin->fd);
-    content += "\nBk: " + RAddressString(heapBin->bk);
+            + RzAddressString(heapBin->addr);
+    content += "\nFd: " + RzAddressString(heapBin->fd);
+    content += "\nBk: " + RzAddressString(heapBin->bk);
 
     addBlock(gbBin, content, heapBin->addr);
 

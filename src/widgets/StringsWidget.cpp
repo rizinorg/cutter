@@ -35,7 +35,7 @@ QVariant StringsModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case StringsModel::OffsetColumn:
-            return RAddressString(str.vaddr);
+            return RzAddressString(str.vaddr);
         case StringsModel::StringColumn:
             return str.string;
         case StringsModel::TypeColumn:

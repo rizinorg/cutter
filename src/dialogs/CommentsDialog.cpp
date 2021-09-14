@@ -40,9 +40,9 @@ void CommentsDialog::addOrEditComment(RVA offset, QWidget *parent)
     CommentsDialog c(parent);
 
     if (oldComment.isNull() || oldComment.isEmpty()) {
-        c.setWindowTitle(tr("Add Comment at %1").arg(RAddressString(offset)));
+        c.setWindowTitle(tr("Add Comment at %1").arg(RzAddressString(offset)));
     } else {
-        c.setWindowTitle(tr("Edit Comment at %1").arg(RAddressString(offset)));
+        c.setWindowTitle(tr("Edit Comment at %1").arg(RzAddressString(offset)));
     }
 
     c.setComment(oldComment);

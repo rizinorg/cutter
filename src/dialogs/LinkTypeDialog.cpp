@@ -100,7 +100,7 @@ void LinkTypeDialog::on_exprLineEdit_textChanged(const QString &text)
 {
     RVA addr = Core()->math(text);
     if (Core()->isAddressMapped(addr)) {
-        ui->addressLineEdit->setText(RAddressString(addr));
+        ui->addressLineEdit->setText(RzAddressString(addr));
         addrValid = true;
     } else {
         ui->addressLineEdit->setText(tr("Invalid Address"));

@@ -29,7 +29,7 @@ QVariant ZignaturesModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case OffsetColumn:
-            return RAddressString(zignature.offset);
+            return RzAddressString(zignature.offset);
         case NameColumn:
             return zignature.name;
         case ValueColumn:
@@ -42,10 +42,10 @@ QVariant ZignaturesModel::data(const QModelIndex &index, int role) const
         return QVariant::fromValue(zignature);
 
     case Qt::ToolTipRole: {
-        QString tmp = QString("Graph:\n\n    Cyclomatic complexity: " + RSizeString(zignature.cc)
-                              + "\n    Nodes / basicblocks: " + RSizeString(zignature.nbbs)
-                              + "\n    Edges: " + RSizeString(zignature.edges)
-                              + "\n    Ebbs: " + RSizeString(zignature.ebbs) + "\n\nRefs:\n");
+        QString tmp = QString("Graph:\n\n    Cyclomatic complexity: " + RzSizeString(zignature.cc)
+                              + "\n    Nodes / basicblocks: " + RzSizeString(zignature.nbbs)
+                              + "\n    Edges: " + RzSizeString(zignature.edges)
+                              + "\n    Ebbs: " + RzSizeString(zignature.ebbs) + "\n\nRefs:\n");
         for (const QString &ref : zignature.refs) {
             tmp.append("\n    " + ref);
         }

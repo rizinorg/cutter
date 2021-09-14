@@ -67,7 +67,7 @@ BreakpointsDialog::BreakpointsDialog(const BreakpointDescription &breakpoint, QW
 {
     switch (breakpoint.type) {
     case BreakpointDescription::Address:
-        ui->breakpointPosition->setText(RAddressString(breakpoint.addr));
+        ui->breakpointPosition->setText(RzAddressString(breakpoint.addr));
         break;
     case BreakpointDescription::Named:
         ui->breakpointPosition->setText(breakpoint.positionExpression);
@@ -102,7 +102,7 @@ BreakpointsDialog::BreakpointsDialog(RVA address, QWidget *parent)
     : BreakpointsDialog(false, parent)
 {
     if (address != RVA_INVALID) {
-        ui->breakpointPosition->setText(RAddressString(address));
+        ui->breakpointPosition->setText(RzAddressString(address));
     }
     refreshOkButton();
 }

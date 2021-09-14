@@ -29,7 +29,7 @@ QVariant ResourcesModel::data(const QModelIndex &index, int role) const
         case NAME:
             return res.name;
         case VADDR:
-            return RAddressString(res.vaddr);
+            return RzAddressString(res.vaddr);
         case INDEX:
             return QString::number(res.index);
         case TYPE:
