@@ -19,8 +19,9 @@ void AnalTask::interrupt()
 QString AnalTask::getTitle()
 {
     // If no file is loaded we consider it's Initial Analysis
-    QJsonArray openedFiles = Core()->getOpenedFiles();
-    if (!openedFiles.size()) {
+    RzCoreLocked core(Core());
+    RzList *descs = rz_id_storage_list(core->io->files);
+    if (rz_list_empty(descs)) {
         return tr("Initial Analysis");
     }
     return tr("Analyzing Program");
@@ -38,8 +39,9 @@ void AnalTask::runTask()
     Core()->setConfig("bin.demangle", options.demangle);
 
     // Do not reload the file if already loaded
-    QJsonArray openedFiles = Core()->getOpenedFiles();
-    if (!openedFiles.size() && options.filename.length()) {
+    RzCoreLocked core(Core());
+    RzList *descs = rz_id_storage_list(core->io->files);
+    if (rz_list_empty(descs) && options.filename.length()) {
         log(tr("Loading the file..."));
         openFailed = false;
         bool fileLoaded =

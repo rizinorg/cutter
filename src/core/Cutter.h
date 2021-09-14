@@ -278,7 +278,6 @@ public:
     bool tryFile(QString path, bool rw);
     bool mapFile(QString path, RVA mapaddr);
     void loadScript(const QString &scriptname);
-    QJsonArray getOpenedFiles();
 
     /* Seek functions */
     void seek(QString thing);

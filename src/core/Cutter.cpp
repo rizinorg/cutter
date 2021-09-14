@@ -386,11 +386,12 @@ bool CutterCore::isRedirectableDebugee()
     }
 
     // We are only able to redirect locally debugged unix processes
-    QJsonArray openFilesArray = cmdj("oj").array();
-    ;
-    for (QJsonValue value : openFilesArray) {
-        QJsonObject openFile = value.toObject();
-        QString URI = openFile["uri"].toString();
+    RzCoreLocked core(Core());
+    RzList *descs = rz_id_storage_list(core->io->files);
+    RzListIter *it;
+    RzIODesc *desc;
+    CutterRzListForeach(descs, it, RzIODesc, desc) {
+        QString URI = QString(desc->uri);
         if (URI.contains("ptrace") | URI.contains("mach")) {
             return true;
         }
@@ -1913,10 +1914,12 @@ void CutterCore::attachRemote(const QString &uri)
         debugTask.clear();
         // Check if we actually connected
         bool connected = false;
-        QJsonArray openFilesArray = getOpenedFiles();
-        for (QJsonValue value : openFilesArray) {
-            QJsonObject openFile = value.toObject();
-            QString fileUri = openFile["uri"].toString();
+        RzCoreLocked core(Core());
+        RzList *descs = rz_id_storage_list(core->io->files);
+        RzListIter *it;
+        RzIODesc *desc;
+        CutterRzListForeach(descs, it, RzIODesc, desc) {
+            QString fileUri = QString(desc->uri);
             if (!fileUri.compare(uri)) {
                 connected = true;
             }
@@ -2023,13 +2026,14 @@ void CutterCore::stopDebug()
     } else {
         QString ptraceFiles = "";
         // close ptrace file descriptors left open
-        QJsonArray openFilesArray = cmdj("oj").array();
-        ;
-        for (QJsonValue value : openFilesArray) {
-            QJsonObject openFile = value.toObject();
-            QString URI = openFile["uri"].toString();
+        RzCoreLocked core(Core());
+        RzList *descs = rz_id_storage_list(core->io->files);
+        RzListIter *it;
+        RzIODesc *desc;
+        CutterRzListForeach(descs, it, RzIODesc, desc) {
+            QString URI = QString(desc->uri);
             if (URI.contains("ptrace")) {
-                ptraceFiles += "o-" + QString::number(openFile["fd"].toInt()) + ";";
+                ptraceFiles += "o-" + QString::number(desc->fd) + ";";
             }
         }
         // Use cmd because cmdRaw would not work with command concatenation
@@ -4023,12 +4027,6 @@ QString CutterCore::getVersionInformation()
         versionInfo.append(QString("%1 %2\n").arg(name, v->name));
     }
     return versionInfo;
-}
-
-QJsonArray CutterCore::getOpenedFiles()
-{
-    QJsonDocument files = cmdj("oj");
-    return files.array();
 }
 
 QList<QString> CutterCore::getColorThemes()
