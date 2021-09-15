@@ -1,22 +1,22 @@
 #include "core/Cutter.h"
-#include "common/AnalTask.h"
+#include "common/AnalysisTask.h"
 #include "core/MainWindow.h"
 #include "dialogs/InitialOptionsDialog.h"
 #include <QJsonArray>
 #include <QDebug>
 #include <QCheckBox>
 
-AnalTask::AnalTask() : AsyncTask() {}
+AnalysisTask::AnalysisTask() : AsyncTask() {}
 
-AnalTask::~AnalTask() {}
+AnalysisTask::~AnalysisTask() {}
 
-void AnalTask::interrupt()
+void AnalysisTask::interrupt()
 {
     AsyncTask::interrupt();
     rz_cons_singleton()->context->breaked = true;
 }
 
-QString AnalTask::getTitle()
+QString AnalysisTask::getTitle()
 {
     // If no file is loaded we consider it's Initial Analysis
     RzCoreLocked core(Core());
@@ -27,7 +27,7 @@ QString AnalTask::getTitle()
     return tr("Analyzing Program");
 }
 
-void AnalTask::runTask()
+void AnalysisTask::runTask()
 {
     int perms = RZ_PERM_RX;
     if (options.writeEnabled) {
@@ -96,9 +96,9 @@ void AnalTask::runTask()
         return;
     }
 
-    if (!options.analCmd.empty()) {
+    if (!options.analysisCmd.empty()) {
         log(tr("Executing analysis..."));
-        for (const CommandDescription &cmd : options.analCmd) {
+        for (const CommandDescription &cmd : options.analysisCmd) {
             if (isInterrupted()) {
                 return;
             }

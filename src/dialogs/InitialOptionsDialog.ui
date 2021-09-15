@@ -144,7 +144,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="analCheckBox">
+         <widget class="QCheckBox" name="analysisCheckBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -181,7 +181,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QSlider" name="analSlider">
+       <widget class="QSlider" name="analysisSlider">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -277,7 +277,7 @@
                 <enum>QLayout::SetMinimumSize</enum>
                </property>
                <item>
-                <widget class="QFrame" name="analoptionsFrame">
+                <widget class="QFrame" name="analysisoptionsFrame">
                  <property name="enabled">
                   <bool>true</bool>
                  </property>

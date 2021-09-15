@@ -2,7 +2,7 @@
 #include "ui_MainWindow.h"
 
 // Common Headers
-#include "common/AnalTask.h"
+#include "common/AnalysisTask.h"
 #include "common/BugReporting.h"
 #include "common/Highlighter.h"
 #include "common/Helpers.h"
@@ -1652,19 +1652,19 @@ void MainWindow::on_actionRefresh_Panels_triggered()
  */
 void MainWindow::on_actionAnalyze_triggered()
 {
-    auto *analTask = new AnalTask();
+    auto *analysisTask = new AnalysisTask();
     InitialOptions options;
-    options.analCmd = { { "aaa", "Auto analysis" } };
-    analTask->setOptions(options);
-    AsyncTask::Ptr analTaskPtr(analTask);
+    options.analysisCmd = { { "aaa", "Auto analysis" } };
+    analysisTask->setOptions(options);
+    AsyncTask::Ptr analysisTaskPtr(analysisTask);
 
-    auto *taskDialog = new AsyncTaskDialog(analTaskPtr);
+    auto *taskDialog = new AsyncTaskDialog(analysisTaskPtr);
     taskDialog->setInterruptOnClose(true);
     taskDialog->setAttribute(Qt::WA_DeleteOnClose);
     taskDialog->show();
-    connect(analTask, &AnalTask::finished, this, &MainWindow::refreshAll);
+    connect(analysisTask, &AnalysisTask::finished, this, &MainWindow::refreshAll);
 
-    Core()->getAsyncTaskManager()->start(analTaskPtr);
+    Core()->getAsyncTaskManager()->start(analysisTaskPtr);
 }
 
 void MainWindow::on_actionImportPDB_triggered()

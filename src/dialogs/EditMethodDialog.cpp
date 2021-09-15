@@ -15,7 +15,7 @@ EditMethodDialog::EditMethodDialog(bool classFixed, QWidget *parent)
     } else {
         classComboBox = new QComboBox(this);
         ui->formLayout->setItem(0, QFormLayout::FieldRole, new QWidgetItem(classComboBox));
-        for (auto &cls : Core()->getAllAnalClasses(true)) {
+        for (auto &cls : Core()->getAllAnalysisClasses(true)) {
             classComboBox->addItem(cls, cls);
         }
     }
@@ -86,7 +86,7 @@ void EditMethodDialog::setClass(const QString &className)
     validateInput();
 }
 
-void EditMethodDialog::setMethod(const AnalMethodDescription &desc)
+void EditMethodDialog::setMethod(const AnalysisMethodDescription &desc)
 {
     ui->nameEdit->setText(desc.name);
     ui->addressEdit->setText(desc.addr != RVA_INVALID ? RzAddressString(desc.addr) : nullptr);
@@ -116,9 +116,9 @@ QString EditMethodDialog::getClass() const
     }
 }
 
-AnalMethodDescription EditMethodDialog::getMethod() const
+AnalysisMethodDescription EditMethodDialog::getMethod() const
 {
-    AnalMethodDescription ret;
+    AnalysisMethodDescription ret;
     ret.name = ui->nameEdit->text();
     ret.addr = Core()->num(ui->addressEdit->text());
     if (!ui->virtualCheckBox->isChecked()) {
@@ -130,7 +130,7 @@ AnalMethodDescription EditMethodDialog::getMethod() const
 }
 
 bool EditMethodDialog::showDialog(const QString &title, bool classFixed, QString *className,
-                                  AnalMethodDescription *desc, QWidget *parent)
+                                  AnalysisMethodDescription *desc, QWidget *parent)
 {
     EditMethodDialog dialog(classFixed, parent);
     dialog.setWindowTitle(title);
@@ -144,7 +144,7 @@ bool EditMethodDialog::showDialog(const QString &title, bool classFixed, QString
 
 void EditMethodDialog::newMethod(QString className, const QString &meth, QWidget *parent)
 {
-    AnalMethodDescription desc;
+    AnalysisMethodDescription desc;
     desc.name = meth;
     desc.vtableOffset = -1;
     desc.addr = Core()->getOffset();
@@ -153,13 +153,13 @@ void EditMethodDialog::newMethod(QString className, const QString &meth, QWidget
         return;
     }
 
-    Core()->setAnalMethod(className, desc);
+    Core()->setAnalysisMethod(className, desc);
 }
 
 void EditMethodDialog::editMethod(const QString &className, const QString &meth, QWidget *parent)
 {
-    AnalMethodDescription desc;
-    if (!Core()->getAnalMethod(className, meth, &desc)) {
+    AnalysisMethodDescription desc;
+    if (!Core()->getAnalysisMethod(className, meth, &desc)) {
         return;
     }
 
@@ -168,7 +168,7 @@ void EditMethodDialog::editMethod(const QString &className, const QString &meth,
         return;
     }
     if (desc.name != meth) {
-        Core()->renameAnalMethod(className, meth, desc.name);
+        Core()->renameAnalysisMethod(className, meth, desc.name);
     }
-    Core()->setAnalMethod(className, desc);
+    Core()->setAnalysisMethod(className, desc);
 }
