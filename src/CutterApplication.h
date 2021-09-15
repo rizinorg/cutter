@@ -13,7 +13,7 @@ enum class AutomaticAnalysisLevel { Ask, None, AAA, AAAA };
 struct CutterCommandLineOptions
 {
     QStringList args;
-    AutomaticAnalysisLevel analLevel = AutomaticAnalysisLevel::Ask;
+    AutomaticAnalysisLevel analysisLevel = AutomaticAnalysisLevel::Ask;
     InitialOptions fileOpenOptions;
     QString pythonHome;
     bool outputRedirectionEnabled = true;

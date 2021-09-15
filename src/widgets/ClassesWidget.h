@@ -90,7 +90,7 @@ public:
     void setClasses(const QList<BinClassDescription> &classes);
 };
 
-class AnalClassesModel : public ClassesModel
+class AnalysisClassesModel : public ClassesModel
 {
     Q_OBJECT
 
@@ -145,7 +145,7 @@ private:
     QVariant data(const QModelIndex &index, int role) const override;
 
 public:
-    explicit AnalClassesModel(CutterDockWidget *parent);
+    explicit AnalysisClassesModel(CutterDockWidget *parent);
 
 public slots:
     void refreshAll();
@@ -198,7 +198,7 @@ private:
     std::unique_ptr<Ui::ClassesWidget> ui;
 
     BinClassesModel *bin_model = nullptr;
-    AnalClassesModel *analysis_model = nullptr;
+    AnalysisClassesModel *analysis_model = nullptr;
     ClassesSortFilterProxyModel *proxy_model;
 };
 

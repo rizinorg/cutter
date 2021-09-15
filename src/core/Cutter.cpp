@@ -2706,7 +2706,7 @@ QStringList CutterCore::getAsmPluginNames()
     return ret;
 }
 
-QStringList CutterCore::getAnalPluginNames()
+QStringList CutterCore::getAnalysisPluginNames()
 {
     CORE_LOCK();
     RzListIter *it;
@@ -3305,7 +3305,7 @@ QList<BinClassDescription> CutterCore::getAllClassesFromFlags()
     return ret;
 }
 
-QList<QString> CutterCore::getAllAnalClasses(bool sorted)
+QList<QString> CutterCore::getAllAnalysisClasses(bool sorted)
 {
     CORE_LOCK();
     QList<QString> ret;
@@ -3327,10 +3327,10 @@ QList<QString> CutterCore::getAllAnalClasses(bool sorted)
     return ret;
 }
 
-QList<AnalMethodDescription> CutterCore::getAnalClassMethods(const QString &cls)
+QList<AnalysisMethodDescription> CutterCore::getAnalysisClassMethods(const QString &cls)
 {
     CORE_LOCK();
-    QList<AnalMethodDescription> ret;
+    QList<AnalysisMethodDescription> ret;
 
     RzVector *meths = rz_analysis_class_method_get_all(core->analysis, cls.toUtf8().constData());
     if (!meths) {
@@ -3341,7 +3341,7 @@ QList<AnalMethodDescription> CutterCore::getAnalClassMethods(const QString &cls)
     RzAnalysisMethod *meth;
     CutterRzVectorForeach(meths, meth, RzAnalysisMethod)
     {
-        AnalMethodDescription desc;
+        AnalysisMethodDescription desc;
         desc.name = QString::fromUtf8(meth->name);
         desc.addr = meth->addr;
         desc.vtableOffset = meth->vtable_offset;
@@ -3352,10 +3352,10 @@ QList<AnalMethodDescription> CutterCore::getAnalClassMethods(const QString &cls)
     return ret;
 }
 
-QList<AnalBaseClassDescription> CutterCore::getAnalClassBaseClasses(const QString &cls)
+QList<AnalysisBaseClassDescription> CutterCore::getAnalysisClassBaseClasses(const QString &cls)
 {
     CORE_LOCK();
-    QList<AnalBaseClassDescription> ret;
+    QList<AnalysisBaseClassDescription> ret;
 
     RzVector *bases = rz_analysis_class_base_get_all(core->analysis, cls.toUtf8().constData());
     if (!bases) {
@@ -3366,7 +3366,7 @@ QList<AnalBaseClassDescription> CutterCore::getAnalClassBaseClasses(const QStrin
     RzAnalysisBaseClass *base;
     CutterRzVectorForeach(bases, base, RzAnalysisBaseClass)
     {
-        AnalBaseClassDescription desc;
+        AnalysisBaseClassDescription desc;
         desc.id = QString::fromUtf8(base->id);
         desc.offset = base->offset;
         desc.className = QString::fromUtf8(base->class_name);
@@ -3377,10 +3377,10 @@ QList<AnalBaseClassDescription> CutterCore::getAnalClassBaseClasses(const QStrin
     return ret;
 }
 
-QList<AnalVTableDescription> CutterCore::getAnalClassVTables(const QString &cls)
+QList<AnalysisVTableDescription> CutterCore::getAnalysisClassVTables(const QString &cls)
 {
     CORE_LOCK();
-    QList<AnalVTableDescription> acVtables;
+    QList<AnalysisVTableDescription> acVtables;
 
     RzVector *vtables = rz_analysis_class_vtable_get_all(core->analysis, cls.toUtf8().constData());
     if (!vtables) {
@@ -3391,7 +3391,7 @@ QList<AnalVTableDescription> CutterCore::getAnalClassVTables(const QString &cls)
     RzAnalysisVTable *vtable;
     CutterRzVectorForeach(vtables, vtable, RzAnalysisVTable)
     {
-        AnalVTableDescription desc;
+        AnalysisVTableDescription desc;
         desc.id = QString::fromUtf8(vtable->id);
         desc.offset = vtable->offset;
         desc.addr = vtable->addr;
@@ -3421,34 +3421,34 @@ void CutterCore::deleteClass(const QString &cls)
     rz_analysis_class_delete(core->analysis, cls.toUtf8().constData());
 }
 
-bool CutterCore::getAnalMethod(const QString &cls, const QString &meth, AnalMethodDescription *desc)
+bool CutterCore::getAnalysisMethod(const QString &cls, const QString &meth, AnalysisMethodDescription *desc)
 {
     CORE_LOCK();
-    RzAnalysisMethod analMeth;
+    RzAnalysisMethod analysisMeth;
     if (rz_analysis_class_method_get(core->analysis, cls.toUtf8().constData(),
-                                     meth.toUtf8().constData(), &analMeth)
+                                     meth.toUtf8().constData(), &analysisMeth)
         != RZ_ANALYSIS_CLASS_ERR_SUCCESS) {
         return false;
     }
-    desc->name = QString::fromUtf8(analMeth.name);
-    desc->addr = analMeth.addr;
-    desc->vtableOffset = analMeth.vtable_offset;
-    rz_analysis_class_method_fini(&analMeth);
+    desc->name = QString::fromUtf8(analysisMeth.name);
+    desc->addr = analysisMeth.addr;
+    desc->vtableOffset = analysisMeth.vtable_offset;
+    rz_analysis_class_method_fini(&analysisMeth);
     return true;
 }
 
-void CutterCore::setAnalMethod(const QString &className, const AnalMethodDescription &meth)
+void CutterCore::setAnalysisMethod(const QString &className, const AnalysisMethodDescription &meth)
 {
     CORE_LOCK();
-    RzAnalysisMethod analMeth;
-    analMeth.name = strdup(meth.name.toUtf8().constData());
-    analMeth.addr = meth.addr;
-    analMeth.vtable_offset = meth.vtableOffset;
-    rz_analysis_class_method_set(core->analysis, className.toUtf8().constData(), &analMeth);
-    rz_analysis_class_method_fini(&analMeth);
+    RzAnalysisMethod analysisMeth;
+    analysisMeth.name = strdup(meth.name.toUtf8().constData());
+    analysisMeth.addr = meth.addr;
+    analysisMeth.vtable_offset = meth.vtableOffset;
+    rz_analysis_class_method_set(core->analysis, className.toUtf8().constData(), &analysisMeth);
+    rz_analysis_class_method_fini(&analysisMeth);
 }
 
-void CutterCore::renameAnalMethod(const QString &className, const QString &oldMethodName,
+void CutterCore::renameAnalysisMethod(const QString &className, const QString &oldMethodName,
                                   const QString &newMethodName)
 {
     CORE_LOCK();

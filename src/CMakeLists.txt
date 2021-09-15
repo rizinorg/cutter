@@ -24,7 +24,7 @@ set(SOURCES
     common/DirectionalComboBox.cpp
     dialogs/preferences/AsmOptionsWidget.cpp
     dialogs/NewFileDialog.cpp
-    common/AnalTask.cpp
+    common/AnalysisTask.cpp
     widgets/CommentsWidget.cpp
     widgets/ConsoleWidget.cpp
     widgets/Dashboard.cpp
@@ -139,7 +139,7 @@ set(SOURCES
     widgets/RizinGraphWidget.cpp
     widgets/CallGraph.cpp
     widgets/AddressableDockWidget.cpp
-    dialogs/preferences/AnalOptionsWidget.cpp
+    dialogs/preferences/AnalysisOptionsWidget.cpp
     common/DecompilerHighlighter.cpp
     dialogs/GlibcHeapInfoDialog.cpp
     widgets/HeapDockWidget.cpp
@@ -173,7 +173,7 @@ set(HEADER_FILES
     common/DirectionalComboBox.h
     dialogs/InitialOptionsDialog.h
     dialogs/NewFileDialog.h
-    common/AnalTask.h
+    common/AnalysisTask.h
     widgets/CommentsWidget.h
     widgets/ConsoleWidget.h
     widgets/Dashboard.h
@@ -298,7 +298,7 @@ set(HEADER_FILES
     widgets/RizinGraphWidget.h
     widgets/CallGraph.h
     widgets/AddressableDockWidget.h
-    dialogs/preferences/AnalOptionsWidget.h
+    dialogs/preferences/AnalysisOptionsWidget.h
     common/DecompilerHighlighter.h
     dialogs/GlibcHeapInfoDialog.h
     widgets/HeapDockWidget.h
@@ -371,7 +371,7 @@ set(UI_FILES
     widgets/ListDockWidget.ui
     dialogs/LayoutManager.ui
     widgets/RizinGraphWidget.ui
-    dialogs/preferences/AnalOptionsWidget.ui
+    dialogs/preferences/AnalysisOptionsWidget.ui
     dialogs/GlibcHeapInfoDialog.ui
     widgets/HeapDockWidget.ui
     widgets/GlibcHeapWidget.ui

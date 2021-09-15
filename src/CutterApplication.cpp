@@ -149,7 +149,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         }
         mainWindow->displayNewFileDialog();
     } else { // filename specified as positional argument
-        bool askOptions = (clOptions.analLevel != AutomaticAnalysisLevel::Ask)
+        bool askOptions = (clOptions.analysisLevel != AutomaticAnalysisLevel::Ask)
                 || !clOptions.fileOpenOptions.projectFile.isEmpty();
         mainWindow->openNewFile(clOptions.fileOpenOptions, askOptions);
     }
@@ -378,30 +378,30 @@ bool CutterApplication::parseCommandLineOptions()
     opts.args = cmd_parser.positionalArguments();
 
     if (cmd_parser.isSet(analOption)) {
-        bool analLevelSpecified = false;
-        int analLevel = cmd_parser.value(analOption).toInt(&analLevelSpecified);
+        bool analysisLevelSpecified = false;
+        int analysisLevel = cmd_parser.value(analOption).toInt(&analysisLevelSpecified);
 
-        if (!analLevelSpecified || analLevel < 0 || analLevel > 2) {
+        if (!analysisLevelSpecified || analysisLevel < 0 || analysisLevel > 2) {
             fprintf(stderr, "%s\n",
                     QObject::tr("Invalid Analysis Level. May be a value between 0 and 2.")
                             .toLocal8Bit()
                             .constData());
             return false;
         }
-        switch (analLevel) {
+        switch (analysisLevel) {
         case 0:
-            opts.analLevel = AutomaticAnalysisLevel::None;
+            opts.analysisLevel = AutomaticAnalysisLevel::None;
             break;
         case 1:
-            opts.analLevel = AutomaticAnalysisLevel::AAA;
+            opts.analysisLevel = AutomaticAnalysisLevel::AAA;
             break;
         case 2:
-            opts.analLevel = AutomaticAnalysisLevel::AAAA;
+            opts.analysisLevel = AutomaticAnalysisLevel::AAAA;
             break;
         }
     }
 
-    if (opts.args.empty() && opts.analLevel != AutomaticAnalysisLevel::Ask) {
+    if (opts.args.empty() && opts.analysisLevel != AutomaticAnalysisLevel::Ask) {
         fprintf(stderr, "%s\n",
                 QObject::tr("Filename must be specified to start analysis automatically.")
                         .toLocal8Bit()
@@ -420,17 +420,17 @@ bool CutterApplication::parseCommandLineOptions()
                 options.binLoadAddr = baddr;
             }
         }
-        switch (opts.analLevel) {
+        switch (opts.analysisLevel) {
         case AutomaticAnalysisLevel::Ask:
             break;
         case AutomaticAnalysisLevel::None:
-            opts.fileOpenOptions.analCmd = {};
+            opts.fileOpenOptions.analysisCmd = {};
             break;
         case AutomaticAnalysisLevel::AAA:
-            opts.fileOpenOptions.analCmd = { { "aaa", "Auto analysis" } };
+            opts.fileOpenOptions.analysisCmd = { { "aaa", "Auto analysis" } };
             break;
         case AutomaticAnalysisLevel::AAAA:
-            opts.fileOpenOptions.analCmd = { { "aaaa", "Auto analysis (experimental)" } };
+            opts.fileOpenOptions.analysisCmd = { { "aaaa", "Auto analysis (experimental)" } };
             break;
         }
         opts.fileOpenOptions.script = cmd_parser.value(scriptOption);

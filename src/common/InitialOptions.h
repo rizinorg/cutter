@@ -40,7 +40,7 @@ struct InitialOptions
     QString pdbFile;
     QString script;
 
-    QList<CommandDescription> analCmd = { { "aaa", "Auto analysis" } };
+    QList<CommandDescription> analysisCmd = { { "aaa", "Auto analysis" } };
 
     QString shellcode;
 };

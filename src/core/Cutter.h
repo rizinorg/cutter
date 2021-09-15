@@ -260,17 +260,17 @@ public:
     void applyStructureOffset(const QString &structureOffset, RVA offset = RVA_INVALID);
 
     /* Classes */
-    QList<QString> getAllAnalClasses(bool sorted);
-    QList<AnalMethodDescription> getAnalClassMethods(const QString &cls);
-    QList<AnalBaseClassDescription> getAnalClassBaseClasses(const QString &cls);
-    QList<AnalVTableDescription> getAnalClassVTables(const QString &cls);
+    QList<QString> getAllAnalysisClasses(bool sorted);
+    QList<AnalysisMethodDescription> getAnalysisClassMethods(const QString &cls);
+    QList<AnalysisBaseClassDescription> getAnalysisClassBaseClasses(const QString &cls);
+    QList<AnalysisVTableDescription> getAnalysisClassVTables(const QString &cls);
     void createNewClass(const QString &cls);
     void renameClass(const QString &oldName, const QString &newName);
     void deleteClass(const QString &cls);
-    bool getAnalMethod(const QString &cls, const QString &meth, AnalMethodDescription *desc);
-    void renameAnalMethod(const QString &className, const QString &oldMethodName,
+    bool getAnalysisMethod(const QString &cls, const QString &meth, AnalysisMethodDescription *desc);
+    void renameAnalysisMethod(const QString &className, const QString &oldMethodName,
                           const QString &newMethodName);
-    void setAnalMethod(const QString &cls, const AnalMethodDescription &meth);
+    void setAnalysisMethod(const QString &cls, const AnalysisMethodDescription &meth);
 
     /* File related methods */
     bool loadFile(QString path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = RZ_PERM_R,
@@ -531,7 +531,7 @@ public:
 
     /* Plugins */
     QStringList getAsmPluginNames();
-    QStringList getAnalPluginNames();
+    QStringList getAnalysisPluginNames();
 
     /* Widgets */
     QList<RzBinPluginDescription> getRBinPluginDescriptions(const QString &type = QString());

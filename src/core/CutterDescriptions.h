@@ -244,21 +244,21 @@ struct BinClassDescription
     QList<BinClassFieldDescription> fields;
 };
 
-struct AnalMethodDescription
+struct AnalysisMethodDescription
 {
     QString name;
     RVA addr;
     st64 vtableOffset;
 };
 
-struct AnalBaseClassDescription
+struct AnalysisBaseClassDescription
 {
     QString id;
     RVA offset;
     QString className;
 };
 
-struct AnalVTableDescription
+struct AnalysisVTableDescription
 {
     QString id;
     ut64 offset;
@@ -404,9 +404,9 @@ Q_DECLARE_METATYPE(BinClassDescription)
 Q_DECLARE_METATYPE(const BinClassDescription *)
 Q_DECLARE_METATYPE(const BinClassMethodDescription *)
 Q_DECLARE_METATYPE(const BinClassFieldDescription *)
-Q_DECLARE_METATYPE(AnalBaseClassDescription)
-Q_DECLARE_METATYPE(AnalMethodDescription)
-Q_DECLARE_METATYPE(AnalVTableDescription)
+Q_DECLARE_METATYPE(AnalysisBaseClassDescription)
+Q_DECLARE_METATYPE(AnalysisMethodDescription)
+Q_DECLARE_METATYPE(AnalysisVTableDescription)
 Q_DECLARE_METATYPE(ResourcesDescription)
 Q_DECLARE_METATYPE(VTableDescription)
 Q_DECLARE_METATYPE(TypeDescription)
