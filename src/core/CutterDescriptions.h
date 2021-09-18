@@ -194,6 +194,7 @@ struct RzCorePluginDescription
 {
     QString name;
     QString description;
+    QString license;
 };
 
 struct RzAsmPluginDescription
