@@ -289,12 +289,12 @@ void Configuration::loadNativeStylesheet()
         QTextStream ts(&f);
         QString stylesheet = ts.readAll();
 #ifdef Q_OS_MACOS
-		QFile mf(":native/native-macos.qss");
-		if (mf.exists()) {
-			mf.open(QFile::ReadOnly | QFile::Text);
-			QTextStream mts(&mf);
-			stylesheet += "\n" + mts.readAll();
-		}
+        QFile mf(nativeWindowIsDark() ? ":native/native-macos-dark.qss" : ":native/native-macos-light.qss");
+        if (mf.exists()) {
+            mf.open(QFile::ReadOnly | QFile::Text);
+            QTextStream mts(&mf);
+            stylesheet += "\n" + mts.readAll();
+        }
 #endif
         qApp->setStyleSheet(stylesheet);
     }

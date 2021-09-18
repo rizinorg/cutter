@@ -1,0 +1,31 @@
+/*
+Cocoa has no notion of Dock Widgets so Qt has to craft them itself,
+but the default appearance is awful!
+So let's try to make them as native as possible.
+*/
+QDockWidget::title {
+    text-align: center;
+    background: palette(window);
+}
+
+QDockWidget {
+    titlebar-close-icon: url(:/native/macos-close-dark.svg);
+    titlebar-normal-icon: url(:/native/macos-float-dark.svg);
+}
+
+QDockWidget::close-button,
+QDockWidget::float-button {
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: transparent;
+}
+
+QDockWidget::close-button:hover,
+QDockWidget::float-button:hover {
+    background: rgba(255, 255, 255, 10);
+}
+
+QDockWidget::close-button:pressed,
+QDockWidget::float-button:pressed {
+    background: rgba(255, 255, 255, 10);
+}
