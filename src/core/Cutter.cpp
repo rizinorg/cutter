@@ -2720,72 +2720,66 @@ QStringList CutterCore::getAnalysisPluginNames()
 
 QList<RzBinPluginDescription> CutterCore::getRBinPluginDescriptions(const QString &type)
 {
+    CORE_LOCK();
     QList<RzBinPluginDescription> ret;
-
-    QJsonObject jsonRoot = cmdj("iLj").object();
-    for (const QString &key : jsonRoot.keys()) {
-        if (!type.isNull() && key != type)
-            continue;
-
-        QJsonArray pluginArray = jsonRoot[key].toArray();
-
-        for (const QJsonValue &pluginValue : pluginArray) {
-            QJsonObject pluginObject = pluginValue.toObject();
-
-            RzBinPluginDescription desc;
-
-            desc.name = pluginObject[RJsonKey::name].toString();
-            desc.description = pluginObject[RJsonKey::description].toString();
-            desc.license = pluginObject[RJsonKey::license].toString();
-            desc.type = key;
-
-            ret.append(desc);
-        }
+    RzListIter *it;
+    RzBinPlugin *bp;
+    CutterRzListForeach(core->bin->plugins, it, RzBinPlugin, bp) {
+        RzBinPluginDescription desc;
+        desc.name = bp->name ? bp->name : "";
+        desc.description = bp->desc ? bp->desc : "";
+        desc.license = bp->license ? bp->license : "";
+        desc.type = "bin";
+        ret.append(desc);
     }
-
+    RzBinXtrPlugin *bx;
+    CutterRzListForeach(core->bin->binxtrs, it, RzBinXtrPlugin, bx) {
+        RzBinPluginDescription desc;
+        desc.name = bx->name ? bx->name : "";
+        desc.description = bx->desc ? bx->desc : "";
+        desc.license = bx->license ? bx->license : "";
+        desc.type = "xtr";
+        ret.append(desc);
+    }
     return ret;
 }
 
 QList<RzIOPluginDescription> CutterCore::getRIOPluginDescriptions()
 {
+    CORE_LOCK();
     QList<RzIOPluginDescription> ret;
-
-    QJsonArray plugins = cmdj("oLj").object()["io_plugins"].toArray();
-    for (const QJsonValue &pluginValue : plugins) {
-        QJsonObject pluginObject = pluginValue.toObject();
-
-        RzIOPluginDescription plugin;
-
-        plugin.name = pluginObject["name"].toString();
-        plugin.description = pluginObject["description"].toString();
-        plugin.license = pluginObject["license"].toString();
-        plugin.permissions = pluginObject["permissions"].toString();
-        for (const auto &uri : pluginObject["uris"].toArray()) {
-            plugin.uris << uri.toString();
+    RzListIter *it;
+    RzIOPlugin *p;
+    CutterRzListForeach(core->io->plugins, it, RzIOPlugin, p) {
+        RzIOPluginDescription desc;
+        desc.name = p->name ? p->name : "";
+        desc.description = p->desc ? p->desc : "";
+        desc.license = p->license ? p->license : "";
+        desc.permissions =
+            QString("r") +
+            (p->write ? "w" : "_") + 
+            (p->isdbg ? "d" : "_");
+        if (p->uris) {
+            desc.uris = QString::fromUtf8(p->uris).split(",");
         }
-
-        ret << plugin;
+        ret.append(desc);
     }
-
     return ret;
 }
 
 QList<RzCorePluginDescription> CutterCore::getRCorePluginDescriptions()
 {
+    CORE_LOCK();
     QList<RzCorePluginDescription> ret;
-
-    QJsonArray plugins = cmdj("Lcj").array();
-    for (const QJsonValue &pluginValue : plugins) {
-        QJsonObject pluginObject = pluginValue.toObject();
-
-        RzCorePluginDescription plugin;
-
-        plugin.name = pluginObject["Name"].toString();
-        plugin.description = pluginObject["Description"].toString();
-
-        ret << plugin;
+    RzListIter *it;
+    RzCorePlugin *p;
+    CutterRzListForeach(core->plugins, it, RzCorePlugin, p) {
+        RzCorePluginDescription desc;
+        desc.name = p->name ? p->name : "";
+        desc.description = p->desc ? p->desc : "";
+        desc.license = p->license ? p->license : "";
+        ret.append(desc);
     }
-
     return ret;
 }
 
