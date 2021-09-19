@@ -8,7 +8,7 @@ HeapDockWidget::HeapDockWidget(MainWindow *main)
     ui->setupUi(this);
 
     ui->allocatorSelector->addItem("Glibc Heap");
-    ui->verticalLayout->setMargin(0);
+    ui->verticalLayout->setContentsMargins(0, 0, 0, 0);
 
     connect<void (QComboBox::*)(int)>(ui->allocatorSelector, &QComboBox::currentIndexChanged, this,
                                       &HeapDockWidget::onAllocatorSelected);
