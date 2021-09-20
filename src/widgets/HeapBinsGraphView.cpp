@@ -195,7 +195,7 @@ void HeapBinsGraphView::addBlock(GraphLayout::GraphBlock block, const QString &t
     double width = 0;
 
     // split text into different lines
-    auto lines = text.split("\n", Qt::SplitBehaviorFlags::SkipEmptyParts);
+    auto lines = text.split("\n", CUTTER_QT_SKIP_EMPTY_PARTS);
 
     // width of the block is the maximum width of a line
     for (QString &line : lines) {
