@@ -3731,51 +3731,36 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
 {
     QList<XrefDescription> xrefList = QList<XrefDescription>();
 
-    QJsonArray xrefsArray;
-
-    if (to) {
-        xrefsArray = cmdj("axtj@" + QString::number(addr)).array();
-    } else {
-        xrefsArray = cmdj("axfj@" + QString::number(addr)).array();
+    RzList *xrefs = nullptr;
+    {
+        CORE_LOCK();
+        if (to) {
+            xrefs = rz_analysis_xrefs_get_to(core->analysis, addr);
+        } else {
+            xrefs = rz_analysis_xrefs_get_from(core->analysis, addr);
+        }
     }
 
-    for (const QJsonValue &value : xrefsArray) {
-        QJsonObject xrefObject = value.toObject();
+    RzListIter *it;
+    RzAnalysisXRef *xref;
+    CutterRzListForeach (xrefs, it, RzAnalysisXRef, xref) {
+        XrefDescription xd;
+        xd.from = xref->from;
+        xd.to = xref->to;
+        xd.type = rz_analysis_xrefs_type_tostring(xref->type);
 
-        XrefDescription xref;
-
-        xref.type = xrefObject[RJsonKey::type].toString();
-
-        if (!filterType.isNull() && filterType != xref.type)
+        if (!filterType.isNull() && filterType != xd.type)
             continue;
-
-        xref.from = xrefObject[RJsonKey::from].toVariant().toULongLong();
-        if (!to) {
-            xref.from_str = RzAddressString(xref.from);
-        } else {
-            QString fcn = xrefObject[RJsonKey::fcn_name].toString();
-            if (!fcn.isEmpty()) {
-                RVA fcnAddr = xrefObject[RJsonKey::fcn_addr].toVariant().toULongLong();
-                xref.from_str = fcn + " + 0x" + QString::number(xref.from - fcnAddr, 16);
-            } else {
-                xref.from_str = RzAddressString(xref.from);
-            }
-        }
-
-        if (!whole_function && !to && xref.from != addr) {
+        if (!whole_function && !to && xd.from != addr) {
             continue;
         }
 
-        if (to && !xrefObject.contains(RJsonKey::to)) {
-            xref.to = addr;
-        } else {
-            xref.to = xrefObject[RJsonKey::to].toVariant().toULongLong();
-        }
-        xref.to_str = Core()->cmdRaw(QString("fd %1").arg(xref.to)).trimmed();
+        xd.from_str = RzAddressString(xd.from);
+        xd.to_str = Core()->cmdRaw(QString("fd %1").arg(xd.to)).trimmed();
 
-        xrefList << xref;
+        xrefList << xd;
     }
-
+    rz_list_free(xrefs);
     return xrefList;
 }
 
