@@ -55,7 +55,25 @@ void EditVariablesDialog::applyFields()
     }
     VariableDescription desc = ui->dropdownLocalVars->currentData().value<VariableDescription>();
 
-    Core()->cmdRaw(QString("afvt %1 %2").arg(desc.name).arg(ui->typeComboBox->currentText()));
+    RzCoreLocked core(Core());
+    RzAnalysisFunction *fcn = Core()->functionIn(core->offset);
+    if (!fcn) {
+        return;
+    }
+
+    RzAnalysisVar *v = rz_analysis_function_get_var_byname(fcn, desc.name.toUtf8().constData());
+    if (!v) {
+        return;
+    }
+
+    char *error_msg = NULL;
+    RzType *v_type = rz_type_parse_string_single(
+            core->analysis->typedb->parser, ui->typeComboBox->currentText().toUtf8().constData(),
+            &error_msg);
+    if (!v_type || error_msg) {
+        return;
+    }
+    rz_analysis_var_set_type(v, v_type);
 
     // TODO Remove all those replace once rizin command parser is fixed
     QString newName = ui->nameEdit->text()
@@ -84,7 +102,8 @@ void EditVariablesDialog::updateFields()
     ui->typeComboBox->setCurrentText(desc.type);
 }
 
-static void addTypeDescriptionsToComboBox(QComboBox *comboBox, QList<TypeDescription> list) {
+static void addTypeDescriptionsToComboBox(QComboBox *comboBox, QList<TypeDescription> list)
+{
     for (const TypeDescription &thisType : list) {
         comboBox->addItem(thisType.type);
     }
@@ -97,5 +116,4 @@ void EditVariablesDialog::populateTypesComboBox()
     addTypeDescriptionsToComboBox(ui->typeComboBox, Core()->getAllPrimitiveTypes());
     addTypeDescriptionsToComboBox(ui->typeComboBox, Core()->getAllEnums());
     addTypeDescriptionsToComboBox(ui->typeComboBox, Core()->getAllTypedefs());
-
 }
