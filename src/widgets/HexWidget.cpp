@@ -767,7 +767,7 @@ void HexWidget::w_write64()
     }
     QByteArray str = d.getData();
 
-    if (d.getMode() == Base64EnDecodedWriteDialog::Encode
+    if (d.getMode() == Base64EnDecodedWriteDialog::Decode
         && (QString(str).contains(QRegularExpression("[^a-zA-Z0-9+/=]")) || str.length() % 4 != 0
             || str.isEmpty())) {
         QMessageBox::critical(
