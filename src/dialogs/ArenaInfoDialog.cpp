@@ -2,7 +2,7 @@
 #include "ui_ArenaInfoDialog.h"
 
 ArenaInfoDialog::ArenaInfoDialog(Arena &arena, QWidget *parent)
-    : arena(arena), QDialog(parent), ui(new Ui::ArenaInfoDialog)
+    : QDialog(parent), ui(new Ui::ArenaInfoDialog), arena(arena)
 {
     ui->setupUi(this);
     setWindowTitle("Arena @ " + RzAddressString(arena.offset));
