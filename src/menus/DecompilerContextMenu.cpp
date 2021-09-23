@@ -276,7 +276,7 @@ void DecompilerContextMenu::setActionCopy() // Set all three copy actions
             &DecompilerContextMenu::actionCopyReferenceAddressTriggered);
     addAction(&actionCopyReferenceAddress);
     actionCopyReferenceAddress.setShortcut({ Qt::KeyboardModifier::ControlModifier
-                                             | Qt::KeyboardModifier::ControlModifier | Qt::Key_C });
+                                             | Qt::KeyboardModifier::ShiftModifier | Qt::Key_C });
 }
 
 void DecompilerContextMenu::setActionShowInSubmenu()
