@@ -109,7 +109,6 @@ set(SOURCES
     plugins/PluginManager.cpp
     common/BasicBlockHighlighter.cpp
     common/BasicInstructionHighlighter.cpp
-    dialogs/LinkTypeDialog.cpp
     widgets/ColorPicker.cpp
     common/ColorThemeWorker.cpp
     widgets/ColorThemeComboBox.cpp
@@ -271,7 +270,6 @@ set(HEADER_FILES
     widgets/MemoryDockWidget.h
     widgets/ColorThemeListView.h
     dialogs/preferences/ColorThemeEditDialog.h
-    dialogs/LinkTypeDialog.h
     common/BugReporting.h
     common/HighDpiPixmap.h
     widgets/GraphLayout.h
@@ -365,7 +363,6 @@ set(UI_FILES
     dialogs/EditMethodDialog.ui
     dialogs/TypesInteractionDialog.ui
     widgets/SdbWidget.ui
-    dialogs/LinkTypeDialog.ui
     widgets/ColorPicker.ui
     dialogs/preferences/ColorThemeEditDialog.ui
     widgets/ListDockWidget.ui

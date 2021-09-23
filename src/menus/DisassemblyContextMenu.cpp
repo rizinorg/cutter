@@ -7,7 +7,6 @@
 #include "dialogs/EditVariablesDialog.h"
 #include "dialogs/SetToDataDialog.h"
 #include "dialogs/EditFunctionDialog.h"
-#include "dialogs/LinkTypeDialog.h"
 #include "dialogs/EditStringDialog.h"
 #include "dialogs/BreakpointsDialog.h"
 #include "MainWindow.h"
@@ -42,7 +41,6 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
       actionDeleteComment(this),
       actionDeleteFlag(this),
       actionDeleteFunction(this),
-      actionLinkType(this),
       actionSetBaseBinary(this),
       actionSetBaseOctal(this),
       actionSetBaseDecimal(this),
@@ -121,10 +119,6 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     structureOffsetMenu = addMenu(tr("Structure offset"));
     connect(structureOffsetMenu, &QMenu::triggered, this,
             &DisassemblyContextMenu::on_actionStructureOffsetMenu_triggered);
-
-    initAction(&actionLinkType, tr("Link Type to Address"), SLOT(on_actionLinkType_triggered()),
-               getLinkTypeSequence());
-    addAction(&actionLinkType);
 
     addSetAsMenu();
 
@@ -667,11 +661,6 @@ QKeySequence DisassemblyContextMenu::getDisplayOptionsSequence() const
     return {}; // TODO insert correct sequence
 }
 
-QKeySequence DisassemblyContextMenu::getLinkTypeSequence() const
-{
-    return { Qt::Key_L };
-}
-
 QList<QKeySequence> DisassemblyContextMenu::getAddBPSequence() const
 {
     return { Qt::Key_F2, Qt::CTRL | Qt::Key_B };
@@ -984,15 +973,6 @@ void DisassemblyContextMenu::on_actionSetToDataEx_triggered()
 void DisassemblyContextMenu::on_actionStructureOffsetMenu_triggered(QAction *action)
 {
     Core()->applyStructureOffset(action->data().toString(), offset);
-}
-
-void DisassemblyContextMenu::on_actionLinkType_triggered()
-{
-    LinkTypeDialog dialog(mainWindow);
-    if (!dialog.setDefaultAddress(curHighlightedWord)) {
-        dialog.setDefaultAddress(RzAddressString(offset));
-    }
-    dialog.exec();
 }
 
 void DisassemblyContextMenu::on_actionDeleteComment_triggered()

@@ -95,11 +95,6 @@
     <string>Delete Type</string>
    </property>
   </action>
-  <action name="actionLink_Type_To_Address">
-   <property name="text">
-    <string>Link Type to Address</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>
