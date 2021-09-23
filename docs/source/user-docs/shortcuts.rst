@@ -62,8 +62,6 @@ Disassembly View Shortcuts
 +-------------+----------------------------------+
 | Y           | Edit/rename local variables      |
 +-------------+----------------------------------+
-| L           | Link a type/struct to address    |
-+-------------+----------------------------------+
 | A           | Set current address to String    |
 +-------------+----------------------------------+
 | C           | Set current address to Code      |

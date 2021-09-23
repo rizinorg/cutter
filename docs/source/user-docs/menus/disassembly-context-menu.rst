@@ -103,15 +103,6 @@ Set Structure Offset
 
 **Steps:**  -> Structure offset  
 
-Link a Type to Address
-----------------------------------------
-**Description:** You can link type, enum or structure to a specific address. Types, structures and enums can be defined in the Types widget.  
-
-**Steps:** Right-click on an instruction and choose ``Link Type to Address``.  
-
-**Shortcut:** :kbd:`L`  
-
-
 Show Cross References
 ----------------------------------------
 **Description:** Show X-Refs from and to the specific location. This option will open Cutter's X-Refs dialog in which you will be able to see a list of X-Refs from and to the selected location, in addition to a preview of each cross-reference to quickly inspect the different usages.  
