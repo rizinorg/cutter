@@ -43,7 +43,11 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 {
     // Setup application information
     setApplicationVersion(CUTTER_VERSION_FULL);
+#ifdef Q_OS_MACOS
+    setWindowIcon(QIcon(":/img/cutter_macos_simple.svg"));
+#else
     setWindowIcon(QIcon(":/img/cutter.svg"));
+#endif
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     setAttribute(Qt::AA_UseHighDpiPixmaps); // always enabled on Qt >= 6.0.0
 #endif
