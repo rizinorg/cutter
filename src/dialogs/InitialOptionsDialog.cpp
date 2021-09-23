@@ -47,7 +47,7 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
     setTooltipWithConfigHelp(ui->kernelComboBox, "asm.os");
     setTooltipWithConfigHelp(ui->bitsComboBox, "asm.bits");
 
-    for (const auto &plugin : core->getRBinPluginDescriptions("bin")) {
+    for (const auto &plugin : core->getBinPluginDescriptions(true, false)) {
         ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
     }
 

@@ -10,7 +10,7 @@ RizinPluginsDialog::RizinPluginsDialog(QWidget *parent)
 {
     ui->setupUi(this);
 
-    for (const auto &plugin : Core()->getRBinPluginDescriptions()) {
+    for (const auto &plugin : Core()->getBinPluginDescriptions()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, plugin.name);
         item->setText(1, plugin.description);
