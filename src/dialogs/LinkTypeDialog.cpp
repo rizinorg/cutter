@@ -56,10 +56,14 @@ void LinkTypeDialog::done(int r)
             QString type = ui->structureTypeComboBox->currentText();
             if (type == tr("(No Type)")) {
                 // Delete link
-                Core()->cmdRaw("tl- " + address);
+                RzCoreLocked core(Core());
+                ut64 addr = rz_num_math(core->num, address.toUtf8().constData());
+                rz_analysis_type_unlink(core->analysis, addr);
             } else {
                 // Create link
-                Core()->cmdRaw(QString("tl %1 = %2").arg(type).arg(address));
+                RzCoreLocked core(Core());
+                ut64 addr = rz_num_math(core->num, address.toUtf8().constData());
+                rz_core_types_link(core, type.toUtf8().constData(), addr);
             }
             QDialog::done(r);
 
@@ -84,16 +88,17 @@ QString LinkTypeDialog::findLinkedType(RVA address)
         return QString();
     }
 
-    QString ret = Core()->cmdRaw(QString("tls %1").arg(address));
-    if (ret.isEmpty()) {
-        // return empty string since the current address is not linked to a type
+    RzCoreLocked core(Core());
+    RzType *link = rz_analysis_type_link_at(core->analysis, address);
+    if (!link) {
+        return QString();
+    }
+    RzBaseType *base = rz_type_get_base_type(core->analysis->typedb, link);
+    if (!base) {
         return QString();
     }
 
-    // Extract the given type from returned data
-    // TODO: Implement "tlsj" in Rizin or some other function to directly get linked type
-    QString s = ret.section(QLatin1Char('\n'), 0, 0);
-    return s.mid(1, s.size() - 2);
+    return QString(base->name);
 }
 
 void LinkTypeDialog::on_exprLineEdit_textChanged(const QString &text)

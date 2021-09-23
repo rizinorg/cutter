@@ -390,7 +390,7 @@ bool CutterCore::isRedirectableDebugee()
     RzList *descs = rz_id_storage_list(core->io->files);
     RzListIter *it;
     RzIODesc *desc;
-    CutterRzListForeach(descs, it, RzIODesc, desc) {
+    CutterRzListForeach (descs, it, RzIODesc, desc) {
         QString URI = QString(desc->uri);
         if (URI.contains("ptrace") | URI.contains("mach")) {
             return true;
@@ -771,7 +771,12 @@ void CutterCore::editBytes(RVA addr, const QString &bytes)
 
 void CutterCore::editBytesEndian(RVA addr, const QString &bytes)
 {
-    cmdRawAt(QString("wv %1").arg(bytes), addr);
+    CORE_LOCK();
+    ut64 value = rz_num_math(core->num, bytes.toUtf8().constData());
+    if (core->num->nc.errors) {
+        return;
+    }
+    rz_core_write_value_at(core, addr, value, 0);
     emit stackChanged();
 }
 
@@ -938,7 +943,12 @@ void CutterCore::seekAndShow(QString offset)
 
 void CutterCore::seek(QString thing)
 {
-    cmdRaw(QString("s %1").arg(thing));
+    CORE_LOCK();
+    ut64 addr = rz_num_math(core->num, thing.toUtf8().constData());
+    if (core->num->nc.errors) {
+        return;
+    }
+    rz_core_seek_and_save(core, addr, true);
     updateSeek();
 }
 
@@ -1365,8 +1375,8 @@ RefDescription CutterCore::formatRefDesc(QJsonObject refItem)
                 break;
             }
             if (!refItem["value"].isNull()) {
-                appendVar(desc.ref, RzAddressString(refItem["value"].toVariant().toULongLong()), " ",
-                          "");
+                appendVar(desc.ref, RzAddressString(refItem["value"].toVariant().toULongLong()),
+                          " ", "");
             }
             refItem = refItem["ref"].toObject();
         } while (!refItem.empty());
@@ -1580,8 +1590,7 @@ QVector<Chunk> CutterCore::getHeapChunks(RVA arena_addr)
     RzList *chunks = rz_heap_chunks_list(core, m_arena);
     RzListIter *iter;
     RzHeapChunkListItem *data;
-    CutterRzListForeach(chunks, iter, RzHeapChunkListItem, data)
-    {
+    CutterRzListForeach (chunks, iter, RzHeapChunkListItem, data) {
         Chunk chunk;
         chunk.offset = data->addr;
         chunk.size = (int)data->size;
@@ -1608,8 +1617,7 @@ QVector<Arena> CutterCore::getArenas()
     RzList *arenas = rz_heap_arenas_list(core);
     RzListIter *iter;
     RzArenaListItem *data;
-    CutterRzListForeach(arenas, iter, RzArenaListItem, data)
-    {
+    CutterRzListForeach (arenas, iter, RzArenaListItem, data) {
         Arena arena;
         arena.offset = data->addr;
         arena.type = QString(data->type);
@@ -1670,8 +1678,7 @@ QVector<RzHeapBin *> CutterCore::getHeapBins(ut64 arena_addr)
     RzList *tcache_bins = rz_heap_tcache_content(core, arena_addr);
     RzListIter *iter;
     RzHeapBin *bin;
-    CutterRzListForeach(tcache_bins, iter, RzHeapBin, bin)
-    {
+    CutterRzListForeach (tcache_bins, iter, RzHeapBin, bin) {
         if (!bin) {
             continue;
         }
@@ -1918,7 +1925,7 @@ void CutterCore::attachRemote(const QString &uri)
         RzList *descs = rz_id_storage_list(core->io->files);
         RzListIter *it;
         RzIODesc *desc;
-        CutterRzListForeach(descs, it, RzIODesc, desc) {
+        CutterRzListForeach (descs, it, RzIODesc, desc) {
             QString fileUri = QString(desc->uri);
             if (!fileUri.compare(uri)) {
                 connected = true;
@@ -2030,7 +2037,7 @@ void CutterCore::stopDebug()
         RzList *descs = rz_id_storage_list(core->io->files);
         RzListIter *it;
         RzIODesc *desc;
-        CutterRzListForeach(descs, it, RzIODesc, desc) {
+        CutterRzListForeach (descs, it, RzIODesc, desc) {
             QString URI = QString(desc->uri);
             if (URI.contains("ptrace")) {
                 ptraceFiles += "o-" + QString::number(desc->fd) + ";";
@@ -2689,7 +2696,9 @@ QList<RVA> CutterCore::getSeekHistory()
     RzListIter *it;
     RzCoreSeekItem *undo;
     RzList *list = rz_core_seek_list(core);
-    CutterRzListForeach(list, it, RzCoreSeekItem, undo) { ret << undo->offset; }
+    CutterRzListForeach (list, it, RzCoreSeekItem, undo) {
+        ret << undo->offset;
+    }
 
     return ret;
 }
@@ -2701,7 +2710,9 @@ QStringList CutterCore::getAsmPluginNames()
     QStringList ret;
 
     RzAsmPlugin *ap;
-    CutterRzListForeach(core->rasm->plugins, it, RzAsmPlugin, ap) { ret << ap->name; }
+    CutterRzListForeach (core->rasm->plugins, it, RzAsmPlugin, ap) {
+        ret << ap->name;
+    }
 
     return ret;
 }
@@ -2713,7 +2724,9 @@ QStringList CutterCore::getAnalysisPluginNames()
     QStringList ret;
 
     RzAnalysisPlugin *ap;
-    CutterRzListForeach(core->analysis->plugins, it, RzAnalysisPlugin, ap) { ret << ap->name; }
+    CutterRzListForeach (core->analysis->plugins, it, RzAnalysisPlugin, ap) {
+        ret << ap->name;
+    }
 
     return ret;
 }
@@ -2724,7 +2737,7 @@ QList<RzBinPluginDescription> CutterCore::getRBinPluginDescriptions(const QStrin
     QList<RzBinPluginDescription> ret;
     RzListIter *it;
     RzBinPlugin *bp;
-    CutterRzListForeach(core->bin->plugins, it, RzBinPlugin, bp) {
+    CutterRzListForeach (core->bin->plugins, it, RzBinPlugin, bp) {
         RzBinPluginDescription desc;
         desc.name = bp->name ? bp->name : "";
         desc.description = bp->desc ? bp->desc : "";
@@ -2733,7 +2746,7 @@ QList<RzBinPluginDescription> CutterCore::getRBinPluginDescriptions(const QStrin
         ret.append(desc);
     }
     RzBinXtrPlugin *bx;
-    CutterRzListForeach(core->bin->binxtrs, it, RzBinXtrPlugin, bx) {
+    CutterRzListForeach (core->bin->binxtrs, it, RzBinXtrPlugin, bx) {
         RzBinPluginDescription desc;
         desc.name = bx->name ? bx->name : "";
         desc.description = bx->desc ? bx->desc : "";
@@ -2750,15 +2763,12 @@ QList<RzIOPluginDescription> CutterCore::getRIOPluginDescriptions()
     QList<RzIOPluginDescription> ret;
     RzListIter *it;
     RzIOPlugin *p;
-    CutterRzListForeach(core->io->plugins, it, RzIOPlugin, p) {
+    CutterRzListForeach (core->io->plugins, it, RzIOPlugin, p) {
         RzIOPluginDescription desc;
         desc.name = p->name ? p->name : "";
         desc.description = p->desc ? p->desc : "";
         desc.license = p->license ? p->license : "";
-        desc.permissions =
-            QString("r") +
-            (p->write ? "w" : "_") + 
-            (p->isdbg ? "d" : "_");
+        desc.permissions = QString("r") + (p->write ? "w" : "_") + (p->isdbg ? "d" : "_");
         if (p->uris) {
             desc.uris = QString::fromUtf8(p->uris).split(",");
         }
@@ -2773,7 +2783,7 @@ QList<RzCorePluginDescription> CutterCore::getRCorePluginDescriptions()
     QList<RzCorePluginDescription> ret;
     RzListIter *it;
     RzCorePlugin *p;
-    CutterRzListForeach(core->plugins, it, RzCorePlugin, p) {
+    CutterRzListForeach (core->plugins, it, RzCorePlugin, p) {
         RzCorePluginDescription desc;
         desc.name = p->name ? p->name : "";
         desc.description = p->desc ? p->desc : "";
@@ -2790,8 +2800,7 @@ QList<RzAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
     QList<RzAsmPluginDescription> ret;
 
     RzAsmPlugin *ap;
-    CutterRzListForeach(core->rasm->plugins, it, RzAsmPlugin, ap)
-    {
+    CutterRzListForeach (core->rasm->plugins, it, RzAsmPlugin, ap) {
         RzAsmPluginDescription plugin;
 
         plugin.name = ap->name;
@@ -2817,8 +2826,7 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
 
     RzListIter *iter;
     RzAnalysisFunction *fcn;
-    CutterRzListForeach(core->analysis->fcns, iter, RzAnalysisFunction, fcn)
-    {
+    CutterRzListForeach (core->analysis->fcns, iter, RzAnalysisFunction, fcn) {
         FunctionDescription function;
         function.offset = fcn->addr;
         function.linearSize = rz_analysis_function_linear_size(fcn);
@@ -2898,8 +2906,7 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
 
     RzBinSymbol *bs;
     if (core && core->bin && core->bin->cur && core->bin->cur->o) {
-        CutterRzListForeach(core->bin->cur->o->symbols, it, RzBinSymbol, bs)
-        {
+        CutterRzListForeach (core->bin->cur->o->symbols, it, RzBinSymbol, bs) {
             QString type = QString(bs->bind) + " " + QString(bs->type);
             SymbolDescription symbol;
             symbol.vaddr = bs->vaddr;
@@ -2912,8 +2919,7 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
         /* list entrypoints as symbols too */
         int n = 0;
         RzBinAddr *entry;
-        CutterRzListForeach(core->bin->cur->o->entries, it, RzBinAddr, entry)
-        {
+        CutterRzListForeach (core->bin->cur->o->entries, it, RzBinAddr, entry) {
             SymbolDescription symbol;
             symbol.vaddr = entry->vaddr;
             symbol.name = QString("entry") + QString::number(n++);
@@ -3415,7 +3421,8 @@ void CutterCore::deleteClass(const QString &cls)
     rz_analysis_class_delete(core->analysis, cls.toUtf8().constData());
 }
 
-bool CutterCore::getAnalysisMethod(const QString &cls, const QString &meth, AnalysisMethodDescription *desc)
+bool CutterCore::getAnalysisMethod(const QString &cls, const QString &meth,
+                                   AnalysisMethodDescription *desc)
 {
     CORE_LOCK();
     RzAnalysisMethod analysisMeth;
@@ -3443,7 +3450,7 @@ void CutterCore::setAnalysisMethod(const QString &className, const AnalysisMetho
 }
 
 void CutterCore::renameAnalysisMethod(const QString &className, const QString &oldMethodName,
-                                  const QString &newMethodName)
+                                      const QString &newMethodName)
 {
     CORE_LOCK();
     rz_analysis_class_method_rename(core->analysis, className.toUtf8().constData(),
@@ -3855,7 +3862,8 @@ void CutterCore::triggerFunctionRenamed(const RVA offset, const QString &newName
 
 void CutterCore::loadPDB(const QString &file)
 {
-    cmdRaw("idp " + sanitizeStringForCommand(file));
+    CORE_LOCK();
+    rz_core_bin_pdb_load(core, file.toUtf8().constData());
 }
 
 QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)

@@ -64,7 +64,8 @@ void AnalysisTask::runTask()
     }
 
     if (!options.os.isNull()) {
-        Core()->cmdRaw("e asm.os=" + options.os);
+        RzCoreLocked core(Core());
+        rz_config_set(core->config, "asm.os", options.os.toUtf8().constData());
     }
 
     if (!options.pdbFile.isNull()) {
