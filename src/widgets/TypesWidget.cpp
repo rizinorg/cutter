@@ -3,7 +3,6 @@
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include "dialogs/TypesInteractionDialog.h"
-#include "dialogs/LinkTypeDialog.h"
 
 #include <QMenu>
 #include <QFileDialog>
@@ -242,9 +241,6 @@ void TypesWidget::showTypesContextMenu(const QPoint &pt)
             // Add "Link To Address" option
             menu.addAction(actionViewType);
             menu.addAction(actionEditType);
-            if (t.category == "Struct") {
-                menu.addAction(ui->actionLink_Type_To_Address);
-            }
         }
     }
 
@@ -335,19 +331,6 @@ void TypesWidget::on_actionDelete_Type_triggered()
             this, tr("Cutter"), tr("Are you sure you want to delete \"%1\"?").arg(exp.type));
     if (reply == QMessageBox::Yes) {
         types_model->removeRow(index.row());
-    }
-}
-
-void TypesWidget::on_actionLink_Type_To_Address_triggered()
-{
-    LinkTypeDialog dialog(this);
-
-    QModelIndex index = ui->typesTreeView->currentIndex();
-    if (index.isValid()) {
-        TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
-        dialog.setDefaultType(t.type);
-        dialog.setDefaultAddress(RzAddressString(Core()->getOffset()));
-        dialog.exec();
     }
 }
 

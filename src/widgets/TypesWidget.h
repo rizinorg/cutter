@@ -106,12 +106,6 @@ private slots:
     void on_actionDelete_Type_triggered();
 
     /**
-     * @brief Executed on clicking the Link To Address option in the context menu
-     * Opens the LinkTypeDialog box from where the user can link a address to a type
-     */
-    void on_actionLink_Type_To_Address_triggered();
-
-    /**
      * @brief triggers when the user double-clicks an item. This will open
      * a dialog that shows the Type's content
      */

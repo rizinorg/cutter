@@ -74,13 +74,6 @@ private slots:
      */
     void on_actionStructureOffsetMenu_triggered(QAction *action);
 
-    /**
-     * @brief Executed on selecting the "Link Type to Address" option
-     * Opens the LinkTypeDialog box from where the user can link the address
-     * to a type
-     */
-    void on_actionLinkType_triggered();
-
 private:
     QKeySequence getCopySequence() const;
     QKeySequence getCommentSequence() const;
@@ -98,11 +91,6 @@ private:
     QKeySequence getUndefineFunctionSequence() const;
     QKeySequence getEditFunctionSequence() const;
     QList<QKeySequence> getAddBPSequence() const;
-
-    /**
-     * @return the shortcut key for "Link Type to Address" option
-     */
-    QKeySequence getLinkTypeSequence() const;
 
     RVA offset;
     bool canCopy;
@@ -136,8 +124,6 @@ private:
     QAction actionDeleteFunction;
 
     QMenu *structureOffsetMenu;
-
-    QAction actionLinkType;
 
     QMenu *setBaseMenu;
     QAction actionSetBaseBinary;
