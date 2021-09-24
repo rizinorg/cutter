@@ -2731,28 +2731,32 @@ QStringList CutterCore::getAnalysisPluginNames()
     return ret;
 }
 
-QList<RzBinPluginDescription> CutterCore::getRBinPluginDescriptions(const QString &type)
+QList<RzBinPluginDescription> CutterCore::getBinPluginDescriptions(bool bin, bool xtr)
 {
     CORE_LOCK();
     QList<RzBinPluginDescription> ret;
     RzListIter *it;
-    RzBinPlugin *bp;
-    CutterRzListForeach (core->bin->plugins, it, RzBinPlugin, bp) {
-        RzBinPluginDescription desc;
-        desc.name = bp->name ? bp->name : "";
-        desc.description = bp->desc ? bp->desc : "";
-        desc.license = bp->license ? bp->license : "";
-        desc.type = "bin";
-        ret.append(desc);
+    if (bin) {
+        RzBinPlugin *bp;
+        CutterRzListForeach (core->bin->plugins, it, RzBinPlugin, bp) {
+            RzBinPluginDescription desc;
+            desc.name = bp->name ? bp->name : "";
+            desc.description = bp->desc ? bp->desc : "";
+            desc.license = bp->license ? bp->license : "";
+            desc.type = "bin";
+            ret.append(desc);
+        }
     }
-    RzBinXtrPlugin *bx;
-    CutterRzListForeach (core->bin->binxtrs, it, RzBinXtrPlugin, bx) {
-        RzBinPluginDescription desc;
-        desc.name = bx->name ? bx->name : "";
-        desc.description = bx->desc ? bx->desc : "";
-        desc.license = bx->license ? bx->license : "";
-        desc.type = "xtr";
-        ret.append(desc);
+    if (xtr) {
+        RzBinXtrPlugin *bx;
+        CutterRzListForeach (core->bin->binxtrs, it, RzBinXtrPlugin, bx) {
+            RzBinPluginDescription desc;
+            desc.name = bx->name ? bx->name : "";
+            desc.description = bx->desc ? bx->desc : "";
+            desc.license = bx->license ? bx->license : "";
+            desc.type = "xtr";
+            ret.append(desc);
+        }
     }
     return ret;
 }

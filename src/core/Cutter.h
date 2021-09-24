@@ -534,7 +534,7 @@ public:
     QStringList getAnalysisPluginNames();
 
     /* Widgets */
-    QList<RzBinPluginDescription> getRBinPluginDescriptions(const QString &type = QString());
+    QList<RzBinPluginDescription> getBinPluginDescriptions(bool bin = true, bool xtr = true);
     QList<RzIOPluginDescription> getRIOPluginDescriptions();
     QList<RzCorePluginDescription> getRCorePluginDescriptions();
     QList<RzAsmPluginDescription> getRAsmPluginDescriptions();
