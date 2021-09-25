@@ -2005,6 +2005,7 @@ void CutterCore::attachDebug(int pid)
 void CutterCore::suspendDebug()
 {
     debugTask->breakTask();
+    debugTask->joinTask();
 }
 
 void CutterCore::stopDebug()
