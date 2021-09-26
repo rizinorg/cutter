@@ -63,8 +63,20 @@ On Debian-based Linux distributions, all of these essential packages can be inst
 
    sudo apt install build-essential cmake meson libzip-dev zlib1g-dev qt5-default libqt5svg5-dev qttools5-dev qttools5-dev-tools
 
+Depending on your configuration you'll might also need the following:
+
+::
+
+  # When building with CUTTER_ENABLE_KSYNTAXHIGHLIGHTING (Default)
+  sudo apt install libkf5syntaxhighlighting-dev 
+  # When building with CUTTER_ENABLE_GRAPHVIZ (Default)
+  sudo apt install libgraphviz-dev
+  # when building with CUTTER_ENABLE_PYTHON_BINDINGS
+  sudo apt install libshiboken2-dev libpyside2-dev  qtdeclarative5-dev
+  
+
 .. note::
- For Ubuntu 18.04 and lower, ``meson`` should be installed with ``pip install --upgrade --user meson``.
+ For Ubuntu 20.04 and lower (or in any case you get an error ``Meson version is x but project requires >=y``), ``meson`` should be installed with ``pip install --upgrade --user meson``.
 
 On Arch-based Linux distributions:
 
