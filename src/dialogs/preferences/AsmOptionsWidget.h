@@ -48,6 +48,7 @@ private slots:
 
     void on_bytesCheckBox_toggled(bool checked);
     void on_varsubCheckBox_toggled(bool checked);
+    void on_previewCheckBox_toggled(bool checked);
 
     void on_buttonBox_clicked(QAbstractButton *button);
 

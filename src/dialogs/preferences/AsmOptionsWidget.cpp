@@ -134,6 +134,10 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     ui->asmTabsOffSpinBox->setValue(Config()->getConfigInt("asm.tabs.off"));
     ui->asmTabsOffSpinBox->blockSignals(false);
 
+    ui->previewCheckBox->blockSignals(true);
+    ui->previewCheckBox->setChecked(Config()->getPreviewValue());
+    ui->previewCheckBox->blockSignals(false);
+
     QList<ConfigCheckbox>::iterator confCheckbox;
 
     // Set the value for each checkbox in "checkboxes" as it exists in the configuration
@@ -235,6 +239,12 @@ void AsmOptionsWidget::on_varsubCheckBox_toggled(bool checked)
 {
     Config()->setConfig("asm.sub.var", checked);
     ui->varsubOnlyCheckBox->setEnabled(checked);
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::on_previewCheckBox_toggled( bool checked )
+{
+    Config()->setPreviewValue(checked);
     triggerAsmOptionsChanged();
 }
 

@@ -774,6 +774,16 @@ bool Configuration::getOutputRedirectionEnabled() const
     return outputRedirectEnabled;
 }
 
+void Configuration::setPreviewValue( bool checked )
+{
+    s.setValue("asm.preview", checked);
+}
+
+bool Configuration::getPreviewValue() const
+{
+    return s.value("asm.preview").toBool();
+}
+
 bool Configuration::getGraphBlockEntryOffset()
 {
     return s.value("graphBlockEntryOffset", true).value<bool>();
