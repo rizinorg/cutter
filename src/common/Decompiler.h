@@ -25,6 +25,8 @@ public:
 
     static RzAnnotatedCode *makeWarning(QString warningMessage);
 
+    RzAnnotatedCode *rz_annotated_code_from_json(QJsonObject &json);
+
     QString getId() const { return id; }
     QString getName() const { return name; }
     virtual bool isRunning() { return false; }
