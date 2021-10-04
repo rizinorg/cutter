@@ -79,6 +79,11 @@ void DecompilerContextMenu::setCurHighlightedWord(QString word)
     curHighlightedWord = word;
 }
 
+RzCodeAnnotation *DecompilerContextMenu::getAnnotationHere()
+{
+    return annotationHere;
+}
+
 void DecompilerContextMenu::setOffset(RVA newOffset)
 {
     offset = newOffset;

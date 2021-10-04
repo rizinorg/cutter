@@ -26,12 +26,17 @@ bool JSDecDecompiler::isAvailable()
     return Core()->cmdList("es").contains("jsdec");
 }
 
+static char *jsonValueToString(const QJsonValue &str)
+{
+    return strdup(str.toString().toStdString().c_str());
+}
+
 void JSDecDecompiler::decompileAt(RVA addr)
 {
     if (task) {
         return;
     }
-    task = new RizinCmdTask("pddj @ " + QString::number(addr));
+    task = new RizinCmdTask("pddA @ " + QString::number(addr));
     connect(task, &RizinCmdTask::finished, this, [this]() {
         QJsonObject json = task->getResultJson().object();
         delete task;
@@ -41,38 +46,55 @@ void JSDecDecompiler::decompileAt(RVA addr)
             return;
         }
         RzAnnotatedCode *code = rz_annotated_code_new(nullptr);
-        QString codeString = "";
-        for (const auto &line : json["log"].toArray()) {
-            if (!line.isString()) {
-                continue;
+        code->code = strdup(json["code"].toString().toStdString().c_str());
+        for (const auto &iter : json["annotations"].toArray()) {
+            QJsonObject jsonAnnotation = iter.toObject();
+            RzCodeAnnotation annotation = {};
+            annotation.start = jsonAnnotation["start"].toInt();
+            annotation.end = jsonAnnotation["end"].toInt();
+            QString type = jsonAnnotation["type"].toString();
+            if (type == "offset") {
+                annotation.type = RZ_CODE_ANNOTATION_TYPE_OFFSET;
+                annotation.offset.offset = jsonAnnotation["offset"].toString().toULongLong();
+            } else if (type == "function_name") {
+                annotation.type = RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME;
+                annotation.reference.name = jsonValueToString(jsonAnnotation["name"]);
+                annotation.reference.offset = jsonAnnotation["offset"].toString().toULongLong();
+            } else if (type == "global_variable") {
+                annotation.type = RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE;
+                annotation.reference.offset = jsonAnnotation["offset"].toString().toULongLong();
+            } else if (type == "constant_variable") {
+                annotation.type = RZ_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE;
+                annotation.reference.offset = jsonAnnotation["offset"].toString().toULongLong();
+            } else if (type == "local_variable") {
+                annotation.type = RZ_CODE_ANNOTATION_TYPE_LOCAL_VARIABLE;
+                annotation.variable.name = jsonValueToString(jsonAnnotation["name"]);
+            } else if (type == "function_parameter") {
+                annotation.type = RZ_CODE_ANNOTATION_TYPE_FUNCTION_PARAMETER;
+                annotation.variable.name = jsonValueToString(jsonAnnotation["name"]);
+            } else if (type == "syntax_highlight") {
+                annotation.type = RZ_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT;
+                QString highlightType = jsonAnnotation["syntax_highlight"].toString();
+                if (highlightType == "keyword") {
+                    annotation.syntax_highlight.type = RZ_SYNTAX_HIGHLIGHT_TYPE_KEYWORD;
+                } else if (highlightType == "comment") {
+                    annotation.syntax_highlight.type = RZ_SYNTAX_HIGHLIGHT_TYPE_COMMENT;
+                } else if (highlightType == "datatype") {
+                    annotation.syntax_highlight.type = RZ_SYNTAX_HIGHLIGHT_TYPE_DATATYPE;
+                } else if (highlightType == "function_name") {
+                    annotation.syntax_highlight.type = RZ_SYNTAX_HIGHLIGHT_TYPE_FUNCTION_NAME;
+                } else if (highlightType == "function_parameter") {
+                    annotation.syntax_highlight.type = RZ_SYNTAX_HIGHLIGHT_TYPE_FUNCTION_PARAMETER;
+                } else if (highlightType == "local_variable") {
+                    annotation.syntax_highlight.type = RZ_SYNTAX_HIGHLIGHT_TYPE_LOCAL_VARIABLE;
+                } else if (highlightType == "constant_variable") {
+                    annotation.syntax_highlight.type = RZ_SYNTAX_HIGHLIGHT_TYPE_CONSTANT_VARIABLE;
+                } else if (highlightType == "global_variable") {
+                    annotation.syntax_highlight.type = RZ_SYNTAX_HIGHLIGHT_TYPE_GLOBAL_VARIABLE;
+                }
             }
-            codeString.append(line.toString() + "\n");
+            rz_annotated_code_add_annotation(code, &annotation);
         }
-
-        auto linesArray = json["lines"].toArray();
-        for (const auto &line : linesArray) {
-            QJsonObject lineObject = line.toObject();
-            if (lineObject.isEmpty()) {
-                continue;
-            }
-            RzCodeAnnotation annotationi = {};
-            annotationi.start = codeString.length();
-            codeString.append(lineObject["str"].toString() + "\n");
-            annotationi.end = codeString.length();
-            bool ok;
-            annotationi.type = RZ_CODE_ANNOTATION_TYPE_OFFSET;
-            annotationi.offset.offset = lineObject["offset"].toVariant().toULongLong(&ok);
-            rz_annotated_code_add_annotation(code, &annotationi);
-        }
-
-        for (const auto &line : json["errors"].toArray()) {
-            if (!line.isString()) {
-                continue;
-            }
-            codeString.append(line.toString() + "\n");
-        }
-        std::string tmp = codeString.toStdString();
-        code->code = strdup(tmp.c_str());
         emit finished(code);
     });
     task->startTask();
