@@ -89,6 +89,7 @@ public:
     size_t size() const { return has_children() ? value->children.count : 0; }
     RzJsonType type() const { return value ? value->type : RZ_JSON_NULL; }
     bool valid() const { return value ? true : false; }
+    const RzJson *lowLevelValue() const { return value; }
 
 private:
     bool has_children() const
