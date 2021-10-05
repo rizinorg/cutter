@@ -16,9 +16,21 @@ class SdbWidget : public CutterDockWidget
 {
     Q_OBJECT
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
+     Q_DISABLE_COPY_MOVE(SdbWidget)
+#endif
+
 public:
     explicit SdbWidget(MainWindow *main);
-    ~SdbWidget();
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+    explicit SdbWidget(const SdbWidget& w) = delete;
+    SdbWidget& operator=(const SdbWidget& w) = delete;
+    explicit SdbWidget(SdbWidget&& w) = delete;
+    SdbWidget operator=(SdbWidget&& w) = delete;
+#endif
+
+    ~SdbWidget() override;
 
 private slots:
     void on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
