@@ -15,6 +15,7 @@ GraphOptionsWidget::GraphOptionsWidget(PreferencesDialog *dialog)
     ui->setupUi(this);
     ui->checkTransparent->setChecked(Config()->getBitmapTransparentState());
     ui->blockEntryCheckBox->setChecked(Config()->getGraphBlockEntryOffset());
+    ui->graphPreviewCheckBox->setChecked(Config()->getGraphPreview());
     ui->bitmapGraphScale->setValue(Config()->getBitmapExportScaleFactor() * 100.0);
     updateOptionsFromVars();
 
@@ -81,6 +82,12 @@ void GraphOptionsWidget::on_graphOffsetCheckBox_toggled(bool checked)
 {
     Config()->setConfig("graph.offset", checked);
     emit Core()->asmOptionsChanged();
+    triggerOptionsChanged();
+}
+
+void GraphOptionsWidget::on_graphPreviewCheckBox_toggled( bool checked )
+{
+    Config()->setGraphPreview(checked);
     triggerOptionsChanged();
 }
 

@@ -29,6 +29,24 @@
 
 #include <cmath>
 
+class GraphDisassemblyTextBlockUserData : public QTextBlockUserData
+{
+public:
+    DisassemblyLine line;
+
+    explicit GraphDisassemblyTextBlockUserData(const DisassemblyLine &line) { this->line = line; }
+};
+
+static GraphDisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
+{
+    QTextBlockUserData *userData = block.userData();
+    if (!userData) {
+        return nullptr;
+    }
+
+    return static_cast<GraphDisassemblyTextBlockUserData *>(userData);
+}
+
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable,
                                              MainWindow *mainWindow,
                                              QList<QAction *> additionalMenuActions)
@@ -140,6 +158,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     layout->setAlignment(Qt::AlignTop);
 
     this->scale_thickness_multiplier = true;
+    installEventFilter(this);
 }
 
 void DisassemblerGraphView::connectSeekChanged(bool disconn)
@@ -522,6 +541,89 @@ GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView:
         }
     }
     return ec;
+}
+
+bool DisassemblerGraphView::eventFilter( QObject *obj, QEvent *event )
+{
+    if (Config()->getGraphPreview() && event->type() == QEvent::Type::ToolTip) {
+
+        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+        QPoint pointOfEvent = helpEvent->pos();
+        QPoint point = viewToLogicalCoordinates(pointOfEvent);
+
+        GraphBlock *block = getBlockContaining(point);
+
+        if (block == nullptr) {
+            qDebug() << "Invalid blocked returned";
+            return false;
+        }
+
+        /*
+         * Initialize offsets:
+         * offsetFrom is the address which on top the cursor triggered this
+         * offsetTo is the address that offsetFrom is referring to.
+         */
+        RVA offsetFrom = RVA_INVALID;
+        RVA offsetTo = RVA_INVALID;
+
+        /*
+         * getAddrForMouseEvent() doesn't work for jmps, like
+         * getInstrForMouseEvent() with false as a 3rd argument.
+         */
+        Instr *inst = getInstrForMouseEvent(*block, &point, true);
+        if (inst != nullptr) {
+            offsetFrom = inst->addr;
+        }
+
+        QList<XrefDescription> refs = Core()->getXRefs(offsetFrom, false, false);
+        if (refs.length()) {
+            if (refs.length() > 1) {
+                qWarning() << tr("More than one (%1) references here. Weird behaviour expected.")
+                                      .arg(refs.length());
+            }
+
+            offsetTo = refs.at(0).to; // This is the offset we want to preview
+
+            if (Q_UNLIKELY(offsetFrom != refs.at(0).from)) {
+                qWarning() << tr("offsetFrom (%1) differs from refs.at(0).from (%(2))")
+                                      .arg(offsetFrom)
+                                      .arg(refs.at(0).from);
+            }
+
+            // Only if the offset we point *to* is different from the one the cursor is currently
+            // on *and* the former is a valid offset, we are allowed to get a preview of offsetTo
+            if (offsetTo != offsetFrom && offsetTo != RVA_INVALID) {
+                QStringList disasmPreview = Core()->getDisassemblyPreview(offsetTo, 10);
+
+                // Last check to make sure the returned preview isn't an empty text (QStringList)
+                if (!disasmPreview.isEmpty()) {
+                    const QFont &fnt = Config()->getFont();
+
+                    // Don't preview anything for a small scale
+                    if (getViewScale() < 0.8) {
+                        return false;
+                    }
+
+                    QFontMetrics fm { fnt };
+
+                    QString tooltip =
+                            QString { "<html><div style=\"font-family: %1; font-size: %2pt; "
+                                      "white-space: nowrap;\"><div style=\"margin-bottom: "
+                                      "10px;\"><strong>Disassembly Preview</strong>:<br>%3<div>" }
+                                    .arg(fnt.family())
+                                    .arg(qMax(8, fnt.pointSize() - 1))
+                                    .arg(disasmPreview.join("<br>"));
+
+                    QToolTip::showText(pointOfEvent, tooltip, this, QRect{}, 3500);
+                    return true;
+                }
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+    return CutterGraphView::eventFilter(obj, event);
 }
 
 RVA DisassemblerGraphView::getAddrForMouseEvent(GraphBlock &block, QPoint *point)
@@ -950,4 +1052,14 @@ void DisassemblerGraphView::paintEvent(QPaintEvent *event)
 bool DisassemblerGraphView::Instr::contains(ut64 addr) const
 {
     return this->addr <= addr && (addr - this->addr) < size;
+}
+
+RVA DisassemblerGraphView::readDisassemblyOffset(QTextCursor tc)
+{
+    auto userData = getUserData(tc.block());
+    if (!userData) {
+        return RVA_INVALID;
+    }
+
+    return userData->line.offset;
 }

@@ -139,6 +139,8 @@ protected:
                                    QPoint pos) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
     void restoreCurrentBlock() override;
+    bool eventFilter(QObject* obj, QEvent* event) override;
+
 private slots:
     void showExportDialog() override;
     void onActionHighlightBITriggered();
@@ -175,6 +177,7 @@ private:
     DisassemblyBlock *blockForAddress(RVA addr);
     void seekLocal(RVA addr, bool update_viewport = true);
     void seekInstruction(bool previous_instr);
+    RVA readDisassemblyOffset(QTextCursor tc);
 
     CutterSeekable *seekable = nullptr;
     QList<QShortcut *> shortcuts;
