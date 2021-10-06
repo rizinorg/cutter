@@ -59,7 +59,12 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
 {
     highlight_token = nullptr;
     auto *layout = new QVBoxLayout(this);
+    setTooltipStylesheet();
+
     // Signals that require a refresh all
+    connect(Config(), &Configuration::colorsUpdated, this,
+        &DisassemblerGraphView::setTooltipStylesheet);
+
     connect(Core(), &CutterCore::refreshAll, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::commentsChanged, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::functionRenamed, this, &DisassemblerGraphView::refreshView);
@@ -802,6 +807,16 @@ void DisassemblerGraphView::takeFalse()
     } else if (!blocks[db->entry].edges.empty()) {
         seekable->seek(blocks[db->entry].edges[0].target);
     }
+}
+
+void DisassemblerGraphView::setTooltipStylesheet()
+{
+    setStyleSheet(QString("QToolTip { border-width: 1px; max-width: %1px;"
+                              "opacity: 230; background-color: %2;"
+                              "color: %3; border-color: %3;}")
+                              .arg(400)
+                              .arg(Config()->getColor("gui.tooltip.background").name())
+                              .arg(Config()->getColor("gui.tooltip.foreground").name()));
 }
 
 void DisassemblerGraphView::seekInstruction(bool previous_instr)
