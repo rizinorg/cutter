@@ -763,6 +763,14 @@ void DisassemblyWidget::setupColors()
     mDisasTextEdit->setStyleSheet(QString("QPlainTextEdit { background-color: %1; color: %2; }")
                                           .arg(ConfigColor("gui.background").name())
                                           .arg(ConfigColor("btext").name()));
+
+    // Read and set a stylesheet for the QToolTip too
+    setStyleSheet(QString{"QToolTip { border-width: 1px; max-width: %1px;"
+                              "opacity: 230; background-color: %2;"
+                              "color: %3; border-color: %3;}"}
+                              .arg(400)
+                              .arg(Config()->getColor("gui.tooltip.background").name())
+                              .arg(Config()->getColor("gui.tooltip.foreground").name()));
 }
 
 DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollArea(parent) {}
