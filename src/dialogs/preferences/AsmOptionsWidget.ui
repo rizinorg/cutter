@@ -92,7 +92,7 @@
                 <item row="15" column="1">
                  <widget class="QCheckBox" name="previewCheckBox">
                   <property name="text">
-                   <string>Show preview when hovering (asm.preview)</string>
+                   <string>Show preview when hovering:</string>
                   </property>
                  </widget>
                 </item>
