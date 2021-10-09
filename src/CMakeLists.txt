@@ -8,6 +8,7 @@ set(SOURCES
     dialogs/WriteCommandsDialogs.cpp
     widgets/DisassemblerGraphView.cpp
     widgets/OverviewView.cpp
+    common/DisassemblyPreview.cpp
     common/RichTextPainter.cpp
     dialogs/InitialOptionsDialog.cpp
     dialogs/AboutDialog.cpp

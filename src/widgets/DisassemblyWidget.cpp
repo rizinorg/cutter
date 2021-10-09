@@ -1,6 +1,7 @@
 #include "DisassemblyWidget.h"
 #include "menus/DisassemblyContextMenu.h"
 #include "common/Configuration.h"
+#include "common/DisassemblyPreview.h"
 #include "common/Helpers.h"
 #include "common/TempConfig.h"
 #include "common/SelectionHighlight.h"
@@ -21,24 +22,6 @@
 
 #include <algorithm>
 #include <cmath>
-
-class DisassemblyTextBlockUserData : public QTextBlockUserData
-{
-public:
-    DisassemblyLine line;
-
-    explicit DisassemblyTextBlockUserData(const DisassemblyLine &line) { this->line = line; }
-};
-
-static DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
-{
-    QTextBlockUserData *userData = block.userData();
-    if (!userData) {
-        return nullptr;
-    }
-
-    return static_cast<DisassemblyTextBlockUserData *>(userData);
-}
 
 DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     : MemoryDockWidget(MemoryWidgetType::Disassembly, main),

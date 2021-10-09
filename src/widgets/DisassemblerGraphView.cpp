@@ -5,6 +5,7 @@
 #include "core/MainWindow.h"
 #include "common/Colors.h"
 #include "common/Configuration.h"
+#include "common/DisassemblyPreview.h"
 #include "common/TempConfig.h"
 #include "common/SyntaxHighlighter.h"
 #include "common/BasicBlockHighlighter.h"
@@ -28,24 +29,6 @@
 #include <QAction>
 
 #include <cmath>
-
-class GraphDisassemblyTextBlockUserData : public QTextBlockUserData
-{
-public:
-    DisassemblyLine line;
-
-    explicit GraphDisassemblyTextBlockUserData(const DisassemblyLine &line) { this->line = line; }
-};
-
-static GraphDisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
-{
-    QTextBlockUserData *userData = block.userData();
-    if (!userData) {
-        return nullptr;
-    }
-
-    return static_cast<GraphDisassemblyTextBlockUserData *>(userData);
-}
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable,
                                              MainWindow *mainWindow,
@@ -550,7 +533,7 @@ GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView:
 
 bool DisassemblerGraphView::eventFilter( QObject *obj, QEvent *event )
 {
-    if (Config()->getGraphPreview() && event->type() == QEvent::Type::ToolTip) {
+	if (event->type() == QEvent::Type::ToolTip && Config()->getGraphPreview()) {
 
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
         QPoint pointOfEvent = helpEvent->pos();
@@ -811,12 +794,7 @@ void DisassemblerGraphView::takeFalse()
 
 void DisassemblerGraphView::setTooltipStylesheet()
 {
-    setStyleSheet(QString("QToolTip { border-width: 1px; max-width: %1px;"
-                              "opacity: 230; background-color: %2;"
-                              "color: %3; border-color: %3;}")
-                              .arg(400)
-                              .arg(Config()->getColor("gui.tooltip.background").name())
-                              .arg(Config()->getColor("gui.tooltip.foreground").name()));
+    setStyleSheet(DisassemblyPreview::getToolTipStyleSheet());
 }
 
 void DisassemblerGraphView::seekInstruction(bool previous_instr)
