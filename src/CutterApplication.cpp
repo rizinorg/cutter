@@ -184,21 +184,11 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         sleighHome.cd(
                 "share/rizin/plugins/rz_ghidra_sleigh"); // Contents/Resources/rz/share/rizin/plugins/rz_ghidra_sleigh
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
-
-#    ifdef CUTTER_BUNDLE_JSDEC
-        auto jsdecHome = rzprefix;
-        jsdecHome.cd(
-                "share/rizin/plugins/jsdec"); // Contents/Resources/rz/share/rizin/plugins/jsdec
-        qputenv("JSDEC_HOME", jsdecHome.absolutePath().toLocal8Bit());
-#    endif
     }
 #endif
 
 #if defined(Q_OS_WIN) && defined(CUTTER_ENABLE_PACKAGING)
     {
-#    ifdef CUTTER_BUNDLE_JSDEC
-        qputenv("JSDEC_HOME", "lib\\plugins\\jsdec");
-#    endif
         auto sleighHome = QDir(QCoreApplication::applicationDirPath());
         sleighHome.cd("lib/plugins/rz_ghidra_sleigh");
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
