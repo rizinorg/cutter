@@ -782,6 +782,7 @@ void CutterCore::editBytesEndian(RVA addr, const QString &bytes)
 
 void CutterCore::setToCode(RVA addr)
 {
+    cmdRawAt("Cs-", addr);
     cmdRawAt("Cd-", addr);
     emit instructionChanged(addr);
 }
