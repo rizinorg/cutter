@@ -84,7 +84,7 @@ On Arch-based Linux distributions:
 
    sudo pacman -Syu --needed base-devel cmake meson qt5-base qt5-svg qt5-tools
 
-On Fedora:
+On dnf/yum based distributions:
 
 ::
 
