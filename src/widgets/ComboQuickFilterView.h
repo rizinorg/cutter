@@ -6,6 +6,8 @@
 #include <QWidget>
 #include <QComboBox>
 
+#include <memory>
+
 namespace Ui {
 class ComboQuickFilterView;
 }
