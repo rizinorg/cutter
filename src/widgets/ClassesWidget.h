@@ -62,6 +62,7 @@ public:
     static const int VTableRole = Qt::UserRole + 3;
 
     explicit ClassesModel(QObject *parent = nullptr) : QAbstractItemModel(parent) {}
+    ~ClassesModel() override = default;
 
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
@@ -93,6 +94,22 @@ public:
 class AnalysisClassesModel : public ClassesModel
 {
     Q_OBJECT
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(AnalysisClassesModel)                                                   \
+        AnalysisClassesModel(const AnalysisClassesModel &m) = delete;                              \
+        AnalysisClassesModel &operator=(const AnalysisClassesModel &m) = delete;
+
+#    define Q_DISABLE_MOVE(AnalysisClassesModel)                                                   \
+        AnalysisClassesModel(AnalysisClassesModel &&m) = delete;                                   \
+        AnalysisClassesModel &operator=(AnalysisClassesModel &&m) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(AnalysisClassesModel)                                              \
+        Q_DISABLE_COPY(AnalysisClassesModel)                                                       \
+        Q_DISABLE_MOVE(AnalysisClassesModel)
+#endif
+
+    Q_DISABLE_COPY_MOVE(AnalysisClassesModel)
 
 private:
     /**
@@ -146,6 +163,7 @@ private:
 
 public:
     explicit AnalysisClassesModel(CutterDockWidget *parent);
+    ~AnalysisClassesModel() override;
 
 public slots:
     void refreshAll();
@@ -161,6 +179,7 @@ class ClassesSortFilterProxyModel : public QSortFilterProxyModel
 
 public:
     explicit ClassesSortFilterProxyModel(QObject *parent = nullptr);
+    ~ClassesSortFilterProxyModel() override;
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
@@ -172,9 +191,25 @@ class ClassesWidget : public CutterDockWidget
 {
     Q_OBJECT
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(ClassesWidget)                                                          \
+        ClassesWidget(const ClassesWidget &w) = delete;                                            \
+        ClassesWidget &operator=(const ClassesWidget &w) = delete;
+
+#    define Q_DISABLE_MOVE(ClassesWidget)                                                          \
+        ClassesWidget(ClassesWidget &&w) = delete;                                                 \
+        ClassesWidget &operator=(ClassesWidget &&w) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(ClassesWidget)                                                     \
+        Q_DISABLE_COPY(ClassesWidget)                                                              \
+        Q_DISABLE_MOVE(ClassesWidget)
+#endif
+
+    Q_DISABLE_COPY_MOVE(ClassesWidget)
+
 public:
     explicit ClassesWidget(MainWindow *main);
-    ~ClassesWidget();
+    ~ClassesWidget() override;
 
 private slots:
     void on_classesTreeView_doubleClicked(const QModelIndex &index);

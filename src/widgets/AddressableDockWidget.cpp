@@ -21,6 +21,8 @@ AddressableDockWidget::AddressableDockWidget(MainWindow *parent)
     setContextMenuPolicy(Qt::ContextMenuPolicy::DefaultContextMenu);
 }
 
+AddressableDockWidget::~AddressableDockWidget() = default;
+
 QVariantMap AddressableDockWidget::serializeViewProprties()
 {
     auto result = CutterDockWidget::serializeViewProprties();

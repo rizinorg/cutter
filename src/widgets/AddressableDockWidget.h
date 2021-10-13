@@ -11,9 +11,26 @@ class CutterSeekable;
 class AddressableDockWidget : public CutterDockWidget
 {
     Q_OBJECT
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(AddressableDockWidget)                                                  \
+        AddressableDockWidget(const AddressableDockWidget &m) = delete;                            \
+        AddressableDockWidget &operator=(const AddressableDockWidget &m) = delete;
+
+#    define Q_DISABLE_MOVE(AddressableDockWidget)                                                  \
+        AddressableDockWidget(AddressableDockWidget &&m) = delete;                                 \
+        AddressableDockWidget &operator=(AddressableDockWidget &&m) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(AddressableDockWidget)                                             \
+        Q_DISABLE_COPY(AddressableDockWidget)                                                      \
+        Q_DISABLE_MOVE(AddressableDockWidget)
+#endif
+
+    Q_DISABLE_COPY_MOVE(AddressableDockWidget)
+
 public:
     AddressableDockWidget(MainWindow *parent);
-    ~AddressableDockWidget() override {}
+    ~AddressableDockWidget() override;
 
     CutterSeekable *getSeekable() const;
 

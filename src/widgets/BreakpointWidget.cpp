@@ -19,6 +19,8 @@ void BreakpointModel::refresh()
     endResetModel();
 }
 
+BreakpointModel::~BreakpointModel() = default;
+
 int BreakpointModel::rowCount(const QModelIndex &) const
 {
     return breakpoints.count();
@@ -176,6 +178,8 @@ BreakpointProxyModel::BreakpointProxyModel(BreakpointModel *sourceModel, QObject
     // Use numeric values instead of numbers converted to strings if available
     this->setSortRole(Qt::EditRole);
 }
+
+BreakpointProxyModel::~BreakpointProxyModel() = default;
 
 BreakpointWidget::BreakpointWidget(MainWindow *main)
     : CutterDockWidget(main), ui(new Ui::BreakpointWidget)

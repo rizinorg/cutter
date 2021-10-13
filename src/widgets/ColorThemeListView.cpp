@@ -38,6 +38,8 @@ ColorOptionDelegate::ColorOptionDelegate(QObject *parent) : QStyledItemDelegate(
     });
 }
 
+ColorOptionDelegate::~ColorOptionDelegate() = default;
+
 void ColorOptionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                                 const QModelIndex &index) const
 {
@@ -236,6 +238,8 @@ ColorThemeListView::ColorThemeListView(QWidget *parent) : QListView(parent)
     setMouseTracking(true);
 }
 
+ColorThemeListView::~ColorThemeListView() = default;
+
 void ColorThemeListView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     ColorOption prev = previous.data(Qt::UserRole).value<ColorOption>();
@@ -324,6 +328,8 @@ void ColorThemeListView::blinkTimeout()
 }
 
 ColorSettingsModel::ColorSettingsModel(QObject *parent) : QAbstractListModel(parent) {}
+
+ColorSettingsModel::~ColorSettingsModel() = default;
 
 QVariant ColorSettingsModel::data(const QModelIndex &index, int role) const
 {

@@ -11,9 +11,26 @@ namespace ColorPickerHelpers {
 class ColorPickWidgetAbstract : public QWidget
 {
     Q_OBJECT
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(ColorPickWidgetAbstract)                                                \
+        ColorPickWidgetAbstract(const ColorPickWidgetAbstract &m) = delete;                        \
+        ColorPickWidgetAbstract &operator=(const ColorPickWidgetAbstract &m) = delete;
+
+#    define Q_DISABLE_MOVE(ColorPickWidgetAbstract)                                                \
+        ColorPickWidgetAbstract(ColorPickWidgetAbstract &&m) = delete;                             \
+        ColorPickWidgetAbstract &operator=(ColorPickWidgetAbstract &&m) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(ColorPickWidgetAbstract)                                           \
+        Q_DISABLE_COPY(ColorPickWidgetAbstract)                                                    \
+        Q_DISABLE_MOVE(ColorPickWidgetAbstract)
+#endif
+
+    Q_DISABLE_COPY_MOVE(ColorPickWidgetAbstract)
+
 public:
     ColorPickWidgetAbstract(QWidget *parent = nullptr) : QWidget(parent) {}
-    virtual ~ColorPickWidgetAbstract() {}
+    ~ColorPickWidgetAbstract() override = default;
 
 signals:
     void colorChanged(const QColor &color);
@@ -37,9 +54,26 @@ class ColorPicker;
 class ColorPicker : public ColorPickerHelpers::ColorPickWidgetAbstract
 {
     Q_OBJECT
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(ColorPicker)                                                            \
+        ColorPicker(const ColorPicker &w) = delete;                                                \
+        ColorPicker &operator=(const ColorPicker &w) = delete;
+
+#    define Q_DISABLE_MOVE(ColorPicker)                                                            \
+        ColorPicker(ColorPicker &&w) = delete;                                                     \
+        ColorPicker &operator=(ColorPicker &&w) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(ColorPicker)                                                       \
+        Q_DISABLE_COPY(ColorPicker)                                                                \
+        Q_DISABLE_MOVE(ColorPicker)
+#endif
+
+    Q_DISABLE_COPY_MOVE(ColorPicker)
+
 public:
     explicit ColorPicker(QWidget *parent = nullptr);
-    ~ColorPicker();
+    ~ColorPicker() override;
 
     /**
      * @brief isPickingFromScreen returns true if color picker is picking from screen.
@@ -52,7 +86,7 @@ public slots:
     /**
      * @brief setColor sets displayed color to @a color and emits colorChanged signal.
      */
-    virtual void setColor(const QColor &color) override;
+    void setColor(const QColor &color) override;
 
     void colorChannelChanged();
 
@@ -95,8 +129,26 @@ namespace ColorPickerHelpers {
 class ColorPickerWidget : public ColorPickWidgetAbstract
 {
     Q_OBJECT
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(ColorPickerWidget)                                                      \
+        ColorPickerWidget(const ColorPickerWidget &w) = delete;                                    \
+        ColorPickerWidget &operator=(const ColorPickerWidget &w) = delete;
+
+#    define Q_DISABLE_MOVE(ColorPickerWidget)                                                      \
+        ColorPickerWidget(ColorPickerWidget &&w) = delete;                                         \
+        ColorPickerWidget &operator=(ColorPickerWidget &&w) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(ColorPickerWidget)                                                 \
+        Q_DISABLE_COPY(ColorPickerWidget)                                                          \
+        Q_DISABLE_MOVE(ColorPickerWidget)
+#endif
+
+    Q_DISABLE_COPY_MOVE(ColorPickerWidget)
+
 public:
     ColorPickerWidget(QWidget *parent = nullptr);
+    ~ColorPickerWidget() override;
 
 protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
@@ -119,8 +171,26 @@ protected:
 class ColorShowWidget : public ColorPickWidgetAbstract
 {
     Q_OBJECT
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(ColorShowWidget)                                                        \
+        ColorShowWidget(const ColorShowWidget &w) = delete;                                        \
+        ColorShowWidget &operator=(const ColorShowWidget &w) = delete;
+
+#    define Q_DISABLE_MOVE(ColorShowWidget)                                                        \
+        ColorShowWidget(ColorShowWidget &&w) = delete;                                             \
+        ColorShowWidget &operator=(ColorShowWidget &&w) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(ColorShowWidget)                                                   \
+        Q_DISABLE_COPY(ColorShowWidget)                                                            \
+        Q_DISABLE_MOVE(ColorShowWidget)
+#endif
+
+    Q_DISABLE_COPY_MOVE(ColorShowWidget)
+
 public:
     explicit ColorShowWidget(QWidget *parent = nullptr);
+    ~ColorShowWidget() override;
 
     void setColor(const QColor &c) override;
 
@@ -135,8 +205,26 @@ protected:
 class ColorPickArea : public ColorPickerWidget
 {
     Q_OBJECT
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(ColorPickArea)                                                          \
+        ColorPickArea(const ColorPickArea &w) = delete;                                            \
+        ColorPickArea &operator=(const ColorPickArea &w) = delete;
+
+#    define Q_DISABLE_MOVE(ColorPickArea)                                                          \
+        ColorPickArea(ColorPickArea &&w) = delete;                                                 \
+        ColorPickArea &operator=(ColorPickArea &&w) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(ColorPickArea)                                                     \
+        Q_DISABLE_COPY(ColorPickArea)                                                              \
+        Q_DISABLE_MOVE(ColorPickArea)
+#endif
+
+    Q_DISABLE_COPY_MOVE(ColorPickArea)
+
 public:
     explicit ColorPickArea(QWidget *parent = nullptr);
+    ~ColorPickArea() override;
 
     void setColor(const QColor &c) override;
 
@@ -152,8 +240,26 @@ private:
 class AlphaChannelBar : public ColorPickerWidget
 {
     Q_OBJECT
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(AlphaChannelBar)                                                        \
+        AlphaChannelBar(const AlphaChannelBar &w) = delete;                                        \
+        AlphaChannelBar &operator=(const AlphaChannelBar &w) = delete;
+
+#    define Q_DISABLE_MOVE(AlphaChannelBar)                                                        \
+        AlphaChannelBar(AlphaChannelBar &&w) = delete;                                             \
+        AlphaChannelBar &operator=(AlphaChannelBar &&w) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(AlphaChannelBar)                                                   \
+        Q_DISABLE_COPY(AlphaChannelBar)                                                            \
+        Q_DISABLE_MOVE(AlphaChannelBar)
+#endif
+
+    Q_DISABLE_COPY_MOVE(AlphaChannelBar)
+
 public:
     AlphaChannelBar(QWidget *parent = nullptr) : ColorPickerWidget(parent) {}
+    ~AlphaChannelBar() override = default;
 
     void setColor(const QColor &c) override;
 
@@ -173,8 +279,26 @@ private:
 class ColorValueBar : public ColorPickerWidget
 {
     Q_OBJECT
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(ColorValueBar)                                                          \
+        ColorValueBar(const ColorValueBar &w) = delete;                                            \
+        ColorValueBar &operator=(const ColorValueBar &w) = delete;
+
+#    define Q_DISABLE_MOVE(ColorValueBar)                                                          \
+        ColorValueBar(ColorValueBar &&w) = delete;                                                 \
+        ColorValueBar &operator=(ColorValueBar &&w) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(ColorValueBar)                                                     \
+        Q_DISABLE_COPY(ColorValueBar)                                                              \
+        Q_DISABLE_MOVE(ColorValueBar)
+#endif
+
+    Q_DISABLE_COPY_MOVE(ColorValueBar)
+
 public:
     ColorValueBar(QWidget *parent = nullptr) : ColorPickerWidget(parent) {}
+    ~ColorValueBar() override = default;
 
     void setColor(const QColor &c) override;
 

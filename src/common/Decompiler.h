@@ -21,7 +21,7 @@ private:
 
 public:
     Decompiler(const QString &id, const QString &name, QObject *parent = nullptr);
-    virtual ~Decompiler() = default;
+    ~Decompiler() override;
 
     static RzAnnotatedCode *makeWarning(QString warningMessage);
 
@@ -46,6 +46,8 @@ private:
 
 public:
     explicit JSDecDecompiler(QObject *parent = nullptr);
+    ~JSDecDecompiler() override;
+
     void decompileAt(RVA addr) override;
 
     bool isRunning() override { return task != nullptr; }

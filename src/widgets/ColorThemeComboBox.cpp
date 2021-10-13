@@ -12,6 +12,8 @@ ColorThemeComboBox::ColorThemeComboBox(QWidget *parent) : QComboBox(parent), sho
     updateFromConfig();
 }
 
+ColorThemeComboBox::~ColorThemeComboBox() = default;
+
 void ColorThemeComboBox::updateFromConfig(bool interfaceThemeChanged)
 {
     QSignalBlocker signalBlockerColorBox(this);
@@ -22,8 +24,7 @@ void ColorThemeComboBox::updateFromConfig(bool interfaceThemeChanged)
 
     clear();
     for (const QString &theme : themes) {
-        if (ThemeWorker().isCustomTheme(theme)
-            || !Configuration::relevantThemes[theme]
+        if (ThemeWorker().isCustomTheme(theme) || !Configuration::relevantThemes[theme]
             || (Configuration::cutterInterfaceThemesList()[curInterfaceThemeIndex].flag
                 & Configuration::relevantThemes[theme])) {
             addItem(theme);

@@ -13,6 +13,8 @@ DecompilerHighlighter::DecompilerHighlighter(QTextDocument *parent) : QSyntaxHig
     });
 }
 
+DecompilerHighlighter::~DecompilerHighlighter() = default;
+
 void DecompilerHighlighter::setAnnotations(RzAnnotatedCode *code)
 {
     this->code = code;

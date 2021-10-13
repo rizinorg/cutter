@@ -16,7 +16,7 @@ CallGraphWidget::CallGraphWidget(MainWindow *main, bool global)
     setWidget(graphView);
 }
 
-CallGraphWidget::~CallGraphWidget() {}
+CallGraphWidget::~CallGraphWidget() = default;
 
 QString CallGraphWidget::getWindowTitle() const
 {

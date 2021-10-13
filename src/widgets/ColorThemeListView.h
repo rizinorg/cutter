@@ -20,9 +20,26 @@ class ColorSettingsModel;
 class ColorThemeListView : public QListView
 {
     Q_OBJECT
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(ColorThemeListView)                                                     \
+        ColorThemeListView(const ColorThemeListView &m) = delete;                                  \
+        ColorThemeListView &operator=(const ColorThemeListView &m) = delete;
+
+#    define Q_DISABLE_MOVE(ColorThemeListView)                                                     \
+        ColorThemeListView(ColorThemeListView &&m) = delete;                                       \
+        ColorThemeListView &operator=(ColorThemeListView &&m) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(ColorThemeListView)                                                \
+        Q_DISABLE_COPY(ColorThemeListView)                                                         \
+        Q_DISABLE_MOVE(ColorThemeListView)
+#endif
+
+    Q_DISABLE_COPY_MOVE(ColorThemeListView)
+
 public:
     ColorThemeListView(QWidget *parent = nullptr);
-    virtual ~ColorThemeListView() override {}
+    ~ColorThemeListView() override;
 
     ColorSettingsModel *colorSettingsModel() const;
 
@@ -56,9 +73,26 @@ private:
 class ColorSettingsModel : public QAbstractListModel
 {
     Q_OBJECT
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(ColorSettingsModel)                                                     \
+        ColorSettingsModel(const ColorSettingsModel &w) = delete;                                  \
+        ColorSettingsModel &operator=(const ColorSettingsModel &w) = delete;
+
+#    define Q_DISABLE_MOVE(ColorSettingsModel)                                                     \
+        ColorSettingsModel(ColorSettingsModel &&w) = delete;                                       \
+        ColorSettingsModel &operator=(ColorSettingsModel &&w) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(ColorSettingsModel)                                                \
+        Q_DISABLE_COPY(ColorSettingsModel)                                                         \
+        Q_DISABLE_MOVE(ColorSettingsModel)
+#endif
+
+    Q_DISABLE_COPY_MOVE(ColorSettingsModel)
+
 public:
     ColorSettingsModel(QObject *parent = nullptr);
-    virtual ~ColorSettingsModel() override {}
+    ~ColorSettingsModel() override;
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
@@ -81,9 +115,26 @@ private:
 class ColorOptionDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(ColorOptionDelegate)                                                    \
+        ColorOptionDelegate(const ColorOptionDelegate &d) = delete;                                \
+        ColorOptionDelegate &operator=(const ColorOptionDelegate &d) = delete;
+
+#    define Q_DISABLE_MOVE(ColorOptionDelegate)                                                    \
+        ColorOptionDelegate(ColorOptionDelegate &&d) = delete;                                     \
+        ColorOptionDelegate &operator=(ColorOptionDelegate &&d) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(ColorOptionDelegate)                                               \
+        Q_DISABLE_COPY(ColorOptionDelegate)                                                        \
+        Q_DISABLE_MOVE(ColorOptionDelegate)
+#endif
+
+    Q_DISABLE_COPY_MOVE(ColorOptionDelegate)
+
 public:
     ColorOptionDelegate(QObject *parent = nullptr);
-    ~ColorOptionDelegate() override {}
+    ~ColorOptionDelegate() override;
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;

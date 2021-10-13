@@ -22,6 +22,8 @@ ColorPickArea::ColorPickArea(QWidget *parent) : ColorPickerWidget(parent)
     setMouseTracking(false);
 }
 
+ColorPickArea::~ColorPickArea() = default;
+
 void ColorPickArea::paintEvent(QPaintEvent *event)
 {
     QPainter p(this);
@@ -60,6 +62,8 @@ void ColorPickArea::setColor(const QColor &c)
 }
 
 ColorPickerWidget::ColorPickerWidget(QWidget *parent) : ColorPickWidgetAbstract(parent) {}
+
+ColorPickerWidget::~ColorPickerWidget() = default;
 
 void ColorPickerWidget::mouseReleaseEvent(QMouseEvent *event)
 {
@@ -357,6 +361,8 @@ void ColorPicker::stopPickingFromScreen()
 }
 
 ColorShowWidget::ColorShowWidget(QWidget *parent) : ColorPickWidgetAbstract(parent) {}
+
+ColorShowWidget::~ColorShowWidget() = default;
 
 void ColorShowWidget::setColor(const QColor &c)
 {

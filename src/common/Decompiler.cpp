@@ -10,6 +10,8 @@ Decompiler::Decompiler(const QString &id, const QString &name, QObject *parent)
 {
 }
 
+Decompiler::~Decompiler() = default;
+
 RzAnnotatedCode *Decompiler::makeWarning(QString warningMessage)
 {
     std::string temporary = warningMessage.toStdString();
@@ -20,6 +22,8 @@ JSDecDecompiler::JSDecDecompiler(QObject *parent) : Decompiler("jsdec", "jsdec",
 {
     task = nullptr;
 }
+
+JSDecDecompiler::~JSDecDecompiler() = default;
 
 bool JSDecDecompiler::isAvailable()
 {

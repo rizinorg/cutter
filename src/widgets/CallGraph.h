@@ -13,6 +13,23 @@ class MainWindow;
 class CallGraphView : public SimpleTextGraphView
 {
     Q_OBJECT
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(CallGraphView)                                                          \
+        CallGraphView(const CallGraphView &v) = delete;                                            \
+        CallGraphView &operator=(const CallGraphView &v) = delete;
+
+#    define Q_DISABLE_MOVE(CallGraphView)                                                          \
+        CallGraphView(CallGraphView &&v) = delete;                                                 \
+        CallGraphView &operator=(CallGraphView &&v) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(CallGraphView)                                                     \
+        Q_DISABLE_COPY(CallGraphView)                                                              \
+        Q_DISABLE_MOVE(CallGraphView)
+#endif
+
+    Q_DISABLE_COPY_MOVE(CallGraphView)
+
 public:
     CallGraphView(CutterDockWidget *parent, MainWindow *main, bool global);
     void showExportDialog() override;
@@ -35,9 +52,25 @@ class CallGraphWidget : public AddressableDockWidget
 {
     Q_OBJECT
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(CallGraphWidget)                                                        \
+        CallGraphWidget(const CallGraphWidget &w) = delete;                                        \
+        CallGraphWidget &operator=(const CallGraphWidget &w) = delete;
+
+#    define Q_DISABLE_MOVE(CallGraphWidget)                                                        \
+        CallGraphWidget(CallGraphWidget &&w) = delete;                                             \
+        CallGraphWidget &operator=(CallGraphWidget &&w) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(CallGraphWidget)                                                   \
+        Q_DISABLE_COPY(CallGraphWidget)                                                            \
+        Q_DISABLE_MOVE(CallGraphWidget)
+#endif
+
+    Q_DISABLE_COPY_MOVE(CallGraphWidget)
+
 public:
     explicit CallGraphWidget(MainWindow *main, bool global);
-    ~CallGraphWidget();
+    ~CallGraphWidget() override;
 
 protected:
     QString getWindowTitle() const override;

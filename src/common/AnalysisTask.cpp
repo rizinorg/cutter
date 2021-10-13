@@ -8,7 +8,7 @@
 
 AnalysisTask::AnalysisTask() : AsyncTask() {}
 
-AnalysisTask::~AnalysisTask() {}
+AnalysisTask::~AnalysisTask() = default;
 
 void AnalysisTask::interrupt()
 {

@@ -16,9 +16,25 @@ class CUTTER_EXPORT DecompilerHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(DecompilerHighlighter)                                                  \
+        DecompilerHighlighter(const DecompilerHighlighter &w) = delete;                            \
+        DecompilerHighlighter &operator=(const DecompilerHighlighter &w) = delete;
+
+#    define Q_DISABLE_MOVE(DecompilerHighlighter)                                                  \
+        DecompilerHighlighter(DecompilerHighlighter &&w) = delete;                                 \
+        DecompilerHighlighter &operator=(DecompilerHighlighter &&w) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(DecompilerHighlighter)                                             \
+        Q_DISABLE_COPY(DecompilerHighlighter)                                                      \
+        Q_DISABLE_MOVE(DecompilerHighlighter)
+#endif
+
+    Q_DISABLE_COPY_MOVE(DecompilerHighlighter)
+
 public:
     DecompilerHighlighter(QTextDocument *parent = nullptr);
-    virtual ~DecompilerHighlighter() = default;
+    ~DecompilerHighlighter() override;
 
     /**
      * @brief Set the code with annotations to be used for highlighting.

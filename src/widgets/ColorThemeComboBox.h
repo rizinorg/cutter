@@ -9,8 +9,26 @@
 class ColorThemeComboBox : public QComboBox
 {
     Q_OBJECT
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(ColorThemeComboBox)                                                     \
+        ColorThemeComboBox(const ColorThemeComboBox &m) = delete;                                  \
+        ColorThemeComboBox &operator=(const ColorThemeComboBox &m) = delete;
+
+#    define Q_DISABLE_MOVE(ColorThemeComboBox)                                                     \
+        ColorThemeComboBox(ColorThemeComboBox &&m) = delete;                                       \
+        ColorThemeComboBox &operator=(ColorThemeComboBox &&m) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(ColorThemeComboBox)                                                \
+        Q_DISABLE_COPY(ColorThemeComboBox)                                                         \
+        Q_DISABLE_MOVE(ColorThemeComboBox)
+#endif
+
+    Q_DISABLE_COPY_MOVE(ColorThemeComboBox)
+
 public:
     explicit ColorThemeComboBox(QWidget *parent = nullptr);
+    ~ColorThemeComboBox() override;
 
     /**
      * @brief setShowOnlyCustom sets whether or not combobox should contain only

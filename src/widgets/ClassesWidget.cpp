@@ -221,6 +221,8 @@ AnalysisClassesModel::AnalysisClassesModel(CutterDockWidget *parent)
     refreshAll();
 }
 
+AnalysisClassesModel::~AnalysisClassesModel() = default;
+
 void AnalysisClassesModel::refreshAll()
 {
     if (!refreshDeferrer->attemptRefresh(nullptr)) {
@@ -522,6 +524,8 @@ ClassesSortFilterProxyModel::ClassesSortFilterProxyModel(QObject *parent)
 {
 }
 
+ClassesSortFilterProxyModel::~ClassesSortFilterProxyModel() = default;
+
 bool ClassesSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
@@ -589,7 +593,7 @@ ClassesWidget::ClassesWidget(MainWindow *main) : CutterDockWidget(main), ui(new 
     refreshClasses();
 }
 
-ClassesWidget::~ClassesWidget() {}
+ClassesWidget::~ClassesWidget() = default;
 
 ClassesWidget::Source ClassesWidget::getSource()
 {

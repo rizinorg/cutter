@@ -31,7 +31,7 @@ BacktraceWidget::BacktraceWidget(MainWindow *main)
     connect(Config(), &Configuration::fontsUpdated, this, &BacktraceWidget::fontsUpdatedSlot);
 }
 
-BacktraceWidget::~BacktraceWidget() {}
+BacktraceWidget::~BacktraceWidget() = default;
 
 void BacktraceWidget::updateContents()
 {

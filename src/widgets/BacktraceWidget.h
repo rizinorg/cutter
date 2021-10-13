@@ -18,9 +18,25 @@ class BacktraceWidget : public CutterDockWidget
 {
     Q_OBJECT
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(BacktraceWidget)                                                        \
+        BacktraceWidget(const BacktraceWidget &m) = delete;                                        \
+        BacktraceWidget &operator=(const BacktraceWidget &m) = delete;
+
+#    define Q_DISABLE_MOVE(BacktraceWidget)                                                        \
+        BacktraceWidget(BacktraceWidget &&m) = delete;                                             \
+        BacktraceWidget &operator=(BacktraceWidget &&m) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(BacktraceWidget)                                                   \
+        Q_DISABLE_COPY(BacktraceWidget)                                                            \
+        Q_DISABLE_MOVE(BacktraceWidget)
+#endif
+
+    Q_DISABLE_COPY_MOVE(BacktraceWidget)
+
 public:
     explicit BacktraceWidget(MainWindow *main);
-    ~BacktraceWidget();
+    ~BacktraceWidget() override;
 
 private slots:
     void updateContents();
