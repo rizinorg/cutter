@@ -141,7 +141,6 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     // set up context menu shortcut display fix
 #if QT_VERSION_CHECK(5, 10, 0) < QT_VERSION
     setStyle(new CutterProxyStyle());
-    QApplication::setAttribute(Qt::AA_DisableWindowContextHelpButton); // Remove info button globally
 #endif // QT_VERSION_CHECK(5, 10, 0) < QT_VERSION
 
     if (clOptions.args.empty() && clOptions.fileOpenOptions.projectFile.isEmpty()) {
