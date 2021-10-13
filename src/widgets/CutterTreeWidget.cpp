@@ -25,4 +25,4 @@ void CutterTreeWidget::showStatusBar(bool show)
     bar->setVisible(show);
 }
 
-CutterTreeWidget::~CutterTreeWidget() {}
+CutterTreeWidget::~CutterTreeWidget() = default;

@@ -10,10 +10,7 @@ ComboQuickFilterView::ComboQuickFilterView(QWidget *parent)
             [this](const QString &text) { emit filterTextChanged(text); });
 }
 
-ComboQuickFilterView::~ComboQuickFilterView()
-{
-    delete ui;
-}
+ComboQuickFilterView::~ComboQuickFilterView() = default;
 
 void ComboQuickFilterView::setLabelText(const QString &text)
 {

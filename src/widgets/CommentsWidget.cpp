@@ -16,6 +16,8 @@ CommentsModel::CommentsModel(QList<CommentDescription> *comments,
 {
 }
 
+CommentsModel::~CommentsModel() = default;
+
 bool CommentsModel::isNested() const
 {
     return nested;
@@ -184,6 +186,8 @@ CommentsProxyModel::CommentsProxyModel(CommentsModel *sourceModel, QObject *pare
     setSortCaseSensitivity(Qt::CaseInsensitive);
 }
 
+CommentsProxyModel::~CommentsProxyModel() = default;
+
 bool CommentsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     CommentsModel *srcModel = static_cast<CommentsModel *>(sourceModel());
@@ -264,7 +268,7 @@ CommentsWidget::CommentsWidget(MainWindow *main)
     connect(Core(), &CutterCore::refreshAll, this, &CommentsWidget::refreshTree);
 }
 
-CommentsWidget::~CommentsWidget() {}
+CommentsWidget::~CommentsWidget() = default;
 
 void CommentsWidget::onActionHorizontalToggled(bool checked)
 {

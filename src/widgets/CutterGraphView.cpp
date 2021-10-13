@@ -88,6 +88,8 @@ CutterGraphView::CutterGraphView(QWidget *parent)
     grabGesture(Qt::PinchGesture);
 }
 
+CutterGraphView::~CutterGraphView() = default;
+
 QPoint CutterGraphView::getTextOffset(int line) const
 {
     return QPoint(padding, padding + line * charHeight);

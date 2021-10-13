@@ -8,4 +8,4 @@ CutterTreeView::CutterTreeView(QWidget *parent) : QTreeView(parent), ui(new Ui::
     this->setUniformRowHeights(true);
 }
 
-CutterTreeView::~CutterTreeView() {}
+CutterTreeView::~CutterTreeView() = default;

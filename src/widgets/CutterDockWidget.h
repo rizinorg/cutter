@@ -12,6 +12,22 @@ class CUTTER_EXPORT CutterDockWidget : public QDockWidget
 {
     Q_OBJECT
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(CutterDockWidget)                                                       \
+        CutterDockWidget(const CutterDockWidget &w) = delete;                                      \
+        CutterDockWidget &operator=(const CutterDockWidget &w) = delete;
+
+#    define Q_DISABLE_MOVE(CutterDockWidget)                                                       \
+        CutterDockWidget(CutterDockWidget &&w) = delete;                                           \
+        CutterDockWidget &operator=(CutterDockWidget &&w) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(CutterDockWidget)                                                  \
+        Q_DISABLE_COPY(CutterDockWidget)                                                           \
+        Q_DISABLE_MOVE(CutterDockWidget)
+#endif
+
+    Q_DISABLE_COPY_MOVE(CutterDockWidget)
+
 public:
     CUTTER_DEPRECATED("Action will be ignored. Use CutterDockWidget(MainWindow*) instead.")
     CutterDockWidget(MainWindow *parent, QAction *action);

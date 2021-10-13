@@ -23,10 +23,26 @@ class ConsoleWidget : public CutterDockWidget
 {
     Q_OBJECT
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(ConsoleWidget)                                                          \
+        ConsoleWidget(const ConsoleWidget &w) = delete;                                            \
+        ConsoleWidget &operator=(const ConsoleWidget &w) = delete;
+
+#    define Q_DISABLE_MOVE(ConsoleWidget)                                                          \
+        ConsoleWidget(ConsoleWidget &&w) = delete;                                                 \
+        ConsoleWidget &operator=(ConsoleWidget &&w) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(ConsoleWidget)                                                     \
+        Q_DISABLE_COPY(ConsoleWidget)                                                              \
+        Q_DISABLE_MOVE(ConsoleWidget)
+#endif
+
+    Q_DISABLE_COPY_MOVE(ConsoleWidget)
+
 public:
     explicit ConsoleWidget(MainWindow *main);
 
-    ~ConsoleWidget();
+    ~ConsoleWidget() override;
 
     void setDebugOutputEnabled(bool enabled) { debugOutputEnabled = enabled; }
 

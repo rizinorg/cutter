@@ -17,9 +17,28 @@
 class CutterGraphView : public GraphView
 {
     Q_OBJECT
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_COPY(CutterGraphView)                                                        \
+        CutterGraphView(const CutterGraphView &w) = delete;                                        \
+        CutterGraphView &operator=(const CutterGraphView &w) = delete;
+
+#    define Q_DISABLE_MOVE(CutterGraphView)                                                        \
+        CutterGraphView(CutterGraphView &&w) = delete;                                             \
+        CutterGraphView &operator=(CutterGraphView &&w) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(CutterGraphView)                                                   \
+        Q_DISABLE_COPY(CutterGraphView)                                                            \
+        Q_DISABLE_MOVE(CutterGraphView)
+#endif
+
+    Q_DISABLE_COPY_MOVE(CutterGraphView)
+
 public:
     CutterGraphView(QWidget *parent);
-    virtual bool event(QEvent *event) override;
+    ~CutterGraphView() override;
+
+    bool event(QEvent *event) override;
 
     enum class GraphExportType {
         Png,
