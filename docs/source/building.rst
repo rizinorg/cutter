@@ -84,6 +84,12 @@ On Arch-based Linux distributions:
 
    sudo pacman -Syu --needed base-devel cmake meson qt5-base qt5-svg qt5-tools
 
+On dnf/yum based distributions:
+
+::
+
+   sudo dnf install -y gcc gcc-c++ make cmake meson qt5-qtbase-devel qt5-qtsvg-devel qt5-qttools-devel
+
 Building Steps
 ~~~~~~~~~~~~~~
 
