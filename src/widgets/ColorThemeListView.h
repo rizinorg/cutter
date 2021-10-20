@@ -20,6 +20,8 @@ class ColorSettingsModel;
 class ColorThemeListView : public QListView
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(ColorThemeListView)
+
 public:
     ColorThemeListView(QWidget *parent = nullptr);
     virtual ~ColorThemeListView() override {}
@@ -56,6 +58,8 @@ private:
 class ColorSettingsModel : public QAbstractListModel
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(ColorSettingsModel)
+
 public:
     ColorSettingsModel(QObject *parent = nullptr);
     virtual ~ColorSettingsModel() override {}
@@ -81,6 +85,8 @@ private:
 class ColorOptionDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(ColorOptionDelegate)
+
 public:
     ColorOptionDelegate(QObject *parent = nullptr);
     ~ColorOptionDelegate() override {}

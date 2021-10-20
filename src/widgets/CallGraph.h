@@ -13,6 +13,8 @@ class MainWindow;
 class CallGraphView : public SimpleTextGraphView
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(CallGraphView)
+
 public:
     CallGraphView(CutterDockWidget *parent, MainWindow *main, bool global);
     void showExportDialog() override;

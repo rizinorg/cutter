@@ -11,6 +11,8 @@ namespace ColorPickerHelpers {
 class ColorPickWidgetAbstract : public QWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(ColorPickWidgetAbstract)
+
 public:
     ColorPickWidgetAbstract(QWidget *parent = nullptr) : QWidget(parent) {}
     virtual ~ColorPickWidgetAbstract() {}
@@ -37,6 +39,8 @@ class ColorPicker;
 class ColorPicker : public ColorPickerHelpers::ColorPickWidgetAbstract
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(ColorPicker)
+
 public:
     explicit ColorPicker(QWidget *parent = nullptr);
     ~ColorPicker();

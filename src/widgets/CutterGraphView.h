@@ -17,6 +17,8 @@
 class CutterGraphView : public GraphView
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(CutterGraphView)
+
 public:
     CutterGraphView(QWidget *parent);
     virtual bool event(QEvent *event) override;

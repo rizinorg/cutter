@@ -17,6 +17,7 @@ class BacktraceWidget;
 class BacktraceWidget : public CutterDockWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(BacktraceWidget)
 
 public:
     explicit BacktraceWidget(MainWindow *main);

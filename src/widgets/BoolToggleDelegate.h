@@ -7,6 +7,9 @@
 
 class CUTTER_EXPORT BoolTogggleDelegate : public QStyledItemDelegate
 {
+    Q_OBJECT
+    Q_DISABLE_COPY_MOVE(BoolTogggleDelegate)
+
 public:
     BoolTogggleDelegate(QObject *parent = nullptr);
 

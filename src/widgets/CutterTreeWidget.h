@@ -10,8 +10,8 @@ class MainWindow;
 
 class CUTTER_EXPORT CutterTreeWidget : public QObject
 {
-
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(CutterTreeWidget)
 
 public:
     explicit CutterTreeWidget(QObject *parent = nullptr);

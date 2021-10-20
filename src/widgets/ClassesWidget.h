@@ -23,6 +23,9 @@ class ClassesWidget;
  */
 class ClassesModel : public QAbstractItemModel
 {
+    Q_OBJECT
+    Q_DISABLE_COPY_MOVE(ClassesModel)
+
 public:
     enum Columns { NAME = 0, TYPE, OFFSET, VTABLE, COUNT };
 
@@ -72,6 +75,7 @@ Q_DECLARE_METATYPE(ClassesModel::RowType)
 class BinClassesModel : public ClassesModel
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(BinClassesModel)
 
 private:
     QList<BinClassDescription> classes;
@@ -93,6 +97,7 @@ public:
 class AnalysisClassesModel : public ClassesModel
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(AnalysisClassesModel)
 
 private:
     /**

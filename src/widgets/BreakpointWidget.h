@@ -23,6 +23,7 @@ class BreakpointWidget;
 class BreakpointModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(BreakpointModel)
 
     friend BreakpointWidget;
 
@@ -60,6 +61,7 @@ public:
 class BreakpointProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(BreakpointProxyModel)
 
 public:
     BreakpointProxyModel(BreakpointModel *sourceModel, QObject *parent = nullptr);
@@ -68,6 +70,7 @@ public:
 class BreakpointWidget : public CutterDockWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(BreakpointWidget)
 
 public:
     explicit BreakpointWidget(MainWindow *main);

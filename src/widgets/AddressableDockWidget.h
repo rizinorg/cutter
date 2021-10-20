@@ -11,6 +11,8 @@ class CutterSeekable;
 class AddressableDockWidget : public CutterDockWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(AddressableDockWidget)
+
 public:
     AddressableDockWidget(MainWindow *parent);
     ~AddressableDockWidget() override {}

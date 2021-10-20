@@ -22,6 +22,7 @@ class ConsoleWidget;
 class ConsoleWidget : public CutterDockWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(ConsoleWidget)
 
 public:
     explicit ConsoleWidget(MainWindow *main);
