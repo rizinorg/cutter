@@ -9,7 +9,6 @@
 class ColorThemeComboBox : public QComboBox
 {
     Q_OBJECT
-    Q_DISABLE_COPY_MOVE(ColorThemeComboBox)
 
 public:
     explicit ColorThemeComboBox(QWidget *parent = nullptr);
