@@ -28,6 +28,7 @@ private:
     const QRegularExpression banned = QRegularExpression(
             QStringLiteral("\\A(\\w\\.)*(system|strcpy|strcpyA|strcpyW|wcscpy|_tcscpy|_mbscpy|"
                            "StrCpy|StrCpyA|StrCpyW|lstrcpy|lstrcpyA|lstrcpyW"
+                           "DCIEnum|DCIOpenProvider|DCISendCommand|DCIBeginAccess"
                            "|_tccpy|_mbccpy|_ftcscpy|strcat|strcatA|strcatW|wcscat|_tcscat|_mbscat|"
                            "StrCat|StrCatA|StrCatW|lstrcat|lstrcatA|"
                            "lstrcatW|StrCatBuff|StrCatBuffA|StrCatBuffW|StrCatChainW|_tccat|_"
