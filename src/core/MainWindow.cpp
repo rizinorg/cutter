@@ -619,7 +619,9 @@ bool MainWindow::openProject(const QString &file)
         const char *s = rz_project_err_message(err);
         QString msg = tr("Failed to open project: %1").arg(QString::fromUtf8(s));
         RzListIter *it;
-        CutterRzListForeach(res, it, const char, s) { msg += "\n" + QString::fromUtf8(s); }
+        CutterRzListForeach (res, it, const char, s) {
+            msg += "\n" + QString::fromUtf8(s);
+        }
         QMessageBox::critical(this, tr("Open Project"), msg);
         rz_list_free(res);
         return false;
@@ -1134,7 +1136,7 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
 
     bool history = true;
     QList<QAction *> actions;
-    CutterRzListForeach(list, it, RzCoreSeekItem, undo) {
+    CutterRzListForeach (list, it, RzCoreSeekItem, undo) {
         RzFlagItem *f = rz_flag_get_at(core->flags, undo->offset, true);
         char *fname = NULL;
         if (f) {
@@ -1789,8 +1791,16 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     }
 }
 
-bool MainWindow::eventFilter(QObject *, QEvent *event)
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
+    // For every create event - disable context help and proceed to next event check
+    if (event->type() == QEvent::Create) {
+        if (obj->isWidgetType()) {
+            auto w = static_cast<QWidget *>(obj);
+            w->setWindowFlags(w->windowFlags() & (~Qt::WindowContextHelpButtonHint));
+        }
+    }
+
     if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->button() == Qt::ForwardButton || mouseEvent->button() == Qt::BackButton) {

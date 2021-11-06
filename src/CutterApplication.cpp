@@ -52,7 +52,6 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     setAttribute(Qt::AA_UseHighDpiPixmaps); // always enabled on Qt >= 6.0.0
 #endif
     setLayoutDirection(Qt::LeftToRight);
-
     // WARN!!! Put initialization code below this line. Code above this line is mandatory to be run
     // First
 
