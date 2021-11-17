@@ -25,6 +25,7 @@
   <update_contact>xarkes</update_contact>
 
   <releases>
+    <release version="2.0.4" date="2021-11-18" />
     <release version="2.0.3" date="2021-09-25" />
     <release version="2.0.2" date="2021-04-25" />
     <release version="2.0.1" date="2021-04-10" />
