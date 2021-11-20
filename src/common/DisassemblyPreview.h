@@ -17,8 +17,22 @@ public:
 
 DisassemblyTextBlockUserData *getUserData(const QTextBlock &block);
 
-namespace DisassemblyPreview
-{
-    QString getToolTipStyleSheet();
+/**
+ * @brief Namespace to define relevant functions
+ *
+ * @ingroup DisassemblyPreview
+ */
+namespace DisassemblyPreview {
+/*!
+ * @brief Get the QString that defines the stylesheet for tooltip
+ * @return A QString for the stylesheet
+ */
+QString getToolTipStyleSheet();
+
+/*!
+ * @brief Show a QToolTip that previews the disassembly that is pointed to
+ * @return True if the tooltip is shown
+ */
+bool showDisasPreview(QWidget *parent, const QPoint &pointOfEvent, const RVA offsetFrom);
 }
 #endif
