@@ -23,6 +23,29 @@
 #include <algorithm>
 #include <cmath>
 
+<<<<<<< HEAD
+=======
+static const int kMaxTooltipWidth = 400;
+
+class DisassemblyTextBlockUserData : public QTextBlockUserData
+{
+public:
+    DisassemblyLine line;
+
+    explicit DisassemblyTextBlockUserData(const DisassemblyLine &line) { this->line = line; }
+};
+
+static DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
+{
+    QTextBlockUserData *userData = block.userData();
+    if (!userData) {
+        return nullptr;
+    }
+
+    return static_cast<DisassemblyTextBlockUserData *>(userData);
+}
+
+>>>>>>> origin/master
 DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     : MemoryDockWidget(MemoryWidgetType::Disassembly, main),
       mCtxMenu(new DisassemblyContextMenu(this, main)),
@@ -637,7 +660,9 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         jumpToOffsetUnderCursor(cursor);
 
         return true;
-    } else if (event->type() == QEvent::ToolTip && obj == mDisasTextEdit->viewport()) {
+    } else if (Config()->getPreviewValue()
+            && event->type() == QEvent::ToolTip
+            && obj == mDisasTextEdit->viewport()) {
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
 
         auto cursorForWord = mDisasTextEdit->cursorForPosition(helpEvent->pos());
@@ -746,6 +771,14 @@ void DisassemblyWidget::setupColors()
     mDisasTextEdit->setStyleSheet(QString("QPlainTextEdit { background-color: %1; color: %2; }")
                                           .arg(ConfigColor("gui.background").name())
                                           .arg(ConfigColor("btext").name()));
+
+    // Read and set a stylesheet for the QToolTip too
+    setStyleSheet(QString{"QToolTip { border-width: 1px; max-width: %1px;"
+                              "opacity: 230; background-color: %2;"
+                              "color: %3; border-color: %3;}"}
+                              .arg(kMaxTooltipWidth)
+                              .arg(Config()->getColor("gui.tooltip.background").name())
+                              .arg(Config()->getColor("gui.tooltip.foreground").name()));
 }
 
 DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollArea(parent) {}

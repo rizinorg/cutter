@@ -212,6 +212,9 @@ public:
     void setOutputRedirectionEnabled(bool enabled);
     bool getOutputRedirectionEnabled() const;
 
+    void setPreviewValue(bool checked);
+    bool getPreviewValue() const;
+
     /**
      * @brief Recently opened binaries, as shown in NewFileDialog.
      */

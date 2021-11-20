@@ -48,6 +48,7 @@ private:
     unsigned int previousWidth = 0;
 
     QList<XToAddress> xToAddress;
+    bool blockTooltip;
 
     RVA localXToAddress(double x);
     double addressToLocalX(RVA address);
