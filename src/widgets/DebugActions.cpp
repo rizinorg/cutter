@@ -297,6 +297,9 @@ void DebugActions::attachRemoteDebugger()
 
 void DebugActions::onAttachedRemoteDebugger(bool successfully)
 {
+    if(remoteDialog == nullptr)
+        return;
+    
     if (!successfully) {
         QMessageBox msgBox;
         msgBox.setText(tr("Error connecting."));
