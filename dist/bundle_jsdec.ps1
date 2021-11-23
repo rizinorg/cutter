@@ -7,4 +7,10 @@ if (-not (Test-Path -Path 'jsdec' -PathType Container)) {
 cd jsdec
 & meson.exe --buildtype=release -Dc_args=-DDUK_USE_DATE_NOW_WINDOWS -Djsc_folder="." -Drizin_plugdir=lib\plugins --prefix=$dist --libdir=lib\plugins --datadir=lib\plugins p build
 ninja -C build install
+$ErrorActionPreference = 'Stop'
+$pathdll = "$dist\lib\plugins\core_pdd.dll"
+if(![System.IO.File]::Exists($pathdll)) {
+    type build\meson-logs\meson-log.txt
+    throw (New-Object System.IO.FileNotFoundException("File not found: $pathdll", $pathdll))
+}
 Remove-Item -Recurse -Force $dist\lib\plugins\core_pdd.lib
