@@ -3476,6 +3476,7 @@ void CutterCore::setAnalysisMethod(const QString &className, const AnalysisMetho
     CORE_LOCK();
     RzAnalysisMethod analysisMeth;
     analysisMeth.name = strdup(meth.name.toUtf8().constData());
+    analysisMeth.real_name = strdup(analysisMeth.name);
     analysisMeth.addr = meth.addr;
     analysisMeth.vtable_offset = meth.vtableOffset;
     rz_analysis_class_method_set(core->analysis, className.toUtf8().constData(), &analysisMeth);
