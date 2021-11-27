@@ -23,29 +23,6 @@
 #include <algorithm>
 #include <cmath>
 
-<<<<<<< HEAD
-=======
-static const int kMaxTooltipWidth = 400;
-
-class DisassemblyTextBlockUserData : public QTextBlockUserData
-{
-public:
-    DisassemblyLine line;
-
-    explicit DisassemblyTextBlockUserData(const DisassemblyLine &line) { this->line = line; }
-};
-
-static DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
-{
-    QTextBlockUserData *userData = block.userData();
-    if (!userData) {
-        return nullptr;
-    }
-
-    return static_cast<DisassemblyTextBlockUserData *>(userData);
-}
-
->>>>>>> origin/master
 DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     : MemoryDockWidget(MemoryWidgetType::Disassembly, main),
       mCtxMenu(new DisassemblyContextMenu(this, main)),
