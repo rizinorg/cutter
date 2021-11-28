@@ -533,7 +533,11 @@ GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView:
 
 bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
 {
+<<<<<<< HEAD
     if (event->type() == QEvent::Type::ToolTip && Config()->getGraphPreview()) {
+=======
+	if (event->type() == QEvent::Type::ToolTip && Config()->getGraphPreview()) {
+>>>>>>> 90e6a390... Support for disassembly preview in Graph widgets
 
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
         QPoint pointOfEvent = helpEvent->pos();

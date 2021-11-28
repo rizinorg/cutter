@@ -23,6 +23,32 @@
 #include <algorithm>
 #include <cmath>
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+static const int kMaxTooltipWidth = 400;
+
+class DisassemblyTextBlockUserData : public QTextBlockUserData
+{
+public:
+    DisassemblyLine line;
+
+    explicit DisassemblyTextBlockUserData(const DisassemblyLine &line) { this->line = line; }
+};
+
+static DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
+{
+    QTextBlockUserData *userData = block.userData();
+    if (!userData) {
+        return nullptr;
+    }
+
+    return static_cast<DisassemblyTextBlockUserData *>(userData);
+}
+
+=======
+>>>>>>> 1ec57a3e... Replace the hardcoded pixel width of Graph preview, with a static variable.
+>>>>>>> 90e6a390... Support for disassembly preview in Graph widgets
 DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     : MemoryDockWidget(MemoryWidgetType::Disassembly, main),
       mCtxMenu(new DisassemblyContextMenu(this, main)),

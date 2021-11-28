@@ -17,6 +17,7 @@ public:
 
 DisassemblyTextBlockUserData *getUserData(const QTextBlock &block);
 
+<<<<<<< HEAD
 /**
  * @brief Namespace to define relevant functions
  *
@@ -34,5 +35,10 @@ QString getToolTipStyleSheet();
  * @return True if the tooltip is shown
  */
 bool showDisasPreview(QWidget *parent, const QPoint &pointOfEvent, const RVA offsetFrom);
+=======
+namespace DisassemblyPreview
+{
+    QString getToolTipStyleSheet();
+>>>>>>> 90e6a390... Support for disassembly preview in Graph widgets
 }
 #endif
