@@ -3376,6 +3376,7 @@ QList<AnalysisMethodDescription> CutterCore::getAnalysisClassMethods(const QStri
     {
         AnalysisMethodDescription desc;
         desc.name = QString::fromUtf8(meth->name);
+        desc.realName = QString::fromUtf8(meth->real_name);
         desc.addr = meth->addr;
         desc.vtableOffset = meth->vtable_offset;
         ret.append(desc);
@@ -3465,6 +3466,7 @@ bool CutterCore::getAnalysisMethod(const QString &cls, const QString &meth,
         return false;
     }
     desc->name = QString::fromUtf8(analysisMeth.name);
+    desc->realName = QString::fromUtf8(analysisMeth.real_name);
     desc->addr = analysisMeth.addr;
     desc->vtableOffset = analysisMeth.vtable_offset;
     rz_analysis_class_method_fini(&analysisMeth);
@@ -3475,8 +3477,8 @@ void CutterCore::setAnalysisMethod(const QString &className, const AnalysisMetho
 {
     CORE_LOCK();
     RzAnalysisMethod analysisMeth;
-    analysisMeth.name = strdup(meth.name.toUtf8().constData());
-    analysisMeth.real_name = strdup(meth.name.toUtf8().constData());
+    analysisMeth.name = strdup(meth.name.toUtf8().constData()); // todo: use rz_str_new()
+    analysisMeth.real_name = strdup(meth.realName.toUtf8().constData());
     analysisMeth.addr = meth.addr;
     analysisMeth.vtable_offset = meth.vtableOffset;
     rz_analysis_class_method_set(core->analysis, className.toUtf8().constData(), &analysisMeth);

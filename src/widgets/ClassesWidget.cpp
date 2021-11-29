@@ -17,6 +17,8 @@ QVariant ClassesModel::headerData(int section, Qt::Orientation, int role) const
         switch (section) {
         case NAME:
             return tr("Name");
+        case REAL_NAME:
+            return tr("Real name");
         case TYPE:
             return tr("Type");
         case OFFSET:
@@ -454,6 +456,8 @@ QVariant AnalysisClassesModel::data(const QModelIndex &index, int role) const
                 switch (index.column()) {
                 case NAME:
                     return meth.name;
+                case REAL_NAME:
+                    return meth.realName;
                 case TYPE:
                     return tr("method");
                 case OFFSET:
@@ -476,6 +480,8 @@ QVariant AnalysisClassesModel::data(const QModelIndex &index, int role) const
                 return QVariant::fromValue(meth.addr);
             case NameRole:
                 return meth.name;
+            case RealNameRole:
+                return meth.realName;
             case TypeRole:
                 return QVariant::fromValue(RowType::Method);
             default:
