@@ -89,7 +89,7 @@ QString EditMethodDialog::convertRealNameToName(const QString &realName)
 {
     std::unique_ptr<const char, void (*)(const char *)> sanitizedCString(
             rz_str_sanitize_sdb_key(realName.toUtf8().constData()),
-            [](const char *s) { RZ_FREE(s); });
+            [](const char *s) { rz_mem_free((void*)s); });
 
     return "sym_" + QString(sanitizedCString.get());
 }
