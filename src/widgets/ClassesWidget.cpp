@@ -190,7 +190,8 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
             case OFFSET:
                 return cls->addr == RVA_INVALID ? QString() : RzAddressString(cls->addr);
             case VTABLE:
-                return cls->vtableAddr == RVA_INVALID ? QString() : RzAddressString(cls->vtableAddr);
+                return cls->vtableAddr == RVA_INVALID ? QString()
+                                                      : RzAddressString(cls->vtableAddr);
             default:
                 return QVariant();
             }
@@ -314,7 +315,8 @@ void AnalysisClassesModel::classAttrsChanged(const QString &cls)
     layoutChanged({ persistentIndex });
 }
 
-const QVector<AnalysisClassesModel::Attribute> &AnalysisClassesModel::getAttrs(const QString &cls) const
+const QVector<AnalysisClassesModel::Attribute> &
+AnalysisClassesModel::getAttrs(const QString &cls) const
 {
     auto it = attrs->find(cls);
     if (it != attrs->end()) {

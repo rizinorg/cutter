@@ -3152,7 +3152,7 @@ QList<SectionDescription> CutterCore::getAllSections()
         if (!digests) {
             continue;
         }
-        const char *entropy = (const char*)ht_pp_find(digests, "entropy", NULL);
+        const char *entropy = (const char *)ht_pp_find(digests, "entropy", NULL);
         section.entropy = rz_str_get(entropy);
         ht_pp_free(digests);
 
