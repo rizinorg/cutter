@@ -91,7 +91,7 @@ QString EditMethodDialog::convertRealNameToName(const QString &realName)
             rz_str_sanitize_sdb_key(realName.toUtf8().constData()),
             [](const char *s) { rz_mem_free((void*)s); });
 
-    return "sym_" + QString(sanitizedCString.get());
+    return QString(sanitizedCString.get());
 }
 
 void EditMethodDialog::setClass(const QString &className)
