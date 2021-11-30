@@ -18,7 +18,7 @@ QVariant ClassesModel::headerData(int section, Qt::Orientation, int role) const
         case NAME:
             return tr("Name");
         case REAL_NAME:
-            return tr("Real name");
+            return tr("Real Name");
         case TYPE:
             return tr("Type");
         case OFFSET:

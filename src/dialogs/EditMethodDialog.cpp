@@ -69,7 +69,6 @@ void EditMethodDialog::updateName()
 void EditMethodDialog::updateAutoRenameEnabled()
 {
     ui->nameEdit->setEnabled(!ui->autoRenameCheckBox->isChecked());
-    ui->nameLabel->setEnabled(!ui->autoRenameCheckBox->isChecked());
 
     if (ui->autoRenameCheckBox->isChecked()) {
         ui->nameEdit->setText(convertRealNameToName(ui->realNameEdit->text()));
