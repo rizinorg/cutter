@@ -248,6 +248,7 @@ struct BinClassDescription
 struct AnalysisMethodDescription
 {
     QString name;
+    QString realName;
     RVA addr;
     st64 vtableOffset;
 };

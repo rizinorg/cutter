@@ -17,6 +17,8 @@ QVariant ClassesModel::headerData(int section, Qt::Orientation, int role) const
         switch (section) {
         case NAME:
             return tr("Name");
+        case REAL_NAME:
+            return tr("Real Name");
         case TYPE:
             return tr("Type");
         case OFFSET:
@@ -188,7 +190,8 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
             case OFFSET:
                 return cls->addr == RVA_INVALID ? QString() : RzAddressString(cls->addr);
             case VTABLE:
-                return cls->vtableAddr == RVA_INVALID ? QString() : RzAddressString(cls->vtableAddr);
+                return cls->vtableAddr == RVA_INVALID ? QString()
+                                                      : RzAddressString(cls->vtableAddr);
             default:
                 return QVariant();
             }
@@ -312,7 +315,8 @@ void AnalysisClassesModel::classAttrsChanged(const QString &cls)
     layoutChanged({ persistentIndex });
 }
 
-const QVector<AnalysisClassesModel::Attribute> &AnalysisClassesModel::getAttrs(const QString &cls) const
+const QVector<AnalysisClassesModel::Attribute> &
+AnalysisClassesModel::getAttrs(const QString &cls) const
 {
     auto it = attrs->find(cls);
     if (it != attrs->end()) {
@@ -454,6 +458,8 @@ QVariant AnalysisClassesModel::data(const QModelIndex &index, int role) const
                 switch (index.column()) {
                 case NAME:
                     return meth.name;
+                case REAL_NAME:
+                    return meth.realName;
                 case TYPE:
                     return tr("method");
                 case OFFSET:
@@ -476,6 +482,8 @@ QVariant AnalysisClassesModel::data(const QModelIndex &index, int role) const
                 return QVariant::fromValue(meth.addr);
             case NameRole:
                 return meth.name;
+            case RealNameRole:
+                return meth.realName;
             case TypeRole:
                 return QVariant::fromValue(RowType::Method);
             default:

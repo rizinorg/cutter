@@ -59,6 +59,8 @@ private slots:
 
     void updateVirtualUI();
     void validateInput();
+    void updateName();
+    void updateAutoRenameEnabled();
 
 private:
     std::unique_ptr<Ui::EditMethodDialog> ui;
@@ -72,6 +74,7 @@ private:
     QString fixedClass;
 
     bool inputValid();
+    static QString convertRealNameToName(const QString& realName);
 };
 
 #endif // EDITMETHODDIALOG_H

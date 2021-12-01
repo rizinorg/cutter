@@ -29,45 +29,69 @@
      <item row="1" column="0">
       <widget class="QLabel" name="nameLabel">
        <property name="text">
-        <string>Name:</string>
+        <string>Unique Identifier (name):</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="nameEdit"/>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLineEdit" name="nameEdit"/>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="autoRenameCheckBox">
+         <property name="text">
+          <string>Auto-Rename</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item row="2" column="0">
+      <widget class="QLabel" name="realNameLabel">
+       <property name="text">
+        <string>Display Name (realname):</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="realNameEdit"/>
+     </item>
+     <item row="3" column="0">
       <widget class="QLabel" name="addressLabel">
        <property name="text">
         <string>Address:</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="3" column="1">
       <widget class="QLineEdit" name="addressEdit"/>
      </item>
-     <item row="3" column="0">
+     <item row="4" column="0">
       <widget class="QLabel" name="virtualLabel">
        <property name="text">
         <string>Virtual:</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="4" column="1">
       <widget class="QCheckBox" name="virtualCheckBox">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
+     <item row="5" column="0">
       <widget class="QLabel" name="vtableOffsetLabel">
        <property name="text">
         <string>Offset in VTable:</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="5" column="1">
       <widget class="QLineEdit" name="vtableOffsetEdit"/>
      </item>
     </layout>
@@ -84,6 +108,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>nameEdit</tabstop>
+  <tabstop>autoRenameCheckBox</tabstop>
+  <tabstop>realNameEdit</tabstop>
+  <tabstop>addressEdit</tabstop>
+  <tabstop>virtualCheckBox</tabstop>
+  <tabstop>vtableOffsetEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

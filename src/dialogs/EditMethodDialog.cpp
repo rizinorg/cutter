@@ -26,6 +26,9 @@ EditMethodDialog::EditMethodDialog(bool classFixed, QWidget *parent)
     connect(ui->virtualCheckBox, &QCheckBox::stateChanged, this,
             &EditMethodDialog::updateVirtualUI);
     connect(ui->nameEdit, &QLineEdit::textChanged, this, &EditMethodDialog::validateInput);
+    connect(ui->realNameEdit, &QLineEdit::textChanged, this, &EditMethodDialog::updateName);
+    connect(ui->autoRenameCheckBox, &QCheckBox::stateChanged, this,
+            &EditMethodDialog::updateAutoRenameEnabled);
 }
 
 EditMethodDialog::~EditMethodDialog() {}
@@ -54,13 +57,40 @@ void EditMethodDialog::validateInput()
     }
 }
 
+void EditMethodDialog::updateName()
+{
+    if (ui->autoRenameCheckBox->isChecked()) {
+        ui->nameEdit->setText(convertRealNameToName(ui->realNameEdit->text()));
+    }
+
+    validateInput();
+}
+
+void EditMethodDialog::updateAutoRenameEnabled()
+{
+    ui->nameEdit->setEnabled(!ui->autoRenameCheckBox->isChecked());
+
+    if (ui->autoRenameCheckBox->isChecked()) {
+        ui->nameEdit->setText(convertRealNameToName(ui->realNameEdit->text()));
+    }
+}
+
 bool EditMethodDialog::inputValid()
 {
-    if (ui->nameEdit->text().isEmpty()) {
+    if (ui->nameEdit->text().isEmpty() || ui->realNameEdit->text().isEmpty()) {
         return false;
     }
     // TODO: do more checks here, for example for name clashes
     return true;
+}
+
+QString EditMethodDialog::convertRealNameToName(const QString &realName)
+{
+    std::unique_ptr<const char, void (*)(const char *)> sanitizedCString(
+            rz_str_sanitize_sdb_key(realName.toUtf8().constData()),
+            [](const char *s) { rz_mem_free((void*)s); });
+
+    return QString(sanitizedCString.get());
 }
 
 void EditMethodDialog::setClass(const QString &className)
@@ -89,6 +119,7 @@ void EditMethodDialog::setClass(const QString &className)
 void EditMethodDialog::setMethod(const AnalysisMethodDescription &desc)
 {
     ui->nameEdit->setText(desc.name);
+    ui->realNameEdit->setText(desc.realName);
     ui->addressEdit->setText(desc.addr != RVA_INVALID ? RzAddressString(desc.addr) : nullptr);
 
     if (desc.vtableOffset >= 0) {
@@ -97,6 +128,16 @@ void EditMethodDialog::setMethod(const AnalysisMethodDescription &desc)
     } else {
         ui->virtualCheckBox->setChecked(false);
         ui->vtableOffsetEdit->setText(nullptr);
+    }
+
+    // Check if auto-rename should be enabled
+    bool enableAutoRename = ui->nameEdit->text().isEmpty()
+            || ui->nameEdit->text() == convertRealNameToName(ui->realNameEdit->text());
+    ui->autoRenameCheckBox->setChecked(enableAutoRename);
+
+    // Set focus to real name edit widget if auto-rename is enabled
+    if (enableAutoRename) {
+        ui->realNameEdit->setFocus();
     }
 
     updateVirtualUI();
@@ -120,6 +161,7 @@ AnalysisMethodDescription EditMethodDialog::getMethod() const
 {
     AnalysisMethodDescription ret;
     ret.name = ui->nameEdit->text();
+    ret.realName = ui->realNameEdit->text();
     ret.addr = Core()->num(ui->addressEdit->text());
     if (!ui->virtualCheckBox->isChecked()) {
         ret.vtableOffset = -1;
@@ -145,7 +187,8 @@ bool EditMethodDialog::showDialog(const QString &title, bool classFixed, QString
 void EditMethodDialog::newMethod(QString className, const QString &meth, QWidget *parent)
 {
     AnalysisMethodDescription desc;
-    desc.name = meth;
+    desc.name = convertRealNameToName(meth);
+    desc.realName = meth;
     desc.vtableOffset = -1;
     desc.addr = Core()->getOffset();
 
