@@ -147,7 +147,11 @@ HexWidget::HexWidget(QWidget *parent)
     connect(actionWrite64, &QAction::triggered, this, &HexWidget::w_write64);
     actionsWriteString.append(actionWrite64);
 
-    actionsWriteOther.reserve(4);
+    actionsWriteOther.reserve(5);
+    QAction *actionWriteBytes = new QAction(tr("Write hex bytes"), this);
+    connect(actionWriteBytes, &QAction::triggered, this, &HexWidget::w_writeBytes);
+    actionsWriteOther.append(actionWriteBytes);
+
     QAction *actionWriteZeros = new QAction(tr("Write zeros"), this);
     connect(actionWriteZeros, &QAction::triggered, this, &HexWidget::w_writeZeros);
     actionsWriteOther.append(actionWriteZeros);
@@ -728,6 +732,41 @@ void HexWidget::w_increaseDecrease()
     RzCoreLocked core(Core());
     rz_core_write_value_inc_at(core, getLocationAddress(), value, sz);
     refresh();
+}
+
+void HexWidget::w_writeBytes()
+{
+    if (!ioModesController.prepareForWriting()) {
+        return;
+    }
+    bool ok = false;
+
+    int size = INT_MAX;
+    if (!selection.isEmpty() && selection.size() <= INT_MAX) {
+        size = static_cast<int>(selection.size());
+    }
+
+    QInputDialog d;
+    d.setInputMode(QInputDialog::InputMode::TextInput);
+    QByteArray bytes = d.getText(this, tr("Write hex bytes"), tr("Hex byte string:"),
+                                 QLineEdit::Normal, "", &ok)
+                               .toUtf8();
+    const int offset = bytes.startsWith("\\x") ? 2 : 0;
+    const int incr = offset + 2;
+    const int bytes_size = qMin(bytes.size() / incr, size);
+    if (ok && bytes_size) {
+        uint8_t *buf = (uint8_t *)malloc(static_cast<size_t>(bytes_size));
+        if (!buf) {
+            return;
+        }
+        for (int i = 0, j = 0, sz = bytes.size(); i < sz; i += incr, j++) {
+            buf[j] = static_cast<uint8_t>(bytes.mid(i + offset, 2).toInt(nullptr, 16));
+        }
+        RzCoreLocked core(Core());
+        rz_core_write_at(core, getLocationAddress(), buf, bytes_size);
+        free(buf);
+        refresh();
+    }
 }
 
 void HexWidget::w_writeZeros()

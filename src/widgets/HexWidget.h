@@ -315,6 +315,7 @@ private slots:
     // Write command slots
     void w_writeString();
     void w_increaseDecrease();
+	void w_writeBytes();
     void w_writeZeros();
     void w_write64();
     void w_writeRandom();
