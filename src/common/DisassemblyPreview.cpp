@@ -1,14 +1,11 @@
 #include "DisassemblyPreview.h"
 #include "Configuration.h"
-<<<<<<< HEAD
 #include "widgets/GraphView.h"
 
+#include <QCoreApplication>
 #include <QWidget>
 #include <QToolTip>
-=======
-
-#include <QWidget>
->>>>>>> 90e6a390... Support for disassembly preview in Graph widgets
+#include <QProcessEnvironment>
 
 DisassemblyTextBlockUserData::DisassemblyTextBlockUserData(const DisassemblyLine &line)
     : line { line }
@@ -27,7 +24,6 @@ DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
 
 QString DisassemblyPreview::getToolTipStyleSheet()
 {
-<<<<<<< HEAD
     return QString { "QToolTip { border-width: 1px; max-width: %1px;"
                      "opacity: 230; background-color: %2;"
                      "color: %3; border-color: %3;}" }
@@ -39,6 +35,16 @@ QString DisassemblyPreview::getToolTipStyleSheet()
 bool DisassemblyPreview::showDisasPreview(QWidget *parent, const QPoint &pointOfEvent,
                                           const RVA offsetFrom)
 {
+    QProcessEnvironment env;
+    QPoint point = pointOfEvent;
+
+    if (env.contains(QStringLiteral("QT_ENABLE_HIGHDPI_SCALING"))
+        || env. contains(QStringLiteral("QT_AUTO_SCREEN_SCALE_FACTOR"))
+        || QCoreApplication::testAttribute(Qt::AA_EnableHighDpiScaling)
+        || QCoreApplication::testAttribute(Qt::AA_UseHighDpiPixmaps)) {
+        point.setY(pointOfEvent.y() - 80);
+    }
+
     QList<XrefDescription> refs = Core()->getXRefs(offsetFrom, false, false);
     if (refs.length()) {
         if (refs.length() > 1) {
@@ -76,18 +82,10 @@ bool DisassemblyPreview::showDisasPreview(QWidget *parent, const QPoint &pointOf
                                 .arg(qMax(8, fnt.pointSize() - 1))
                                 .arg(disasmPreview.join("<br>"));
 
-                QToolTip::showText(pointOfEvent, tooltip, parent, QRect {}, 3500);
+                QToolTip::showText(point, tooltip, parent, QRect {}, 3500);
                 return true;
             }
         }
     }
     return false;
-=======
-    return QString{"QToolTip { border-width: 1px; max-width: %1px;"
-                             "opacity: 230; background-color: %2;"
-                             "color: %3; border-color: %3;}"}
-                             .arg(400)
-                             .arg(Config()->getColor("gui.tooltip.background").name())
-                             .arg(Config()->getColor("gui.tooltip.foreground").name());
->>>>>>> 90e6a390... Support for disassembly preview in Graph widgets
 }
