@@ -5,6 +5,7 @@
 #include "core/MainWindow.h"
 #include "common/Colors.h"
 #include "common/Configuration.h"
+#include "common/DisassemblyPreview.h"
 #include "common/TempConfig.h"
 #include "common/SyntaxHighlighter.h"
 #include "common/BasicBlockHighlighter.h"
@@ -41,7 +42,12 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
 {
     highlight_token = nullptr;
     auto *layout = new QVBoxLayout(this);
+    setTooltipStylesheet();
+
     // Signals that require a refresh all
+    connect(Config(), &Configuration::colorsUpdated, this,
+            &DisassemblerGraphView::setTooltipStylesheet);
+
     connect(Core(), &CutterCore::refreshAll, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::commentsChanged, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::functionRenamed, this, &DisassemblerGraphView::refreshView);
@@ -140,6 +146,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     layout->setAlignment(Qt::AlignTop);
 
     this->scale_thickness_multiplier = true;
+    installEventFilter(this);
 }
 
 void DisassemblerGraphView::connectSeekChanged(bool disconn)
@@ -524,6 +531,40 @@ GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView:
     return ec;
 }
 
+bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::Type::ToolTip && Config()->getGraphPreview()) {
+
+        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+        QPoint pointOfEvent = helpEvent->globalPos();
+        QPoint point = viewToLogicalCoordinates(helpEvent->pos());
+
+        GraphBlock *block = getBlockContaining(point);
+
+        if (block == nullptr) {
+            return false;
+        }
+
+        // offsetFrom is the address which on top the cursor triggered this
+        RVA offsetFrom = RVA_INVALID;
+
+        /*
+         * getAddrForMouseEvent() doesn't work for jmps, like
+         * getInstrForMouseEvent() with false as a 3rd argument.
+         */
+        Instr *inst = getInstrForMouseEvent(*block, &point, true);
+        if (inst != nullptr) {
+            offsetFrom = inst->addr;
+        }
+
+        // Don't preview anything for a small scale
+        if (getViewScale() >= 0.8) {
+            return DisassemblyPreview::showDisasPreview(this, pointOfEvent, offsetFrom);
+        }
+    }
+    return CutterGraphView::eventFilter(obj, event);
+}
+
 RVA DisassemblerGraphView::getAddrForMouseEvent(GraphBlock &block, QPoint *point)
 {
     DisassemblyBlock &db = disassembly_blocks[block.entry];
@@ -700,6 +741,11 @@ void DisassemblerGraphView::takeFalse()
     } else if (!blocks[db->entry].edges.empty()) {
         seekable->seek(blocks[db->entry].edges[0].target);
     }
+}
+
+void DisassemblerGraphView::setTooltipStylesheet()
+{
+    setStyleSheet(DisassemblyPreview::getToolTipStyleSheet());
 }
 
 void DisassemblerGraphView::seekInstruction(bool previous_instr)
@@ -950,4 +996,14 @@ void DisassemblerGraphView::paintEvent(QPaintEvent *event)
 bool DisassemblerGraphView::Instr::contains(ut64 addr) const
 {
     return this->addr <= addr && (addr - this->addr) < size;
+}
+
+RVA DisassemblerGraphView::readDisassemblyOffset(QTextCursor tc)
+{
+    auto userData = getUserData(tc.block());
+    if (!userData) {
+        return RVA_INVALID;
+    }
+
+    return userData->line.offset;
 }
