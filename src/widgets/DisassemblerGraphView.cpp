@@ -536,13 +536,12 @@ bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::Type::ToolTip && Config()->getGraphPreview()) {
 
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
-        QPoint pointOfEvent = helpEvent->pos();
-        QPoint point = viewToLogicalCoordinates(pointOfEvent);
+        QPoint pointOfEvent = helpEvent->globalPos();
+        QPoint point = viewToLogicalCoordinates(helpEvent->pos());
 
         GraphBlock *block = getBlockContaining(point);
 
         if (block == nullptr) {
-            qDebug() << "Invalid blocked returned";
             return false;
         }
 

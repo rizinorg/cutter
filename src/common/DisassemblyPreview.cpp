@@ -38,13 +38,6 @@ bool DisassemblyPreview::showDisasPreview(QWidget *parent, const QPoint &pointOf
     QProcessEnvironment env;
     QPoint point = pointOfEvent;
 
-    if (env.contains(QStringLiteral("QT_ENABLE_HIGHDPI_SCALING"))
-        || env. contains(QStringLiteral("QT_AUTO_SCREEN_SCALE_FACTOR"))
-        || QCoreApplication::testAttribute(Qt::AA_EnableHighDpiScaling)
-        || QCoreApplication::testAttribute(Qt::AA_UseHighDpiPixmaps)) {
-        point.setY(pointOfEvent.y() - 80);
-    }
-
     QList<XrefDescription> refs = Core()->getXRefs(offsetFrom, false, false);
     if (refs.length()) {
         if (refs.length() > 1) {
