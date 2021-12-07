@@ -35,9 +35,6 @@ QString DisassemblyPreview::getToolTipStyleSheet()
 bool DisassemblyPreview::showDisasPreview(QWidget *parent, const QPoint &pointOfEvent,
                                           const RVA offsetFrom)
 {
-    QProcessEnvironment env;
-    QPoint point = pointOfEvent;
-
     QList<XrefDescription> refs = Core()->getXRefs(offsetFrom, false, false);
     if (refs.length()) {
         if (refs.length() > 1) {
@@ -75,10 +72,20 @@ bool DisassemblyPreview::showDisasPreview(QWidget *parent, const QPoint &pointOf
                                 .arg(qMax(8, fnt.pointSize() - 1))
                                 .arg(disasmPreview.join("<br>"));
 
-                QToolTip::showText(point, tooltip, parent, QRect {}, 3500);
+                QToolTip::showText(pointOfEvent, tooltip, parent, QRect {}, 3500);
                 return true;
             }
         }
     }
     return false;
+}
+
+RVA DisassemblyPreview::readDisassemblyOffset(QTextCursor tc)
+{
+    auto userData = getUserData(tc.block());
+    if (!userData) {
+        return RVA_INVALID;
+    }
+
+    return userData->line.offset;
 }

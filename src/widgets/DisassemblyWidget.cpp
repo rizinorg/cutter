@@ -371,7 +371,7 @@ void DisassemblyWidget::highlightCurrentLine()
     highlightSelection.cursor = cursor;
     highlightSelection.cursor.movePosition(QTextCursor::Start);
     while (true) {
-        RVA lineOffset = readDisassemblyOffset(highlightSelection.cursor);
+        RVA lineOffset = DisassemblyPreview::readDisassemblyOffset(highlightSelection.cursor);
         if (lineOffset == seekable->getOffset()) {
             highlightSelection.format.setBackground(highlightColor);
             highlightSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
@@ -406,7 +406,7 @@ void DisassemblyWidget::highlightPCLine()
     highlightSelection.cursor.movePosition(QTextCursor::Start);
     if (PCAddr != RVA_INVALID) {
         while (true) {
-            RVA lineOffset = readDisassemblyOffset(highlightSelection.cursor);
+            RVA lineOffset = DisassemblyPreview::readDisassemblyOffset(highlightSelection.cursor);
             if (lineOffset == PCAddr) {
                 highlightSelection.format.setBackground(highlightPCColor);
                 highlightSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
@@ -439,17 +439,7 @@ void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
 RVA DisassemblyWidget::readCurrentDisassemblyOffset()
 {
     QTextCursor tc = mDisasTextEdit->textCursor();
-    return readDisassemblyOffset(tc);
-}
-
-RVA DisassemblyWidget::readDisassemblyOffset(QTextCursor tc)
-{
-    auto userData = getUserData(tc.block());
-    if (!userData) {
-        return RVA_INVALID;
-    }
-
-    return userData->line.offset;
+    return DisassemblyPreview::readDisassemblyOffset(tc);
 }
 
 void DisassemblyWidget::updateCursorPosition()
@@ -476,7 +466,7 @@ void DisassemblyWidget::updateCursorPosition()
         cursor.movePosition(QTextCursor::Start);
 
         while (true) {
-            RVA lineOffset = readDisassemblyOffset(cursor);
+            RVA lineOffset = DisassemblyPreview::readDisassemblyOffset(cursor);
             if (lineOffset == offset) {
                 if (cursorLineOffset > 0) {
                     cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor,
@@ -537,7 +527,7 @@ void DisassemblyWidget::cursorPositionChanged()
     cursorCharOffset = c.positionInBlock();
     while (c.blockNumber() > 0) {
         c.movePosition(QTextCursor::PreviousBlock);
-        if (readDisassemblyOffset(c) != offset) {
+        if (DisassemblyPreview::readDisassemblyOffset(c) != offset) {
             break;
         }
         cursorLineOffset++;
@@ -623,7 +613,7 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 
 void DisassemblyWidget::jumpToOffsetUnderCursor(const QTextCursor &cursor)
 {
-    RVA offset = readDisassemblyOffset(cursor);
+    RVA offset = DisassemblyPreview::readDisassemblyOffset(cursor);
     seekable->seekToReference(offset);
 }
 
@@ -645,47 +635,9 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         auto cursorForWord = mDisasTextEdit->cursorForPosition(helpEvent->pos());
         cursorForWord.select(QTextCursor::WordUnderCursor);
 
-        RVA offsetFrom = readDisassemblyOffset(cursorForWord);
-        RVA offsetTo = RVA_INVALID;
+        RVA offsetFrom = DisassemblyPreview::readDisassemblyOffset(cursorForWord);
 
-        QList<XrefDescription> refs = Core()->getXRefs(offsetFrom, false, false);
-
-        if (refs.length()) {
-            if (refs.length() > 1) {
-                qWarning() << tr("More than one (%1) references here. Weird behaviour expected.")
-                                      .arg(refs.length());
-            }
-            offsetTo = refs.at(0).to; // This is the offset we want to preview
-
-            if (Q_UNLIKELY(offsetFrom != refs.at(0).from)) {
-                qWarning() << tr("offsetFrom (%1) differs from refs.at(0).from (%(2))")
-                                      .arg(offsetFrom)
-                                      .arg(refs.at(0).from);
-            }
-
-            // Only if the offset we point *to* is different from the one the cursor is currently
-            // on *and* the former is a valid offset, we are allowed to get a preview of offsetTo
-            if (offsetTo != offsetFrom && offsetTo != RVA_INVALID) {
-                QStringList disasmPreview = Core()->getDisassemblyPreview(offsetTo, 10);
-
-                // Last check to make sure the returned preview isn't an empty text (QStringList)
-                if (!disasmPreview.isEmpty()) {
-                    const QFont &fnt = Config()->getFont();
-                    QFontMetrics fm { fnt };
-
-                    QString tooltip =
-                            QString("<html><div style=\"font-family: %1; font-size: %2pt; "
-                                    "white-space: nowrap;\"><div style=\"margin-bottom: "
-                                    "10px;\"><strong>Disassembly Preview</strong>:<br>%3<div>")
-                                    .arg(fnt.family())
-                                    .arg(qMax(6, fnt.pointSize() - 1))
-                                    .arg(disasmPreview.join("<br>"));
-                    QToolTip::showText(helpEvent->globalPos(), tooltip, this, QRect(), 3500);
-                }
-            }
-        }
-
-        return true;
+        return DisassemblyPreview::showDisasPreview(this, helpEvent->globalPos(), offsetFrom);
     }
 
     return MemoryDockWidget::eventFilter(obj, event);

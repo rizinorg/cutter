@@ -997,13 +997,3 @@ bool DisassemblerGraphView::Instr::contains(ut64 addr) const
 {
     return this->addr <= addr && (addr - this->addr) < size;
 }
-
-RVA DisassemblerGraphView::readDisassemblyOffset(QTextCursor tc)
-{
-    auto userData = getUserData(tc.block());
-    if (!userData) {
-        return RVA_INVALID;
-    }
-
-    return userData->line.offset;
-}
