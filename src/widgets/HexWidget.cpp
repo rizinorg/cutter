@@ -754,19 +754,20 @@ void HexWidget::w_writeBytes()
     const int offset = bytes.startsWith("\\x") ? 2 : 0;
     const int incr = offset + 2;
     const int bytes_size = qMin(bytes.size() / incr, size);
-    if (ok && bytes_size) {
-        uint8_t *buf = (uint8_t *)malloc(static_cast<size_t>(bytes_size));
-        if (!buf) {
-            return;
-        }
-        for (int i = 0, j = 0, sz = bytes.size(); i < sz; i += incr, j++) {
-            buf[j] = static_cast<uint8_t>(bytes.mid(i + offset, 2).toInt(nullptr, 16));
-        }
-        RzCoreLocked core(Core());
-        rz_core_write_at(core, getLocationAddress(), buf, bytes_size);
-        free(buf);
-        refresh();
+    if (!ok || !bytes_size) {
+        return;
     }
+    uint8_t *buf = (uint8_t *)malloc(static_cast<size_t>(bytes_size));
+    if (!buf) {
+        return;
+    }
+    for (int i = 0, j = 0, sz = bytes.size(); i < sz; i += incr, j++) {
+        buf[j] = static_cast<uint8_t>(bytes.mid(i + offset, 2).toInt(nullptr, 16));
+    }
+    RzCoreLocked core(Core());
+    rz_core_write_at(core, getLocationAddress(), buf, bytes_size);
+    free(buf);
+    refresh();
 }
 
 void HexWidget::w_writeZeros()
