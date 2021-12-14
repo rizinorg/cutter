@@ -75,8 +75,8 @@ NewFileDialog::NewFileDialog(MainWindow *main)
     /* Set focus on the TextInput */
     ui->newFileEdit->setFocus();
 
-	/* Install an event filter for shellcode text edit to enable ctrl+return event */
-	ui->shellcodeText->installEventFilter(this);
+    /* Install an event filter for shellcode text edit to enable ctrl+return event */
+    ui->shellcodeText->installEventFilter(this);
 
     updateLoadProjectButton();
 }
@@ -372,11 +372,11 @@ void NewFileDialog::on_tabWidget_currentChanged(int index)
 
 bool NewFileDialog::eventFilter(QObject * /*obj*/, QEvent *event)
 {
-	QString shellcode = ui->shellcodeText->toPlainText();
-	QString extractedCode = "";
-	static const QRegularExpression rx("([0-9a-f]{2})", QRegularExpression::CaseInsensitiveOption);
-	QRegularExpressionMatchIterator i = rx.globalMatch(shellcode);
-	int size = 0;
+    QString shellcode = ui->shellcodeText->toPlainText();
+    QString extractedCode = "";
+    static const QRegularExpression rx("([0-9a-f]{2})", QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionMatchIterator i = rx.globalMatch(shellcode);
+    int size = 0;
 
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
@@ -384,17 +384,17 @@ bool NewFileDialog::eventFilter(QObject * /*obj*/, QEvent *event)
         // Confirm comment by pressing Ctrl/Cmd+Return
         if ((keyEvent->modifiers() & Qt::ControlModifier)
             && ((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return))) {
-			while (i.hasNext()) {
-				QRegularExpressionMatch match = i.next();
-				extractedCode.append(match.captured(1));
-			}
-			size = extractedCode.size() / 2;
-			if (size > 0) {
-				loadShellcode(extractedCode, size);
-			}
+            while (i.hasNext()) {
+                QRegularExpressionMatch match = i.next();
+                extractedCode.append(match.captured(1));
+            }
+            size = extractedCode.size() / 2;
+            if (size > 0) {
+                loadShellcode(extractedCode, size);
+            }
             return true;
         }
     }
 
-	return false;
+    return false;
 }

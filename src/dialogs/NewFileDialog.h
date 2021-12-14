@@ -69,7 +69,7 @@ private:
     void loadProject(const QString &project);
     void loadShellcode(const QString &shellcode, const int size);
 
-	bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event);
 
     static const int MaxRecentFiles = 5;
 };
