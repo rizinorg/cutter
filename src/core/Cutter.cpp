@@ -20,6 +20,7 @@
 #include "core/Cutter.h"
 #include "Decompiler.h"
 #include "librz/rz_analysis.h"
+#include "librz/rz_core.h"
 
 #include <rz_asm.h>
 #include <rz_cmd.h>
@@ -748,19 +749,22 @@ QString CutterCore::getInstructionOpcode(RVA addr)
 
 void CutterCore::editInstruction(RVA addr, const QString &inst)
 {
-    cmdRawAt(QString("wa %1").arg(inst), addr);
+    CORE_LOCK();
+    rz_core_write_assembly(core, addr, inst.trimmed().toStdString().c_str(), false, false);
     emit instructionChanged(addr);
 }
 
 void CutterCore::nopInstruction(RVA addr)
 {
-    cmdRawAt("wao nop", addr);
+    CORE_LOCK();
+    fnAt([&]() { rz_core_hack(core, "nop"); }, addr);
     emit instructionChanged(addr);
 }
 
 void CutterCore::jmpReverse(RVA addr)
 {
-    cmdRawAt("wao recj", addr);
+    CORE_LOCK();
+    fnAt([&]() { rz_core_hack(core, "recj"); }, addr);
     emit instructionChanged(addr);
 }
 
