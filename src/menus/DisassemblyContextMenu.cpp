@@ -536,7 +536,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
     QString stringDefinition = Core()->cmdRawAt("Cs.", offset);
     actionSetAsStringRemove.setVisible(!stringDefinition.isEmpty());
 
-    QString comment = Core()->cmdRawAt("CC.", offset);
+    QString comment = Core()->getCommentAt(offset);
 
     if (comment.isNull() || comment.isEmpty()) {
         actionDeleteComment.setVisible(false);

@@ -34,20 +34,18 @@ void CommentsDialog::setComment(const QString &comment)
 
 void CommentsDialog::addOrEditComment(RVA offset, QWidget *parent)
 {
-    QString oldComment = Core()->cmdRawAt("CC.", offset);
-    // Remove newline at the end added by cmd
-    oldComment.remove(oldComment.length() - 1, 1);
+    QString comment = Core()->getCommentAt(offset);
     CommentsDialog c(parent);
 
-    if (oldComment.isNull() || oldComment.isEmpty()) {
+    if (comment.isNull() || comment.isEmpty()) {
         c.setWindowTitle(tr("Add Comment at %1").arg(RzAddressString(offset)));
     } else {
         c.setWindowTitle(tr("Edit Comment at %1").arg(RzAddressString(offset)));
     }
 
-    c.setComment(oldComment);
+    c.setComment(comment);
     if (c.exec()) {
-        QString comment = c.getComment();
+        comment = c.getComment();
         if (comment.isEmpty()) {
             Core()->delComment(offset);
         } else {

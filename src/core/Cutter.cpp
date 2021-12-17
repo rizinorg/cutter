@@ -19,6 +19,7 @@
 #include "common/Json.h"
 #include "core/Cutter.h"
 #include "Decompiler.h"
+#include "librz/rz_analysis.h"
 
 #include <rz_asm.h>
 #include <rz_cmd.h>
@@ -392,7 +393,7 @@ bool CutterCore::isRedirectableDebugee()
     RzIODesc *desc;
     CutterRzListForeach (descs, it, RzIODesc, desc) {
         QString URI = QString(desc->uri);
-        if (URI.contains("ptrace") | URI.contains("mach")) {
+        if (URI.contains("ptrace") || URI.contains("mach")) {
             return true;
         }
     }
@@ -849,13 +850,16 @@ int CutterCore::sizeofDataMeta(RVA addr)
 
 void CutterCore::setComment(RVA addr, const QString &cmt)
 {
-    cmdRawAt(QString("CCu base64:%1").arg(QString(cmt.toLocal8Bit().toBase64())), addr);
+    CORE_LOCK();
+    rz_meta_set_string(core->analysis, RZ_META_TYPE_COMMENT, addr,
+                       reinterpret_cast<const char *>(cmt.data()));
     emit commentsChanged(addr);
 }
 
 void CutterCore::delComment(RVA addr)
 {
-    cmdRawAt("CC-", addr);
+    CORE_LOCK();
+    rz_meta_del(core->analysis, RZ_META_TYPE_COMMENT, addr, 1);
     emit commentsChanged(addr);
 }
 
