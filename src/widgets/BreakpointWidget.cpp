@@ -32,13 +32,13 @@ int BreakpointModel::columnCount(const QModelIndex &) const
 static QString formatHwBreakpoint(int permission)
 {
     char data[] = "rwx";
-    if ((permission & (RZ_BP_PROT_READ | RZ_BP_PROT_ACCESS)) == 0) {
+    if ((permission & (RZ_PERM_R | RZ_PERM_RW)) == 0) {
         data[0] = '-';
     }
-    if ((permission & (RZ_BP_PROT_WRITE | RZ_BP_PROT_ACCESS)) == 0) {
+    if ((permission & (RZ_PERM_W | RZ_PERM_RW)) == 0) {
         data[1] = '-';
     }
-    if ((permission & RZ_BP_PROT_EXEC) == 0) {
+    if ((permission & RZ_PERM_X) == 0) {
         data[2] = '-';
     }
     return data;
