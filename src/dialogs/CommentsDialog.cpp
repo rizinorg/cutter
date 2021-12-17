@@ -35,17 +35,17 @@ void CommentsDialog::setComment(const QString &comment)
 void CommentsDialog::addOrEditComment(RVA offset, QWidget *parent)
 {
     QString comment = Core()->getCommentAt(offset);
-    CommentsDialog c(parent);
+    CommentsDialog dialog(parent);
 
     if (comment.isNull() || comment.isEmpty()) {
-        c.setWindowTitle(tr("Add Comment at %1").arg(RzAddressString(offset)));
+        dialog.setWindowTitle(tr("Add Comment at %1").arg(RzAddressString(offset)));
     } else {
-        c.setWindowTitle(tr("Edit Comment at %1").arg(RzAddressString(offset)));
+        dialog.setWindowTitle(tr("Edit Comment at %1").arg(RzAddressString(offset)));
     }
 
-    c.setComment(comment);
-    if (c.exec()) {
-        comment = c.getComment();
+    dialog.setComment(comment);
+    if (dialog.exec()) {
+        comment = dialog.getComment();
         if (comment.isEmpty()) {
             Core()->delComment(offset);
         } else {

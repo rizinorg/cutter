@@ -851,8 +851,7 @@ int CutterCore::sizeofDataMeta(RVA addr)
 void CutterCore::setComment(RVA addr, const QString &cmt)
 {
     CORE_LOCK();
-    rz_meta_set_string(core->analysis, RZ_META_TYPE_COMMENT, addr,
-                       reinterpret_cast<const char *>(cmt.data()));
+    rz_meta_set_string(core->analysis, RZ_META_TYPE_COMMENT, addr, cmt.toStdString().c_str());
     emit commentsChanged(addr);
 }
 
