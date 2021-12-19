@@ -154,7 +154,7 @@ void DecompilerContextMenu::aboutToShowSlot()
 {
     if (this->firstOffsetInLine != RVA_MAX) {
         actionShowInSubmenu.setVisible(true);
-        QString comment = Core()->cmdRawAt("CC.", this->firstOffsetInLine);
+        QString comment = Core()->getCommentAt(firstOffsetInLine);
         actionAddComment.setVisible(true);
         if (comment.isEmpty()) {
             actionDeleteComment.setVisible(false);

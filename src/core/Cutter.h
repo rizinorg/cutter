@@ -15,6 +15,7 @@
 #include <QErrorMessage>
 #include <QMutex>
 #include <QDir>
+#include <functional>
 
 class AsyncTaskManager;
 class BasicInstructionHighlighter;
@@ -113,6 +114,14 @@ public:
     QString cmdRawAt(const QString &str, RVA address)
     {
         return cmdRawAt(str.toUtf8().constData(), address);
+    }
+
+    void applyAtSeek(std::function<void()> fn, RVA address)
+    {
+        RVA oldOffset = getOffset();
+        seekSilent(address);
+        fn();
+        seekSilent(oldOffset);
     }
 
     QJsonDocument cmdj(const char *str);
@@ -267,9 +276,10 @@ public:
     void createNewClass(const QString &cls);
     void renameClass(const QString &oldName, const QString &newName);
     void deleteClass(const QString &cls);
-    bool getAnalysisMethod(const QString &cls, const QString &meth, AnalysisMethodDescription *desc);
+    bool getAnalysisMethod(const QString &cls, const QString &meth,
+                           AnalysisMethodDescription *desc);
     void renameAnalysisMethod(const QString &className, const QString &oldMethodName,
-                          const QString &newMethodName);
+                              const QString &newMethodName);
     void setAnalysisMethod(const QString &cls, const AnalysisMethodDescription &meth);
 
     /* File related methods */
