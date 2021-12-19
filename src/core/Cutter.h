@@ -116,7 +116,7 @@ public:
         return cmdRawAt(str.toUtf8().constData(), address);
     }
 
-    void fnAt(std::function<void()> fn, RVA address)
+    void applyAtSeek(std::function<void()> fn, RVA address)
     {
         RVA oldOffset = getOffset();
         seekSilent(address);

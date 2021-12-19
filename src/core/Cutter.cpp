@@ -19,8 +19,6 @@
 #include "common/Json.h"
 #include "core/Cutter.h"
 #include "Decompiler.h"
-#include "librz/rz_analysis.h"
-#include "librz/rz_core.h"
 
 #include <rz_asm.h>
 #include <rz_cmd.h>
@@ -757,14 +755,14 @@ void CutterCore::editInstruction(RVA addr, const QString &inst)
 void CutterCore::nopInstruction(RVA addr)
 {
     CORE_LOCK();
-    fnAt([&]() { rz_core_hack(core, "nop"); }, addr);
+    applyAtSeek([&]() { rz_core_hack(core, "nop"); }, addr);
     emit instructionChanged(addr);
 }
 
 void CutterCore::jmpReverse(RVA addr)
 {
     CORE_LOCK();
-    fnAt([&]() { rz_core_hack(core, "recj"); }, addr);
+    applyAtSeek([&]() { rz_core_hack(core, "recj"); }, addr);
     emit instructionChanged(addr);
 }
 
