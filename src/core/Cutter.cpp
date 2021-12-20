@@ -3146,10 +3146,11 @@ QList<FlagDescription> CutterCore::getAllFlags(QString flagspace)
 {
     QList<FlagDescription> ret;
     CORE_LOCK();
-    if (!flagspace.isEmpty())
-        rz_spaces_add(&core->flags->spaces, flagspace.toStdString().c_str());
+    rz_flag_space_set(core->flags,
+                      flagspace.isEmpty() || flagspace.isNull() ? "*"
+                                                                : flagspace.toStdString().c_str());
 
-    const RzList *list = rz_flag_get_list(core->flags, core->offset);
+    const RzList *list = rz_flag_all_list(core->flags, true);
     RzListIter *iter;
     RzFlagItem *item;
     CutterRzListForeach (list, iter, RzFlagItem, item) {
