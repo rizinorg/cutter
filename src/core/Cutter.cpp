@@ -699,7 +699,11 @@ void CutterCore::delFunction(RVA addr)
 
 void CutterCore::renameFlag(QString old_name, QString new_name)
 {
-    cmdRaw("fr " + old_name + " " + new_name);
+    CORE_LOCK();
+    RzFlagItem *flag = rz_flag_get(core->flags, old_name.toStdString().c_str());
+    if (!flag)
+        return;
+    rz_flag_rename(core->flags, flag, new_name.toStdString().c_str());
     emit flagsChanged();
 }
 
@@ -717,13 +721,15 @@ void CutterCore::renameFunctionVariable(QString newName, QString oldName, RVA fu
 
 void CutterCore::delFlag(RVA addr)
 {
-    cmdRawAt("f-", addr);
+    CORE_LOCK();
+    rz_flag_unset_off(core->flags, addr);
     emit flagsChanged();
 }
 
 void CutterCore::delFlag(const QString &name)
 {
-    cmdRaw("f-" + name);
+    CORE_LOCK();
+    rz_flag_unset_name(core->flags, name.toStdString().c_str());
     emit flagsChanged();
 }
 
