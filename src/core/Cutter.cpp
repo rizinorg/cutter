@@ -827,10 +827,13 @@ void CutterCore::setAsString(RVA addr, int size, StringTypeFormats type)
 
     CORE_LOCK();
     seekAndShow(addr);
-    char *name[256];
-    rz_io_read_at(core->io, addr, (ut8 *)name, RZ_MIN(sizeof(name) - 1, (size_t)size));
+    if (size <= 0) {
+        char buf[256] = RZ_EMPTY;
+        rz_io_read_at(core->io, addr, (ut8 *)buf, sizeof(buf) - 3);
+        size = (int)rz_str_nlen_w(buf, sizeof(buf) - 3);
+    }
     rz_meta_set_with_subtype(core->analysis, RZ_META_TYPE_STRING, subtype, addr, size,
-                             reinterpret_cast<const char *>(name));
+                             QString::number(addr).toStdString().c_str());
     emit instructionChanged(addr);
 }
 
