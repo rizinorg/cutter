@@ -807,34 +807,37 @@ void CutterCore::setAsString(RVA addr, int size, StringTypeFormats type)
         return;
     }
 
-    QString command;
-
+    int subtype;
     switch (type) {
     case StringTypeFormats::None: {
-        command = "Cs";
+        subtype = RZ_STRING_ENC_GUESS;
         break;
     }
     case StringTypeFormats::ASCII_LATIN1: {
-        command = "Csa";
+        subtype = 'a';
         break;
     }
     case StringTypeFormats::UTF8: {
-        command = "Cs8";
+        subtype = '8';
         break;
     }
     default:
         return;
     }
 
+    CORE_LOCK();
     seekAndShow(addr);
-
-    cmdRawAt(QString("%1 %2").arg(command).arg(size), addr);
+    char *name[256];
+    rz_io_read_at(core->io, addr, (ut8 *)name, RZ_MIN(sizeof(name) - 1, (size_t)size));
+    rz_meta_set_with_subtype(core->analysis, RZ_META_TYPE_STRING, subtype, addr, size,
+                             reinterpret_cast<const char *>(name));
     emit instructionChanged(addr);
 }
 
 void CutterCore::removeString(RVA addr)
 {
-    cmdRawAt("Cs-", addr);
+    CORE_LOCK();
+    rz_meta_del(core->analysis, RZ_META_TYPE_STRING, addr, 1);
     emit instructionChanged(addr);
 }
 
@@ -848,16 +851,23 @@ void CutterCore::setToData(RVA addr, int size, int repeat)
     if (size <= 0 || repeat <= 0) {
         return;
     }
-    cmdRawAt("Cd-", addr);
-    cmdRawAt(QString("Cd %1 %2").arg(size).arg(repeat), addr);
+
+    CORE_LOCK();
+    rz_meta_del(core->analysis, RZ_META_TYPE_DATA, addr, 1);
+    RVA address = addr;
+    auto name = QString(size).toStdString();
+    for (int i = 0; i < repeat; ++i, address += size) {
+        rz_meta_set(core->analysis, RZ_META_TYPE_DATA, address, size, name.c_str());
+    }
     emit instructionChanged(addr);
 }
 
 int CutterCore::sizeofDataMeta(RVA addr)
 {
-    bool ok;
-    int size = cmdRawAt("Cd.", addr).toInt(&ok);
-    return (ok ? size : 0);
+    ut64 size;
+    CORE_LOCK();
+    rz_meta_get_at(core->analysis, addr, RZ_META_TYPE_DATA, &size);
+    return (int)size;
 }
 
 void CutterCore::setComment(RVA addr, const QString &cmt)
