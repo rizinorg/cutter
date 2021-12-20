@@ -687,13 +687,17 @@ bool CutterCore::mapFile(QString path, RVA mapaddr)
 
 void CutterCore::renameFunction(const RVA offset, const QString &newName)
 {
-    cmdRaw("afn " + newName + " " + RzAddressString(offset));
+    CORE_LOCK();
+    rz_core_analysis_function_rename(core, offset, newName.toStdString().c_str());
     emit functionRenamed(offset, newName);
 }
 
 void CutterCore::delFunction(RVA addr)
 {
-    cmdRaw("af- " + RzAddressString(addr));
+    CORE_LOCK();
+    rz_core_analysis_undefine(core, addr);
+    rz_analysis_fcn_del_locs(core->analysis, addr);
+    rz_analysis_fcn_del(core->analysis, addr);
     emit functionsChanged();
 }
 
@@ -1308,20 +1312,22 @@ void CutterCore::cmdEsil(const char *command)
     }
 }
 
-QString CutterCore::createFunctionAt(RVA addr)
+void CutterCore::createFunctionAt(RVA addr)
 {
-    QString ret = cmdRaw(QString("af %1").arg(addr));
-    emit functionsChanged();
-    return ret;
+    createFunctionAt(addr, "");
 }
 
-QString CutterCore::createFunctionAt(RVA addr, QString name)
+void CutterCore::createFunctionAt(RVA addr, QString name)
 {
-    static const QRegularExpression regExp("[^a-zA-Z0-9_.]");
-    name.remove(regExp);
-    QString ret = cmdRawAt(QString("af %1").arg(name), addr);
+    if (!name.isEmpty() && !name.isNull()) {
+        static const QRegularExpression regExp("[^a-zA-Z0-9_.]");
+        name.remove(regExp);
+    }
+
+    CORE_LOCK();
+    bool analyze_recursively = rz_config_get_i(core->config, "analysis.calls");
+    rz_core_analysis_function_add(core, name.toStdString().c_str(), addr, analyze_recursively);
     emit functionsChanged();
-    return ret;
 }
 
 QJsonDocument CutterCore::getRegistersInfo()
@@ -3123,17 +3129,14 @@ QList<StringDescription> CutterCore::parseStringsJson(const QJsonDocument &doc)
 
 QList<FlagspaceDescription> CutterCore::getAllFlagspaces()
 {
-    CORE_LOCK();
     QList<FlagspaceDescription> ret;
-
-    QJsonArray flagspacesArray = cmdj("fsj").array();
-    for (const QJsonValue &value : flagspacesArray) {
-        QJsonObject flagspaceObject = value.toObject();
-
-        FlagspaceDescription flagspace;
-
-        flagspace.name = flagspaceObject[RJsonKey::name].toString();
-
+    CORE_LOCK();
+    RzSpaces *spaces = &core->flags->spaces;
+    RzSpaceIter it;
+    RzSpace *space;
+    rz_spaces_foreach(spaces, it, space)
+    {
+        FlagspaceDescription flagspace { .name = space->name };
         ret << flagspace;
     }
     return ret;
@@ -3141,25 +3144,21 @@ QList<FlagspaceDescription> CutterCore::getAllFlagspaces()
 
 QList<FlagDescription> CutterCore::getAllFlags(QString flagspace)
 {
-    CORE_LOCK();
     QList<FlagDescription> ret;
-
+    CORE_LOCK();
     if (!flagspace.isEmpty())
-        cmdRaw("fs " + flagspace);
-    else
-        cmdRaw("fs *");
+        rz_spaces_add(&core->flags->spaces, flagspace.toStdString().c_str());
 
-    QJsonArray flagsArray = cmdj("fj").array();
-    for (const QJsonValue &value : flagsArray) {
-        QJsonObject flagObject = value.toObject();
-
-        FlagDescription flag;
-
-        flag.offset = flagObject[RJsonKey::offset].toVariant().toULongLong();
-        flag.size = flagObject[RJsonKey::size].toVariant().toULongLong();
-        flag.name = flagObject[RJsonKey::name].toString();
-        flag.realname = flagObject[RJsonKey::realname].toString();
-
+    const RzList *list = rz_flag_get_list(core->flags, core->offset);
+    RzListIter *iter;
+    RzFlagItem *item;
+    CutterRzListForeach (list, iter, RzFlagItem, item) {
+        FlagDescription flag {
+            .offset = item->offset,
+            .size = item->size,
+            .name = item->name,
+            .realname = item->name,
+        };
         ret << flag;
     }
     return ret;
@@ -3862,7 +3861,8 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
 void CutterCore::addFlag(RVA offset, QString name, RVA size)
 {
     name = sanitizeStringForCommand(name);
-    cmdRawAt(QString("f %1 %2").arg(name).arg(size), offset);
+    CORE_LOCK();
+    rz_flag_set(core->flags, name.toStdString().c_str(), offset, size);
     emit flagsChanged();
 }
 
