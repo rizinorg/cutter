@@ -8,7 +8,7 @@ cd jsdec
 & meson.exe --buildtype=release -Dc_args=-DDUK_USE_DATE_NOW_WINDOWS -Djsc_folder=".." --prefix=$dist p build
 ninja -C build install
 $ErrorActionPreference = 'Stop'
-$pathdll = "$dist\lib64\rizin\plugins\core_pdd.dll"
+$pathdll = "$dist\lib\plugins\core_pdd.dll"
 if(![System.IO.File]::Exists($pathdll)) {
     type build\meson-logs\meson-log.txt
     throw (New-Object System.IO.FileNotFoundException("File not found: $pathdll", $pathdll))
