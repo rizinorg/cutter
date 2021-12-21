@@ -6,7 +6,7 @@ Building
  If you just want to use the latest Release version of Cutter, please note
  that we provide pre-compiled binaries for Windows, Linux, and macOS on
  our `release page <https://github.com/rizinorg/cutter/releases/latest>`_ and
- `CI page <https://nightly.link/rizinorg/cutter/workflows/ccpp/master>`_ for latest development builds.
+ `CI page <https://nightly.link/rizinorg/cutter/workflows/ccpp/dev>`_ for latest development builds.
 
 This page describes how to do a basic build from the command line. If you are planning to modify Cutter it is recommended to also read our :doc:`development environment setup</contributing/code/ide-setup>`.
 

@@ -80,7 +80,8 @@ for:
   -
     branches:
       only:
-        - master
+        - dev
+        - stable
   -
     skip_non_tags: true
 

@@ -3,14 +3,16 @@ name: Cutter CI
 on:
   push:
     branches:
-    - master
+    - dev
+    - stable
     tags:
     - v*
     - upload-test*
     
   pull_request:
     branches:
-    - master
+    - dev
+    - stable
 
 jobs:
   build:
