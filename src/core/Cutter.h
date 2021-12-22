@@ -244,6 +244,13 @@ public:
     void removeString(RVA addr);
     /**
      * @brief Gets string at address
+     * That function correspond the 'Cs.' command
+     * \param addr The address of the string
+     * @return string at requested address
+     */
+    QString CutterCore::getMetaString(RVA addr);
+    /**
+     * @brief Gets string at address
      * That function calls the 'ps' command
      * \param addr The address of the first byte of the array
      * @return string at requested address

@@ -849,6 +849,14 @@ QString CutterCore::getString(RVA addr)
     return cmdRawAt("ps", addr);
 }
 
+QString CutterCore::getMetaString(RVA addr)
+{
+    ut64 size;
+    CORE_LOCK();
+    RzAnalysisMetaItem *mi = rz_meta_get_at(core->analysis, addr, RZ_META_TYPE_STRING, &size);
+    return mi->str;
+}
+
 void CutterCore::setToData(RVA addr, int size, int repeat)
 {
     if (size <= 0 || repeat <= 0) {
@@ -3149,7 +3157,8 @@ QList<FlagspaceDescription> CutterCore::getAllFlagspaces()
     RzSpace *space;
     rz_spaces_foreach(spaces, it, space)
     {
-        FlagspaceDescription flagspace { .name = space->name };
+        FlagspaceDescription flagspace;
+        flagspace.name = space->name;
         ret << flagspace;
     }
     return ret;
@@ -3167,12 +3176,11 @@ QList<FlagDescription> CutterCore::getAllFlags(QString flagspace)
     RzListIter *iter;
     RzFlagItem *item;
     CutterRzListForeach (list, iter, RzFlagItem, item) {
-        FlagDescription flag {
-            .offset = item->offset,
-            .size = item->size,
-            .name = item->name,
-            .realname = item->name,
-        };
+        FlagDescription flag;
+        flag.offset = item->offset;
+        flag.size = item->size;
+        flag.name = item->name;
+        flag.realname = item->name;
         ret << flag;
     }
     return ret;
