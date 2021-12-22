@@ -187,7 +187,7 @@ void CutterCore::initialize(bool loadPlugins)
 
 #if defined(CUTTER_ENABLE_PACKAGING) && defined(Q_OS_WIN)
     auto prefixBytes = prefix.absolutePath().toUtf8();
-    rz_sys_prefix(prefixBytes.constData());
+    rz_path_prefix(prefixBytes.constData());
 #endif
 
     rz_cons_new(); // initialize console
@@ -225,7 +225,7 @@ void CutterCore::initialize(bool loadPlugins)
         setConfig("cfg.plugins", 0);
     }
     if (getConfigi("cfg.plugins")) {
-        rz_core_loadlibs(this->core_, RZ_CORE_LOADLIBS_ALL, nullptr);
+        rz_core_loadlibs(this->core_, RZ_CORE_LOADLIBS_ALL);
     }
     // IMPLICIT rz_bin_iobind (core_->bin, core_->io);
 
@@ -2416,7 +2416,7 @@ void CutterCore::addBreakpoint(const BreakpointDescription &config)
     RzBreakpointItem *breakpoint = nullptr;
     int watchpoint_prot = 0;
     if (config.hw) {
-        watchpoint_prot = config.permission & ~(RZ_BP_PROT_EXEC);
+        watchpoint_prot = config.permission & ~(RZ_PERM_X);
     }
 
     auto address = config.addr;
@@ -3003,7 +3003,7 @@ QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
     CORE_LOCK();
     QList<CommentDescription> ret;
 
-    QJsonArray commentsArray = cmdj("CCj").array();
+    QJsonArray commentsArray = cmdj("CClj").array();
     for (const QJsonValue &value : commentsArray) {
         QJsonObject commentObject = value.toObject();
 
@@ -3153,13 +3153,16 @@ QList<SectionDescription> CutterCore::getAllSections()
         section.paddr = sect->paddr;
         section.size = sect->size;
         section.perm = rz_str_rwx_i(sect->perm);
-        HtPP *digests = rz_core_bin_section_digests(core, sect, hashnames);
-        if (!digests) {
-            continue;
+        if (sect->size > 0) {
+            HtPP *digests = rz_core_bin_create_digests(core, sect->paddr, sect->size, hashnames);
+            if (!digests) {
+                continue;
+            }
+            const char *entropy = (const char *)ht_pp_find(digests, "entropy", NULL);
+            section.entropy = rz_str_get(entropy);
+            ht_pp_free(digests);
         }
-        const char *entropy = (const char *)ht_pp_find(digests, "entropy", NULL);
-        section.entropy = rz_str_get(entropy);
-        ht_pp_free(digests);
+        section.entropy = "";
 
         sections << section;
     }
@@ -3834,7 +3837,7 @@ QString CutterCore::listFlagsAsStringAt(RVA addr)
 
 QString CutterCore::nearestFlag(RVA offset, RVA *flagOffsetOut)
 {
-    auto r = cmdj(QString("fdj @") + QString::number(offset)).object();
+    auto r = cmdj(QString("fdj @ ") + QString::number(offset)).object();
     QString name = r.value("name").toString();
     if (flagOffsetOut) {
         auto offsetValue = r.value("offset");

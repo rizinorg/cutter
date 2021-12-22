@@ -47,8 +47,8 @@ else()
 endif()
 
 set (RZ_LIBS rz_core rz_config rz_cons rz_io rz_util rz_flag rz_asm rz_debug
-        rz_hash rz_bin rz_lang rz_io rz_analysis rz_parse rz_bp rz_egg rz_reg
-        rz_search rz_syscall rz_socket rz_magic rz_crypto rz_type rz_diff)
+        rz_hash rz_bin rz_lang rz_il rz_analysis rz_parse rz_bp rz_egg rz_reg
+        rz_search rz_syscall rz_socket rz_magic rz_crypto rz_type rz_diff rz_sign)
 set (RZ_EXTRA_LIBS rz_main)
 set (RZ_BIN rz-agent rz-bin rizin rz-diff rz-find rz-gg rz-hash rz-run rz-asm rz-ax)
 

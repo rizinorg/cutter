@@ -530,7 +530,7 @@ void Configuration::setColorTheme(const QString &theme)
         Core()->cmdRaw("ecd");
         s.setValue("theme", "default");
     } else {
-        rz_core_load_theme(Core()->core(), theme.toUtf8().constData());
+        rz_core_theme_load(Core()->core(), theme.toUtf8().constData());
         s.setValue("theme", theme);
     }
 
