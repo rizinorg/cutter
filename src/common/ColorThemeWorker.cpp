@@ -6,6 +6,7 @@
 #include <QJsonArray>
 #include <QStandardPaths>
 #include <QRegularExpression>
+#include <rz_util/rz_path.h>
 
 #include "common/Configuration.h"
 
@@ -29,7 +30,7 @@ const QStringList ColorThemeWorker::rizinUnusedOptions = {
 
 ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject(parent)
 {
-    char *szThemes = rz_str_home(RZ_HOME_THEMES);
+    char *szThemes = rz_path_home_prefix(RZ_THEMES);
     customRzThemesLocationPath = szThemes;
     rz_mem_free(szThemes);
     if (!QDir(customRzThemesLocationPath).exists()) {
@@ -37,7 +38,7 @@ ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject(parent)
     }
 
     QDir currDir {
-        QStringLiteral("%1%2%3").arg(rz_sys_prefix(nullptr)).arg(RZ_SYS_DIR).arg(RZ_THEMES)
+        QStringLiteral("%1%2%3").arg(rz_path_prefix(nullptr)).arg(RZ_SYS_DIR).arg(RZ_THEMES)
     };
     if (currDir.exists()) {
         standardRzThemesLocationPath = currDir.absolutePath();
@@ -132,9 +133,9 @@ QJsonDocument ColorThemeWorker::getTheme(const QString &themeName) const
 
     if (themeName != curr) {
         RzCoreLocked core(Core());
-        rz_core_load_theme(core, themeName.toUtf8().constData());
+        rz_core_theme_load(core, themeName.toUtf8().constData());
         theme = Core()->cmdj("ecj").object().toVariantMap();
-        rz_core_load_theme(core, curr.toUtf8().constData());
+        rz_core_theme_load(core, curr.toUtf8().constData());
     } else {
         theme = Core()->cmdj("ecj").object().toVariantMap();
     }
