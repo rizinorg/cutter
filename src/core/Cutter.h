@@ -248,7 +248,7 @@ public:
      * \param addr The address of the string
      * @return string at requested address
      */
-    QString CutterCore::getMetaString(RVA addr);
+    QString getMetaString(RVA addr);
     /**
      * @brief Gets string at address
      * That function calls the 'ps' command

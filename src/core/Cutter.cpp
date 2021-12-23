@@ -807,18 +807,18 @@ void CutterCore::setAsString(RVA addr, int size, StringTypeFormats type)
         return;
     }
 
-    int subtype;
+    RzStrEnc encoding;
     switch (type) {
     case StringTypeFormats::None: {
-        subtype = RZ_STRING_ENC_GUESS;
+        encoding = RZ_STRING_ENC_GUESS;
         break;
     }
     case StringTypeFormats::ASCII_LATIN1: {
-        subtype = 'a';
+        encoding = RZ_STRING_ENC_8BIT;
         break;
     }
     case StringTypeFormats::UTF8: {
-        subtype = '8';
+        encoding = RZ_STRING_ENC_UTF8;
         break;
     }
     default:
@@ -827,13 +827,7 @@ void CutterCore::setAsString(RVA addr, int size, StringTypeFormats type)
 
     CORE_LOCK();
     seekAndShow(addr);
-    if (size <= 0) {
-        char buf[256] = RZ_EMPTY;
-        rz_io_read_at(core->io, addr, (ut8 *)buf, sizeof(buf) - 3);
-        size = (int)rz_str_nlen_w(buf, sizeof(buf) - 3);
-    }
-    rz_meta_set_with_subtype(core->analysis, RZ_META_TYPE_STRING, subtype, addr, size,
-                             QString::number(addr).toStdString().c_str());
+    rz_core_meta_string_add(core, addr, size, encoding, nullptr);
     emit instructionChanged(addr);
 }
 
@@ -851,10 +845,7 @@ QString CutterCore::getString(RVA addr)
 
 QString CutterCore::getMetaString(RVA addr)
 {
-    ut64 size;
-    CORE_LOCK();
-    RzAnalysisMetaItem *mi = rz_meta_get_at(core->analysis, addr, RZ_META_TYPE_STRING, &size);
-    return mi->str;
+    return cmdRawAt("Cs.", addr);
 }
 
 void CutterCore::setToData(RVA addr, int size, int repeat)
