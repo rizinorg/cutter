@@ -7,7 +7,7 @@ if (-not (Test-Path -Path 'libswift' -PathType Container)) {
 cd libswift
 & meson.exe --buildtype=release --prefix=$dist build
 ninja -C build install
-$pathdll = "$dist/lib/plugins/libswift.dll"
+$pathdll = "$dist/lib/plugins/swift.dll"
 if(![System.IO.File]::Exists($pathdll)) {
     type build/meson-logs/meson-log.txt
     ls "$dist/lib/plugins/"
