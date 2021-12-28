@@ -60,16 +60,13 @@ struct HeaderDescription
     QString name;
 };
 
-struct ZignatureDescription
+struct FlirtDescription
 {
     QString name;
-    QString bytes;
-    RVA cc;
-    RVA nbbs;
-    RVA edges;
-    RVA ebbs;
-    RVA offset;
-    QStringList refs;
+    QString path;
+    QString bin;
+    ut32 bits;
+    QString arch;
 };
 
 struct TypeDescription

@@ -2967,35 +2967,47 @@ QList<HeaderDescription> CutterCore::getAllHeaders()
     return ret;
 }
 
-QList<ZignatureDescription> CutterCore::getAllZignatures()
+QList<FlirtDescription> CutterCore::getSignaturesDB()
 {
     CORE_LOCK();
-    QList<ZignatureDescription> zignatures;
+    QList<FlirtDescription> sigdb;
 
-    QJsonArray zignaturesArray = cmdj("zj").array();
+
+    const char *sigdb_path = rz_config_get(core->config, "flirt.sigdb.path");
+    RzList *sigdb = rz_analysis_sigdb_load_database(sigdb_path);
+
+    RzAnalysisSignature *sig = NULL;
+    RzListIter *iter = NULL;
+    ut64 bits;
+
+    rz_list_foreach (sigdb, iter, sig) {
+        FlirtDescription flirt;
+        flirt.name = sig->base_name;
+        flirt.name = sig->base_name;
+        sigdb << flirt;
+    }
 
     for (const QJsonValue &value : zignaturesArray) {
         QJsonObject zignatureObject = value.toObject();
 
-        ZignatureDescription zignature;
 
-        zignature.name = zignatureObject[RJsonKey::name].toString();
-        zignature.bytes = zignatureObject[RJsonKey::bytes].toString();
-        zignature.offset = zignatureObject[RJsonKey::offset].toVariant().toULongLong();
+        flirt.name = zignatureObject[RJsonKey::name].toString();
+        flirt.bytes = zignatureObject[RJsonKey::bytes].toString();
+        flirt.offset = zignatureObject[RJsonKey::offset].toVariant().toULongLong();
         for (const QJsonValue &ref : zignatureObject[RJsonKey::refs].toArray()) {
-            zignature.refs << ref.toString();
+            flirt.refs << ref.toString();
         }
 
         QJsonObject graphObject = zignatureObject[RJsonKey::graph].toObject();
-        zignature.cc = graphObject[RJsonKey::cc].toVariant().toULongLong();
-        zignature.nbbs = graphObject[RJsonKey::nbbs].toVariant().toULongLong();
-        zignature.edges = graphObject[RJsonKey::edges].toVariant().toULongLong();
-        zignature.ebbs = graphObject[RJsonKey::ebbs].toVariant().toULongLong();
+        flirt.cc = graphObject[RJsonKey::cc].toVariant().toULongLong();
+        flirt.nbbs = graphObject[RJsonKey::nbbs].toVariant().toULongLong();
+        flirt.edges = graphObject[RJsonKey::edges].toVariant().toULongLong();
+        flirt.ebbs = graphObject[RJsonKey::ebbs].toVariant().toULongLong();
 
-        zignatures << zignature;
+        sigdb << flirt;
     }
 
-    return zignatures;
+    return sigdb;
 }
 
 QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)

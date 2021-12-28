@@ -553,7 +553,7 @@ public:
     QList<ExportDescription> getAllExports();
     QList<SymbolDescription> getAllSymbols();
     QList<HeaderDescription> getAllHeaders();
-    QList<ZignatureDescription> getAllZignatures();
+    QList<FlirtDescription> getSignaturesDB();
     QList<CommentDescription> getAllComments(const QString &filterType);
     QList<RelocDescription> getAllRelocs();
     QList<StringDescription> getAllStrings();
