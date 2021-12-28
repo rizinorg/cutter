@@ -107,7 +107,7 @@ if(APPLE)
 
 	if (CUTTER_PACKAGE_RZ_LIBSWIFT AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
 		install(CODE "
-			execute_process(COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/rz-libswift.sh\" --prefix=\${CMAKE_INSTALL_PREFIX}
+			execute_process(COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/rz-libswift.sh\" --pkg-config-path=\${CMAKE_INSTALL_PREFIX}/lib/pkgconfig --prefix=\${CMAKE_INSTALL_PREFIX}
 							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 							RESULT_VARIABLE SCRIPT_RESULT)
 			if (SCRIPT_RESULT)
