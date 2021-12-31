@@ -23,6 +23,7 @@ void ColorThemeComboBox::updateFromConfig(bool interfaceThemeChanged)
     clear();
     for (const QString &theme : themes) {
         if (ThemeWorker().isCustomTheme(theme)
+            || !Configuration::relevantThemes[theme]
             || (Configuration::cutterInterfaceThemesList()[curInterfaceThemeIndex].flag
                 & Configuration::relevantThemes[theme])) {
             addItem(theme);
@@ -47,7 +48,7 @@ void ColorThemeComboBox::updateFromConfig(bool interfaceThemeChanged)
         }
     }
     setMinimumContentsLength(maxThemeLen);
-    setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+    setSizeAdjustPolicy(QComboBox::AdjustToContents);
 }
 
 void ColorThemeComboBox::onCurrentIndexChanged(int index)

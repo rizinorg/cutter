@@ -32,9 +32,9 @@ QVariant ExportsModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case ExportsModel::OffsetColumn:
-            return RAddressString(exp.vaddr);
+            return RzAddressString(exp.vaddr);
         case ExportsModel::SizeColumn:
-            return RSizeString(exp.size);
+            return RzSizeString(exp.size);
         case ExportsModel::TypeColumn:
             return exp.type;
         case ExportsModel::NameColumn:
@@ -98,7 +98,7 @@ bool ExportsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) con
     QModelIndex index = sourceModel()->index(row, 0, parent);
     auto exp = index.data(ExportsModel::ExportDescriptionRole).value<ExportDescription>();
 
-    return exp.name.contains(filterRegExp());
+    return qhelpers::filterStringContains(exp.name, this);
 }
 
 bool ExportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

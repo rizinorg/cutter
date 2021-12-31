@@ -2,7 +2,7 @@
 #include "ui_MainWindow.h"
 
 // Common Headers
-#include "common/AnalTask.h"
+#include "common/AnalysisTask.h"
 #include "common/BugReporting.h"
 #include "common/Highlighter.h"
 #include "common/Helpers.h"
@@ -71,6 +71,7 @@
 #include "widgets/HexWidget.h"
 #include "widgets/RizinGraphWidget.h"
 #include "widgets/CallGraph.h"
+#include "widgets/HeapDockWidget.h"
 
 // Qt Headers
 #include <QActionGroup>
@@ -374,12 +375,15 @@ void MainWindow::initDocks()
     commentsDock = new CommentsWidget(this);
     stringsDock = new StringsWidget(this);
 
-    QList<CutterDockWidget *> debugDocks = {
-        stackDock = new StackWidget(this),           threadsDock = new ThreadsWidget(this),
-        processesDock = new ProcessesWidget(this),   backtraceDock = new BacktraceWidget(this),
-        registersDock = new RegistersWidget(this),   memoryMapDock = new MemoryMapWidget(this),
-        breakpointDock = new BreakpointWidget(this), registerRefsDock = new RegisterRefsWidget(this)
-    };
+    QList<CutterDockWidget *> debugDocks = { stackDock = new StackWidget(this),
+                                             threadsDock = new ThreadsWidget(this),
+                                             processesDock = new ProcessesWidget(this),
+                                             backtraceDock = new BacktraceWidget(this),
+                                             registersDock = new RegistersWidget(this),
+                                             memoryMapDock = new MemoryMapWidget(this),
+                                             breakpointDock = new BreakpointWidget(this),
+                                             registerRefsDock = new RegisterRefsWidget(this),
+                                             heapDock = new HeapDockWidget(this) };
 
     QList<CutterDockWidget *> infoDocks = {
         classesDock = new ClassesWidget(this),
@@ -615,7 +619,9 @@ bool MainWindow::openProject(const QString &file)
         const char *s = rz_project_err_message(err);
         QString msg = tr("Failed to open project: %1").arg(QString::fromUtf8(s));
         RzListIter *it;
-        CutterRListForeach(res, it, const char, s) { msg += "\n" + QString::fromUtf8(s); }
+        CutterRzListForeach (res, it, const char, s) {
+            msg += "\n" + QString::fromUtf8(s);
+        }
         QMessageBox::critical(this, tr("Open Project"), msg);
         rz_list_free(res);
         return false;
@@ -691,7 +697,7 @@ RzProjectErr MainWindow::saveProject(bool *canceled)
     if (canceled) {
         *canceled = false;
     }
-    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData());
+    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData(), false);
     if (err == RZ_PROJECT_ERR_SUCCESS) {
         Config()->addRecentProject(file);
     }
@@ -709,7 +715,8 @@ RzProjectErr MainWindow::saveProjectAs(bool *canceled)
     QFileDialog fileDialog(this);
     // Append 'rzdb' suffix if it does not exist
     fileDialog.setDefaultSuffix("rzdb");
-    QString file = fileDialog.getSaveFileName(this, tr("Save Project"), projectFile, PROJECT_FILE_FILTER);
+    QString file =
+            fileDialog.getSaveFileName(this, tr("Save Project"), projectFile, PROJECT_FILE_FILTER);
     if (file.isEmpty()) {
         if (canceled) {
             *canceled = true;
@@ -719,7 +726,7 @@ RzProjectErr MainWindow::saveProjectAs(bool *canceled)
     if (canceled) {
         *canceled = false;
     }
-    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData());
+    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData(), false);
     if (err == RZ_PROJECT_ERR_SUCCESS) {
         Config()->addRecentProject(file);
     }
@@ -918,6 +925,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(stackDock, backtraceDock);
     tabifyDockWidget(backtraceDock, threadsDock);
     tabifyDockWidget(threadsDock, processesDock);
+    tabifyDockWidget(processesDock, heapDock);
 
     for (auto dock : pluginDocks) {
         dockOnMainArea(dock);
@@ -928,7 +936,7 @@ bool MainWindow::isDebugWidget(QDockWidget *dock) const
 {
     return dock == stackDock || dock == registersDock || dock == backtraceDock
             || dock == threadsDock || dock == memoryMapDock || dock == breakpointDock
-            || dock == processesDock || dock == registerRefsDock;
+            || dock == processesDock || dock == registerRefsDock || dock == heapDock;
 }
 
 bool MainWindow::isExtraMemoryWidget(QDockWidget *dock) const
@@ -1121,19 +1129,31 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
     // not too short so that reasonable length c++ names can be seen most of the time
     const int MAX_NAME_LENGTH = 64;
 
-    auto hist = Core()->cmdj("sj");
+    RzListIter *it;
+    RzCoreSeekItem *undo;
+    RzCoreLocked core(Core());
+    RzList *list = rz_core_seek_list(core);
+
     bool history = true;
     QList<QAction *> actions;
-    for (auto item : Core()->cmdj("sj").array()) {
-        QJsonObject obj = item.toObject();
-        QString name = obj["name"].toString();
-        RVA offset = obj["offset"].toVariant().toULongLong();
-        bool current = obj["current"].toBool(false);
+    CutterRzListForeach (list, it, RzCoreSeekItem, undo) {
+        RzFlagItem *f = rz_flag_get_at(core->flags, undo->offset, true);
+        char *fname = NULL;
+        if (f) {
+            if (f->offset != undo->offset) {
+                fname = rz_str_newf("%s+%" PFMT64d, f->name, undo->offset - f->offset);
+            } else {
+                fname = strdup(f->name);
+            }
+        }
+        QString name = fname;
+        RVA offset = undo->offset;
+        bool current = undo->is_current;
         if (current) {
             history = false;
         }
         if (history != redo || current) { // Include current in both directions
-            QString addressString = RAddressString(offset);
+            QString addressString = RzAddressString(offset);
 
             QString toolTip =
                     QString("%1 %2").arg(addressString, name); // show non truncated name in tooltip
@@ -1264,9 +1284,13 @@ void MainWindow::showZenDocks()
 
 void MainWindow::showDebugDocks()
 {
-    const QList<QDockWidget *> debugDocks = { functionsDock, stringsDock,   searchDock,
-                                              stackDock,     registersDock, backtraceDock,
-                                              threadsDock,   memoryMapDock, breakpointDock };
+    QList<QDockWidget *> debugDocks = {
+        functionsDock, stringsDock, searchDock,    stackDock,      registersDock,
+        backtraceDock, threadsDock, memoryMapDock, breakpointDock,
+    };
+    if (QSysInfo::kernelType() == "linux" || Core()->currentlyRemoteDebugging) {
+        debugDocks.append(heapDock);
+    }
     functionDockWidthToRestore = functionsDock->maximumWidth();
     functionsDock->setMaximumWidth(200);
     auto registerWidth = qhelpers::forceWidth(registersDock, std::min(500, this->width() / 4));
@@ -1630,19 +1654,19 @@ void MainWindow::on_actionRefresh_Panels_triggered()
  */
 void MainWindow::on_actionAnalyze_triggered()
 {
-    auto *analTask = new AnalTask();
+    auto *analysisTask = new AnalysisTask();
     InitialOptions options;
-    options.analCmd = { { "aaa", "Auto analysis" } };
-    analTask->setOptions(options);
-    AsyncTask::Ptr analTaskPtr(analTask);
+    options.analysisCmd = { { "aaa", "Auto analysis" } };
+    analysisTask->setOptions(options);
+    AsyncTask::Ptr analysisTaskPtr(analysisTask);
 
-    auto *taskDialog = new AsyncTaskDialog(analTaskPtr);
+    auto *taskDialog = new AsyncTaskDialog(analysisTaskPtr);
     taskDialog->setInterruptOnClose(true);
     taskDialog->setAttribute(Qt::WA_DeleteOnClose);
     taskDialog->show();
-    connect(analTask, &AnalTask::finished, this, &MainWindow::refreshAll);
+    connect(analysisTask, &AnalysisTask::finished, this, &MainWindow::refreshAll);
 
-    Core()->getAsyncTaskManager()->start(analTaskPtr);
+    Core()->getAsyncTaskManager()->start(analysisTaskPtr);
 }
 
 void MainWindow::on_actionImportPDB_triggered()
@@ -1767,8 +1791,16 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     }
 }
 
-bool MainWindow::eventFilter(QObject *, QEvent *event)
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
+    // For every create event - disable context help and proceed to next event check
+    if (event->type() == QEvent::Create) {
+        if (obj->isWidgetType()) {
+            auto w = static_cast<QWidget *>(obj);
+            w->setWindowFlags(w->windowFlags() & (~Qt::WindowContextHelpButtonHint));
+        }
+    }
+
     if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->button() == Qt::ForwardButton || mouseEvent->button() == Qt::BackButton) {

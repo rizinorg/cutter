@@ -108,7 +108,7 @@ void DecompilerContextMenu::setupBreakpointsInLineMenu()
 {
     breakpointsInLineMenu->clear();
     for (auto curOffset : this->availableBreakpoints) {
-        QAction *action = breakpointsInLineMenu->addAction(RAddressString(curOffset));
+        QAction *action = breakpointsInLineMenu->addAction(RzAddressString(curOffset));
         connect(action, &QAction::triggered, this, [this, curOffset] {
             BreakpointsDialog::editBreakpoint(Core()->getBreakpointAt(curOffset), this);
         });
@@ -154,7 +154,7 @@ void DecompilerContextMenu::aboutToShowSlot()
 {
     if (this->firstOffsetInLine != RVA_MAX) {
         actionShowInSubmenu.setVisible(true);
-        QString comment = Core()->cmdRawAt("CC.", this->firstOffsetInLine);
+        QString comment = Core()->getCommentAt(firstOffsetInLine);
         actionAddComment.setVisible(true);
         if (comment.isEmpty()) {
             actionDeleteComment.setVisible(false);
@@ -218,7 +218,7 @@ void DecompilerContextMenu::aboutToShowSlot()
         }
     }
     actionCopyInstructionAddress.setText(
-            tr("Copy instruction address (%1)").arg(RAddressString(offset)));
+            tr("Copy instruction address (%1)").arg(RzAddressString(offset)));
     if (isReference()) {
         actionCopyReferenceAddress.setVisible(true);
         RVA referenceAddr = annotationHere->reference.offset;
@@ -226,14 +226,14 @@ void DecompilerContextMenu::aboutToShowSlot()
         if (annotationHere->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
             actionCopyReferenceAddress.setText(tr("Copy address of %1 (%2)")
                                                        .arg(QString(annotationHere->reference.name),
-                                                            RAddressString(referenceAddr)));
+                                                            RzAddressString(referenceAddr)));
         } else if (flagDetails) {
             actionCopyReferenceAddress.setText(
                     tr("Copy address of %1 (%2)")
-                            .arg(flagDetails->name, RAddressString(referenceAddr)));
+                            .arg(flagDetails->name, RzAddressString(referenceAddr)));
         } else {
             actionCopyReferenceAddress.setText(
-                    tr("Copy address (%1)").arg(RAddressString(referenceAddr)));
+                    tr("Copy address (%1)").arg(RzAddressString(referenceAddr)));
         }
     } else {
         actionXRefs.setVisible(false);
@@ -275,7 +275,8 @@ void DecompilerContextMenu::setActionCopy() // Set all three copy actions
     connect(&actionCopyReferenceAddress, &QAction::triggered, this,
             &DecompilerContextMenu::actionCopyReferenceAddressTriggered);
     addAction(&actionCopyReferenceAddress);
-    actionCopyReferenceAddress.setShortcut({ Qt::CTRL + Qt::SHIFT + Qt::Key_C });
+    actionCopyReferenceAddress.setShortcut({ Qt::KeyboardModifier::ControlModifier
+                                             | Qt::KeyboardModifier::ShiftModifier | Qt::Key_C });
 }
 
 void DecompilerContextMenu::setActionShowInSubmenu()
@@ -339,14 +340,14 @@ void DecompilerContextMenu::setActionToggleBreakpoint()
 {
     connect(&actionToggleBreakpoint, &QAction::triggered, this,
             &DecompilerContextMenu::actionToggleBreakpointTriggered);
-    actionToggleBreakpoint.setShortcuts({ Qt::Key_F2, Qt::CTRL + Qt::Key_B });
+    actionToggleBreakpoint.setShortcuts({ Qt::Key_F2, Qt::CTRL | Qt::Key_B });
 }
 
 void DecompilerContextMenu::setActionAdvancedBreakpoint()
 {
     connect(&actionAdvancedBreakpoint, &QAction::triggered, this,
             &DecompilerContextMenu::actionAdvancedBreakpointTriggered);
-    actionAdvancedBreakpoint.setShortcut({ Qt::CTRL + Qt::Key_F2 });
+    actionAdvancedBreakpoint.setShortcut({ Qt::CTRL | Qt::Key_F2 });
 }
 
 void DecompilerContextMenu::setActionContinueUntil()
@@ -370,13 +371,13 @@ void DecompilerContextMenu::actionCopyTriggered()
 void DecompilerContextMenu::actionCopyInstructionAddressTriggered()
 {
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(RAddressString(offset));
+    clipboard->setText(RzAddressString(offset));
 }
 
 void DecompilerContextMenu::actionCopyReferenceAddressTriggered()
 {
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(RAddressString(annotationHere->reference.offset));
+    clipboard->setText(RzAddressString(annotationHere->reference.offset));
 }
 
 void DecompilerContextMenu::actionAddCommentTriggered()
@@ -403,7 +404,7 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
         RzAnalysisFunction *func = Core()->functionAt(func_addr);
         if (func == NULL) {
             QString function_name = QInputDialog::getText(
-                    this, tr("Define this function at %2").arg(RAddressString(func_addr)),
+                    this, tr("Define this function at %2").arg(RzAddressString(func_addr)),
                     tr("Function name:"), QLineEdit::Normal, currentName, &ok);
             if (ok && !function_name.isEmpty()) {
                 Core()->createFunctionAt(func_addr, function_name);
@@ -482,7 +483,7 @@ void DecompilerContextMenu::actionXRefsTriggered()
     XrefsDialog dialog(mainWindow);
     QString displayString = (annotationHere->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME)
             ? QString(annotationHere->reference.name)
-            : RAddressString(annotationHere->reference.offset);
+            : RzAddressString(annotationHere->reference.offset);
     dialog.fillRefsForAddress(annotationHere->reference.offset, displayString, false);
     dialog.exec();
 }
@@ -518,13 +519,13 @@ void DecompilerContextMenu::actionAdvancedBreakpointTriggered()
 
 void DecompilerContextMenu::actionContinueUntilTriggered()
 {
-    Core()->continueUntilDebug(RAddressString(offset));
+    Core()->continueUntilDebug(RzAddressString(offset));
 }
 
 void DecompilerContextMenu::actionSetPCTriggered()
 {
     QString progCounterName = Core()->getRegisterName("PC");
-    Core()->setRegister(progCounterName, RAddressString(offset).toUpper());
+    Core()->setRegister(progCounterName, RzAddressString(offset).toUpper());
 }
 
 // Set up menus
@@ -573,13 +574,13 @@ void DecompilerContextMenu::updateTargetMenuActions()
             if (flagDetails) {
                 name = tr("Show %1 in").arg(flagDetails->name);
             } else {
-                name = tr("Show %1 in").arg(RAddressString(annotationHere->reference.offset));
+                name = tr("Show %1 in").arg(RzAddressString(annotationHere->reference.offset));
             }
         } else if (annotationHere->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
             menu = mainWindow->createShowInMenu(this, annotationHere->reference.offset,
                                                 MainWindow::AddressTypeHint::Function);
             name = tr("%1 (%2)").arg(QString(annotationHere->reference.name),
-                                     RAddressString(annotationHere->reference.offset));
+                                     RzAddressString(annotationHere->reference.offset));
         }
         auto action = new QAction(name, this);
         showTargetMenuActions.append(action);

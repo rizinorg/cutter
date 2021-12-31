@@ -116,7 +116,7 @@ HexWidget::HexWidget(QWidget *parent)
 
     actionCopyAddress = new QAction(tr("Copy address"), this);
     actionCopyAddress->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    actionCopyAddress->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_C);
+    actionCopyAddress->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_C);
     connect(actionCopyAddress, &QAction::triggered, this, &HexWidget::copyAddress);
     addAction(actionCopyAddress);
 
@@ -472,7 +472,7 @@ void HexWidget::mouseMoveEvent(QMouseEvent *event)
 
     QString metaData = getFlagsAndComment(mouseAddr);
     if (!metaData.isEmpty() && itemArea.contains(pos)) {
-        QToolTip::showText(event->globalPos(), metaData.replace(",", ", "), this);
+        QToolTip::showText(mapToGlobal(event->pos()), metaData.replace(",", ", "), this);
     } else {
         QToolTip::hideText();
     }
@@ -682,7 +682,7 @@ void HexWidget::copyAddress()
         addr = selection.start();
     }
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(RAddressString(addr));
+    clipboard->setText(RzAddressString(addr));
 }
 
 void HexWidget::onRangeDialogAccepted()
@@ -704,7 +704,8 @@ void HexWidget::w_writeString()
     d.setInputMode(QInputDialog::InputMode::TextInput);
     QString str = d.getText(this, tr("Write string"), tr("String:"), QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        Core()->cmdRawAt(QString("w %1").arg(str), getLocationAddress());
+        RzCoreLocked core(Core());
+        rz_core_write_string_at(core, getLocationAddress(), str.toUtf8().constData());
         refresh();
     }
 }
@@ -719,12 +720,13 @@ void HexWidget::w_increaseDecrease()
     if (ret == QDialog::Rejected) {
         return;
     }
-    QString mode = d.getMode() == IncrementDecrementDialog::Increase ? "+" : "-";
-    Core()->cmdRawAt(QString("w%1%2 %3")
-                             .arg(QString::number(d.getNBytes()))
-                             .arg(mode)
-                             .arg(QString::number(d.getValue())),
-                     getLocationAddress());
+    int64_t value = (int64_t)d.getValue();
+    uint8_t sz = d.getNBytes();
+    if (!d.getMode() == IncrementDecrementDialog::Increase) {
+        value *= -1;
+    }
+    RzCoreLocked core(Core());
+    rz_core_write_value_inc_at(core, getLocationAddress(), value, sz);
     refresh();
 }
 
@@ -741,10 +743,14 @@ void HexWidget::w_writeZeros()
         size = static_cast<int>(selection.size());
     }
 
-    QString str = QString::number(
-            d.getInt(this, tr("Write zeros"), tr("Number of zeros:"), size, 1, 0x7FFFFFFF, 1, &ok));
-    if (ok && !str.isEmpty()) {
-        Core()->cmdRawAt(QString("w0 %1").arg(str), getLocationAddress());
+    int len =
+            d.getInt(this, tr("Write zeros"), tr("Number of zeros:"), size, 1, 0x7FFFFFFF, 1, &ok);
+    if (ok) {
+        RzCoreLocked core(Core());
+        uint8_t *buf = (uint8_t *)calloc(len, sizeof(uint8_t));
+        rz_core_write_at(core, getLocationAddress(), buf, len);
+        free(buf);
+
         refresh();
     }
 }
@@ -759,10 +765,9 @@ void HexWidget::w_write64()
     if (ret == QDialog::Rejected) {
         return;
     }
-    QString mode = d.getMode() == Base64EnDecodedWriteDialog::Encode ? "e" : "d";
     QByteArray str = d.getData();
 
-    if (mode == "d"
+    if (d.getMode() == Base64EnDecodedWriteDialog::Decode
         && (QString(str).contains(QRegularExpression("[^a-zA-Z0-9+/=]")) || str.length() % 4 != 0
             || str.isEmpty())) {
         QMessageBox::critical(
@@ -772,9 +777,12 @@ void HexWidget::w_write64()
         return;
     }
 
-    Core()->cmdRawAt(QString("w6%1 %2").arg(mode).arg(
-                             (mode == "e" ? str.toHex() : str).toStdString().c_str()),
-                     getLocationAddress());
+    RzCoreLocked core(Core());
+    if (d.getMode() == Base64EnDecodedWriteDialog::Encode) {
+        rz_core_write_base64_at(core, getLocationAddress(), str.toHex().constData());
+    } else {
+        rz_core_write_base64d_at(core, getLocationAddress(), str.constData());
+    }
     refresh();
 }
 
@@ -1168,7 +1176,11 @@ void HexWidget::updateMetrics()
 {
     QFontMetricsF fontMetrics(this->monospaceFont);
     lineHeight = fontMetrics.height();
-    charWidth = fontMetrics.width(QLatin1Char('F'));
+#if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
+    charWidth = fontMetrics.width('A');
+#else
+    charWidth = fontMetrics.horizontalAdvance('A');
+#endif
 
     updateCounts();
     updateAreasHeight();

@@ -24,7 +24,7 @@ class ClassesWidget;
 class ClassesModel : public QAbstractItemModel
 {
 public:
-    enum Columns { NAME = 0, TYPE, OFFSET, VTABLE, COUNT };
+    enum Columns { NAME = 0, REAL_NAME, TYPE, OFFSET, VTABLE, COUNT };
 
     /**
      * @brief values for TypeRole data
@@ -61,6 +61,14 @@ public:
      */
     static const int VTableRole = Qt::UserRole + 3;
 
+    /**
+     * @brief Real Name role of data for QModelIndex
+     *
+     * will contain values of QString, used for sorting,
+     * as well as identifying classes and methods
+     */
+    static const int RealNameRole = Qt::UserRole + 4;
+
     explicit ClassesModel(QObject *parent = nullptr) : QAbstractItemModel(parent) {}
 
     QVariant headerData(int section, Qt::Orientation orientation,
@@ -90,7 +98,7 @@ public:
     void setClasses(const QList<BinClassDescription> &classes);
 };
 
-class AnalClassesModel : public ClassesModel
+class AnalysisClassesModel : public ClassesModel
 {
     Q_OBJECT
 
@@ -145,7 +153,7 @@ private:
     QVariant data(const QModelIndex &index, int role) const override;
 
 public:
-    explicit AnalClassesModel(CutterDockWidget *parent);
+    explicit AnalysisClassesModel(CutterDockWidget *parent);
 
 public slots:
     void refreshAll();
@@ -198,7 +206,7 @@ private:
     std::unique_ptr<Ui::ClassesWidget> ui;
 
     BinClassesModel *bin_model = nullptr;
-    AnalClassesModel *analysis_model = nullptr;
+    AnalysisClassesModel *analysis_model = nullptr;
     ClassesSortFilterProxyModel *proxy_model;
 };
 

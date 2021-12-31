@@ -16,7 +16,7 @@ Please follow our contribution guidelines: https://cutter.re/docs/contributing.h
 
 ## Contributing to the documentation
 
-The documentation is something important for newcomers. As of today the documentation can be found [here](https://cutter.re/docs/) and it stands in the [docs](https://github.com/rizinorg/cutter/tree/master/docs) folder.
+The documentation is something important for newcomers. As of today the documentation can be found [here](https://cutter.re/docs/) and it stands in the [docs](docs) folder.
 The API Reference is automatically generated from the source code, so it is strongly advised to document your code.
 Check issues marked as "Documentation" on our issues [list](https://github.com/rizinorg/cutter/issues?q=is%3Aissue+is%3Aopen+label%3ADocumentation).
 

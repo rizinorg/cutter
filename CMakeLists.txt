@@ -34,7 +34,7 @@ endif()
 
 set(CUTTER_VERSION_MAJOR 2)
 set(CUTTER_VERSION_MINOR 0)
-set(CUTTER_VERSION_PATCH 1)
+set(CUTTER_VERSION_PATCH 5)
 
 set(CUTTER_VERSION_FULL "${CUTTER_VERSION_MAJOR}.${CUTTER_VERSION_MINOR}.${CUTTER_VERSION_PATCH}")
 
@@ -48,8 +48,8 @@ if(CUTTER_USE_BUNDLED_RIZIN)
     include(BundledRizin)
     set(RIZIN_TARGET Rizin)
 else()
-    find_package(Rizin REQUIRED)
-    set(RIZIN_TARGET Rizin::librz)
+    find_package(Rizin COMPONENTS Core REQUIRED)
+    set(RIZIN_TARGET Rizin::Core)
 endif()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -61,7 +61,11 @@ if (CUTTER_QT6)
 else()
     set(QT_PREFIX Qt5)
 endif()
+
 find_package(${QT_PREFIX} REQUIRED COMPONENTS Core Widgets Gui Svg Network)
+if (CUTTER_QT6)
+    find_package(${QT_PREFIX} REQUIRED COMPONENTS Core5Compat SvgWidgets OpenGLWidgets)
+endif()
 
 if(CUTTER_ENABLE_PYTHON)
     find_package(PythonInterp REQUIRED)

@@ -5,6 +5,7 @@
 #include <QFileInfo>
 #include <QApplication>
 #include <QDebug>
+#include <QStandardPaths>
 
 #ifdef APPIMAGE
 static QDir appimageRoot()
@@ -76,7 +77,7 @@ QString Cutter::writableLocation(QStandardPaths::StandardLocation type)
 
 QStringList Cutter::getTranslationsDirectories()
 {
-    auto result = locateAll(QStandardPaths::DataLocation, "translations",
+    auto result = locateAll(QStandardPaths::AppDataLocation, "translations",
                             QStandardPaths::LocateDirectory);
     result << QLibraryInfo::location(QLibraryInfo::TranslationsPath);
     return result;

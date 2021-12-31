@@ -128,6 +128,11 @@
            <string>Description</string>
           </property>
          </column>
+         <column>
+          <property name="text">
+           <string>License</string>
+          </property>
+         </column>
         </widget>
        </item>
       </layout>

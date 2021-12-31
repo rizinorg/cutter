@@ -88,16 +88,13 @@ void OverviewView::paintEvent(QPaintEvent *event)
 void OverviewView::mousePressEvent(QMouseEvent *event)
 {
     mouseActive = true;
-    if (rangeRect.contains(event->pos())) {
-        initialDiff = QPointF(event->localPos().x() - rangeRect.x(),
-                              event->localPos().y() - rangeRect.y());
+    auto pos = qhelpers::mouseEventPos(event);
+    if (rangeRect.contains(pos)) {
+        initialDiff = pos - rangeRect.topLeft();
     } else {
-        qreal w = rangeRect.width();
-        qreal h = rangeRect.height();
-        qreal x = event->localPos().x() - w / 2;
-        qreal y = event->localPos().y() - h / 2;
-        rangeRect = QRectF(x, y, w, h);
-        initialDiff = QPointF(w / 2, h / 2);
+        QPointF size(rangeRect.width(), rangeRect.height());
+        initialDiff = size * 0.5;
+        rangeRect.moveCenter(pos);
         viewport()->update();
         emit mouseMoved();
     }
@@ -114,9 +111,8 @@ void OverviewView::mouseMoveEvent(QMouseEvent *event)
     if (!mouseActive) {
         return;
     }
-    qreal x = event->localPos().x() - initialDiff.x();
-    qreal y = event->localPos().y() - initialDiff.y();
-    rangeRect = QRectF(x, y, rangeRect.width(), rangeRect.height());
+    QPointF topLeft = qhelpers::mouseEventPos(event) - initialDiff;
+    rangeRect.setTopLeft(topLeft);
     viewport()->update();
     emit mouseMoved();
 }

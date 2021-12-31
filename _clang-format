@@ -66,6 +66,7 @@ ForEachMacros:
   - Q_FOREVER
   - QBENCHMARK
   - QBENCHMARK_ONCE
+  - CutterRzListForeach
 IncludeBlocks:   Preserve
 IncludeCategories: 
   - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'

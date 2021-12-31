@@ -59,10 +59,9 @@ class StringsProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
 
-    friend StringsWidget;
-
 public:
     StringsProxyModel(StringsModel *sourceModel, QObject *parent = nullptr);
+    void setSelectedSection(QString section);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;

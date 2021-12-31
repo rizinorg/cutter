@@ -9,19 +9,19 @@
 class PreferencesDialog;
 
 namespace Ui {
-class AnalOptionsWidget;
+class AnalysisOptionsWidget;
 }
 
-class AnalOptionsWidget : public QDialog
+class AnalysisOptionsWidget : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit AnalOptionsWidget(PreferencesDialog *dialog);
-    ~AnalOptionsWidget();
+    explicit AnalysisOptionsWidget(PreferencesDialog *dialog);
+    ~AnalysisOptionsWidget();
 
 private:
-    std::unique_ptr<Ui::AnalOptionsWidget> ui;
+    std::unique_ptr<Ui::AnalysisOptionsWidget> ui;
     struct ConfigCheckbox
     {
         QCheckBox *checkBox;
@@ -33,14 +33,14 @@ private:
      * @brief This function creates the list with the different options shown in the selector for
      * analysis.in
      */
-    void createAnalInOptionsList();
+    void createAnalysisInOptionsList();
 
 private slots:
     /**
      * @brief A slot to display the options in the dialog according to the current analysis.*
      * configuration
      */
-    void updateAnalOptionsFromVars();
+    void updateAnalysisOptionsFromVars();
 
     /**
      * @brief A generic slot to handle the simple cases where a checkbox is toggled
@@ -54,20 +54,20 @@ private slots:
      * @brief A slot to update the value of analysis.in when a different option is selected
      * @param index - The index of the selected option for analysis.in
      */
-    void updateAnalIn(int index);
+    void updateAnalysisIn(int index);
 
     /**
      * @brief A slot to update the value of analysis.ptrdepth when a new value is selected
      * @param value - The new value for analysis.ptrdepth
      */
-    static void updateAnalPtrDepth(int value);
+    static void updateAnalysisPtrDepth(int value);
 
     /**
      * @brief slot to update the value of analysis.prelude when a new value is introduced in the
      * corresponding textbox
      * @param prelude - The new value for analysis.prelude
      */
-    static void updateAnalPrelude(const QString &prelude);
+    static void updateAnalysisPrelude(const QString &prelude);
 };
 
 #endif // ANALOPTIONSWIDGET_H

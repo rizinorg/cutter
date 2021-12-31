@@ -20,7 +20,7 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
 
     connect(actionCopyAddress, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionCopyAddress);
-    actionCopyAddress->setShortcuts({ Qt::CTRL + Qt::SHIFT + Qt::Key_C });
+    actionCopyAddress->setShortcuts({ Qt::CTRL | Qt::SHIFT | Qt::Key_C });
     actionCopyAddress->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     connect(actionShowXrefs, &QAction::triggered, this,
@@ -76,7 +76,7 @@ void AddressableItemContextMenu::clearTarget()
 void AddressableItemContextMenu::onActionCopyAddress()
 {
     auto clipboard = QApplication::clipboard();
-    clipboard->setText(RAddressString(offset));
+    clipboard->setText(RzAddressString(offset));
 }
 
 void AddressableItemContextMenu::onActionShowXrefs()
@@ -85,7 +85,7 @@ void AddressableItemContextMenu::onActionShowXrefs()
     XrefsDialog dialog(mainWindow, true);
     QString tmpName = name;
     if (name.isEmpty()) {
-        name = RAddressString(offset);
+        name = RzAddressString(offset);
     }
     dialog.fillRefsForAddress(offset, name, wholeFunction);
     dialog.exec();

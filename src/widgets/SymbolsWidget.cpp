@@ -32,7 +32,7 @@ QVariant SymbolsModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case SymbolsModel::AddressColumn:
-            return RAddressString(symbol.vaddr);
+            return RzAddressString(symbol.vaddr);
         case SymbolsModel::TypeColumn:
             return QString("%1 %2").arg(symbol.bind, symbol.type).trimmed();
         case SymbolsModel::NameColumn:
@@ -94,7 +94,7 @@ bool SymbolsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) con
     QModelIndex index = sourceModel()->index(row, 0, parent);
     auto symbol = index.data(SymbolsModel::SymbolDescriptionRole).value<SymbolDescription>();
 
-    return symbol.name.contains(filterRegExp());
+    return qhelpers::filterStringContains(symbol.name, this);
 }
 
 bool SymbolsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

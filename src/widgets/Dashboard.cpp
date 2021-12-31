@@ -62,7 +62,7 @@ void Dashboard::updateContents()
         setPlainText(this->ui->relroEdit, "N/A");
     }
 
-    setPlainText(this->ui->baddrEdit, RAddressString(item2["baddr"].toVariant().toULongLong()));
+    setPlainText(this->ui->baddrEdit, RzAddressString(item2["baddr"].toVariant().toULongLong()));
 
     // set booleans
     setBool(this->ui->vaEdit, item2, "va");
@@ -75,8 +75,9 @@ void Dashboard::updateContents()
     setBool(this->ui->relocsEdit, item2, "relocs");
 
     // Add file hashes, analysis info and libraries
-
-    QJsonObject hashes = Core()->cmdj("itj").object();
+    RzCoreLocked core(Core());
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    RzList *hashes = rz_bin_file_compute_hashes(core->bin, bf, UT64_MAX);
 
     // Delete hashesWidget if it isn't null to avoid duplicate components
     if (hashesWidget) {
@@ -90,14 +91,16 @@ void Dashboard::updateContents()
     ui->hashesVerticalLayout->addWidget(hashesWidget);
 
     // Add hashes as a pair of Hash Name : Hash Value.
-    for (const QString &key : hashes.keys()) {
+    RzListIter *iter;
+    RzBinFileHash *hash;
+    CutterRzListForeach (hashes, iter, RzBinFileHash, hash) {
         // Create a bold QString with the hash name uppercased
-        QString label = QString("<b>%1:</b>").arg(key.toUpper());
+        QString label = QString("<b>%1:</b>").arg(QString(hash->type).toUpper());
 
         // Define a Read-Only line edit to display the hash value
         QLineEdit *hashLineEdit = new QLineEdit();
         hashLineEdit->setReadOnly(true);
-        hashLineEdit->setText(hashes.value(key).toString());
+        hashLineEdit->setText(hash->hex);
 
         // Set cursor position to begining to avoid long hashes (e.g sha256)
         // to look truncated at the begining
@@ -105,23 +108,6 @@ void Dashboard::updateContents()
 
         // Add both controls to a form layout in a single row
         hashesLayout->addRow(new QLabel(label), hashLineEdit);
-    }
-
-    // Add the Entropy value of the file to the dashboard
-    {
-        // Scope for TempConfig
-        TempConfig tempConfig;
-        tempConfig.set("io.va", false);
-
-        // Calculate the Entropy of the entire binary from offset 0 to $s
-        // where $s is the size of the entire file
-        QString entropy = Core()->cmdRawAt("ph entropy $s", 0).trimmed();
-
-        // Define a Read-Only line edit to display the entropy value
-        QLineEdit *entropyLineEdit = new QLineEdit();
-        entropyLineEdit->setReadOnly(true);
-        entropyLineEdit->setText(entropy);
-        hashesLayout->addRow(new QLabel(tr("<b>Entropy:</b>")), entropyLineEdit);
     }
 
     QJsonObject analinfo = Core()->cmdj("aaij").object();

@@ -168,6 +168,17 @@ public:
     void setGraphMinFontSize(int sz) { s.setValue("graph.minfontsize", sz); }
 
     /**
+     * @brief Get the boolean setting for preview in Graph
+     * @return True if preview checkbox is checked, false otherwise
+     */
+    bool getGraphPreview() { return s.value("graph.preview").toBool(); }
+    /**
+     * @brief Set the boolean setting for preview in Graph
+     * @param checked is a boolean that represents the preview checkbox
+     */
+    void setGraphPreview(bool checked) { s.setValue("graph.preview", checked); }
+
+    /**
      * @brief Getters and setters for the transaparent option state and scale factor for bitmap
      * graph exports.
      */
@@ -200,6 +211,9 @@ public:
      */
     void setOutputRedirectionEnabled(bool enabled);
     bool getOutputRedirectionEnabled() const;
+
+    void setPreviewValue(bool checked);
+    bool getPreviewValue() const;
 
     /**
      * @brief Recently opened binaries, as shown in NewFileDialog.

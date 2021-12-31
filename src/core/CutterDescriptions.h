@@ -194,6 +194,7 @@ struct RzCorePluginDescription
 {
     QString name;
     QString description;
+    QString license;
 };
 
 struct RzAsmPluginDescription
@@ -244,21 +245,22 @@ struct BinClassDescription
     QList<BinClassFieldDescription> fields;
 };
 
-struct AnalMethodDescription
+struct AnalysisMethodDescription
 {
     QString name;
+    QString realName;
     RVA addr;
     st64 vtableOffset;
 };
 
-struct AnalBaseClassDescription
+struct AnalysisBaseClassDescription
 {
     QString id;
     RVA offset;
     QString className;
 };
 
-struct AnalVTableDescription
+struct AnalysisVTableDescription
 {
     QString id;
     ut64 offset;
@@ -364,6 +366,25 @@ struct RegisterRefValueDescription
     QString ref;
 };
 
+struct Chunk
+{
+    RVA offset;
+    QString status;
+    int size;
+};
+
+struct Arena
+{
+    RVA offset;
+    QString type;
+    ut64 top;
+    ut64 last_remainder;
+    ut64 next;
+    ut64 next_free;
+    ut64 system_mem;
+    ut64 max_system_mem;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -385,9 +406,9 @@ Q_DECLARE_METATYPE(BinClassDescription)
 Q_DECLARE_METATYPE(const BinClassDescription *)
 Q_DECLARE_METATYPE(const BinClassMethodDescription *)
 Q_DECLARE_METATYPE(const BinClassFieldDescription *)
-Q_DECLARE_METATYPE(AnalBaseClassDescription)
-Q_DECLARE_METATYPE(AnalMethodDescription)
-Q_DECLARE_METATYPE(AnalVTableDescription)
+Q_DECLARE_METATYPE(AnalysisBaseClassDescription)
+Q_DECLARE_METATYPE(AnalysisMethodDescription)
+Q_DECLARE_METATYPE(AnalysisVTableDescription)
 Q_DECLARE_METATYPE(ResourcesDescription)
 Q_DECLARE_METATYPE(VTableDescription)
 Q_DECLARE_METATYPE(TypeDescription)

@@ -15,6 +15,7 @@
 #include <QErrorMessage>
 #include <QMutex>
 #include <QDir>
+#include <functional>
 
 class AsyncTaskManager;
 class BasicInstructionHighlighter;
@@ -113,6 +114,14 @@ public:
     QString cmdRawAt(const QString &str, RVA address)
     {
         return cmdRawAt(str.toUtf8().constData(), address);
+    }
+
+    void applyAtSeek(std::function<void()> fn, RVA address)
+    {
+        RVA oldOffset = getOffset();
+        seekSilent(address);
+        fn();
+        seekSilent(oldOffset);
     }
 
     QJsonDocument cmdj(const char *str);
@@ -260,17 +269,18 @@ public:
     void applyStructureOffset(const QString &structureOffset, RVA offset = RVA_INVALID);
 
     /* Classes */
-    QList<QString> getAllAnalClasses(bool sorted);
-    QList<AnalMethodDescription> getAnalClassMethods(const QString &cls);
-    QList<AnalBaseClassDescription> getAnalClassBaseClasses(const QString &cls);
-    QList<AnalVTableDescription> getAnalClassVTables(const QString &cls);
+    QList<QString> getAllAnalysisClasses(bool sorted);
+    QList<AnalysisMethodDescription> getAnalysisClassMethods(const QString &cls);
+    QList<AnalysisBaseClassDescription> getAnalysisClassBaseClasses(const QString &cls);
+    QList<AnalysisVTableDescription> getAnalysisClassVTables(const QString &cls);
     void createNewClass(const QString &cls);
     void renameClass(const QString &oldName, const QString &newName);
     void deleteClass(const QString &cls);
-    bool getAnalMethod(const QString &cls, const QString &meth, AnalMethodDescription *desc);
-    void renameAnalMethod(const QString &className, const QString &oldMethodName,
-                          const QString &newMethodName);
-    void setAnalMethod(const QString &cls, const AnalMethodDescription &meth);
+    bool getAnalysisMethod(const QString &cls, const QString &meth,
+                           AnalysisMethodDescription *desc);
+    void renameAnalysisMethod(const QString &className, const QString &oldMethodName,
+                              const QString &newMethodName);
+    void setAnalysisMethod(const QString &cls, const AnalysisMethodDescription &meth);
 
     /* File related methods */
     bool loadFile(QString path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = RZ_PERM_R,
@@ -278,7 +288,6 @@ public:
     bool tryFile(QString path, bool rw);
     bool mapFile(QString path, RVA mapaddr);
     void loadScript(const QString &scriptname);
-    QJsonArray getOpenedFiles();
 
     /* Seek functions */
     void seek(QString thing);
@@ -397,6 +406,42 @@ public:
      */
     QJsonDocument getChildProcesses(int pid);
     QJsonDocument getBacktrace();
+    /**
+     * @brief Get a list of heap chunks
+     * Uses RZ_API rz_heap_chunks_list to get vector of chunks
+     * If arena_addr is zero return the chunks for main arena
+     * @param arena_addr base address for the arena
+     * @return Vector of heap chunks for the given arena
+     */
+    QVector<Chunk> getHeapChunks(RVA arena_addr);
+
+    /**
+     * @brief Get a list of heap arenas
+     * Uses RZ_API rz_heap_arenas_list to get list of arenas
+     * @return Vector of arenas
+     */
+    QVector<Arena> getArenas();
+
+    /**
+     * @brief Get detailed information about a heap chunk
+     * Uses RZ_API rz_heap_chunk
+     * @return RzHeapChunkSimple struct pointer for the heap chunk
+     */
+    RzHeapChunkSimple *getHeapChunk(ut64 addr);
+    /**
+     * @brief Get heap bins of an arena with given base address
+     * (including large, small, fast, unsorted, tcache)
+     * @param arena_addr Base address of the arena
+     * @return QVector of non empty RzHeapBin pointers
+     */
+    QVector<RzHeapBin *> getHeapBins(ut64 arena_addr);
+    /**
+     * @brief Write the given chunk header to memory
+     * @param chunkSimple RzHeapChunkSimple pointer of the chunk to be written
+     * @return true if the write succeeded else false
+     */
+    bool writeHeapChunk(RzHeapChunkSimple *chunkSimple);
+    int getArchBits();
     void startDebug();
     void startEmulation();
     /**
@@ -456,6 +501,7 @@ public:
     bool currentlyDebugging = false;
     bool currentlyEmulating = false;
     bool currentlyTracing = false;
+    bool currentlyRemoteDebugging = false;
     int currentlyAttachedToPID = -1;
     QString currentlyOpenFile;
 
@@ -495,10 +541,10 @@ public:
 
     /* Plugins */
     QStringList getAsmPluginNames();
-    QStringList getAnalPluginNames();
+    QStringList getAnalysisPluginNames();
 
     /* Widgets */
-    QList<RzBinPluginDescription> getRBinPluginDescriptions(const QString &type = QString());
+    QList<RzBinPluginDescription> getBinPluginDescriptions(bool bin = true, bool xtr = true);
     QList<RzIOPluginDescription> getRIOPluginDescriptions();
     QList<RzCorePluginDescription> getRCorePluginDescriptions();
     QList<RzAsmPluginDescription> getRAsmPluginDescriptions();
@@ -553,23 +599,10 @@ public:
 
     /**
      * @brief Fetching the C representation of a given Type
-     * @param name - the name or the type of the given Type / Struct
-     * @param category - the category of the given Type (Struct, Union, Enum, ...)
+     * @param name - the name or the type of the given Type
      * @return The type decleration as C output
      */
-    QString getTypeAsC(QString name, QString category);
-
-    /**
-     * @brief Adds new types
-     * It first uses the rz_parse_c_string() function from Rizin API to parse the
-     * supplied C file (in the form of a string). If there were errors, they are displayed.
-     * If there were no errors, it uses sdb_query_lines() function from Rizin API
-     * to save the parsed types returned by rz_parse_c_string()
-     * \param str Contains the definition of the data types
-     * \return returns an empty QString if there was no error, else returns the error
-     */
-    QString addTypes(const char *str);
-    QString addTypes(const QString &str) { return addTypes(str.toUtf8().constData()); }
+    QString getTypeAsC(QString name);
 
     /**
      * @brief Checks if the given address is mapped to a region
@@ -751,6 +784,7 @@ private:
     RizinTaskDialog *debugTaskDialog;
 
     QVector<QString> getCutterRCFilePaths() const;
+    QList<TypeDescription> getBaseType(RzBaseTypeKind kind, const char *category);
 };
 
 class CUTTER_EXPORT RzCoreLocked

@@ -90,7 +90,7 @@ bool RegisterRefProxyModel::filterAcceptsRow(int row, const QModelIndex &parent)
     QModelIndex index = sourceModel()->index(row, 0, parent);
     RegisterRefDescription item = index.data(RegisterRefModel::RegisterRefDescriptionRole)
                                           .value<RegisterRefDescription>();
-    return item.reg.contains(filterRegExp());
+    return qhelpers::filterStringContains(item.reg, this);
 }
 
 bool RegisterRefProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
@@ -189,7 +189,7 @@ void RegisterRefsWidget::refreshRegisterRef()
     for (const QJsonObject &reg : regRefs) {
         RegisterRefDescription desc;
 
-        desc.value = RAddressString(reg["value"].toVariant().toULongLong());
+        desc.value = RzAddressString(reg["value"].toVariant().toULongLong());
         desc.reg = reg["name"].toVariant().toString();
         desc.refDesc = Core()->formatRefDesc(reg["ref"].toObject());
 

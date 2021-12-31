@@ -2,7 +2,7 @@
 #include "core/MainWindow.h"
 
 #include <QEvent>
-#include <QtWidgets/QShortcut>
+#include <QShortcut>
 
 CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *) : CutterDockWidget(parent) {}
 

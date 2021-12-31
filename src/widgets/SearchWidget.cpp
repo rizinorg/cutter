@@ -57,9 +57,9 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case OFFSET:
-            return RAddressString(exp.offset);
+            return RzAddressString(exp.offset);
         case SIZE:
-            return RSizeString(exp.size);
+            return RzSizeString(exp.size);
         case CODE:
             return exp.code;
         case DATA:
@@ -145,7 +145,7 @@ bool SearchSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &pa
     QModelIndex index = sourceModel()->index(row, 0, parent);
     SearchDescription search =
             index.data(SearchModel::SearchDescriptionRole).value<SearchDescription>();
-    return search.code.contains(filterRegExp());
+    return qhelpers::filterStringContains(search.code, this);
 }
 
 bool SearchSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

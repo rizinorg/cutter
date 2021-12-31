@@ -45,7 +45,7 @@ void CallGraphView::showExportDialog()
     if (global) {
         defaultName = "global_callgraph";
     } else {
-        defaultName = QString("callgraph_%1").arg(RAddressString(address));
+        defaultName = QString("callgraph_%1").arg(RzAddressString(address));
     }
     showExportGraphDialog(defaultName, global ? "agC" : "agc", address);
 }
@@ -115,7 +115,7 @@ void CallGraphView::loadCurrentGraph()
         }
     }
     if (blockContent.empty() && !global) {
-        addBlock({}, RAddressString(address), address);
+        addBlock({}, RzAddressString(address), address);
     }
 
     addressMapping.clear();

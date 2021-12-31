@@ -6,6 +6,7 @@
 #include <QJsonArray>
 #include <QStandardPaths>
 #include <QRegularExpression>
+#include <rz_util/rz_path.h>
 
 #include "common/Configuration.h"
 
@@ -29,7 +30,7 @@ const QStringList ColorThemeWorker::rizinUnusedOptions = {
 
 ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject(parent)
 {
-    char *szThemes = rz_str_home(RZ_HOME_THEMES);
+    char *szThemes = rz_path_home_prefix(RZ_THEMES);
     customRzThemesLocationPath = szThemes;
     rz_mem_free(szThemes);
     if (!QDir(customRzThemesLocationPath).exists()) {
@@ -37,7 +38,7 @@ ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject(parent)
     }
 
     QDir currDir {
-        QStringLiteral("%1%2%3").arg(rz_sys_prefix(nullptr)).arg(RZ_SYS_DIR).arg(RZ_THEMES)
+        QStringLiteral("%1%2%3").arg(rz_path_prefix(nullptr)).arg(RZ_SYS_DIR).arg(RZ_THEMES)
     };
     if (currDir.exists()) {
         standardRzThemesLocationPath = currDir.absolutePath();
@@ -51,9 +52,9 @@ ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject(parent)
 
 QColor ColorThemeWorker::mergeColors(const QColor &upper, const QColor &lower) const
 {
-    qreal r1, g1, b1, a1;
-    qreal r2, g2, b2, a2;
-    qreal r, g, b, a;
+    qhelpers::ColorFloat r1, g1, b1, a1;
+    qhelpers::ColorFloat r2, g2, b2, a2;
+    qhelpers::ColorFloat r, g, b, a;
 
     upper.getRgbF(&r1, &g1, &b1, &a1);
     lower.getRgbF(&r2, &g2, &b2, &a2);
@@ -131,9 +132,10 @@ QJsonDocument ColorThemeWorker::getTheme(const QString &themeName) const
     QString curr = Config()->getColorTheme();
 
     if (themeName != curr) {
-        Core()->cmdRaw(QString("eco %1").arg(themeName));
+        RzCoreLocked core(Core());
+        rz_core_theme_load(core, themeName.toUtf8().constData());
         theme = Core()->cmdj("ecj").object().toVariantMap();
-        Core()->cmdRaw(QString("eco %1").arg(curr));
+        rz_core_theme_load(core, curr.toUtf8().constData());
     } else {
         theme = Core()->cmdj("ecj").object().toVariantMap();
     }

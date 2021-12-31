@@ -31,7 +31,7 @@ private:
     QList<TypeDescription> *types;
 
 public:
-    enum Columns { TYPE = 0, SIZE, FORMAT, CATEGORY, COUNT };
+    enum Columns { TYPE = 0, SIZE, CATEGORY, FORMAT, COUNT };
     static const int TypeDescriptionRole = Qt::UserRole;
 
     TypesModel(QList<TypeDescription> *types, QObject *parent = nullptr);
@@ -50,10 +50,9 @@ class TypesSortFilterProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 
-    friend TypesWidget;
-
 public:
     TypesSortFilterProxyModel(TypesModel *source_model, QObject *parent = nullptr);
+    void setCategory(QString category);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
@@ -82,7 +81,7 @@ private slots:
     /**
      * @brief Executed on clicking the Export Types option in the context menu
      * It shows the user a file dialog box to select a file where the types
-     * will be exported. It uses the "tc" command of Rizin to export the types.
+     * will be exported.
      */
     void on_actionExport_Types_triggered();
 
@@ -105,12 +104,6 @@ private slots:
      * Upon confirmation from the user, it will delete the selected type.
      */
     void on_actionDelete_Type_triggered();
-
-    /**
-     * @brief Executed on clicking the Link To Address option in the context menu
-     * Opens the LinkTypeDialog box from where the user can link a address to a type
-     */
-    void on_actionLink_Type_To_Address_triggered();
 
     /**
      * @brief triggers when the user double-clicks an item. This will open

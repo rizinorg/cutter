@@ -96,6 +96,16 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     bool varsubEnabled = Config()->getConfigBool("asm.sub.var");
     ui->varsubOnlyCheckBox->setEnabled(varsubEnabled);
 
+    ui->asmComboBox->blockSignals(true);
+    if (Config()->getConfigBool("asm.esil")) {
+        ui->asmComboBox->setCurrentIndex(1);
+    } else if (Config()->getConfigBool("asm.pseudo")) {
+        ui->asmComboBox->setCurrentIndex(2);
+    } else {
+        ui->asmComboBox->setCurrentIndex(0);
+    }
+    ui->asmComboBox->blockSignals(false);
+
     QString currentSyntax = Config()->getConfigString("asm.syntax");
     for (int i = 0; i < ui->syntaxComboBox->count(); i++) {
         if (ui->syntaxComboBox->itemData(i) == currentSyntax) {
@@ -123,6 +133,10 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     ui->asmTabsOffSpinBox->blockSignals(true);
     ui->asmTabsOffSpinBox->setValue(Config()->getConfigInt("asm.tabs.off"));
     ui->asmTabsOffSpinBox->blockSignals(false);
+
+    ui->previewCheckBox->blockSignals(true);
+    ui->previewCheckBox->setChecked(Config()->getPreviewValue());
+    ui->previewCheckBox->blockSignals(false);
 
     QList<ConfigCheckbox>::iterator confCheckbox;
 
@@ -225,6 +239,12 @@ void AsmOptionsWidget::on_varsubCheckBox_toggled(bool checked)
 {
     Config()->setConfig("asm.sub.var", checked);
     ui->varsubOnlyCheckBox->setEnabled(checked);
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::on_previewCheckBox_toggled( bool checked )
+{
+    Config()->setPreviewValue(checked);
     triggerAsmOptionsChanged();
 }
 

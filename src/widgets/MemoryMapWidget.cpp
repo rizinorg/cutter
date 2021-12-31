@@ -30,9 +30,9 @@ QVariant MemoryMapModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case AddrStartColumn:
-            return RAddressString(memoryMap.addrStart);
+            return RzAddressString(memoryMap.addrStart);
         case AddrEndColumn:
-            return RAddressString(memoryMap.addrEnd);
+            return RzAddressString(memoryMap.addrEnd);
         case NameColumn:
             return memoryMap.name;
         case PermColumn:
@@ -88,7 +88,7 @@ bool MemoryProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) cons
     QModelIndex index = sourceModel()->index(row, 0, parent);
     MemoryMapDescription item =
             index.data(MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
-    return item.name.contains(filterRegExp());
+    return qhelpers::filterStringContains(item.name, this);
 }
 
 bool MemoryProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

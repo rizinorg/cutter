@@ -20,8 +20,13 @@ set(TS_FILES
 # translations/pt-BR/cutter_pt.ts #2321 handling multiple versions of a language
 
 set_source_files_properties(${TS_FILES} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translations)
-find_package(Qt5LinguistTools REQUIRED)
-qt5_add_translation(qmFiles ${TS_FILES})
+if (CUTTER_QT6)
+    find_package(Qt6LinguistTools REQUIRED)
+    qt6_add_translation(qmFiles ${TS_FILES})
+else()
+    find_package(Qt5LinguistTools REQUIRED)
+    qt5_add_translation(qmFiles ${TS_FILES})
+endif()
 add_custom_target(translations ALL DEPENDS ${qmFiles} SOURCES ${TS_FILES})
 
 install(FILES

@@ -8,6 +8,7 @@ set(SOURCES
     dialogs/WriteCommandsDialogs.cpp
     widgets/DisassemblerGraphView.cpp
     widgets/OverviewView.cpp
+    common/DisassemblyPreview.cpp
     common/RichTextPainter.cpp
     dialogs/InitialOptionsDialog.cpp
     dialogs/AboutDialog.cpp
@@ -24,7 +25,7 @@ set(SOURCES
     common/DirectionalComboBox.cpp
     dialogs/preferences/AsmOptionsWidget.cpp
     dialogs/NewFileDialog.cpp
-    common/AnalTask.cpp
+    common/AnalysisTask.cpp
     widgets/CommentsWidget.cpp
     widgets/ConsoleWidget.cpp
     widgets/Dashboard.cpp
@@ -109,7 +110,6 @@ set(SOURCES
     plugins/PluginManager.cpp
     common/BasicBlockHighlighter.cpp
     common/BasicInstructionHighlighter.cpp
-    dialogs/LinkTypeDialog.cpp
     widgets/ColorPicker.cpp
     common/ColorThemeWorker.cpp
     widgets/ColorThemeComboBox.cpp
@@ -139,8 +139,14 @@ set(SOURCES
     widgets/RizinGraphWidget.cpp
     widgets/CallGraph.cpp
     widgets/AddressableDockWidget.cpp
-    dialogs/preferences/AnalOptionsWidget.cpp
+    dialogs/preferences/AnalysisOptionsWidget.cpp
     common/DecompilerHighlighter.cpp
+    dialogs/GlibcHeapInfoDialog.cpp
+    widgets/HeapDockWidget.cpp
+    widgets/GlibcHeapWidget.cpp
+    dialogs/GlibcHeapBinsDialog.cpp
+    widgets/HeapBinsGraphView.cpp
+    dialogs/ArenaInfoDialog.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -167,7 +173,7 @@ set(HEADER_FILES
     common/DirectionalComboBox.h
     dialogs/InitialOptionsDialog.h
     dialogs/NewFileDialog.h
-    common/AnalTask.h
+    common/AnalysisTask.h
     widgets/CommentsWidget.h
     widgets/ConsoleWidget.h
     widgets/Dashboard.h
@@ -265,7 +271,6 @@ set(HEADER_FILES
     widgets/MemoryDockWidget.h
     widgets/ColorThemeListView.h
     dialogs/preferences/ColorThemeEditDialog.h
-    dialogs/LinkTypeDialog.h
     common/BugReporting.h
     common/HighDpiPixmap.h
     widgets/GraphLayout.h
@@ -292,8 +297,14 @@ set(HEADER_FILES
     widgets/RizinGraphWidget.h
     widgets/CallGraph.h
     widgets/AddressableDockWidget.h
-    dialogs/preferences/AnalOptionsWidget.h
+    dialogs/preferences/AnalysisOptionsWidget.h
     common/DecompilerHighlighter.h
+    dialogs/GlibcHeapInfoDialog.h
+    widgets/HeapDockWidget.h
+    widgets/GlibcHeapWidget.h
+    dialogs/GlibcHeapBinsDialog.h
+    widgets/HeapBinsGraphView.h
+    dialogs/ArenaInfoDialog.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -353,13 +364,17 @@ set(UI_FILES
     dialogs/EditMethodDialog.ui
     dialogs/TypesInteractionDialog.ui
     widgets/SdbWidget.ui
-    dialogs/LinkTypeDialog.ui
     widgets/ColorPicker.ui
     dialogs/preferences/ColorThemeEditDialog.ui
     widgets/ListDockWidget.ui
     dialogs/LayoutManager.ui
     widgets/RizinGraphWidget.ui
-    dialogs/preferences/AnalOptionsWidget.ui
+    dialogs/preferences/AnalysisOptionsWidget.ui
+    dialogs/GlibcHeapInfoDialog.ui
+    widgets/HeapDockWidget.ui
+    widgets/GlibcHeapWidget.ui
+    dialogs/GlibcHeapBinsDialog.ui
+    dialogs/ArenaInfoDialog.ui
 )
 set(QRC_FILES
     resources.qrc
@@ -412,6 +427,7 @@ endif()
 
 if (WIN32)
     set(PLATFORM_RESOURCES "img/cutter.rc")
+    set(OPTIONS WIN32)
 else()
     set(PLATFORM_RESOURCES "")
 endif()
@@ -423,7 +439,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
 endif()
 
 
-add_executable(Cutter ${UI_FILES} ${QRC_FILES} ${PLATFORM_RESOURCES} ${SOURCES} ${HEADER_FILES} ${BINDINGS_SOURCE})
+add_executable(Cutter ${OPTIONS} ${UI_FILES} ${QRC_FILES} ${PLATFORM_RESOURCES} ${SOURCES} ${HEADER_FILES} ${BINDINGS_SOURCE})
 set_target_properties(Cutter PROPERTIES
         OUTPUT_NAME cutter
         RUNTIME_OUTPUT_DIRECTORY ..
@@ -459,6 +475,11 @@ if(CUTTER_ENABLE_CRASH_REPORTS)
 endif()
 
 target_link_libraries(Cutter PUBLIC ${QT_PREFIX}::Core ${QT_PREFIX}::Widgets ${QT_PREFIX}::Gui PRIVATE  ${QT_PREFIX}::Svg ${QT_PREFIX}::Network)
+if (CUTTER_QT6)
+    target_link_libraries(Cutter PUBLIC Qt6::Core5Compat Qt6::SvgWidgets)
+    target_link_libraries(Cutter PRIVATE Qt6::OpenGLWidgets)
+endif()
+
 target_link_libraries(Cutter PUBLIC ${RIZIN_TARGET})
 if(CUTTER_ENABLE_PYTHON)
     if (WIN32)

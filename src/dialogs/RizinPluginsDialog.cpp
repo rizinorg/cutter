@@ -10,7 +10,7 @@ RizinPluginsDialog::RizinPluginsDialog(QWidget *parent)
 {
     ui->setupUi(this);
 
-    for (const auto &plugin : Core()->getRBinPluginDescriptions()) {
+    for (const auto &plugin : Core()->getBinPluginDescriptions()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, plugin.name);
         item->setText(1, plugin.description);
@@ -36,6 +36,7 @@ RizinPluginsDialog::RizinPluginsDialog(QWidget *parent)
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, plugin.name);
         item->setText(1, plugin.description);
+        item->setText(2, plugin.license);
         ui->RzCoreTreeWidget->addTopLevelItem(item);
     }
     ui->RzCoreTreeWidget->sortByColumn(0, Qt::AscendingOrder);

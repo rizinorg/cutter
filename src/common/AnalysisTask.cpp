@@ -1,32 +1,33 @@
 #include "core/Cutter.h"
-#include "common/AnalTask.h"
+#include "common/AnalysisTask.h"
 #include "core/MainWindow.h"
 #include "dialogs/InitialOptionsDialog.h"
 #include <QJsonArray>
 #include <QDebug>
 #include <QCheckBox>
 
-AnalTask::AnalTask() : AsyncTask() {}
+AnalysisTask::AnalysisTask() : AsyncTask() {}
 
-AnalTask::~AnalTask() {}
+AnalysisTask::~AnalysisTask() {}
 
-void AnalTask::interrupt()
+void AnalysisTask::interrupt()
 {
     AsyncTask::interrupt();
     rz_cons_singleton()->context->breaked = true;
 }
 
-QString AnalTask::getTitle()
+QString AnalysisTask::getTitle()
 {
     // If no file is loaded we consider it's Initial Analysis
-    QJsonArray openedFiles = Core()->getOpenedFiles();
-    if (!openedFiles.size()) {
+    RzCoreLocked core(Core());
+    RzList *descs = rz_id_storage_list(core->io->files);
+    if (rz_list_empty(descs)) {
         return tr("Initial Analysis");
     }
     return tr("Analyzing Program");
 }
 
-void AnalTask::runTask()
+void AnalysisTask::runTask()
 {
     int perms = RZ_PERM_RX;
     if (options.writeEnabled) {
@@ -38,8 +39,9 @@ void AnalTask::runTask()
     Core()->setConfig("bin.demangle", options.demangle);
 
     // Do not reload the file if already loaded
-    QJsonArray openedFiles = Core()->getOpenedFiles();
-    if (!openedFiles.size() && options.filename.length()) {
+    RzCoreLocked core(Core());
+    RzList *descs = rz_id_storage_list(core->io->files);
+    if (rz_list_empty(descs) && options.filename.length()) {
         log(tr("Loading the file..."));
         openFailed = false;
         bool fileLoaded =
@@ -62,7 +64,8 @@ void AnalTask::runTask()
     }
 
     if (!options.os.isNull()) {
-        Core()->cmdRaw("e asm.os=" + options.os);
+        RzCoreLocked core(Core());
+        rz_config_set(core->config, "asm.os", options.os.toUtf8().constData());
     }
 
     if (!options.pdbFile.isNull()) {
@@ -94,9 +97,9 @@ void AnalTask::runTask()
         return;
     }
 
-    if (!options.analCmd.empty()) {
+    if (!options.analysisCmd.empty()) {
         log(tr("Executing analysis..."));
-        for (const CommandDescription &cmd : options.analCmd) {
+        for (const CommandDescription &cmd : options.analysisCmd) {
             if (isInterrupted()) {
                 return;
             }

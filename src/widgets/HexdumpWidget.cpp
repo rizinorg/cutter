@@ -244,16 +244,27 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
                                       : "");
     } else {
         // Fill the information tab hashes and entropy
-        ui->bytesMD5->setText(
-                Core()->cmdRawAt(QString("ph md5 %1").arg(size), start_address).trimmed());
-        ui->bytesSHA1->setText(
-                Core()->cmdRawAt(QString("ph sha1 %1").arg(size), start_address).trimmed());
-        ui->bytesSHA256->setText(
-                Core()->cmdRawAt(QString("ph sha256 %1").arg(size), start_address).trimmed());
-        ui->bytesCRC32->setText(
-                Core()->cmdRawAt(QString("ph crc32 %1").arg(size), start_address).trimmed());
-        ui->bytesEntropy->setText(
-                Core()->cmdRawAt(QString("ph entropy %1").arg(size), start_address).trimmed());
+        RzMsgDigestSize digest_size = 0;
+        RzCoreLocked core(Core());
+        ut64 old_offset = core->offset;
+        rz_core_seek(core, start_address, true);
+        ut8 *block = core->block;
+        char *digest = rz_msg_digest_calculate_small_block_string("md5", block, size, &digest_size, false);
+        ui->bytesMD5->setText(QString(digest));
+        free(digest);
+        digest = rz_msg_digest_calculate_small_block_string("sha1", block, size, &digest_size, false);
+        ui->bytesSHA1->setText(QString(digest));
+        free(digest);
+        digest = rz_msg_digest_calculate_small_block_string("sha256", block, size, &digest_size, false);
+        ui->bytesSHA256->setText(QString(digest));
+        free(digest);
+        digest = rz_msg_digest_calculate_small_block_string("crc32", block, size, &digest_size, false);
+        ui->bytesCRC32->setText(QString(digest));
+        free(digest);
+        digest = rz_msg_digest_calculate_small_block_string("entropy", block, size, &digest_size, false);
+        ui->bytesEntropy->setText(QString(digest));
+        free(digest);
+        rz_core_seek(core, old_offset, true);
         ui->bytesMD5->setCursorPosition(0);
         ui->bytesSHA1->setCursorPosition(0);
         ui->bytesSHA256->setCursorPosition(0);

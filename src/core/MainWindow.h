@@ -54,6 +54,7 @@ class DecompilerWidget;
 class OverviewWidget;
 class RizinGraphWidget;
 class CallGraphWidget;
+class HeapWidget;
 
 namespace Ui {
 class MainWindow;
@@ -259,6 +260,7 @@ private:
     RizinGraphWidget *rzGraphDock = nullptr;
     CallGraphWidget *callGraphDock = nullptr;
     CallGraphWidget *globalCallGraphDock = nullptr;
+    CutterDockWidget *heapDock = nullptr;
 
     QMenu *disassemblyContextMenuExtensions = nullptr;
     QMenu *addressableContextMenuExtensions = nullptr;

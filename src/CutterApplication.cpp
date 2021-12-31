@@ -43,10 +43,15 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 {
     // Setup application information
     setApplicationVersion(CUTTER_VERSION_FULL);
+#ifdef Q_OS_MACOS
+    setWindowIcon(QIcon(":/img/cutter_macos_simple.svg"));
+#else
     setWindowIcon(QIcon(":/img/cutter.svg"));
-    setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    setAttribute(Qt::AA_UseHighDpiPixmaps); // always enabled on Qt >= 6.0.0
+#endif
     setLayoutDirection(Qt::LeftToRight);
-
     // WARN!!! Put initialization code below this line. Code above this line is mandatory to be run
     // First
 
@@ -147,7 +152,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         }
         mainWindow->displayNewFileDialog();
     } else { // filename specified as positional argument
-        bool askOptions = (clOptions.analLevel != AutomaticAnalysisLevel::Ask)
+        bool askOptions = (clOptions.analysisLevel != AutomaticAnalysisLevel::Ask)
                 || !clOptions.fileOpenOptions.projectFile.isEmpty();
         mainWindow->openNewFile(clOptions.fileOpenOptions, askOptions);
     }
@@ -168,7 +173,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     }
 #endif
 
-#ifdef Q_OS_MACOS
+#if defined(Q_OS_MACOS) && defined(CUTTER_ENABLE_PACKAGING)
     {
         auto rzprefix = QDir(QCoreApplication::applicationDirPath()); // Contents/MacOS
         rzprefix.cdUp(); // Contents
@@ -178,21 +183,11 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         sleighHome.cd(
                 "share/rizin/plugins/rz_ghidra_sleigh"); // Contents/Resources/rz/share/rizin/plugins/rz_ghidra_sleigh
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
-
-#    ifdef CUTTER_BUNDLE_JSDEC
-        auto jsdecHome = rzprefix;
-        jsdecHome.cd(
-                "share/rizin/plugins/jsdec"); // Contents/Resources/rz/share/rizin/plugins/jsdec
-        qputenv("JSDEC_HOME", jsdecHome.absolutePath().toLocal8Bit());
-#    endif
     }
 #endif
 
 #if defined(Q_OS_WIN) && defined(CUTTER_ENABLE_PACKAGING)
     {
-#    ifdef CUTTER_BUNDLE_JSDEC
-        qputenv("JSDEC_HOME", "lib\\plugins\\jsdec");
-#    endif
         auto sleighHome = QDir(QCoreApplication::applicationDirPath());
         sleighHome.cd("lib/plugins/rz_ghidra_sleigh");
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
@@ -376,30 +371,30 @@ bool CutterApplication::parseCommandLineOptions()
     opts.args = cmd_parser.positionalArguments();
 
     if (cmd_parser.isSet(analOption)) {
-        bool analLevelSpecified = false;
-        int analLevel = cmd_parser.value(analOption).toInt(&analLevelSpecified);
+        bool analysisLevelSpecified = false;
+        int analysisLevel = cmd_parser.value(analOption).toInt(&analysisLevelSpecified);
 
-        if (!analLevelSpecified || analLevel < 0 || analLevel > 2) {
+        if (!analysisLevelSpecified || analysisLevel < 0 || analysisLevel > 2) {
             fprintf(stderr, "%s\n",
                     QObject::tr("Invalid Analysis Level. May be a value between 0 and 2.")
                             .toLocal8Bit()
                             .constData());
             return false;
         }
-        switch (analLevel) {
+        switch (analysisLevel) {
         case 0:
-            opts.analLevel = AutomaticAnalysisLevel::None;
+            opts.analysisLevel = AutomaticAnalysisLevel::None;
             break;
         case 1:
-            opts.analLevel = AutomaticAnalysisLevel::AAA;
+            opts.analysisLevel = AutomaticAnalysisLevel::AAA;
             break;
         case 2:
-            opts.analLevel = AutomaticAnalysisLevel::AAAA;
+            opts.analysisLevel = AutomaticAnalysisLevel::AAAA;
             break;
         }
     }
 
-    if (opts.args.empty() && opts.analLevel != AutomaticAnalysisLevel::Ask) {
+    if (opts.args.empty() && opts.analysisLevel != AutomaticAnalysisLevel::Ask) {
         fprintf(stderr, "%s\n",
                 QObject::tr("Filename must be specified to start analysis automatically.")
                         .toLocal8Bit()
@@ -418,17 +413,17 @@ bool CutterApplication::parseCommandLineOptions()
                 options.binLoadAddr = baddr;
             }
         }
-        switch (opts.analLevel) {
+        switch (opts.analysisLevel) {
         case AutomaticAnalysisLevel::Ask:
             break;
         case AutomaticAnalysisLevel::None:
-            opts.fileOpenOptions.analCmd = {};
+            opts.fileOpenOptions.analysisCmd = {};
             break;
         case AutomaticAnalysisLevel::AAA:
-            opts.fileOpenOptions.analCmd = { { "aaa", "Auto analysis" } };
+            opts.fileOpenOptions.analysisCmd = { { "aaa", "Auto analysis" } };
             break;
         case AutomaticAnalysisLevel::AAAA:
-            opts.fileOpenOptions.analCmd = { { "aaaa", "Auto analysis (experimental)" } };
+            opts.fileOpenOptions.analysisCmd = { { "aaaa", "Auto analysis (experimental)" } };
             break;
         }
         opts.fileOpenOptions.script = cmd_parser.value(scriptOption);

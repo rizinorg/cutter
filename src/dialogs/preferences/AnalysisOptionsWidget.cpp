@@ -1,5 +1,5 @@
-#include "AnalOptionsWidget.h"
-#include "ui_AnalOptionsWidget.h"
+#include "AnalysisOptionsWidget.h"
+#include "ui_AnalysisOptionsWidget.h"
 
 #include "PreferencesDialog.h"
 
@@ -8,7 +8,7 @@
 
 #include "core/MainWindow.h"
 
-static const QHash<QString, QString> analBoundaries {
+static const QHash<QString, QString> analysisBoundaries {
     { "io.maps.x", "All executable maps" },
     { "io.maps", "All maps" },
     { "io.map", "Current map" },
@@ -17,8 +17,8 @@ static const QHash<QString, QString> analBoundaries {
     { "bin.sections", "All mapped sections" },
 };
 
-AnalOptionsWidget::AnalOptionsWidget(PreferencesDialog *dialog)
-    : QDialog(dialog), ui(new Ui::AnalOptionsWidget)
+AnalysisOptionsWidget::AnalysisOptionsWidget(PreferencesDialog *dialog)
+    : QDialog(dialog), ui(new Ui::AnalysisOptionsWidget)
 {
     ui->setupUi(this);
 
@@ -31,7 +31,7 @@ AnalOptionsWidget::AnalOptionsWidget(PreferencesDialog *dialog)
                    { ui->verboseCheckBox, "analysis.verbose" } };
 
     // Create list of options for the analysis.in selector
-    createAnalInOptionsList();
+    createAnalysisInOptionsList();
 
     // Connect each checkbox from "checkboxes" to the generic signal "checkboxEnabler"
     for (ConfigCheckbox &confCheckbox : checkboxes) {
@@ -45,23 +45,23 @@ AnalOptionsWidget::AnalOptionsWidget(PreferencesDialog *dialog)
     auto *mainWindow = new MainWindow(this);
     connect(ui->analyzePushButton, &QPushButton::clicked, mainWindow,
             &MainWindow::on_actionAnalyze_triggered);
-    connect<void (QComboBox::*)(int)>(ui->analInComboBox, &QComboBox::currentIndexChanged, this,
-                                      &AnalOptionsWidget::updateAnalIn);
+    connect<void (QComboBox::*)(int)>(ui->analysisInComboBox, &QComboBox::currentIndexChanged, this,
+                                      &AnalysisOptionsWidget::updateAnalysisIn);
     connect<void (QSpinBox::*)(int)>(ui->ptrDepthSpinBox, &QSpinBox::valueChanged, this,
-                                     &AnalOptionsWidget::updateAnalPtrDepth);
+                                     &AnalysisOptionsWidget::updateAnalysisPtrDepth);
     connect(ui->preludeLineEdit, &QLineEdit::textChanged, this,
-            &AnalOptionsWidget::updateAnalPrelude);
-    updateAnalOptionsFromVars();
+            &AnalysisOptionsWidget::updateAnalysisPrelude);
+    updateAnalysisOptionsFromVars();
 }
 
-AnalOptionsWidget::~AnalOptionsWidget() {}
+AnalysisOptionsWidget::~AnalysisOptionsWidget() {}
 
-void AnalOptionsWidget::checkboxEnabler(QCheckBox *checkBox, const QString &config)
+void AnalysisOptionsWidget::checkboxEnabler(QCheckBox *checkBox, const QString &config)
 {
     Config()->setConfig(config, checkBox->isChecked());
 }
 
-void AnalOptionsWidget::updateAnalOptionsFromVars()
+void AnalysisOptionsWidget::updateAnalysisOptionsFromVars()
 {
     for (ConfigCheckbox &confCheckbox : checkboxes) {
         qhelpers::setCheckedWithoutSignals(confCheckbox.checkBox,
@@ -69,36 +69,36 @@ void AnalOptionsWidget::updateAnalOptionsFromVars()
     }
 
     // Update the rest of analysis options that are not checkboxes
-    ui->analInComboBox->setCurrentIndex(
-            ui->analInComboBox->findData(Core()->getConfig("analysis.in")));
+    ui->analysisInComboBox->setCurrentIndex(
+            ui->analysisInComboBox->findData(Core()->getConfig("analysis.in")));
     ui->ptrDepthSpinBox->setValue(Core()->getConfigi("analysis.ptrdepth"));
     ui->preludeLineEdit->setText(Core()->getConfig("analysis.prelude"));
 }
 
-void AnalOptionsWidget::updateAnalIn(int index)
+void AnalysisOptionsWidget::updateAnalysisIn(int index)
 {
-    Config()->setConfig("analysis.in", ui->analInComboBox->itemData(index).toString());
+    Config()->setConfig("analysis.in", ui->analysisInComboBox->itemData(index).toString());
 }
 
-void AnalOptionsWidget::updateAnalPtrDepth(int value)
+void AnalysisOptionsWidget::updateAnalysisPtrDepth(int value)
 {
     Config()->setConfig("analysis.ptrdepth", value);
 }
 
-void AnalOptionsWidget::updateAnalPrelude(const QString &prelude)
+void AnalysisOptionsWidget::updateAnalysisPrelude(const QString &prelude)
 {
     Config()->setConfig("analysis.prelude", prelude);
 }
 
-void AnalOptionsWidget::createAnalInOptionsList()
+void AnalysisOptionsWidget::createAnalysisInOptionsList()
 {
     QHash<QString, QString>::const_iterator mapIter;
 
-    mapIter = analBoundaries.cbegin();
-    ui->analInComboBox->blockSignals(true);
-    ui->analInComboBox->clear();
-    for (; mapIter != analBoundaries.cend(); ++mapIter) {
-        ui->analInComboBox->addItem(mapIter.value(), mapIter.key());
+    mapIter = analysisBoundaries.cbegin();
+    ui->analysisInComboBox->blockSignals(true);
+    ui->analysisInComboBox->clear();
+    for (; mapIter != analysisBoundaries.cend(); ++mapIter) {
+        ui->analysisInComboBox->addItem(mapIter.value(), mapIter.key());
     }
-    ui->analInComboBox->blockSignals(false);
+    ui->analysisInComboBox->blockSignals(false);
 }

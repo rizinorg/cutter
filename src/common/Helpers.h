@@ -23,6 +23,8 @@ class QAction;
 class QMenu;
 class QPaintDevice;
 class QComboBox;
+class QSortFilterProxyModel;
+class QMouseEvent;
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
 #    define CUTTER_QT_SKIP_EMPTY_PARTS QString::SkipEmptyParts
@@ -82,6 +84,19 @@ CUTTER_EXPORT void selectIndexByData(QComboBox *comboBox, QVariant data, int def
  * @param column - column in the model
  */
 CUTTER_EXPORT void emitColumnChanged(QAbstractItemModel *model, int column);
+
+CUTTER_EXPORT bool filterStringContains(const QString &string, const QSortFilterProxyModel *model);
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+using ColorFloat = float;
+using KeyComb = QKeyCombination;
+#else
+using ColorFloat = qreal;
+using KeyComb = int;
+#endif
+
+CUTTER_EXPORT QPointF mouseEventPos(QMouseEvent *ev);
+CUTTER_EXPORT QPoint mouseEventGlobalPos(QMouseEvent *ev);
 
 } // qhelpers
 

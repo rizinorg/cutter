@@ -6,7 +6,7 @@ Building
  If you just want to use the latest Release version of Cutter, please note
  that we provide pre-compiled binaries for Windows, Linux, and macOS on
  our `release page <https://github.com/rizinorg/cutter/releases/latest>`_ and
- `CI page <https://nightly.link/rizinorg/cutter/workflows/ccpp/master>`_ for latest development builds.
+ `CI page <https://nightly.link/rizinorg/cutter/workflows/ccpp/dev>`_ for latest development builds.
 
 This page describes how to do a basic build from the command line. If you are planning to modify Cutter it is recommended to also read our :doc:`development environment setup</contributing/code/ide-setup>`.
 
@@ -63,14 +63,32 @@ On Debian-based Linux distributions, all of these essential packages can be inst
 
    sudo apt install build-essential cmake meson libzip-dev zlib1g-dev qt5-default libqt5svg5-dev qttools5-dev qttools5-dev-tools
 
+Depending on your configuration you'll might also need the following:
+
+::
+
+  # When building with CUTTER_ENABLE_KSYNTAXHIGHLIGHTING (Default)
+  sudo apt install libkf5syntaxhighlighting-dev 
+  # When building with CUTTER_ENABLE_GRAPHVIZ (Default)
+  sudo apt install libgraphviz-dev
+  # when building with CUTTER_ENABLE_PYTHON_BINDINGS
+  sudo apt install libshiboken2-dev libpyside2-dev  qtdeclarative5-dev
+  
+
 .. note::
- For Ubuntu 18.04 and lower, ``meson`` should be installed with ``pip install --upgrade --user meson``.
+ For Ubuntu 20.04 and lower (or in any case you get an error ``Meson version is x but project requires >=y``), ``meson`` should be installed with ``pip install --upgrade --user meson``.
 
 On Arch-based Linux distributions:
 
 ::
 
    sudo pacman -Syu --needed base-devel cmake meson qt5-base qt5-svg qt5-tools
+
+On dnf/yum based distributions:
+
+::
+
+   sudo dnf install -y gcc gcc-c++ make cmake meson qt5-qtbase-devel qt5-qtsvg-devel qt5-qttools-devel
 
 Building Steps
 ~~~~~~~~~~~~~~
@@ -215,7 +233,7 @@ Recommended Way for dev builds
 
    mkdir build
    cd build
-   cmake .. -DCMAKE_PREFIX_PATH=/local/opt/qt5
+   cmake .. -DCMAKE_PREFIX_PATH=/usr/local/opt/qt5
    make
 
 --------------

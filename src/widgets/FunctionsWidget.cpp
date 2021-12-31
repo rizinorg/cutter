@@ -17,6 +17,8 @@
 #include <QJsonObject>
 #include <QInputDialog>
 #include <QActionGroup>
+#include <QBitmap>
+#include <QPainter>
 
 namespace {
 
@@ -36,7 +38,13 @@ FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *i
       highlightFont(highlight_font),
       defaultFont(default_font),
       nested(nested),
-      currentIndex(-1)
+      currentIndex(-1),
+      iconFuncImpDark(":/img/icons/function_import_dark.svg"),
+      iconFuncImpLight(":/img/icons/function_import_light.svg"),
+      iconFuncMainDark(":/img/icons/function_main_dark.svg"),
+      iconFuncMainLight(":/img/icons/function_main_light.svg"),
+      iconFuncDark(":/img/icons/function_dark.svg"),
+      iconFuncLight(":/img/icons/function_light.svg")
 
 {
     connect(Core(), &CutterCore::seekChanged, this, &FunctionModel::seekChanged);
@@ -101,6 +109,8 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
 
     int function_index;
     bool subnode;
+    bool is_dark;
+
     if (index.internalId() != 0) { // sub-node
         function_index = index.parent().row();
         subnode = true;
@@ -120,18 +130,18 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             if (subnode) {
                 switch (index.row()) {
                 case 0:
-                    return tr("Offset: %1").arg(RAddressString(function.offset));
+                    return tr("Offset: %1").arg(RzAddressString(function.offset));
                 case 1:
-                    return tr("Size: %1").arg(RSizeString(function.linearSize));
+                    return tr("Size: %1").arg(RzSizeString(function.linearSize));
                 case 2:
                     return tr("Import: %1")
                             .arg(functionIsImport(function.offset) ? tr("true") : tr("false"));
                 case 3:
-                    return tr("Nargs: %1").arg(RSizeString(function.nargs));
+                    return tr("Nargs: %1").arg(RzSizeString(function.nargs));
                 case 4:
-                    return tr("Nbbs: %1").arg(RSizeString(function.nbbs));
+                    return tr("Nbbs: %1").arg(RzSizeString(function.nbbs));
                 case 5:
-                    return tr("Nlocals: %1").arg(RSizeString(function.nlocals));
+                    return tr("Nlocals: %1").arg(RzSizeString(function.nlocals));
                 case 6:
                     return tr("Call type: %1").arg(function.calltype);
                 case 7:
@@ -151,8 +161,10 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 return function.name;
             case SizeColumn:
                 return QString::number(function.linearSize);
+            case ImportColumn:
+                return functionIsImport(function.offset) ? tr("true") : tr("false");
             case OffsetColumn:
-                return RAddressString(function.offset);
+                return RzAddressString(function.offset);
             case NargsColumn:
                 return QString::number(function.nargs);
             case NlocalsColumn:
@@ -172,13 +184,37 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             }
         }
 
-    case Qt::DecorationRole:
-        if (importAddresses->contains(function.offset)
-            && (nested ? false : index.column() == ImportColumn)) {
-            const static QIcon importIcon(":/img/icons/import_light.svg");
-            return importIcon;
+    case Qt::DecorationRole: {
+
+        // Check if we aren't inside a tree view
+        if (nested && subnode) {
+            return QVariant();
         }
+
+        if (index.column() == NameColumn) {
+            is_dark = Config()->windowColorIsDark();
+
+            if (functionIsImport(function.offset)) {
+                if (is_dark) {
+                    return iconFuncImpDark;
+                }
+                return iconFuncImpLight;
+
+            } else if (functionIsMain(function.offset)) {
+                if (is_dark) {
+                    return iconFuncMainDark;
+                }
+                return iconFuncMainLight;
+            }
+
+            if (is_dark) {
+                return iconFuncDark;
+            }
+            return iconFuncLight;
+        }
+
         return QVariant();
+    }
 
     case Qt::FontRole:
         if (currentIndex == function_index)
@@ -214,8 +250,8 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: "
                         "nowrap;\">")
                         .arg(fnt.family())
-                        .arg(qMax(6, fnt.pointSize() - 1)); // slightly decrease font size, to keep
-                                                            // more text in the same box
+                        .arg(qMax(6, fnt.pointSize() - 1)); // slightly decrease font size, to
+                                                            // keep more text in the same box
 
         if (!disasmPreview.isEmpty())
             toolTipContent += tr("<div style=\"margin-bottom: 10px;\"><strong>Disassembly "
@@ -233,10 +269,12 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
     }
 
     case Qt::ForegroundRole:
-        if (functionIsImport(function.offset))
+        if (functionIsImport(function.offset)) {
             return QVariant(ConfigColor("gui.imports"));
-        if (functionIsMain(function.offset))
+        } else if (functionIsMain(function.offset)) {
             return QVariant(ConfigColor("gui.main"));
+        }
+
         return QVariant(this->property("color"));
 
     case FunctionDescriptionRole:
@@ -368,7 +406,8 @@ bool FunctionSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &
     QModelIndex index = sourceModel()->index(row, 0, parent);
     FunctionDescription function =
             index.data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-    return function.name.contains(filterRegExp());
+
+    return qhelpers::filterStringContains(function.name, this);
 }
 
 bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

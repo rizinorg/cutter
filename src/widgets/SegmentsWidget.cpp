@@ -51,9 +51,9 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
         case SegmentsModel::SizeColumn:
             return QString::number(segment.size);
         case SegmentsModel::AddressColumn:
-            return RAddressString(segment.vaddr);
+            return RzAddressString(segment.vaddr);
         case SegmentsModel::EndAddressColumn:
-            return RAddressString(segment.vaddr + segment.size);
+            return RzAddressString(segment.vaddr + segment.size);
         case SegmentsModel::PermColumn:
             return segment.perm;
         case SegmentsModel::CommentColumn:

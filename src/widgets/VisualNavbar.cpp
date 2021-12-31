@@ -25,6 +25,8 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent)
 {
     Q_UNUSED(parent);
 
+    blockTooltip = false;
+
     setObjectName("visualNavbar");
     setWindowTitle(tr("Visual navigation bar"));
     //    setMovable(false);
@@ -240,10 +242,17 @@ void VisualNavbar::on_seekChanged(RVA addr)
 
 void VisualNavbar::mousePressEvent(QMouseEvent *event)
 {
-    qreal x = event->localPos().x();
+    if (blockTooltip) {
+        return;
+    }
+    qreal x = qhelpers::mouseEventPos(event).x();
     RVA address = localXToAddress(x);
     if (address != RVA_INVALID) {
-        QToolTip::showText(event->globalPos(), toolTipForAddress(address), this);
+        auto tooltipPos = qhelpers::mouseEventGlobalPos(event);
+        blockTooltip = true; // on Haiku, the below call sometimes triggers another mouseMoveEvent,
+                             // causing infinite recursion
+        QToolTip::showText(tooltipPos, toolTipForAddress(address), this, this->rect());
+        blockTooltip = false;
         if (event->buttons() & Qt::LeftButton) {
             event->accept();
             Core()->seek(address);
@@ -296,7 +305,7 @@ QList<QString> VisualNavbar::sectionsForAddress(RVA address)
 
 QString VisualNavbar::toolTipForAddress(RVA address)
 {
-    QString ret = "Address: " + RAddressString(address);
+    QString ret = "Address: " + RzAddressString(address);
 
     // Don't append sections when a debug task is in progress to avoid freezing the interface
     if (Core()->isDebugTaskInProgress()) {

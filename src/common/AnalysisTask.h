@@ -9,13 +9,13 @@ class CutterCore;
 class MainWindow;
 class InitialOptionsDialog;
 
-class AnalTask : public AsyncTask
+class AnalysisTask : public AsyncTask
 {
     Q_OBJECT
 
 public:
-    explicit AnalTask();
-    ~AnalTask();
+    explicit AnalysisTask();
+    ~AnalysisTask();
 
     QString getTitle() override;
 

@@ -36,9 +36,9 @@ QVariant FlagsModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case SIZE:
-            return RSizeString(flag.size);
+            return RzSizeString(flag.size);
         case OFFSET:
-            return RAddressString(flag.offset);
+            return RzAddressString(flag.offset);
         case NAME:
             return flag.name;
         case REALNAME:
@@ -107,7 +107,7 @@ bool FlagsSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &par
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
     FlagDescription flag = index.data(FlagsModel::FlagDescriptionRole).value<FlagDescription>();
-    return flag.name.contains(filterRegExp()) || flag.realname.contains(filterRegExp());
+    return qhelpers::filterStringContains(flag.name, this);
 }
 
 bool FlagsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

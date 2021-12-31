@@ -3,7 +3,6 @@
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include "dialogs/TypesInteractionDialog.h"
-#include "dialogs/LinkTypeDialog.h"
 
 #include <QMenu>
 #include <QFileDialog>
@@ -76,7 +75,8 @@ QVariant TypesModel::headerData(int section, Qt::Orientation, int role) const
 
 bool TypesModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    Core()->cmdRaw("t-" + types->at(row).type);
+    RzCoreLocked core(Core());
+    rz_type_db_del(core->analysis->typedb, types->at(row).type.toUtf8().constData());
     beginRemoveRows(parent, row, row + count - 1);
     while (count--) {
         types->removeAt(row);
@@ -91,15 +91,24 @@ TypesSortFilterProxyModel::TypesSortFilterProxyModel(TypesModel *source_model, Q
     setSourceModel(source_model);
 }
 
+void TypesSortFilterProxyModel::setCategory(QString category)
+{
+    selectedCategory = category;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    invalidateFilter();
+#else
+    invalidateRowsFilter();
+#endif
+}
+
 bool TypesSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
     TypeDescription exp = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
-    if (selectedCategory.isEmpty()) {
-        return exp.type.contains(filterRegExp());
-    } else {
-        return selectedCategory == exp.category && exp.type.contains(filterRegExp());
+    if (!selectedCategory.isEmpty() && selectedCategory != exp.category) {
+        return false;
     }
+    return qhelpers::filterStringContains(exp.type, this);
 }
 
 bool TypesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
@@ -169,9 +178,7 @@ TypesWidget::TypesWidget(MainWindow *main)
     connect(Core(), &CutterCore::refreshAll, this, &TypesWidget::refreshTypes);
 
     connect(ui->quickFilterView->comboBox(), &QComboBox::currentTextChanged, this, [this]() {
-        types_proxy_model->selectedCategory =
-                ui->quickFilterView->comboBox()->currentData().toString();
-        types_proxy_model->setFilterRegExp(types_proxy_model->filterRegExp());
+        types_proxy_model->setCategory(ui->quickFilterView->comboBox()->currentData().toString());
         tree->showItemsNumber(types_proxy_model->rowCount());
     });
 
@@ -213,7 +220,7 @@ void TypesWidget::refreshCategoryCombo(const QStringList &categories)
         combo->addItem(category, category);
     }
 
-    types_proxy_model->selectedCategory.clear();
+    types_proxy_model->setCategory(QString());
 }
 
 void TypesWidget::setScrollMode()
@@ -234,9 +241,6 @@ void TypesWidget::showTypesContextMenu(const QPoint &pt)
             // Add "Link To Address" option
             menu.addAction(actionViewType);
             menu.addAction(actionEditType);
-            if (t.category == "Struct") {
-                menu.addAction(ui->actionLink_Type_To_Address);
-            }
         }
     }
 
@@ -268,15 +272,24 @@ void TypesWidget::on_actionExport_Types_triggered()
         return;
     }
     QTextStream fileOut(&file);
-    fileOut << Core()->cmdRaw("tc");
+    // TODO: use API for `tc` command once available
+    fileOut << Core()->cmd("tc");
     file.close();
 }
 
 void TypesWidget::on_actionLoad_New_Types_triggered()
 {
+    QModelIndex index = ui->typesTreeView->currentIndex();
+    if (!index.isValid()) {
+        return;
+    }
+
+    TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+
     TypesInteractionDialog dialog(this);
     connect(&dialog, &TypesInteractionDialog::newTypesLoaded, this, &TypesWidget::refreshTypes);
     dialog.setWindowTitle(tr("Load New Types"));
+    dialog.setTypeName(t.type);
     dialog.exec();
 }
 
@@ -297,7 +310,8 @@ void TypesWidget::viewType(bool readOnly)
     } else {
         dialog.setWindowTitle(tr("View Type: ") + t.type + tr(" (Read Only)"));
     }
-    dialog.fillTextArea(Core()->getTypeAsC(t.type, t.category));
+    dialog.fillTextArea(Core()->getTypeAsC(t.type));
+    dialog.setTypeName(t.type);
     dialog.exec();
 }
 
@@ -320,19 +334,6 @@ void TypesWidget::on_actionDelete_Type_triggered()
     }
 }
 
-void TypesWidget::on_actionLink_Type_To_Address_triggered()
-{
-    LinkTypeDialog dialog(this);
-
-    QModelIndex index = ui->typesTreeView->currentIndex();
-    if (index.isValid()) {
-        TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
-        dialog.setDefaultType(t.type);
-        dialog.setDefaultAddress(RAddressString(Core()->getOffset()));
-        dialog.exec();
-    }
-}
-
 void TypesWidget::typeItemDoubleClicked(const QModelIndex &index)
 {
     if (!index.isValid()) {
@@ -344,7 +345,8 @@ void TypesWidget::typeItemDoubleClicked(const QModelIndex &index)
     if (t.category == "Primitive") {
         return;
     }
-    dialog.fillTextArea(Core()->getTypeAsC(t.type, t.category));
+    dialog.fillTextArea(Core()->getTypeAsC(t.type));
     dialog.setWindowTitle(tr("View Type: ") + t.type + tr(" (Read Only)"));
+    dialog.setTypeName(t.type);
     dialog.exec();
 }

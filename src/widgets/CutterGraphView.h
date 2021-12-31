@@ -124,10 +124,11 @@ protected:
 
     // Font data
     std::unique_ptr<CachedFontMetrics<qreal>> mFontMetrics;
-    qreal charWidth;
+    qreal ACharWidth; // width of character A
     int charHeight;
     int charOffset;
     int baseline;
+    qreal padding;
 
     // colors
     QColor disassemblyBackgroundColor;

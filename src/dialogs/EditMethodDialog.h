@@ -24,10 +24,10 @@ public:
     ~EditMethodDialog();
 
     void setClass(const QString &className);
-    void setMethod(const AnalMethodDescription &desc);
+    void setMethod(const AnalysisMethodDescription &desc);
 
     QString getClass() const;
-    AnalMethodDescription getMethod() const;
+    AnalysisMethodDescription getMethod() const;
 
     /**
      * @brief Helper function to display the dialog
@@ -39,7 +39,7 @@ public:
      * @return whether the dialog was accepted by the user
      */
     static bool showDialog(const QString &title, bool classFixed, QString *className,
-                           AnalMethodDescription *desc, QWidget *parent = nullptr);
+                           AnalysisMethodDescription *desc, QWidget *parent = nullptr);
 
     /**
      * @brief Show the dialog to add a new method a given class
@@ -59,6 +59,8 @@ private slots:
 
     void updateVirtualUI();
     void validateInput();
+    void updateName();
+    void updateAutoRenameEnabled();
 
 private:
     std::unique_ptr<Ui::EditMethodDialog> ui;
@@ -72,6 +74,7 @@ private:
     QString fixedClass;
 
     bool inputValid();
+    static QString convertRealNameToName(const QString& realName);
 };
 
 #endif // EDITMETHODDIALOG_H

@@ -156,7 +156,7 @@ bool ProcessProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) con
     QModelIndex index = sourceModel()->index(row, 0, parent);
     ProcessDescription item =
             index.data(ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
-    return item.path.contains(filterRegExp());
+    return qhelpers::filterStringContains(item.path, this);
 }
 
 bool ProcessProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

@@ -13,7 +13,7 @@
 #include <QCloseEvent>
 
 #include "core/Cutter.h"
-#include "common/AnalTask.h"
+#include "common/AnalysisTask.h"
 
 InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
     : QDialog(nullptr), // parent must not be main
@@ -47,7 +47,7 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
     setTooltipWithConfigHelp(ui->kernelComboBox, "asm.os");
     setTooltipWithConfigHelp(ui->bitsComboBox, "asm.bits");
 
-    for (const auto &plugin : core->getRBinPluginDescriptions("bin")) {
+    for (const auto &plugin : core->getBinPluginDescriptions(true, false)) {
         ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
     }
 
@@ -83,7 +83,7 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
     }
 
     ui->hideFrame->setVisible(false);
-    ui->analoptionsFrame->setVisible(false);
+    ui->analysisoptionsFrame->setVisible(false);
     ui->advancedAnlysisLine->setVisible(false);
 
     updatePDBLayout();
@@ -132,7 +132,7 @@ void InitialOptionsDialog::updateCPUComboBox()
 QList<QString> InitialOptionsDialog::getAnalysisCommands(const InitialOptions &options)
 {
     QList<QString> commands;
-    for (auto &commandDesc : options.analCmd) {
+    for (auto &commandDesc : options.analysisCmd) {
         commands << commandDesc.command;
     }
     return commands;
@@ -140,14 +140,14 @@ QList<QString> InitialOptionsDialog::getAnalysisCommands(const InitialOptions &o
 
 void InitialOptionsDialog::loadOptions(const InitialOptions &options)
 {
-    if (options.analCmd.isEmpty()) {
-        analLevel = 0;
-    } else if (options.analCmd.first().command == "aaa") {
-        analLevel = 1;
-    } else if (options.analCmd.first().command == "aaaa") {
-        analLevel = 2;
+    if (options.analysisCmd.isEmpty()) {
+        analysisLevel = 0;
+    } else if (options.analysisCmd.first().command == "aaa") {
+        analysisLevel = 1;
+    } else if (options.analysisCmd.first().command == "aaaa") {
+        analysisLevel = 2;
     } else {
-        analLevel = 3;
+        analysisLevel = 3;
         AnalysisCommands item;
         QList<QString> commands = getAnalysisCommands(options);
         foreach (item, analysisCommands) {
@@ -159,13 +159,13 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
     if (!options.script.isEmpty()) {
         ui->scriptCheckBox->setChecked(true);
         ui->scriptLineEdit->setText(options.script);
-        analLevel = 0;
+        analysisLevel = 0;
     } else {
         ui->scriptCheckBox->setChecked(false);
         ui->scriptLineEdit->setText("");
     }
 
-    ui->analSlider->setValue(analLevel);
+    ui->analysisSlider->setValue(analysisLevel);
 
     shellcode = options.shellcode;
 
@@ -176,7 +176,7 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
     }
 
     if (options.binLoadAddr != RVA_INVALID) {
-        ui->entry_loadOffset->setText(RAddressString(options.binLoadAddr));
+        ui->entry_loadOffset->setText(RzAddressString(options.binLoadAddr));
     }
 
     ui->writeCheckBox->setChecked(options.writeEnabled);
@@ -235,7 +235,7 @@ QString InitialOptionsDialog::getSelectedOS() const
 QList<CommandDescription> InitialOptionsDialog::getSelectedAdvancedAnalCmds() const
 {
     QList<CommandDescription> advanced = QList<CommandDescription>();
-    if (ui->analSlider->value() == 3) {
+    if (ui->analysisSlider->value() == 3) {
         AnalysisCommands item;
         foreach (item, analysisCommands) {
             if (item.checkbox->isChecked()) {
@@ -284,42 +284,42 @@ void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> adv
 
     options.endian = getSelectedEndianness();
 
-    int level = ui->analSlider->value();
+    int level = ui->analysisSlider->value();
     switch (level) {
     case 1:
-        options.analCmd = { { "aaa", "Auto analysis" } };
+        options.analysisCmd = { { "aaa", "Auto analysis" } };
         break;
     case 2:
-        options.analCmd = { { "aaaa", "Auto analysis (experimental)" } };
+        options.analysisCmd = { { "aaaa", "Auto analysis (experimental)" } };
         break;
     case 3:
-        options.analCmd = getSelectedAdvancedAnalCmds();
+        options.analysisCmd = getSelectedAdvancedAnalCmds();
         break;
     default:
-        options.analCmd = {};
+        options.analysisCmd = {};
         break;
     }
 
-    AnalTask *analTask = new AnalTask();
-    analTask->setOptions(options);
+    AnalysisTask *analysisTask = new AnalysisTask();
+    analysisTask->setOptions(options);
 
     MainWindow *main = this->main;
-    connect(analTask, &AnalTask::openFileFailed, main, &MainWindow::openNewFileFailed);
-    connect(analTask, &AsyncTask::finished, main, [analTask, main]() {
-        if (analTask->getOpenFileFailed()) {
+    connect(analysisTask, &AnalysisTask::openFileFailed, main, &MainWindow::openNewFileFailed);
+    connect(analysisTask, &AsyncTask::finished, main, [analysisTask, main]() {
+        if (analysisTask->getOpenFileFailed()) {
             return;
         }
         main->finalizeOpen();
     });
 
-    AsyncTask::Ptr analTaskPtr(analTask);
+    AsyncTask::Ptr analysisTaskPtr(analysisTask);
 
-    AsyncTaskDialog *taskDialog = new AsyncTaskDialog(analTaskPtr);
+    AsyncTaskDialog *taskDialog = new AsyncTaskDialog(analysisTaskPtr);
     taskDialog->setInterruptOnClose(true);
     taskDialog->setAttribute(Qt::WA_DeleteOnClose);
     taskDialog->show();
 
-    Core()->getAsyncTaskManager()->start(analTaskPtr);
+    Core()->getAsyncTaskManager()->start(analysisTaskPtr);
 
     done(0);
 }
@@ -352,20 +352,20 @@ QString InitialOptionsDialog::analysisDescription(int level)
     }
 }
 
-void InitialOptionsDialog::on_analSlider_valueChanged(int value)
+void InitialOptionsDialog::on_analysisSlider_valueChanged(int value)
 {
     ui->analDescription->setText(tr("Level") + QString(": %1").arg(analysisDescription(value)));
     if (value == 0) {
-        ui->analCheckBox->setChecked(false);
-        ui->analCheckBox->setText(tr("Analysis: Disabled"));
+        ui->analysisCheckBox->setChecked(false);
+        ui->analysisCheckBox->setText(tr("Analysis: Disabled"));
     } else {
-        ui->analCheckBox->setChecked(true);
-        ui->analCheckBox->setText(tr("Analysis: Enabled"));
+        ui->analysisCheckBox->setChecked(true);
+        ui->analysisCheckBox->setText(tr("Analysis: Enabled"));
         if (value == 3) {
-            ui->analoptionsFrame->setVisible(true);
+            ui->analysisoptionsFrame->setVisible(true);
             ui->advancedAnlysisLine->setVisible(true);
         } else {
-            ui->analoptionsFrame->setVisible(false);
+            ui->analysisoptionsFrame->setVisible(false);
             ui->advancedAnlysisLine->setVisible(false);
         }
     }
@@ -382,12 +382,12 @@ void InitialOptionsDialog::on_AdvOptButton_clicked()
     }
 }
 
-void InitialOptionsDialog::on_analCheckBox_clicked(bool checked)
+void InitialOptionsDialog::on_analysisCheckBox_clicked(bool checked)
 {
     if (!checked) {
-        analLevel = ui->analSlider->value();
+        analysisLevel = ui->analysisSlider->value();
     }
-    ui->analSlider->setValue(checked ? analLevel : 0);
+    ui->analysisSlider->setValue(checked ? analysisLevel : 0);
 }
 
 void InitialOptionsDialog::on_archComboBox_currentIndexChanged(int)
