@@ -205,9 +205,11 @@ private:
      * line containing specified position will be returned
      *
      * @param pos - Position of the decompiled code.
+     * @param find_globals - If true, also try to find globals variable annotations and get their
+     * offsets
      * @return Offset for the specified position/first offset in line.
      */
-    ut64 offsetForPosition(size_t pos);
+    ut64 offsetForPosition(size_t pos, bool find_globals);
     /**
      * @brief Find the start position of the annotation with the offset that's closest to
      * the specified offset

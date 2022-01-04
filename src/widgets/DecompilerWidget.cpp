@@ -115,7 +115,7 @@ Decompiler *DecompilerWidget::getCurrentDecompiler()
     return Core()->getDecompilerById(ui->decompilerComboBox->currentData().toString());
 }
 
-ut64 DecompilerWidget::offsetForPosition(size_t pos)
+ut64 DecompilerWidget::offsetForPosition(size_t pos, bool find_globals)
 {
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = mCtxMenu->getFirstOffsetInLine();
@@ -123,7 +123,9 @@ ut64 DecompilerWidget::offsetForPosition(size_t pos)
     rz_vector_foreach(&code->annotations, iter)
     {
         RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
-        if (annotation->type != RZ_CODE_ANNOTATION_TYPE_OFFSET || annotation->start > pos
+
+        if (!(annotation->type == RZ_CODE_ANNOTATION_TYPE_OFFSET || (find_globals && annotation->type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE))
+            || annotation->start > pos
             || annotation->end <= pos) {
             continue;
         }
@@ -131,7 +133,13 @@ ut64 DecompilerWidget::offsetForPosition(size_t pos)
             continue;
         }
         closestPos = annotation->start;
-        closestOffset = annotation->offset.offset;
+
+        if (annotation->type == RZ_CODE_ANNOTATION_TYPE_OFFSET) {
+            closestOffset = annotation->offset.offset;
+        } else if (annotation->type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE ||
+                annotation->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
+            closestOffset = annotation->reference.offset;
+        }
     }
     return closestOffset;
 }
@@ -383,7 +391,7 @@ void DecompilerWidget::cursorPositionChanged()
     setAnnotationsAtCursor(pos);
     setInfoForBreakpoints();
 
-    RVA offset = offsetForPosition(pos);
+    RVA offset = offsetForPosition(pos, false);
     if (offset != RVA_INVALID && offset != seekable->getOffset()) {
         seekFromCursor = true;
         seekable->seek(offset);
@@ -479,8 +487,14 @@ void DecompilerWidget::showDecompilerContextMenu(const QPoint &pt)
 void DecompilerWidget::seekToReference()
 {
     size_t pos = ui->textEdit->textCursor().position();
-    RVA offset = offsetForPosition(pos);
-    seekable->seekToReference(offset);
+    RVA offset = offsetForPosition(pos, true);
+    if (offset != RVA_INVALID && offset != seekable->getOffset()) {
+        seekFromCursor = true;
+        seekable->seek(offset);
+        mCtxMenu->setOffset(offset);
+        seekFromCursor = false;
+    }
+    updateSelection();
 }
 
 bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
