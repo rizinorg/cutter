@@ -124,9 +124,9 @@ ut64 DecompilerWidget::offsetForPosition(size_t pos, bool find_globals)
     {
         RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
 
-        if (!(annotation->type == RZ_CODE_ANNOTATION_TYPE_OFFSET || (find_globals && annotation->type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE))
-            || annotation->start > pos
-            || annotation->end <= pos) {
+        if (!(annotation->type == RZ_CODE_ANNOTATION_TYPE_OFFSET
+              || (find_globals && annotation->type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE))
+            || annotation->start > pos || annotation->end <= pos) {
             continue;
         }
         if (closestPos != SIZE_MAX && closestPos >= annotation->start) {
@@ -136,8 +136,8 @@ ut64 DecompilerWidget::offsetForPosition(size_t pos, bool find_globals)
 
         if (annotation->type == RZ_CODE_ANNOTATION_TYPE_OFFSET) {
             closestOffset = annotation->offset.offset;
-        } else if (annotation->type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE ||
-                annotation->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
+        } else if (annotation->type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
+                   || annotation->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
             closestOffset = annotation->reference.offset;
         }
     }
