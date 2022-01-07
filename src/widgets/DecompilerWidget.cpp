@@ -115,7 +115,29 @@ Decompiler *DecompilerWidget::getCurrentDecompiler()
     return Core()->getDecompilerById(ui->decompilerComboBox->currentData().toString());
 }
 
-ut64 DecompilerWidget::offsetForPosition(size_t pos, bool find_globals)
+ut64 DecompilerWidget::findGlobalReference(size_t pos)
+{
+    size_t closestPos = SIZE_MAX;
+    ut64 closestOffset = RVA_INVALID;
+    void *iter;
+    rz_vector_foreach(&code->annotations, iter)
+    {
+        RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
+
+        if (!(annotation->type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE)
+            || annotation->start > pos || annotation->end <= pos) {
+            continue;
+        }
+        if (closestPos != SIZE_MAX && closestPos >= annotation->start) {
+            continue;
+        }
+        closestPos = annotation->start;
+        closestOffset = annotation->reference.offset;
+    }
+    return closestOffset;
+}
+
+ut64 DecompilerWidget::offsetForPosition(size_t pos)
 {
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = mCtxMenu->getFirstOffsetInLine();
@@ -124,22 +146,15 @@ ut64 DecompilerWidget::offsetForPosition(size_t pos, bool find_globals)
     {
         RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
 
-        if (!(annotation->type == RZ_CODE_ANNOTATION_TYPE_OFFSET
-              || (find_globals && annotation->type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE))
-            || annotation->start > pos || annotation->end <= pos) {
+        if (!(annotation->type == RZ_CODE_ANNOTATION_TYPE_OFFSET) || annotation->start > pos
+            || annotation->end <= pos) {
             continue;
         }
         if (closestPos != SIZE_MAX && closestPos >= annotation->start) {
             continue;
         }
         closestPos = annotation->start;
-
-        if (annotation->type == RZ_CODE_ANNOTATION_TYPE_OFFSET) {
-            closestOffset = annotation->offset.offset;
-        } else if (annotation->type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
-                   || annotation->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
-            closestOffset = annotation->reference.offset;
-        }
+        closestOffset = annotation->offset.offset;
     }
     return closestOffset;
 }
@@ -391,7 +406,7 @@ void DecompilerWidget::cursorPositionChanged()
     setAnnotationsAtCursor(pos);
     setInfoForBreakpoints();
 
-    RVA offset = offsetForPosition(pos, false);
+    RVA offset = offsetForPosition(pos);
     if (offset != RVA_INVALID && offset != seekable->getOffset()) {
         seekFromCursor = true;
         seekable->seek(offset);
@@ -487,7 +502,13 @@ void DecompilerWidget::showDecompilerContextMenu(const QPoint &pt)
 void DecompilerWidget::seekToReference()
 {
     size_t pos = ui->textEdit->textCursor().position();
-    RVA offset = offsetForPosition(pos, true);
+    RVA offset = findGlobalReference(pos);
+
+    if (offset == RVA_INVALID) {
+        /* If no global reference was found, we fall back to finding the offset of the
+         * specified code */
+        offset = offsetForPosition(pos);
+    }
     if (offset != RVA_INVALID && offset != seekable->getOffset()) {
         seekFromCursor = true;
         seekable->seek(offset);

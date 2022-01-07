@@ -199,6 +199,18 @@ private:
      */
     void gatherBreakpointInfo(RzAnnotatedCode &codeDecompiled, size_t startPos, size_t endPos);
     /**
+     * @brief Finds the global variable reference that's closes to the specified position in the
+     * decompiled code. Same as offsetForPosition but for global references only
+     *
+     * @note If no global reference annotations are found at the given position, an RVA_INVALID is
+     * returned
+     *
+     * @param pos - Position in the decompiled code
+     * @return Address of the referenced global for the specified position, or RVA_INVALID if none
+     * is found
+     */
+    ut64 findGlobalReference(size_t pos);
+    /**
      * @brief Finds the offset that's closest to the specified position in the decompiled code.
      *
      * @note If no annotations that covers the specified position is found, the first offset in the
@@ -209,7 +221,7 @@ private:
      * offsets
      * @return Offset for the specified position/first offset in line.
      */
-    ut64 offsetForPosition(size_t pos, bool find_globals);
+    ut64 offsetForPosition(size_t pos);
     /**
      * @brief Find the start position of the annotation with the offset that's closest to
      * the specified offset
