@@ -115,6 +115,28 @@ Decompiler *DecompilerWidget::getCurrentDecompiler()
     return Core()->getDecompilerById(ui->decompilerComboBox->currentData().toString());
 }
 
+ut64 DecompilerWidget::findReference(size_t pos)
+{
+    size_t closestPos = SIZE_MAX;
+    ut64 closestOffset = RVA_INVALID;
+    void *iter;
+    rz_vector_foreach(&code->annotations, iter)
+    {
+        RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
+
+        if (!(annotation->type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE)
+            || annotation->start > pos || annotation->end <= pos) {
+            continue;
+        }
+        if (closestPos != SIZE_MAX && closestPos >= annotation->start) {
+            continue;
+        }
+        closestPos = annotation->start;
+        closestOffset = annotation->reference.offset;
+    }
+    return closestOffset;
+}
+
 ut64 DecompilerWidget::offsetForPosition(size_t pos)
 {
     size_t closestPos = SIZE_MAX;
@@ -123,7 +145,8 @@ ut64 DecompilerWidget::offsetForPosition(size_t pos)
     rz_vector_foreach(&code->annotations, iter)
     {
         RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
-        if (annotation->type != RZ_CODE_ANNOTATION_TYPE_OFFSET || annotation->start > pos
+
+        if (!(annotation->type == RZ_CODE_ANNOTATION_TYPE_OFFSET) || annotation->start > pos
             || annotation->end <= pos) {
             continue;
         }
@@ -479,8 +502,11 @@ void DecompilerWidget::showDecompilerContextMenu(const QPoint &pt)
 void DecompilerWidget::seekToReference()
 {
     size_t pos = ui->textEdit->textCursor().position();
-    RVA offset = offsetForPosition(pos);
-    seekable->seekToReference(offset);
+    RVA offset = findReference(pos);
+    if (offset != RVA_INVALID) {
+        seekable->seek(offset);
+    }
+    seekable->seekToReference(offsetForPosition(pos));
 }
 
 bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
