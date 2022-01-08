@@ -115,7 +115,7 @@ Decompiler *DecompilerWidget::getCurrentDecompiler()
     return Core()->getDecompilerById(ui->decompilerComboBox->currentData().toString());
 }
 
-ut64 DecompilerWidget::findGlobalReference(size_t pos)
+ut64 DecompilerWidget::findReference(size_t pos)
 {
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = RVA_INVALID;
@@ -502,20 +502,11 @@ void DecompilerWidget::showDecompilerContextMenu(const QPoint &pt)
 void DecompilerWidget::seekToReference()
 {
     size_t pos = ui->textEdit->textCursor().position();
-    RVA offset = findGlobalReference(pos);
-
-    if (offset == RVA_INVALID) {
-        /* If no global reference was found, we fall back to finding the offset of the
-         * specified code */
-        offset = offsetForPosition(pos);
-    }
-    if (offset != RVA_INVALID && offset != seekable->getOffset()) {
-        seekFromCursor = true;
+    RVA offset = findReference(pos);
+    if (offset != RVA_INVALID) {
         seekable->seek(offset);
-        mCtxMenu->setOffset(offset);
-        seekFromCursor = false;
     }
-    updateSelection();
+    seekable->seekToReference(offsetForPosition(pos));
 }
 
 bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)

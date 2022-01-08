@@ -209,7 +209,7 @@ private:
      * @return Address of the referenced global for the specified position, or RVA_INVALID if none
      * is found
      */
-    ut64 findGlobalReference(size_t pos);
+    ut64 findReference(size_t pos);
     /**
      * @brief Finds the offset that's closest to the specified position in the decompiled code.
      *
@@ -217,8 +217,6 @@ private:
      * line containing specified position will be returned
      *
      * @param pos - Position of the decompiled code.
-     * @param find_globals - If true, also try to find globals variable annotations and get their
-     * offsets
      * @return Offset for the specified position/first offset in line.
      */
     ut64 offsetForPosition(size_t pos);
