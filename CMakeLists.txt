@@ -25,6 +25,7 @@ option(CUTTER_ENABLE_DEPENDENCY_DOWNLOADS "Enable downloading of dependencies. S
 option(CUTTER_ENABLE_PACKAGING "Enable building platform-specific packages for distributing" OFF)
 option(CUTTER_PACKAGE_DEPENDENCIES "During install step include the third party dependencies." OFF)
 option(CUTTER_PACKAGE_RZ_GHIDRA "Compile and install rz-ghidra during install step." OFF)
+option(CUTTER_PACKAGE_RZ_LIBSWIFT, "Compile and install rz-libswift demangler during the install step." OFF)
 option(CUTTER_PACKAGE_JSDEC "Compile and install jsdec during install step." OFF)
 OPTION(CUTTER_QT6 "Use QT6" OFF)
 
