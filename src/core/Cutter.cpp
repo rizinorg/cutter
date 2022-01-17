@@ -3139,40 +3139,38 @@ QList<StringDescription> CutterCore::parseStringsJson(const QJsonDocument &doc)
 
 QList<FlagspaceDescription> CutterCore::getAllFlagspaces()
 {
-    QList<FlagspaceDescription> ret;
     CORE_LOCK();
-    RzSpaces *spaces = &core->flags->spaces;
+    QList<FlagspaceDescription> flagspaces;
     RzSpaceIter it;
     RzSpace *space;
-    rz_spaces_foreach(spaces, it, space)
+    rz_flag_space_foreach(core->flags, it, space)
     {
         FlagspaceDescription flagspace;
         flagspace.name = space->name;
-        ret << flagspace;
+        flagspaces << flagspace;
     }
-    return ret;
+    return flagspaces;
 }
 
 QList<FlagDescription> CutterCore::getAllFlags(QString flagspace)
 {
-    QList<FlagDescription> ret;
     CORE_LOCK();
-    rz_flag_space_set(core->flags,
-                      flagspace.isEmpty() || flagspace.isNull() ? "*"
-                                                                : flagspace.toStdString().c_str());
-
-    const RzList *list = rz_flag_all_list(core->flags, true);
-    RzListIter *iter;
-    RzFlagItem *item;
-    CutterRzListForeach (list, iter, RzFlagItem, item) {
-        FlagDescription flag;
-        flag.offset = item->offset;
-        flag.size = item->size;
-        flag.name = item->name;
-        flag.realname = item->name;
-        ret << flag;
-    }
-    return ret;
+    QList<FlagDescription> flags;
+    std::string name = flagspace.isEmpty() || flagspace.isNull() ? "*" : flagspace.toStdString();
+    RzSpace *space = rz_flag_space_get(core->flags, name.c_str());
+    rz_flag_foreach_space(
+            core->flags, space,
+            [](RzFlagItem *item, void *user) {
+                FlagDescription flag;
+                flag.offset = item->offset;
+                flag.size = item->size;
+                flag.name = item->name;
+                flag.realname = item->name;
+                reinterpret_cast<QList<FlagDescription> *>(user)->append(flag);
+                return true;
+            },
+            &flags);
+    return flags;
 }
 
 QList<SectionDescription> CutterCore::getAllSections()
