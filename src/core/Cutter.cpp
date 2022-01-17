@@ -696,8 +696,6 @@ void CutterCore::delFunction(RVA addr)
 {
     CORE_LOCK();
     rz_core_analysis_undefine(core, addr);
-    rz_analysis_fcn_del_locs(core->analysis, addr);
-    rz_analysis_fcn_del(core->analysis, addr);
     emit functionsChanged();
 }
 
