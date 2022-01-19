@@ -44,7 +44,7 @@ class ResourcesWidget;
 class VTablesWidget;
 class TypesWidget;
 class HeadersWidget;
-class ZignaturesWidget;
+class FlirtWidget;
 class SearchWidget;
 class QDockWidget;
 class DisassemblyWidget;
@@ -243,7 +243,7 @@ private:
     SdbWidget *sdbDock = nullptr;
     SectionsWidget *sectionsDock = nullptr;
     SegmentsWidget *segmentsDock = nullptr;
-    ZignaturesWidget *zignaturesDock = nullptr;
+    FlirtWidget *flirtDock = nullptr;
     ConsoleWidget *consoleDock = nullptr;
     ClassesWidget *classesDock = nullptr;
     ResourcesWidget *resourcesDock = nullptr;

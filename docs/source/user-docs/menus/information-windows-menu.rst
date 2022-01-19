@@ -89,8 +89,8 @@ Show VTables
 
 **Steps:** Windows -> Info... -> VTables  
 
-Show Zignatures
+Show Flirt
 ----------------------------------------
-**Description:** Cutter has its own format of signatures, called Zignatures. This widget lists all the loaded Zignatures.  
+**Description:** Cutter has its own format of signatures, called Flirt. This widget lists all the loaded Flirt.  
 
-**Steps:** Windows -> Info... -> Zignatures
+**Steps:** Windows -> Info... -> Flirt

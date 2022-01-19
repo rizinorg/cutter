@@ -1,55 +1,54 @@
-#include "ZignaturesWidget.h"
-#include "ui_ZignaturesWidget.h"
+#include "FlirtWidget.h"
+#include "ui_FlirtWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 
-ZignaturesModel::ZignaturesModel(QList<ZignatureDescription> *zignatures, QObject *parent)
-    : QAbstractListModel(parent), zignatures(zignatures)
+FlirtModel::FlirtModel(QList<FlirtDescription> *sigdb, QObject *parent)
+    : QAbstractListModel(parent), sigdb(sigdb)
 {
 }
 
-int ZignaturesModel::rowCount(const QModelIndex &) const
+int FlirtModel::rowCount(const QModelIndex &) const
 {
-    return zignatures->count();
+    return sigdb->count();
 }
 
-int ZignaturesModel::columnCount(const QModelIndex &) const
+int FlirtModel::columnCount(const QModelIndex &) const
 {
-    return ZignaturesModel::ColumnCount;
+    return FlirtModel::ColumnCount;
 }
 
-QVariant ZignaturesModel::data(const QModelIndex &index, int role) const
+QVariant FlirtModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= zignatures->count())
+    if (index.row() >= sigdb->count())
         return QVariant();
 
-    const ZignatureDescription &zignature = zignatures->at(index.row());
+    const FlirtDescription &entry = sigdb->at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
         switch (index.column()) {
-        case OffsetColumn:
-            return RzAddressString(zignature.offset);
+        case BinTypeColumn:
+            return entry.bin_name;
+        case ArchNameColumn:
+            return entry.arch_name;
+        case ArchBitsColumn:
+            return entry.arch_bits;
+        case NumModulesColumn:
+            return entry.n_modules;
         case NameColumn:
-            return zignature.name;
-        case ValueColumn:
-            return zignature.bytes;
+            return entry.base_name;
+        case DetailsColumn:
+            return entry.details;
         default:
             return QVariant();
         }
 
-    case ZignatureDescriptionRole:
-        return QVariant::fromValue(zignature);
+    case FlirtDescriptionRole:
+        return QVariant::fromValue(entry);
 
     case Qt::ToolTipRole: {
-        QString tmp = QString("Graph:\n\n    Cyclomatic complexity: " + RzSizeString(zignature.cc)
-                              + "\n    Nodes / basicblocks: " + RzSizeString(zignature.nbbs)
-                              + "\n    Edges: " + RzSizeString(zignature.edges)
-                              + "\n    Ebbs: " + RzSizeString(zignature.ebbs) + "\n\nRefs:\n");
-        for (const QString &ref : zignature.refs) {
-            tmp.append("\n    " + ref);
-        }
-        return tmp;
+        return entry.short_path;
     }
 
     default:
@@ -57,17 +56,23 @@ QVariant ZignaturesModel::data(const QModelIndex &index, int role) const
     }
 }
 
-QVariant ZignaturesModel::headerData(int section, Qt::Orientation, int role) const
+QVariant FlirtModel::headerData(int section, Qt::Orientation, int role) const
 {
     switch (role) {
     case Qt::DisplayRole:
         switch (section) {
-        case OffsetColumn:
-            return tr("Offset");
+        case BinTypeColumn:
+            return tr("Bin Type");
+        case ArchNameColumn:
+            return tr("Architecture");
+        case ArchBitsColumn:
+            return tr("Bits");
+        case NumModulesColumn:
+            return tr("# Modules");
         case NameColumn:
             return tr("Name");
-        case ValueColumn:
-            return tr("Bytes");
+        case DetailsColumn:
+            return tr("Details");
         default:
             return QVariant();
         }
@@ -76,77 +81,109 @@ QVariant ZignaturesModel::headerData(int section, Qt::Orientation, int role) con
     }
 }
 
-ZignaturesProxyModel::ZignaturesProxyModel(ZignaturesModel *sourceModel, QObject *parent)
+FlirtProxyModel::FlirtProxyModel(FlirtModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
     setSourceModel(sourceModel);
 }
 
-bool ZignaturesProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
+bool FlirtProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
-    ZignatureDescription item =
-            index.data(ZignaturesModel::ZignatureDescriptionRole).value<ZignatureDescription>();
-    return qhelpers::filterStringContains(item.name, this);
+    FlirtDescription entry =
+            index.data(FlirtModel::FlirtDescriptionRole).value<FlirtDescription>();
+    return qhelpers::filterStringContains(entry.base_name, this);
 }
 
-bool ZignaturesProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+bool FlirtProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    ZignatureDescription leftZignature =
-            left.data(ZignaturesModel::ZignatureDescriptionRole).value<ZignatureDescription>();
-    ZignatureDescription rightZignature =
-            right.data(ZignaturesModel::ZignatureDescriptionRole).value<ZignatureDescription>();
+    FlirtDescription leftEntry =
+            left.data(FlirtModel::FlirtDescriptionRole).value<FlirtDescription>();
+    FlirtDescription rightEntry =
+            right.data(FlirtModel::FlirtDescriptionRole).value<FlirtDescription>();
 
     switch (left.column()) {
-    case ZignaturesModel::OffsetColumn:
-        return leftZignature.offset < rightZignature.offset;
-    case ZignaturesModel::NameColumn:
-        return leftZignature.name < rightZignature.name;
-    case ZignaturesModel::ValueColumn:
-        return leftZignature.bytes < rightZignature.bytes;
+    case FlirtModel::BinTypeColumn:
+        return leftEntry.bin_name < rightEntry.bin_name;
+    case FlirtModel::ArchNameColumn:
+        return leftEntry.arch_name < rightEntry.arch_name;
+    case FlirtModel::ArchBitsColumn:
+        return leftEntry.arch_bits < rightEntry.arch_bits;
+    case FlirtModel::NumModulesColumn:
+        return leftEntry.n_modules < rightEntry.n_modules;
+    case FlirtModel::NameColumn:
+        return leftEntry.base_name < rightEntry.base_name;
+    case FlirtModel::DetailsColumn:
+        return leftEntry.details < rightEntry.details;
     default:
         break;
     }
 
-    return leftZignature.offset < rightZignature.offset;
+    return leftEntry.bin_name < rightEntry.bin_name;
 }
 
-ZignaturesWidget::ZignaturesWidget(MainWindow *main)
-    : CutterDockWidget(main), ui(new Ui::ZignaturesWidget)
+FlirtWidget::FlirtWidget(MainWindow *main)
+    : CutterDockWidget(main),
+    ui(new Ui::FlirtWidget),
+    blockMenu(new FlirtContextMenu(this, mainWindow))
 {
     ui->setupUi(this);
 
-    zignaturesModel = new ZignaturesModel(&zignatures, this);
-    zignaturesProxyModel = new ZignaturesProxyModel(zignaturesModel, this);
-    ui->zignaturesTreeView->setModel(zignaturesProxyModel);
-    ui->zignaturesTreeView->sortByColumn(ZignaturesModel::OffsetColumn, Qt::AscendingOrder);
+    model = new FlirtModel(&sigdb, this);
+    proxyModel = new FlirtProxyModel(model, this);
+    ui->flirtTreeView->setModel(proxyModel);
+    ui->flirtTreeView->sortByColumn(FlirtModel::BinTypeColumn, Qt::AscendingOrder);
 
     setScrollMode();
 
-    connect(Core(), &CutterCore::refreshAll, this, &ZignaturesWidget::refreshZignatures);
+
+    this->connect(this, &QWidget::customContextMenuRequested, this, &FlirtWidget::showItemContextMenu);
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    this->connect(ui->flirtTreeView->selectionModel(), &QItemSelectionModel::currentChanged, this,
+                      &FlirtWidget::onSelectedItemChanged);
+    connect(Core(), &CutterCore::refreshAll, this, &FlirtWidget::refreshFlirt);
+
+    this->addActions(this->blockMenu->actions());
 }
 
-ZignaturesWidget::~ZignaturesWidget() {}
+FlirtWidget::~FlirtWidget() {}
 
-void ZignaturesWidget::refreshZignatures()
+void FlirtWidget::refreshFlirt()
 {
-    zignaturesModel->beginResetModel();
-    zignatures = Core()->getAllZignatures();
-    zignaturesModel->endResetModel();
+    model->beginResetModel();
+    sigdb = Core()->getSignaturesDB();
+    model->endResetModel();
 
-    ui->zignaturesTreeView->resizeColumnToContents(0);
-    ui->zignaturesTreeView->resizeColumnToContents(1);
-    ui->zignaturesTreeView->resizeColumnToContents(2);
+    ui->flirtTreeView->resizeColumnToContents(0);
+    ui->flirtTreeView->resizeColumnToContents(1);
+    ui->flirtTreeView->resizeColumnToContents(2);
+    ui->flirtTreeView->resizeColumnToContents(3);
+    ui->flirtTreeView->resizeColumnToContents(4);
+    ui->flirtTreeView->resizeColumnToContents(5);
 }
 
-void ZignaturesWidget::setScrollMode()
+void FlirtWidget::setScrollMode()
 {
-    qhelpers::setVerticalScrollMode(ui->zignaturesTreeView);
+    qhelpers::setVerticalScrollMode(ui->flirtTreeView);
 }
 
-void ZignaturesWidget::on_zignaturesTreeView_doubleClicked(const QModelIndex &index)
+void FlirtWidget::onSelectedItemChanged(const QModelIndex &index)
 {
-    ZignatureDescription item =
-            index.data(ZignaturesModel::ZignatureDescriptionRole).value<ZignatureDescription>();
-    Core()->seekAndShow(item.offset);
+    if (index.isValid()) {
+        const FlirtDescription &entry = sigdb.at(index.row());
+        blockMenu->setTarget(entry);
+    } else {
+        blockMenu->clearTarget();
+    }
+}
+
+void FlirtWidget::showItemContextMenu(const QPoint &pt)
+{
+    auto index = ui->flirtTreeView->currentIndex();
+    if (index.isValid()) {
+        const FlirtDescription &entry = sigdb.at(index.row());
+        blockMenu->setTarget(entry);
+        blockMenu->exec(this->mapToGlobal(pt));
+    }
 }

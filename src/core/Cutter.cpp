@@ -1016,6 +1016,22 @@ RVA CutterCore::getOffset()
     return core_->offset;
 }
 
+int CutterCore::applySignature(const QString &filepath)
+{
+    CORE_LOCK();
+    int old_cnt, new_cnt;
+    const char *arch = rz_config_get(core->config, "asm.arch");
+    ut8 expected_arch = rz_core_flirt_arch_from_name(arch);
+    if (expected_arch == RZ_FLIRT_SIG_ARCH_ANY && filepath.endsWith(".sig", Qt::CaseInsensitive)) {
+        RZ_LOG_ERROR("Cannot apply signature because the requested arch is not supported by .sig files\n");
+        return -1;
+    }
+    old_cnt = rz_flag_count(core->flags, "flirt");
+    rz_sign_flirt_apply(core->analysis, filepath.toStdString().c_str(), expected_arch);
+    new_cnt = rz_flag_count(core->flags, "flirt");
+    return new_cnt - old_cnt;
+}
+
 ut64 CutterCore::math(const QString &expr)
 {
     CORE_LOCK();
@@ -2971,42 +2987,28 @@ QList<FlirtDescription> CutterCore::getSignaturesDB()
 {
     CORE_LOCK();
     QList<FlirtDescription> sigdb;
-
-
     const char *sigdb_path = rz_config_get(core->config, "flirt.sigdb.path");
-    RzList *sigdb = rz_analysis_sigdb_load_database(sigdb_path);
+    if (RZ_STR_ISEMPTY(sigdb_path)) {
+        return sigdb;
+    }
 
-    RzAnalysisSignature *sig = NULL;
+    RzList *list = rz_sign_sigdb_load_database(sigdb_path, true);
+    void *ptr = NULL;
     RzListIter *iter = NULL;
-    ut64 bits;
 
-    rz_list_foreach (sigdb, iter, sig) {
+    rz_list_foreach (list, iter, ptr) {
+        RzSigDBEntry *sig = static_cast<RzSigDBEntry*>(ptr);
         FlirtDescription flirt;
-        flirt.name = sig->base_name;
-        flirt.name = sig->base_name;
+        flirt.bin_name = sig->bin_name;
+        flirt.arch_name = sig->arch_name;
+        flirt.base_name = sig->base_name;
+        flirt.short_path = sig->short_path;
+        flirt.file_path = sig->file_path;
+        flirt.details = sig->details;
+        flirt.n_modules = QString::number(sig->n_modules);
+        flirt.arch_bits = QString::number(sig->arch_bits);
         sigdb << flirt;
     }
-
-    for (const QJsonValue &value : zignaturesArray) {
-        QJsonObject zignatureObject = value.toObject();
-
-
-        flirt.name = zignatureObject[RJsonKey::name].toString();
-        flirt.bytes = zignatureObject[RJsonKey::bytes].toString();
-        flirt.offset = zignatureObject[RJsonKey::offset].toVariant().toULongLong();
-        for (const QJsonValue &ref : zignatureObject[RJsonKey::refs].toArray()) {
-            flirt.refs << ref.toString();
-        }
-
-        QJsonObject graphObject = zignatureObject[RJsonKey::graph].toObject();
-        flirt.cc = graphObject[RJsonKey::cc].toVariant().toULongLong();
-        flirt.nbbs = graphObject[RJsonKey::nbbs].toVariant().toULongLong();
-        flirt.edges = graphObject[RJsonKey::edges].toVariant().toULongLong();
-        flirt.ebbs = graphObject[RJsonKey::ebbs].toVariant().toULongLong();
-
-        sigdb << flirt;
-    }
-
     return sigdb;
 }
 

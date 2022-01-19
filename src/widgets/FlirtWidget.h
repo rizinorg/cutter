@@ -1,10 +1,11 @@
-#ifndef ZIGNATURESWIDGET_H
-#define ZIGNATURESWIDGET_H
+#ifndef FLIRT_WIDGET_H
+#define FLIRT_WIDGET_H
 
 #include <memory>
 
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
+#include "menus/FlirtContextMenu.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
@@ -12,23 +13,31 @@
 class MainWindow;
 class QTreeWidget;
 class QTreeWidgetItem;
-class ZignaturesWidget;
+class FlirtWidget;
 
 namespace Ui {
-class ZignaturesWidget;
+class FlirtWidget;
 }
 
-class ZignaturesModel : public QAbstractListModel
+class FlirtModel : public QAbstractListModel
 {
     Q_OBJECT
 
-    friend ZignaturesWidget;
+    friend FlirtWidget;
 
 public:
-    enum Column { OffsetColumn = 0, NameColumn, ValueColumn, ColumnCount };
-    enum Role { ZignatureDescriptionRole = Qt::UserRole };
+    enum Column {
+        BinTypeColumn = 0,
+        ArchNameColumn,
+        ArchBitsColumn,
+        NumModulesColumn,
+        NameColumn,
+        DetailsColumn,
+        ColumnCount
+    };
+    enum Role { FlirtDescriptionRole = Qt::UserRole };
 
-    ZignaturesModel(QList<ZignatureDescription> *zignatures, QObject *parent = 0);
+    FlirtModel(QList<FlirtDescription> *sigdb, QObject *parent = 0);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
@@ -37,42 +46,43 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
 private:
-    QList<ZignatureDescription> *zignatures;
+    QList<FlirtDescription> *sigdb;
 };
 
-class ZignaturesProxyModel : public QSortFilterProxyModel
+class FlirtProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 
 public:
-    ZignaturesProxyModel(ZignaturesModel *sourceModel, QObject *parent = nullptr);
+    FlirtProxyModel(FlirtModel *sourceModel, QObject *parent = nullptr);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
-class ZignaturesWidget : public CutterDockWidget
+class FlirtWidget : public CutterDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit ZignaturesWidget(MainWindow *main);
-    ~ZignaturesWidget();
+    explicit FlirtWidget(MainWindow *main);
+    ~FlirtWidget();
 
 private slots:
-    void on_zignaturesTreeView_doubleClicked(const QModelIndex &index);
-
-    void refreshZignatures();
+    void refreshFlirt();
+    void onSelectedItemChanged(const QModelIndex &index);
+    void showItemContextMenu(const QPoint &pt);
 
 private:
-    std::unique_ptr<Ui::ZignaturesWidget> ui;
+    std::unique_ptr<Ui::FlirtWidget> ui;
 
-    ZignaturesModel *zignaturesModel;
-    ZignaturesProxyModel *zignaturesProxyModel;
-    QList<ZignatureDescription> zignatures;
+    FlirtModel *model;
+    FlirtProxyModel *proxyModel;
+    QList<FlirtDescription> sigdb;
+    FlirtContextMenu *blockMenu;
 
     void setScrollMode();
 };
 
-#endif // ZIGNATURESWIDGET_H
+#endif // FLIRT_WIDGET_H

@@ -55,7 +55,7 @@
 #include "widgets/ResourcesWidget.h"
 #include "widgets/VTablesWidget.h"
 #include "widgets/HeadersWidget.h"
-#include "widgets/ZignaturesWidget.h"
+#include "widgets/FlirtWidget.h"
 #include "widgets/DebugActions.h"
 #include "widgets/MemoryMapWidget.h"
 #include "widgets/BreakpointWidget.h"
@@ -399,7 +399,7 @@ void MainWindow::initDocks()
         segmentsDock = new SegmentsWidget(this),
         symbolsDock = new SymbolsWidget(this),
         vTablesDock = new VTablesWidget(this),
-        zignaturesDock = new ZignaturesWidget(this),
+        flirtDock = new FlirtWidget(this),
         rzGraphDock = new RizinGraphWidget(this),
         callGraphDock = new CallGraphWidget(this, false),
         globalCallGraphDock = new CallGraphWidget(this, true),
@@ -896,7 +896,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, typesDock);
     tabifyDockWidget(dashboardDock, searchDock);
     tabifyDockWidget(dashboardDock, headersDock);
-    tabifyDockWidget(dashboardDock, zignaturesDock);
+    tabifyDockWidget(dashboardDock, flirtDock);
     tabifyDockWidget(dashboardDock, symbolsDock);
     tabifyDockWidget(dashboardDock, classesDock);
     tabifyDockWidget(dashboardDock, resourcesDock);

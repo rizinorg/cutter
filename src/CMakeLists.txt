@@ -42,6 +42,7 @@ set(SOURCES
     widgets/SymbolsWidget.cpp
     menus/DisassemblyContextMenu.cpp
     menus/DecompilerContextMenu.cpp
+    menus/FlirtContextMenu.cpp
     widgets/DisassemblyWidget.cpp
     widgets/HexdumpWidget.cpp
     common/Configuration.cpp
@@ -190,6 +191,7 @@ set(HEADER_FILES
     widgets/SymbolsWidget.h
     menus/DisassemblyContextMenu.h
     menus/DecompilerContextMenu.h
+    menus/FlirtContextMenu.h
     widgets/DisassemblyWidget.h
     widgets/HexdumpWidget.h
     common/Configuration.h

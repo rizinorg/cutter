@@ -316,6 +316,9 @@ public:
     RVA prevOpAddr(RVA startAddr, int count);
     RVA nextOpAddr(RVA startAddr, int count);
 
+    /* SigDB / Flirt functions */
+    int applySignature(const QString &filepath);
+
     /* Math functions */
     ut64 math(const QString &expr);
     ut64 num(const QString &expr);
