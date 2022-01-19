@@ -90,8 +90,7 @@ FlirtProxyModel::FlirtProxyModel(FlirtModel *sourceModel, QObject *parent)
 bool FlirtProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
-    FlirtDescription entry =
-            index.data(FlirtModel::FlirtDescriptionRole).value<FlirtDescription>();
+    FlirtDescription entry = index.data(FlirtModel::FlirtDescriptionRole).value<FlirtDescription>();
     return qhelpers::filterStringContains(entry.base_name, this);
 }
 
@@ -124,8 +123,8 @@ bool FlirtProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right
 
 FlirtWidget::FlirtWidget(MainWindow *main)
     : CutterDockWidget(main),
-    ui(new Ui::FlirtWidget),
-    blockMenu(new FlirtContextMenu(this, mainWindow))
+      ui(new Ui::FlirtWidget),
+      blockMenu(new FlirtContextMenu(this, mainWindow))
 {
     ui->setupUi(this);
 
@@ -136,12 +135,12 @@ FlirtWidget::FlirtWidget(MainWindow *main)
 
     setScrollMode();
 
-
-    this->connect(this, &QWidget::customContextMenuRequested, this, &FlirtWidget::showItemContextMenu);
+    this->connect(this, &QWidget::customContextMenuRequested, this,
+                  &FlirtWidget::showItemContextMenu);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
 
     this->connect(ui->flirtTreeView->selectionModel(), &QItemSelectionModel::currentChanged, this,
-                      &FlirtWidget::onSelectedItemChanged);
+                  &FlirtWidget::onSelectedItemChanged);
     connect(Core(), &CutterCore::refreshAll, this, &FlirtWidget::refreshFlirt);
 
     this->addActions(this->blockMenu->actions());

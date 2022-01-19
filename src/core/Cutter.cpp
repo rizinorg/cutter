@@ -1023,7 +1023,8 @@ int CutterCore::applySignature(const QString &filepath)
     const char *arch = rz_config_get(core->config, "asm.arch");
     ut8 expected_arch = rz_core_flirt_arch_from_name(arch);
     if (expected_arch == RZ_FLIRT_SIG_ARCH_ANY && filepath.endsWith(".sig", Qt::CaseInsensitive)) {
-        RZ_LOG_ERROR("Cannot apply signature because the requested arch is not supported by .sig files\n");
+        RZ_LOG_ERROR("Cannot apply signature because the requested arch is not supported by .sig "
+                     "files\n");
         return -1;
     }
     old_cnt = rz_flag_count(core->flags, "flirt");
@@ -2996,8 +2997,9 @@ QList<FlirtDescription> CutterCore::getSignaturesDB()
     void *ptr = NULL;
     RzListIter *iter = NULL;
 
-    rz_list_foreach (list, iter, ptr) {
-        RzSigDBEntry *sig = static_cast<RzSigDBEntry*>(ptr);
+    rz_list_foreach(list, iter, ptr)
+    {
+        RzSigDBEntry *sig = static_cast<RzSigDBEntry *>(ptr);
         FlirtDescription flirt;
         flirt.bin_name = sig->bin_name;
         flirt.arch_name = sig->arch_name;

@@ -15,7 +15,8 @@ FlirtContextMenu::FlirtContextMenu(QWidget *parent, MainWindow *mainWindow)
     actionApplySignature = new QAction(tr("Apply Signature"), this);
 
     connect(actionCopyLine, &QAction::triggered, this, &FlirtContextMenu::onActionCopyLine);
-    connect(actionApplySignature, &QAction::triggered, this, &FlirtContextMenu::onActionApplySignature);
+    connect(actionApplySignature, &QAction::triggered, this,
+            &FlirtContextMenu::onActionApplySignature);
 
     addAction(actionCopyLine);
     addSeparator();
@@ -40,9 +41,8 @@ void FlirtContextMenu::clearTarget()
 void FlirtContextMenu::onActionCopyLine()
 {
     auto clipboard = QApplication::clipboard();
-    QString text = entry.bin_name + "\t" + entry.arch_name + "\t" +
-    entry.arch_bits + "\t" + entry.n_modules + "\t" +
-    entry.base_name + "\t" + entry.details;
+    QString text = entry.bin_name + "\t" + entry.arch_name + "\t" + entry.arch_bits + "\t"
+            + entry.n_modules + "\t" + entry.base_name + "\t" + entry.details;
     clipboard->setText(text);
 }
 
@@ -53,13 +53,12 @@ void FlirtContextMenu::onActionApplySignature()
         if (found >= 0) {
             QMessageBox::information(
                     nullptr, tr("Flirt"),
-                    tr("Found %1 signatures via %2")
-                           .arg(found).arg(entry.short_path));
+                    tr("Found %1 signatures via %2").arg(found).arg(entry.short_path));
         } else {
             QMessageBox::warning(
                     nullptr, tr("Flirt"),
                     tr("Failed to apply signature \"%1\".\nCheck the console to find more details.")
-                        .arg(entry.short_path));
+                            .arg(entry.short_path));
         }
     }
 }
