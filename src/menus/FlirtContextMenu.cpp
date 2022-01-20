@@ -49,17 +49,7 @@ void FlirtContextMenu::onActionCopyLine()
 void FlirtContextMenu::onActionApplySignature()
 {
     if (this->hasTarget) {
-        int found = Core()->applySignature(entry.file_path);
-        if (found >= 0) {
-            QMessageBox::information(
-                    nullptr, tr("Signatures"),
-                    tr("Found %1 signatures via %2").arg(found).arg(entry.short_path));
-        } else {
-            QMessageBox::warning(
-                    nullptr, tr("Signatures"),
-                    tr("Failed to apply signature \"%1\".\nCheck the console to find more details.")
-                            .arg(entry.short_path));
-        }
+        Core()->applySignature(entry.file_path);
     }
 }
 

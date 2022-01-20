@@ -317,7 +317,8 @@ public:
     RVA nextOpAddr(RVA startAddr, int count);
 
     /* SigDB / Flirt functions */
-    int applySignature(const QString &filepath);
+    void applySignature(const QString &filepath);
+    void createSignature(const QString &filepath);
 
     /* Math functions */
     ut64 math(const QString &expr);

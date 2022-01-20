@@ -1016,21 +1016,38 @@ RVA CutterCore::getOffset()
     return core_->offset;
 }
 
-int CutterCore::applySignature(const QString &filepath)
+void CutterCore::applySignature(const QString &filepath)
 {
     CORE_LOCK();
     int old_cnt, new_cnt;
     const char *arch = rz_config_get(core->config, "asm.arch");
     ut8 expected_arch = rz_core_flirt_arch_from_name(arch);
     if (expected_arch == RZ_FLIRT_SIG_ARCH_ANY && filepath.endsWith(".sig", Qt::CaseInsensitive)) {
-        RZ_LOG_ERROR("Cannot apply signature because the requested arch is not supported by .sig "
-                     "files\n");
-        return -1;
+        QMessageBox::warning(
+                nullptr, tr("Signatures"),
+                tr("Cannot apply signature because the requested arch is not supported by .sig "
+                   "files\n"));
+        return;
     }
     old_cnt = rz_flag_count(core->flags, "flirt");
     rz_sign_flirt_apply(core->analysis, filepath.toStdString().c_str(), expected_arch);
     new_cnt = rz_flag_count(core->flags, "flirt");
-    return new_cnt - old_cnt;
+    QMessageBox::information(nullptr, tr("Signatures"),
+                             tr("Found %1 signatures!").arg(new_cnt - old_cnt));
+}
+
+void CutterCore::createSignature(const QString &filepath)
+{
+    CORE_LOCK();
+    ut32 n_modules = 0;
+    if (!rz_core_flirt_create_file(core, filepath.toStdString().c_str(), &n_modules)) {
+        QMessageBox::warning(
+                nullptr, tr("Signatures"),
+                tr("Cannot create signature file (check the console for more details).\n"));
+        return;
+    }
+    QMessageBox::information(nullptr, tr("Signatures"),
+                             tr("Written %1 signatures to %2").arg(n_modules).arg(filepath));
 }
 
 ut64 CutterCore::math(const QString &expr)

@@ -190,6 +190,10 @@ private slots:
 
     void on_actionExport_as_code_triggered();
 
+    void on_actionApplySigFromFile_triggered();
+
+    void on_actionCreateNewSig_triggered();
+
     void on_actionGrouped_dock_dragging_triggered(bool checked);
 
     void updateTasksIndicator();

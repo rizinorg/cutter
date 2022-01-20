@@ -1741,6 +1741,50 @@ void MainWindow::on_actionExport_as_code_triggered()
     fileOut << Core()->cmd(cmd + " $s @ 0");
 }
 
+void MainWindow::on_actionApplySigFromFile_triggered()
+{
+    QStringList filters;
+    filters << tr("Signature (*.sig)");
+    filters << tr("Pattern File (*.pat)");
+
+    QFileDialog dialog(this);
+    dialog.setWindowTitle(tr("Apply Signature From File"));
+    dialog.setNameFilters(filters);
+
+    if (!dialog.exec()) {
+        return;
+    }
+
+    const QString &sigfile = QDir::toNativeSeparators(dialog.selectedFiles().first());
+
+    if (!sigfile.isEmpty()) {
+        core->applySignature(sigfile);
+        this->refreshAll();
+    }
+}
+
+void MainWindow::on_actionCreateNewSig_triggered()
+{
+    QStringList filters;
+    filters << tr("Signature (*.sig)");
+    filters << tr("Pattern File (*.pat)");
+
+    QFileDialog dialog(this, tr("Create New Signature"));
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setNameFilters(filters);
+    dialog.selectFile("");
+    dialog.setDefaultSuffix("sig");
+    if (!dialog.exec())
+        return;
+
+    const QString &sigfile = QDir::toNativeSeparators(dialog.selectedFiles().first());
+
+    if (!sigfile.isEmpty()) {
+        core->createSignature(sigfile);
+    }
+}
+
 void MainWindow::on_actionGrouped_dock_dragging_triggered(bool checked)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
