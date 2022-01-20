@@ -750,7 +750,7 @@
   </action>
   <action name="actionCreateNewSig">
    <property name="text">
-    <string>Create New Signature</string>
+    <string>Create New Signature File</string>
    </property>
   </action>
   <action name="actionExtraHexdump">

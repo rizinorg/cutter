@@ -1744,7 +1744,7 @@ void MainWindow::on_actionExport_as_code_triggered()
 void MainWindow::on_actionApplySigFromFile_triggered()
 {
     QStringList filters;
-    filters << tr("Signature (*.sig)");
+    filters << tr("Signature File (*.sig)");
     filters << tr("Pattern File (*.pat)");
 
     QFileDialog dialog(this);
@@ -1766,10 +1766,10 @@ void MainWindow::on_actionApplySigFromFile_triggered()
 void MainWindow::on_actionCreateNewSig_triggered()
 {
     QStringList filters;
-    filters << tr("Signature (*.sig)");
+    filters << tr("Signature File (*.sig)");
     filters << tr("Pattern File (*.pat)");
 
-    QFileDialog dialog(this, tr("Create New Signature"));
+    QFileDialog dialog(this, tr("Create New Signature File"));
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setFileMode(QFileDialog::AnyFile);
     dialog.setNameFilters(filters);
