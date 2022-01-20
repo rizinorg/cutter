@@ -62,13 +62,13 @@ QVariant FlirtModel::headerData(int section, Qt::Orientation, int role) const
     case Qt::DisplayRole:
         switch (section) {
         case BinTypeColumn:
-            return tr("Bin Type");
+            return tr("Bin");
         case ArchNameColumn:
-            return tr("Architecture");
+            return tr("Arch");
         case ArchBitsColumn:
             return tr("Bits");
         case NumModulesColumn:
-            return tr("# Modules");
+            return tr("# Funcs");
         case NameColumn:
             return tr("Name");
         case DetailsColumn:
