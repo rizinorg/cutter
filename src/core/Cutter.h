@@ -316,6 +316,10 @@ public:
     RVA prevOpAddr(RVA startAddr, int count);
     RVA nextOpAddr(RVA startAddr, int count);
 
+    /* SigDB / Flirt functions */
+    void applySignature(const QString &filepath);
+    void createSignature(const QString &filepath);
+
     /* Math functions */
     ut64 math(const QString &expr);
     ut64 num(const QString &expr);
@@ -553,7 +557,7 @@ public:
     QList<ExportDescription> getAllExports();
     QList<SymbolDescription> getAllSymbols();
     QList<HeaderDescription> getAllHeaders();
-    QList<ZignatureDescription> getAllZignatures();
+    QList<FlirtDescription> getSignaturesDB();
     QList<CommentDescription> getAllComments(const QString &filterType);
     QList<RelocDescription> getAllRelocs();
     QList<StringDescription> getAllStrings();

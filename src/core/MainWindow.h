@@ -44,7 +44,7 @@ class ResourcesWidget;
 class VTablesWidget;
 class TypesWidget;
 class HeadersWidget;
-class ZignaturesWidget;
+class FlirtWidget;
 class SearchWidget;
 class QDockWidget;
 class DisassemblyWidget;
@@ -190,6 +190,10 @@ private slots:
 
     void on_actionExport_as_code_triggered();
 
+    void on_actionApplySigFromFile_triggered();
+
+    void on_actionCreateNewSig_triggered();
+
     void on_actionGrouped_dock_dragging_triggered(bool checked);
 
     void updateTasksIndicator();
@@ -243,7 +247,7 @@ private:
     SdbWidget *sdbDock = nullptr;
     SectionsWidget *sectionsDock = nullptr;
     SegmentsWidget *segmentsDock = nullptr;
-    ZignaturesWidget *zignaturesDock = nullptr;
+    FlirtWidget *flirtDock = nullptr;
     ConsoleWidget *consoleDock = nullptr;
     ClassesWidget *classesDock = nullptr;
     ResourcesWidget *resourcesDock = nullptr;

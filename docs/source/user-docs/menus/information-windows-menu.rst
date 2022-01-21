@@ -89,8 +89,8 @@ Show VTables
 
 **Steps:** Windows -> Info... -> VTables  
 
-Show Zignatures
+Show Signatures
 ----------------------------------------
-**Description:** Cutter has its own format of signatures, called Zignatures. This widget lists all the loaded Zignatures.  
+**Description:** Cutter supports the creation and the utilization of signatures. This widget lists all the signatures available to cutter.  
 
-**Steps:** Windows -> Info... -> Zignatures
+**Steps:** Windows -> Info... -> Signatures
