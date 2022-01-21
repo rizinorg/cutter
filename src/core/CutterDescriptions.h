@@ -60,16 +60,16 @@ struct HeaderDescription
     QString name;
 };
 
-struct ZignatureDescription
+struct FlirtDescription
 {
-    QString name;
-    QString bytes;
-    RVA cc;
-    RVA nbbs;
-    RVA edges;
-    RVA ebbs;
-    RVA offset;
-    QStringList refs;
+    QString bin_name;
+    QString arch_name;
+    QString arch_bits;
+    QString base_name;
+    QString short_path;
+    QString file_path;
+    QString details;
+    QString n_modules;
 };
 
 struct TypeDescription
@@ -413,7 +413,7 @@ Q_DECLARE_METATYPE(ResourcesDescription)
 Q_DECLARE_METATYPE(VTableDescription)
 Q_DECLARE_METATYPE(TypeDescription)
 Q_DECLARE_METATYPE(HeaderDescription)
-Q_DECLARE_METATYPE(ZignatureDescription)
+Q_DECLARE_METATYPE(FlirtDescription)
 Q_DECLARE_METATYPE(SearchDescription)
 Q_DECLARE_METATYPE(SectionDescription)
 Q_DECLARE_METATYPE(SegmentDescription)

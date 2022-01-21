@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ZignaturesWidget</class>
- <widget class="QDockWidget" name="ZignaturesWidget">
+ <class>FlirtWidget</class>
+ <widget class="QDockWidget" name="FlirtWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string notr="true">Zignatures</string>
+   <string notr="true">Signatures</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -28,7 +28,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="CutterTreeView" name="zignaturesTreeView">
+     <widget class="CutterTreeView" name="flirtTreeView">
       <property name="styleSheet">
        <string notr="true">CutterTreeView::item
 {
