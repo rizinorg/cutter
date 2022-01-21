@@ -1023,17 +1023,22 @@ void CutterCore::applySignature(const QString &filepath)
     const char *arch = rz_config_get(core->config, "asm.arch");
     ut8 expected_arch = rz_core_flirt_arch_from_name(arch);
     if (expected_arch == RZ_FLIRT_SIG_ARCH_ANY && filepath.endsWith(".sig", Qt::CaseInsensitive)) {
-        QMessageBox::warning(
-                nullptr, tr("Signatures"),
-                tr("Cannot apply signature because the requested arch is not supported by .sig "
-                   "files\n"));
+        QMessageBox::warning(nullptr, tr("Signatures"),
+                             tr("Cannot apply signature file because the requested arch is not "
+                                "supported by .sig "
+                                "files"));
         return;
     }
     old_cnt = rz_flag_count(core->flags, "flirt");
-    rz_sign_flirt_apply(core->analysis, filepath.toStdString().c_str(), expected_arch);
-    new_cnt = rz_flag_count(core->flags, "flirt");
-    QMessageBox::information(nullptr, tr("Signatures"),
-                             tr("Found %1 signatures!").arg(new_cnt - old_cnt));
+    if (rz_sign_flirt_apply(core->analysis, filepath.toStdString().c_str(), expected_arch)) {
+        new_cnt = rz_flag_count(core->flags, "flirt");
+        QMessageBox::information(nullptr, tr("Signatures"),
+                                 tr("Found %1 matching signatures!").arg(new_cnt - old_cnt));
+        return;
+    }
+    QMessageBox::warning(
+            nullptr, tr("Signatures"),
+            tr("Failed to apply signature file!\nPlease check the console for more details."));
 }
 
 void CutterCore::createSignature(const QString &filepath)
@@ -1043,11 +1048,11 @@ void CutterCore::createSignature(const QString &filepath)
     if (!rz_core_flirt_create_file(core, filepath.toStdString().c_str(), &n_modules)) {
         QMessageBox::warning(
                 nullptr, tr("Signatures"),
-                tr("Cannot create signature file (check the console for more details).\n"));
+                tr("Cannot create signature file (check the console for more details)."));
         return;
     }
     QMessageBox::information(nullptr, tr("Signatures"),
-                             tr("Written %1 signatures to %2").arg(n_modules).arg(filepath));
+                             tr("Written %1 signatures to %2.").arg(n_modules).arg(filepath));
 }
 
 ut64 CutterCore::math(const QString &expr)
