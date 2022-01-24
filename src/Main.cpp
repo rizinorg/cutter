@@ -22,14 +22,19 @@ static void connectToConsole()
         return;
     }
 
-    // Avoid reconfiguring stderr/stdout if one of them is already connected to a stream.
+    // Avoid reconfiguring stdin/stderr/stdout if one of them is already connected to a stream.
     // This can happen when running with stdout/stderr redirected to a file.
-    if (0 > fileno(stdout)) {
-        // Overwrite FD 1 and 2 for the benefit of any code that uses the FDs
+	if (0 > fileno(stdin)) {
+        // Overwrite FD 0, FD 1 and 2 for the benefit of any code that uses the FDs
         // directly.  This is safe because the CRT allocates FDs 0, 1 and
         // 2 at startup even if they don't have valid underlying Windows
         // handles.  This means we won't be overwriting an FD created by
         // _open() after startup.
+        _close(0);
+
+        freopen("CONIN$", "r+", stdin);
+    }
+    if (0 > fileno(stdout)) {
         _close(1);
 
         if (freopen("CONOUT$", "a+", stdout)) {
