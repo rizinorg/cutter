@@ -24,7 +24,7 @@ static void connectToConsole()
 
     // Avoid reconfiguring stdin/stderr/stdout if one of them is already connected to a stream.
     // This can happen when running with stdout/stderr redirected to a file.
-	if (0 > fileno(stdin)) {
+    if (0 > fileno(stdin)) {
         // Overwrite FD 0, FD 1 and 2 for the benefit of any code that uses the FDs
         // directly.  This is safe because the CRT allocates FDs 0, 1 and
         // 2 at startup even if they don't have valid underlying Windows
