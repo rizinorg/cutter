@@ -200,6 +200,7 @@ static void removeObsoleteOptionsFromCustomThemes()
         }
         ThemeWorker().save(QJsonDocument(updatedTheme), theme);
     }
+    rz_list_free(themes_list);
 }
 
 void Cutter::migrateThemes()
