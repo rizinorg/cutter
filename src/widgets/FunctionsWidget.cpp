@@ -599,10 +599,9 @@ void FunctionsWidget::onActionFunctionsRenameTriggered()
 void FunctionsWidget::onActionFunctionsUndefineTriggered()
 {
     const auto selection = ui->treeView->selectionModel()->selection().indexes();
-    std::vector<RVA> offsets;
-    offsets.reserve(selection.size());
+    QSet<RVA> offsets;
     for (const auto &index : selection) {
-        offsets.push_back(functionProxyModel->address(index));
+        offsets.insert(functionProxyModel->address(index));
     }
     for (RVA offset : offsets) {
         Core()->delFunction(offset);
