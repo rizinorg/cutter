@@ -183,8 +183,11 @@ static void removeObsoleteOptionsFromCustomThemes()
 {
     const QStringList options = Core()->cmdj("ecj").object().keys()
             << ColorThemeWorker::cutterSpecificOptions;
-    for (auto theme : Core()->cmdList("eco*")) {
-        theme = theme.trimmed();
+    RzList *themes_list = rz_core_theme_list(Core()->core());
+    RzListIter *th_iter;
+    const char *th;
+    CutterRzListForeach (themes_list, th_iter, const char, th) {
+        auto theme = QString(th).trimmed();
         if (!ThemeWorker().isCustomTheme(theme)) {
             continue;
         }
@@ -197,6 +200,7 @@ static void removeObsoleteOptionsFromCustomThemes()
         }
         ThemeWorker().save(QJsonDocument(updatedTheme), theme);
     }
+    rz_list_free(themes_list);
 }
 
 void Cutter::migrateThemes()

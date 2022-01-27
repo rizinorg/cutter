@@ -527,7 +527,7 @@ const QColor Configuration::getColor(const QString &name) const
 void Configuration::setColorTheme(const QString &theme)
 {
     if (theme == "default") {
-        Core()->cmdRaw("ecd");
+        rz_cons_pal_init(Core()->core()->cons->context);
         s.setValue("theme", "default");
     } else {
         rz_core_theme_load(Core()->core(), theme.toUtf8().constData());

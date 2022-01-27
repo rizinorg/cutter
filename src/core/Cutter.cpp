@@ -687,19 +687,25 @@ bool CutterCore::mapFile(QString path, RVA mapaddr)
 
 void CutterCore::renameFunction(const RVA offset, const QString &newName)
 {
-    cmdRaw("afn " + newName + " " + RzAddressString(offset));
+    CORE_LOCK();
+    rz_core_analysis_function_rename(core, offset, newName.toStdString().c_str());
     emit functionRenamed(offset, newName);
 }
 
 void CutterCore::delFunction(RVA addr)
 {
-    cmdRaw("af- " + RzAddressString(addr));
+    CORE_LOCK();
+    rz_core_analysis_undefine(core, addr);
     emit functionsChanged();
 }
 
 void CutterCore::renameFlag(QString old_name, QString new_name)
 {
-    cmdRaw("fr " + old_name + " " + new_name);
+    CORE_LOCK();
+    RzFlagItem *flag = rz_flag_get(core->flags, old_name.toStdString().c_str());
+    if (!flag)
+        return;
+    rz_flag_rename(core->flags, flag, new_name.toStdString().c_str());
     emit flagsChanged();
 }
 
@@ -717,13 +723,15 @@ void CutterCore::renameFunctionVariable(QString newName, QString oldName, RVA fu
 
 void CutterCore::delFlag(RVA addr)
 {
-    cmdRawAt("f-", addr);
+    CORE_LOCK();
+    rz_flag_unset_off(core->flags, addr);
     emit flagsChanged();
 }
 
 void CutterCore::delFlag(const QString &name)
 {
-    cmdRaw("f-" + name);
+    CORE_LOCK();
+    rz_flag_unset_name(core->flags, name.toStdString().c_str());
     emit flagsChanged();
 }
 
@@ -797,34 +805,34 @@ void CutterCore::setAsString(RVA addr, int size, StringTypeFormats type)
         return;
     }
 
-    QString command;
-
+    RzStrEnc encoding;
     switch (type) {
     case StringTypeFormats::None: {
-        command = "Cs";
+        encoding = RZ_STRING_ENC_GUESS;
         break;
     }
     case StringTypeFormats::ASCII_LATIN1: {
-        command = "Csa";
+        encoding = RZ_STRING_ENC_8BIT;
         break;
     }
     case StringTypeFormats::UTF8: {
-        command = "Cs8";
+        encoding = RZ_STRING_ENC_UTF8;
         break;
     }
     default:
         return;
     }
 
+    CORE_LOCK();
     seekAndShow(addr);
-
-    cmdRawAt(QString("%1 %2").arg(command).arg(size), addr);
+    rz_core_meta_string_add(core, addr, size, encoding, nullptr);
     emit instructionChanged(addr);
 }
 
 void CutterCore::removeString(RVA addr)
 {
-    cmdRawAt("Cs-", addr);
+    CORE_LOCK();
+    rz_meta_del(core->analysis, RZ_META_TYPE_STRING, addr, 1);
     emit instructionChanged(addr);
 }
 
@@ -833,21 +841,33 @@ QString CutterCore::getString(RVA addr)
     return cmdRawAt("ps", addr);
 }
 
+QString CutterCore::getMetaString(RVA addr)
+{
+    return cmdRawAt("Cs.", addr);
+}
+
 void CutterCore::setToData(RVA addr, int size, int repeat)
 {
     if (size <= 0 || repeat <= 0) {
         return;
     }
-    cmdRawAt("Cd-", addr);
-    cmdRawAt(QString("Cd %1 %2").arg(size).arg(repeat), addr);
+
+    CORE_LOCK();
+    rz_meta_del(core->analysis, RZ_META_TYPE_DATA, addr, 1);
+    RVA address = addr;
+    auto name = QString(size).toStdString();
+    for (int i = 0; i < repeat; ++i, address += size) {
+        rz_meta_set(core->analysis, RZ_META_TYPE_DATA, address, size, name.c_str());
+    }
     emit instructionChanged(addr);
 }
 
 int CutterCore::sizeofDataMeta(RVA addr)
 {
-    bool ok;
-    int size = cmdRawAt("Cd.", addr).toInt(&ok);
-    return (ok ? size : 0);
+    ut64 size;
+    CORE_LOCK();
+    rz_meta_get_at(core->analysis, addr, RZ_META_TYPE_DATA, &size);
+    return (int)size;
 }
 
 void CutterCore::setComment(RVA addr, const QString &cmt)
@@ -1302,20 +1322,22 @@ void CutterCore::cmdEsil(const char *command)
     }
 }
 
-QString CutterCore::createFunctionAt(RVA addr)
+void CutterCore::createFunctionAt(RVA addr)
 {
-    QString ret = cmdRaw(QString("af %1").arg(addr));
-    emit functionsChanged();
-    return ret;
+    createFunctionAt(addr, "");
 }
 
-QString CutterCore::createFunctionAt(RVA addr, QString name)
+void CutterCore::createFunctionAt(RVA addr, QString name)
 {
-    static const QRegularExpression regExp("[^a-zA-Z0-9_.]");
-    name.remove(regExp);
-    QString ret = cmdRawAt(QString("af %1").arg(name), addr);
+    if (!name.isEmpty() && !name.isNull()) {
+        static const QRegularExpression regExp("[^a-zA-Z0-9_.]");
+        name.remove(regExp);
+    }
+
+    CORE_LOCK();
+    bool analyze_recursively = rz_config_get_i(core->config, "analysis.calls");
+    rz_core_analysis_function_add(core, name.toStdString().c_str(), addr, analyze_recursively);
     emit functionsChanged();
-    return ret;
 }
 
 QJsonDocument CutterCore::getRegistersInfo()
@@ -3118,45 +3140,37 @@ QList<StringDescription> CutterCore::parseStringsJson(const QJsonDocument &doc)
 QList<FlagspaceDescription> CutterCore::getAllFlagspaces()
 {
     CORE_LOCK();
-    QList<FlagspaceDescription> ret;
-
-    QJsonArray flagspacesArray = cmdj("fsj").array();
-    for (const QJsonValue &value : flagspacesArray) {
-        QJsonObject flagspaceObject = value.toObject();
-
+    QList<FlagspaceDescription> flagspaces;
+    RzSpaceIter it;
+    RzSpace *space;
+    rz_flag_space_foreach(core->flags, it, space)
+    {
         FlagspaceDescription flagspace;
-
-        flagspace.name = flagspaceObject[RJsonKey::name].toString();
-
-        ret << flagspace;
+        flagspace.name = space->name;
+        flagspaces << flagspace;
     }
-    return ret;
+    return flagspaces;
 }
 
 QList<FlagDescription> CutterCore::getAllFlags(QString flagspace)
 {
     CORE_LOCK();
-    QList<FlagDescription> ret;
-
-    if (!flagspace.isEmpty())
-        cmdRaw("fs " + flagspace);
-    else
-        cmdRaw("fs *");
-
-    QJsonArray flagsArray = cmdj("fj").array();
-    for (const QJsonValue &value : flagsArray) {
-        QJsonObject flagObject = value.toObject();
-
-        FlagDescription flag;
-
-        flag.offset = flagObject[RJsonKey::offset].toVariant().toULongLong();
-        flag.size = flagObject[RJsonKey::size].toVariant().toULongLong();
-        flag.name = flagObject[RJsonKey::name].toString();
-        flag.realname = flagObject[RJsonKey::realname].toString();
-
-        ret << flag;
-    }
-    return ret;
+    QList<FlagDescription> flags;
+    std::string name = flagspace.isEmpty() || flagspace.isNull() ? "*" : flagspace.toStdString();
+    RzSpace *space = rz_flag_space_get(core->flags, name.c_str());
+    rz_flag_foreach_space(
+            core->flags, space,
+            [](RzFlagItem *item, void *user) {
+                FlagDescription flag;
+                flag.offset = item->offset;
+                flag.size = item->size;
+                flag.name = item->name;
+                flag.realname = item->name;
+                reinterpret_cast<QList<FlagDescription> *>(user)->append(flag);
+                return true;
+            },
+            &flags);
+    return flags;
 }
 
 QList<SectionDescription> CutterCore::getAllSections()
@@ -3856,7 +3870,8 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
 void CutterCore::addFlag(RVA offset, QString name, RVA size)
 {
     name = sanitizeStringForCommand(name);
-    cmdRawAt(QString("f %1 %2").arg(name).arg(size), offset);
+    CORE_LOCK();
+    rz_flag_set(core->flags, name.toStdString().c_str(), offset, size);
     emit flagsChanged();
 }
 
