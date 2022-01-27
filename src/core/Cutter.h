@@ -198,8 +198,8 @@ public:
     RVA getLastFunctionInstruction(RVA addr);
     QString cmdFunctionAt(QString addr);
     QString cmdFunctionAt(RVA addr);
-    QString createFunctionAt(RVA addr);
-    QString createFunctionAt(RVA addr, QString name);
+    void createFunctionAt(RVA addr);
+    void createFunctionAt(RVA addr, QString name);
     QStringList getDisassemblyPreview(RVA address, int num_of_lines);
 
     /* Flags */
@@ -242,6 +242,13 @@ public:
      * \param addr The address of the array where the string will be applied
      */
     void removeString(RVA addr);
+    /**
+     * @brief Gets string at address
+     * That function correspond the 'Cs.' command
+     * \param addr The address of the string
+     * @return string at requested address
+     */
+    QString getMetaString(RVA addr);
     /**
      * @brief Gets string at address
      * That function calls the 'ps' command
