@@ -368,7 +368,6 @@ QString CutterCore::sanitizeStringForCommand(QString s)
 QString CutterCore::cmd(const char *str)
 {
     CORE_LOCK();
-
     RVA offset = core->offset;
     char *res = rz_core_cmd_str(core, str);
     QString o = fromOwnedCharPtr(res);
@@ -726,6 +725,9 @@ void CutterCore::delFlag(RVA addr)
     CORE_LOCK();
     rz_flag_unset_off(core->flags, addr);
     emit flagsChanged();
+#if RZ_LIBYARA
+    emit yaraStringsChanged();
+#endif
 }
 
 void CutterCore::delFlag(const QString &name)
@@ -733,6 +735,9 @@ void CutterCore::delFlag(const QString &name)
     CORE_LOCK();
     rz_flag_unset_name(core->flags, name.toStdString().c_str());
     emit flagsChanged();
+#if RZ_LIBYARA
+    emit yaraStringsChanged();
+#endif
 }
 
 QString CutterCore::getInstructionBytes(RVA addr)

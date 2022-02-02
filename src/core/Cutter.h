@@ -704,6 +704,9 @@ public:
 signals:
     void refreshAll();
 
+#if RZ_LIBYARA
+    void yaraStringsChanged();
+#endif
     void functionRenamed(const RVA offset, const QString &new_name);
     void varsChanged();
     void functionsChanged();

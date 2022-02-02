@@ -19,6 +19,10 @@
 #include <QPushButton>
 #include <QInputDialog>
 
+#if RZ_LIBYARA
+#    include "yara/YaraAddDialog.h"
+#endif
+
 DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *mainWindow)
     : QMenu(parent),
       offset(0),
@@ -34,6 +38,9 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
       actionAnalyzeFunction(this),
       actionEditFunction(this),
       actionRename(this),
+#if RZ_LIBYARA
+      actionAddYaraString(this),
+#endif
       actionSetFunctionVarTypes(this),
       actionXRefs(this),
       actionXRefsForVariables(this),
@@ -86,6 +93,12 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     initAction(&actionRename, tr("Rename or add flag"), SLOT(on_actionRename_triggered()),
                getRenameSequence());
     addAction(&actionRename);
+
+#if RZ_LIBYARA
+    initAction(&actionAddYaraString, tr("Add Yara String"),
+               SLOT(on_actionAddYaraString_triggered()));
+    addAction(&actionAddYaraString);
+#endif
 
     initAction(&actionSetFunctionVarTypes, tr("Re-type Local Variables"),
                SLOT(on_actionSetFunctionVarTypes_triggered()), getRetypeSequence());
@@ -417,15 +430,28 @@ void DisassemblyContextMenu::buildRenameMenu(ThingUsedHere *tuh)
         doRenameInfo.addr = tuh->offset;
         actionRename.setText(tr("Rename local \"%1\"").arg(tuh->name));
     } else if (tuh->type == ThingUsedHere::Type::Flag) {
+        actionDeleteFlag.setVisible(true);
+#if RZ_LIBYARA
+        if (tuh->name.startsWith("yara.")) {
+            doRenameAction = RENAME_DO_NOTHING;
+            actionRename.setVisible(false);
+            actionAddYaraString.setVisible(false);
+            return;
+        }
+#endif
         doRenameAction = RENAME_FLAG;
         doRenameInfo.name = tuh->name;
         doRenameInfo.addr = tuh->offset;
         actionRename.setText(tr("Rename flag \"%1\" (used here)").arg(doRenameInfo.name));
-        actionDeleteFlag.setVisible(true);
     } else {
         qWarning() << "Unexpected renaming type";
         doRenameAction = RENAME_DO_NOTHING;
     }
+    actionRename.setVisible(true);
+#if RZ_LIBYARA
+    actionAddYaraString.setText(tr("Add Yara string at %1").arg(RzAddressString(tuh->offset)));
+    actionAddYaraString.setVisible(true);
+#endif
 }
 
 void DisassemblyContextMenu::setupRenaming()
@@ -1022,6 +1048,17 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
         }
     }
 }
+
+#if RZ_LIBYARA
+void DisassemblyContextMenu::on_actionAddYaraString_triggered()
+{
+    YaraAddDialog dialog(offset);
+    if (dialog.exec()) {
+        emit Core()->refreshCodeViews();
+        emit Core()->yaraStringsChanged();
+    }
+}
+#endif
 
 void DisassemblyContextMenu::setBase(QString base)
 {

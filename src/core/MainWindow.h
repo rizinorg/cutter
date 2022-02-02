@@ -55,6 +55,9 @@ class OverviewWidget;
 class RizinGraphWidget;
 class CallGraphWidget;
 class HeapWidget;
+#if RZ_LIBYARA
+class YaraWidget;
+#endif
 
 namespace Ui {
 class MainWindow;
@@ -211,6 +214,10 @@ private slots:
     void setAvailableIOModeOptions();
 
 private:
+#if RZ_LIBYARA
+    void onActionLoadYaraFile();
+    void onActionLoadYaraFolder();
+#endif
     CutterCore *core;
 
     bool tabsOnTop;
@@ -265,6 +272,9 @@ private:
     CallGraphWidget *callGraphDock = nullptr;
     CallGraphWidget *globalCallGraphDock = nullptr;
     CutterDockWidget *heapDock = nullptr;
+#if RZ_LIBYARA
+    YaraWidget *yaraDock = nullptr;
+#endif
 
     QMenu *disassemblyContextMenuExtensions = nullptr;
     QMenu *addressableContextMenuExtensions = nullptr;

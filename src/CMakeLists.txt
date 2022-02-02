@@ -395,6 +395,12 @@ if(CUTTER_ENABLE_CRASH_REPORTS)
     list(APPEND SOURCES common/CrashHandler.cpp)
 endif()
 
+if(CUTTER_PACKAGE_RZ_LIBYARA)
+    list(APPEND SOURCES yara/YaraViewMenu.cpp yara/YaraWidget.cpp yara/YaraAddMetaDialog.cpp yara/YaraSyntax.cpp yara/YaraAddDialog.cpp)
+    list(APPEND HEADER_FILES yara/YaraViewMenu.h yara/YaraWidget.h yara/YaraAddMetaDialog.h yara/YaraSyntax.h yara/YaraAddDialog.h yara/YaraDescription.h)
+    list(APPEND UI_FILES yara/YaraWidget.ui yara/YaraAddMetaDialog.ui yara/YaraAddDialog.ui)
+endif()
+
 if(CUTTER_ENABLE_PYTHON_BINDINGS)
     set(BINDINGS_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bindings")
     set(BINDINGS_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/bindings")
@@ -548,6 +554,11 @@ endif()
 if(CUTTER_ENABLE_PACKAGING)
     target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_PACKAGING)
 endif()
+
+if(CUTTER_PACKAGE_RZ_LIBYARA)
+    target_compile_definitions(Cutter PRIVATE RZ_LIBYARA)
+endif()
+
 
 include(Translations)
 

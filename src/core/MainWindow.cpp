@@ -72,6 +72,9 @@
 #include "widgets/RizinGraphWidget.h"
 #include "widgets/CallGraph.h"
 #include "widgets/HeapDockWidget.h"
+#if RZ_LIBYARA
+#    include "yara/YaraWidget.h"
+#endif
 
 // Qt Headers
 #include <QActionGroup>
@@ -270,6 +273,16 @@ void MainWindow::initUI()
     // Display tooltip for the Analyze Program action
     ui->actionAnalyze->setToolTip("Analyze the program using Rizin's \"aaa\" command");
     ui->menuFile->setToolTipsVisible(true);
+
+#if RZ_LIBYARA
+    QMenu *menu = ui->menuBar->addMenu(tr("Yara"));
+    QAction *actionLoadYaraFile = new QAction(tr("Load Yara Rule From File"), this);
+    QAction *actionLoadYaraFolder = new QAction(tr("Load All Yara Rules In Directory"), this);
+    menu->addAction(actionLoadYaraFile);
+    menu->addAction(actionLoadYaraFolder);
+    connect(actionLoadYaraFile, &QAction::triggered, this, &MainWindow::onActionLoadYaraFile);
+    connect(actionLoadYaraFolder, &QAction::triggered, this, &MainWindow::onActionLoadYaraFolder);
+#endif
 }
 
 void MainWindow::initToolBar()
@@ -403,6 +416,9 @@ void MainWindow::initDocks()
         rzGraphDock = new RizinGraphWidget(this),
         callGraphDock = new CallGraphWidget(this, false),
         globalCallGraphDock = new CallGraphWidget(this, true),
+#if RZ_LIBYARA
+        yaraDock = new YaraWidget(this),
+#endif
     };
 
     auto makeActionList = [this](QList<CutterDockWidget *> docks) {
@@ -1648,6 +1664,37 @@ void MainWindow::on_actionRefresh_Panels_triggered()
 {
     this->refreshAll();
 }
+
+#if RZ_LIBYARA
+void MainWindow::onActionLoadYaraFile()
+{
+    QFileDialog dialog(this);
+    dialog.setWindowTitle(tr("Load Yara Rule From File"));
+
+    if (!dialog.exec()) {
+        return;
+    }
+
+    const QString &yarafile = QDir::toNativeSeparators(dialog.selectedFiles().first());
+    if (!yarafile.isEmpty()) {
+        core->cmd("yaral " + yarafile);
+        yaraDock->switchToMatches();
+        emit core->yaraStringsChanged();
+    }
+}
+
+void MainWindow::onActionLoadYaraFolder()
+{
+    QString yaradir = QFileDialog::getExistingDirectory(this, tr("Open Directory"), "",
+                                                        QFileDialog::ShowDirsOnly
+                                                                | QFileDialog::DontResolveSymlinks);
+    if (!yaradir.isEmpty()) {
+        core->cmd("yarad " + yaradir);
+        yaraDock->switchToMatches();
+        emit core->yaraStringsChanged();
+    }
+}
+#endif
 
 /**
  * @brief A signal that creates an AsyncTask to re-analyze the current file

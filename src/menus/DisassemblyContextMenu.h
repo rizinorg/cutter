@@ -66,6 +66,10 @@ private slots:
     void on_actionSetToData_triggered();
     void on_actionSetToDataEx_triggered();
 
+#if RZ_LIBYARA
+    void on_actionAddYaraString_triggered();
+#endif
+
     /**
      * @brief Executed on selecting an offset from the structureOffsetMenu
      * Uses the applyStructureOffset() function of CutterCore to apply the
@@ -114,6 +118,9 @@ private:
     QAction actionAnalyzeFunction;
     QAction actionEditFunction;
     QAction actionRename;
+#if RZ_LIBYARA
+    QAction actionAddYaraString;
+#endif
     QAction actionSetFunctionVarTypes;
     QAction actionXRefs;
     QAction actionXRefsForVariables;
