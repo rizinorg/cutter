@@ -43,6 +43,12 @@ set(CUTTER_VERSION_FULL "${CUTTER_VERSION_MAJOR}.${CUTTER_VERSION_MINOR}.${CUTTE
 
 project(Cutter VERSION "${CUTTER_VERSION_FULL}")
 
+# Enable solution folder support
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+# Put Qt files in a separate folder
+set_property(GLOBAL PROPERTY AUTOGEN_SOURCE_GROUP "Generated Files")
+
 set(CMAKE_CXX_STANDARD 11)
 
 include(CutterInstallDirs)
