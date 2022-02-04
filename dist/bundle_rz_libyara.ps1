@@ -1,5 +1,4 @@
 $dist = $args[0]
-$plugdir = $args[1]
 $python = Split-Path((Get-Command python.exe).Path)
 
 if (-not (Test-Path -Path 'rz_libyara' -PathType Container)) {
@@ -8,7 +7,7 @@ if (-not (Test-Path -Path 'rz_libyara' -PathType Container)) {
     git -C rz_libyara submodule update
 }
 cd rz_libyara
-& meson.exe --buildtype=release --prefix=$dist build -Dcutter_plugdir=$plugdir
+& meson.exe --buildtype=release --prefix=$dist build
 ninja -C build install
 $pathdll = "$dist/lib/plugins/rz_yara.dll"
 if(![System.IO.File]::Exists($pathdll)) {
