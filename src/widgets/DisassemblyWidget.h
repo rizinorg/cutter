@@ -83,7 +83,6 @@ private:
     RefreshDeferrer *disasmRefresh;
 
     RVA readCurrentDisassemblyOffset();
-    RVA readDisassemblyOffset(QTextCursor tc);
     bool eventFilter(QObject *obj, QEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     QString getWindowTitle() const override;

@@ -31,8 +31,15 @@ QString getToolTipStyleSheet();
 
 /*!
  * @brief Show a QToolTip that previews the disassembly that is pointed to
+ * It works for GraphWidget and DisassemblyWidget
  * @return True if the tooltip is shown
  */
 bool showDisasPreview(QWidget *parent, const QPoint &pointOfEvent, const RVA offsetFrom);
+
+/*!
+ * @brief Reads the offset for the cursor position
+ * @return The disassembly offset of the hovered asm text
+ */
+RVA readDisassemblyOffset(QTextCursor tc);
 }
 #endif
