@@ -12,15 +12,11 @@
 
 /**
  * @brief Attempt to connect to a parent console and configure outputs.
- *
- * @note Doesn't do anything if the exe wasn't executed from a console.
  */
 #ifdef Q_OS_WIN
 static void connectToConsole()
 {
-    if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
-        return;
-    }
+    BOOL attached = AttachConsole(ATTACH_PARENT_PROCESS);
 
     // Avoid reconfiguring stdin/stderr/stdout if one of them is already connected to a stream.
     // This can happen when running with stdout/stderr redirected to a file.
@@ -32,12 +28,12 @@ static void connectToConsole()
         // _open() after startup.
         _close(0);
 
-        freopen("CONIN$", "r+", stdin);
+        freopen(attached ? "CONIN$" : "NUL", "r+", stdin);
     }
     if (0 > fileno(stdout)) {
         _close(1);
 
-        if (freopen("CONOUT$", "a+", stdout)) {
+        if (freopen(attached ? "CONOUT$" : "NUL", "a+", stdout)) {
             // Avoid buffering stdout/stderr since IOLBF is replaced by IOFBF in Win32.
             setvbuf(stdout, nullptr, _IONBF, 0);
         }
@@ -45,7 +41,7 @@ static void connectToConsole()
     if (0 > fileno(stderr)) {
         _close(2);
 
-        if (freopen("CONOUT$", "a+", stderr)) {
+        if (freopen(attached ? "CONOUT$" : "NUL", "a+", stderr)) {
             setvbuf(stderr, nullptr, _IONBF, 0);
         }
     }
