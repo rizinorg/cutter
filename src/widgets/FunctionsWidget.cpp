@@ -526,7 +526,11 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     addActions(itemConextMenu->actions());
 
     // Use a custom context menu on the dock title bar
-    actionHorizontal.setChecked(true);
+    if (Config()->getFunctionsWidgetLayout() == "horizontal") {
+        actionHorizontal.setChecked(true);
+    } else {
+        actionVertical.setChecked(true);
+    }
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this,
             &FunctionsWidget::showTitleContextMenu);
@@ -617,6 +621,7 @@ void FunctionsWidget::showTitleContextMenu(const QPoint &pt)
 void FunctionsWidget::onActionHorizontalToggled(bool enable)
 {
     if (enable) {
+        Config()->setFunctionsWidgetLayout("horizontal");
         functionModel->setNested(false);
         ui->treeView->setIndentation(8);
     }
@@ -625,6 +630,7 @@ void FunctionsWidget::onActionHorizontalToggled(bool enable)
 void FunctionsWidget::onActionVerticalToggled(bool enable)
 {
     if (enable) {
+        Config()->setFunctionsWidgetLayout("vertical");
         functionModel->setNested(true);
         ui->treeView->setIndentation(20);
     }
