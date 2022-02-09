@@ -70,6 +70,7 @@ jobs:
         brew install pkg-config
     - name: py dependencies
       run: |
+        python3 -m pip install -U pip==21.3.1
         pip install meson
     - name: Prepare package id
       shell: bash
