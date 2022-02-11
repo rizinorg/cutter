@@ -199,6 +199,9 @@ jobs:
         export CUTTER_VERSION=$(python3 ../scripts/get_version.py)
         echo PACKAGE_NAME=${PACKAGE_NAME}.dmg >> $GITHUB_ENV
         echo UPLOAD_ASSET_TYPE=application/x-apple-diskimage >> $GITHUB_ENV
+    - name: Add msbuild to PATH
+      if: contains(matrix.os, 'windows')
+      uses: microsoft/setup-msbuild@v1.1
     - name: windows dependencies
       if: contains(matrix.os, 'windows')
       shell: bash
