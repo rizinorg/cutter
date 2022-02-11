@@ -2,6 +2,7 @@
 #include "ui_ListDockWidget.h"
 
 #include "core/MainWindow.h"
+#include "common/DisassemblyPreview.h"
 #include "common/Helpers.h"
 #include "common/FunctionsTask.h"
 #include "common/TempConfig.h"
@@ -525,7 +526,11 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     addActions(itemConextMenu->actions());
 
     // Use a custom context menu on the dock title bar
-    actionHorizontal.setChecked(true);
+    if (Config()->getFunctionsWidgetLayout() == "horizontal") {
+        actionHorizontal.setChecked(true);
+    } else {
+        actionVertical.setChecked(true);
+    }
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this,
             &FunctionsWidget::showTitleContextMenu);
@@ -599,10 +604,9 @@ void FunctionsWidget::onActionFunctionsRenameTriggered()
 void FunctionsWidget::onActionFunctionsUndefineTriggered()
 {
     const auto selection = ui->treeView->selectionModel()->selection().indexes();
-    std::vector<RVA> offsets;
-    offsets.reserve(selection.size());
+    QSet<RVA> offsets;
     for (const auto &index : selection) {
-        offsets.push_back(functionProxyModel->address(index));
+        offsets.insert(functionProxyModel->address(index));
     }
     for (RVA offset : offsets) {
         Core()->delFunction(offset);
@@ -617,6 +621,7 @@ void FunctionsWidget::showTitleContextMenu(const QPoint &pt)
 void FunctionsWidget::onActionHorizontalToggled(bool enable)
 {
     if (enable) {
+        Config()->setFunctionsWidgetLayout("horizontal");
         functionModel->setNested(false);
         ui->treeView->setIndentation(8);
     }
@@ -625,6 +630,7 @@ void FunctionsWidget::onActionHorizontalToggled(bool enable)
 void FunctionsWidget::onActionVerticalToggled(bool enable)
 {
     if (enable) {
+        Config()->setFunctionsWidgetLayout("vertical");
         functionModel->setNested(true);
         ui->treeView->setIndentation(20);
     }
@@ -635,10 +641,5 @@ void FunctionsWidget::onActionVerticalToggled(bool enable)
  */
 void FunctionsWidget::setTooltipStylesheet()
 {
-    setStyleSheet(QString("QToolTip { border-width: 1px; max-width: %1px;"
-                          "opacity: 230; background-color: %2;"
-                          "color: %3; border-color: %3;}")
-                          .arg(kMaxTooltipWidth)
-                          .arg(Config()->getColor("gui.tooltip.background").name())
-                          .arg(Config()->getColor("gui.tooltip.foreground").name()));
+    setStyleSheet(DisassemblyPreview::getToolTipStyleSheet());
 }

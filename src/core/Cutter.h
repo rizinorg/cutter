@@ -15,6 +15,7 @@
 #include <QErrorMessage>
 #include <QMutex>
 #include <QDir>
+#include <functional>
 
 class AsyncTaskManager;
 class BasicInstructionHighlighter;
@@ -115,6 +116,14 @@ public:
         return cmdRawAt(str.toUtf8().constData(), address);
     }
 
+    void applyAtSeek(std::function<void()> fn, RVA address)
+    {
+        RVA oldOffset = getOffset();
+        seekSilent(address);
+        fn();
+        seekSilent(oldOffset);
+    }
+
     QJsonDocument cmdj(const char *str);
     QJsonDocument cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
     QJsonDocument cmdjAt(const char *str, RVA address);
@@ -189,8 +198,8 @@ public:
     RVA getLastFunctionInstruction(RVA addr);
     QString cmdFunctionAt(QString addr);
     QString cmdFunctionAt(RVA addr);
-    QString createFunctionAt(RVA addr);
-    QString createFunctionAt(RVA addr, QString name);
+    void createFunctionAt(RVA addr);
+    void createFunctionAt(RVA addr, QString name);
     QStringList getDisassemblyPreview(RVA address, int num_of_lines);
 
     /* Flags */
@@ -235,6 +244,13 @@ public:
     void removeString(RVA addr);
     /**
      * @brief Gets string at address
+     * That function correspond the 'Cs.' command
+     * \param addr The address of the string
+     * @return string at requested address
+     */
+    QString getMetaString(RVA addr);
+    /**
+     * @brief Gets string at address
      * That function calls the 'ps' command
      * \param addr The address of the first byte of the array
      * @return string at requested address
@@ -267,9 +283,10 @@ public:
     void createNewClass(const QString &cls);
     void renameClass(const QString &oldName, const QString &newName);
     void deleteClass(const QString &cls);
-    bool getAnalysisMethod(const QString &cls, const QString &meth, AnalysisMethodDescription *desc);
+    bool getAnalysisMethod(const QString &cls, const QString &meth,
+                           AnalysisMethodDescription *desc);
     void renameAnalysisMethod(const QString &className, const QString &oldMethodName,
-                          const QString &newMethodName);
+                              const QString &newMethodName);
     void setAnalysisMethod(const QString &cls, const AnalysisMethodDescription &meth);
 
     /* File related methods */
@@ -305,6 +322,10 @@ public:
     RVA getOffset();
     RVA prevOpAddr(RVA startAddr, int count);
     RVA nextOpAddr(RVA startAddr, int count);
+
+    /* SigDB / Flirt functions */
+    void applySignature(const QString &filepath);
+    void createSignature(const QString &filepath);
 
     /* Math functions */
     ut64 math(const QString &expr);
@@ -543,7 +564,7 @@ public:
     QList<ExportDescription> getAllExports();
     QList<SymbolDescription> getAllSymbols();
     QList<HeaderDescription> getAllHeaders();
-    QList<ZignatureDescription> getAllZignatures();
+    QList<FlirtDescription> getSignaturesDB();
     QList<CommentDescription> getAllComments(const QString &filterType);
     QList<RelocDescription> getAllRelocs();
     QList<StringDescription> getAllStrings();

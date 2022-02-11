@@ -25,6 +25,7 @@ option(CUTTER_ENABLE_DEPENDENCY_DOWNLOADS "Enable downloading of dependencies. S
 option(CUTTER_ENABLE_PACKAGING "Enable building platform-specific packages for distributing" OFF)
 option(CUTTER_PACKAGE_DEPENDENCIES "During install step include the third party dependencies." OFF)
 option(CUTTER_PACKAGE_RZ_GHIDRA "Compile and install rz-ghidra during install step." OFF)
+option(CUTTER_PACKAGE_RZ_LIBSWIFT, "Compile and install rz-libswift demangler during the install step." OFF)
 option(CUTTER_PACKAGE_JSDEC "Compile and install jsdec during install step." OFF)
 OPTION(CUTTER_QT6 "Use QT6" OFF)
 
@@ -34,7 +35,7 @@ endif()
 
 set(CUTTER_VERSION_MAJOR 2)
 set(CUTTER_VERSION_MINOR 0)
-set(CUTTER_VERSION_PATCH 4)
+set(CUTTER_VERSION_PATCH 5)
 
 set(CUTTER_VERSION_FULL "${CUTTER_VERSION_MAJOR}.${CUTTER_VERSION_MINOR}.${CUTTER_VERSION_PATCH}")
 
@@ -48,8 +49,8 @@ if(CUTTER_USE_BUNDLED_RIZIN)
     include(BundledRizin)
     set(RIZIN_TARGET Rizin)
 else()
-    find_package(Rizin REQUIRED)
-    set(RIZIN_TARGET Rizin::librz)
+    find_package(Rizin COMPONENTS Core REQUIRED)
+    set(RIZIN_TARGET Rizin::Core)
 endif()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

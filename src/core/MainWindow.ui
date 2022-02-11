@@ -77,6 +77,9 @@
     <addaction name="actionImportPDB"/>
     <addaction name="actionAnalyze"/>
     <addaction name="separator"/>
+    <addaction name="actionApplySigFromFile"/>
+    <addaction name="actionCreateNewSig"/>
+    <addaction name="separator"/>
     <addaction name="menuSetMode"/>
     <addaction name="actionCommitChanges"/>
     <addaction name="separator"/>
@@ -738,6 +741,16 @@
   <action name="actionExport_as_code">
    <property name="text">
     <string>Export as code</string>
+   </property>
+  </action>
+  <action name="actionApplySigFromFile">
+   <property name="text">
+    <string>Apply Signature From File</string>
+   </property>
+  </action>
+  <action name="actionCreateNewSig">
+   <property name="text">
+    <string>Create New Signature File</string>
    </property>
   </action>
   <action name="actionExtraHexdump">

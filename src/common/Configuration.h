@@ -228,6 +228,19 @@ public:
     void setRecentProjects(const QStringList &list);
     void addRecentProject(QString file);
 
+    // Functions Widget Layout
+
+    /**
+     * @brief Get the layout of the Functions widget.
+     * @return The layout.
+     */
+    QString getFunctionsWidgetLayout();
+
+    /**
+     * @brief Set the layout of the Functions widget
+     * @param layout The layout of the Functions widget, either horizontal or vertical.
+     */
+    void setFunctionsWidgetLayout(const QString &layout);
 public slots:
     void refreshFont();
 signals:

@@ -32,6 +32,18 @@ if(WIN32)
 			endif()
 		")
 	endif()
+	if (CUTTER_PACKAGE_RZ_LIBSWIFT AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
+		install(CODE "
+			set(ENV{RZ_PREFIX} \"\${CMAKE_INSTALL_PREFIX}\")
+			set(ENV{PATH} \"\${CMAKE_INSTALL_PREFIX};\$ENV{PATH}\")
+			execute_process(COMMAND powershell \"${CMAKE_CURRENT_SOURCE_DIR}/bundle_rz_libswift.ps1\" \"\${CMAKE_INSTALL_PREFIX}\"
+							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+							RESULT_VARIABLE SCRIPT_RESULT)
+			if (SCRIPT_RESULT)
+				message(FATAL_ERROR \"Failed to package rz-libswift\")
+			endif()
+		")
+	endif()
 endif()
 
 ################################################
@@ -84,13 +96,22 @@ if(APPLE)
 
 	if (CUTTER_PACKAGE_JSDEC AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
 		install(CODE "
-			execute_process(COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/jsdec.sh\" --prefix=\${CMAKE_INSTALL_PREFIX}
-								\"-Drizin_incdir=\${CMAKE_INSTALL_PREFIX}/include/librz\"
-								\"-Drizin_libdir=\${CMAKE_INSTALL_PREFIX}/lib\"
+			execute_process(COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/jsdec.sh\" --pkg-config-path=\${CMAKE_INSTALL_PREFIX}/lib/pkgconfig --prefix=\${CMAKE_INSTALL_PREFIX}
 							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 							RESULT_VARIABLE SCRIPT_RESULT)
 			if (SCRIPT_RESULT)
 				message(FATAL_ERROR \"Failed to package jsdec\")
+			endif()
+		")
+	endif()
+
+	if (CUTTER_PACKAGE_RZ_LIBSWIFT AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
+		install(CODE "
+			execute_process(COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/rz-libswift.sh\" --pkg-config-path=\${CMAKE_INSTALL_PREFIX}/lib/pkgconfig --prefix=\${CMAKE_INSTALL_PREFIX}
+							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+							RESULT_VARIABLE SCRIPT_RESULT)
+			if (SCRIPT_RESULT)
+				message(FATAL_ERROR \"Failed to package rz-libswift\")
 			endif()
 		")
 	endif()
@@ -109,9 +130,9 @@ if(CUTTER_PACKAGE_RZ_GHIDRA)
 		# installed Cutter.
 		ExternalProject_Add(rz-ghidra
 			GIT_REPOSITORY https://github.com/rizinorg/rz-ghidra
-			GIT_TAG v0.3.0
+			#GIT_TAG v0.3.0
 			#GIT_TAG c7a50a2e7c0a95cd52b167c9ee0fa1805223f08e
-			#GIT_TAG dev
+			GIT_TAG dev
 			#GIT_SHALLOW ON # disable this line when using commit hash
 			CONFIGURE_COMMAND ""
 			BUILD_COMMAND ""

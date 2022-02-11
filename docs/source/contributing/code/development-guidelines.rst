@@ -257,7 +257,7 @@ In order to update one submodule individually, use the following code:
 .. code:: sh
 
    cd rizin
-   git checkout master && git pull
+   git checkout dev && git pull
    cd ..
    git add rizin
    git commit -m "Update rizin submodule"

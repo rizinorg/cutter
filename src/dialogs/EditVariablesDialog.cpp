@@ -73,7 +73,7 @@ void EditVariablesDialog::applyFields()
     if (!v_type || error_msg) {
         return;
     }
-    rz_analysis_var_set_type(v, v_type);
+    rz_analysis_var_set_type(v, v_type, true);
 
     // TODO Remove all those replace once rizin command parser is fixed
     QString newName = ui->nameEdit->text()

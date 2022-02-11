@@ -42,6 +42,7 @@ set(SOURCES
     widgets/SymbolsWidget.cpp
     menus/DisassemblyContextMenu.cpp
     menus/DecompilerContextMenu.cpp
+    menus/FlirtContextMenu.cpp
     widgets/DisassemblyWidget.cpp
     widgets/HexdumpWidget.cpp
     common/Configuration.cpp
@@ -73,7 +74,7 @@ set(SOURCES
     common/JsonTreeItem.cpp
     common/JsonModel.cpp
     dialogs/VersionInfoDialog.cpp
-    widgets/ZignaturesWidget.cpp
+    widgets/FlirtWidget.cpp
     common/AsyncTask.cpp
     dialogs/AsyncTaskDialog.cpp
     widgets/StackWidget.cpp
@@ -190,6 +191,7 @@ set(HEADER_FILES
     widgets/SymbolsWidget.h
     menus/DisassemblyContextMenu.h
     menus/DecompilerContextMenu.h
+    menus/FlirtContextMenu.h
     widgets/DisassemblyWidget.h
     widgets/HexdumpWidget.h
     common/Configuration.h
@@ -221,7 +223,7 @@ set(HEADER_FILES
     common/JsonTreeItem.h
     common/JsonModel.h
     dialogs/VersionInfoDialog.h
-    widgets/ZignaturesWidget.h
+    widgets/FlirtWidget.h
     common/AsyncTask.h
     dialogs/AsyncTaskDialog.h
     widgets/StackWidget.h
@@ -341,7 +343,7 @@ set(UI_FILES
     widgets/SearchWidget.ui
     dialogs/RizinPluginsDialog.ui
     dialogs/VersionInfoDialog.ui
-    widgets/ZignaturesWidget.ui
+    widgets/FlirtWidget.ui
     dialogs/AsyncTaskDialog.ui
     dialogs/RizinTaskDialog.ui
     widgets/StackWidget.ui

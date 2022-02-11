@@ -4,7 +4,7 @@ Release Procedure
 1. Update translations submodule `<https://github.com/rizinorg/cutter-translations>`_
     1. The latest archive from Crowdin should already be in the repository, if not make sure to merge any automated Pull Request from Crowdin (e.g. https://github.com/rizinorg/cutter-translations/pull/9)
     2. Update submodule in cutter
-2. If there is a desire to keep working in the master branch, create branch for the release and do all the following work there.
+2. Merge the current state of dev into stable. This can happen even earlier in order to feature-freeze the release while keeping development on dev alive. The rizin submodule on stable should point to a commit of stable in rizin and dev to a commit in dev.
 3. Lock rzghidra and rzdec versions downloaded by packaging scripts. Specify a tag or commit hash.
 4. Update version
     #. appveyor.yml
@@ -19,11 +19,11 @@ Release Procedure
 6. Create a GitHub release, mark it as pre-release save draft, set the tag to v1.11.0-rc1
 7. Wait for packages to build
 8. On all operating systems do the `Basic testing procedure`_ to ensure nothing badly broken.
-9. If any major problems are found, open an issue and fix them. If a release branch is used fix them in master and cherry pick into release branch. If the amount of changes is sufficiently large repeat from step 3. increasing rc number by one.
+9. If any major problems are found, open an issue and fix them in dev and cherry pick into release branch. If the amount of changes is sufficiently large repeat from step 3. increasing rc number by one.
 10. Update version to 1.11.0
 11. Create tag
 12. Create release
-    * Fill the release notes in the Release description. Preparing release notes can begin earlier. Compare current master or release branch against previous release to find all the changes. Choose the most important ones. Don't duplicate the commit log. Release notes should be a summary for people who don't want to read whole commit log. Group related changes together under titles such as "New features", "Bug Fixes", "Decompiler", "Rizin" and similar.
+    * Fill the release notes in the Release description. Preparing release notes can begin earlier. Compare current dev branch against previous release to find all the changes. Choose the most important ones. Don't duplicate the commit log. Release notes should be a summary for people who don't want to read whole commit log. Group related changes together under titles such as "New features", "Bug Fixes", "Decompiler", "Rizin" and similar.
 13. Prepare announcement tweets and messages to send in the Telegram group, reddit, and others.
 14. Close milestone if there was one
 
@@ -33,8 +33,7 @@ Bugfix Release
 --------------
 The process for bugfix release is similar no normal release procedure described above with some differences.
 
-* Create the branch from the last tag instead of master or reuse the branch from x.y.0 release if it was already created.
-* Cherry pick required bugfixes from master into the branch.
+* Cherry pick required bugfixes from dev into the stable.
 * Increase the third version number x.y.n into x.y.(n+1) .
 
 
