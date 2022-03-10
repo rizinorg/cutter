@@ -47,7 +47,7 @@ Example:
 
 .. code:: cpp
 
-   QJsonArray array = Core()->cmdj("pdj 1 @ main").array();
+   CutterJson array = Core()->cmdj("pdj 1 @ main");
 
 Seek the Current File
 ~~~~~~~~~~~~~~~~~~~~~

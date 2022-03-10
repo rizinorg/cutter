@@ -33,40 +33,37 @@ void JSDecDecompiler::decompileAt(RVA addr)
     }
     task = new RizinCmdTask("pddj @ " + QString::number(addr));
     connect(task, &RizinCmdTask::finished, this, [this]() {
-        QJsonObject json = task->getResultJson().object();
+        CutterJson json = task->getResultJson();
         delete task;
         task = nullptr;
-        if (json.isEmpty()) {
+        if (!json.size()) {
             emit finished(Decompiler::makeWarning(tr("Failed to parse JSON from jsdec")));
             return;
         }
         RzAnnotatedCode *code = rz_annotated_code_new(nullptr);
         QString codeString = "";
-        for (const auto &line : json["log"].toArray()) {
-            if (!line.isString()) {
+        for (auto line : json["log"]) {
+            if (line.type() != RZ_JSON_STRING) {
                 continue;
             }
             codeString.append(line.toString() + "\n");
         }
 
-        auto linesArray = json["lines"].toArray();
-        for (const auto &line : linesArray) {
-            QJsonObject lineObject = line.toObject();
-            if (lineObject.isEmpty()) {
+        for (auto lineObject : json["lines"]) {
+            if (!lineObject.size()) {
                 continue;
             }
             RzCodeAnnotation annotationi = {};
             annotationi.start = codeString.length();
             codeString.append(lineObject["str"].toString() + "\n");
             annotationi.end = codeString.length();
-            bool ok;
             annotationi.type = RZ_CODE_ANNOTATION_TYPE_OFFSET;
-            annotationi.offset.offset = lineObject["offset"].toVariant().toULongLong(&ok);
+            annotationi.offset.offset = lineObject["offset"].toUt64();
             rz_annotated_code_add_annotation(code, &annotationi);
         }
 
-        for (const auto &line : json["errors"].toArray()) {
-            if (!line.isString()) {
+        for (auto line : json["errors"]) {
+            if (line.type() != RZ_JSON_STRING) {
                 continue;
             }
             codeString.append(line.toString() + "\n");

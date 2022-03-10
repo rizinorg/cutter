@@ -4,6 +4,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CutterConfig.h.in"
 set(SOURCES
     Main.cpp
     core/Cutter.cpp
+    core/CutterJson.cpp
     dialogs/EditStringDialog.cpp
     dialogs/WriteCommandsDialogs.cpp
     widgets/DisassemblerGraphView.cpp
@@ -153,6 +154,7 @@ set(HEADER_FILES
     core/Cutter.h
     core/CutterCommon.h
     core/CutterDescriptions.h
+    core/CutterJson.h
     dialogs/EditStringDialog.h
     dialogs/WriteCommandsDialogs.h
     widgets/DisassemblerGraphView.h

@@ -96,12 +96,11 @@ void GenericRizinGraphView::loadCurrentGraph()
         return;
     }
 
-    QJsonDocument functionsDoc = Core()->cmdj(QString("%1j").arg(graphCommand));
-    auto nodes = functionsDoc.object()["nodes"].toArray();
+    CutterJson functionsDoc = Core()->cmdj(QString("%1j").arg(graphCommand));
+    auto nodes = functionsDoc["nodes"];
 
-    for (const QJsonValueRef &value : nodes) {
-        QJsonObject block = value.toObject();
-        uint64_t id = block["id"].toVariant().toULongLong();
+    for (CutterJson block : nodes) {
+        uint64_t id = block["id"].toUt64();
 
         QString content;
         QString title = block["title"].toString();
@@ -112,11 +111,11 @@ void GenericRizinGraphView::loadCurrentGraph()
             content = title + body;
         }
 
-        auto edges = block["out_nodes"].toArray();
+        auto edges = block["out_nodes"];
         GraphLayout::GraphBlock layoutBlock;
         layoutBlock.entry = id;
         for (auto edge : edges) {
-            auto targetId = edge.toVariant().toULongLong();
+            auto targetId = edge.toUt64();
             layoutBlock.edges.emplace_back(targetId);
         }
 

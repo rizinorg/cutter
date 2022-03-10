@@ -106,14 +106,12 @@ QString ProcessesWidget::translateStatus(QString status)
 
 void ProcessesWidget::setProcessesGrid()
 {
-    QJsonArray processesValues = Core()->getChildProcesses(DEBUGGED_PID).array();
     int i = 0;
     QFont font;
 
-    for (const QJsonValue &value : processesValues) {
-        QJsonObject processesItem = value.toObject();
-        int pid = processesItem["pid"].toVariant().toInt();
-        int uid = processesItem["uid"].toVariant().toInt();
+    for (CutterJson processesItem : Core()->getChildProcesses(DEBUGGED_PID)) {
+        st64 pid = processesItem["pid"].toSt64();
+        st64 uid = processesItem["uid"].toSt64();
         QString status = translateStatus(processesItem["status"].toString());
         QString path = processesItem["path"].toString();
         bool current = processesItem["current"].toBool();
@@ -162,10 +160,9 @@ void ProcessesWidget::onActivated(const QModelIndex &index)
 
     // Verify that the selected pid is still in the processes list since dp= will
     // attach to any given id. If it isn't found simply update the UI.
-    QJsonArray processesValues = Core()->getChildProcesses(DEBUGGED_PID).array();
-    for (QJsonValue value : processesValues) {
-        QString status = value.toObject()["status"].toString();
-        if (pid == value.toObject()["pid"].toInt()) {
+    for (CutterJson value : Core()->getChildProcesses(DEBUGGED_PID)) {
+        QString status = value["status"].toString();
+        if (pid == value["pid"].toSt64()) {
             if (QString(QChar(RZ_DBG_PROC_ZOMBIE)) == status
                 || QString(QChar(RZ_DBG_PROC_DEAD)) == status) {
                 QMessageBox msgBox;

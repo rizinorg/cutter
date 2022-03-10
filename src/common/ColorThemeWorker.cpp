@@ -128,22 +128,34 @@ bool ColorThemeWorker::isThemeExist(const QString &name) const
 QJsonDocument ColorThemeWorker::getTheme(const QString &themeName) const
 {
     int r, g, b, a;
+    CutterJson rzTheme;
     QVariantMap theme;
     QString curr = Config()->getColorTheme();
 
     if (themeName != curr) {
         RzCoreLocked core(Core());
         rz_core_theme_load(core, themeName.toUtf8().constData());
-        theme = Core()->cmdj("ecj").object().toVariantMap();
+        rzTheme = Core()->cmdj("ecj");
         rz_core_theme_load(core, curr.toUtf8().constData());
     } else {
-        theme = Core()->cmdj("ecj").object().toVariantMap();
+        rzTheme = Core()->cmdj("ecj");
     }
 
-    for (auto it = theme.begin(); it != theme.end(); it++) {
-        auto arr = it.value().toList();
-        QColor(arr[0].toInt(), arr[1].toInt(), arr[2].toInt()).getRgb(&r, &g, &b, &a);
-        theme[it.key()] = QJsonArray({ r, g, b, a });
+    for (CutterJson value : rzTheme) {
+        QJsonArray arr;
+        int count = 0;
+        for (CutterJson element : value) {
+            arr.append(element.toSt64());
+            count++;
+            if (count >= 3) {
+                break;
+            }
+        }
+        while (count < 3) {
+            arr.append(0);
+        }
+        arr.append(255);
+        theme[value.key()] = arr;
     }
 
     ColorFlags colorFlags = ColorFlags::DarkFlag;
@@ -278,9 +290,8 @@ bool ColorThemeWorker::isFileTheme(const QString &filePath, bool *ok) const
     }
 
     const QString colors = "black|red|white|green|magenta|yellow|cyan|blue|gray|none";
-    QString options = (Core()->cmdj("ecj").object().keys() << cutterSpecificOptions)
-                              .join('|')
-                              .replace(".", "\\.");
+    QString options =
+            (Core()->cmdj("ecj").keys() << cutterSpecificOptions).join('|').replace(".", "\\.");
 
     QString pattern = QString("((ec\\s+(%1)\\s+(((rgb:|#)[0-9a-fA-F]{3,8})|(%2))))\\s*")
                               .arg(options)
@@ -315,7 +326,7 @@ QStringList ColorThemeWorker::customThemes() const
 const QStringList &ColorThemeWorker::getRizinSpecificOptions()
 {
     if (rizinSpecificOptions.isEmpty()) {
-        rizinSpecificOptions = Core()->cmdj("ecj").object().keys();
+        rizinSpecificOptions = Core()->cmdj("ecj").keys();
     }
     return rizinSpecificOptions;
 }
