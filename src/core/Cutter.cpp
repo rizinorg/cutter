@@ -4042,12 +4042,18 @@ void CutterCore::setWriteMode(bool enabled)
 
 bool CutterCore::isWriteModeEnabled()
 {
-    for (CutterJson v : cmdj("oj")) {
-        if (v["raised"].toBool()) {
-            return v["writable"].toBool();
+    CORE_LOCK();
+    RzListIter *it;
+    RzCoreFile *cf;
+    CutterRzListForeach (core->files, it, RzCoreFile, cf) {
+        RzIODesc *desc = rz_io_desc_get(core->io, cf->fd);
+        if (!desc) {
+            continue;
+        }
+        if (desc->perm & RZ_PERM_W) {
+            return true;
         }
     }
-
     return false;
 }
 
