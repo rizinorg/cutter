@@ -2653,32 +2653,6 @@ QList<MemoryMapDescription> CutterCore::getMemoryMap()
     return ret;
 }
 
-QStringList CutterCore::getStats()
-{
-    QStringList stats;
-    cmdRaw("fs functions");
-
-    // The cmd coomand is frequently used in this function because
-    // cmdRaw would not work with grep
-    stats << cmd("f~?").trimmed();
-
-    QString imps = cmd("ii~?").trimmed();
-    stats << imps;
-
-    cmdRaw("fs symbols");
-    stats << cmd("f~?").trimmed();
-    cmdRaw("fs strings");
-    stats << cmd("f~?").trimmed();
-    cmdRaw("fs relocs");
-    stats << cmd("f~?").trimmed();
-    cmdRaw("fs sections");
-    stats << cmd("f~?").trimmed();
-    cmdRaw("fs *");
-    stats << cmd("f~?").trimmed();
-
-    return stats;
-}
-
 void CutterCore::setGraphEmpty(bool empty)
 {
     emptyGraph = empty;
