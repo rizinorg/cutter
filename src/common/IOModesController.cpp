@@ -77,16 +77,12 @@ bool IOModesController::prepareForWriting()
 
 bool IOModesController::allChangesComitted()
 {
-    // Get a list of available write changes
-    CutterJson changes = Core()->cmdj("wcj");
-
-    // Check if there is a change which isn't written to the file
-    for (CutterJson changeObject : changes) {
-        if (!changeObject["written"].toBool()) {
+    RzCoreLocked core(Core());
+    for (auto c : CutterPVector<RzIOCache>(&core->io->cache)) {
+        if (!c->written) {
             return false;
         }
     }
-
     return true;
 }
 
