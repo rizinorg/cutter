@@ -54,13 +54,15 @@ QString RizinCmdTask::getResult()
     return QString::fromUtf8(res);
 }
 
-QJsonDocument RizinCmdTask::getResultJson()
+CutterJson RizinCmdTask::getResultJson()
 {
     const char *res = rz_core_cmd_task_get_result(task);
     if (!res) {
-        return QJsonDocument();
+        return CutterJson();
     }
-    return Core()->parseJson(res, nullptr);
+    char *copy = static_cast<char *>(rz_mem_alloc(strlen(res) + 1));
+    strcpy(copy, res);
+    return Core()->parseJson(copy, nullptr);
 }
 
 const char *RizinCmdTask::getResultRaw()

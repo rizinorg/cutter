@@ -3,6 +3,7 @@
 
 #include <QTimer>
 #include <QListView>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QAbstractListModel>
 #include <QStyledItemDelegate>

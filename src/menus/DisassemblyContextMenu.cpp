@@ -314,15 +314,15 @@ void DisassemblyContextMenu::addDebugMenu()
 QVector<DisassemblyContextMenu::ThingUsedHere> DisassemblyContextMenu::getThingUsedHere(RVA offset)
 {
     QVector<ThingUsedHere> result;
-    const QJsonArray array = Core()->cmdj("anj @ " + QString::number(offset)).array();
+    const CutterJson array = Core()->cmdj("anj @ " + QString::number(offset));
     result.reserve(array.size());
     for (const auto &thing : array) {
-        auto obj = thing.toObject();
-        RVA offset = obj["offset"].toVariant().toULongLong();
+        auto obj = thing;
+        RVA offset = obj["offset"].toRVA();
         QString name;
 
         // If real names display is enabled, show flag's real name instead of full flag name
-        if (Config()->getConfigBool("asm.flags.real") && obj.contains("realname")) {
+        if (Config()->getConfigBool("asm.flags.real") && obj["realname"].valid()) {
             name = obj["realname"].toString();
         } else {
             name = obj["name"].toString();
@@ -482,29 +482,24 @@ void DisassemblyContextMenu::setupRenaming()
 void DisassemblyContextMenu::aboutToShowSlot()
 {
     // check if set immediate base menu makes sense
-    QJsonObject instObject =
-            Core()->cmdj("aoj @ " + QString::number(offset)).array().first().toObject();
-    auto keys = instObject.keys();
-    bool immBase = keys.contains("val") || keys.contains("ptr");
+    CutterJson instObject = Core()->cmdj("aoj @ " + QString::number(offset)).first();
+    bool immBase = instObject["val"].valid() || instObject["ptr"].valid();
     setBaseMenu->menuAction()->setVisible(immBase);
     setBitsMenu->menuAction()->setVisible(true);
 
     // Create structure offset menu if it makes sense
     QString memBaseReg; // Base register
-    QVariant memDisp; // Displacement
-    if (instObject.contains("opex") && instObject["opex"].toObject().contains("operands")) {
-        // Loop through both the operands of the instruction
-        for (const QJsonValue value : instObject["opex"].toObject()["operands"].toArray()) {
-            QJsonObject operand = value.toObject();
-            if (operand.contains("type") && operand["type"].toString() == "mem"
-                && operand.contains("base") && !operand["base"].toString().contains("bp")
-                && operand.contains("disp") && operand["disp"].toVariant().toLongLong() > 0) {
+    st64 memDisp; // Displacement
 
-                // The current operand is the one which has an immediate displacement
-                memBaseReg = operand["base"].toString();
-                memDisp = operand["disp"].toVariant();
-                break;
-            }
+    // Loop through both the operands of the instruction
+    for (const CutterJson operand : instObject["opex"]["operands"]) {
+        if (operand["type"].toString() == "mem" && !operand["base"].toString().contains("bp")
+            && operand["disp"].toSt64() > 0) {
+
+            // The current operand is the one which has an immediate displacement
+            memBaseReg = operand["base"].toString();
+            memDisp = operand["disp"].toSt64();
+            break;
         }
     }
     if (memBaseReg.isEmpty()) {
@@ -517,7 +512,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
         // Get the possible offsets using the "ahts" command
         // TODO: add ahtj command to Rizin and then use it here
-        QStringList ret = Core()->cmdList("ahts " + memDisp.toString());
+        QStringList ret = Core()->cmdList("ahts " + QString::number(memDisp));
         for (const QString &val : ret) {
             if (val.isEmpty()) {
                 continue;
@@ -714,12 +709,12 @@ void DisassemblyContextMenu::showReverseJmpQuery()
 {
     QString type;
 
-    QJsonArray array = Core()->cmdj("pdj 1 @ " + RzAddressString(offset)).array();
-    if (array.isEmpty()) {
+    CutterJson array = Core()->cmdj("pdj 1 @ " + RzAddressString(offset));
+    if (!array.size()) {
         return;
     }
 
-    type = array.first().toObject()["type"].toString();
+    type = array.first()["type"].toString();
     if (type == "cjmp") {
         actionJmpReverse.setVisible(true);
     } else {

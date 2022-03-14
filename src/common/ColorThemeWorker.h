@@ -5,6 +5,7 @@
 #include <QColor>
 #include <QObject>
 #include "Cutter.h"
+#include <QJsonDocument>
 #include <QJsonObject>
 
 #define ThemeWorker() (ColorThemeWorker::instance())
