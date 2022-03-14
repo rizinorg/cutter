@@ -12,13 +12,13 @@ void openIssue()
     // Pull in info needed for git issue
     osInfo = QSysInfo::productType() + " "
             + (QSysInfo::productVersion() == "unknown" ? "" : QSysInfo::productVersion());
-    QJsonDocument docu = Core()->getFileInfo();
-    QJsonObject coreObj = docu.object()["core"].toObject();
-    QJsonObject binObj = docu.object()["bin"].toObject();
-    if (!binObj.QJsonObject::isEmpty()) {
+    CutterJson docu = Core()->getFileInfo();
+    CutterJson coreObj = docu["core"];
+    CutterJson binObj = docu["bin"];
+    if (binObj.size()) {
         format = coreObj["format"].toString();
         arch = binObj["arch"].toString();
-        if (!binObj["type"].isUndefined()) {
+        if (binObj["type"].valid()) {
             type = coreObj["type"].toString();
         } else {
             type = "N/A";

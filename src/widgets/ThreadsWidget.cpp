@@ -104,13 +104,11 @@ QString ThreadsWidget::translateStatus(QString status)
 
 void ThreadsWidget::setThreadsGrid()
 {
-    QJsonArray threadsValues = Core()->getProcessThreads(DEBUGGED_PID).array();
     int i = 0;
     QFont font;
 
-    for (const QJsonValue &value : threadsValues) {
-        QJsonObject threadsItem = value.toObject();
-        int pid = threadsItem["pid"].toVariant().toInt();
+    for (CutterJson threadsItem : Core()->getProcessThreads(DEBUGGED_PID)) {
+        st64 pid = threadsItem["pid"].toSt64();
         QString status = translateStatus(threadsItem["status"].toString());
         QString path = threadsItem["path"].toString();
         bool current = threadsItem["current"].toBool();
@@ -152,9 +150,8 @@ void ThreadsWidget::onActivated(const QModelIndex &index)
 
     // Verify that the selected tid is still in the threads list since dpt= will
     // attach to any given id. If it isn't found simply update the UI.
-    QJsonArray threadsValues = Core()->getProcessThreads(DEBUGGED_PID).array();
-    for (QJsonValue value : threadsValues) {
-        if (tid == value.toObject()["pid"].toInt()) {
+    for (CutterJson value : Core()->getProcessThreads(DEBUGGED_PID)) {
+        if (tid == value["pid"].toSt64()) {
             Core()->setCurrentDebugThread(tid);
             break;
         }

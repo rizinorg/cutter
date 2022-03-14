@@ -145,16 +145,16 @@ StackModel::StackModel(QObject *parent) : QAbstractTableModel(parent) {}
 
 void StackModel::reload()
 {
-    QList<QJsonObject> stackItems = Core()->getStack();
+    QList<AddrRefs> stackItems = Core()->getStack();
 
     beginResetModel();
     values.clear();
-    for (const QJsonObject &stackItem : stackItems) {
+    for (const AddrRefs &stackItem : stackItems) {
         Item item;
 
-        item.offset = stackItem["addr"].toVariant().toULongLong();
-        item.value = RzAddressString(stackItem["value"].toVariant().toULongLong());
-        item.refDesc = Core()->formatRefDesc(stackItem["ref"].toObject());
+        item.offset = stackItem.addr;
+        item.value = RzAddressString(stackItem.value);
+        item.refDesc = Core()->formatRefDesc(*stackItem.ref);
 
         values.push_back(item);
     }

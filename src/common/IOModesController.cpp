@@ -78,11 +78,10 @@ bool IOModesController::prepareForWriting()
 bool IOModesController::allChangesComitted()
 {
     // Get a list of available write changes
-    QJsonArray changes = Core()->cmdj("wcj").array();
+    CutterJson changes = Core()->cmdj("wcj");
 
     // Check if there is a change which isn't written to the file
-    for (const QJsonValue &value : changes) {
-        QJsonObject changeObject = value.toObject();
+    for (CutterJson changeObject : changes) {
         if (!changeObject["written"].toBool()) {
             return false;
         }

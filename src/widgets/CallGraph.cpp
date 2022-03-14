@@ -77,8 +77,7 @@ void CallGraphView::loadCurrentGraph()
     blockContent.clear();
     blocks.clear();
 
-    QJsonDocument functionsDoc = Core()->cmdj(global ? "agCj" : QString("agcj @ %1").arg(address));
-    auto nodes = functionsDoc.array();
+    CutterJson nodes = Core()->cmdj(global ? "agCj" : QString("agcj @ %1").arg(address));
 
     QHash<QString, uint64_t> idMapping;
 
@@ -91,11 +90,10 @@ void CallGraphView::loadCurrentGraph()
         return itemId;
     };
 
-    for (const QJsonValueRef &value : nodes) {
-        QJsonObject block = value.toObject();
-        QString name = block["name"].toVariant().toString();
+    for (CutterJson block : nodes) {
+        QString name = block["name"].toString();
 
-        auto edges = block["imports"].toArray();
+        auto edges = block["imports"];
         GraphLayout::GraphBlock layoutBlock;
         layoutBlock.entry = getId(name);
         for (auto edge : edges) {
