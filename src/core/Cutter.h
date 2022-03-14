@@ -559,7 +559,6 @@ public:
     CutterJson getFileInfo();
     CutterJson getSignatureInfo();
     CutterJson getFileVersionInfo();
-    QStringList getStats();
     void setGraphEmpty(bool empty);
     bool isGraphEmpty();
 
