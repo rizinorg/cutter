@@ -25,6 +25,32 @@
              (char *)it != (char *)(vec)->a + ((vec)->len * (vec)->elem_size);                     \
              it = (type *)((char *)it + (vec)->elem_size))
 
+template<typename T> class CutterPVector
+{
+private:
+    const RzPVector * const vec;
+
+public:
+    class iterator : public std::iterator<std::input_iterator_tag, T *>
+    {
+    private:
+        T **p;
+
+    public:
+        iterator(T **p) : p(p) {}
+        iterator(const iterator &o) : p(o.p) {}
+        iterator &operator++() { p++; return *this; }
+        iterator operator++(int) { iterator tmp(*this); operator++(); return tmp; }
+        bool operator==(const iterator &rhs) const {return p == rhs.p;}
+        bool operator!=(const iterator &rhs) const {return p != rhs.p;}
+        T *operator*() { return *p; }
+    };
+
+    CutterPVector(const RzPVector *vec) : vec(vec) {}
+    iterator begin() const { return iterator(reinterpret_cast<T **>(vec->v.a)); }
+    iterator end() const { return iterator(reinterpret_cast<T **>(vec->v.a) + vec->v.len); }
+};
+
 // Global information for Cutter
 #define APPNAME "Cutter"
 
