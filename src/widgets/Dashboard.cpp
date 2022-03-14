@@ -151,9 +151,6 @@ void Dashboard::updateContents()
     QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding);
     ui->verticalLayout_2->addSpacerItem(spacer);
 
-    // Get stats for the graphs
-    QStringList stats = Core()->getStats();
-
     // Check if signature info and version info available
     if (!Core()->getSignatureInfo().size()) {
         ui->certificateButton->setEnabled(false);
