@@ -184,14 +184,13 @@ void RegisterRefsWidget::refreshRegisterRef()
 
     registerRefModel->beginResetModel();
 
-    QList<QJsonObject> regRefs = Core()->getRegisterRefs();
     registerRefs.clear();
-    for (const QJsonObject &reg : regRefs) {
+    for (const RegisterRef &reg : Core()->getRegisterRefs()) {
         RegisterRefDescription desc;
 
-        desc.value = RzAddressString(reg["value"].toVariant().toULongLong());
-        desc.reg = reg["name"].toVariant().toString();
-        desc.refDesc = Core()->formatRefDesc(reg["ref"].toObject());
+        desc.value = RzAddressString(reg.value);
+        desc.reg = reg.name;
+        desc.refDesc = Core()->formatRefDesc(reg.ref);
 
         registerRefs.push_back(desc);
     }

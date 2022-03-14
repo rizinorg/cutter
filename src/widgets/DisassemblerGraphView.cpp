@@ -182,12 +182,11 @@ void DisassemblerGraphView::loadCurrentGraph()
             .set("asm.lines", false)
             .set("asm.lines.fcn", false);
 
-    QJsonArray functions;
+    CutterJson functions;
     RzAnalysisFunction *fcn = Core()->functionIn(seekable->getOffset());
     if (fcn) {
         currentFcnAddr = fcn->addr;
-        QJsonDocument functionsDoc = Core()->cmdj("agJ " + RzAddressString(fcn->addr));
-        functions = functionsDoc.array();
+        functions = Core()->cmdj("agJ " + RzAddressString(fcn->addr));
     }
 
     disassembly_blocks.clear();
@@ -198,7 +197,7 @@ void DisassemblerGraphView::loadCurrentGraph()
         highlight_token = nullptr;
     }
 
-    emptyGraph = functions.isEmpty();
+    emptyGraph = !functions.size();
     if (emptyGraph) {
         // If there's no function to print, just add a message
         if (!emptyText) {
@@ -215,8 +214,7 @@ void DisassemblerGraphView::loadCurrentGraph()
     // Refresh global "empty graph" variable so other widget know there is nothing to show here
     Core()->setGraphEmpty(emptyGraph);
 
-    QJsonValue funcRef = functions.first();
-    QJsonObject func = funcRef.toObject();
+    CutterJson func = functions.first();
 
     windowTitle = tr("Graph");
     QString funcName = func["name"].toString().trimmed();
@@ -227,15 +225,14 @@ void DisassemblerGraphView::loadCurrentGraph()
     }
     emit nameChanged(windowTitle);
 
-    RVA entry = func["offset"].toVariant().toULongLong();
+    RVA entry = func["offset"].toRVA();
 
     setEntry(entry);
-    for (const QJsonValueRef &value : func["blocks"].toArray()) {
-        QJsonObject block = value.toObject();
-        RVA block_entry = block["offset"].toVariant().toULongLong();
-        RVA block_size = block["size"].toVariant().toULongLong();
-        RVA block_fail = block["fail"].toVariant().toULongLong();
-        RVA block_jump = block["jump"].toVariant().toULongLong();
+    for (CutterJson block : func["blocks"]) {
+        RVA block_entry = block["offset"].toRVA();
+        RVA block_size = block["size"].toRVA();
+        RVA block_fail = block["fail"].toRVA();
+        RVA block_jump = block["jump"].toRVA();
 
         DisassemblyBlock db;
         GraphBlock gb;
@@ -259,30 +256,29 @@ void DisassemblerGraphView::loadCurrentGraph()
             gb.edges.emplace_back(block_jump);
         }
 
-        QJsonObject switchOp = block["switchop"].toObject();
-        if (!switchOp.isEmpty()) {
-            QJsonArray caseArray = switchOp["cases"].toArray();
-            for (QJsonValue caseOpValue : caseArray) {
-                QJsonObject caseOp = caseOpValue.toObject();
-                bool ok;
-                RVA caseJump = caseOp["jump"].toVariant().toULongLong(&ok);
-                if (!ok) {
+        CutterJson switchOp = block["switchop"];
+        if (switchOp.size()) {
+            for (CutterJson caseOp : switchOp["cases"]) {
+                RVA caseJump = caseOp["jump"].toRVA();
+                if (caseJump == RVA_INVALID) {
                     continue;
                 }
                 gb.edges.emplace_back(caseJump);
             }
         }
 
-        QJsonArray opArray = block["ops"].toArray();
-        for (int opIndex = 0; opIndex < opArray.size(); opIndex++) {
-            QJsonObject op = opArray[opIndex].toObject();
+        CutterJson opArray = block["ops"];
+        CutterJson::iterator iterator = opArray.begin();
+        while (iterator != opArray.end()) {
+            CutterJson op = *iterator;
             Instr i;
-            i.addr = op["offset"].toVariant().toULongLong();
+            i.addr = op["offset"].toUt64();
 
-            if (opIndex < opArray.size() - 1) {
+            ++iterator;
+
+            if (iterator != opArray.end()) {
                 // get instruction size from distance to next instruction ...
-                RVA nextOffset =
-                        opArray[opIndex + 1].toObject()["offset"].toVariant().toULongLong();
+                RVA nextOffset = (*iterator)["offset"].toRVA();
                 i.size = nextOffset - i.addr;
             } else {
                 // or to the end of the block.
@@ -314,7 +310,7 @@ void DisassemblerGraphView::loadCurrentGraph()
     }
     cleanupEdges(blocks);
 
-    if (!func["blocks"].toArray().isEmpty()) {
+    if (func["blocks"].size()) {
         computeGraphPlacement();
     }
 }

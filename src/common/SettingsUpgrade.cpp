@@ -181,7 +181,7 @@ void Cutter::initializeSettings()
 
 static void removeObsoleteOptionsFromCustomThemes()
 {
-    const QStringList options = Core()->cmdj("ecj").object().keys()
+    const QStringList options = Core()->cmdj("ecj").keys()
             << ColorThemeWorker::cutterSpecificOptions;
     RzList *themes_list = rz_core_theme_list(Core()->core());
     RzListIter *th_iter;
