@@ -737,7 +737,7 @@ QString CutterCore::getInstructionOpcode(RVA addr)
 void CutterCore::editInstruction(RVA addr, const QString &inst)
 {
     CORE_LOCK();
-    rz_core_write_assembly(core, addr, inst.trimmed().toStdString().c_str(), false, false);
+    rz_core_write_assembly(core, addr, inst.trimmed().toStdString().c_str());
     emit instructionChanged(addr);
 }
 
