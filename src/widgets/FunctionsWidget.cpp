@@ -562,7 +562,7 @@ void FunctionsWidget::refreshTree()
                     importAddresses.insert(import.plt);
                 }
 
-                mainAdress = (ut64)Core()->cmdj("iMj").object()["vaddr"].toInt();
+                mainAdress = (ut64)Core()->cmdj("iMj")["vaddr"].toUt64();
 
                 functionModel->updateCurrentIndex();
                 functionModel->endResetModel();

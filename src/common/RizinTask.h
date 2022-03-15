@@ -38,7 +38,7 @@ public:
     explicit RizinCmdTask(const QString &cmd, bool transient = true);
 
     QString getResult();
-    QJsonDocument getResultJson();
+    CutterJson getResultJson();
     const char *getResultRaw();
 };
 

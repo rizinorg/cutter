@@ -32,16 +32,16 @@ Dashboard::~Dashboard() {}
 
 void Dashboard::updateContents()
 {
-    QJsonDocument docu = Core()->getFileInfo();
-    QJsonObject item = docu.object()["core"].toObject();
-    QJsonObject item2 = docu.object()["bin"].toObject();
+    CutterJson docu = Core()->getFileInfo();
+    CutterJson item = docu["core"];
+    CutterJson item2 = docu["bin"];
 
     setPlainText(this->ui->fileEdit, item["file"].toString());
     setPlainText(this->ui->formatEdit, item["format"].toString());
     setPlainText(this->ui->modeEdit, item["mode"].toString());
     setPlainText(this->ui->typeEdit, item["type"].toString());
-    setPlainText(this->ui->sizeEdit, qhelpers::formatBytecount(item["size"].toDouble()));
-    setPlainText(this->ui->fdEdit, QString::number(item["fd"].toDouble()));
+    setPlainText(this->ui->sizeEdit, qhelpers::formatBytecount(item["size"].toUt64()));
+    setPlainText(this->ui->fdEdit, QString::number(item["fd"].toUt64()));
 
     setPlainText(this->ui->archEdit, item2["arch"].toString());
     setPlainText(this->ui->langEdit, item2["lang"].toString().toUpper());
@@ -52,7 +52,7 @@ void Dashboard::updateContents()
     setPlainText(this->ui->endianEdit, item2["endian"].toString());
     setPlainText(this->ui->compilationDateEdit, item2["compiled"].toString());
     setPlainText(this->ui->compilerEdit, item2["compiler"].toString());
-    setPlainText(this->ui->bitsEdit, QString::number(item2["bits"].toDouble()));
+    setPlainText(this->ui->bitsEdit, QString::number(item2["bits"].toUt64()));
 
     if (!item2["relro"].toString().isEmpty()) {
         QString relro = item2["relro"].toString().section(QLatin1Char(' '), 0, 0);
@@ -62,7 +62,7 @@ void Dashboard::updateContents()
         setPlainText(this->ui->relroEdit, "N/A");
     }
 
-    setPlainText(this->ui->baddrEdit, RzAddressString(item2["baddr"].toVariant().toULongLong()));
+    setPlainText(this->ui->baddrEdit, RzAddressString(item2["baddr"].toRVA()));
 
     // set booleans
     setBool(this->ui->vaEdit, item2, "va");
@@ -110,16 +110,16 @@ void Dashboard::updateContents()
         hashesLayout->addRow(new QLabel(label), hashLineEdit);
     }
 
-    QJsonObject analinfo = Core()->cmdj("aaij").object();
-    setPlainText(ui->functionsLineEdit, QString::number(analinfo["fcns"].toInt()));
-    setPlainText(ui->xRefsLineEdit, QString::number(analinfo["xrefs"].toInt()));
-    setPlainText(ui->callsLineEdit, QString::number(analinfo["calls"].toInt()));
-    setPlainText(ui->stringsLineEdit, QString::number(analinfo["strings"].toInt()));
-    setPlainText(ui->symbolsLineEdit, QString::number(analinfo["symbols"].toInt()));
-    setPlainText(ui->importsLineEdit, QString::number(analinfo["imports"].toInt()));
-    setPlainText(ui->coverageLineEdit, QString::number(analinfo["covrage"].toInt()) + " bytes");
-    setPlainText(ui->codeSizeLineEdit, QString::number(analinfo["codesz"].toInt()) + " bytes");
-    setPlainText(ui->percentageLineEdit, QString::number(analinfo["percent"].toInt()) + "%");
+    CutterJson analinfo = Core()->cmdj("aaij");
+    setPlainText(ui->functionsLineEdit, QString::number(analinfo["fcns"].toSt64()));
+    setPlainText(ui->xRefsLineEdit, QString::number(analinfo["xrefs"].toSt64()));
+    setPlainText(ui->callsLineEdit, QString::number(analinfo["calls"].toSt64()));
+    setPlainText(ui->stringsLineEdit, QString::number(analinfo["strings"].toSt64()));
+    setPlainText(ui->symbolsLineEdit, QString::number(analinfo["symbols"].toSt64()));
+    setPlainText(ui->importsLineEdit, QString::number(analinfo["imports"].toSt64()));
+    setPlainText(ui->coverageLineEdit, QString::number(analinfo["covrage"].toSt64()) + " bytes");
+    setPlainText(ui->codeSizeLineEdit, QString::number(analinfo["codesz"].toSt64()) + " bytes");
+    setPlainText(ui->percentageLineEdit, QString::number(analinfo["percent"].toSt64()) + "%");
 
     QStringList libs = Core()->cmdList("il");
     if (!libs.isEmpty()) {
@@ -151,14 +151,11 @@ void Dashboard::updateContents()
     QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding);
     ui->verticalLayout_2->addSpacerItem(spacer);
 
-    // Get stats for the graphs
-    QStringList stats = Core()->getStats();
-
     // Check if signature info and version info available
-    if (Core()->getSignatureInfo().isEmpty()) {
+    if (!Core()->getSignatureInfo().size()) {
         ui->certificateButton->setEnabled(false);
     }
-    if (Core()->getFileVersionInfo().isEmpty()) {
+    if (!Core()->getFileVersionInfo().size()) {
         ui->versioninfoButton->setEnabled(false);
     }
 }
@@ -173,8 +170,7 @@ void Dashboard::on_certificateButton_clicked()
         viewDialog = new QDialog(this);
         view = new CutterTreeView(viewDialog);
         model = new JsonModel();
-        QJsonDocument qjsonCertificatesDoc = Core()->getSignatureInfo();
-        qstrCertificates = qjsonCertificatesDoc.toJson(QJsonDocument::Compact);
+        qstrCertificates = Core()->getSignatureInfo().toJson();
     }
     if (!viewDialog->isVisible()) {
         std::string strCertificates = qstrCertificates.toUtf8().constData();
@@ -230,9 +226,9 @@ void Dashboard::setPlainText(QLineEdit *textBox, const QString &text)
  * @param textBox
  * @param isTrue
  */
-void Dashboard::setBool(QLineEdit *textBox, const QJsonObject &jsonObject, const QString &key)
+void Dashboard::setBool(QLineEdit *textBox, const CutterJson &jsonObject, const char *key)
 {
-    if (jsonObject.contains(key)) {
+    if (jsonObject[key].valid()) {
         if (jsonObject[key].toBool()) {
             setPlainText(textBox, tr("True"));
         } else {
