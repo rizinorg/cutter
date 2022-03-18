@@ -89,7 +89,7 @@
       </widget>
      </item>
      <item row="3" column="4">
-      <widget class="QPushButton" name="Issue_button">
+      <widget class="QPushButton" name="Issue">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
          <horstretch>0</horstretch>
@@ -203,4 +203,8 @@
  </customwidgets>
  <resources/>
  <connections/>
+ <slots>
+  <signal>signal1()</signal>
+  <slot>on_reportIssueButton_clicked()</slot>
+ </slots>
 </ui>

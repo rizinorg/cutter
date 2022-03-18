@@ -21,6 +21,7 @@ private slots:
     void on_buttonBox_rejected();
     void on_showVersionButton_clicked();
     void on_showPluginsButton_clicked();
+    void on_Issue_clicked();
 
     /**
      * @fn AboutDialog::on_checkForUpdatesButton_clicked()
