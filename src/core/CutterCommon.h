@@ -19,6 +19,18 @@
     if (list)                                                                                      \
         for (it = list->head; it && ((x = static_cast<type *>(it->data))); it = it->n)
 
+#define CutterRzListToQVector(list, type, vec)                                                      \
+    if (list) {                                                                                     \
+        RzListIter *it;                                                                             \
+        type *x;                                                                                    \
+        for (it = list->head; it && ((x = static_cast<type *>(it->data))); it = it->n) {            \
+            if (!x) {                                                                               \
+                continue;                                                                           \
+            }                                                                                       \
+            vec.append(x);                                                                          \
+        }                                                                                           \
+    }
+
 #define CutterRzVectorForeach(vec, it, type)                                                        \
     if ((vec) && (vec)->a)                                                                         \
         for (it = (type *)(vec)->a;                                                                \

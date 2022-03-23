@@ -24,6 +24,7 @@ class CutterCore;
 class Decompiler;
 class RizinTask;
 class RizinCmdTask;
+class RizinFunctionTask;
 class RizinTaskDialog;
 
 #include "common/BasicBlockHighlighter.h"
@@ -104,6 +105,13 @@ public:
     {
         return asyncCmd(str.toUtf8().constData(), task);
     }
+
+    /**
+     * @brief send a task to Rizin
+     * @param fcn the task you want to execute
+     * @return execute successful?
+     */
+    bool asyncTask(std::function<void(RzCore *)> fcn, QSharedPointer<RizinFunctionTask> &task);
 
     /**
      * @brief Execute a Rizin command \a cmd.  By nature, the API
@@ -431,15 +439,9 @@ public:
     /**
      * @brief Get a list of a given process's threads
      * @param pid The pid of the process, -1 for the currently debugged process
-     * @return JSON object result of dptj
+     * @return QVector of RzDebugPid *
      */
-    CutterJson getProcessThreads(int pid);
-    /**
-     * @brief Get a list of a given process's child processes
-     * @param pid The pid of the process, -1 for the currently debugged process
-     * @return JSON object result of dptj
-     */
-    CutterJson getChildProcesses(int pid);
+    QVector<RzDebugPid *> getProcessThreads(int pid);
     CutterJson getBacktrace();
     /**
      * @brief Get a list of heap chunks
@@ -815,6 +817,7 @@ private:
     BasicInstructionHighlighter biHighlighter;
 
     QSharedPointer<RizinCmdTask> debugTask;
+    QSharedPointer<RizinFunctionTask> debugFunctionTask;
     RizinTaskDialog *debugTaskDialog;
 
     QVector<QString> getCutterRCFilePaths() const;

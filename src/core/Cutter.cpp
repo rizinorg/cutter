@@ -450,6 +450,32 @@ bool CutterCore::asyncCmd(const char *str, QSharedPointer<RizinCmdTask> &task)
     return true;
 }
 
+bool CutterCore::asyncTask(std::function<void(RzCore *)> fcn,
+                           QSharedPointer<RizinFunctionTask> &task)
+{
+    if (!task.isNull()) {
+        return false;
+    }
+
+    CORE_LOCK();
+    RVA offset = core->offset;
+    task = QSharedPointer<RizinFunctionTask>(new RizinFunctionTask(
+            [&](RzCore *core) {
+                fcn(core);
+                return (void *)NULL;
+            },
+            true));
+    connect(task.data(), &RizinFunctionTask::finished, task.data(), [this, offset, task]() {
+        CORE_LOCK();
+
+        if (offset != core->offset) {
+            updateSeek();
+        }
+    });
+
+    return true;
+}
+
 QString CutterCore::cmdRawAt(const char *cmd, RVA address)
 {
     QString res;
@@ -1595,14 +1621,13 @@ AddrRefs CutterCore::getAddrRefs(RVA addr, int depth)
     return refs;
 }
 
-CutterJson CutterCore::getProcessThreads(int pid)
+QVector<RzDebugPid *> CutterCore::getProcessThreads(int pid)
 {
-    if (-1 == pid) {
-        // Return threads list of the currently debugged PID
-        return cmdj("dptj");
-    } else {
-        return cmdj("dptj " + QString::number(pid));
-    }
+    CORE_LOCK();
+    QVector<RzDebugPid *> pids;
+    RzList *list = rz_debug_pids(core->dbg, pid != -1 ? pid : core->dbg->pid);
+    CutterRzListToQVector(list, RzDebugPid, pids);
+    return pids;
 }
 
 QVector<Chunk> CutterCore::getHeapChunks(RVA arena_addr)
@@ -1735,16 +1760,6 @@ bool CutterCore::writeHeapChunk(RzHeapChunkSimple *chunk_simple)
     return rz_heap_write_chunk(core, chunk_simple);
 }
 
-CutterJson CutterCore::getChildProcesses(int pid)
-{
-    // Return the currently debugged process and it's children
-    if (-1 == pid) {
-        return cmdj("dpj");
-    }
-    // Return the given pid and it's child processes
-    return cmdj("dpj " + QString::number(pid));
-}
-
 CutterJson CutterCore::getRegisterValues()
 {
     return cmdj("drj");
@@ -1831,7 +1846,11 @@ void CutterCore::setRegister(QString regName, QString regValue)
 
 void CutterCore::setCurrentDebugThread(int tid)
 {
-    if (!asyncCmd("dpt=" + QString::number(tid), debugTask)) {
+    if (!asyncTask(
+                [=](RzCore *core) {
+                    rz_debug_select(core->dbg, core->dbg->pid, tid);
+                },
+                debugFunctionTask)) {
         return;
     }
 
@@ -1851,7 +1870,13 @@ void CutterCore::setCurrentDebugThread(int tid)
 
 void CutterCore::setCurrentDebugProcess(int pid)
 {
-    if (!currentlyDebugging || !asyncCmd("dp=" + QString::number(pid), debugTask)) {
+    if (!currentlyDebugging
+        || !asyncTask(
+                [=](RzCore *core) {
+                    rz_debug_select(core->dbg, pid, core->dbg->tid);
+                    core->dbg->main_pid = pid;
+                },
+                debugFunctionTask)) {
         return;
     }
 
@@ -2124,7 +2149,7 @@ void CutterCore::continueDebug()
             return;
         }
     } else {
-        if (!asyncCmd("dc", debugTask)) {
+        if (!asyncTask([](RzCore *core) { rz_core_debug_continue(core); }, debugFunctionTask)) {
             return;
         }
     }
@@ -2151,7 +2176,7 @@ void CutterCore::continueBackDebug()
             return;
         }
     } else {
-        if (!asyncCmd("dcb", debugTask)) {
+        if (!asyncTask([](RzCore *core) { rz_debug_continue_back(core->dbg); }, debugFunctionTask)) {
             return;
         }
     }
@@ -2178,7 +2203,8 @@ void CutterCore::continueUntilDebug(QString offset)
             return;
         }
     } else {
-        if (!asyncCmd("dcu " + offset, debugTask)) {
+        if (!asyncTask([=](RzCore *core) { rz_core_debug_continue_until(core, offset, offset); },
+                       debugTask)) {
             return;
         }
     }
@@ -2205,7 +2231,7 @@ void CutterCore::continueUntilCall()
             return;
         }
     } else {
-        if (!asyncCmd("dcc", debugTask)) {
+        if (!asyncTask([](RzCore *core) { rz_core_debug_single_step_over(core); }, debugTask)) {
             return;
         }
     }
@@ -2383,7 +2409,12 @@ void CutterCore::startTraceSession()
             return;
         }
     } else {
-        if (!asyncCmd("dts+", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        core->dbg->session = z_debug_session_new();
+                        rz_debug_add_checkpoint(core->dbg);
+                    },
+                    debugTask)) {
             return;
         }
     }
@@ -2419,7 +2450,12 @@ void CutterCore::stopTraceSession()
             return;
         }
     } else {
-        if (!asyncCmd("dts-", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_debug_session_free(core->dbg->session);
+                        core->dbg->session = NULL;
+                    },
+                    debugTask)) {
             return;
         }
     }
