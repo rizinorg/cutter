@@ -777,7 +777,7 @@ void DisassemblyContextMenu::on_actionAdvancedBreakpoint_triggered()
 
 void DisassemblyContextMenu::on_actionContinueUntil_triggered()
 {
-    Core()->continueUntilDebug(RzAddressString(offset));
+    Core()->continueUntilDebug(offset);
 }
 
 void DisassemblyContextMenu::on_actionSetPC_triggered()

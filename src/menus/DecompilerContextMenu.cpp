@@ -519,7 +519,7 @@ void DecompilerContextMenu::actionAdvancedBreakpointTriggered()
 
 void DecompilerContextMenu::actionContinueUntilTriggered()
 {
-    Core()->continueUntilDebug(RzAddressString(offset));
+    Core()->continueUntilDebug(offset);
 }
 
 void DecompilerContextMenu::actionSetPCTriggered()
