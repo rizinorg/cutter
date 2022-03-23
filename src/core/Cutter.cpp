@@ -1620,7 +1620,7 @@ AddrRefs CutterCore::getAddrRefs(RVA addr, int depth)
     return refs;
 }
 
-QVector<RzDebugPid *> CutterCore::getProcessThreads(int pid)
+QVector<RzDebugPid *> CutterCore::getProcessThreads(int pid = -1)
 {
     CORE_LOCK();
     QVector<RzDebugPid *> pids;
@@ -2279,7 +2279,7 @@ void CutterCore::stepDebug()
             return;
         }
     } else {
-        if (!asyncCmd("ds", debugTask)) {
+        if (!asyncTask([](RzCore *core) { rz_core_debug_step_one(core, 1); }, debugTask)) {
             return;
         }
     }
@@ -2547,25 +2547,29 @@ void CutterCore::updateBreakpoint(int index, const BreakpointDescription &config
 
 void CutterCore::delBreakpoint(RVA addr)
 {
-    cmdRaw("db- " + RzAddressString(addr));
+    CORE_LOCK();
+    rz_bp_del(core->dbg->bp, addr);
     emit breakpointsChanged(addr);
 }
 
 void CutterCore::delAllBreakpoints()
 {
-    cmdRaw("db-*");
+    CORE_LOCK();
+    rz_bp_del_all(core->dbg->bp);
     emit refreshCodeViews();
 }
 
 void CutterCore::enableBreakpoint(RVA addr)
 {
-    cmdRaw("dbe " + RzAddressString(addr));
+    CORE_LOCK();
+    rz_bp_enable(core->dbg->bp, addr, true, 1);
     emit breakpointsChanged(addr);
 }
 
 void CutterCore::disableBreakpoint(RVA addr)
 {
-    cmdRaw("dbd " + RzAddressString(addr));
+    CORE_LOCK();
+    rz_bp_enable(core->dbg->bp, addr, false, 1);
     emit breakpointsChanged(addr);
 }
 
@@ -2665,13 +2669,13 @@ QList<ProcessDescription> CutterCore::getAllProcesses()
 {
     QList<ProcessDescription> ret;
 
-    for (CutterJson procObject : cmdj("dplj")) {
+    for (RzDebugPid *procObject : getProcessThreads()) {
         ProcessDescription proc;
 
-        proc.pid = procObject[RJsonKey::pid].toSt64();
-        proc.uid = procObject[RJsonKey::uid].toSt64();
-        proc.status = procObject[RJsonKey::status].toString();
-        proc.path = procObject[RJsonKey::path].toString();
+        proc.pid = procObject->pid;
+        proc.uid = procObject->uid;
+        proc.status = procObject->status;
+        proc.path = procObject->path;
 
         ret << proc;
     }
@@ -2681,17 +2685,22 @@ QList<ProcessDescription> CutterCore::getAllProcesses()
 
 QList<MemoryMapDescription> CutterCore::getMemoryMap()
 {
+    CORE_LOCK();
+    RzList *list0 = rz_debug_map_list(core->dbg, false);
+    RzList *list1 = rz_debug_map_list(core->dbg, true);
+    rz_list_join(list0, list1);
     QList<MemoryMapDescription> ret;
-
-    for (CutterJson memMapObject : cmdj("dmj")) {
+    RzListIter *it;
+    RzDebugMap *map;
+    CutterRzListForeach (list0, it, RzDebugMap, map) {
         MemoryMapDescription memMap;
 
-        memMap.name = memMapObject[RJsonKey::name].toString();
-        memMap.fileName = memMapObject[RJsonKey::file].toString();
-        memMap.addrStart = memMapObject[RJsonKey::addr].toRVA();
-        memMap.addrEnd = memMapObject[RJsonKey::addr_end].toRVA();
-        memMap.type = memMapObject[RJsonKey::type].toString();
-        memMap.permission = memMapObject[RJsonKey::perm].toString();
+        memMap.name = map->name;
+        memMap.fileName = map->file;
+        memMap.addrStart = map->addr;
+        memMap.addrEnd = map->addr_end;
+        memMap.type = map->user ? "u" : "s";
+        memMap.permission = rz_str_rwx_i(map->perm);
 
         ret << memMap;
     }
