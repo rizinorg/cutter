@@ -726,7 +726,7 @@ void HexWidget::w_increaseDecrease()
     }
     int64_t value = (int64_t)d.getValue();
     uint8_t sz = d.getNBytes();
-    if (!d.getMode() == IncrementDecrementDialog::Increase) {
+    if (d.getMode() == IncrementDecrementDialog::Decrease) {
         value *= -1;
     }
     RzCoreLocked core(Core());
