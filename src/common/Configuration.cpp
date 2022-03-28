@@ -7,9 +7,9 @@
 #include <QApplication>
 
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
-#    include <KSyntaxHighlighting/repository.h>
-#    include <KSyntaxHighlighting/theme.h>
-#    include <KSyntaxHighlighting/definition.h>
+#    include <KSyntaxHighlighting/Repository>
+#    include <KSyntaxHighlighting/Theme>
+#    include <KSyntaxHighlighting/Definition>
 #endif
 
 #include "common/ColorThemeWorker.h"

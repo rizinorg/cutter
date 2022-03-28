@@ -5,7 +5,7 @@
 
 #    include "Configuration.h"
 
-#    include <KSyntaxHighlighting/theme.h>
+#    include <KSyntaxHighlighting/Theme>
 
 SyntaxHighlighter::SyntaxHighlighter(QTextDocument *document)
     : KSyntaxHighlighting::SyntaxHighlighter(document)
