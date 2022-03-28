@@ -1221,10 +1221,13 @@ QString CutterCore::disassembleSingleInstruction(RVA addr)
 RzAnalysisFunction *CutterCore::functionIn(ut64 addr)
 {
     CORE_LOCK();
+    RzAnalysisFunction *fcn = rz_analysis_get_function_at(core->analysis, addr);
+    if (fcn) {
+        return fcn;
+    }
     RzList *fcns = rz_analysis_get_functions_in(core->analysis, addr);
-    RzAnalysisFunction *fcn = !rz_list_empty(fcns)
-            ? reinterpret_cast<RzAnalysisFunction *>(rz_list_first(fcns))
-            : nullptr;
+    fcn = !rz_list_empty(fcns) ? reinterpret_cast<RzAnalysisFunction *>(rz_list_first(fcns))
+                               : nullptr;
     rz_list_free(fcns);
     return fcn;
 }
@@ -1750,22 +1753,37 @@ CutterJson CutterCore::getRegisterValues()
 QList<VariableDescription> CutterCore::getVariables(RVA at)
 {
     QList<VariableDescription> ret;
-    CutterJson varsObject = cmdj(QString("afvj @ %1").arg(at));
-
-    auto addVars = [&](VariableDescription::RefType refType, const CutterJson &array) {
-        for (CutterJson varObject : array) {
-            VariableDescription desc;
-            desc.refType = refType;
-            desc.name = varObject["name"].toString();
-            desc.type = varObject["type"].toString();
-            ret << desc;
+    CORE_LOCK();
+    RzAnalysisFunction *fcn = functionIn(at);
+    if (!fcn) {
+        return ret;
+    }
+    for (auto var : CutterPVector<RzAnalysisVar>(&fcn->vars)) {
+        VariableDescription desc;
+        switch (var->kind) {
+        case RZ_ANALYSIS_VAR_KIND_BPV:
+            desc.refType = VariableDescription::RefType::BP;
+            break;
+        case RZ_ANALYSIS_VAR_KIND_SPV:
+            desc.refType = VariableDescription::RefType::SP;
+            break;
+        case RZ_ANALYSIS_VAR_KIND_REG:
+        default:
+            desc.refType = VariableDescription::RefType::Reg;
+            break;
         }
-    };
-
-    addVars(VariableDescription::RefType::SP, varsObject["sp"]);
-    addVars(VariableDescription::RefType::BP, varsObject["bp"]);
-    addVars(VariableDescription::RefType::Reg, varsObject["reg"]);
-
+        if (!var->name || !var->type) {
+            continue;
+        }
+        desc.name = QString::fromUtf8(var->name);
+        char *tn = rz_type_as_string(core->analysis->typedb, var->type);
+        if (!tn) {
+            continue;
+        }
+        desc.type = QString::fromUtf8(tn);
+        rz_mem_free(tn);
+        ret.push_back(desc);
+    }
     return ret;
 }
 
