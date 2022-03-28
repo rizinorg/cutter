@@ -834,11 +834,9 @@ void CutterCore::setToData(RVA addr, int size, int repeat)
     }
 
     CORE_LOCK();
-    rz_meta_del(core->analysis, RZ_META_TYPE_DATA, addr, 1);
     RVA address = addr;
-    auto name = QString(size).toStdString();
     for (int i = 0; i < repeat; ++i, address += size) {
-        rz_meta_set(core->analysis, RZ_META_TYPE_DATA, address, size, name.c_str());
+        rz_meta_set(core->analysis, RZ_META_TYPE_DATA, address, size, nullptr);
     }
     emit instructionChanged(addr);
 }
