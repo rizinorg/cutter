@@ -33,8 +33,7 @@ protected:
     void setHasTarget(bool hasTarget);
     QAction *actionApplySignature;
     QAction *actionCopyLine;
-    QAction *actionShowContents;
 
     FlirtDescription entry;
 };
-#endif // FlirtCONTEXTMENU_H
+#endif // FLIRT_CONTEXTMENU_H

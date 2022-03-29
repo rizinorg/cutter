@@ -551,7 +551,6 @@ void DecompilerWidget::highlightBreakpoints()
     for (RVA &bp : functionBreakpoints) {
         if (bp == RVA_INVALID) {
             continue;
-            ;
         }
         cursor = getCursorForAddress(bp);
         if (!cursor.isNull()) {
