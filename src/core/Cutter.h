@@ -156,6 +156,15 @@ public:
         seekSilent(oldOffset);
     }
 
+    void *returnAtSeek(std::function<void *()> fn, RVA address)
+    {
+        RVA oldOffset = getOffset();
+        seekSilent(address);
+        void *ret = fn();
+        seekSilent(oldOffset);
+        return ret;
+    }
+
     CutterJson cmdj(const char *str);
     CutterJson cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
     CutterJson cmdjAt(const char *str, RVA address);

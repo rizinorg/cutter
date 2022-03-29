@@ -844,12 +844,23 @@ void CutterCore::removeString(RVA addr)
 
 QString CutterCore::getString(RVA addr)
 {
-    return cmdRawAt("ps", addr);
+    CORE_LOCK();
+    char *s = (char *)returnAtSeek(
+            [&]() {
+                RzStrStringifyOpt opt = { 0 };
+                opt.buffer = core->block;
+                opt.length = core->blocksize;
+                opt.encoding = rz_str_guess_encoding_from_buffer(core->block, core->blocksize);
+                return rz_str_stringify_raw_buffer(&opt, NULL);
+            },
+            addr);
+    return fromOwnedCharPtr(s);
 }
 
 QString CutterCore::getMetaString(RVA addr)
 {
-    return cmdRawAt("Cs.", addr);
+    CORE_LOCK();
+    return rz_meta_get_string(core->analysis, RZ_META_TYPE_STRING, addr);
 }
 
 void CutterCore::setToData(RVA addr, int size, int repeat)
