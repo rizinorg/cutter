@@ -4,9 +4,10 @@
 #include <QAction>
 
 #include "CutterSamplePlugin.h"
-#include "common/TempConfig.h"
-#include "common/Configuration.h"
-#include "MainWindow.h"
+
+#include <common/TempConfig.h>
+#include <common/Configuration.h>
+#include <MainWindow.h>
 
 void CutterSamplePlugin::setupPlugin() {}
 
@@ -56,9 +57,14 @@ void CutterSamplePluginWidget::on_seekChanged(RVA addr)
 
 void CutterSamplePluginWidget::on_buttonClicked()
 {
-    QString fortune = Core()->cmd("fo").replace("\n", "");
+    RzCoreLocked core(Core());
+    char *fortune = rz_core_fortune_get_random(core);
+    if (!fortune) {
+        return;
+    }
     // cmdRaw can be used to execute single raw commands
     // this is especially good for user-controlled input
-    QString res = Core()->cmdRaw("?E " + fortune);
+    QString res = Core()->cmdRaw("?E " + QString::fromUtf8(fortune));
     text->setText(res);
+    rz_mem_free(fortune);
 }

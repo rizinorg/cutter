@@ -558,17 +558,26 @@ install(TARGETS Cutter
         EXPORT CutterTargets
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
         BUNDLE DESTINATION "." # needs to be tested
-        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT Devel
-)
+        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT Devel)
 install(EXPORT CutterTargets
     NAMESPACE Cutter::
-    DESTINATION "${ConfigPackageLocation}"
+    DESTINATION "${CUTTER_INSTALL_CONFIGDIR}"
     COMPONENT Devel)
+include(CMakePackageConfigHelpers)
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/CutterConfig.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/CutterConfig.cmake"
+    INSTALL_DESTINATION "${CUTTER_INSTALL_CONFIGDIR}"
+    NO_SET_AND_CHECK_MACRO
+    NO_CHECK_REQUIRED_COMPONENTS_MACRO)
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/CutterConfigVersion.cmake"
+    VERSION "${CUTTER_VERSION_FULL}"
+    COMPATIBILITY AnyNewerVersion)
 install(FILES
-    ../cmake/CutterConfig.cmake
-    DESTINATION ${ConfigPackageLocation}
-    COMPONENT Devel
-)
+    "${CMAKE_CURRENT_BINARY_DIR}/CutterConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/CutterConfigVersion.cmake"
+    DESTINATION ${CUTTER_INSTALL_CONFIGDIR}
+    COMPONENT Devel)
 foreach(_file ${HEADER_FILES})
     # Can't use target PUBLIC_HEADER option for installing due to multiple directories
     get_filename_component(_header_dir "${_file}" DIRECTORY)
@@ -576,8 +585,8 @@ foreach(_file ${HEADER_FILES})
 endforeach()
 
 if(UNIX AND NOT APPLE)
-    install (FILES "img/cutter.svg"
-                DESTINATION "share/icons/hicolor/scalable/apps/")
+    install(FILES "img/cutter.svg"
+        DESTINATION "share/icons/hicolor/scalable/apps/")
     install(FILES "re.rizin.cutter.desktop"
         DESTINATION "share/applications"
         COMPONENT Devel)
