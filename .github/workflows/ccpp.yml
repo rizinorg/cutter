@@ -19,13 +19,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, ubuntu-18.04, macos-latest, windows-2016]
+        os: [ubuntu-20.04, ubuntu-18.04, macos-latest, windows-2019]
         python-version: [3.7.x]
         system-deps: [false]
         cc-override: [default]
         cxx-override: [default]
         include:
-          - os: windows-2016
+          - os: windows-2019
             package: true
           - os: ubuntu-18.04 # ensure that Cutter can be built at least in basic config on Ubuntu 18.04 using sytem libraries
             python-version: 3.6.x
@@ -213,7 +213,7 @@ jobs:
         set ARCH=x64
         set CUTTER_DEPS=%CD%\cutter-deps
         set PATH=%CD%\cutter-deps\qt\bin;%PATH%
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
         call scripts\prepare_breakpad.bat
         cd
         mkdir build
