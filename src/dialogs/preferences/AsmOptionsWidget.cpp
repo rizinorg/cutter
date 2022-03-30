@@ -242,7 +242,7 @@ void AsmOptionsWidget::on_varsubCheckBox_toggled(bool checked)
     triggerAsmOptionsChanged();
 }
 
-void AsmOptionsWidget::on_previewCheckBox_toggled( bool checked )
+void AsmOptionsWidget::on_previewCheckBox_toggled(bool checked)
 {
     Config()->setPreviewValue(checked);
     triggerAsmOptionsChanged();

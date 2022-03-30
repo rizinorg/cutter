@@ -85,7 +85,7 @@ void GraphOptionsWidget::on_graphOffsetCheckBox_toggled(bool checked)
     triggerOptionsChanged();
 }
 
-void GraphOptionsWidget::on_graphPreviewCheckBox_toggled( bool checked )
+void GraphOptionsWidget::on_graphPreviewCheckBox_toggled(bool checked)
 {
     Config()->setGraphPreview(checked);
     triggerOptionsChanged();
