@@ -489,7 +489,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
     // Create structure offset menu if it makes sense
     QString memBaseReg; // Base register
-    st64 memDisp; // Displacement
+    st64 memDisp = 0; // Displacement
 
     // Loop through both the operands of the instruction
     for (const CutterJson operand : instObject["opex"]["operands"]) {
