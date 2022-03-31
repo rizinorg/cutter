@@ -17,6 +17,7 @@
 #include "WidgetShortcuts.h"
 
 #ifdef Q_OS_WIN
+#    include <windows.h>
 #    include <io.h>
 #    define dup2 _dup2
 #    define dup _dup
