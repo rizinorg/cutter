@@ -1,9 +1,9 @@
 #ifndef CUTTERSAMPLEPLUGIN_H
 #define CUTTERSAMPLEPLUGIN_H
 
-#include <QObject>
-#include <QtPlugin>
-#include "CutterPlugin.h"
+#include <CutterPlugin.h>
+
+#include <QLabel>
 
 class CutterSamplePlugin : public QObject, CutterPlugin
 {
@@ -26,7 +26,7 @@ class CutterSamplePluginWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit CutterSamplePluginWidget(MainWindow *main, QAction *action);
+    explicit CutterSamplePluginWidget(MainWindow *main);
 
 private:
     QLabel *text;

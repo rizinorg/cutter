@@ -14,6 +14,8 @@
  * @brief Attempt to connect to a parent console and configure outputs.
  */
 #ifdef Q_OS_WIN
+#include <windows.h>
+
 static void connectToConsole()
 {
     BOOL attached = AttachConsole(ATTACH_PARENT_PROCESS);

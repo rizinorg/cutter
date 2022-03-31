@@ -57,7 +57,8 @@ target_link_libraries(Rizin INTERFACE
         ${RZ_LIBS})
 target_include_directories(Rizin INTERFACE
     "$<BUILD_INTERFACE:${Rizin_INCLUDE_DIRS}>"
-    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/librz>")
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/librz>"
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/librz/sdb>")
 
 install(TARGETS Rizin EXPORT CutterTargets)
 if (WIN32)
