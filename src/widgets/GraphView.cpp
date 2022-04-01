@@ -664,13 +664,11 @@ void GraphView::mousePressEvent(QMouseEvent *event)
                     showBlock(blocks[edge.target]);
                     // TODO: Callback to child
                     return;
-                    break;
                 }
                 if (checkPointClicked(end, pos.x(), pos.y(), true)) {
                     showBlock(block);
                     // TODO: Callback to child
                     return;
-                    break;
                 }
             }
         }
