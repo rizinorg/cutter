@@ -109,13 +109,12 @@ void ProcessesWidget::setProcessesGrid()
     int i = 0;
     QFont font;
 
-    st64 dbg_pid = Core()->core()->dbg->pid;
-    for (RzDebugPid *processesItem : Core()->getProcessThreads(DEBUGGED_PID)) {
-        st64 pid = processesItem->pid;
-        st64 uid = processesItem->uid;
-        QString status = translateStatus(processesItem->status);
-        QString path = processesItem->path;
-        bool current = pid == dbg_pid;
+    for (const auto &processesItem : Core()->getProcessThreads(DEBUGGED_PID)) {
+        st64 pid = processesItem.pid;
+        st64 uid = processesItem.uid;
+        QString status = translateStatus(processesItem.status);
+        QString path = processesItem.path;
+        bool current = processesItem.current;
 
         // Use bold font to highlight active thread
         font.setBold(current);
@@ -157,13 +156,12 @@ void ProcessesWidget::onActivated(const QModelIndex &index)
         return;
 
     int pid = modelFilter->data(index.sibling(index.row(), COLUMN_PID)).toInt();
-
     // Verify that the selected pid is still in the processes list since dp= will
     // attach to any given id. If it isn't found simply update the UI.
-    for (RzDebugPid *value : Core()->getProcessThreads(DEBUGGED_PID)) {
-        if (pid == value->pid) {
+    for (const auto &value : Core()->getAllProcesses()) {
+        if (pid == value.pid) {
             QMessageBox msgBox;
-            switch (value->status) {
+            switch (value.status) {
             case RZ_DBG_PROC_ZOMBIE:
             case RZ_DBG_PROC_DEAD:
                 msgBox.setText(tr("Unable to switch to the requested process."));
@@ -175,7 +173,6 @@ void ProcessesWidget::onActivated(const QModelIndex &index)
             }
         }
     }
-
     updateContents();
 }
 

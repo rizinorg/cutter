@@ -417,7 +417,7 @@ bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<RizinTask> &ta
     }
 
     connect(task.data(), &RizinCmdTask::finished, task.data(), [this, task]() {
-        QString res = ((RizinCmdTask *)task.data())->getResult();
+        QString res = qobject_cast<RizinCmdTask *>(task.data())->getResult();
 
         if (res.contains(QStringLiteral("[ESIL] Stopped execution in an invalid instruction"))) {
             msgBox.showMessage("Stopped when attempted to run an invalid instruction. You can "
@@ -1626,15 +1626,6 @@ AddrRefs CutterCore::getAddrRefs(RVA addr, int depth)
     return refs;
 }
 
-QVector<RzDebugPid *> CutterCore::getProcessThreads(int pid = -1)
-{
-    CORE_LOCK();
-    QVector<RzDebugPid *> pids;
-    RzList *list = rz_debug_pids(core->dbg, pid != -1 ? pid : core->dbg->pid);
-    CutterRzListToQVector(list, RzDebugPid, pids);
-    return pids;
-}
-
 QVector<Chunk> CutterCore::getHeapChunks(RVA arena_addr)
 {
     CORE_LOCK();
@@ -2715,22 +2706,33 @@ CutterJson CutterCore::getBacktrace()
     return cmdj("dbtj");
 }
 
-QList<ProcessDescription> CutterCore::getAllProcesses()
+QList<ProcessDescription> CutterCore::getProcessThreads(int pid = -1)
 {
+    CORE_LOCK();
+    RzList *list = rz_debug_pids(core->dbg, pid != -1 ? pid : core->dbg->pid);
+    RzListIter *iter;
+    RzDebugPid *p;
     QList<ProcessDescription> ret;
 
-    for (RzDebugPid *procObject : getProcessThreads()) {
+    CutterRzListForeach (list, iter, RzDebugPid, p) {
         ProcessDescription proc;
 
-        proc.pid = procObject->pid;
-        proc.uid = procObject->uid;
-        proc.status = procObject->status;
-        proc.path = procObject->path;
+        proc.current = core->dbg->pid == p->pid;
+        proc.ppid = p->ppid;
+        proc.pid = p->pid;
+        proc.uid = p->uid;
+        proc.status = static_cast<RzDebugPidState>(p->status);
+        proc.path = p->path;
 
         ret << proc;
     }
-
+    rz_list_free(list);
     return ret;
+}
+
+QList<ProcessDescription> CutterCore::getAllProcesses()
+{
+    return getProcessThreads(0);
 }
 
 QList<MemoryMapDescription> CutterCore::getMemoryMap()

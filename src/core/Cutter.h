@@ -448,9 +448,9 @@ public:
     /**
      * @brief Get a list of a given process's threads
      * @param pid The pid of the process, -1 for the currently debugged process
-     * @return QVector of RzDebugPid *
+     * @return List of ProcessDescription
      */
-    QVector<RzDebugPid *> getProcessThreads(int pid);
+    QList<ProcessDescription> getProcessThreads(int pid);
     CutterJson getBacktrace();
     /**
      * @brief Get a list of heap chunks

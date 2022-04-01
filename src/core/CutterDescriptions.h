@@ -339,9 +339,11 @@ struct BreakpointDescription
 
 struct ProcessDescription
 {
+    bool current;
     int pid;
     int uid;
-    QString status;
+    int ppid;
+    RzDebugPidState status;
     QString path;
 };
 
