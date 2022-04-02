@@ -281,7 +281,7 @@ void DebugActions::continueUntilMain()
             return;
         }
     }
-    Core()->continueUntilDebug(QString::number(main_flag->offset));
+    Core()->continueUntilDebug(main_flag->offset);
 }
 
 void DebugActions::attachRemoteDebugger()
