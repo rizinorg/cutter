@@ -41,7 +41,7 @@ private slots:
     void onActivated(const QModelIndex &index);
 
 private:
-    QString translateStatus(QString status);
+    QString translateStatus(const char status);
     std::unique_ptr<Ui::ProcessesWidget> ui;
     QStandardItemModel *modelProcesses;
     ProcessesFilterModel *modelFilter;
