@@ -14,7 +14,8 @@ EditVariablesDialog::EditVariablesDialog(RVA offset, QString initialVar, QWidget
     connect<void (QComboBox::*)(int)>(ui->dropdownLocalVars, &QComboBox::currentIndexChanged, this,
                                       &EditVariablesDialog::updateFields);
 
-    QString fcnName = Core()->cmdRawAt("afn.", offset).trimmed();
+    RzAnalysisFunction *f = rz_analysis_get_function_at(Core()->core()->analysis, offset);
+    QString fcnName = f->name;
     functionAddress = offset;
     setWindowTitle(tr("Edit Variables in Function: %1").arg(fcnName));
 

@@ -82,9 +82,9 @@ void ThreadsWidget::updateContents()
     }
 }
 
-QString ThreadsWidget::translateStatus(QString status)
+QString ThreadsWidget::translateStatus(const char status)
 {
-    switch (status.toStdString().c_str()[0]) {
+    switch (status) {
     case RZ_DBG_PROC_STOP:
         return "Stopped";
     case RZ_DBG_PROC_RUN:
@@ -107,11 +107,11 @@ void ThreadsWidget::setThreadsGrid()
     int i = 0;
     QFont font;
 
-    for (CutterJson threadsItem : Core()->getProcessThreads(DEBUGGED_PID)) {
-        st64 pid = threadsItem["pid"].toSt64();
-        QString status = translateStatus(threadsItem["status"].toString());
-        QString path = threadsItem["path"].toString();
-        bool current = threadsItem["current"].toBool();
+    for (const auto &threadsItem : Core()->getProcessThreads(DEBUGGED_PID)) {
+        st64 pid = threadsItem.pid;
+        QString status = translateStatus(threadsItem.status);
+        QString path = threadsItem.path;
+        bool current = threadsItem.current;
         // Use bold font to highlight active thread
         font.setBold(current);
         QStandardItem *rowPid = new QStandardItem(QString::number(pid));
@@ -150,8 +150,8 @@ void ThreadsWidget::onActivated(const QModelIndex &index)
 
     // Verify that the selected tid is still in the threads list since dpt= will
     // attach to any given id. If it isn't found simply update the UI.
-    for (CutterJson value : Core()->getProcessThreads(DEBUGGED_PID)) {
-        if (tid == value["pid"].toSt64()) {
+    for (const auto &value : Core()->getProcessThreads(DEBUGGED_PID)) {
+        if (tid == value.pid) {
             Core()->setCurrentDebugThread(tid);
             break;
         }

@@ -408,7 +408,7 @@ bool CutterCore::isDebugTaskInProgress()
     return false;
 }
 
-bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<RizinCmdTask> &task)
+bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<RizinTask> &task)
 {
     asyncCmd(command, task);
 
@@ -417,7 +417,7 @@ bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<RizinCmdTask> 
     }
 
     connect(task.data(), &RizinCmdTask::finished, task.data(), [this, task]() {
-        QString res = task.data()->getResult();
+        QString res = qobject_cast<RizinCmdTask *>(task.data())->getResult();
 
         if (res.contains(QStringLiteral("[ESIL] Stopped execution in an invalid instruction"))) {
             msgBox.showMessage("Stopped when attempted to run an invalid instruction. You can "
@@ -428,7 +428,7 @@ bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<RizinCmdTask> 
     return true;
 }
 
-bool CutterCore::asyncCmd(const char *str, QSharedPointer<RizinCmdTask> &task)
+bool CutterCore::asyncCmd(const char *str, QSharedPointer<RizinTask> &task)
 {
     if (!task.isNull()) {
         return false;
@@ -438,8 +438,28 @@ bool CutterCore::asyncCmd(const char *str, QSharedPointer<RizinCmdTask> &task)
 
     RVA offset = core->offset;
 
-    task = QSharedPointer<RizinCmdTask>(new RizinCmdTask(str, true));
-    connect(task.data(), &RizinCmdTask::finished, task.data(), [this, offset, task]() {
+    task = QSharedPointer<RizinTask>(new RizinCmdTask(str, true));
+    connect(task.data(), &RizinTask::finished, task.data(), [this, offset, task]() {
+        CORE_LOCK();
+
+        if (offset != core->offset) {
+            updateSeek();
+        }
+    });
+
+    return true;
+}
+
+bool CutterCore::asyncTask(std::function<void *(RzCore *)> fcn, QSharedPointer<RizinTask> &task)
+{
+    if (!task.isNull()) {
+        return false;
+    }
+
+    CORE_LOCK();
+    RVA offset = core->offset;
+    task = QSharedPointer<RizinTask>(new RizinFunctionTask(std::move(fcn), true));
+    connect(task.data(), &RizinTask::finished, task.data(), [this, offset, task]() {
         CORE_LOCK();
 
         if (offset != core->offset) {
@@ -819,12 +839,23 @@ void CutterCore::removeString(RVA addr)
 
 QString CutterCore::getString(RVA addr)
 {
-    return cmdRawAt("ps", addr);
+    CORE_LOCK();
+    char *s = (char *)returnAtSeek(
+            [&]() {
+                RzStrStringifyOpt opt = { 0 };
+                opt.buffer = core->block;
+                opt.length = core->blocksize;
+                opt.encoding = rz_str_guess_encoding_from_buffer(core->block, core->blocksize);
+                return rz_str_stringify_raw_buffer(&opt, NULL);
+            },
+            addr);
+    return fromOwnedCharPtr(s);
 }
 
 QString CutterCore::getMetaString(RVA addr)
 {
-    return cmdRawAt("Cs.", addr);
+    CORE_LOCK();
+    return rz_meta_get_string(core->analysis, RZ_META_TYPE_STRING, addr);
 }
 
 void CutterCore::setToData(RVA addr, int size, int repeat)
@@ -1595,16 +1626,6 @@ AddrRefs CutterCore::getAddrRefs(RVA addr, int depth)
     return refs;
 }
 
-CutterJson CutterCore::getProcessThreads(int pid)
-{
-    if (-1 == pid) {
-        // Return threads list of the currently debugged PID
-        return cmdj("dptj");
-    } else {
-        return cmdj("dptj " + QString::number(pid));
-    }
-}
-
 QVector<Chunk> CutterCore::getHeapChunks(RVA arena_addr)
 {
     CORE_LOCK();
@@ -1735,16 +1756,6 @@ bool CutterCore::writeHeapChunk(RzHeapChunkSimple *chunk_simple)
     return rz_heap_write_chunk(core, chunk_simple);
 }
 
-CutterJson CutterCore::getChildProcesses(int pid)
-{
-    // Return the currently debugged process and it's children
-    if (-1 == pid) {
-        return cmdj("dpj");
-    }
-    // Return the given pid and it's child processes
-    return cmdj("dpj " + QString::number(pid));
-}
-
 CutterJson CutterCore::getRegisterValues()
 {
     return cmdj("drj");
@@ -1831,7 +1842,12 @@ void CutterCore::setRegister(QString regName, QString regValue)
 
 void CutterCore::setCurrentDebugThread(int tid)
 {
-    if (!asyncCmd("dpt=" + QString::number(tid), debugTask)) {
+    if (!asyncTask(
+                [=](RzCore *core) {
+                    rz_debug_select(core->dbg, core->dbg->pid, tid);
+                    return (void *)NULL;
+                },
+                debugTask)) {
         return;
     }
 
@@ -1851,7 +1867,14 @@ void CutterCore::setCurrentDebugThread(int tid)
 
 void CutterCore::setCurrentDebugProcess(int pid)
 {
-    if (!currentlyDebugging || !asyncCmd("dp=" + QString::number(pid), debugTask)) {
+    if (!currentlyDebugging
+        || !asyncTask(
+                [=](RzCore *core) {
+                    rz_debug_select(core->dbg, pid, core->dbg->tid);
+                    core->dbg->main_pid = pid;
+                    return (void *)NULL;
+                },
+                debugTask)) {
         return;
     }
 
@@ -1877,7 +1900,12 @@ void CutterCore::startDebug()
     }
     currentlyOpenFile = getConfig("file.path");
 
-    if (!asyncCmd("ood", debugTask)) {
+    if (!asyncTask(
+                [](RzCore *core) {
+                    rz_core_file_reopen_debug(core, "");
+                    return (void *)NULL;
+                },
+                debugTask)) {
         return;
     }
 
@@ -1961,7 +1989,15 @@ void CutterCore::attachRemote(const QString &uri)
     }
 
     // connect to a debugger with the given plugin
-    asyncCmd("e cfg.debug=true; oodf " + uri, debugTask);
+    if (!asyncTask(
+                [&](RzCore *core) {
+                    setConfig("cfg.debug", true);
+                    rz_core_file_reopen_remote_debug(core, uri.toStdString().c_str(), 0);
+                    return (void *)NULL;
+                },
+                debugTask)) {
+        return;
+    }
     emit debugTaskStateChanged();
 
     connect(debugTask.data(), &RizinTask::finished, this, [this, uri]() {
@@ -2124,7 +2160,12 @@ void CutterCore::continueDebug()
             return;
         }
     } else {
-        if (!asyncCmd("dc", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_debug_continue(core->dbg);
+                        return (void *)NULL;
+                    },
+                    debugTask)) {
             return;
         }
     }
@@ -2151,7 +2192,12 @@ void CutterCore::continueBackDebug()
             return;
         }
     } else {
-        if (!asyncCmd("dcb", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_debug_continue_back(core->dbg);
+                        return (void *)NULL;
+                    },
+                    debugTask)) {
             return;
         }
     }
@@ -2167,22 +2213,26 @@ void CutterCore::continueBackDebug()
     debugTask->startTask();
 }
 
-void CutterCore::continueUntilDebug(QString offset)
+void CutterCore::continueUntilDebug(ut64 offset)
 {
     if (!currentlyDebugging) {
         return;
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aecu " + offset, debugTask)) {
+        if (!asyncCmdEsil("aecu " + QString::number(offset), debugTask)) {
             return;
         }
     } else {
-        if (!asyncCmd("dcu " + offset, debugTask)) {
+        if (!asyncTask(
+                    [=](RzCore *core) {
+                        rz_core_debug_continue_until(core, offset, offset);
+                        return (void *)NULL;
+                    },
+                    debugTask)) {
             return;
         }
     }
-
     emit debugTaskStateChanged();
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
@@ -2190,7 +2240,6 @@ void CutterCore::continueUntilDebug(QString offset)
         emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
-
     debugTask->startTask();
 }
 
@@ -2205,7 +2254,12 @@ void CutterCore::continueUntilCall()
             return;
         }
     } else {
-        if (!asyncCmd("dcc", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_debug_step_one(core, 0);
+                        return (void *)NULL;
+                    },
+                    debugTask)) {
             return;
         }
     }
@@ -2259,7 +2313,12 @@ void CutterCore::stepDebug()
             return;
         }
     } else {
-        if (!asyncCmd("ds", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_debug_step_one(core, 1);
+                        return (void *)NULL;
+                    },
+                    debugTask)) {
             return;
         }
     }
@@ -2383,7 +2442,13 @@ void CutterCore::startTraceSession()
             return;
         }
     } else {
-        if (!asyncCmd("dts+", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        core->dbg->session = rz_debug_session_new();
+                        rz_debug_add_checkpoint(core->dbg);
+                        return (void *)NULL;
+                    },
+                    debugTask)) {
             return;
         }
     }
@@ -2419,7 +2484,13 @@ void CutterCore::stopTraceSession()
             return;
         }
     } else {
-        if (!asyncCmd("dts-", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_debug_session_free(core->dbg->session);
+                        core->dbg->session = NULL;
+                        return (void *)NULL;
+                    },
+                    debugTask)) {
             return;
         }
     }
@@ -2517,25 +2588,29 @@ void CutterCore::updateBreakpoint(int index, const BreakpointDescription &config
 
 void CutterCore::delBreakpoint(RVA addr)
 {
-    cmdRaw("db- " + RzAddressString(addr));
+    CORE_LOCK();
+    rz_bp_del(core->dbg->bp, addr);
     emit breakpointsChanged(addr);
 }
 
 void CutterCore::delAllBreakpoints()
 {
-    cmdRaw("db-*");
+    CORE_LOCK();
+    rz_bp_del_all(core->dbg->bp);
     emit refreshCodeViews();
 }
 
 void CutterCore::enableBreakpoint(RVA addr)
 {
-    cmdRaw("dbe " + RzAddressString(addr));
+    CORE_LOCK();
+    rz_bp_enable(core->dbg->bp, addr, true, 1);
     emit breakpointsChanged(addr);
 }
 
 void CutterCore::disableBreakpoint(RVA addr)
 {
-    cmdRaw("dbd " + RzAddressString(addr));
+    CORE_LOCK();
+    rz_bp_enable(core->dbg->bp, addr, false, 1);
     emit breakpointsChanged(addr);
 }
 
@@ -2631,37 +2706,53 @@ CutterJson CutterCore::getBacktrace()
     return cmdj("dbtj");
 }
 
-QList<ProcessDescription> CutterCore::getAllProcesses()
+QList<ProcessDescription> CutterCore::getProcessThreads(int pid = -1)
 {
+    CORE_LOCK();
+    RzList *list = rz_debug_pids(core->dbg, pid != -1 ? pid : core->dbg->pid);
+    RzListIter *iter;
+    RzDebugPid *p;
     QList<ProcessDescription> ret;
 
-    for (CutterJson procObject : cmdj("dplj")) {
+    CutterRzListForeach (list, iter, RzDebugPid, p) {
         ProcessDescription proc;
 
-        proc.pid = procObject[RJsonKey::pid].toSt64();
-        proc.uid = procObject[RJsonKey::uid].toSt64();
-        proc.status = procObject[RJsonKey::status].toString();
-        proc.path = procObject[RJsonKey::path].toString();
+        proc.current = core->dbg->pid == p->pid;
+        proc.ppid = p->ppid;
+        proc.pid = p->pid;
+        proc.uid = p->uid;
+        proc.status = static_cast<RzDebugPidState>(p->status);
+        proc.path = p->path;
 
         ret << proc;
     }
-
+    rz_list_free(list);
     return ret;
+}
+
+QList<ProcessDescription> CutterCore::getAllProcesses()
+{
+    return getProcessThreads(0);
 }
 
 QList<MemoryMapDescription> CutterCore::getMemoryMap()
 {
+    CORE_LOCK();
+    RzList *list0 = rz_debug_map_list(core->dbg, false);
+    RzList *list1 = rz_debug_map_list(core->dbg, true);
+    rz_list_join(list0, list1);
     QList<MemoryMapDescription> ret;
-
-    for (CutterJson memMapObject : cmdj("dmj")) {
+    RzListIter *it;
+    RzDebugMap *map;
+    CutterRzListForeach (list0, it, RzDebugMap, map) {
         MemoryMapDescription memMap;
 
-        memMap.name = memMapObject[RJsonKey::name].toString();
-        memMap.fileName = memMapObject[RJsonKey::file].toString();
-        memMap.addrStart = memMapObject[RJsonKey::addr].toRVA();
-        memMap.addrEnd = memMapObject[RJsonKey::addr_end].toRVA();
-        memMap.type = memMapObject[RJsonKey::type].toString();
-        memMap.permission = memMapObject[RJsonKey::perm].toString();
+        memMap.name = map->name;
+        memMap.fileName = map->file;
+        memMap.addrStart = map->addr;
+        memMap.addrEnd = map->addr_end;
+        memMap.type = map->user ? "u" : "s";
+        memMap.permission = rz_str_rwx_i(map->perm);
 
         ret << memMap;
     }

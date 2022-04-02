@@ -79,14 +79,14 @@ void AnalysisTask::runTask()
 
     if (!options.shellcode.isNull() && options.shellcode.size() / 2 > 0) {
         log(tr("Loading shellcode..."));
-        Core()->cmdRaw("wx " + options.shellcode);
+        rz_core_write_hexpair(core, core->offset, options.shellcode.toStdString().c_str());
     }
 
     if (options.endian != InitialOptions::Endianness::Auto) {
         Core()->setEndianness(options.endian == InitialOptions::Endianness::Big);
     }
 
-    Core()->cmdRaw("fs *");
+    rz_flag_space_set(core->flags, "*");
 
     if (!options.script.isNull()) {
         log(tr("Executing script..."));
