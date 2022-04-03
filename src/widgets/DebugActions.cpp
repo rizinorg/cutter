@@ -297,7 +297,8 @@ void DebugActions::attachRemoteDebugger()
 
 void DebugActions::onAttachedRemoteDebugger(bool successfully)
 {
-    if(remoteDialog == nullptr)
+    // TODO(#2829): Investigate why this is happening
+    if (remoteDialog == nullptr)
         return;
     
     if (!successfully) {
