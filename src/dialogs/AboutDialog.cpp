@@ -5,6 +5,8 @@
 #include "ui_AboutDialog.h"
 #include "RizinPluginsDialog.h"
 #include "common/Configuration.h"
+#include "common/BugReporting.h"
+
 
 #include <QUrl>
 #include <QTimer>
@@ -84,6 +86,10 @@ void AboutDialog::on_showPluginsButton_clicked()
 {
     RizinPluginsDialog dialog(this);
     dialog.exec();
+}
+void AboutDialog::on_Issue_clicked()
+{
+    openIssue();
 }
 
 void AboutDialog::on_checkForUpdatesButton_clicked()
