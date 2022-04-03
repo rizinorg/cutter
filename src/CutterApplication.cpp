@@ -163,13 +163,8 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         appdir.cdUp(); // appdir
 
         auto sleighHome = appdir;
-        sleighHome.cd(
-                "share/rizin/plugins/rz_ghidra_sleigh"); // appdir/share/rizin/plugins/rz_ghidra_sleigh
+        sleighHome.cd("lib/rizin/plugins/rz_ghidra_sleigh/"); // appdir/lib/rizin/plugins/rz_ghidra_sleigh/
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
-
-        auto jsdecHome = appdir;
-        jsdecHome.cd("share/rizin/plugins/jsdec"); // appdir/share/rizin/plugins/jsdec
-        qputenv("JSDEC_HOME", jsdecHome.absolutePath().toLocal8Bit());
     }
 #endif
 

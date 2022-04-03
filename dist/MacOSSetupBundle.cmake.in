@@ -60,6 +60,9 @@ run_or_die(COMMAND install_name_tool
 run_or_die(COMMAND install_name_tool
 	-add_rpath "@executable_path/../Resources/lib"
 	"${EXECUTABLE_DIR}/cutter")
+run_or_die(COMMAND install_name_tool
+	-add_rpath "@executable_path/../Resources/lib/rizin/plugins"
+	"${EXECUTABLE_DIR}/cutter")
 
 set(MACDEPLOYQT_COMMAND "${MACDEPLOYQT_PATH}" "${BUNDLE_PATH}" "-verbose=2" "-libpath=${CMAKE_INSTALL_PREFIX}/lib")
 message("Running macdeployqt \"${MACDEPLOYQT_COMMAND}\"")
