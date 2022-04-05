@@ -3054,19 +3054,10 @@ QList<HeaderDescription> CutterCore::getAllHeaders()
     return ret;
 }
 
-QList<FlirtDescription> CutterCore::getSignaturesDB()
+static void sigdb_insert_element_into_qlist(RzList *list, QList<FlirtDescription> &sigdb)
 {
-    CORE_LOCK();
-    QList<FlirtDescription> sigdb;
-    const char *sigdb_path = rz_config_get(core->config, "flirt.sigdb.path");
-    if (RZ_STR_ISEMPTY(sigdb_path)) {
-        return sigdb;
-    }
-
-    RzList *list = rz_sign_sigdb_load_database(sigdb_path, true);
     void *ptr = NULL;
     RzListIter *iter = NULL;
-
     rz_list_foreach(list, iter, ptr)
     {
         RzSigDBEntry *sig = static_cast<RzSigDBEntry *>(ptr);
@@ -3081,6 +3072,30 @@ QList<FlirtDescription> CutterCore::getSignaturesDB()
         flirt.arch_bits = QString::number(sig->arch_bits);
         sigdb << flirt;
     }
+    rz_list_free(list);
+}
+
+QList<FlirtDescription> CutterCore::getSignaturesDB()
+{
+    CORE_LOCK();
+    QList<FlirtDescription> sigdb;
+    RzList *list = nullptr;
+
+    char *system_sigdb = rz_path_system(RZ_SIGDB);
+    if (RZ_STR_ISNOTEMPTY(system_sigdb) && rz_file_is_directory(system_sigdb)) {
+        list = rz_sign_sigdb_load_database(system_sigdb, true);
+        sigdb_insert_element_into_qlist(list, sigdb);
+    }
+    free(system_sigdb);
+
+    const char *sigdb_path = rz_config_get(core->config, "flirt.sigdb.path");
+    if (RZ_STR_ISEMPTY(sigdb_path)) {
+        return sigdb;
+    }
+
+    list = rz_sign_sigdb_load_database(sigdb_path, true);
+    sigdb_insert_element_into_qlist(list, sigdb);
+
     return sigdb;
 }
 
