@@ -107,9 +107,9 @@ bool FlirtProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right
     case FlirtModel::ArchNameColumn:
         return leftEntry.arch_name < rightEntry.arch_name;
     case FlirtModel::ArchBitsColumn:
-        return leftEntry.arch_bits < rightEntry.arch_bits;
+        return leftEntry.arch_bits.toULongLong() < rightEntry.arch_bits.toULongLong();
     case FlirtModel::NumModulesColumn:
-        return leftEntry.n_modules < rightEntry.n_modules;
+        return leftEntry.n_modules.toULongLong() < rightEntry.n_modules.toULongLong();
     case FlirtModel::NameColumn:
         return leftEntry.base_name < rightEntry.base_name;
     case FlirtModel::DetailsColumn:
