@@ -100,7 +100,7 @@ bool IOModesController::askCommitUnsavedChanges()
         if (ret == QMessageBox::Save) {
             Core()->commitWriteCache();
         } else if (ret == QMessageBox::Discard) {
-            Core()->cmdRaw("wcr");
+            Core()->resetWriteCache();
             emit Core()->refreshCodeViews();
         } else if (ret == QMessageBox::Cancel) {
             return false;
