@@ -4145,7 +4145,6 @@ void CutterCore::resetWriteCache()
 {
     CORE_LOCK();
     rz_io_cache_reset(core->io, core->io->cached);
-    ;
 }
 
 // Enable or disable write-mode. Avoid unecessary changes if not need.
