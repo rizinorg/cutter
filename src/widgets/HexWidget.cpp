@@ -634,6 +634,16 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
         actionCopyAddress->setDisabled(disable);
     };
 
+    QString comment = Core()->getCommentAt(cursor.address);
+
+    if (comment.isNull() || comment.isEmpty()) {
+        actionDeleteComment->setVisible(false);
+        actionComment->setText(tr("Add Comment"));
+    } else {
+        actionDeleteComment->setVisible(true);
+        actionComment->setText(tr("Edit Comment"));
+    }
+
     QMenu *menu = new QMenu();
     QMenu *sizeMenu = menu->addMenu(tr("Item size:"));
     sizeMenu->addActions(actionsItemSize);
