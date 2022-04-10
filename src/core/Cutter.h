@@ -721,6 +721,10 @@ public:
      * @brief Commit write cache to the file on disk.
      */
     void commitWriteCache();
+    /**
+     * @brief Reset write cache.
+     */
+    void resetWriteCache();
 
     /**
      * @brief Enable or disable Write mode. When the file is opened in write mode, any changes to it
