@@ -4126,16 +4126,25 @@ bool CutterCore::isIOCacheEnabled() const
 
 void CutterCore::commitWriteCache()
 {
+    CORE_LOCK();
     // Temporarily disable cache mode
     TempConfig tempConfig;
     tempConfig.set("io.cache", false);
     if (!isWriteModeEnabled()) {
         cmdRaw("oo+");
-        cmdRaw("wci");
+        rz_io_cache_commit(core->io, 0, UT64_MAX);
+        rz_core_block_read(core);
         cmdRaw("oo");
     } else {
-        cmdRaw("wci");
+        rz_io_cache_commit(core->io, 0, UT64_MAX);
+        rz_core_block_read(core);
     }
+}
+
+void CutterCore::resetWriteCache()
+{
+    CORE_LOCK();
+    rz_io_cache_reset(core->io, core->io->cached);
 }
 
 // Enable or disable write-mode. Avoid unecessary changes if not need.
