@@ -20,6 +20,11 @@
 #include <QMessageBox>
 #include <QDialog>
 #include <QTreeWidget>
+#include <string>
+#include <string.h>
+#include <cstring>
+
+
 
 Dashboard::Dashboard(MainWindow *main) : CutterDockWidget(main), ui(new Ui::Dashboard)
 {
@@ -68,16 +73,25 @@ void Dashboard::updateContents()
     setBool(this->ui->vaEdit, item2, "va");
     setBool(this->ui->canaryEdit, item2, "canary");
     setBool(this->ui->cryptoEdit, item2, "crypto");
-    setBool(this->ui->nxEdit, item2, "nx");
-    setBool(this->ui->picEdit, item2, "pic");
+    //remove to use API directly
+//    setBool(this->ui->nxEdit, item, "nx");
+//    setBool(this->ui->picEdit, item, "pic");
     setBool(this->ui->staticEdit, item2, "static");
     setBool(this->ui->strippedEdit, item2, "stripped");
     setBool(this->ui->relocsEdit, item2, "relocs");
 
     // Add file hashes, analysis info and libraries
     RzCoreLocked core(Core());
+
+    // using API directly to get NX and PIC/PIE
+    RzBinInfo *binInfo = rz_bin_get_info(core->bin);
+
     RzBinFile *bf = rz_bin_cur(core->bin);
     RzList *hashes = rz_bin_file_compute_hashes(core->bin, bf, UT64_MAX);
+
+    //setting nx and PIC text
+    setNxPIC(binInfo);
+
 
     // Delete hashesWidget if it isn't null to avoid duplicate components
     if (hashesWidget) {
@@ -238,3 +252,35 @@ void Dashboard::setBool(QLineEdit *textBox, const CutterJson &jsonObject, const 
         setPlainText(textBox, tr("N/A"));
     }
 }
+
+/**
+ * @brief Set NX bit and PIC bit text according to parsed value from API
+ * @param RzBinInfo
+ */
+
+void Dashboard::setNxPIC(RzBinInfo *binInfo)
+{
+    //setting text
+    int nx = binInfo->has_nx;
+    int pic = binInfo->has_pi;
+    setPlainText(ui->nxEdit, tr(intToText(nx)));
+    setPlainText(ui->picEdit, tr(intToText(pic)));
+}
+
+/**
+ * @brief Set the text of a QLineEdit as True, False or N/A if it does not exist according to the integer value
+ * @param integer value
+ */
+
+char* Dashboard::intToText(int value){
+    if (value){
+        return "True";
+    }
+    else if (!value){
+        return "False";
+    }
+    else{
+        return "N/A";
+    }
+}
+
