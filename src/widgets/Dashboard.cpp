@@ -21,7 +21,6 @@
 #include <QDialog>
 #include <QTreeWidget>
 
-
 Dashboard::Dashboard(MainWindow *main) : CutterDockWidget(main), ui(new Ui::Dashboard)
 {
     ui->setupUi(this);
