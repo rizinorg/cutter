@@ -20,10 +20,6 @@
 #include <QMessageBox>
 #include <QDialog>
 #include <QTreeWidget>
-#include <string>
-#include <string.h>
-#include <cstring>
-
 
 
 Dashboard::Dashboard(MainWindow *main) : CutterDockWidget(main), ui(new Ui::Dashboard)
