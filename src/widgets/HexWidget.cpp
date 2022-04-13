@@ -2,6 +2,7 @@
 #include "Cutter.h"
 #include "Configuration.h"
 #include "dialogs/WriteCommandsDialogs.h"
+#include "dialogs/CommentsDialog.h"
 
 #include <QPainter>
 #include <QPaintEvent>
@@ -119,6 +120,19 @@ HexWidget::HexWidget(QWidget *parent)
     actionCopyAddress->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_C);
     connect(actionCopyAddress, &QAction::triggered, this, &HexWidget::copyAddress);
     addAction(actionCopyAddress);
+
+    // Add comment option
+    actionComment = new QAction(tr("Add Comment"), this);
+    actionComment->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    actionComment->setShortcut(Qt::Key_Semicolon);
+    connect(actionComment, &QAction::triggered, this, &HexWidget::on_actionAddComment_triggered);
+    addAction(actionComment);
+
+    // delete comment option
+    actionDeleteComment = new QAction(tr("Delete Comment"), this);
+    actionDeleteComment->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    connect(actionDeleteComment, &QAction::triggered, this, &HexWidget::on_actionDeleteComment_triggered);
+    addAction(actionDeleteComment);
 
     actionSelectRange = new QAction(tr("Select range"), this);
     connect(actionSelectRange, &QAction::triggered, this,
@@ -620,6 +634,16 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
         actionCopyAddress->setDisabled(disable);
     };
 
+    QString comment = Core()->getCommentAt(cursor.address);
+
+    if (comment.isNull() || comment.isEmpty()) {
+        actionDeleteComment->setVisible(false);
+        actionComment->setText(tr("Add Comment"));
+    } else {
+        actionDeleteComment->setVisible(true);
+        actionComment->setText(tr("Edit Comment"));
+    }
+
     QMenu *menu = new QMenu();
     QMenu *sizeMenu = menu->addMenu(tr("Item size:"));
     sizeMenu->addActions(actionsItemSize);
@@ -687,6 +711,20 @@ void HexWidget::copyAddress()
     }
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(RzAddressString(addr));
+}
+
+//slot for add comment action
+void HexWidget::on_actionAddComment_triggered()
+{
+    uint64_t addr = cursor.address;
+    CommentsDialog::addOrEditComment(addr, this);
+}
+
+//slot for deleting comment action
+void HexWidget::on_actionDeleteComment_triggered()
+{
+    uint64_t addr = cursor.address;
+    Core()->delComment(addr);
 }
 
 void HexWidget::onRangeDialogAccepted()
