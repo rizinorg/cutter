@@ -264,7 +264,7 @@ void Dashboard::setNxPIC(RzBinInfo *binInfo)
 }
 
 /**
- * @brief Set the text of a QLineEdit as True, False or N/A if it does not exist according to the integer value
+ * @brief Set the text of a QLineEdit as True, False according to the integer value
  * @param integer value
  */
 
@@ -274,9 +274,6 @@ char* Dashboard::intToText(int value){
     }
     else if (!value){
         return "False";
-    }
-    else{
-        return "N/A";
     }
 }
 
