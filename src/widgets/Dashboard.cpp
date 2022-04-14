@@ -65,10 +65,10 @@ void Dashboard::updateContents()
     setPlainText(this->ui->baddrEdit, RzAddressString(item2["baddr"].toRVA()));
 
     // set booleans
-    setBool(this->ui->vaEdit, item2, "va");
-    setBool(this->ui->canaryEdit, item2, "canary");
-    setBool(this->ui->cryptoEdit, item2, "crypto");
     //remove to use API directly
+//    setBool(this->ui->vaEdit, item2, "va");
+//    setBool(this->ui->canaryEdit, item2, "canary");
+//    setBool(this->ui->cryptoEdit, item2, "crypto");
 //    setBool(this->ui->nxEdit, item, "nx");
 //    setBool(this->ui->picEdit, item, "pic");
     setBool(this->ui->staticEdit, item2, "static");
@@ -255,9 +255,16 @@ void Dashboard::setBool(QLineEdit *textBox, const CutterJson &jsonObject, const 
 
 void Dashboard::setNxPIC(RzBinInfo *binInfo)
 {
-    //setting text
     int nx = binInfo->has_nx;
     int pic = binInfo->has_pi;
+    int va = binInfo->has_va;
+    int canary = binInfo->has_canary;
+    int crypto = binInfo->has_crypto;
+
+    //setting text
+    setPlainText(ui->vaEdit, tr(intToText(va)));
+    setPlainText(ui->canaryEdit, tr(intToText(canary)));
+    setPlainText(ui->cryptoEdit, tr(intToText(crypto)));
     setPlainText(ui->nxEdit, tr(intToText(nx)));
     setPlainText(ui->picEdit, tr(intToText(pic)));
 }
