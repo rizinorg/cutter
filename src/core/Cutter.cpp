@@ -840,15 +840,18 @@ void CutterCore::removeString(RVA addr)
 QString CutterCore::getString(RVA addr)
 {
     CORE_LOCK();
-    char *s = (char *)returnAtSeek(
-            [&]() {
-                RzStrStringifyOpt opt = { 0 };
-                opt.buffer = core->block;
-                opt.length = core->blocksize;
-                opt.encoding = rz_str_guess_encoding_from_buffer(core->block, core->blocksize);
-                return rz_str_stringify_raw_buffer(&opt, NULL);
-            },
-            addr);
+    const auto function_op_on_seek = [&]() {
+        RzStrStringifyOpt opt = { core->block,
+                                  core->blocksize,
+                                  rz_str_guess_encoding_from_buffer(core->block, core->blocksize),
+                                  unsigned {},
+                                  bool {},
+                                  bool {},
+                                  bool {},
+                                  bool {} };
+        return rz_str_stringify_raw_buffer(&opt, NULL);
+    };
+    char *s = (char *)returnAtSeek(function_op_on_seek, addr);
     return fromOwnedCharPtr(s);
 }
 
