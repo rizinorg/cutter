@@ -64,28 +64,27 @@ void Dashboard::updateContents()
 
     setPlainText(this->ui->baddrEdit, RzAddressString(item2["baddr"].toRVA()));
 
-    // set booleans
-    //remove to use API directly
-//    setBool(this->ui->vaEdit, item2, "va");
-//    setBool(this->ui->canaryEdit, item2, "canary");
-//    setBool(this->ui->cryptoEdit, item2, "crypto");
-//    setBool(this->ui->nxEdit, item, "nx");
-//    setBool(this->ui->picEdit, item, "pic");
-    setBool(this->ui->staticEdit, item2, "static");
-    setBool(this->ui->strippedEdit, item2, "stripped");
-    setBool(this->ui->relocsEdit, item2, "relocs");
-
     // Add file hashes, analysis info and libraries
     RzCoreLocked core(Core());
 
-    // using API directly to get NX and PIC/PIE
+    // using API directly to get boolean values in dashboard
     RzBinInfo *binInfo = rz_bin_get_info(core->bin);
+
+    //setting boolean values
+    setBoolvalues(binInfo);
+
+    //setting the value of "static"
+    int static_value = rz_bin_is_static(core->bin);
+    setPlainText(ui->staticEdit, tr(intToText(static_value)));
+
+    //setting the value of relocs and stripped
+    bool relocs_value = RZ_BIN_DBG_RELOCS & binInfo->dbg_info;
+    bool stripped_value = RZ_BIN_DBG_STRIPPED & binInfo->dbg_info;
+    setPlainText(this->ui->strippedEdit, intToText(stripped_value));
+    setPlainText(this->ui->relocsEdit, intToText(relocs_value));
 
     RzBinFile *bf = rz_bin_cur(core->bin);
     RzList *hashes = rz_bin_file_compute_hashes(core->bin, bf, UT64_MAX);
-
-    //setting nx and PIC text
-    setNxPIC(binInfo);
 
 
     // Delete hashesWidget if it isn't null to avoid duplicate components
@@ -249,11 +248,11 @@ void Dashboard::setBool(QLineEdit *textBox, const CutterJson &jsonObject, const 
 }
 
 /**
- * @brief Set NX bit and PIC bit text according to parsed value from API
+ * @brief Setting boolean values text according to parsed value from API
  * @param RzBinInfo
  */
 
-void Dashboard::setNxPIC(RzBinInfo *binInfo)
+void Dashboard::setBoolvalues(RzBinInfo *binInfo)
 {
     int nx = binInfo->has_nx;
     int pic = binInfo->has_pi;
