@@ -36,23 +36,8 @@ void Dashboard::updateContents()
     CutterJson item = docu["core"];
     CutterJson item2 = docu["bin"];
 
-    setPlainText(this->ui->fileEdit, item["file"].toString());
-    setPlainText(this->ui->formatEdit, item["format"].toString());
     setPlainText(this->ui->modeEdit, item["mode"].toString());
-    setPlainText(this->ui->typeEdit, item["type"].toString());
-    setPlainText(this->ui->sizeEdit, qhelpers::formatBytecount(item["size"].toUt64()));
-    setPlainText(this->ui->fdEdit, QString::number(item["fd"].toUt64()));
-
-    setPlainText(this->ui->archEdit, item2["arch"].toString());
-    setPlainText(this->ui->langEdit, item2["lang"].toString().toUpper());
-    setPlainText(this->ui->classEdit, item2["class"].toString());
-    setPlainText(this->ui->machineEdit, item2["machine"].toString());
-    setPlainText(this->ui->osEdit, item2["os"].toString());
-    setPlainText(this->ui->subsysEdit, item2["subsys"].toString());
-    setPlainText(this->ui->endianEdit, item2["endian"].toString());
     setPlainText(this->ui->compilationDateEdit, item2["compiled"].toString());
-    setPlainText(this->ui->compilerEdit, item2["compiler"].toString());
-    setPlainText(this->ui->bitsEdit, QString::number(item2["bits"].toUt64()));
 
     if (!item2["relro"].toString().isEmpty()) {
         QString relro = item2["relro"].toString().section(QLatin1Char(' '), 0, 0);
@@ -62,30 +47,41 @@ void Dashboard::updateContents()
         setPlainText(this->ui->relroEdit, "N/A");
     }
 
-    setPlainText(this->ui->baddrEdit, RzAddressString(item2["baddr"].toRVA()));
-
     // Add file hashes, analysis info and libraries
     RzCoreLocked core(Core());
 
-    // using API directly to get boolean values in dashboard
+    // Using API directly to get values in dashboard
+    RzBinFile *bf = rz_bin_cur(core->bin);
     RzBinInfo *binInfo = rz_bin_get_info(core->bin);
 
-    //setting boolean values
+    // Setting text values from the API
+    setPlainText(this->ui->fileEdit,binInfo->file);
+    setPlainText(this->ui->formatEdit,binInfo->rclass);
+    setPlainText(this->ui->typeEdit,binInfo->type);
+    setPlainText(this->ui->archEdit,binInfo->arch);
+    setPlainText(this->ui->langEdit, binInfo->lang);
+    setPlainText(this->ui->classEdit,binInfo->bclass);
+    setPlainText(this->ui->machineEdit,binInfo->machine);
+    setPlainText(this->ui->osEdit,binInfo->os);
+    setPlainText(this->ui->subsysEdit,binInfo->subsystem);
+    setPlainText(this->ui->compilerEdit,binInfo->compiler);
+    setPlainText(this->ui->bitsEdit,QString::number(binInfo->bits));
+    setPlainText(this->ui->baddrEdit, RzAddressString(rz_bin_file_get_baddr(bf)));
+    setPlainText(this->ui->sizeEdit, qhelpers::formatBytecount(bf->size));
+    setPlainText(this->ui->fdEdit, QString::number(bf->fd));
+
+    // Setting the value of "Endianness"
+    const char *endian = binInfo->big_endian ? "BE" : "LE";
+    setPlainText(this->ui->endianEdit, endian);
+
+    // Setting boolean values
     setBoolvalues(binInfo);
 
-    //setting the value of "static"
+    // Setting the value of "static"
     int static_value = rz_bin_is_static(core->bin);
     setPlainText(ui->staticEdit, tr(intToText(static_value)));
 
-    //setting the value of relocs and stripped
-    bool relocs_value = RZ_BIN_DBG_RELOCS & binInfo->dbg_info;
-    bool stripped_value = RZ_BIN_DBG_STRIPPED & binInfo->dbg_info;
-    setPlainText(this->ui->strippedEdit, intToText(stripped_value));
-    setPlainText(this->ui->relocsEdit, intToText(relocs_value));
-
-    RzBinFile *bf = rz_bin_cur(core->bin);
     RzList *hashes = rz_bin_file_compute_hashes(core->bin, bf, UT64_MAX);
-
 
     // Delete hashesWidget if it isn't null to avoid duplicate components
     if (hashesWidget) {
@@ -260,12 +256,18 @@ void Dashboard::setBoolvalues(RzBinInfo *binInfo)
     int canary = binInfo->has_canary;
     int crypto = binInfo->has_crypto;
 
-    //setting text
+    // Setting text
     setPlainText(ui->vaEdit, tr(intToText(va)));
     setPlainText(ui->canaryEdit, tr(intToText(canary)));
     setPlainText(ui->cryptoEdit, tr(intToText(crypto)));
     setPlainText(ui->nxEdit, tr(intToText(nx)));
     setPlainText(ui->picEdit, tr(intToText(pic)));
+
+    // Setting the value of "relocs" and "stripped"
+    bool relocs_value = RZ_BIN_DBG_RELOCS & binInfo->dbg_info;
+    bool stripped_value = RZ_BIN_DBG_STRIPPED & binInfo->dbg_info;
+    setPlainText(this->ui->strippedEdit, intToText(stripped_value));
+    setPlainText(this->ui->relocsEdit, intToText(relocs_value));
 }
 
 /**
@@ -281,4 +283,3 @@ char* Dashboard::intToText(int value){
         return "False";
     }
 }
-
