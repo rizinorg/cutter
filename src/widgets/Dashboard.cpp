@@ -266,8 +266,8 @@ void Dashboard::setBoolvalues(RzBinInfo *binInfo)
     // Setting the value of "relocs" and "stripped"
     bool relocs_value = RZ_BIN_DBG_RELOCS & binInfo->dbg_info;
     bool stripped_value = RZ_BIN_DBG_STRIPPED & binInfo->dbg_info;
-    setPlainText(this->ui->strippedEdit, intToText(stripped_value));
-    setPlainText(this->ui->relocsEdit, intToText(relocs_value));
+    setPlainText(this->ui->strippedEdit,QVariant(stripped_value).toString());
+    setPlainText(this->ui->relocsEdit,QVariant(relocs_value).toString());
 }
 
 /**
