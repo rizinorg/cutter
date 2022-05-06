@@ -35,7 +35,7 @@ private:
     void setPlainText(QLineEdit *textBox, const QString &text);
     void setBool(QLineEdit *textBox, const CutterJson &jsonObject, const char *key);
     void setBoolvalues(RzBinInfo *binInfo);
-    char* intToText(int value);
+    const char* setBoolText(bool value);
 
     QWidget *hashesWidget = nullptr;
 };

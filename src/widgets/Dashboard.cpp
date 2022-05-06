@@ -49,23 +49,20 @@ void Dashboard::updateContents()
 
     // Add file hashes, analysis info and libraries
     RzCoreLocked core(Core());
-
-    // Using API directly to get values in dashboard
     RzBinFile *bf = rz_bin_cur(core->bin);
     RzBinInfo *binInfo = rz_bin_get_info(core->bin);
 
-    // Setting text values from the API
-    setPlainText(this->ui->fileEdit,binInfo->file);
-    setPlainText(this->ui->formatEdit,binInfo->rclass);
-    setPlainText(this->ui->typeEdit,binInfo->type);
-    setPlainText(this->ui->archEdit,binInfo->arch);
+    setPlainText(this->ui->fileEdit, binInfo->file);
+    setPlainText(this->ui->formatEdit, binInfo->rclass);
+    setPlainText(this->ui->typeEdit, binInfo->type);
+    setPlainText(this->ui->archEdit, binInfo->arch);
     setPlainText(this->ui->langEdit, binInfo->lang);
-    setPlainText(this->ui->classEdit,binInfo->bclass);
-    setPlainText(this->ui->machineEdit,binInfo->machine);
-    setPlainText(this->ui->osEdit,binInfo->os);
-    setPlainText(this->ui->subsysEdit,binInfo->subsystem);
-    setPlainText(this->ui->compilerEdit,binInfo->compiler);
-    setPlainText(this->ui->bitsEdit,QString::number(binInfo->bits));
+    setPlainText(this->ui->classEdit, binInfo->bclass);
+    setPlainText(this->ui->machineEdit, binInfo->machine);
+    setPlainText(this->ui->osEdit, binInfo->os);
+    setPlainText(this->ui->subsysEdit, binInfo->subsystem);
+    setPlainText(this->ui->compilerEdit, binInfo->compiler);
+    setPlainText(this->ui->bitsEdit, QString::number(binInfo->bits));
     setPlainText(this->ui->baddrEdit, RzAddressString(rz_bin_file_get_baddr(bf)));
     setPlainText(this->ui->sizeEdit, qhelpers::formatBytecount(bf->size));
     setPlainText(this->ui->fdEdit, QString::number(bf->fd));
@@ -79,7 +76,7 @@ void Dashboard::updateContents()
 
     // Setting the value of "static"
     int static_value = rz_bin_is_static(core->bin);
-    setPlainText(ui->staticEdit, tr(intToText(static_value)));
+    setPlainText(ui->staticEdit, tr(setBoolText(static_value)));
 
     RzList *hashes = rz_bin_file_compute_hashes(core->bin, bf, UT64_MAX);
 
@@ -244,10 +241,9 @@ void Dashboard::setBool(QLineEdit *textBox, const CutterJson &jsonObject, const 
 }
 
 /**
- * @brief Setting boolean values text according to parsed value from API
+ * @brief Setting boolean values of binary information in dashboard
  * @param RzBinInfo
  */
-
 void Dashboard::setBoolvalues(RzBinInfo *binInfo)
 {
     int nx = binInfo->has_nx;
@@ -257,29 +253,24 @@ void Dashboard::setBoolvalues(RzBinInfo *binInfo)
     int crypto = binInfo->has_crypto;
 
     // Setting text
-    setPlainText(ui->vaEdit, tr(intToText(va)));
-    setPlainText(ui->canaryEdit, tr(intToText(canary)));
-    setPlainText(ui->cryptoEdit, tr(intToText(crypto)));
-    setPlainText(ui->nxEdit, tr(intToText(nx)));
-    setPlainText(ui->picEdit, tr(intToText(pic)));
+    setPlainText(ui->vaEdit, tr(setBoolText(va)));
+    setPlainText(ui->canaryEdit, tr(setBoolText(canary)));
+    setPlainText(ui->cryptoEdit, tr(setBoolText(crypto)));
+    setPlainText(ui->nxEdit, tr(setBoolText(nx)));
+    setPlainText(ui->picEdit, tr(setBoolText(pic)));
 
     // Setting the value of "relocs" and "stripped"
     bool relocs_value = RZ_BIN_DBG_RELOCS & binInfo->dbg_info;
     bool stripped_value = RZ_BIN_DBG_STRIPPED & binInfo->dbg_info;
-    setPlainText(this->ui->strippedEdit,QVariant(stripped_value).toString());
-    setPlainText(this->ui->relocsEdit,QVariant(relocs_value).toString());
+    setPlainText(this->ui->strippedEdit, setBoolText(stripped_value));
+    setPlainText(this->ui->relocsEdit, setBoolText(relocs_value));
 }
 
 /**
- * @brief Set the text of a QLineEdit as True, False according to the integer value
- * @param integer value
+ * @brief Set the text of a QLineEdit as True, False
+ * @param boolean value
  */
-
-char* Dashboard::intToText(int value){
-    if (value){
-        return "True";
-    }
-    else if (!value){
-        return "False";
-    }
+const char *Dashboard::setBoolText(bool value)
+{
+    return value ? "True" : "False";
 }
