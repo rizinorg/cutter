@@ -77,6 +77,8 @@ private:
 
     void refreshSearch();
     void checkSearchResultEmpty();
+    void enableSearch();
+    void disableSearch();
     void setScrollMode();
     void updatePlaceholderText(int index);
 };
