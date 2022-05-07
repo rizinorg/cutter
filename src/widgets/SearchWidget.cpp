@@ -195,14 +195,18 @@ SearchWidget::SearchWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui
 
     QShortcut *enter_press = new QShortcut(QKeySequence(Qt::Key_Return), this);
     connect(enter_press, &QShortcut::activated, this, [this]() {
+        disableSearch();
         refreshSearch();
         checkSearchResultEmpty();
+        enableSearch();
     });
     enter_press->setContext(Qt::WidgetWithChildrenShortcut);
 
     connect(ui->searchButton, &QAbstractButton::clicked, this, [this]() {
+        disableSearch();
         refreshSearch();
         checkSearchResultEmpty();
+        enableSearch();
     });
 
     connect(ui->searchspaceCombo,
@@ -309,4 +313,17 @@ void SearchWidget::updatePlaceholderText(int index)
     default:
         ui->filterLineEdit->setPlaceholderText("jmp rax");
     }
+}
+
+void SearchWidget::disableSearch()
+{
+    ui->searchButton->setEnabled(false);
+    ui->searchButton->setText("Searching...");
+    qApp->processEvents();
+}
+
+void SearchWidget::enableSearch()
+{
+    ui->searchButton->setEnabled(true);
+    ui->searchButton->setText("Search");
 }
