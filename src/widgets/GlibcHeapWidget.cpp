@@ -71,7 +71,7 @@ void GlibcHeapWidget::updateArenas()
     }
 
     // check if arenas reduced or invalid index and restore the previously selected arena
-    if (arenaSelectorView->count() < currentIndex || currentIndex == -1) {
+    if (arenaSelectorView->count() <= currentIndex || currentIndex == -1) {
         currentIndex = 0;
     }
     arenaSelectorView->setCurrentIndex(currentIndex);
