@@ -72,7 +72,7 @@ void Dashboard::updateContents()
     setPlainText(this->ui->endianEdit, endian);
 
     // Setting boolean values
-    setBoolvalues(binInfo);
+    setRzBinInfo(binInfo);
 
     // Setting the value of "static"
     int static_value = rz_bin_is_static(core->bin);
@@ -244,7 +244,7 @@ void Dashboard::setBool(QLineEdit *textBox, const CutterJson &jsonObject, const 
  * @brief Setting boolean values of binary information in dashboard
  * @param RzBinInfo
  */
-void Dashboard::setBoolvalues(RzBinInfo *binInfo)
+void Dashboard::setRzBinInfo(RzBinInfo *binInfo)
 {
     int nx = binInfo->has_nx;
     int pic = binInfo->has_pi;
