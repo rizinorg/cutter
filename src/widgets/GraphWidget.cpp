@@ -84,7 +84,7 @@ QString GraphWidget::getWidgetType()
 
 void GraphWidget::prepareHeader()
 {
-    RzAnalysisFunction *f = Core()->functionAt(seekable->getOffset());
+    RzAnalysisFunction *f = Core()->functionIn(seekable->getOffset());
     char *str = f ? rz_analysis_function_get_signature(f) : nullptr;
     if (!str) {
         header->hide();
