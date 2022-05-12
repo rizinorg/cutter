@@ -1266,16 +1266,7 @@ RzAnalysisFunction *CutterCore::functionIn(ut64 addr)
 RzAnalysisFunction *CutterCore::functionAt(ut64 addr)
 {
     CORE_LOCK();
-    RzAnalysisFunction *fcn = rz_analysis_get_function_at(core->analysis, addr);
-    if (fcn) {
-        return fcn;
-    }
-    RzList *list = rz_analysis_get_functions_in(core->analysis, addr);
-    if (rz_list_length(list) == 1) {
-        fcn = static_cast<RzAnalysisFunction *>(rz_list_first(list));
-    }
-    rz_list_free(list);
-    return fcn;
+    return rz_analysis_get_function_at(core->analysis, addr);
 }
 
 /**
