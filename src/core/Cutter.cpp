@@ -746,12 +746,32 @@ void CutterCore::delFlag(const QString &name)
 
 QString CutterCore::getInstructionBytes(RVA addr)
 {
-    return cmdj("aoj @ " + RzAddressString(addr)).first()[RJsonKey::bytes].toString();
+    auto ret = (char *)Core()->returnAtSeek(
+            [&]() {
+                CORE_LOCK();
+                RzPVector *vec = rz_core_analysis_bytes(core, core->block, (int)core->blocksize, 1);
+                auto *ab = static_cast<RzAnalysisBytes *>(rz_pvector_head(vec));
+                char *str = strdup(ab->bytes);
+                rz_pvector_free(vec);
+                return str;
+            },
+            addr);
+    return fromOwnedCharPtr(ret);
 }
 
 QString CutterCore::getInstructionOpcode(RVA addr)
 {
-    return cmdj("aoj @ " + RzAddressString(addr)).first()[RJsonKey::opcode].toString();
+    auto ret = (char *)Core()->returnAtSeek(
+            [&]() {
+                CORE_LOCK();
+                RzPVector *vec = rz_core_analysis_bytes(core, core->block, (int)core->blocksize, 1);
+                auto *ab = static_cast<RzAnalysisBytes *>(rz_pvector_head(vec));
+                char *str = strdup(ab->opcode);
+                rz_pvector_free(vec);
+                return str;
+            },
+            addr);
+    return fromOwnedCharPtr(ret);
 }
 
 void CutterCore::editInstruction(RVA addr, const QString &inst)
@@ -1358,7 +1378,19 @@ CutterJson CutterCore::getRegistersInfo()
 
 RVA CutterCore::getOffsetJump(RVA addr)
 {
-    return cmdj("aoj @" + QString::number(addr)).first().toRVA();
+    auto rva = (RVA *)Core()->returnAtSeek(
+            [&]() {
+                CORE_LOCK();
+                RzPVector *vec = rz_core_analysis_bytes(core, core->block, (int)core->blocksize, 1);
+                auto *ab = static_cast<RzAnalysisBytes *>(rz_pvector_head(vec));
+                RVA *rva = new RVA(ab->op->jump);
+                rz_pvector_free(vec);
+                return rva;
+            },
+            addr);
+    RVA ret = *rva;
+    delete rva;
+    return ret;
 }
 
 QList<Decompiler *> CutterCore::getDecompilers()
