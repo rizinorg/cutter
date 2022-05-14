@@ -127,6 +127,11 @@ static QString fromOwnedCharPtr(char *str)
     return result;
 }
 
+static bool reg_sync(RzCore *core, RzRegisterType type, bool write)
+{
+    return rz_debug_reg_sync(core->dbg, type, write);
+}
+
 RzCoreLocked::RzCoreLocked(CutterCore *core) : core(core)
 {
     core->coreMutex.lock();
@@ -1376,11 +1381,6 @@ void CutterCore::createFunctionAt(RVA addr, QString name)
     emit functionsChanged();
 }
 
-CutterJson CutterCore::getRegistersInfo()
-{
-    return cmdj("aeafj");
-}
-
 RVA CutterCore::getOffsetJump(RVA addr)
 {
     auto rva = (RVA *)Core()->returnAtSeek(
@@ -1448,20 +1448,20 @@ static inline const QString appendVar(QString &dst, const QString val, const QSt
     return val;
 }
 
-RefDescription CutterCore::formatRefDesc(const AddrRefs &refItem)
+RefDescription CutterCore::formatRefDesc(const QSharedPointer<AddrRefs> &refItem)
 {
     RefDescription desc;
 
-    if (refItem.addr == RVA_INVALID) {
+    if (refItem->addr == RVA_INVALID) {
         return desc;
     }
 
-    QString str = refItem.string;
+    QString str = refItem->string;
     if (!str.isEmpty()) {
         desc.ref = str;
         desc.refColor = ConfigColor("comment");
     } else {
-        QSharedPointer<const AddrRefs> cursor(&refItem);
+        QSharedPointer<const AddrRefs> cursor(refItem);
         QString type, string;
         while (true) {
             desc.ref += " ->";
@@ -1508,15 +1508,21 @@ QList<RegisterRef> CutterCore::getRegisterRefs(int depth)
         return ret;
     }
 
-    CutterJson registers = cmdj("drj");
-    for (CutterJson value : registers) {
+    CORE_LOCK();
+    RzList *ritems = rz_core_reg_filter_items_sync(core, core->dbg->reg, reg_sync, nullptr);
+    if (!ritems) {
+        return ret;
+    }
+    RzListIter *it;
+    RzRegItem *ri;
+    CutterRzListForeach (ritems, it, RzRegItem, ri) {
         RegisterRef reg;
-        reg.value = value.toUt64();
+        reg.value = rz_reg_get_value(core->dbg->reg, ri);
         reg.ref = getAddrRefs(reg.value, depth);
-        reg.name = value.key();
+        reg.name = ri->name;
         ret.append(reg);
     }
-
+    rz_list_free(ritems);
     return ret;
 }
 
@@ -1528,9 +1534,8 @@ QList<AddrRefs> CutterCore::getStack(int size, int depth)
     }
 
     CORE_LOCK();
-    bool ret;
-    RVA addr = cmdRaw("dr SP").toULongLong(&ret, 16);
-    if (!ret) {
+    RVA addr = rz_debug_reg_get(core->dbg, "SP");
+    if (addr == RVA_INVALID) {
         return stack;
     }
 
@@ -1793,11 +1798,6 @@ bool CutterCore::writeHeapChunk(RzHeapChunkSimple *chunk_simple)
     return rz_heap_write_chunk(core, chunk_simple);
 }
 
-CutterJson CutterCore::getRegisterValues()
-{
-    return cmdj("drj");
-}
-
 QList<VariableDescription> CutterCore::getVariables(RVA at)
 {
     QList<VariableDescription> ret;
@@ -1837,42 +1837,52 @@ QList<VariableDescription> CutterCore::getVariables(RVA at)
 
 QVector<RegisterRefValueDescription> CutterCore::getRegisterRefValues()
 {
-    CutterJson registerRefArray = cmdj("drrj");
     QVector<RegisterRefValueDescription> result;
-
-    for (CutterJson regRefObject : registerRefArray) {
+    CORE_LOCK();
+    RzList *ritems = rz_core_reg_filter_items_sync(core, core->dbg->reg, reg_sync, nullptr);
+    if (!ritems) {
+        return result;
+    }
+    RzListIter *it;
+    RzRegItem *ri;
+    CutterRzListForeach (ritems, it, RzRegItem, ri) {
         RegisterRefValueDescription desc;
-        desc.name = regRefObject[RJsonKey::reg].toString();
-        desc.value = regRefObject[RJsonKey::value].toString();
-        desc.ref = regRefObject[RJsonKey::ref].toString();
-
+        desc.name = ri->name;
+        ut64 value = rz_reg_get_value(core->dbg->reg, ri);
+        desc.value = QString::number(value);
+        desc.ref = rz_core_analysis_hasrefs(core, value, true);
         result.push_back(desc);
     }
+    rz_list_free(ritems);
     return result;
 }
 
 QString CutterCore::getRegisterName(QString registerRole)
 {
-    return cmdRaw("drn " + registerRole).trimmed();
+    if (!currentlyDebugging) {
+        return "";
+    }
+    CORE_LOCK();
+    return rz_reg_get_name_by_type(core->dbg->reg, registerRole.toUtf8().constData());
 }
 
 RVA CutterCore::getProgramCounterValue()
 {
-    bool ok;
     if (currentlyDebugging) {
-        // Use cmd because cmdRaw would not work with inner command backticked
-        // TODO: Risky command due to changes in API, search for something safer
-        RVA addr = cmd("dr `drn PC`").toULongLong(&ok, 16);
-        if (ok) {
-            return addr;
-        }
+        CORE_LOCK();
+        return rz_debug_reg_get(core->dbg, "PC");
     }
     return RVA_INVALID;
 }
 
 void CutterCore::setRegister(QString regName, QString regValue)
 {
-    cmdRaw(QString("dr %1=%2").arg(regName).arg(regValue));
+    if (!currentlyDebugging) {
+        return;
+    }
+    CORE_LOCK();
+    ut64 val = rz_num_math(core->num, regValue.toUtf8().constData());
+    rz_core_reg_assign_sync(core, core->dbg->reg, reg_sync, regName.toUtf8().constData(), val);
     emit registersChanged();
     emit refreshCodeViews();
 }
@@ -1940,7 +1950,7 @@ void CutterCore::startDebug()
     if (!asyncTask(
                 [](RzCore *core) {
                     rz_core_file_reopen_debug(core, "");
-                    return (void *)NULL;
+                    return (void *)nullptr;
                 },
                 debugTask)) {
         return;
@@ -1949,9 +1959,7 @@ void CutterCore::startDebug()
     emit debugTaskStateChanged();
 
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
-        if (debugTaskDialog) {
-            delete debugTaskDialog;
-        }
+        delete debugTaskDialog;
         debugTask.clear();
 
         emit registersChanged();
