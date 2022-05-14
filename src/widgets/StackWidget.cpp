@@ -154,7 +154,9 @@ void StackModel::reload()
 
         item.offset = stackItem.addr;
         item.value = RzAddressString(stackItem.value);
-        item.refDesc = Core()->formatRefDesc(*stackItem.ref);
+        if (!stackItem.ref.isNull()) {
+            item.refDesc = Core()->formatRefDesc(stackItem.ref);
+        }
 
         values.push_back(item);
     }
