@@ -482,8 +482,15 @@ void DisassemblyContextMenu::setupRenaming()
 void DisassemblyContextMenu::aboutToShowSlot()
 {
     // check if set immediate base menu makes sense
-    CutterJson instObject = Core()->cmdj("aoj @ " + QString::number(offset)).first();
-    bool immBase = instObject["val"].valid() || instObject["ptr"].valid();
+    RzPVector *vec = (RzPVector *)Core()->returnAtSeek(
+            [&]() {
+                RzCoreLocked core(Core());
+                return rz_core_analysis_bytes(core, core->block, (int)core->blocksize, 1);
+            },
+            offset);
+    auto *ab = static_cast<RzAnalysisBytes *>(rz_pvector_head(vec));
+
+    bool immBase = ab && ab->op && (ab->op->val || ab->op->ptr);
     setBaseMenu->menuAction()->setVisible(immBase);
     setBitsMenu->menuAction()->setVisible(true);
 
@@ -491,17 +498,24 @@ void DisassemblyContextMenu::aboutToShowSlot()
     QString memBaseReg; // Base register
     st64 memDisp = 0; // Displacement
 
-    // Loop through both the operands of the instruction
-    for (const CutterJson operand : instObject["opex"]["operands"]) {
-        if (operand["type"].toString() == "mem" && !operand["base"].toString().contains("bp")
-            && operand["disp"].toSt64() > 0) {
+    if (ab && ab->op) {
+        const char *opexstr = RZ_STRBUF_SAFEGET(&ab->op->opex);
+        CutterJson operands = Core()->parseJson(strdup(opexstr), nullptr);
 
-            // The current operand is the one which has an immediate displacement
-            memBaseReg = operand["base"].toString();
-            memDisp = operand["disp"].toSt64();
-            break;
+        // Loop through both the operands of the instruction
+        for (const CutterJson operand : operands) {
+            if (operand["type"].toString() == "mem" && !operand["base"].toString().contains("bp")
+                && operand["disp"].toSt64() > 0) {
+
+                // The current operand is the one which has an immediate displacement
+                memBaseReg = operand["base"].toString();
+                memDisp = operand["disp"].toSt64();
+                break;
+            }
         }
     }
+    rz_pvector_free(vec);
+
     if (memBaseReg.isEmpty()) {
         // hide structure offset menu
         structureOffsetMenu->menuAction()->setVisible(false);
