@@ -951,7 +951,12 @@ void CutterCore::applyStructureOffset(const QString &structureOffset, RVA offset
         offset = getOffset();
     }
 
-    this->cmdRawAt("aht " + structureOffset, offset);
+    applyAtSeek(
+            [&]() {
+                CORE_LOCK();
+                rz_core_analysis_hint_set_offset(core, structureOffset.toUtf8().constData());
+            },
+            offset);
     emit instructionChanged(offset);
 }
 
