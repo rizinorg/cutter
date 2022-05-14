@@ -417,8 +417,6 @@ public:
     bool sdbSet(QString path, QString key, QString val);
 
     /* Debug */
-    CutterJson getRegistersInfo();
-    CutterJson getRegisterValues();
     QString getRegisterName(QString registerRole);
     RVA getProgramCounterValue();
     void setRegister(QString regName, QString regValue);
@@ -444,7 +442,7 @@ public:
      * @brief return a RefDescription with a formatted ref string and configured colors
      * @param ref the "ref" JSON node from getAddrRefs
      */
-    RefDescription formatRefDesc(const AddrRefs &ref);
+    RefDescription formatRefDesc(const QSharedPointer<AddrRefs> &ref);
     /**
      * @brief Get a list of a given process's threads
      * @param pid The pid of the process, -1 for the currently debugged process
