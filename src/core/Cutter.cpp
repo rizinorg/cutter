@@ -2753,11 +2753,6 @@ bool CutterCore::isBreakpoint(const QList<RVA> &breakpoints, RVA addr)
     return breakpoints.contains(addr);
 }
 
-CutterJson CutterCore::getBacktrace()
-{
-    return cmdj("dbtj");
-}
-
 QList<ProcessDescription> CutterCore::getProcessThreads(int pid = -1)
 {
     CORE_LOCK();

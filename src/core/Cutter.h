@@ -449,7 +449,6 @@ public:
      * @return List of ProcessDescription
      */
     QList<ProcessDescription> getProcessThreads(int pid);
-    CutterJson getBacktrace();
     /**
      * @brief Get a list of heap chunks
      * Uses RZ_API rz_heap_chunks_list to get vector of chunks
