@@ -2677,6 +2677,7 @@ void CutterCore::disableBreakpoint(RVA addr)
 
 void CutterCore::setBreakpointTrace(int index, bool enabled)
 {
+    CORE_LOCK();
     RzBreakpointItem *bpi = rz_bp_get_index(core->dbg->bp, index);
     bpi->trace = enabled;
 }
