@@ -2404,7 +2404,15 @@ void CutterCore::stepOutDebug()
     }
 
     emit debugTaskStateChanged();
-    if (!asyncCmd("dsf", debugTask)) {
+    bool ret;
+    asyncTask(
+            [&](RzCore *core) {
+                ret = rz_core_debug_step_until_frame(core);
+                rz_core_dbg_follow_seek_register(core);
+                return nullptr;
+            },
+            debugTask);
+    if (!ret) {
         return;
     }
 
