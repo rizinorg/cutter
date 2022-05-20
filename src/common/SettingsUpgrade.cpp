@@ -182,7 +182,7 @@ void Cutter::initializeSettings()
 static void removeObsoleteOptionsFromCustomThemes()
 {
     const QStringList options = Core()->getThemeKeys() << ColorThemeWorker::cutterSpecificOptions;
-    const QSet<QString> optionSet(options.begin(), options.end());
+    const QSet<QString> optionSet(options.constBegin(), options.constEnd());
 
     QStringList themes = Core()->getColorThemes();
     for (const auto &themeName : themes) {
