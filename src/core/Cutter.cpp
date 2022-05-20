@@ -2464,11 +2464,11 @@ void CutterCore::stepBackDebug()
 QStringList CutterCore::getDebugPlugins()
 {
     QStringList plugins;
-
-    for (CutterJson pluginObject : cmdj("dLj")) {
-        QString plugin = pluginObject[RJsonKey::name].toString();
-
-        plugins << plugin;
+    RzListIter *iter;
+    RzDebugPlugin *plugin;
+    CORE_LOCK();
+    CutterRzListForeach (core->dbg->plugins, iter, RzDebugPlugin, plugin) {
+        plugins << plugin->name;
     }
     return plugins;
 }
