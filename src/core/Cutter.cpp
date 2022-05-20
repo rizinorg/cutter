@@ -4122,13 +4122,45 @@ QString CutterCore::getVersionInformation()
     return versionInfo;
 }
 
-QList<QString> CutterCore::getColorThemes()
+QStringList CutterCore::getColorThemes()
 {
-    QList<QString> r;
-    for (CutterJson s : cmdj("ecoj")) {
-        r << s.toString();
+    QStringList r;
+    CORE_LOCK();
+    RzList *themes_list = rz_core_theme_list(core);
+    RzListIter *it;
+    const char *th;
+    CutterRzListForeach (themes_list, it, const char, th) {
+        r << fromOwnedCharPtr(rz_str_trim_dup(th));
     }
+    rz_list_free(themes_list);
     return r;
+}
+
+QHash<QString, QColor> CutterCore::getTheme()
+{
+    QHash<QString, QColor> theme;
+    for (int i = 0;; ++i) {
+        const char *k = rz_cons_pal_get_name(i);
+        if (!k) {
+            break;
+        }
+        RzColor color = rz_cons_pal_get_i(i);
+        theme.insert(k, QColor(color.r, color.g, color.b));
+    }
+    return theme;
+}
+
+QStringList CutterCore::getThemeKeys()
+{
+    QStringList stringList;
+    for (int i = 0;; ++i) {
+        const char *k = rz_cons_pal_get_name(i);
+        if (!k) {
+            break;
+        }
+        stringList << k;
+    }
+    return stringList;
 }
 
 QString CutterCore::ansiEscapeToHtml(const QString &text)

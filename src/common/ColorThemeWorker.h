@@ -18,6 +18,8 @@ class ColorThemeWorker : public QObject
 {
     Q_OBJECT
 public:
+    typedef QHash<QString, QColor> Theme;
+
     /**
      * @brief cutterSpecificOptions is list of all available Cutter-only color options.
      */
@@ -54,7 +56,7 @@ public:
      * Name of theme to save.
      * @return "" on success or error message.
      */
-    QString save(const QJsonDocument &theme, const QString &themeName) const;
+    QString save(const Theme &theme, const QString &themeName) const;
 
     /**
      * @brief Returns whether or not @a themeName theme is custom (created by user or imported) or
@@ -71,12 +73,11 @@ public:
     bool isThemeExist(const QString &name) const;
 
     /**
-     * @brief Returns theme as Json where key is option name and value is array of 3 Ints (Red,
-     * Green, Blue).
+     * @brief Returns theme as QHash where key is option name and value is QColor.
      * @param themeName
      * Theme to get.
      */
-    QJsonDocument getTheme(const QString &themeName) const;
+    Theme getTheme(const QString &themeName) const;
 
     /**
      * @brief Deletes theme named @a themeName.
