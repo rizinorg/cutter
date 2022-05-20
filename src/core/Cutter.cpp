@@ -4163,6 +4163,15 @@ QStringList CutterCore::getThemeKeys()
     return stringList;
 }
 
+bool CutterCore::setColor(const QString &key, const QString &color)
+{
+    if (!rz_cons_pal_set(key.toUtf8().constData(), color.toUtf8().constData())) {
+        return false;
+    }
+    rz_cons_pal_update_event();
+    return true;
+}
+
 QString CutterCore::ansiEscapeToHtml(const QString &text)
 {
     int len;

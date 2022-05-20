@@ -396,6 +396,7 @@ public:
     QStringList getColorThemes();
     QHash<QString, QColor> getTheme();
     QStringList getThemeKeys();
+    bool setColor(const QString &key, const QString &color);
 
     /* Assembly\Hexdump related methods */
     QByteArray assemble(const QString &code);
