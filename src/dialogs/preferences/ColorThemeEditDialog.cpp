@@ -72,7 +72,7 @@ ColorThemeEditDialog::~ColorThemeEditDialog()
 void ColorThemeEditDialog::accept()
 {
     colorTheme = Config()->getColorTheme();
-    QJsonDocument sch = ui->colorThemeListView->colorSettingsModel()->getTheme();
+    ColorThemeWorker::Theme sch = ui->colorThemeListView->colorSettingsModel()->getTheme();
     if (ThemeWorker().isCustomTheme(colorTheme)) {
         QString err = ThemeWorker().save(sch, colorTheme);
         if (!err.isEmpty()) {
