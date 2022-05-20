@@ -2157,26 +2157,9 @@ void CutterCore::stopDebug()
     if (currentlyEmulating) {
         cmdEsil("aeim-; aei-; wcr; .ar-; aets-");
         currentlyEmulating = false;
-    } else if (currentlyAttachedToPID != -1) {
-        // Use cmd because cmdRaw would not work with command concatenation
-        cmd(QString("dp- %1; o %2; .ar-")
-                    .arg(QString::number(currentlyAttachedToPID), currentlyOpenFile));
-        currentlyAttachedToPID = -1;
     } else {
-        QString ptraceFiles = "";
-        // close ptrace file descriptors left open
-        RzCoreLocked core(Core());
-        RzList *descs = rz_id_storage_list(core->io->files);
-        RzListIter *it;
-        RzIODesc *desc;
-        CutterRzListForeach (descs, it, RzIODesc, desc) {
-            QString URI = QString(desc->uri);
-            if (URI.contains("ptrace")) {
-                ptraceFiles += "o-" + QString::number(desc->fd) + ";";
-            }
-        }
-        // Use cmd because cmdRaw would not work with command concatenation
-        cmd("doc" + ptraceFiles);
+        rz_core_debug_process_close(core());
+        currentlyAttachedToPID = -1;
     }
 
     syncAndSeekProgramCounter();
