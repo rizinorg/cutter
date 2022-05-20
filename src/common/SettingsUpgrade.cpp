@@ -182,8 +182,6 @@ void Cutter::initializeSettings()
 static void removeObsoleteOptionsFromCustomThemes()
 {
     const QStringList options = Core()->getThemeKeys() << ColorThemeWorker::cutterSpecificOptions;
-    const QSet<QString> optionSet(options.constBegin(), options.constEnd());
-
     QStringList themes = Core()->getColorThemes();
     for (const auto &themeName : themes) {
         if (!ThemeWorker().isCustomTheme(themeName)) {
@@ -192,7 +190,7 @@ static void removeObsoleteOptionsFromCustomThemes()
         ColorThemeWorker::Theme sch = ThemeWorker().getTheme(themeName);
         ColorThemeWorker::Theme updatedTheme;
         for (auto it = sch.constBegin(); it != sch.constEnd(); ++it) {
-            if (optionSet.contains(it.key())) {
+            if (options.contains(it.key())) {
                 updatedTheme.insert(it.key(), it.value());
             }
         }
