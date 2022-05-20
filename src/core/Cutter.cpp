@@ -2677,11 +2677,8 @@ void CutterCore::disableBreakpoint(RVA addr)
 
 void CutterCore::setBreakpointTrace(int index, bool enabled)
 {
-    if (enabled) {
-        cmdRaw(QString("dbite %1").arg(index));
-    } else {
-        cmdRaw(QString("dbitd %1").arg(index));
-    }
+    RzBreakpointItem *bpi = rz_bp_get_index(core->dbg->bp, index);
+    bpi->trace = enabled;
 }
 
 static BreakpointDescription breakpointDescriptionFromRizin(int index, rz_bp_item_t *bpi)
