@@ -2314,7 +2314,16 @@ void CutterCore::continueUntilSyscall()
             return;
         }
     } else {
-        if (!asyncCmd("dcs", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_cons_break_push(reinterpret_cast<RzConsBreak>(rz_debug_stop), core->dbg);
+                        rz_reg_arena_swap(core->dbg->reg, true);
+                        rz_debug_continue_syscalls(core->dbg, NULL, 0);
+                        rz_cons_break_pop();
+                        rz_core_dbg_follow_seek_register(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     }
