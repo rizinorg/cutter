@@ -3717,25 +3717,29 @@ QList<ResourcesDescription> CutterCore::getAllResources()
 QList<VTableDescription> CutterCore::getAllVTables()
 {
     CORE_LOCK();
-    QList<VTableDescription> vtables;
-
-    for (CutterJson vTableObject : cmdj("avj")) {
-        VTableDescription res;
-
-        res.addr = vTableObject[RJsonKey::offset].toRVA();
-
-        for (CutterJson methodObject : vTableObject[RJsonKey::methods]) {
-            BinClassMethodDescription method;
-
-            method.addr = methodObject[RJsonKey::offset].toRVA();
-            method.name = methodObject[RJsonKey::name].toString();
-
-            res.methods << method;
+    QList<VTableDescription> vtableDescs;
+    RVTableContext context;
+    rz_analysis_vtable_begin(core->analysis, &context);
+    RzList *vtables = rz_analysis_vtable_search(&context);
+    RzListIter *iter;
+    RVTableInfo *table;
+    RVTableMethodInfo *method;
+    CutterRzListForeach (vtables, iter, RVTableInfo, table) {
+        VTableDescription tableDesc;
+        tableDesc.addr = table->saddr;
+        CutterRzVectorForeach(&table->methods, method, RVTableMethodInfo)
+        {
+            BinClassMethodDescription methodDesc;
+            RzAnalysisFunction *fcn = rz_analysis_get_fcn_in(core->analysis, method->addr, 0);
+            const char *fname = fcn ? fcn->name : nullptr;
+            methodDesc.addr = method->addr;
+            methodDesc.name = fname ? fname : "No Name found";
+            tableDesc.methods << methodDesc;
         }
-
-        vtables << res;
+        vtableDescs << tableDesc;
     }
-    return vtables;
+    rz_list_free(vtables);
+    return vtableDescs;
 }
 
 QList<TypeDescription> CutterCore::getAllTypes()
