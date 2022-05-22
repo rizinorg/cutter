@@ -2191,14 +2191,20 @@ void CutterCore::continueDebug()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aec", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_esil_step(core, UT64_MAX, "0", NULL, false);
+                        rz_core_reg_update_flags(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
         if (!asyncTask(
                     [](RzCore *core) {
                         rz_debug_continue(core->dbg);
-                        return (void *)NULL;
+                        return nullptr;
                     },
                     debugTask)) {
             return;
@@ -2230,7 +2236,7 @@ void CutterCore::continueBackDebug()
         if (!asyncTask(
                     [](RzCore *core) {
                         rz_debug_continue_back(core->dbg);
-                        return (void *)NULL;
+                        return nullptr;
                     },
                     debugTask)) {
             return;
@@ -2255,14 +2261,20 @@ void CutterCore::continueUntilDebug(ut64 offset)
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aecu " + QString::number(offset), debugTask)) {
+        if (!asyncTask(
+                    [=](RzCore *core) {
+                        rz_core_esil_step(core, offset, NULL, NULL, false);
+                        rz_core_reg_update_flags(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
         if (!asyncTask(
                     [=](RzCore *core) {
                         rz_core_debug_continue_until(core, offset, offset);
-                        return (void *)NULL;
+                        return nullptr;
                     },
                     debugTask)) {
             return;
@@ -2285,14 +2297,19 @@ void CutterCore::continueUntilCall()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aecc", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_analysis_continue_until_call(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
         if (!asyncTask(
                     [](RzCore *core) {
                         rz_core_debug_step_one(core, 0);
-                        return (void *)NULL;
+                        return nullptr;
                     },
                     debugTask)) {
             return;
@@ -2317,7 +2334,12 @@ void CutterCore::continueUntilSyscall()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aecs", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_analysis_continue_until_syscall(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
@@ -2353,14 +2375,20 @@ void CutterCore::stepDebug()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aes", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_esil_step(core, UT64_MAX, NULL, NULL, false);
+                        rz_core_reg_update_flags(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
         if (!asyncTask(
                     [](RzCore *core) {
                         rz_core_debug_step_one(core, 1);
-                        return (void *)NULL;
+                        return nullptr;
                     },
                     debugTask)) {
             return;
@@ -2449,7 +2477,13 @@ void CutterCore::stepBackDebug()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aesb", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_esil_step_back(core);
+                        rz_core_reg_update_flags(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
@@ -2506,7 +2540,12 @@ void CutterCore::startTraceSession()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aets+", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_analysis_esil_trace_start(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
@@ -2514,7 +2553,7 @@ void CutterCore::startTraceSession()
                     [](RzCore *core) {
                         core->dbg->session = rz_debug_session_new();
                         rz_debug_add_checkpoint(core->dbg);
-                        return (void *)NULL;
+                        return nullptr;
                     },
                     debugTask)) {
             return;
@@ -2523,9 +2562,7 @@ void CutterCore::startTraceSession()
     emit debugTaskStateChanged();
 
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
-        if (debugTaskDialog) {
-            delete debugTaskDialog;
-        }
+        delete debugTaskDialog;
         debugTask.clear();
 
         currentlyTracing = true;
@@ -2548,7 +2585,12 @@ void CutterCore::stopTraceSession()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aets-", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_analysis_esil_trace_stop(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
@@ -2556,7 +2598,7 @@ void CutterCore::stopTraceSession()
                     [](RzCore *core) {
                         rz_debug_session_free(core->dbg->session);
                         core->dbg->session = NULL;
-                        return (void *)NULL;
+                        return nullptr;
                     },
                     debugTask)) {
             return;
@@ -2565,9 +2607,7 @@ void CutterCore::stopTraceSession()
     emit debugTaskStateChanged();
 
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
-        if (debugTaskDialog) {
-            delete debugTaskDialog;
-        }
+        delete debugTaskDialog;
         debugTask.clear();
 
         currentlyTracing = false;
