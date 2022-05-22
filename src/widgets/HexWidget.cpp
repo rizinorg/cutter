@@ -882,12 +882,9 @@ void HexWidget::w_writeRandom()
     if (!ok) {
         return;
     }
-    Core()->applyAtSeek(
-            [&]() {
-                RzCoreLocked core(Core());
-                rz_core_write_random_at(core, core->offset, nbytes);
-            },
-            getLocationAddress());
+
+    RzCoreLocked core(Core());
+    rz_core_write_random_at(core, getLocationAddress(), nbytes);
     refresh();
 }
 
@@ -903,21 +900,19 @@ void HexWidget::w_duplFromOffset()
     }
     RVA src = d.getOffset();
     int len = (int)d.getNBytes();
-    Core()->applyAtSeek(
-            [=]() {
-                RzCoreLocked core(Core());
-                ut8 *buf = RZ_NEWS(ut8, len);
-                if (!buf) {
-                    return;
-                }
-                int n = rz_io_nread_at(core->io, src, buf, len);
-                if (n < 0) {
-                    free(buf);
-                    return;
-                }
-                rz_core_write_at(core, core->offset, buf, n);
-            },
-            getLocationAddress());
+
+    RzCoreLocked core(Core());
+    ut8 *buf = RZ_NEWS(ut8, len);
+    if (!buf) {
+        return;
+    }
+    int n = rz_io_nread_at(core->io, src, buf, len);
+    if (n < 0) {
+        free(buf);
+        return;
+    }
+    rz_core_write_at(core, getLocationAddress(), buf, n);
+
     refresh();
 }
 
@@ -932,12 +927,8 @@ void HexWidget::w_writePascalString()
     QString str =
             d.getText(this, tr("Write Pascal string"), tr("String:"), QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        Core()->applyAtSeek(
-                [&]() {
-                    RzCoreLocked core(Core());
-                    rz_core_write_length_string_at(core, core->offset, str.toUtf8().constData());
-                },
-                getLocationAddress());
+        RzCoreLocked core(Core());
+        rz_core_write_length_string_at(core, getLocationAddress(), str.toUtf8().constData());
         refresh();
     }
 }
@@ -953,7 +944,8 @@ void HexWidget::w_writeWideString()
     QString str =
             d.getText(this, tr("Write wide string"), tr("String:"), QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        Core()->cmdRawAt(QString("ww %1").arg(str), getLocationAddress());
+        RzCoreLocked core(Core());
+        rz_core_write_string_wide_at(core, getLocationAddress(), str.toUtf8().constData());
         refresh();
     }
 }
