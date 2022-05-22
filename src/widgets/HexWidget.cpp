@@ -713,14 +713,14 @@ void HexWidget::copyAddress()
     clipboard->setText(RzAddressString(addr));
 }
 
-//slot for add comment action
+// slot for add comment action
 void HexWidget::on_actionAddComment_triggered()
 {
     uint64_t addr = cursor.address;
     CommentsDialog::addOrEditComment(addr, this);
 }
 
-//slot for deleting comment action
+// slot for deleting comment action
 void HexWidget::on_actionDeleteComment_triggered()
 {
     uint64_t addr = cursor.address;
@@ -869,19 +869,25 @@ void HexWidget::w_writeRandom()
     if (!ioModesController.prepareForWriting()) {
         return;
     }
-    bool ok = false;
-    QInputDialog d;
 
     int size = 1;
     if (!selection.isEmpty() && selection.size() <= INT_MAX) {
         size = static_cast<int>(selection.size());
     }
-    QString nbytes = QString::number(d.getInt(this, tr("Write random"), tr("Number of bytes:"),
-                                              size, 1, 0x7FFFFFFF, 1, &ok));
-    if (ok && !nbytes.isEmpty()) {
-        Core()->cmdRawAt(QString("wr %1").arg(nbytes), getLocationAddress());
-        refresh();
+
+    bool ok = false;
+    int nbytes = QInputDialog::getInt(this, tr("Write random"), tr("Number of bytes:"), size, 1,
+                                      0x7FFFFFFF, 1, &ok);
+    if (!ok) {
+        return;
     }
+    Core()->applyAtSeek(
+            [&]() {
+                RzCoreLocked core(Core());
+                rz_core_write_random_at(core, core->offset, nbytes);
+            },
+            getLocationAddress());
+    refresh();
 }
 
 void HexWidget::w_duplFromOffset()
@@ -894,9 +900,23 @@ void HexWidget::w_duplFromOffset()
     if (ret == QDialog::Rejected) {
         return;
     }
-    RVA copyFrom = d.getOffset();
-    QString nBytes = QString::number(d.getNBytes());
-    Core()->cmdRawAt(QString("wd %1 %2").arg(copyFrom).arg(nBytes), getLocationAddress());
+    RVA src = d.getOffset();
+    int len = (int)d.getNBytes();
+    Core()->applyAtSeek(
+            [=]() {
+                RzCoreLocked core(Core());
+                ut8 *buf = RZ_NEWS(ut8, len);
+                if (!buf) {
+                    return;
+                }
+                int n = rz_io_nread_at(core->io, src, buf, len);
+                if (n < 0) {
+                    free(buf);
+                    return;
+                }
+                rz_core_write_at(core, core->offset, buf, n);
+            },
+            getLocationAddress());
     refresh();
 }
 
