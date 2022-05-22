@@ -534,13 +534,9 @@ void Configuration::setColorTheme(const QString &theme)
         s.setValue("theme", theme);
     }
 
-    QJsonObject colorTheme = ThemeWorker().getTheme(theme).object();
+    ColorThemeWorker::Theme colorTheme = ThemeWorker().getTheme(theme);
     for (auto it = colorTheme.constBegin(); it != colorTheme.constEnd(); it++) {
-        QJsonArray rgb = it.value().toArray();
-        if (rgb.size() != 4) {
-            continue;
-        }
-        setColor(it.key(), QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt(), rgb[3].toInt()));
+        setColor(it.key(), it.value());
     }
 
     emit colorsUpdated();

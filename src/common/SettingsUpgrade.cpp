@@ -181,26 +181,21 @@ void Cutter::initializeSettings()
 
 static void removeObsoleteOptionsFromCustomThemes()
 {
-    const QStringList options = Core()->cmdj("ecj").keys()
-            << ColorThemeWorker::cutterSpecificOptions;
-    RzList *themes_list = rz_core_theme_list(Core()->core());
-    RzListIter *th_iter;
-    const char *th;
-    CutterRzListForeach (themes_list, th_iter, const char, th) {
-        auto theme = QString(th).trimmed();
-        if (!ThemeWorker().isCustomTheme(theme)) {
+    const QStringList options = Core()->getThemeKeys() << ColorThemeWorker::cutterSpecificOptions;
+    QStringList themes = Core()->getColorThemes();
+    for (const auto &themeName : themes) {
+        if (!ThemeWorker().isCustomTheme(themeName)) {
             continue;
         }
-        QJsonObject updatedTheme;
-        auto sch = ThemeWorker().getTheme(theme).object();
-        for (const auto &key : sch.keys()) {
-            if (options.contains(key)) {
-                updatedTheme.insert(key, sch[key]);
+        ColorThemeWorker::Theme sch = ThemeWorker().getTheme(themeName);
+        ColorThemeWorker::Theme updatedTheme;
+        for (auto it = sch.constBegin(); it != sch.constEnd(); ++it) {
+            if (options.contains(it.key())) {
+                updatedTheme.insert(it.key(), it.value());
             }
         }
-        ThemeWorker().save(QJsonDocument(updatedTheme), theme);
+        ThemeWorker().save(updatedTheme, themeName);
     }
-    rz_list_free(themes_list);
 }
 
 void Cutter::migrateThemes()

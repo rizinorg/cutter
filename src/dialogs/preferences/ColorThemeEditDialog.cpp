@@ -72,7 +72,7 @@ ColorThemeEditDialog::~ColorThemeEditDialog()
 void ColorThemeEditDialog::accept()
 {
     colorTheme = Config()->getColorTheme();
-    QJsonDocument sch = ui->colorThemeListView->colorSettingsModel()->getTheme();
+    ColorThemeWorker::Theme sch = ui->colorThemeListView->colorSettingsModel()->getTheme();
     if (ThemeWorker().isCustomTheme(colorTheme)) {
         QString err = ThemeWorker().save(sch, colorTheme);
         if (!err.isEmpty()) {
@@ -133,7 +133,7 @@ void ColorThemeEditDialog::colorOptionChanged(const QColor &newColor)
 
     Config()->setColor(currOption.optionName, currOption.color);
     if (!ColorThemeWorker::cutterSpecificOptions.contains(currOption.optionName)) {
-        Core()->cmdRaw(QString("ec %1 %2").arg(currOption.optionName).arg(currOption.color.name()));
+        Core()->setColor(currOption.optionName, currOption.color.name());
     }
     previewDisasmWidget->colorsUpdatedSlot();
 }

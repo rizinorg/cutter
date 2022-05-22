@@ -73,7 +73,7 @@ public:
 
     void updateTheme();
 
-    QJsonDocument getTheme() const;
+    QHash<QString, QColor> getTheme() const;
 
 private:
     QList<ColorOption> theme;
