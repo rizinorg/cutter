@@ -656,7 +656,13 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
     }
 
     if (perms & RZ_PERM_W) {
-        rz_core_cmd0(core, "omfg+w");
+        RzPVector *maps = rz_io_maps(core->io);
+        void **it;
+        rz_pvector_foreach(maps, it)
+        {
+            auto *map = static_cast<RzIOMap *>(*it);
+            map->perm |= RZ_PERM_W;
+        }
     }
 
     fflush(stdout);
@@ -1957,7 +1963,7 @@ void CutterCore::startDebug()
     if (!asyncTask(
                 [](RzCore *core) {
                     rz_core_file_reopen_debug(core, "");
-                    return (void *)nullptr;
+                    return nullptr;
                 },
                 debugTask)) {
         return;
@@ -2112,9 +2118,7 @@ void CutterCore::attachDebug(int pid)
     emit debugTaskStateChanged();
 
     connect(debugTask.data(), &RizinTask::finished, this, [this, pid]() {
-        if (debugTaskDialog) {
-            delete debugTaskDialog;
-        }
+        delete debugTaskDialog;
         debugTask.clear();
 
         syncAndSeekProgramCounter();
@@ -4273,10 +4277,10 @@ void CutterCore::commitWriteCache()
     TempConfig tempConfig;
     tempConfig.set("io.cache", false);
     if (!isWriteModeEnabled()) {
-        cmdRaw("oo+");
+        rz_core_io_file_reopen(core, core->io->desc->fd, RZ_PERM_RW);
         rz_io_cache_commit(core->io, 0, UT64_MAX);
         rz_core_block_read(core);
-        cmdRaw("oo");
+        rz_core_io_file_open(core, core->io->desc->fd);
     } else {
         rz_io_cache_commit(core->io, 0, UT64_MAX);
         rz_core_block_read(core);
@@ -4299,17 +4303,22 @@ void CutterCore::setWriteMode(bool enabled)
         return;
     }
 
+    CORE_LOCK();
     // Change from read-only to write-mode
-    if (enabled && !writeModeState) {
-        cmdRaw("oo+");
-        // Change from write-mode to read-only
+    if (enabled) {
+        if (!writeModeState) {
+            rz_core_io_file_reopen(core, core->io->desc->fd, RZ_PERM_RW);
+        }
     } else {
-        cmdRaw("oo");
+        // Change from write-mode to read-only
+        rz_core_io_file_open(core, core->io->desc->fd);
     }
     // Disable cache mode because we specifically set write or
     // read-only modes.
-    setIOCache(false);
-    writeModeChanged(enabled);
+    if (this->iocache) {
+        setIOCache(false);
+    }
+    emit writeModeChanged(enabled);
     emit ioModeChanged();
 }
 

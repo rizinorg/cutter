@@ -743,9 +743,8 @@ void HexWidget::w_writeString()
         return;
     }
     bool ok = false;
-    QInputDialog d;
-    d.setInputMode(QInputDialog::InputMode::TextInput);
-    QString str = d.getText(this, tr("Write string"), tr("String:"), QLineEdit::Normal, "", &ok);
+    QString str = QInputDialog::getText(this, tr("Write string"), tr("String:"), QLineEdit::Normal,
+                                        "", &ok);
     if (ok && !str.isEmpty()) {
         RzCoreLocked core(Core());
         rz_core_write_string_at(core, getLocationAddress(), str.toUtf8().constData());
@@ -785,10 +784,8 @@ void HexWidget::w_writeBytes()
         size = static_cast<int>(selection.size());
     }
 
-    QInputDialog d;
-    d.setInputMode(QInputDialog::InputMode::TextInput);
-    QByteArray bytes = d.getText(this, tr("Write hex bytes"), tr("Hex byte string:"),
-                                 QLineEdit::Normal, "", &ok)
+    QByteArray bytes = QInputDialog::getText(this, tr("Write hex bytes"), tr("Hex byte string:"),
+                                             QLineEdit::Normal, "", &ok)
                                .toUtf8();
     const int offset = bytes.startsWith("\\x") ? 2 : 0;
     const int incr = offset + 2;
@@ -796,7 +793,7 @@ void HexWidget::w_writeBytes()
     if (!ok || !bytes_size) {
         return;
     }
-    uint8_t *buf = (uint8_t *)malloc(static_cast<size_t>(bytes_size));
+    auto *buf = (uint8_t *)malloc(static_cast<size_t>(bytes_size));
     if (!buf) {
         return;
     }
@@ -814,24 +811,26 @@ void HexWidget::w_writeZeros()
     if (!ioModesController.prepareForWriting()) {
         return;
     }
-    bool ok = false;
-    QInputDialog d;
 
     int size = 1;
     if (!selection.isEmpty() && selection.size() <= INT_MAX) {
         size = static_cast<int>(selection.size());
     }
 
-    int len =
-            d.getInt(this, tr("Write zeros"), tr("Number of zeros:"), size, 1, 0x7FFFFFFF, 1, &ok);
-    if (ok) {
-        RzCoreLocked core(Core());
-        uint8_t *buf = (uint8_t *)calloc(len, sizeof(uint8_t));
-        rz_core_write_at(core, getLocationAddress(), buf, len);
-        free(buf);
-
-        refresh();
+    bool ok = false;
+    int len = QInputDialog::getInt(this, tr("Write zeros"), tr("Number of zeros:"), size, 1,
+                                   0x7FFFFFFF, 1, &ok);
+    if (!ok) {
+        return;
     }
+
+    RzCoreLocked core(Core());
+    auto *buf = (uint8_t *)calloc(len, sizeof(uint8_t));
+    rz_core_write_at(core, getLocationAddress(), buf, len);
+
+    free(buf);
+
+    refresh();
 }
 
 void HexWidget::w_write64()
@@ -902,7 +901,7 @@ void HexWidget::w_duplFromOffset()
     int len = (int)d.getNBytes();
 
     RzCoreLocked core(Core());
-    ut8 *buf = RZ_NEWS(ut8, len);
+    auto *buf = (ut8 *)calloc(len, sizeof(ut8));
     if (!buf) {
         return;
     }
@@ -912,6 +911,7 @@ void HexWidget::w_duplFromOffset()
         return;
     }
     rz_core_write_at(core, getLocationAddress(), buf, n);
+    free(buf);
 
     refresh();
 }
@@ -922,15 +922,14 @@ void HexWidget::w_writePascalString()
         return;
     }
     bool ok = false;
-    QInputDialog d;
-    d.setInputMode(QInputDialog::InputMode::TextInput);
-    QString str =
-            d.getText(this, tr("Write Pascal string"), tr("String:"), QLineEdit::Normal, "", &ok);
-    if (ok && !str.isEmpty()) {
-        RzCoreLocked core(Core());
-        rz_core_write_length_string_at(core, getLocationAddress(), str.toUtf8().constData());
-        refresh();
+    QString str = QInputDialog::getText(this, tr("Write Pascal string"), tr("String:"),
+                                        QLineEdit::Normal, "", &ok);
+    if (!ok || str.isEmpty()) {
+        return;
     }
+    RzCoreLocked core(Core());
+    rz_core_write_length_string_at(core, getLocationAddress(), str.toUtf8().constData());
+    refresh();
 }
 
 void HexWidget::w_writeWideString()
@@ -939,15 +938,14 @@ void HexWidget::w_writeWideString()
         return;
     }
     bool ok = false;
-    QInputDialog d;
-    d.setInputMode(QInputDialog::InputMode::TextInput);
-    QString str =
-            d.getText(this, tr("Write wide string"), tr("String:"), QLineEdit::Normal, "", &ok);
-    if (ok && !str.isEmpty()) {
-        RzCoreLocked core(Core());
-        rz_core_write_string_wide_at(core, getLocationAddress(), str.toUtf8().constData());
-        refresh();
+    QString str = QInputDialog::getText(this, tr("Write wide string"), tr("String:"),
+                                        QLineEdit::Normal, "", &ok);
+    if (!ok || str.isEmpty()) {
+        return;
     }
+    RzCoreLocked core(Core());
+    rz_core_write_string_wide_at(core, getLocationAddress(), str.toUtf8().constData());
+    refresh();
 }
 
 void HexWidget::w_writeCString()
@@ -956,15 +954,14 @@ void HexWidget::w_writeCString()
         return;
     }
     bool ok = false;
-    QInputDialog d;
-    d.setInputMode(QInputDialog::InputMode::TextInput);
-    QString str = d.getText(this, tr("Write zero-terminated string"), tr("String:"),
-                            QLineEdit::Normal, "", &ok);
-    if (ok && !str.isEmpty()) {
-        RzCoreLocked core(Core());
-        rz_core_write_string_zero_at(core, getLocationAddress(), str.toUtf8().constData());
-        refresh();
+    QString str = QInputDialog::getText(this, tr("Write zero-terminated string"), tr("String:"),
+                                        QLineEdit::Normal, "", &ok);
+    if (!ok || str.isEmpty()) {
+        return;
     }
+    RzCoreLocked core(Core());
+    rz_core_write_string_zero_at(core, getLocationAddress(), str.toUtf8().constData());
+    refresh();
 }
 
 void HexWidget::updateItemLength()
