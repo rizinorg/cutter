@@ -940,8 +940,9 @@ void CutterCore::setImmediateBase(const QString &rzBaseName, RVA offset)
     if (offset == RVA_INVALID) {
         offset = getOffset();
     }
-
-    this->cmdRawAt(QString("ahi %1").arg(rzBaseName), offset);
+    CORE_LOCK();
+    int base = (int)rz_num_base_of_string(core->num, rzBaseName.toUtf8().constData());
+    rz_analysis_hint_set_immbase(core->analysis, offset, base);
     emit instructionChanged(offset);
 }
 
@@ -951,7 +952,8 @@ void CutterCore::setCurrentBits(int bits, RVA offset)
         offset = getOffset();
     }
 
-    this->cmdRawAt(QString("ahb %1").arg(bits), offset);
+    CORE_LOCK();
+    rz_analysis_hint_set_bits(core->analysis, offset, bits);
     emit instructionChanged(offset);
 }
 
