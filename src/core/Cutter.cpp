@@ -2157,26 +2157,9 @@ void CutterCore::stopDebug()
     if (currentlyEmulating) {
         cmdEsil("aeim-; aei-; wcr; .ar-; aets-");
         currentlyEmulating = false;
-    } else if (currentlyAttachedToPID != -1) {
-        // Use cmd because cmdRaw would not work with command concatenation
-        cmd(QString("dp- %1; o %2; .ar-")
-                    .arg(QString::number(currentlyAttachedToPID), currentlyOpenFile));
-        currentlyAttachedToPID = -1;
     } else {
-        QString ptraceFiles = "";
-        // close ptrace file descriptors left open
-        RzCoreLocked core(Core());
-        RzList *descs = rz_id_storage_list(core->io->files);
-        RzListIter *it;
-        RzIODesc *desc;
-        CutterRzListForeach (descs, it, RzIODesc, desc) {
-            QString URI = QString(desc->uri);
-            if (URI.contains("ptrace")) {
-                ptraceFiles += "o-" + QString::number(desc->fd) + ";";
-            }
-        }
-        // Use cmd because cmdRaw would not work with command concatenation
-        cmd("doc" + ptraceFiles);
+        rz_core_debug_process_close(core());
+        currentlyAttachedToPID = -1;
     }
 
     syncAndSeekProgramCounter();
@@ -2331,7 +2314,16 @@ void CutterCore::continueUntilSyscall()
             return;
         }
     } else {
-        if (!asyncCmd("dcs", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_cons_break_push(reinterpret_cast<RzConsBreak>(rz_debug_stop), core->dbg);
+                        rz_reg_arena_swap(core->dbg->reg, true);
+                        rz_debug_continue_syscalls(core->dbg, NULL, 0);
+                        rz_cons_break_pop();
+                        rz_core_dbg_follow_seek_register(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     }
@@ -2390,7 +2382,15 @@ void CutterCore::stepOverDebug()
             return;
         }
     } else {
-        if (!asyncCmd("dso", debugTask)) {
+        bool ret;
+        asyncTask(
+                [&](RzCore *core) {
+                    ret = rz_core_debug_step_over(core, 1);
+                    rz_core_dbg_follow_seek_register(core);
+                    return nullptr;
+                },
+                debugTask);
+        if (!ret) {
             return;
         }
     }
@@ -2413,7 +2413,15 @@ void CutterCore::stepOutDebug()
     }
 
     emit debugTaskStateChanged();
-    if (!asyncCmd("dsf", debugTask)) {
+    bool ret;
+    asyncTask(
+            [&](RzCore *core) {
+                ret = rz_core_debug_step_until_frame(core);
+                rz_core_dbg_follow_seek_register(core);
+                return nullptr;
+            },
+            debugTask);
+    if (!ret) {
         return;
     }
 
@@ -2438,7 +2446,15 @@ void CutterCore::stepBackDebug()
             return;
         }
     } else {
-        if (!asyncCmd("dsb", debugTask)) {
+        bool ret;
+        asyncTask(
+                [&](RzCore *core) {
+                    ret = rz_core_debug_step_back(core, 1);
+                    rz_core_dbg_follow_seek_register(core);
+                    return nullptr;
+                },
+                debugTask);
+        if (!ret) {
             return;
         }
     }
@@ -2457,11 +2473,11 @@ void CutterCore::stepBackDebug()
 QStringList CutterCore::getDebugPlugins()
 {
     QStringList plugins;
-
-    for (CutterJson pluginObject : cmdj("dLj")) {
-        QString plugin = pluginObject[RJsonKey::name].toString();
-
-        plugins << plugin;
+    RzListIter *iter;
+    RzDebugPlugin *plugin;
+    CORE_LOCK();
+    CutterRzListForeach (core->dbg->plugins, iter, RzDebugPlugin, plugin) {
+        plugins << plugin->name;
     }
     return plugins;
 }
@@ -2661,11 +2677,9 @@ void CutterCore::disableBreakpoint(RVA addr)
 
 void CutterCore::setBreakpointTrace(int index, bool enabled)
 {
-    if (enabled) {
-        cmdRaw(QString("dbite %1").arg(index));
-    } else {
-        cmdRaw(QString("dbitd %1").arg(index));
-    }
+    CORE_LOCK();
+    RzBreakpointItem *bpi = rz_bp_get_index(core->dbg->bp, index);
+    bpi->trace = enabled;
 }
 
 static BreakpointDescription breakpointDescriptionFromRizin(int index, rz_bp_item_t *bpi)
@@ -2744,11 +2758,6 @@ QList<RVA> CutterCore::getBreakpointsInFunction(RVA funcAddr)
 bool CutterCore::isBreakpoint(const QList<RVA> &breakpoints, RVA addr)
 {
     return breakpoints.contains(addr);
-}
-
-CutterJson CutterCore::getBacktrace()
-{
-    return cmdj("dbtj");
 }
 
 QList<ProcessDescription> CutterCore::getProcessThreads(int pid = -1)
@@ -4120,13 +4129,54 @@ QString CutterCore::getVersionInformation()
     return versionInfo;
 }
 
-QList<QString> CutterCore::getColorThemes()
+QStringList CutterCore::getColorThemes()
 {
-    QList<QString> r;
-    for (CutterJson s : cmdj("ecoj")) {
-        r << s.toString();
+    QStringList r;
+    CORE_LOCK();
+    RzList *themes_list = rz_core_theme_list(core);
+    RzListIter *it;
+    const char *th;
+    CutterRzListForeach (themes_list, it, const char, th) {
+        r << fromOwnedCharPtr(rz_str_trim_dup(th));
     }
+    rz_list_free(themes_list);
     return r;
+}
+
+QHash<QString, QColor> CutterCore::getTheme()
+{
+    QHash<QString, QColor> theme;
+    for (int i = 0;; ++i) {
+        const char *k = rz_cons_pal_get_name(i);
+        if (!k) {
+            break;
+        }
+        RzColor color = rz_cons_pal_get_i(i);
+        theme.insert(k, QColor(color.r, color.g, color.b));
+    }
+    return theme;
+}
+
+QStringList CutterCore::getThemeKeys()
+{
+    QStringList stringList;
+    for (int i = 0;; ++i) {
+        const char *k = rz_cons_pal_get_name(i);
+        if (!k) {
+            break;
+        }
+        stringList << k;
+    }
+    return stringList;
+}
+
+bool CutterCore::setColor(const QString &key, const QString &color)
+{
+    if (!rz_cons_pal_set(key.toUtf8().constData(), color.toUtf8().constData())) {
+        return false;
+    }
+    rz_cons_pal_update_event();
+    return true;
 }
 
 QString CutterCore::ansiEscapeToHtml(const QString &text)

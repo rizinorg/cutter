@@ -393,7 +393,10 @@ public:
     QString getConfig(const char *k);
     QString getConfig(const QString &k) { return getConfig(k.toUtf8().constData()); }
     QString getConfigDescription(const char *k);
-    QList<QString> getColorThemes();
+    QStringList getColorThemes();
+    QHash<QString, QColor> getTheme();
+    QStringList getThemeKeys();
+    bool setColor(const QString &key, const QString &color);
 
     /* Assembly\Hexdump related methods */
     QByteArray assemble(const QString &code);
@@ -449,7 +452,6 @@ public:
      * @return List of ProcessDescription
      */
     QList<ProcessDescription> getProcessThreads(int pid);
-    CutterJson getBacktrace();
     /**
      * @brief Get a list of heap chunks
      * Uses RZ_API rz_heap_chunks_list to get vector of chunks

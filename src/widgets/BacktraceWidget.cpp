@@ -44,27 +44,25 @@ void BacktraceWidget::updateContents()
 
 void BacktraceWidget::setBacktraceGrid()
 {
+    RzList *list = rz_core_debug_backtraces(Core()->core());
     int i = 0;
-    for (CutterJson backtraceItem : Core()->getBacktrace()) {
-        QString progCounter = RzAddressString(backtraceItem["pc"].toRVA());
-        QString stackPointer = RzAddressString(backtraceItem["sp"].toRVA());
-        st64 frameSize = backtraceItem["frame_size"].toSt64();
-        QString funcName = backtraceItem["fname"].toString();
-        QString desc = backtraceItem["desc"].toString();
+    RzListIter *iter;
+    RzBacktrace *bt;
+    CutterRzListForeach (list, iter, RzBacktrace, bt) {
+        QString funcName = bt->fcn ? bt->fcn->name : "";
+        QString pc = RzAddressString(bt->frame ? bt->frame->addr : 0);
+        QString sp = RzAddressString(bt->frame ? bt->frame->sp : 0);
+        QString frameSize = QString::number(bt->frame ? bt->frame->size : 0);
+        QString desc = bt->desc;
 
-        QStandardItem *rowPC = new QStandardItem(progCounter);
-        QStandardItem *rowSP = new QStandardItem(stackPointer);
-        QStandardItem *rowFrameSize = new QStandardItem(QString::number(frameSize));
-        QStandardItem *rowFuncName = new QStandardItem(funcName);
-        QStandardItem *rowDesc = new QStandardItem(desc);
-
-        modelBacktrace->setItem(i, 0, rowFuncName);
-        modelBacktrace->setItem(i, 1, rowSP);
-        modelBacktrace->setItem(i, 2, rowPC);
-        modelBacktrace->setItem(i, 3, rowDesc);
-        modelBacktrace->setItem(i, 4, rowFrameSize);
-        i++;
+        modelBacktrace->setItem(i, 0, new QStandardItem(funcName));
+        modelBacktrace->setItem(i, 1, new QStandardItem(sp));
+        modelBacktrace->setItem(i, 2, new QStandardItem(pc));
+        modelBacktrace->setItem(i, 3, new QStandardItem(desc));
+        modelBacktrace->setItem(i, 4, new QStandardItem(frameSize));
+        ++i;
     }
+    rz_list_free(list);
 
     // Remove irrelevant old rows
     if (modelBacktrace->rowCount() > i) {
