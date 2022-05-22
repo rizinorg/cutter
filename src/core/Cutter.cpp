@@ -2004,14 +2004,19 @@ void CutterCore::startEmulation()
     }
 
     // clear registers, init esil state, stack, progcounter at current seek
-    asyncCmd("aei; aeim; aeip", debugTask);
+    asyncTask(
+            [&](RzCore *core) {
+                rz_core_analysis_esil_reinit(core);
+                rz_core_analysis_esil_init_mem(core, NULL, UT64_MAX, UT32_MAX);
+                rz_core_analysis_esil_init_regs(core);
+                return nullptr;
+            },
+            debugTask);
 
     emit debugTaskStateChanged();
 
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
-        if (debugTaskDialog) {
-            delete debugTaskDialog;
-        }
+        delete debugTaskDialog;
         debugTask.clear();
 
         if (!currentlyDebugging || !currentlyEmulating) {
@@ -2233,7 +2238,13 @@ void CutterCore::continueBackDebug()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aecb", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_esil_continue_back(core);
+                        rz_core_reg_update_flags(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
@@ -2417,7 +2428,12 @@ void CutterCore::stepOverDebug()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aeso", debugTask)) {
+        if (!asyncTask(
+                    [&](RzCore *core) {
+                        rz_core_analysis_esil_step_over(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
@@ -2629,7 +2645,8 @@ void CutterCore::stopTraceSession()
 
 void CutterCore::toggleBreakpoint(RVA addr)
 {
-    cmdRaw(QString("dbs %1").arg(addr));
+    CORE_LOCK();
+    rz_core_debug_breakpoint_toggle(core, addr);
     emit breakpointsChanged(addr);
 }
 
