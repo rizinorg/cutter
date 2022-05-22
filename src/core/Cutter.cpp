@@ -802,7 +802,12 @@ void CutterCore::jmpReverse(RVA addr)
 
 void CutterCore::editBytes(RVA addr, const QString &bytes)
 {
-    cmdRawAt(QString("wx %1").arg(bytes), addr);
+    applyAtSeek(
+            [&]() {
+                CORE_LOCK();
+                rz_core_write_hexpair(core, core->offset, bytes.toUtf8().constData());
+            },
+            addr);
     emit instructionChanged(addr);
 }
 
