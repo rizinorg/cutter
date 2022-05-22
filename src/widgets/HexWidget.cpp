@@ -961,7 +961,8 @@ void HexWidget::w_writeCString()
     QString str = d.getText(this, tr("Write zero-terminated string"), tr("String:"),
                             QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        Core()->cmdRawAt(QString("wz %1").arg(str), getLocationAddress());
+        RzCoreLocked core(Core());
+        rz_core_write_string_zero_at(core, getLocationAddress(), str.toUtf8().constData());
         refresh();
     }
 }
