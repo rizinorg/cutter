@@ -37,9 +37,7 @@ ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject(parent)
         QDir().mkpath(customRzThemesLocationPath);
     }
 
-    QDir currDir {
-        QStringLiteral("%1%2%3").arg(rz_path_prefix(nullptr)).arg(RZ_SYS_DIR).arg(RZ_THEMES)
-    };
+    QDir currDir { QStringLiteral("%1%2%3").arg(rz_path_prefix(nullptr), RZ_SYS_DIR, RZ_THEMES) };
     if (currDir.exists()) {
         standardRzThemesLocationPath = currDir.absolutePath();
     } else {
@@ -78,27 +76,15 @@ QString ColorThemeWorker::copy(const QString &srcThemeName, const QString &copyT
     return save(getTheme(srcThemeName), copyThemeName);
 }
 
-QString ColorThemeWorker::save(const QJsonDocument &theme, const QString &themeName) const
+QString ColorThemeWorker::save(const Theme &theme, const QString &themeName) const
 {
     QFile fOut(QDir(customRzThemesLocationPath).filePath(themeName));
     if (!fOut.open(QFile::WriteOnly | QFile::Truncate)) {
         return tr("The file <b>%1</b> cannot be opened.").arg(QFileInfo(fOut).filePath());
     }
 
-    QJsonObject obj = theme.object();
-    for (auto it = obj.constBegin(); it != obj.constEnd(); it++) {
-
-        QJsonArray arr = it.value().toArray();
-        QColor color;
-        if (arr.isEmpty()) {
-            color = it.value().toVariant().value<QColor>();
-        } else if (arr.size() == 4) {
-            color = QColor(arr[0].toInt(), arr[1].toInt(), arr[2].toInt(), arr[3].toInt());
-        } else if (arr.size() == 3) {
-            color = QColor(arr[0].toInt(), arr[1].toInt(), arr[2].toInt());
-        } else {
-            continue;
-        }
+    for (auto it = theme.constBegin(); it != theme.constEnd(); it++) {
+        const QColor &color = it.value();
         if (cutterSpecificOptions.contains(it.key())) {
             fOut.write(QString("#~%1 rgb:%2\n")
                                .arg(it.key(), color.name(QColor::HexArgb).remove('#'))
@@ -125,37 +111,18 @@ bool ColorThemeWorker::isThemeExist(const QString &name) const
     return themes.contains(name);
 }
 
-QJsonDocument ColorThemeWorker::getTheme(const QString &themeName) const
+ColorThemeWorker::Theme ColorThemeWorker::getTheme(const QString &themeName) const
 {
-    int r, g, b, a;
-    CutterJson rzTheme;
-    QVariantMap theme;
+    Theme theme;
     QString curr = Config()->getColorTheme();
 
     if (themeName != curr) {
         RzCoreLocked core(Core());
         rz_core_theme_load(core, themeName.toUtf8().constData());
-        rzTheme = Core()->cmdj("ecj");
+        theme = Core()->getTheme();
         rz_core_theme_load(core, curr.toUtf8().constData());
     } else {
-        rzTheme = Core()->cmdj("ecj");
-    }
-
-    for (CutterJson value : rzTheme) {
-        QJsonArray arr;
-        int count = 0;
-        for (CutterJson element : value) {
-            arr.append(element.toSt64());
-            count++;
-            if (count >= 3) {
-                break;
-            }
-        }
-        while (count < 3) {
-            arr.append(0);
-        }
-        arr.append(255);
-        theme[value.key()] = arr;
+        theme = Core()->getTheme();
     }
 
     ColorFlags colorFlags = ColorFlags::DarkFlag;
@@ -164,14 +131,13 @@ QJsonDocument ColorThemeWorker::getTheme(const QString &themeName) const
     }
 
     for (auto &it : cutterSpecificOptions) {
-        Configuration::cutterOptionColors[it][colorFlags].getRgb(&r, &g, &b, &a);
-        theme.insert(it, QJsonArray { r, g, b, a });
+        theme.insert(it, QColor(Configuration::cutterOptionColors[it][colorFlags]));
     }
 
     if (isCustomTheme(themeName)) {
         QFile src(QDir(customRzThemesLocationPath).filePath(themeName));
         if (!src.open(QFile::ReadOnly)) {
-            return QJsonDocument();
+            return {};
         }
         QStringList sl;
         for (auto &line : QString(src.readAll()).split('\n', CUTTER_QT_SKIP_EMPTY_PARTS)) {
@@ -181,8 +147,7 @@ QJsonDocument ColorThemeWorker::getTheme(const QString &themeName) const
             if (sl.size() != 3 || sl[0][0] == '#') {
                 continue;
             }
-            QColor(sl[2]).getRgb(&r, &g, &b, &a);
-            theme.insert(sl[1], QJsonArray({ r, g, b, a }));
+            theme.insert(sl[1], QColor(sl[2]));
         }
     }
 
@@ -190,21 +155,7 @@ QJsonDocument ColorThemeWorker::getTheme(const QString &themeName) const
         theme.remove(key);
     }
 
-    // manualy converting instead of using QJsonObject::fromVariantMap because
-    // Qt < 5.6 QJsonValue.fromVariant doesn't expect QVariant to already contain
-    // QJson values like QJsonArray.
-    // https://github.com/qt/qtbase/commit/26237f0a2d8db80024b601f676bbce54d483e672
-    QJsonObject obj;
-    for (auto it = theme.begin(); it != theme.end(); it++) {
-        auto &value = it.value();
-        if (value.canConvert<QJsonArray>()) {
-            obj[it.key()] = it.value().value<QJsonArray>();
-        } else {
-            obj[it.key()] = QJsonValue::fromVariant(value);
-        }
-    }
-
-    return QJsonDocument(obj);
+    return theme;
 }
 
 QString ColorThemeWorker::deleteTheme(const QString &themeName) const
@@ -291,11 +242,10 @@ bool ColorThemeWorker::isFileTheme(const QString &filePath, bool *ok) const
 
     const QString colors = "black|red|white|green|magenta|yellow|cyan|blue|gray|none";
     QString options =
-            (Core()->cmdj("ecj").keys() << cutterSpecificOptions).join('|').replace(".", "\\.");
+            (Core()->getThemeKeys() << cutterSpecificOptions).join('|').replace(".", "\\.");
 
-    QString pattern = QString("((ec\\s+(%1)\\s+(((rgb:|#)[0-9a-fA-F]{3,8})|(%2))))\\s*")
-                              .arg(options)
-                              .arg(colors);
+    QString pattern =
+            QString("((ec\\s+(%1)\\s+(((rgb:|#)[0-9a-fA-F]{3,8})|(%2))))\\s*").arg(options, colors);
     // The below construct mimics the behaviour of QRegexP::exactMatch(), which was here before
     QRegularExpression regexp("\\A(?:" + pattern + ")\\z");
 
@@ -326,7 +276,7 @@ QStringList ColorThemeWorker::customThemes() const
 const QStringList &ColorThemeWorker::getRizinSpecificOptions()
 {
     if (rizinSpecificOptions.isEmpty()) {
-        rizinSpecificOptions = Core()->cmdj("ecj").keys();
+        rizinSpecificOptions << Core()->getThemeKeys();
     }
     return rizinSpecificOptions;
 }
