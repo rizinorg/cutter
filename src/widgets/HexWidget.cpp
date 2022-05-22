@@ -131,7 +131,8 @@ HexWidget::HexWidget(QWidget *parent)
     // delete comment option
     actionDeleteComment = new QAction(tr("Delete Comment"), this);
     actionDeleteComment->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    connect(actionDeleteComment, &QAction::triggered, this, &HexWidget::on_actionDeleteComment_triggered);
+    connect(actionDeleteComment, &QAction::triggered, this,
+            &HexWidget::on_actionDeleteComment_triggered);
     addAction(actionDeleteComment);
 
     actionSelectRange = new QAction(tr("Select range"), this);
@@ -931,7 +932,12 @@ void HexWidget::w_writePascalString()
     QString str =
             d.getText(this, tr("Write Pascal string"), tr("String:"), QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        Core()->cmdRawAt(QString("ws %1").arg(str), getLocationAddress());
+        Core()->applyAtSeek(
+                [&]() {
+                    RzCoreLocked core(Core());
+                    rz_core_write_length_string_at(core, core->offset, str.toUtf8().constData());
+                },
+                getLocationAddress());
         refresh();
     }
 }
