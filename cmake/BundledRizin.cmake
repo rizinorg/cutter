@@ -46,7 +46,7 @@ else()
     link_directories("${RIZIN_INSTALL_DIR}/lib")
 endif()
 
-# This version number should be fetched automatically
+# TODO: This version number should be fetched automatically
 # instead of being hardcoded.
 set (Rizin_VERSION 0.4)
 
