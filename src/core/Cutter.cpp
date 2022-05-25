@@ -3212,20 +3212,31 @@ QList<FlirtDescription> CutterCore::getSignaturesDB()
 QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
 {
     CORE_LOCK();
-    QList<CommentDescription> ret;
-
-    for (CutterJson commentObject : cmdj("CClj")) {
-        QString type = commentObject[RJsonKey::type].toString();
-        if (type != filterType)
+    QList<CommentDescription> qList;
+    RzIntervalTreeIter it;
+    void *pVoid;
+    RzAnalysisMetaItem *item;
+    rz_interval_tree_foreach(&core->analysis->meta, it, pVoid)
+    {
+        item = static_cast<RzAnalysisMetaItem *>(pVoid);
+        if (item->type != RZ_META_TYPE_COMMENT) {
             continue;
+        }
+        if (rz_spaces_current(&core->analysis->meta_spaces)
+            && rz_spaces_current(&core->analysis->meta_spaces) != item->space) {
+            continue;
+        }
+        if (filterType != rz_meta_type_to_string(item->type)) {
+            continue;
+        }
 
+        RzIntervalNode *node = rz_interval_tree_iter_get(&it);
         CommentDescription comment;
-        comment.offset = commentObject[RJsonKey::offset].toRVA();
-        comment.name = commentObject[RJsonKey::name].toString();
-
-        ret << comment;
+        comment.offset = node->start;
+        comment.name = fromOwnedCharPtr(rz_str_escape(item->str));
+        qList << comment;
     }
-    return ret;
+    return qList;
 }
 
 QList<RelocDescription> CutterCore::getAllRelocs()
