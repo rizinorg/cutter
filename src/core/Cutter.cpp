@@ -3394,21 +3394,33 @@ QList<SegmentDescription> CutterCore::getAllSegments()
 QList<EntrypointDescription> CutterCore::getAllEntrypoint()
 {
     CORE_LOCK();
-    QList<EntrypointDescription> ret;
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    bool va = core->io->va || core->bin->is_debugger;
+    ut64 baddr = rz_bin_get_baddr(core->bin);
+    ut64 laddr = rz_bin_get_laddr(core->bin);
 
-    for (CutterJson entrypointObject : cmdj("iej")) {
-        EntrypointDescription entrypoint;
+    QList<EntrypointDescription> qList;
+    const RzList *entries = rz_bin_object_get_entries(bf->o);
+    RzListIter *iter;
+    RzBinAddr *entry;
+    CutterRzListForeach (entries, iter, RzBinAddr, entry) {
+        if (entry->type != RZ_BIN_ENTRY_TYPE_PROGRAM) {
+            continue;
+        }
+        const char *type = rz_bin_entry_type_string(entry->type);
 
-        entrypoint.vaddr = entrypointObject[RJsonKey::vaddr].toRVA();
-        entrypoint.paddr = entrypointObject[RJsonKey::paddr].toRVA();
-        entrypoint.baddr = entrypointObject[RJsonKey::baddr].toRVA();
-        entrypoint.laddr = entrypointObject[RJsonKey::laddr].toRVA();
-        entrypoint.haddr = entrypointObject[RJsonKey::haddr].toRVA();
-        entrypoint.type = entrypointObject[RJsonKey::type].toString();
-
-        ret << entrypoint;
+        EntrypointDescription entrypointDescription;
+        entrypointDescription.vaddr =
+                va ? rz_bin_object_get_vaddr(bf->o, entry->paddr, entry->vaddr) : entry->paddr;
+        entrypointDescription.paddr = entry->paddr;
+        entrypointDescription.baddr = baddr;
+        entrypointDescription.laddr = laddr;
+        entrypointDescription.haddr = entry->hpaddr ? entry->hpaddr : UT64_MAX;
+        entrypointDescription.type = type ? type : "unknown";
+        qList << entrypointDescription;
     }
-    return ret;
+
+    return qList;
 }
 
 QList<BinClassDescription> CutterCore::getAllClassesFromBin()
