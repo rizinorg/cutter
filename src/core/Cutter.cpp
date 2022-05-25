@@ -1415,13 +1415,9 @@ CutterJson CutterCore::getFileVersionInfo()
     return cmdj("iVj");
 }
 
-QString CutterCore::getSignatureInfo()
+CutterJson CutterCore::getSignatureInfo()
 {
-    CORE_LOCK();
-    RzBinFile *cur = rz_bin_cur(core->bin);
-    RzBinPlugin *plg = rz_bin_file_cur_plugin(cur);
-    char *signature = plg->signature(cur, true);
-    return fromOwnedCharPtr(signature);
+    return cmdj("iCj");
 }
 
 // Utility function to check if a telescoped item exists and add it with prefixes to the desc

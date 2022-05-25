@@ -568,7 +568,7 @@ public:
 
     RVA getOffsetJump(RVA addr);
     CutterJson getFileInfo();
-    QString getSignatureInfo();
+    CutterJson getSignatureInfo();
     CutterJson getFileVersionInfo();
     void setGraphEmpty(bool empty);
     bool isGraphEmpty();
