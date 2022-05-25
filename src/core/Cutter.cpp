@@ -3216,14 +3216,14 @@ QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
     RzIntervalTreeIter it;
     void *pVoid;
     RzAnalysisMetaItem *item;
+    RzSpace *spaces = rz_spaces_current(&core->analysis->meta_spaces);
     rz_interval_tree_foreach(&core->analysis->meta, it, pVoid)
     {
         item = static_cast<RzAnalysisMetaItem *>(pVoid);
         if (item->type != RZ_META_TYPE_COMMENT) {
             continue;
         }
-        if (rz_spaces_current(&core->analysis->meta_spaces)
-            && rz_spaces_current(&core->analysis->meta_spaces) != item->space) {
+        if (spaces && spaces != item->space) {
             continue;
         }
         if (filterType != rz_meta_type_to_string(item->type)) {
