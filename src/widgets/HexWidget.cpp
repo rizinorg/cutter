@@ -899,20 +899,8 @@ void HexWidget::w_duplFromOffset()
     }
     RVA src = d.getOffset();
     int len = (int)d.getNBytes();
-
     RzCoreLocked core(Core());
-    auto *buf = (ut8 *)calloc(len, sizeof(ut8));
-    if (!buf) {
-        return;
-    }
-    int n = rz_io_nread_at(core->io, src, buf, len);
-    if (n < 0) {
-        free(buf);
-        return;
-    }
-    rz_core_write_at(core, getLocationAddress(), buf, n);
-    free(buf);
-
+    rz_core_write_duplicate_at(core, getLocationAddress(), src, len);
     refresh();
 }
 
