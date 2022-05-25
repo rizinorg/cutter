@@ -3105,9 +3105,27 @@ QList<ImportDescription> CutterCore::getAllImports()
     return qList;
 }
 
+static inline uint64_t rva(RzBinObject *o, uint64_t paddr, uint64_t vaddr, int va)
+{
+    return va ? rz_bin_object_get_vaddr(o, paddr, vaddr) : paddr;
+}
+
 QList<ExportDescription> CutterCore::getAllExports()
 {
     CORE_LOCK();
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    RzList *symbols = rz_bin_object_get_symbols(bf->o);
+    bool bin_demangle = getConfigb("bin.demangle");
+    QString lang = bin_demangle ? getConfig("bin.lang") : "";
+    bool va = core->io->va || core->bin->is_debugger;
+
+    RzBinSymbol *symbol;
+    RzListIter *iter;
+    CutterRzListForeach (symbols, iter, RzBinSymbol, symbol) {
+        ExportDescription exp;
+        exp.vaddr = rva(bf->o, symbol->paddr, symbol->vaddr, va);
+    }
+
     QList<ExportDescription> ret;
 
     for (CutterJson exportObject : cmdj("iEj")) {
