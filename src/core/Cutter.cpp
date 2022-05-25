@@ -3056,22 +3056,36 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
 QList<ImportDescription> CutterCore::getAllImports()
 {
     CORE_LOCK();
-    QList<ImportDescription> ret;
-
-    for (CutterJson importObject : cmdj("iij")) {
-        ImportDescription import;
-
-        import.plt = importObject[RJsonKey::plt].toRVA();
-        import.ordinal = importObject[RJsonKey::ordinal].toSt64();
-        import.bind = importObject[RJsonKey::bind].toString();
-        import.type = importObject[RJsonKey::type].toString();
-        import.libname = importObject[RJsonKey::libname].toString();
-        import.name = importObject[RJsonKey::name].toString();
-
-        ret << import;
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf) {
+        return {};
+    }
+    const RzList *imports = rz_bin_object_get_imports(bf->o);
+    if (!imports) {
+        return {};
     }
 
-    return ret;
+    QList<ImportDescription> qList;
+    RzBinImport *import;
+    RzListIter *iter;
+    bool va = core->io->va || core->bin->is_debugger;
+    CutterRzListForeach (imports, iter, RzBinImport, import) {
+        ImportDescription importDescription;
+
+        RzBinSymbol *sym = rz_bin_object_get_symbol_of_import(bf->o, import);
+        importDescription.plt = sym
+                ? (va ? rz_bin_object_get_vaddr(bf->o, sym->paddr, sym->vaddr) : sym->paddr)
+                : UT64_MAX;
+        importDescription.ordinal = (int)import->ordinal;
+        importDescription.bind = import->bind;
+        importDescription.type = import->type;
+        importDescription.libname = import->libname;
+        importDescription.name = import->name;
+
+        qList << importDescription;
+    }
+
+    return qList;
 }
 
 QList<ExportDescription> CutterCore::getAllExports()
