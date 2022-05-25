@@ -3065,18 +3065,39 @@ QList<ImportDescription> CutterCore::getAllImports()
     RzBinImport *import;
     RzListIter *iter;
     bool va = core->io->va || core->bin->is_debugger;
+    int bin_demangle = getConfigi("bin.demangle");
+    int keep_lib = getConfigi("bin.demangle.libs");
     CutterRzListForeach (imports, iter, RzBinImport, import) {
+        if (!import->name) {
+            continue;
+        }
+
         ImportDescription importDescription;
 
         RzBinSymbol *sym = rz_bin_object_get_symbol_of_import(bf->o, import);
-        importDescription.plt = sym
-                ? (va ? rz_bin_object_get_vaddr(bf->o, sym->paddr, sym->vaddr) : sym->paddr)
-                : UT64_MAX;
+        ut64 addr = sym ? (va ? rz_bin_object_get_vaddr(bf->o, sym->paddr, sym->vaddr) : sym->paddr)
+                        : UT64_MAX;
+        QString name { import->name };
+        if (RZ_STR_ISNOTEMPTY(import->name)) {
+            name = QString("%1.%2").arg(import->classname, import->name);
+        }
+        if (bin_demangle) {
+            char *dname = rz_bin_demangle(bf, NULL, name.toUtf8().constData(),
+                                          importDescription.plt, keep_lib);
+            if (dname) {
+                name = dname;
+            }
+        }
+        if (core->bin->prefix) {
+            name = QString("%1.%2").arg(core->bin->prefix, name);
+        }
+
         importDescription.ordinal = (int)import->ordinal;
         importDescription.bind = import->bind;
         importDescription.type = import->type;
         importDescription.libname = import->libname;
-        importDescription.name = import->name;
+        importDescription.name = name;
+        importDescription.plt = addr;
 
         qList << importDescription;
     }
