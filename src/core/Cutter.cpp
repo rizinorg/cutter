@@ -1415,9 +1415,13 @@ CutterJson CutterCore::getFileVersionInfo()
     return cmdj("iVj");
 }
 
-CutterJson CutterCore::getSignatureInfo()
+QString CutterCore::getSignatureInfo()
 {
-    return cmdj("iCj");
+    CORE_LOCK();
+    RzBinFile *cur = rz_bin_cur(core->bin);
+    RzBinPlugin *plg = rz_bin_file_cur_plugin(cur);
+    char *signature = plg->signature(cur, true);
+    return fromOwnedCharPtr(signature);
 }
 
 // Utility function to check if a telescoped item exists and add it with prefixes to the desc
@@ -3400,36 +3404,40 @@ QList<EntrypointDescription> CutterCore::getAllEntrypoint()
 QList<BinClassDescription> CutterCore::getAllClassesFromBin()
 {
     CORE_LOCK();
-    QList<BinClassDescription> ret;
-
-    for (CutterJson classObject : cmdj("icj")) {
-        BinClassDescription cls;
-
-        cls.name = classObject[RJsonKey::classname].toString();
-        cls.addr = classObject[RJsonKey::addr].toRVA();
-        cls.index = classObject[RJsonKey::index].toUt64();
-
-        for (CutterJson methObject : classObject[RJsonKey::methods]) {
-            BinClassMethodDescription meth;
-
-            meth.name = methObject[RJsonKey::name].toString();
-            meth.addr = methObject[RJsonKey::addr].toRVA();
-
-            cls.methods << meth;
-        }
-
-        for (CutterJson fieldObject : classObject[RJsonKey::fields]) {
-            BinClassFieldDescription field;
-
-            field.name = fieldObject[RJsonKey::name].toString();
-            field.addr = fieldObject[RJsonKey::addr].toRVA();
-
-            cls.fields << field;
-        }
-
-        ret << cls;
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf) {
+        return {};
     }
-    return ret;
+
+    const RzList *cs = rz_bin_object_get_classes(bf->o);
+    if (!cs) {
+        return {};
+    }
+
+    QList<BinClassDescription> qList;
+    RzListIter *iter, *iter2, *iter3;
+    RzBinClass *c;
+    RzBinSymbol *sym;
+    RzBinField *f;
+    CutterRzListForeach (cs, iter, RzBinClass, c) {
+        BinClassDescription classDescription;
+        classDescription.name = c->name;
+        classDescription.addr = c->addr;
+        classDescription.index = c->index;
+        CutterRzListForeach (c->methods, iter2, RzBinSymbol, sym) {
+            BinClassMethodDescription methodDescription;
+            methodDescription.name = sym->name;
+            methodDescription.addr = sym->vaddr;
+            classDescription.methods << methodDescription;
+        }
+        CutterRzListForeach (c->fields, iter3, RzBinField, f) {
+            BinClassFieldDescription fieldDescription;
+            fieldDescription.name = f->name;
+            fieldDescription.addr = f->vaddr;
+        }
+        qList << classDescription;
+    }
+    return qList;
 }
 
 QList<BinClassDescription> CutterCore::getAllClassesFromFlags()

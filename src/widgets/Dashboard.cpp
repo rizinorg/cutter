@@ -171,7 +171,7 @@ void Dashboard::on_certificateButton_clicked()
         viewDialog = new QDialog(this);
         view = new CutterTreeView(viewDialog);
         model = new JsonModel();
-        qstrCertificates = Core()->getSignatureInfo().toJson();
+        qstrCertificates = Core()->getSignatureInfo();
     }
     if (!viewDialog->isVisible()) {
         std::string strCertificates = qstrCertificates.toUtf8().constData();
