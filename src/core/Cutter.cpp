@@ -657,10 +657,7 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
 
     if (perms & RZ_PERM_W) {
         RzPVector *maps = rz_io_maps(core->io);
-        void **it;
-        rz_pvector_foreach(maps, it)
-        {
-            auto *map = static_cast<RzIOMap *>(*it);
+        for (auto map : CutterPVector<RzIOMap>(maps)) {
             map->perm |= RZ_PERM_W;
         }
     }

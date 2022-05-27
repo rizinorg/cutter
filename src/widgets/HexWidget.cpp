@@ -745,11 +745,14 @@ void HexWidget::w_writeString()
     bool ok = false;
     QString str = QInputDialog::getText(this, tr("Write string"), tr("String:"), QLineEdit::Normal,
                                         "", &ok);
-    if (ok && !str.isEmpty()) {
+    if (!ok || str.isEmpty()) {
+        return;
+    }
+    {
         RzCoreLocked core(Core());
         rz_core_write_string_at(core, getLocationAddress(), str.toUtf8().constData());
-        refresh();
     }
+    refresh();
 }
 
 void HexWidget::w_increaseDecrease()
@@ -767,8 +770,10 @@ void HexWidget::w_increaseDecrease()
     if (d.getMode() == IncrementDecrementDialog::Decrease) {
         value *= -1;
     }
-    RzCoreLocked core(Core());
-    rz_core_write_value_inc_at(core, getLocationAddress(), value, sz);
+    {
+        RzCoreLocked core(Core());
+        rz_core_write_value_inc_at(core, getLocationAddress(), value, sz);
+    }
     refresh();
 }
 
@@ -793,16 +798,18 @@ void HexWidget::w_writeBytes()
     if (!ok || !bytes_size) {
         return;
     }
-    auto *buf = (uint8_t *)malloc(static_cast<size_t>(bytes_size));
-    if (!buf) {
-        return;
+    {
+        auto *buf = (uint8_t *)malloc(static_cast<size_t>(bytes_size));
+        if (!buf) {
+            return;
+        }
+        for (int i = 0, j = 0, sz = bytes.size(); i < sz; i += incr, j++) {
+            buf[j] = static_cast<uint8_t>(bytes.mid(i + offset, 2).toInt(nullptr, 16));
+        }
+        RzCoreLocked core(Core());
+        rz_core_write_at(core, getLocationAddress(), buf, bytes_size);
+        free(buf);
     }
-    for (int i = 0, j = 0, sz = bytes.size(); i < sz; i += incr, j++) {
-        buf[j] = static_cast<uint8_t>(bytes.mid(i + offset, 2).toInt(nullptr, 16));
-    }
-    RzCoreLocked core(Core());
-    rz_core_write_at(core, getLocationAddress(), buf, bytes_size);
-    free(buf);
     refresh();
 }
 
@@ -823,13 +830,12 @@ void HexWidget::w_writeZeros()
     if (!ok) {
         return;
     }
-
-    RzCoreLocked core(Core());
-    auto *buf = (uint8_t *)calloc(len, sizeof(uint8_t));
-    rz_core_write_at(core, getLocationAddress(), buf, len);
-
-    free(buf);
-
+    {
+        RzCoreLocked core(Core());
+        auto *buf = (uint8_t *)calloc(len, sizeof(uint8_t));
+        rz_core_write_at(core, getLocationAddress(), buf, len);
+        free(buf);
+    }
     refresh();
 }
 
@@ -855,11 +861,13 @@ void HexWidget::w_write64()
         return;
     }
 
-    RzCoreLocked core(Core());
-    if (d.getMode() == Base64EnDecodedWriteDialog::Encode) {
-        rz_core_write_base64_at(core, getLocationAddress(), str.toHex().constData());
-    } else {
-        rz_core_write_base64d_at(core, getLocationAddress(), str.constData());
+    {
+        RzCoreLocked core(Core());
+        if (d.getMode() == Base64EnDecodedWriteDialog::Encode) {
+            rz_core_write_base64_at(core, getLocationAddress(), str.toHex().constData());
+        } else {
+            rz_core_write_base64d_at(core, getLocationAddress(), str.constData());
+        }
     }
     refresh();
 }
@@ -882,8 +890,10 @@ void HexWidget::w_writeRandom()
         return;
     }
 
-    RzCoreLocked core(Core());
-    rz_core_write_random_at(core, getLocationAddress(), nbytes);
+    {
+        RzCoreLocked core(Core());
+        rz_core_write_random_at(core, getLocationAddress(), nbytes);
+    }
     refresh();
 }
 
@@ -899,8 +909,10 @@ void HexWidget::w_duplFromOffset()
     }
     RVA src = d.getOffset();
     int len = (int)d.getNBytes();
-    RzCoreLocked core(Core());
-    rz_core_write_duplicate_at(core, getLocationAddress(), src, len);
+    {
+        RzCoreLocked core(Core());
+        rz_core_write_duplicate_at(core, getLocationAddress(), src, len);
+    }
     refresh();
 }
 
@@ -915,8 +927,10 @@ void HexWidget::w_writePascalString()
     if (!ok || str.isEmpty()) {
         return;
     }
-    RzCoreLocked core(Core());
-    rz_core_write_length_string_at(core, getLocationAddress(), str.toUtf8().constData());
+    {
+        RzCoreLocked core(Core());
+        rz_core_write_length_string_at(core, getLocationAddress(), str.toUtf8().constData());
+    }
     refresh();
 }
 
@@ -931,8 +945,10 @@ void HexWidget::w_writeWideString()
     if (!ok || str.isEmpty()) {
         return;
     }
-    RzCoreLocked core(Core());
-    rz_core_write_string_wide_at(core, getLocationAddress(), str.toUtf8().constData());
+    {
+        RzCoreLocked core(Core());
+        rz_core_write_string_wide_at(core, getLocationAddress(), str.toUtf8().constData());
+    }
     refresh();
 }
 
@@ -947,8 +963,10 @@ void HexWidget::w_writeCString()
     if (!ok || str.isEmpty()) {
         return;
     }
-    RzCoreLocked core(Core());
-    rz_core_write_string_zero_at(core, getLocationAddress(), str.toUtf8().constData());
+    {
+        RzCoreLocked core(Core());
+        rz_core_write_string_zero_at(core, getLocationAddress(), str.toUtf8().constData());
+    }
     refresh();
 }
 
