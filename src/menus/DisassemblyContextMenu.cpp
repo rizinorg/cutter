@@ -1014,8 +1014,18 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
 
         dialog.setStackSizeText(QString::number(fcn->stack));
 
-        QStringList callConList = Core()->cmdRaw("afcl").split("\n");
-        callConList.removeLast();
+        QStringList callConList;
+        RzList *list = rz_analysis_calling_conventions(core->analysis);
+        if (!list) {
+            return;
+        }
+        RzListIter *iter;
+        const char *cc;
+        CutterRzListForeach (list, iter, const char, cc) {
+            callConList << cc;
+        }
+        rz_list_free(list);
+
         dialog.setCallConList(callConList);
         dialog.setCallConSelected(fcn->cc);
 
@@ -1026,7 +1036,15 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
             fcn->addr = Core()->math(new_start_addr);
             QString new_stack_size = dialog.getStackSizeText();
             fcn->stack = int(Core()->math(new_stack_size));
-            Core()->cmdRaw("afc " + dialog.getCallConSelected());
+
+            const char *ccSelected = dialog.getCallConSelected().toUtf8().constData();
+            if (RZ_STR_ISEMPTY(ccSelected)) {
+                return;
+            }
+            if (rz_analysis_cc_exist(core->analysis, ccSelected)) {
+                fcn->cc = rz_str_constpool_get(&core->analysis->constpool, ccSelected);
+            }
+
             emit Core()->functionsChanged();
         }
     }

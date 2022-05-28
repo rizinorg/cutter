@@ -656,7 +656,10 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
     }
 
     if (perms & RZ_PERM_W) {
-        rz_core_cmd0(core, "omfg+w");
+        RzPVector *maps = rz_io_maps(core->io);
+        for (auto map : CutterPVector<RzIOMap>(maps)) {
+            map->perm |= RZ_PERM_W;
+        }
     }
 
     fflush(stdout);
@@ -802,7 +805,8 @@ void CutterCore::jmpReverse(RVA addr)
 
 void CutterCore::editBytes(RVA addr, const QString &bytes)
 {
-    cmdRawAt(QString("wx %1").arg(bytes), addr);
+    CORE_LOCK();
+    rz_core_write_hexpair(core, addr, bytes.toUtf8().constData());
     emit instructionChanged(addr);
 }
 
@@ -935,8 +939,9 @@ void CutterCore::setImmediateBase(const QString &rzBaseName, RVA offset)
     if (offset == RVA_INVALID) {
         offset = getOffset();
     }
-
-    this->cmdRawAt(QString("ahi %1").arg(rzBaseName), offset);
+    CORE_LOCK();
+    int base = (int)rz_num_base_of_string(core->num, rzBaseName.toUtf8().constData());
+    rz_analysis_hint_set_immbase(core->analysis, offset, base);
     emit instructionChanged(offset);
 }
 
@@ -946,7 +951,8 @@ void CutterCore::setCurrentBits(int bits, RVA offset)
         offset = getOffset();
     }
 
-    this->cmdRawAt(QString("ahb %1").arg(bits), offset);
+    CORE_LOCK();
+    rz_analysis_hint_set_bits(core->analysis, offset, bits);
     emit instructionChanged(offset);
 }
 
@@ -1950,7 +1956,7 @@ void CutterCore::startDebug()
     if (!asyncTask(
                 [](RzCore *core) {
                     rz_core_file_reopen_debug(core, "");
-                    return (void *)nullptr;
+                    return nullptr;
                 },
                 debugTask)) {
         return;
@@ -1991,14 +1997,19 @@ void CutterCore::startEmulation()
     }
 
     // clear registers, init esil state, stack, progcounter at current seek
-    asyncCmd("aei; aeim; aeip", debugTask);
+    asyncTask(
+            [&](RzCore *core) {
+                rz_core_analysis_esil_reinit(core);
+                rz_core_analysis_esil_init_mem(core, NULL, UT64_MAX, UT32_MAX);
+                rz_core_analysis_esil_init_regs(core);
+                return nullptr;
+            },
+            debugTask);
 
     emit debugTaskStateChanged();
 
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
-        if (debugTaskDialog) {
-            delete debugTaskDialog;
-        }
+        delete debugTaskDialog;
         debugTask.clear();
 
         if (!currentlyDebugging || !currentlyEmulating) {
@@ -2105,9 +2116,7 @@ void CutterCore::attachDebug(int pid)
     emit debugTaskStateChanged();
 
     connect(debugTask.data(), &RizinTask::finished, this, [this, pid]() {
-        if (debugTaskDialog) {
-            delete debugTaskDialog;
-        }
+        delete debugTaskDialog;
         debugTask.clear();
 
         syncAndSeekProgramCounter();
@@ -2184,14 +2193,20 @@ void CutterCore::continueDebug()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aec", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_esil_step(core, UT64_MAX, "0", NULL, false);
+                        rz_core_reg_update_flags(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
         if (!asyncTask(
                     [](RzCore *core) {
                         rz_debug_continue(core->dbg);
-                        return (void *)NULL;
+                        return nullptr;
                     },
                     debugTask)) {
             return;
@@ -2216,14 +2231,20 @@ void CutterCore::continueBackDebug()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aecb", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_esil_continue_back(core);
+                        rz_core_reg_update_flags(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
         if (!asyncTask(
                     [](RzCore *core) {
                         rz_debug_continue_back(core->dbg);
-                        return (void *)NULL;
+                        return nullptr;
                     },
                     debugTask)) {
             return;
@@ -2248,14 +2269,20 @@ void CutterCore::continueUntilDebug(ut64 offset)
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aecu " + QString::number(offset), debugTask)) {
+        if (!asyncTask(
+                    [=](RzCore *core) {
+                        rz_core_esil_step(core, offset, NULL, NULL, false);
+                        rz_core_reg_update_flags(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
         if (!asyncTask(
                     [=](RzCore *core) {
                         rz_core_debug_continue_until(core, offset, offset);
-                        return (void *)NULL;
+                        return nullptr;
                     },
                     debugTask)) {
             return;
@@ -2278,14 +2305,19 @@ void CutterCore::continueUntilCall()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aecc", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_analysis_continue_until_call(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
         if (!asyncTask(
                     [](RzCore *core) {
                         rz_core_debug_step_one(core, 0);
-                        return (void *)NULL;
+                        return nullptr;
                     },
                     debugTask)) {
             return;
@@ -2310,7 +2342,12 @@ void CutterCore::continueUntilSyscall()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aecs", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_analysis_continue_until_syscall(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
@@ -2346,14 +2383,20 @@ void CutterCore::stepDebug()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aes", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_esil_step(core, UT64_MAX, NULL, NULL, false);
+                        rz_core_reg_update_flags(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
         if (!asyncTask(
                     [](RzCore *core) {
                         rz_core_debug_step_one(core, 1);
-                        return (void *)NULL;
+                        return nullptr;
                     },
                     debugTask)) {
             return;
@@ -2378,7 +2421,12 @@ void CutterCore::stepOverDebug()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aeso", debugTask)) {
+        if (!asyncTask(
+                    [&](RzCore *core) {
+                        rz_core_analysis_esil_step_over(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
@@ -2442,7 +2490,13 @@ void CutterCore::stepBackDebug()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aesb", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_esil_step_back(core);
+                        rz_core_reg_update_flags(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
@@ -2499,7 +2553,12 @@ void CutterCore::startTraceSession()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aets+", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_analysis_esil_trace_start(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
@@ -2507,7 +2566,7 @@ void CutterCore::startTraceSession()
                     [](RzCore *core) {
                         core->dbg->session = rz_debug_session_new();
                         rz_debug_add_checkpoint(core->dbg);
-                        return (void *)NULL;
+                        return nullptr;
                     },
                     debugTask)) {
             return;
@@ -2516,9 +2575,7 @@ void CutterCore::startTraceSession()
     emit debugTaskStateChanged();
 
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
-        if (debugTaskDialog) {
-            delete debugTaskDialog;
-        }
+        delete debugTaskDialog;
         debugTask.clear();
 
         currentlyTracing = true;
@@ -2541,7 +2598,12 @@ void CutterCore::stopTraceSession()
     }
 
     if (currentlyEmulating) {
-        if (!asyncCmdEsil("aets-", debugTask)) {
+        if (!asyncTask(
+                    [](RzCore *core) {
+                        rz_core_analysis_esil_trace_stop(core);
+                        return nullptr;
+                    },
+                    debugTask)) {
             return;
         }
     } else {
@@ -2549,7 +2611,7 @@ void CutterCore::stopTraceSession()
                     [](RzCore *core) {
                         rz_debug_session_free(core->dbg->session);
                         core->dbg->session = NULL;
-                        return (void *)NULL;
+                        return nullptr;
                     },
                     debugTask)) {
             return;
@@ -2558,9 +2620,7 @@ void CutterCore::stopTraceSession()
     emit debugTaskStateChanged();
 
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
-        if (debugTaskDialog) {
-            delete debugTaskDialog;
-        }
+        delete debugTaskDialog;
         debugTask.clear();
 
         currentlyTracing = false;
@@ -2578,7 +2638,8 @@ void CutterCore::stopTraceSession()
 
 void CutterCore::toggleBreakpoint(RVA addr)
 {
-    cmdRaw(QString("dbs %1").arg(addr));
+    CORE_LOCK();
+    rz_core_debug_breakpoint_toggle(core, addr);
     emit breakpointsChanged(addr);
 }
 
@@ -3649,25 +3710,29 @@ QList<ResourcesDescription> CutterCore::getAllResources()
 QList<VTableDescription> CutterCore::getAllVTables()
 {
     CORE_LOCK();
-    QList<VTableDescription> vtables;
-
-    for (CutterJson vTableObject : cmdj("avj")) {
-        VTableDescription res;
-
-        res.addr = vTableObject[RJsonKey::offset].toRVA();
-
-        for (CutterJson methodObject : vTableObject[RJsonKey::methods]) {
-            BinClassMethodDescription method;
-
-            method.addr = methodObject[RJsonKey::offset].toRVA();
-            method.name = methodObject[RJsonKey::name].toString();
-
-            res.methods << method;
+    QList<VTableDescription> vtableDescs;
+    RVTableContext context;
+    rz_analysis_vtable_begin(core->analysis, &context);
+    RzList *vtables = rz_analysis_vtable_search(&context);
+    RzListIter *iter;
+    RVTableInfo *table;
+    RVTableMethodInfo *method;
+    CutterRzListForeach (vtables, iter, RVTableInfo, table) {
+        VTableDescription tableDesc;
+        tableDesc.addr = table->saddr;
+        CutterRzVectorForeach(&table->methods, method, RVTableMethodInfo)
+        {
+            BinClassMethodDescription methodDesc;
+            RzAnalysisFunction *fcn = rz_analysis_get_fcn_in(core->analysis, method->addr, 0);
+            const char *fname = fcn ? fcn->name : nullptr;
+            methodDesc.addr = method->addr;
+            methodDesc.name = fname ? fname : "No Name found";
+            tableDesc.methods << methodDesc;
         }
-
-        vtables << res;
+        vtableDescs << tableDesc;
     }
-    return vtables;
+    rz_list_free(vtables);
+    return vtableDescs;
 }
 
 QList<TypeDescription> CutterCore::getAllTypes()
@@ -4226,10 +4291,10 @@ void CutterCore::commitWriteCache()
     TempConfig tempConfig;
     tempConfig.set("io.cache", false);
     if (!isWriteModeEnabled()) {
-        cmdRaw("oo+");
+        rz_core_io_file_reopen(core, core->io->desc->fd, RZ_PERM_RW);
         rz_io_cache_commit(core->io, 0, UT64_MAX);
         rz_core_block_read(core);
-        cmdRaw("oo");
+        rz_core_io_file_open(core, core->io->desc->fd);
     } else {
         rz_io_cache_commit(core->io, 0, UT64_MAX);
         rz_core_block_read(core);
@@ -4252,17 +4317,22 @@ void CutterCore::setWriteMode(bool enabled)
         return;
     }
 
+    CORE_LOCK();
     // Change from read-only to write-mode
-    if (enabled && !writeModeState) {
-        cmdRaw("oo+");
-        // Change from write-mode to read-only
+    if (enabled) {
+        if (!writeModeState) {
+            rz_core_io_file_reopen(core, core->io->desc->fd, RZ_PERM_RW);
+        }
     } else {
-        cmdRaw("oo");
+        // Change from write-mode to read-only
+        rz_core_io_file_open(core, core->io->desc->fd);
     }
     // Disable cache mode because we specifically set write or
     // read-only modes.
-    setIOCache(false);
-    writeModeChanged(enabled);
+    if (this->iocache) {
+        setIOCache(false);
+    }
+    emit writeModeChanged(enabled);
     emit ioModeChanged();
 }
 
