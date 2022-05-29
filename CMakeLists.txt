@@ -14,7 +14,7 @@ option(CUTTER_USE_BUNDLED_RIZIN "Use rizin from ./rizin submodule instead of sea
 option(CUTTER_USE_ADDITIONAL_RIZIN_PATHS "Search rizin in additional paths which are not part of default system library paths.\
  Disable this option if you are linking against rizin pacakged as proper system library or in a custom path and additional are paths causing problems." ON)
 option(CUTTER_ENABLE_PYTHON "Enable Python integration. Requires Python >= ${CUTTER_PYTHON_MIN}." OFF)
-option(CUTTER_ENABLE_PYTHON_BINDINGS "Enable generating Python bindings with Shiboken2. Unused if CUTTER_ENABLE_PYTHON=OFF." OFF)
+option(CUTTER_ENABLE_PYTHON_BINDINGS "Enable generating Python bindings with Shiboken. Unused if CUTTER_ENABLE_PYTHON=OFF." OFF)
 option(CUTTER_APPIMAGE_BUILD "Enable Appimage specific changes. Doesn't cause building of Appimage itself." OFF)
 tri_option(CUTTER_ENABLE_KSYNTAXHIGHLIGHTING "Use KSyntaxHighlighting" AUTO)
 tri_option(CUTTER_ENABLE_GRAPHVIZ "Enable use of graphviz for graph layout" AUTO)
@@ -100,16 +100,29 @@ if(CUTTER_ENABLE_PYTHON)
     add_definitions(-DCUTTER_ENABLE_PYTHON)
 
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
-        # 5.12.3 => 5.12
-        if("${Qt5_VERSION}" MATCHES "^([0-9]+\\.[0-9]+)\\.[0-9]+")
-            set(Shiboken2_VERSION_REQUIRED "${CMAKE_MATCH_1}")
+        if (CUTTER_QT6)
+            # 6.12.3 => 6.12
+            if("${Qt6_VERSION}" MATCHES "^([0-9]+\\.[0-9]+)\\.[0-9]+")
+                set(Shiboken6_VERSION_REQUIRED "${CMAKE_MATCH_1}")
+            else()
+                message(FATAL_ERROR "Failed to recognize Qt version")
+            endif()
+            find_package(Shiboken6 "${Shiboken6_VERSION_REQUIRED}" REQUIRED)
+            find_package(Shiboken6Tools "${Shiboken6_VERSION_REQUIRED}" REQUIRED)
+            find_package(PySide6 "${Shiboken6_VERSION_REQUIRED}" REQUIRED)
+            get_target_property(PYSIDE_INCLUDE_DIR PySide6::pyside6 INTERFACE_INCLUDE_DIRECTORIES)
         else()
-            message(FATAL_ERROR "Failed to recognize Qt version")
+            # 5.12.3 => 5.12
+            if("${Qt5_VERSION}" MATCHES "^([0-9]+\\.[0-9]+)\\.[0-9]+")
+                set(Shiboken2_VERSION_REQUIRED "${CMAKE_MATCH_1}")
+            else()
+                message(FATAL_ERROR "Failed to recognize Qt version")
+            endif()
+            find_package(Shiboken2 "${Shiboken2_VERSION_REQUIRED}" REQUIRED)
+            find_package(PySide2 "${Shiboken2_VERSION_REQUIRED}" REQUIRED)
+            get_target_property(PYSIDE_INCLUDE_DIR PySide2::pyside2 INTERFACE_INCLUDE_DIRECTORIES)
         endif()
-        find_package(Shiboken2 "${Shiboken2_VERSION_REQUIRED}" REQUIRED)
-        find_package(PySide2 "${Shiboken2_VERSION_REQUIRED}" REQUIRED)
 
-        get_target_property(PYSIDE_INCLUDE_DIR PySide2::pyside2 INTERFACE_INCLUDE_DIRECTORIES)
         list(GET PYSIDE_INCLUDE_DIR 0 PYSIDE_INCLUDE_DIR)
         include_directories(${PYSIDE_INCLUDE_DIR}
             ${PYSIDE_INCLUDE_DIR}/QtCore
