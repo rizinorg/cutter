@@ -408,8 +408,14 @@ if(CUTTER_ENABLE_PYTHON_BINDINGS)
         list(APPEND SHIBOKEN_OPTIONS --avoid-protected-hack)
     endif()
 
+    if (CUTTER_QT6)
+        set(SHIBOKEN_COMMAND Shiboken6::shiboken6)
+    else()
+        set(SHIBOKEN_COMMAND Shiboken2::shiboken2)
+    endif()
+
     add_custom_command(OUTPUT ${BINDINGS_SOURCE}
-            COMMAND Shiboken2::shiboken2 --project-file="${BINDINGS_BUILD_DIR}/bindings.txt" ${SHIBOKEN_OPTIONS} ${SHIBOKEN_EXTRA_OPTIONS}
+            COMMAND "${SHIBOKEN_COMMAND}" --project-file="${BINDINGS_BUILD_DIR}/bindings.txt" ${SHIBOKEN_OPTIONS} ${SHIBOKEN_EXTRA_OPTIONS}
             DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.xml" "${BINDINGS_BUILD_DIR}/bindings.txt"
             IMPLICIT_DEPENDS CXX "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.h"
             COMMENT "Generating Python bindings with shiboken2")
@@ -487,7 +493,11 @@ if(CUTTER_ENABLE_PYTHON)
     endif()
     target_link_libraries(Cutter PRIVATE ${PYTHON_LIBRARIES})
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
-        target_link_libraries(Cutter PRIVATE Shiboken2::libshiboken PySide2::pyside2)
+        if (CUTTER_QT6)
+            target_link_libraries(Cutter PRIVATE Shiboken6::libshiboken PySide6::pyside6)
+        else()
+            target_link_libraries(Cutter PRIVATE Shiboken2::libshiboken PySide2::pyside2)
+        endif()
 
         get_target_property(RAW_BINDINGS_INCLUDE_DIRS Cutter INCLUDE_DIRECTORIES)
         if(NOT CUTTER_USE_BUNDLED_RIZIN)

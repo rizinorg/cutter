@@ -247,7 +247,7 @@ Note that there are some major building options available:
 
 * ``CUTTER_USE_BUNDLED_RIZIN`` automatically compile Rizin from submodule (Enabled by default).
 * ``CUTTER_ENABLE_PYTHON`` compile with Python support.
-* ``CUTTER_ENABLE_PYTHON_BINDINGS`` automatically generate Python Bindings with Shiboken2, required for Python plugins!
+* ``CUTTER_ENABLE_PYTHON_BINDINGS`` automatically generate Python Bindings with Shiboken, required for Python plugins!
 * ``CUTTER_ENABLE_KSYNTAXHIGHLIGHTING`` use KSyntaxHighlighting for code highlighting.
 * ``CUTTER_ENABLE_GRAPHVIZ`` enable Graphviz for graph layouts.
 * ``CUTTER_EXTRA_PLUGIN_DIRS`` List of addition plugin locations. Useful when preparing package for Linux distros that have strict package layout rules.
