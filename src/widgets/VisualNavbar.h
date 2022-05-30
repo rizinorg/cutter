@@ -6,6 +6,10 @@
 
 #include "core/Cutter.h"
 
+#include <rz_core.h>
+
+#include <memory>
+
 class MainWindow;
 class QGraphicsView;
 
@@ -43,7 +47,7 @@ private:
     QGraphicsRectItem *PCGraphicsItem;
     MainWindow *main;
 
-    BlockStatistics stats;
+    std::unique_ptr<RzCoreAnalysisStats, decltype(&rz_core_analysis_stats_free)> stats;
     unsigned int statsWidth = 0;
     unsigned int previousWidth = 0;
 

@@ -3857,60 +3857,6 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, QString spa
     return searchRef;
 }
 
-BlockStatistics CutterCore::getBlockStatistics(unsigned int blocksCount)
-{
-    BlockStatistics blockStats;
-    if (blocksCount == 0) {
-        blockStats.from = blockStats.to = blockStats.blocksize = 0;
-        return blockStats;
-    }
-
-    CutterJson statsObj;
-
-    // User TempConfig here to set the search boundaries to all sections. This makes sure
-    // that the Visual Navbar will show all the relevant addresses.
-    {
-        TempConfig tempConfig;
-        tempConfig.set("search.in", "bin.sections");
-        statsObj = cmdj("p-j " + QString::number(blocksCount));
-    }
-
-    blockStats.from = statsObj[RJsonKey::from].toRVA();
-    blockStats.to = statsObj[RJsonKey::to].toRVA();
-    blockStats.blocksize = statsObj[RJsonKey::blocksize].toRVA();
-
-    for (CutterJson blockObj : statsObj[RJsonKey::blocks]) {
-        BlockDescription block;
-
-        block.addr = blockObj[RJsonKey::offset].toRVA();
-        block.size = blockObj[RJsonKey::size].toRVA();
-        block.flags = blockObj[RJsonKey::flags].toSt64();
-        block.functions = blockObj[RJsonKey::functions].toSt64();
-        block.inFunctions = blockObj[RJsonKey::in_functions].toSt64();
-        block.comments = blockObj[RJsonKey::comments].toSt64();
-        block.symbols = blockObj[RJsonKey::symbols].toSt64();
-        block.strings = blockObj[RJsonKey::strings].toSt64();
-
-        block.rwx = 0;
-        QString rwxStr = blockObj[RJsonKey::rwx].toString();
-        if (rwxStr.length() == 3) {
-            if (rwxStr[0] == 'r') {
-                block.rwx |= (1 << 0);
-            }
-            if (rwxStr[1] == 'w') {
-                block.rwx |= (1 << 1);
-            }
-            if (rwxStr[2] == 'x') {
-                block.rwx |= (1 << 2);
-            }
-        }
-
-        blockStats.blocks << block;
-    }
-
-    return blockStats;
-}
-
 QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, bool findWrites,
                                                        RVA offset)
 {
