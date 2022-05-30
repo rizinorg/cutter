@@ -33,7 +33,6 @@ private slots:
 private:
     std::unique_ptr<Ui::Dashboard> ui;
     void setPlainText(QLineEdit *textBox, const QString &text);
-    void setBool(QLineEdit *textBox, const CutterJson &jsonObject, const char *key);
     void setRzBinInfo(RzBinInfo *binInfo);
     const char *setBoolText(bool value);
 

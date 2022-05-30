@@ -52,23 +52,23 @@ void Dashboard::updateContents()
     RzBinFile *bf = rz_bin_cur(core->bin);
     RzBinInfo *binInfo = rz_bin_get_info(core->bin);
 
-    setPlainText(this->ui->fileEdit, binInfo->file);
-    setPlainText(this->ui->formatEdit, binInfo->rclass);
-    setPlainText(this->ui->typeEdit, binInfo->type);
-    setPlainText(this->ui->archEdit, binInfo->arch);
-    setPlainText(this->ui->langEdit, binInfo->lang);
-    setPlainText(this->ui->classEdit, binInfo->bclass);
-    setPlainText(this->ui->machineEdit, binInfo->machine);
-    setPlainText(this->ui->osEdit, binInfo->os);
-    setPlainText(this->ui->subsysEdit, binInfo->subsystem);
-    setPlainText(this->ui->compilerEdit, binInfo->compiler);
-    setPlainText(this->ui->bitsEdit, QString::number(binInfo->bits));
-    setPlainText(this->ui->baddrEdit, RzAddressString(rz_bin_file_get_baddr(bf)));
-    setPlainText(this->ui->sizeEdit, qhelpers::formatBytecount(bf->size));
-    setPlainText(this->ui->fdEdit, QString::number(bf->fd));
+    setPlainText(ui->fileEdit, binInfo ? binInfo->file : "");
+    setPlainText(ui->formatEdit, binInfo ? binInfo->rclass : "");
+    setPlainText(ui->typeEdit, binInfo ? binInfo->type : "");
+    setPlainText(ui->archEdit, binInfo ? binInfo->arch : "");
+    setPlainText(ui->langEdit, binInfo ? binInfo->lang : "");
+    setPlainText(ui->classEdit, binInfo ? binInfo->bclass : "");
+    setPlainText(ui->machineEdit, binInfo ? binInfo->machine : "");
+    setPlainText(ui->osEdit, binInfo ? binInfo->os : "");
+    setPlainText(ui->subsysEdit, binInfo ? binInfo->subsystem : "");
+    setPlainText(ui->compilerEdit, binInfo ? binInfo->compiler : "");
+    setPlainText(ui->bitsEdit, binInfo ? QString::number(binInfo->bits) : "");
+    setPlainText(ui->baddrEdit, binInfo ? RzAddressString(rz_bin_file_get_baddr(bf)) : "");
+    setPlainText(ui->sizeEdit, binInfo ? qhelpers::formatBytecount(bf->size) : "");
+    setPlainText(ui->fdEdit, binInfo ? QString::number(bf->fd) : "");
 
     // Setting the value of "Endianness"
-    const char *endian = binInfo->big_endian ? "BE" : "LE";
+    const char *endian = binInfo ? (binInfo->big_endian ? "BE" : "LE") : "";
     setPlainText(this->ui->endianEdit, endian);
 
     // Setting boolean values
@@ -223,47 +223,19 @@ void Dashboard::setPlainText(QLineEdit *textBox, const QString &text)
 }
 
 /**
- * @brief Set the text of a QLineEdit as True, False or N/A if it does not exist
- * @param textBox
- * @param isTrue
- */
-void Dashboard::setBool(QLineEdit *textBox, const CutterJson &jsonObject, const char *key)
-{
-    if (jsonObject[key].valid()) {
-        if (jsonObject[key].toBool()) {
-            setPlainText(textBox, tr("True"));
-        } else {
-            setPlainText(textBox, tr("False"));
-        }
-    } else {
-        setPlainText(textBox, tr("N/A"));
-    }
-}
-
-/**
  * @brief Setting boolean values of binary information in dashboard
  * @param RzBinInfo
  */
 void Dashboard::setRzBinInfo(RzBinInfo *binInfo)
 {
-    int nx = binInfo->has_nx;
-    int pic = binInfo->has_pi;
-    int va = binInfo->has_va;
-    int canary = binInfo->has_canary;
-    int crypto = binInfo->has_crypto;
-
-    // Setting text
-    setPlainText(ui->vaEdit, tr(setBoolText(va)));
-    setPlainText(ui->canaryEdit, tr(setBoolText(canary)));
-    setPlainText(ui->cryptoEdit, tr(setBoolText(crypto)));
-    setPlainText(ui->nxEdit, tr(setBoolText(nx)));
-    setPlainText(ui->picEdit, tr(setBoolText(pic)));
-
-    // Setting the value of "relocs" and "stripped"
-    bool relocs_value = RZ_BIN_DBG_RELOCS & binInfo->dbg_info;
-    bool stripped_value = RZ_BIN_DBG_STRIPPED & binInfo->dbg_info;
-    setPlainText(this->ui->strippedEdit, setBoolText(stripped_value));
-    setPlainText(this->ui->relocsEdit, setBoolText(relocs_value));
+    setPlainText(ui->vaEdit, binInfo ? setBoolText(binInfo->has_va) : "");
+    setPlainText(ui->canaryEdit, binInfo ? setBoolText(binInfo->has_canary) : "");
+    setPlainText(ui->cryptoEdit, binInfo ? setBoolText(binInfo->has_crypto) : "");
+    setPlainText(ui->nxEdit, binInfo ? setBoolText(binInfo->has_nx) : "");
+    setPlainText(ui->picEdit, binInfo ? setBoolText(binInfo->has_pi) : "");
+    setPlainText(ui->strippedEdit,
+                 binInfo ? setBoolText(RZ_BIN_DBG_STRIPPED & binInfo->dbg_info) : "");
+    setPlainText(ui->relocsEdit, binInfo ? setBoolText(RZ_BIN_DBG_RELOCS & binInfo->dbg_info) : "");
 }
 
 /**
