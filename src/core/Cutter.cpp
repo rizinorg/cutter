@@ -542,10 +542,7 @@ CutterJson CutterCore::cmdjTask(const QString &str)
     RizinCmdTask task(str);
     task.startTask();
     task.joinTask();
-    const char *res = task.getResultRaw();
-    char *copy = static_cast<char *>(rz_mem_alloc(strlen(res) + 1));
-    strcpy(copy, res);
-    return parseJson(copy, str);
+    return task.getResultJson();
 }
 
 CutterJson CutterCore::parseJson(char *res, const char *cmd)
