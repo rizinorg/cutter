@@ -21,7 +21,8 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent)
       graphicsView(new QGraphicsView),
       seekGraphicsItem(nullptr),
       PCGraphicsItem(nullptr),
-      main(main)
+      main(main),
+      stats(nullptr, rz_core_analysis_stats_free)
 {
     Q_UNUSED(parent);
 
@@ -114,7 +115,34 @@ void VisualNavbar::fetchAndPaintData()
 
 void VisualNavbar::fetchStats()
 {
-    stats = Core()->getBlockStatistics(statsWidth);
+    static const ut64 blocksCount = 2048;
+
+    RzCoreLocked core(Core());
+    stats.reset(nullptr);
+    RzList *list = rz_core_get_boundaries_prot(core, -1, NULL, "search");
+    if (!list) {
+        return;
+    }
+    RzListIter *iter;
+    RzIOMap *map;
+    ut64 from = UT64_MAX;
+    ut64 to = 0;
+    CutterRzListForeach (list, iter, RzIOMap, map) {
+        ut64 f = rz_itv_begin(map->itv);
+        ut64 t = rz_itv_end(map->itv);
+        if (f < from) {
+            from = f;
+        }
+        if (t > to) {
+            to = t;
+        }
+    }
+    rz_list_free(list);
+    to--; // rz_core_analysis_get_stats takes inclusive ranges
+    if (to < from) {
+        return;
+    }
+    stats.reset(rz_core_analysis_get_stats(core, from, to, RZ_MAX(1, (to + 1 - from) / blocksCount)));
 }
 
 enum class DataType : int { Empty, Code, String, Symbol, Count };
@@ -127,17 +155,18 @@ void VisualNavbar::updateGraphicsScene()
     PCGraphicsItem = nullptr;
     graphicsScene->setBackgroundBrush(QBrush(Config()->getColor("gui.navbar.empty")));
 
-    if (stats.to <= stats.from) {
+    if (!stats) {
         return;
     }
 
     int w = graphicsView->width();
     int h = graphicsView->height();
 
-    RVA totalSize = stats.to - stats.from;
-    RVA beginAddr = stats.from;
+    RVA totalSize = stats->to - stats->from + 1;
+    RVA beginAddr = stats->from;
 
-    double widthPerByte = (double)w / (double)totalSize;
+    double widthPerByte = (double)w
+            / (double)(totalSize ? totalSize : pow(2.0, 64.0)); // account for overflow on 2^64
     auto xFromAddr = [widthPerByte, beginAddr](RVA addr) -> double {
         return (addr - beginAddr) * widthPerByte;
     };
@@ -153,24 +182,28 @@ void VisualNavbar::updateGraphicsScene()
     DataType lastDataType = DataType::Empty;
     QGraphicsRectItem *dataItem = nullptr;
     QRectF dataItemRect(0.0, 0.0, 0.0, h);
-    for (const BlockDescription &block : stats.blocks) {
+    for (size_t i = 0; i < rz_vector_len(&stats->blocks); i++) {
+        RzCoreAnalysisStatsItem *block =
+                reinterpret_cast<RzCoreAnalysisStatsItem *>(rz_vector_index_ptr(&stats->blocks, i));
+        ut64 from = rz_core_analysis_stats_get_block_from(stats.get(), i);
+        ut64 to = rz_core_analysis_stats_get_block_to(stats.get(), i) + 1;
         // Keep track of where which memory segment is mapped so we are able to convert from
         // address to X coordinate and vice versa.
         XToAddress x2a;
-        x2a.x_start = xFromAddr(block.addr);
-        x2a.x_end = xFromAddr(block.addr + block.size);
-        x2a.address_from = block.addr;
-        x2a.address_to = block.addr + block.size;
+        x2a.x_start = xFromAddr(from);
+        x2a.x_end = xFromAddr(to);
+        x2a.address_from = from;
+        x2a.address_to = to;
         xToAddress.append(x2a);
 
         DataType dataType;
-        if (block.functions > 0) {
+        if (block->functions) {
             dataType = DataType::Code;
-        } else if (block.strings > 0) {
+        } else if (block->strings) {
             dataType = DataType::String;
-        } else if (block.symbols > 0) {
+        } else if (block->symbols) {
             dataType = DataType::Symbol;
-        } else if (block.inFunctions > 0) {
+        } else if (block->in_functions) {
             dataType = DataType::Code;
         } else {
             lastDataType = DataType::Empty;
@@ -178,7 +211,7 @@ void VisualNavbar::updateGraphicsScene()
         }
 
         if (dataType == lastDataType) {
-            double r = xFromAddr(block.addr + block.size);
+            double r = xFromAddr(to);
             if (r > dataItemRect.right()) {
                 dataItemRect.setRight(r);
                 dataItem->setRect(dataItemRect);
@@ -187,8 +220,8 @@ void VisualNavbar::updateGraphicsScene()
             continue;
         }
 
-        dataItemRect.setX(xFromAddr(block.addr));
-        dataItemRect.setRight(xFromAddr(block.addr + block.size));
+        dataItemRect.setX(xFromAddr(from));
+        dataItemRect.setRight(xFromAddr(to));
 
         dataItem = new QGraphicsRectItem();
         dataItem->setPen(Qt::NoPen);
