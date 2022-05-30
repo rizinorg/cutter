@@ -658,7 +658,6 @@ public:
 
     QList<MemoryMapDescription> getMemoryMap();
     QList<SearchDescription> getAllSearch(QString searchFor, QString space, QString in);
-    BlockStatistics getBlockStatistics(unsigned int blocksCount);
     QList<BreakpointDescription> getBreakpoints();
     QList<ProcessDescription> getAllProcesses();
     /**
