@@ -875,7 +875,7 @@ void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
         return;
     }
 
-    EditVariablesDialog dialog(fcn->addr, curHighlightedWord, this);
+    EditVariablesDialog dialog(fcn->addr, curHighlightedWord, this->mainWindow);
     if (dialog.empty()) { // don't show the dialog if there are no variables
         return;
     }
