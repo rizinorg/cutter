@@ -28,8 +28,8 @@ void TestHexdumpWidget::toUpper()
 
 void TestHexdumpWidget::something()
 {
-    QString a = Core()->cmd("fo");
-    qDebug() << "r2 returned:" <<  a;
+    QString a = Core()->cmd("fortune");
+    qDebug() << "rz returned:" <<  a;
 }
 
 DECLARE_TEST(TestHexdumpWidget)
