@@ -27,6 +27,7 @@ option(CUTTER_PACKAGE_DEPENDENCIES "During install step include the third party 
 option(CUTTER_PACKAGE_RZ_GHIDRA "Compile and install rz-ghidra during install step." OFF)
 option(CUTTER_PACKAGE_RZ_LIBSWIFT, "Compile and install rz-libswift demangler during the install step." OFF)
 option(CUTTER_PACKAGE_JSDEC "Compile and install jsdec during install step." OFF)
+option(CUTTER_ENABLE_TESTS "Build QtTest tests" OFF)
 OPTION(CUTTER_QT6 "Use QT6" OFF)
 
 if(NOT CUTTER_ENABLE_PYTHON)
@@ -134,4 +135,8 @@ add_subdirectory(src)
 
 if(CUTTER_ENABLE_PACKAGING)
 	add_subdirectory(dist)
+endif()
+
+if(CUTTER_ENABLE_TESTS)
+    add_subdirectory(test)
 endif()
