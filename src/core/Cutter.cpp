@@ -188,6 +188,15 @@ CutterCore *CutterCore::instance()
 
 void CutterCore::initialize(bool loadPlugins)
 {
+#if defined(MACOS_RZ_BUNDLED)
+    auto app_path = QDir(QCoreApplication::applicationDirPath());
+    app_path.cdUp();
+    app_path.cd("Resources");
+    qInfo() << "Setting Rizin prefix =" << app_path.absolutePath()
+            << " for macOS Application Bundle.";
+    rz_path_set_prefix(app_path.absolutePath().toUtf8().constData());
+#endif
+
     rz_cons_new(); // initialize console
     core_ = rz_core_new();
     rz_core_task_sync_begin(&core_->tasks);
@@ -195,26 +204,6 @@ void CutterCore::initialize(bool loadPlugins)
     CORE_LOCK();
 
     rz_event_hook(core_->analysis->ev, RZ_EVENT_ALL, cutterREventCallback, this);
-
-    char *prefix = rz_path_prefix(nullptr);
-    qInfo() << "Cutter prefix: " << prefix;
-    free(prefix);
-
-    prefix = rz_path_prefix(RZ_PLUGINS);
-    qInfo() << "- RZ_PLUGINS: " << prefix;
-    free(prefix);
-    prefix = rz_path_prefix(RZ_DATADIR);
-    qInfo() << "- RZ_DATADIR: " << prefix;
-    free(prefix);
-    prefix = rz_path_prefix(RZ_SIGDB);
-    qInfo() << "- RZ_SIGDB:   " << prefix;
-    free(prefix);
-    prefix = rz_path_prefix(RZ_THEMES);
-    qInfo() << "- RZ_THEMES:  " << prefix;
-    free(prefix);
-    prefix = rz_path_prefix(RZ_THEMES);
-    qInfo() << "- RZ_THEMES:  " << prefix;
-    free(prefix);
 
     if (loadPlugins) {
         setConfig("cfg.plugins", true);
