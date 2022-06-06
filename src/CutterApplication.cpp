@@ -177,11 +177,11 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     {
         auto rzprefix = QDir(QCoreApplication::applicationDirPath()); // Contents/MacOS
         rzprefix.cdUp(); // Contents
-        rzprefix.cd("Resources"); // Contents/Resources/rz
+        rzprefix.cd("Resources"); // Contents/Resources/
 
         auto sleighHome = rzprefix;
         sleighHome.cd(
-                "share/rizin/plugins/rz_ghidra_sleigh"); // Contents/Resources/rz/share/rizin/plugins/rz_ghidra_sleigh
+                "lib/rizin/plugins/rz_ghidra_sleigh"); // Contents/Resources/lib/rizin/plugins/rz_ghidra_sleigh
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
     }
 #endif

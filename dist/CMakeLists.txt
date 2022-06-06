@@ -92,7 +92,7 @@ if(APPLE)
 
 	get_filename_component(QT_PREFIX "${MACDEPLOYQT_PATH}/../.." ABSOLUTE)
 	list(APPEND RZ_GHIDRA_PREFIX_PATH "${QT_PREFIX}")
-	set(RIZIN_INSTALL_PLUGDIR "share/rizin/plugins") # escaped backslash on purpose, should be evaluated later
+	set(RIZIN_INSTALL_PLUGDIR "lib/rizin/plugins") # escaped backslash on purpose, should be evaluated later
 
 	if (CUTTER_PACKAGE_JSDEC AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
 		install(CODE "
@@ -139,11 +139,7 @@ if(CUTTER_PACKAGE_RZ_GHIDRA)
 			INSTALL_COMMAND ""
 		)
 	endif()
-	if (WIN32)
-		set (GHIDRA_OPTIONS "
-			\"-DRIZIN_INSTALL_PLUGDIR=\${CMAKE_INSTALL_PREFIX}/${RIZIN_INSTALL_PLUGDIR}\"
-			-DCUTTER_INSTALL_PLUGDIR=plugins/native")
-	elseif (APPLE)
+	if (WIN32 OR APPLE)
 		set (GHIDRA_OPTIONS "
 			\"-DRIZIN_INSTALL_PLUGDIR=\${CMAKE_INSTALL_PREFIX}/${RIZIN_INSTALL_PLUGDIR}\"
 			-DCUTTER_INSTALL_PLUGDIR=plugins/native")
