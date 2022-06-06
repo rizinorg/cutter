@@ -274,6 +274,8 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             return QVariant(ConfigColor("gui.imports"));
         } else if (functionIsMain(function.offset)) {
             return QVariant(ConfigColor("gui.main"));
+        } else if (function.name.startsWith("flirt.")) {
+            return QVariant(ConfigColor("gui.flirt"));
         }
 
         return QVariant(this->property("color"));
