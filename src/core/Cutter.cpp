@@ -188,11 +188,13 @@ CutterCore *CutterCore::instance()
 
 void CutterCore::initialize(bool loadPlugins)
 {
-    auto prefix = QDir(QCoreApplication::applicationDirPath());
-
-#if defined(CUTTER_ENABLE_PACKAGING) && defined(Q_OS_WIN)
-    auto prefixBytes = prefix.absolutePath().toUtf8();
-    rz_path_prefix(prefixBytes.constData());
+#if defined(MACOS_RZ_BUNDLED)
+    auto app_path = QDir(QCoreApplication::applicationDirPath());
+    app_path.cdUp();
+    app_path.cd("Resources");
+    qInfo() << "Setting Rizin prefix =" << app_path.absolutePath()
+            << " for macOS Application Bundle.";
+    rz_path_set_prefix(app_path.absolutePath().toUtf8().constData());
 #endif
 
     rz_cons_new(); // initialize console
@@ -203,34 +205,11 @@ void CutterCore::initialize(bool loadPlugins)
 
     rz_event_hook(core_->analysis->ev, RZ_EVENT_ALL, cutterREventCallback, this);
 
-#if defined(APPIMAGE) || defined(MACOS_RZ_BUNDLED)
-#    ifdef APPIMAGE
-    // Executable is in appdir/bin
-    prefix.cdUp();
-    qInfo() << "Setting Rizin prefix =" << prefix.absolutePath() << " for AppImage.";
-#    else // MACOS_RZ_BUNDLED
-    // Executable is in Contents/MacOS, prefix is Contents/Resources/rz
-    prefix.cdUp();
-    prefix.cd("Resources");
-    qInfo() << "Setting Rizin prefix =" << prefix.absolutePath()
-            << " for macOS Application Bundle.";
-    setConfig("dir.prefix", prefix.absolutePath());
-#    endif
-
-    auto pluginsDir = prefix;
-    if (pluginsDir.cd("share/rizin/plugins")) {
-        qInfo() << "Setting Rizin plugins dir =" << pluginsDir.absolutePath();
-        setConfig("dir.plugins", pluginsDir.absolutePath());
-    } else {
-        qInfo() << "Rizin plugins dir under" << pluginsDir.absolutePath() << "does not exist!";
-    }
-#endif
-
-    if (!loadPlugins) {
-        setConfig("cfg.plugins", 0);
-    }
-    if (getConfigi("cfg.plugins")) {
+    if (loadPlugins) {
+        setConfig("cfg.plugins", true);
         rz_core_loadlibs(this->core_, RZ_CORE_LOADLIBS_ALL);
+    } else {
+        setConfig("cfg.plugins", false);
     }
     // IMPLICIT rz_bin_iobind (core_->bin, core_->io);
 
@@ -3166,10 +3145,16 @@ QList<HeaderDescription> CutterCore::getAllHeaders()
     return ret;
 }
 
-static void sigdb_insert_element_into_qlist(RzList *list, QList<FlirtDescription> &sigdb)
+QList<FlirtDescription> CutterCore::getSignaturesDB()
 {
+    CORE_LOCK();
+
     void *ptr = NULL;
     RzListIter *iter = NULL;
+    QList<FlirtDescription> sigdb;
+
+    RzList *list = rz_core_analysis_sigdb_list(core, true);
+
     rz_list_foreach(list, iter, ptr)
     {
         RzSigDBEntry *sig = static_cast<RzSigDBEntry *>(ptr);
@@ -3185,28 +3170,6 @@ static void sigdb_insert_element_into_qlist(RzList *list, QList<FlirtDescription
         sigdb << flirt;
     }
     rz_list_free(list);
-}
-
-QList<FlirtDescription> CutterCore::getSignaturesDB()
-{
-    CORE_LOCK();
-    QList<FlirtDescription> sigdb;
-    RzList *list = nullptr;
-
-    char *system_sigdb = rz_path_system(RZ_SIGDB);
-    if (RZ_STR_ISNOTEMPTY(system_sigdb) && rz_file_is_directory(system_sigdb)) {
-        list = rz_sign_sigdb_load_database(system_sigdb, true);
-        sigdb_insert_element_into_qlist(list, sigdb);
-    }
-    free(system_sigdb);
-
-    const char *sigdb_path = rz_config_get(core->config, "flirt.sigdb.path");
-    if (RZ_STR_ISEMPTY(sigdb_path)) {
-        return sigdb;
-    }
-
-    list = rz_sign_sigdb_load_database(sigdb_path, true);
-    sigdb_insert_element_into_qlist(list, sigdb);
 
     return sigdb;
 }
