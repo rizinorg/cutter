@@ -13,4 +13,4 @@ if(![System.IO.File]::Exists($pathdll)) {
     ls "$dist/lib/plugins/"
     throw (New-Object System.IO.FileNotFoundException("File not found: $pathdll", $pathdll))
 }
-Remove-Item -Recurse -Force $dist/lib/plugins/libswift.lib
+Remove-Item -Recurse -Force $dist/lib/plugins/swift.lib
