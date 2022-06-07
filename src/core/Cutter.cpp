@@ -3178,7 +3178,14 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
 QList<HeaderDescription> CutterCore::getAllHeaders()
 {
     CORE_LOCK();
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf) {
+        return {};
+    }
     const RzList *fields = rz_bin_object_get_fields(bf->o);
+    if (!fields) {
+        return {};
+    }
     RzListIter *iter;
     RzBinField *field;
     bool haveComment;
