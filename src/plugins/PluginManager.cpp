@@ -65,6 +65,7 @@ void PluginManager::loadPluginsFromDir(const QDir &pluginsDir, bool writable)
         nativePluginsDir.mkdir("native");
     }
     if (nativePluginsDir.cd("native")) {
+        qInfo() << "Native plugins are loaded from" << nativePluginsDir.absolutePath();
         loadNativePlugins(nativePluginsDir);
     }
 
@@ -74,6 +75,7 @@ void PluginManager::loadPluginsFromDir(const QDir &pluginsDir, bool writable)
         pythonPluginsDir.mkdir("python");
     }
     if (pythonPluginsDir.cd("python")) {
+        qInfo() << "Python plugins are loaded from" << pythonPluginsDir.absolutePath();
         loadPythonPlugins(pythonPluginsDir.absolutePath());
     }
 #endif

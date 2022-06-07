@@ -28,7 +28,7 @@ if(WIN32)
 							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 							RESULT_VARIABLE SCRIPT_RESULT)
 			if (SCRIPT_RESULT)
-				message(FATAL_ERROR \"Failed to package jsdec\")
+				message(FATAL_ERROR \"Failed to package jsdec (returned \${SCRIPT_RESULT})\")
 			endif()
 		")
 	endif()
@@ -40,7 +40,22 @@ if(WIN32)
 							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 							RESULT_VARIABLE SCRIPT_RESULT)
 			if (SCRIPT_RESULT)
-				message(FATAL_ERROR \"Failed to package rz-libswift\")
+				message(FATAL_ERROR \"Failed to package rz-libswift (returned \${SCRIPT_RESULT})\")
+			endif()
+		")
+	endif()
+	if (CUTTER_PACKAGE_RZ_LIBYARA AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
+		install(CODE "
+			set(ENV{RZ_PREFIX} \"\${CMAKE_INSTALL_PREFIX}\")
+			set(ENV{PATH} \"\${CMAKE_INSTALL_PREFIX};\$ENV{PATH}\")
+			execute_process(COMMAND powershell 
+							\"${CMAKE_CURRENT_SOURCE_DIR}/bundle_rz_libyara.ps1\"
+							\"\${CMAKE_INSTALL_PREFIX}\"
+							\"-DCUTTER_INSTALL_PLUGDIR=plugins/native\"
+							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+							RESULT_VARIABLE SCRIPT_RESULT)
+			if (SCRIPT_RESULT)
+				message(FATAL_ERROR \"Failed to package rz_libyara (returned \${SCRIPT_RESULT})\")
 			endif()
 		")
 	endif()
@@ -93,29 +108,52 @@ if(APPLE)
 	get_filename_component(QT_PREFIX "${MACDEPLOYQT_PATH}/../.." ABSOLUTE)
 	list(APPEND RZ_GHIDRA_PREFIX_PATH "${QT_PREFIX}")
 	set(RIZIN_INSTALL_PLUGDIR "lib/rizin/plugins") # escaped backslash on purpose, should be evaluated later
+endif()
 
-	if (CUTTER_PACKAGE_JSDEC AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
+################################################
+# macOS + Linux
+################################################
+
+if(CUTTER_ENABLE_DEPENDENCY_DOWNLOADS AND (NOT WIN32))
+	if (CUTTER_PACKAGE_JSDEC)
 		install(CODE "
-			execute_process(COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/jsdec.sh\" --pkg-config-path=\${CMAKE_INSTALL_PREFIX}/lib/pkgconfig --prefix=\${CMAKE_INSTALL_PREFIX}
+			execute_process(COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/jsdec.sh\"
+							--pkg-config-path=\${CMAKE_INSTALL_PREFIX}/lib/pkgconfig --prefix=\${CMAKE_INSTALL_PREFIX}
 							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 							RESULT_VARIABLE SCRIPT_RESULT)
 			if (SCRIPT_RESULT)
-				message(FATAL_ERROR \"Failed to package jsdec\")
+				message(FATAL_ERROR \"Failed to package jsdec (returned \${SCRIPT_RESULT})\")
 			endif()
 		")
 	endif()
-
-	if (CUTTER_PACKAGE_RZ_LIBSWIFT AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
+	if (CUTTER_PACKAGE_RZ_LIBSWIFT)
 		install(CODE "
-			execute_process(COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/rz-libswift.sh\" --pkg-config-path=\${CMAKE_INSTALL_PREFIX}/lib/pkgconfig --prefix=\${CMAKE_INSTALL_PREFIX}
+			execute_process(COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/rz-libswift.sh\"
+							--pkg-config-path=\${CMAKE_INSTALL_PREFIX}/lib/pkgconfig --prefix=\${CMAKE_INSTALL_PREFIX}
 							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 							RESULT_VARIABLE SCRIPT_RESULT)
 			if (SCRIPT_RESULT)
-				message(FATAL_ERROR \"Failed to package rz-libswift\")
+				message(FATAL_ERROR \"Failed to package rz-libswift (returned \${SCRIPT_RESULT})\")
 			endif()
 		")
 	endif()
-
+	if (CUTTER_PACKAGE_RZ_LIBYARA)
+		if(APPLE)
+			set (YARA_PLUGIN_OPTIONS "-DCUTTER_INSTALL_PLUGDIR=plugins/native")
+		else()
+			set (YARA_PLUGIN_OPTIONS "")
+		endif()
+		install(CODE "
+			execute_process(COMMAND
+							\"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/rz-libyara.sh\"
+							\"\${CMAKE_INSTALL_PREFIX}\" \"${YARA_PLUGIN_OPTIONS}\"
+							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+							RESULT_VARIABLE SCRIPT_RESULT)
+			if (SCRIPT_RESULT)
+				message(FATAL_ERROR \"Failed to package rz-libyara (returned \${SCRIPT_RESULT})\")
+			endif()
+		")
+	endif()
 endif()
 
 ################################################
@@ -144,7 +182,7 @@ if(CUTTER_PACKAGE_RZ_GHIDRA)
 			\"-DRIZIN_INSTALL_PLUGDIR=\${CMAKE_INSTALL_PREFIX}/${RIZIN_INSTALL_PLUGDIR}\"
 			-DCUTTER_INSTALL_PLUGDIR=plugins/native")
 	else()
-		set (GHIDRA_OPTIONS "")
+		set (GHIDRA_OPTIONS "-DCUTTER_INSTALL_PLUGDIR=\${CMAKE_INSTALL_PREFIX}/share/rizin/cutter/plugins/native")
 	endif()
 	install(CODE "
 		execute_process(
@@ -161,14 +199,14 @@ if(CUTTER_PACKAGE_RZ_GHIDRA)
 							-G Ninja
 			)
 		if (SCRIPT_RESULT)
-			message(FATAL_ERROR \"Failed to configure rz-ghidra\")
+			message(FATAL_ERROR \"Failed to configure rz-ghidra (returned \${SCRIPT_RESULT})\")
 		endif()
 		execute_process(WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/rz-ghidra-prefix/src/rz-ghidra-build
 			RESULT_VARIABLE SCRIPT_RESULT
 			COMMAND \${CMAKE_COMMAND} --build . --target install
 			)
 		if (SCRIPT_RESULT)
-			message(FATAL_ERROR \"Failed to install rz-ghidra plugin\")
+			message(FATAL_ERROR \"Failed to install rz-ghidra plugin (returned \${SCRIPT_RESULT})\")
 		endif()
 	")
 endif()
