@@ -1417,6 +1417,7 @@ CutterJson CutterCore::getFileVersionInfo()
 
 QString CutterCore::getSignatureInfo()
 {
+    CORE_LOCK();
     RzBinFile *cur = rz_bin_cur(core->bin);
     RzBinPlugin *plg = rz_bin_file_cur_plugin(cur);
     if (!plg || !plg->signature) {
@@ -3451,7 +3452,7 @@ QList<SegmentDescription> CutterCore::getAllSegments()
         segDesc.paddr = segment->paddr;
         segDesc.size = segment->size;
         segDesc.vsize = segment->vsize;
-        segDesc.perm = perms_str(segment->perms);
+        segDesc.perm = perms_str(segment->perm);
     }
     rz_list_free(segments);
 
