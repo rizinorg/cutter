@@ -1415,9 +1415,18 @@ CutterJson CutterCore::getFileVersionInfo()
     return cmdj("iVj");
 }
 
-CutterJson CutterCore::getSignatureInfo()
+QString CutterCore::getSignatureInfo()
 {
-    return cmdj("iCj");
+    RzBinFile *cur = rz_bin_cur(core->bin);
+    RzBinPlugin *plg = rz_bin_file_cur_plugin(cur);
+    if (!plg || !plg->signature) {
+        return {};
+    }
+    char *signature = plg->signature(cur, true);
+    if (!signature) {
+        return {};
+    }
+    return fromOwnedCharPtr(signature);
 }
 
 // Utility function to check if a telescoped item exists and add it with prefixes to the desc
@@ -3408,26 +3417,43 @@ QStringList CutterCore::getSectionList()
     return ret;
 }
 
+static inline perms_str(int perms)
+{
+    return QString("%1%2%3%4")
+            .arg((perms & RZ_PERM_SHAR) ? 's' : '-', (perms & RZ_PERM_R) ? 'r' : '-',
+                 (perms & RZ_PERM_W) ? 'w' : '-', (perms & RZ_PERM_X) ? 'x' : '-');
+}
+
 QList<SegmentDescription> CutterCore::getAllSegments()
 {
     CORE_LOCK();
-    QList<SegmentDescription> ret;
-
-    for (CutterJson segmentObject : cmdj("iSSj")) {
-        QString name = segmentObject[RJsonKey::name].toString();
-        if (name.isEmpty())
-            continue;
-
-        SegmentDescription segment;
-        segment.name = name;
-        segment.vaddr = segmentObject[RJsonKey::vaddr].toRVA();
-        segment.paddr = segmentObject[RJsonKey::paddr].toRVA();
-        segment.size = segmentObject[RJsonKey::size].toRVA();
-        segment.vsize = segmentObject[RJsonKey::vsize].toRVA();
-        segment.perm = segmentObject[RJsonKey::perm].toString();
-
-        ret << segment;
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf) {
+        return {};
     }
+    RzList *segments = rz_bin_object_get_segments(bf->o);
+    if (!segments) {
+        return {};
+    }
+
+    RzBinSection *segment;
+    RzListIter *iter;
+    QList<SegmentDescription> ret;
+    CutterRzListForeach (segments, iter, RzBinSection, segment) {
+        if (RZ_STR_ISEMPTY(segment->name)) {
+            continue;
+        }
+
+        SegmentDescription segDesc;
+        segDesc.name = segment->name;
+        segDesc.vaddr = segment->vaddr;
+        segDesc.paddr = segment->paddr;
+        segDesc.size = segment->size;
+        segDesc.vsize = segment->vsize;
+        segDesc.perm = perms_str(segment->perms);
+    }
+    rz_list_free(segments);
+
     return ret;
 }
 
