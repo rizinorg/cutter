@@ -3443,10 +3443,6 @@ QList<SegmentDescription> CutterCore::getAllSegments()
     RzListIter *iter;
     QList<SegmentDescription> ret;
     CutterRzListForeach (segments, iter, RzBinSection, segment) {
-        if (RZ_STR_ISEMPTY(segment->name)) {
-            continue;
-        }
-
         SegmentDescription segDesc;
         segDesc.name = segment->name;
         segDesc.vaddr = segment->vaddr;
