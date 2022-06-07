@@ -3092,14 +3092,14 @@ QList<ImportDescription> CutterCore::getAllImports()
         RzBinSymbol *sym = rz_bin_object_get_symbol_of_import(bf->o, import);
         ut64 addr = sym ? rva(bf->o, sym->paddr, sym->vaddr, va) : UT64_MAX;
         QString name { import->name };
-        if (RZ_STR_ISNOTEMPTY(import->name)) {
+        if (RZ_STR_ISNOTEMPTY(import->classname)) {
             name = QString("%1.%2").arg(import->classname, import->name);
         }
         if (bin_demangle) {
             char *dname = rz_bin_demangle(bf, NULL, name.toUtf8().constData(),
                                           importDescription.plt, keep_lib);
             if (dname) {
-                name = dname;
+                name = fromOwnedCharPtr(dname);
             }
         }
         if (core->bin->prefix) {
@@ -3188,18 +3188,14 @@ QList<HeaderDescription> CutterCore::getAllHeaders()
     }
     RzListIter *iter;
     RzBinField *field;
-    bool haveComment;
-
     QList<HeaderDescription> ret;
 
     CutterRzListForeach (field, iter, RzBinField, field) {
         HeaderDescription header;
-
         header.vaddr = field->vaddr;
         header.paddr = field->paddr;
         header.value = RZ_STR_ISEMPTY(field->comment) ? "" : field->comment;
         header.name = field->name;
-
         ret << header;
     }
 
@@ -3245,7 +3241,7 @@ QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
     RzSpace *spaces = rz_spaces_current(&core->analysis->meta_spaces);
     rz_interval_tree_foreach(&core->analysis->meta, it, pVoid)
     {
-        item = static_cast<RzAnalysisMetaItem *>(pVoid);
+        item = reinterpert_cast<RzAnalysisMetaItem *>(pVoid);
         if (item->type != RZ_META_TYPE_COMMENT) {
             continue;
         }
