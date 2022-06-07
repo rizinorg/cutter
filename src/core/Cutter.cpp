@@ -3082,7 +3082,7 @@ QList<ImportDescription> CutterCore::getAllImports()
     int bin_demangle = getConfigi("bin.demangle");
     int keep_lib = getConfigi("bin.demangle.libs");
     CutterRzListForeach (imports, iter, RzBinImport, import) {
-        if (!import->name) {
+        if (RZ_STR_ISEMPTY(import->name)) {
             continue;
         }
 
@@ -3418,7 +3418,7 @@ QStringList CutterCore::getSectionList()
     return ret;
 }
 
-static inline perms_str(int perms)
+static inline QString perms_str(int perms)
 {
     return QString("%1%2%3%4")
             .arg((perms & RZ_PERM_SHAR) ? 's' : '-', (perms & RZ_PERM_R) ? 'r' : '-',
