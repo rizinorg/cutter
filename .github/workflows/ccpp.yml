@@ -124,6 +124,7 @@ jobs:
             -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON \
             -DCUTTER_PACKAGE_RZ_GHIDRA=ON \
             -DCUTTER_PACKAGE_RZ_LIBSWIFT=ON \
+            -DCUTTER_PACKAGE_RZ_LIBYARA=ON \
             -DCMAKE_INSTALL_PREFIX=appdir/usr \
             -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
             ..
@@ -142,20 +143,16 @@ jobs:
           ninja install
           "../scripts/appimage_embed_python.sh" appdir
           APP_PREFIX=`pwd`/appdir/usr
-          # export LD_LIBRARY_PATH=${APP_PREFIX}/lib:$Shiboken2_ROOT/lib
+          export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$APP_PREFIX/lib/rizin/plugins"
           export PATH=$PATH:${APP_PREFIX}/bin
-          "../scripts/jsdec.sh" --prefix=`pwd`/appdir/usr
           wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x linuxdeployqt*.AppImage
           rm -fv "../cutter-deps/qt/plugins/imageformats/libqjp2.so"
-          # ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -executable=./appdir/usr/bin/python3 -bundle-non-qt-libs -no-strip -exclude-libs=libnss3.so,libnssutil3.so,libqjp2.so -ignore-glob=usr/lib/python3.9/**/* -verbose=2
-          # exclude librzghidra cutter plugin because cutter and rz plugin is loaded manuallly as they are plugins linuxdeployqt doesn't know this
           ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop \
             -executable=./appdir/usr/bin/python3 \
             -appimage \
             -no-strip -exclude-libs=libnss3.so,libnssutil3.so,libqjp2.so \
             -ignore-glob=usr/lib/python3.9/**/* \
-            -ignore-glob=usr/share/rizin/cutter/plugins/native/librz_ghidra_cutter.so \
             -verbose=2
           find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
           export APPIMAGE_FILE="Cutter-${PACKAGE_ID}-x64.Linux.AppImage"
@@ -192,6 +189,7 @@ jobs:
                 -DCUTTER_PACKAGE_RZ_GHIDRA=ON \
                 -DCUTTER_PACKAGE_JSDEC=ON \
                 -DCUTTER_PACKAGE_RZ_LIBSWIFT=ON \
+                -DCUTTER_PACKAGE_RZ_LIBYARA=ON \
                 -DCPACK_PACKAGE_FILE_NAME="$PACKAGE_NAME" \
                 -DCMAKE_FRAMEWORK_PATH="$BREAKPAD_FRAMEWORK_DIR" \
                 -DCPACK_BUNDLE_APPLE_CERT_APP="-" \
@@ -231,6 +229,7 @@ jobs:
           -DCUTTER_PACKAGE_DEPENDENCIES=ON ^
           -DCUTTER_PACKAGE_RZ_GHIDRA=ON ^
           -DCUTTER_PACKAGE_RZ_LIBSWIFT=ON ^
+          -DCUTTER_PACKAGE_RZ_LIBYARA=ON ^
           -DCUTTER_PACKAGE_JSDEC=ON ^
           -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON ^
           -DCUTTER_ENABLE_CRASH_REPORTS=ON ^
