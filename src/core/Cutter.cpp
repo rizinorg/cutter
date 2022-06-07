@@ -3530,6 +3530,7 @@ QList<BinClassDescription> CutterCore::getAllClassesFromBin()
             BinClassFieldDescription fieldDescription;
             fieldDescription.name = f->name;
             fieldDescription.addr = f->vaddr;
+            classDescription.fields << fieldDescription;
         }
         qList << classDescription;
     }
