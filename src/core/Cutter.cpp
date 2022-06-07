@@ -3120,6 +3120,7 @@ QList<ImportDescription> CutterCore::getAllImports()
 
 QList<ExportDescription> CutterCore::getAllExports()
 {
+    CORE_LOCK();
     QList<ExportDescription> ret;
 
     for (CutterJson exportObject : cmdj("iEj")) {
@@ -3476,8 +3477,7 @@ QList<EntrypointDescription> CutterCore::getAllEntrypoint()
         const char *type = rz_bin_entry_type_string(entry->type);
 
         EntrypointDescription entrypointDescription;
-        entrypointDescription.vaddr =
-                va ? rz_bin_object_get_vaddr(bf->o, entry->paddr, entry->vaddr) : entry->paddr;
+        entrypointDescription.vaddr = rva(bf->o, entry->paddr, entry->vaddr);
         entrypointDescription.paddr = entry->paddr;
         entrypointDescription.baddr = baddr;
         entrypointDescription.laddr = laddr;
