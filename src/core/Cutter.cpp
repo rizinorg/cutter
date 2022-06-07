@@ -3190,7 +3190,7 @@ QList<HeaderDescription> CutterCore::getAllHeaders()
     RzBinField *field;
     QList<HeaderDescription> ret;
 
-    CutterRzListForeach (field, iter, RzBinField, field) {
+    CutterRzListForeach (fields, iter, RzBinField, field) {
         HeaderDescription header;
         header.vaddr = field->vaddr;
         header.paddr = field->paddr;
@@ -3241,7 +3241,7 @@ QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
     RzSpace *spaces = rz_spaces_current(&core->analysis->meta_spaces);
     rz_interval_tree_foreach(&core->analysis->meta, it, pVoid)
     {
-        item = reinterpert_cast<RzAnalysisMetaItem *>(pVoid);
+        item = reinterpret_cast<RzAnalysisMetaItem *>(pVoid);
         if (item->type != RZ_META_TYPE_COMMENT) {
             continue;
         }
@@ -3424,9 +3424,7 @@ QStringList CutterCore::getSectionList()
 
 static inline QString perms_str(int perms)
 {
-    return QString("%1%2%3%4")
-            .arg((perms & RZ_PERM_SHAR) ? 's' : '-', (perms & RZ_PERM_R) ? 'r' : '-',
-                 (perms & RZ_PERM_W) ? 'w' : '-', (perms & RZ_PERM_X) ? 'x' : '-');
+    return QString((perms & RZ_PERM_SHAR) ? 's' : '-') + rz_str_rwx_i(perms);
 }
 
 QList<SegmentDescription> CutterCore::getAllSegments()
