@@ -3090,7 +3090,7 @@ QList<ImportDescription> CutterCore::getAllImports()
         ImportDescription importDescription;
 
         RzBinSymbol *sym = rz_bin_object_get_symbol_of_import(bf->o, import);
-        ut64 addr = sym ? rva(bf->o, sym->paddr, sym->vaddr) : UT64_MAX;
+        ut64 addr = sym ? rva(bf->o, sym->paddr, sym->vaddr, va) : UT64_MAX;
         QString name { import->name };
         if (RZ_STR_ISNOTEMPTY(import->name)) {
             name = QString("%1.%2").arg(import->classname, import->name);
@@ -3485,7 +3485,7 @@ QList<EntrypointDescription> CutterCore::getAllEntrypoint()
         const char *type = rz_bin_entry_type_string(entry->type);
 
         EntrypointDescription entrypointDescription;
-        entrypointDescription.vaddr = rva(bf->o, entry->paddr, entry->vaddr);
+        entrypointDescription.vaddr = rva(bf->o, entry->paddr, entry->vaddr, va);
         entrypointDescription.paddr = entry->paddr;
         entrypointDescription.baddr = baddr;
         entrypointDescription.laddr = laddr;
