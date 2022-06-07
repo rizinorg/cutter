@@ -3049,6 +3049,11 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
     return funcList;
 }
 
+static inline uint64_t rva(RzBinObject *o, uint64_t paddr, uint64_t vaddr, int va)
+{
+    return va ? rz_bin_object_get_vaddr(o, paddr, vaddr) : paddr;
+}
+
 QList<ImportDescription> CutterCore::getAllImports()
 {
     CORE_LOCK();
@@ -3075,8 +3080,7 @@ QList<ImportDescription> CutterCore::getAllImports()
         ImportDescription importDescription;
 
         RzBinSymbol *sym = rz_bin_object_get_symbol_of_import(bf->o, import);
-        ut64 addr = sym ? (va ? rz_bin_object_get_vaddr(bf->o, sym->paddr, sym->vaddr) : sym->paddr)
-                        : UT64_MAX;
+        ut64 addr = sym ? rva(bf->o, sym->paddr, sym->vaddr) : UT64_MAX;
         QString name { import->name };
         if (RZ_STR_ISNOTEMPTY(import->name)) {
             name = QString("%1.%2").arg(import->classname, import->name);
@@ -3105,27 +3109,8 @@ QList<ImportDescription> CutterCore::getAllImports()
     return qList;
 }
 
-static inline uint64_t rva(RzBinObject *o, uint64_t paddr, uint64_t vaddr, int va)
-{
-    return va ? rz_bin_object_get_vaddr(o, paddr, vaddr) : paddr;
-}
-
 QList<ExportDescription> CutterCore::getAllExports()
 {
-    CORE_LOCK();
-    RzBinFile *bf = rz_bin_cur(core->bin);
-    RzList *symbols = rz_bin_object_get_symbols(bf->o);
-    bool bin_demangle = getConfigb("bin.demangle");
-    QString lang = bin_demangle ? getConfig("bin.lang") : "";
-    bool va = core->io->va || core->bin->is_debugger;
-
-    RzBinSymbol *symbol;
-    RzListIter *iter;
-    CutterRzListForeach (symbols, iter, RzBinSymbol, symbol) {
-        ExportDescription exp;
-        exp.vaddr = rva(bf->o, symbol->paddr, symbol->vaddr, va);
-    }
-
     QList<ExportDescription> ret;
 
     for (CutterJson exportObject : cmdj("iEj")) {
@@ -3182,15 +3167,20 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
 QList<HeaderDescription> CutterCore::getAllHeaders()
 {
     CORE_LOCK();
+    const RzList *fields = rz_bin_object_get_fields(bf->o);
+    RzListIter *iter;
+    RzBinField *field;
+    bool haveComment;
+
     QList<HeaderDescription> ret;
 
-    for (CutterJson headerObject : cmdj("ihj")) {
+    CutterRzListForeach (field, iter, RzBinField, field) {
         HeaderDescription header;
 
-        header.vaddr = headerObject[RJsonKey::vaddr].toRVA();
-        header.paddr = headerObject[RJsonKey::paddr].toRVA();
-        header.value = headerObject[RJsonKey::comment].toString();
-        header.name = headerObject[RJsonKey::name].toString();
+        header.vaddr = field->vaddr;
+        header.paddr = field->paddr;
+        header.value = RZ_STR_ISEMPTY(field->comment) ? "" : field->comment;
+        header.name = field->name;
 
         ret << header;
     }
