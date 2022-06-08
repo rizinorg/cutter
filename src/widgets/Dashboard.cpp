@@ -153,7 +153,7 @@ void Dashboard::updateContents()
     ui->verticalLayout_2->addSpacerItem(spacer);
 
     // Check if signature info and version info available
-    if (!Core()->getSignatureInfo().size()) {
+    if (Core()->getSignatureInfo().isEmpty()) {
         ui->certificateButton->setEnabled(false);
     }
     if (!Core()->getFileVersionInfo().size()) {
@@ -171,7 +171,7 @@ void Dashboard::on_certificateButton_clicked()
         viewDialog = new QDialog(this);
         view = new CutterTreeView(viewDialog);
         model = new JsonModel();
-        qstrCertificates = Core()->getSignatureInfo().toJson();
+        qstrCertificates = Core()->getSignatureInfo();
     }
     if (!viewDialog->isVisible()) {
         std::string strCertificates = qstrCertificates.toUtf8().constData();
