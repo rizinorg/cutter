@@ -1415,9 +1415,19 @@ CutterJson CutterCore::getFileVersionInfo()
     return cmdj("iVj");
 }
 
-CutterJson CutterCore::getSignatureInfo()
+QString CutterCore::getSignatureInfo()
 {
-    return cmdj("iCj");
+    CORE_LOCK();
+    RzBinFile *cur = rz_bin_cur(core->bin);
+    RzBinPlugin *plg = rz_bin_file_cur_plugin(cur);
+    if (!plg || !plg->signature) {
+        return {};
+    }
+    char *signature = plg->signature(cur, true);
+    if (!signature) {
+        return {};
+    }
+    return fromOwnedCharPtr(signature);
 }
 
 // Utility function to check if a telescoped item exists and add it with prefixes to the desc
@@ -3049,25 +3059,64 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
     return funcList;
 }
 
+static inline uint64_t rva(RzBinObject *o, uint64_t paddr, uint64_t vaddr, int va)
+{
+    return va ? rz_bin_object_get_vaddr(o, paddr, vaddr) : paddr;
+}
+
 QList<ImportDescription> CutterCore::getAllImports()
 {
     CORE_LOCK();
-    QList<ImportDescription> ret;
-
-    for (CutterJson importObject : cmdj("iij")) {
-        ImportDescription import;
-
-        import.plt = importObject[RJsonKey::plt].toRVA();
-        import.ordinal = importObject[RJsonKey::ordinal].toSt64();
-        import.bind = importObject[RJsonKey::bind].toString();
-        import.type = importObject[RJsonKey::type].toString();
-        import.libname = importObject[RJsonKey::libname].toString();
-        import.name = importObject[RJsonKey::name].toString();
-
-        ret << import;
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf) {
+        return {};
+    }
+    const RzList *imports = rz_bin_object_get_imports(bf->o);
+    if (!imports) {
+        return {};
     }
 
-    return ret;
+    QList<ImportDescription> qList;
+    RzBinImport *import;
+    RzListIter *iter;
+    bool va = core->io->va || core->bin->is_debugger;
+    int bin_demangle = getConfigi("bin.demangle");
+    int keep_lib = getConfigi("bin.demangle.libs");
+    CutterRzListForeach (imports, iter, RzBinImport, import) {
+        if (RZ_STR_ISEMPTY(import->name)) {
+            continue;
+        }
+
+        ImportDescription importDescription;
+
+        RzBinSymbol *sym = rz_bin_object_get_symbol_of_import(bf->o, import);
+        ut64 addr = sym ? rva(bf->o, sym->paddr, sym->vaddr, va) : UT64_MAX;
+        QString name { import->name };
+        if (RZ_STR_ISNOTEMPTY(import->classname)) {
+            name = QString("%1.%2").arg(import->classname, import->name);
+        }
+        if (bin_demangle) {
+            char *dname = rz_bin_demangle(bf, NULL, name.toUtf8().constData(),
+                                          importDescription.plt, keep_lib);
+            if (dname) {
+                name = fromOwnedCharPtr(dname);
+            }
+        }
+        if (core->bin->prefix) {
+            name = QString("%1.%2").arg(core->bin->prefix, name);
+        }
+
+        importDescription.ordinal = (int)import->ordinal;
+        importDescription.bind = import->bind;
+        importDescription.type = import->type;
+        importDescription.libname = import->libname;
+        importDescription.name = name;
+        importDescription.plt = addr;
+
+        qList << importDescription;
+    }
+
+    return qList;
 }
 
 QList<ExportDescription> CutterCore::getAllExports()
@@ -3129,16 +3178,24 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
 QList<HeaderDescription> CutterCore::getAllHeaders()
 {
     CORE_LOCK();
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf) {
+        return {};
+    }
+    const RzList *fields = rz_bin_object_get_fields(bf->o);
+    if (!fields) {
+        return {};
+    }
+    RzListIter *iter;
+    RzBinField *field;
     QList<HeaderDescription> ret;
 
-    for (CutterJson headerObject : cmdj("ihj")) {
+    CutterRzListForeach (fields, iter, RzBinField, field) {
         HeaderDescription header;
-
-        header.vaddr = headerObject[RJsonKey::vaddr].toRVA();
-        header.paddr = headerObject[RJsonKey::paddr].toRVA();
-        header.value = headerObject[RJsonKey::comment].toString();
-        header.name = headerObject[RJsonKey::name].toString();
-
+        header.vaddr = field->vaddr;
+        header.paddr = field->paddr;
+        header.value = RZ_STR_ISEMPTY(field->comment) ? "" : field->comment;
+        header.name = field->name;
         ret << header;
     }
 
@@ -3177,20 +3234,31 @@ QList<FlirtDescription> CutterCore::getSignaturesDB()
 QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
 {
     CORE_LOCK();
-    QList<CommentDescription> ret;
-
-    for (CutterJson commentObject : cmdj("CClj")) {
-        QString type = commentObject[RJsonKey::type].toString();
-        if (type != filterType)
+    QList<CommentDescription> qList;
+    RzIntervalTreeIter it;
+    void *pVoid;
+    RzAnalysisMetaItem *item;
+    RzSpace *spaces = rz_spaces_current(&core->analysis->meta_spaces);
+    rz_interval_tree_foreach(&core->analysis->meta, it, pVoid)
+    {
+        item = reinterpret_cast<RzAnalysisMetaItem *>(pVoid);
+        if (item->type != RZ_META_TYPE_COMMENT) {
             continue;
+        }
+        if (spaces && spaces != item->space) {
+            continue;
+        }
+        if (filterType != rz_meta_type_to_string(item->type)) {
+            continue;
+        }
 
+        RzIntervalNode *node = rz_interval_tree_iter_get(&it);
         CommentDescription comment;
-        comment.offset = commentObject[RJsonKey::offset].toRVA();
-        comment.name = commentObject[RJsonKey::name].toString();
-
-        ret << comment;
+        comment.offset = node->start;
+        comment.name = fromOwnedCharPtr(rz_str_escape(item->str));
+        qList << comment;
     }
-    return ret;
+    return qList;
 }
 
 QList<RelocDescription> CutterCore::getAllRelocs()
@@ -3354,82 +3422,109 @@ QStringList CutterCore::getSectionList()
     return ret;
 }
 
+static inline QString perms_str(int perms)
+{
+    return QString((perms & RZ_PERM_SHAR) ? 's' : '-') + rz_str_rwx_i(perms);
+}
+
 QList<SegmentDescription> CutterCore::getAllSegments()
 {
     CORE_LOCK();
-    QList<SegmentDescription> ret;
-
-    for (CutterJson segmentObject : cmdj("iSSj")) {
-        QString name = segmentObject[RJsonKey::name].toString();
-        if (name.isEmpty())
-            continue;
-
-        SegmentDescription segment;
-        segment.name = name;
-        segment.vaddr = segmentObject[RJsonKey::vaddr].toRVA();
-        segment.paddr = segmentObject[RJsonKey::paddr].toRVA();
-        segment.size = segmentObject[RJsonKey::size].toRVA();
-        segment.vsize = segmentObject[RJsonKey::vsize].toRVA();
-        segment.perm = segmentObject[RJsonKey::perm].toString();
-
-        ret << segment;
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf) {
+        return {};
     }
+    RzList *segments = rz_bin_object_get_segments(bf->o);
+    if (!segments) {
+        return {};
+    }
+
+    RzBinSection *segment;
+    RzListIter *iter;
+    QList<SegmentDescription> ret;
+    CutterRzListForeach (segments, iter, RzBinSection, segment) {
+        SegmentDescription segDesc;
+        segDesc.name = segment->name;
+        segDesc.vaddr = segment->vaddr;
+        segDesc.paddr = segment->paddr;
+        segDesc.size = segment->size;
+        segDesc.vsize = segment->vsize;
+        segDesc.perm = perms_str(segment->perm);
+    }
+    rz_list_free(segments);
+
     return ret;
 }
 
 QList<EntrypointDescription> CutterCore::getAllEntrypoint()
 {
     CORE_LOCK();
-    QList<EntrypointDescription> ret;
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    bool va = core->io->va || core->bin->is_debugger;
+    ut64 baddr = rz_bin_get_baddr(core->bin);
+    ut64 laddr = rz_bin_get_laddr(core->bin);
 
-    for (CutterJson entrypointObject : cmdj("iej")) {
-        EntrypointDescription entrypoint;
+    QList<EntrypointDescription> qList;
+    const RzList *entries = rz_bin_object_get_entries(bf->o);
+    RzListIter *iter;
+    RzBinAddr *entry;
+    CutterRzListForeach (entries, iter, RzBinAddr, entry) {
+        if (entry->type != RZ_BIN_ENTRY_TYPE_PROGRAM) {
+            continue;
+        }
+        const char *type = rz_bin_entry_type_string(entry->type);
 
-        entrypoint.vaddr = entrypointObject[RJsonKey::vaddr].toRVA();
-        entrypoint.paddr = entrypointObject[RJsonKey::paddr].toRVA();
-        entrypoint.baddr = entrypointObject[RJsonKey::baddr].toRVA();
-        entrypoint.laddr = entrypointObject[RJsonKey::laddr].toRVA();
-        entrypoint.haddr = entrypointObject[RJsonKey::haddr].toRVA();
-        entrypoint.type = entrypointObject[RJsonKey::type].toString();
-
-        ret << entrypoint;
+        EntrypointDescription entrypointDescription;
+        entrypointDescription.vaddr = rva(bf->o, entry->paddr, entry->vaddr, va);
+        entrypointDescription.paddr = entry->paddr;
+        entrypointDescription.baddr = baddr;
+        entrypointDescription.laddr = laddr;
+        entrypointDescription.haddr = entry->hpaddr ? entry->hpaddr : UT64_MAX;
+        entrypointDescription.type = type ? type : "unknown";
+        qList << entrypointDescription;
     }
-    return ret;
+
+    return qList;
 }
 
 QList<BinClassDescription> CutterCore::getAllClassesFromBin()
 {
     CORE_LOCK();
-    QList<BinClassDescription> ret;
-
-    for (CutterJson classObject : cmdj("icj")) {
-        BinClassDescription cls;
-
-        cls.name = classObject[RJsonKey::classname].toString();
-        cls.addr = classObject[RJsonKey::addr].toRVA();
-        cls.index = classObject[RJsonKey::index].toUt64();
-
-        for (CutterJson methObject : classObject[RJsonKey::methods]) {
-            BinClassMethodDescription meth;
-
-            meth.name = methObject[RJsonKey::name].toString();
-            meth.addr = methObject[RJsonKey::addr].toRVA();
-
-            cls.methods << meth;
-        }
-
-        for (CutterJson fieldObject : classObject[RJsonKey::fields]) {
-            BinClassFieldDescription field;
-
-            field.name = fieldObject[RJsonKey::name].toString();
-            field.addr = fieldObject[RJsonKey::addr].toRVA();
-
-            cls.fields << field;
-        }
-
-        ret << cls;
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf) {
+        return {};
     }
-    return ret;
+
+    const RzList *cs = rz_bin_object_get_classes(bf->o);
+    if (!cs) {
+        return {};
+    }
+
+    QList<BinClassDescription> qList;
+    RzListIter *iter, *iter2, *iter3;
+    RzBinClass *c;
+    RzBinSymbol *sym;
+    RzBinField *f;
+    CutterRzListForeach (cs, iter, RzBinClass, c) {
+        BinClassDescription classDescription;
+        classDescription.name = c->name;
+        classDescription.addr = c->addr;
+        classDescription.index = c->index;
+        CutterRzListForeach (c->methods, iter2, RzBinSymbol, sym) {
+            BinClassMethodDescription methodDescription;
+            methodDescription.name = sym->name;
+            methodDescription.addr = sym->vaddr;
+            classDescription.methods << methodDescription;
+        }
+        CutterRzListForeach (c->fields, iter3, RzBinField, f) {
+            BinClassFieldDescription fieldDescription;
+            fieldDescription.name = f->name;
+            fieldDescription.addr = f->vaddr;
+            classDescription.fields << fieldDescription;
+        }
+        qList << classDescription;
+    }
+    return qList;
 }
 
 QList<BinClassDescription> CutterCore::getAllClassesFromFlags()
