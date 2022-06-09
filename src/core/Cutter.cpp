@@ -845,15 +845,19 @@ void CutterCore::removeString(RVA addr)
 QString CutterCore::getString(RVA addr)
 {
     CORE_LOCK();
-    char *s = (char *)returnAtSeek(
-            [&]() {
-                RzStrStringifyOpt opt = { 0 };
-                opt.buffer = core->block;
-                opt.length = core->blocksize;
-                opt.encoding = rz_str_guess_encoding_from_buffer(core->block, core->blocksize);
-                return rz_str_stringify_raw_buffer(&opt, NULL);
-            },
-            addr);
+    return getString(addr, core->blocksize,
+                     rz_str_guess_encoding_from_buffer(core->block, core->blocksize));
+}
+
+QString CutterCore::getString(RVA addr, uint64_t len, RzStrEnc encoding, bool escape_nl)
+{
+    CORE_LOCK();
+    RzStrStringifyOpt opt = {};
+    opt.buffer = core->block;
+    opt.length = len;
+    opt.encoding = encoding;
+    opt.escape_nl = escape_nl;
+    char *s = (char *)returnAtSeek([&]() { return rz_str_stringify_raw_buffer(&opt, NULL); }, addr);
     return fromOwnedCharPtr(s);
 }
 
@@ -3529,10 +3533,8 @@ QList<BinClassDescription> CutterCore::getAllClassesFromFlags()
     QList<BinClassDescription> ret;
     QMap<QString, BinClassDescription *> classesCache;
 
-    for (const CutterJson flagObject : cmdj("fj@F:classes")) {
-        QString flagName = flagObject[RJsonKey::name].toString();
-
-        QRegularExpressionMatch match = classFlagRegExp.match(flagName);
+    for (const auto &item : getAllFlags("classes")) {
+        QRegularExpressionMatch match = classFlagRegExp.match(item.name);
         if (match.hasMatch()) {
             QString className = match.captured(1);
             BinClassDescription *desc = nullptr;
@@ -3546,12 +3548,12 @@ QList<BinClassDescription> CutterCore::getAllClassesFromFlags()
                 desc = it.value();
             }
             desc->name = match.captured(1);
-            desc->addr = flagObject[RJsonKey::offset].toRVA();
+            desc->addr = item.offset;
             desc->index = RVA_INVALID;
             continue;
         }
 
-        match = methodFlagRegExp.match(flagName);
+        match = methodFlagRegExp.match(item.name);
         if (match.hasMatch()) {
             QString className = match.captured(1);
             BinClassDescription *classDesc = nullptr;
@@ -3571,7 +3573,7 @@ QList<BinClassDescription> CutterCore::getAllClassesFromFlags()
 
             BinClassMethodDescription meth;
             meth.name = match.captured(2);
-            meth.addr = flagObject[RJsonKey::offset].toRVA();
+            meth.addr = item.offset;
             classDesc->methods << meth;
             continue;
         }
@@ -3866,8 +3868,8 @@ QString CutterCore::getTypeAsC(QString name)
 
 bool CutterCore::isAddressMapped(RVA addr)
 {
-    // If value returned by "om. @ addr" is empty means that address is not mapped
-    return !Core()->cmdRawAt(QString("om."), addr).isEmpty();
+    CORE_LOCK();
+    return rz_io_map_get(core->io, addr);
 }
 
 QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, QString space, QString in)

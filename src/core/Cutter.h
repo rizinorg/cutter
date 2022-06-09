@@ -296,6 +296,7 @@ public:
      * @return string at requested address
      */
     QString getString(RVA addr);
+    QString getString(RVA addr, uint64_t len, RzStrEnc encoding, bool escape_nl = false);
     void setToData(RVA addr, int size, int repeat = 1);
     int sizeofDataMeta(RVA addr);
 
