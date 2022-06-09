@@ -237,7 +237,6 @@ public:
     RVA getFunctionStart(RVA addr);
     RVA getFunctionEnd(RVA addr);
     RVA getLastFunctionInstruction(RVA addr);
-    QString cmdFunctionAt(QString addr);
     QString cmdFunctionAt(RVA addr);
     void createFunctionAt(RVA addr);
     void createFunctionAt(RVA addr, QString name);

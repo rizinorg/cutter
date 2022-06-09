@@ -1023,9 +1023,7 @@ void CutterCore::updateSeek()
 RVA CutterCore::prevOpAddr(RVA startAddr, int count)
 {
     CORE_LOCK();
-    bool ok;
-    RVA offset = cmdRawAt(QString("/O %1").arg(count), startAddr).toULongLong(&ok, 16);
-    return ok ? offset : startAddr - count;
+    return rz_core_prevop_addr_force(core, startAddr, count);
 }
 
 RVA CutterCore::nextOpAddr(RVA startAddr, int count)
@@ -1322,17 +1320,14 @@ RVA CutterCore::getLastFunctionInstruction(RVA addr)
     return lastBB ? rz_analysis_block_get_op_addr(lastBB, lastBB->ninstr - 1) : RVA_INVALID;
 }
 
-QString CutterCore::cmdFunctionAt(QString addr)
-{
-    QString ret;
-    // Use cmd because cmdRaw would not work with grep
-    ret = cmd(QString("fd @ %1~[0]").arg(addr));
-    return ret.trimmed();
-}
-
 QString CutterCore::cmdFunctionAt(RVA addr)
 {
-    return cmdFunctionAt(QString::number(addr));
+    CORE_LOCK();
+    RzFlagItem *f = rz_flag_get_at(core->flags, addr, true);
+    if (!f) {
+        return {};
+    }
+    return core->flags->realnames && f->realname ? f->realname : f->name;
 }
 
 void CutterCore::cmdEsil(const char *command)
@@ -2035,7 +2030,7 @@ void CutterCore::attachRemote(const QString &uri)
                 [&](RzCore *core) {
                     setConfig("cfg.debug", true);
                     rz_core_file_reopen_remote_debug(core, uri.toStdString().c_str(), 0);
-                    return (void *)NULL;
+                    return nullptr;
                 },
                 debugTask)) {
         return;
@@ -2043,9 +2038,7 @@ void CutterCore::attachRemote(const QString &uri)
     emit debugTaskStateChanged();
 
     connect(debugTask.data(), &RizinTask::finished, this, [this, uri]() {
-        if (debugTaskDialog) {
-            delete debugTaskDialog;
-        }
+        delete debugTaskDialog;
         debugTask.clear();
         // Check if we actually connected
         bool connected = false;
@@ -3745,21 +3738,27 @@ void CutterCore::renameAnalysisMethod(const QString &className, const QString &o
 QList<ResourcesDescription> CutterCore::getAllResources()
 {
     CORE_LOCK();
-    QList<ResourcesDescription> resources;
-
-    for (CutterJson resourceObject : cmdj("iRj")) {
-        ResourcesDescription res;
-
-        res.name = resourceObject[RJsonKey::name].toString();
-        res.vaddr = resourceObject[RJsonKey::vaddr].toRVA();
-        res.index = resourceObject[RJsonKey::index].toUt64();
-        res.type = resourceObject[RJsonKey::type].toString();
-        res.size = resourceObject[RJsonKey::size].toUt64();
-        res.lang = resourceObject[RJsonKey::lang].toString();
-
-        resources << res;
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf) {
+        return {};
     }
-    return resources;
+    const RzList *resources = rz_bin_object_get_resources(bf->o);
+    QList<ResourcesDescription> resourcesDescriptions;
+
+    RzBinResource *r;
+    RzListIter *it;
+    CutterRzListForeach (resources, it, RzBinResource, r) {
+        ResourcesDescription description;
+        description.name = r->name;
+        description.vaddr = r->vaddr;
+        description.index = r->index;
+        description.type = r->type;
+        description.size = r->size;
+        description.lang = r->language;
+        resourcesDescriptions << description;
+    }
+
+    return resourcesDescriptions;
 }
 
 QList<VTableDescription> CutterCore::getAllVTables()
@@ -3966,7 +3965,7 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
         }
 
         xd.from_str = RzAddressString(xd.from);
-        xd.to_str = Core()->cmdRaw(QString("fd %1").arg(xd.to)).trimmed();
+        xd.to_str = Core()->cmdFunctionAt(xd.to);
 
         xrefList << xd;
     }
@@ -3997,13 +3996,15 @@ QString CutterCore::listFlagsAsStringAt(RVA addr)
 
 QString CutterCore::nearestFlag(RVA offset, RVA *flagOffsetOut)
 {
-    auto r = cmdj(QString("fdj @ ") + QString::number(offset));
-    QString name = r["name"].toString();
-    if (flagOffsetOut) {
-        auto offsetValue = r["offset"];
-        *flagOffsetOut = offsetValue.valid() ? offsetValue.toRVA() : offset;
+    CORE_LOCK();
+    auto r = rz_flag_get_at(core->flags, offset, true);
+    if (!r) {
+        return {};
     }
-    return name;
+    if (flagOffsetOut) {
+        *flagOffsetOut = r->offset;
+    }
+    return r->name;
 }
 
 void CutterCore::handleREvent(int type, void *data)
