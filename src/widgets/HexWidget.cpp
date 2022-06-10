@@ -692,16 +692,10 @@ void HexWidget::copy()
     if (selection.isEmpty() || selection.size() > MAX_COPY_SIZE)
         return;
 
-    QClipboard *clipboard = QApplication::clipboard();
-    if (cursorOnAscii) {
-        clipboard->setText(
-                Core()->cmdRawAt(QString("psx %1").arg(selection.size()), selection.start())
-                        .trimmed());
-    } else {
-        clipboard->setText(Core()->cmdRawAt(QString("p8 %1").arg(selection.size()),
-                                            selection.start())
-                                   .trimmed()); // TODO: copy in the format shown
-    }
+    auto x = cursorOnAscii
+            ? Core()->getString(selection.start(), selection.size(), RZ_STRING_ENC_8BIT, true)
+            : Core()->ioRead(selection.start(), (int)selection.size()).toHex();
+    QApplication::clipboard()->setText(x);
 }
 
 void HexWidget::copyAddress()
