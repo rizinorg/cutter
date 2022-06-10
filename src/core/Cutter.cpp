@@ -2146,11 +2146,15 @@ void CutterCore::stopDebug()
     currentlyRemoteDebugging = false;
     emit debugTaskStateChanged();
 
+    CORE_LOCK();
     if (currentlyEmulating) {
-        cmdEsil("aeim-; aei-; wcr; .ar-; aets-");
+        cmdEsil("aeim-; aei-;");
+        resetWriteCache();
+        rz_core_debug_clear_register_flags(core);
+        rz_core_analysis_esil_trace_stop(core);
         currentlyEmulating = false;
     } else {
-        rz_core_debug_process_close(core());
+        rz_core_debug_process_close(core);
         currentlyAttachedToPID = -1;
     }
 
@@ -2870,8 +2874,16 @@ bool CutterCore::isGraphEmpty()
 
 void CutterCore::getOpcodes()
 {
+    CORE_LOCK();
     this->opcodes = cmdList("?O");
-    this->regs = cmdList("drp~[1]");
+
+    this->regs = {};
+    const RzList *rs = rz_reg_get_list(core->dbg->reg, RZ_REG_TYPE_ANY);
+    RzListIter *iter;
+    RzRegItem *r;
+    CutterRzListForeach (rs, iter, RzRegItem, r) {
+        this->regs.push_back(r->name);
+    }
 }
 
 void CutterCore::setSettings()

@@ -524,15 +524,18 @@ void DisassemblyContextMenu::aboutToShowSlot()
         structureOffsetMenu->menuAction()->setVisible(true);
         structureOffsetMenu->clear();
 
-        // Get the possible offsets using the "ahts" command
-        // TODO: add ahtj command to Rizin and then use it here
-        QStringList ret = Core()->cmdList("ahts " + QString::number(memDisp));
-        for (const QString &val : ret) {
-            if (val.isEmpty()) {
+        RzCoreLocked core(Core());
+        RzList *typeoffs = rz_type_db_get_by_offset(core->analysis->typedb, memDisp);
+        RzListIter *iter;
+        RzTypePath *ty;
+        CutterRzListForeach (typeoffs, iter, RzTypePath, ty) {
+            if (RZ_STR_ISEMPTY(ty->path)) {
                 continue;
             }
-            structureOffsetMenu->addAction("[" + memBaseReg + " + " + val + "]")->setData(val);
+            structureOffsetMenu->addAction("[" + memBaseReg + " + " + ty->path + "]")->setData(ty->path);
         }
+        rz_list_free(typeoffs);
+
         if (structureOffsetMenu->isEmpty()) {
             // No possible offset was found so hide the menu
             structureOffsetMenu->menuAction()->setVisible(false);
