@@ -237,7 +237,7 @@ public:
     RVA getFunctionStart(RVA addr);
     RVA getFunctionEnd(RVA addr);
     RVA getLastFunctionInstruction(RVA addr);
-    QString cmdFunctionAt(RVA addr);
+    QString flagAt(RVA addr);
     void createFunctionAt(RVA addr);
     void createFunctionAt(RVA addr, QString name);
     QStringList getDisassemblyPreview(RVA address, int num_of_lines);
