@@ -4430,3 +4430,21 @@ QByteArray CutterCore::ioRead(RVA addr, int len)
 
     return array;
 }
+
+QStringList CutterCore::getConfigVariableSpaces(const QString &key)
+{
+    CORE_LOCK();
+    RzListIter *iter;
+    RzConfigNode *node;
+    QStringList stringList;
+    CutterRzListForeach (core->config->nodes, iter, RzConfigNode, node) {
+        QString space { node->name };
+        if (!key.isEmpty() && space.startsWith(key)) {
+            stringList.push_back(space.right(key.size()));
+            continue;
+        }
+        stringList.push_back(space);
+    }
+    stringList.removeDuplicates();
+    return stringList;
+}

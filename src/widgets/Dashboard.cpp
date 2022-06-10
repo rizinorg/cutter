@@ -122,12 +122,6 @@ void Dashboard::updateContents()
     setPlainText(ui->codeSizeLineEdit, QString::number(analinfo["codesz"].toSt64()) + " bytes");
     setPlainText(ui->percentageLineEdit, QString::number(analinfo["percent"].toSt64()) + "%");
 
-    QStringList libs = Core()->cmdList("il");
-    if (!libs.isEmpty()) {
-        libs.removeFirst();
-        libs.removeLast();
-    }
-
     // dunno: why not label->setText(lines.join("\n")?
     while (ui->verticalLayout_2->count() > 0) {
         QLayoutItem *item = ui->verticalLayout_2->takeAt(0);
@@ -141,7 +135,9 @@ void Dashboard::updateContents()
         }
     }
 
-    for (const QString &lib : libs) {
+    const RzList *libs = rz_bin_object_get_libs(bf->o);
+    char *lib;
+    CutterRzListForeach (libs, iter, char, lib) {
         QLabel *label = new QLabel(this);
         label->setText(lib);
         label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
