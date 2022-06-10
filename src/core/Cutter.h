@@ -237,8 +237,7 @@ public:
     RVA getFunctionStart(RVA addr);
     RVA getFunctionEnd(RVA addr);
     RVA getLastFunctionInstruction(RVA addr);
-    QString cmdFunctionAt(QString addr);
-    QString cmdFunctionAt(RVA addr);
+    QString flagAt(RVA addr);
     void createFunctionAt(RVA addr);
     void createFunctionAt(RVA addr, QString name);
     QStringList getDisassemblyPreview(RVA address, int num_of_lines);
@@ -297,6 +296,7 @@ public:
      * @return string at requested address
      */
     QString getString(RVA addr);
+    QString getString(RVA addr, uint64_t len, RzStrEnc encoding, bool escape_nl = false);
     void setToData(RVA addr, int size, int repeat = 1);
     int sizeofDataMeta(RVA addr);
 

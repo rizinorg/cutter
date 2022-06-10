@@ -128,7 +128,7 @@ QVariant CommentsModel::data(const QModelIndex &index, int role) const
             case CommentsModel::OffsetColumn:
                 return RzAddressString(comment.offset);
             case CommentsModel::FunctionColumn:
-                return Core()->cmdFunctionAt(comment.offset);
+                return Core()->flagAt(comment.offset);
             case CommentsModel::CommentColumn:
                 return comment.name;
             default:
@@ -220,8 +220,8 @@ bool CommentsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
     case CommentsModel::OffsetColumn:
         return leftComment.offset < rightComment.offset;
     case CommentsModel::FunctionColumn:
-        return Core()->cmdFunctionAt(leftComment.offset)
-                < Core()->cmdFunctionAt(rightComment.offset);
+        return Core()->flagAt(leftComment.offset)
+                < Core()->flagAt(rightComment.offset);
     case CommentsModel::CommentColumn:
         return leftComment.name < rightComment.name;
     default:
