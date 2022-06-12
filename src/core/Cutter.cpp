@@ -2162,7 +2162,7 @@ void CutterCore::stopDebug()
 
     CORE_LOCK();
     if (currentlyEmulating) {
-        cmdEsil("aeim-; aei-;");
+        cmdEsil("aeim- ; aei-");
         resetWriteCache();
         rz_core_debug_clear_register_flags(core);
         rz_core_analysis_esil_trace_stop(core);
