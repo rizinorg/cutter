@@ -63,8 +63,8 @@ void VersionInfoDialog::fillVersionInfo()
         entriesItemL->setText(0, "Entries:");
         const ut64 num_entries = sdb_num_get(sdb, "num_entries", 0);
         for (size_t i = 0; i < num_entries; ++i) {
-            const char *const key = sdb_fmt("entry%zu", i);
-            const char *const value = sdb_const_get(sdb, key, 0);
+            auto key = QString("entry%0").arg(i);
+            const char *const value = sdb_const_get(sdb, key.toStdString().c_str(), 0);
             if (!value) {
                 continue;
             }
@@ -107,26 +107,26 @@ void VersionInfoDialog::fillVersionInfo()
         QTreeWidgetItem *entriesItemR = new QTreeWidgetItem();
         entriesItemR->setText(0, "Entries:");
         for (size_t num_version = 0;; num_version++) {
-            char *path_version =
-                    sdb_fmt("bin/cur/info/versioninfo/verneed/version%zu", num_version);
-            sdb = sdb_ns_path(core->sdb, path_version, 0);
+            auto path_version =
+                    QString("bin/cur/info/versioninfo/verneed/version%0").arg(num_version);
+            sdb = sdb_ns_path(core->sdb, path_version.toStdString().c_str(), 0);
             if (!sdb) {
                 break;
             }
             const char *filename = sdb_const_get(sdb, "file_name", 0);
             auto *parentItem = new QTreeWidgetItem();
-            QString parentString;
             parentItem->setText(0, RzAddressString(sdb_num_get(sdb, "idx", 0)));
-            parentString.append("Version: " + QString::number(sdb_num_get(sdb, "vn_version", 0))
-                                + "\t");
-            parentString.append("File: " + QString(filename));
-            parentItem->setText(1, parentString);
+            parentItem->setText(1,
+                                QString("Version: %0\t"
+                                        "File: %1")
+                                        .arg(QString::number(sdb_num_get(sdb, "vn_version", 0)),
+                                             QString(filename)));
 
             int num_vernaux = 0;
             while (true) {
-                const char *const path_vernaux =
-                        sdb_fmt("%s/vernaux%d", path_version, num_vernaux++);
-                sdb = sdb_ns_path(core->sdb, path_vernaux, 0);
+                auto path_vernaux =
+                        QString("%0/vernaux%1").arg(path_version, QString::number(num_vernaux++));
+                sdb = sdb_ns_path(core->sdb, path_vernaux.toStdString().c_str(), 0);
                 if (!sdb) {
                     break;
                 }
@@ -157,23 +157,26 @@ void VersionInfoDialog::fillVersionInfo()
         Sdb *sdb = NULL;
 
         // Left tree
-        char *path_version = rz_str_newf("bin/cur/info/vs_version_info/VS_VERSIONINFO%d", 0);
-        char *path_fixedfileinfo = rz_str_newf("%s/fixed_file_info", path_version);
-        sdb = sdb_ns_path(core->sdb, path_fixedfileinfo, 0);
-        free(path_fixedfileinfo);
+        auto path_version = QString("bin/cur/info/vs_version_info/VS_VERSIONINFO%0").arg(0);
+        auto path_fixedfileinfo = QString("%0/fixed_file_info").arg(path_version);
+        sdb = sdb_ns_path(core->sdb, path_fixedfileinfo.toStdString().c_str(), 0);
         if (!sdb) {
             return;
         }
         ut32 file_version_ms = sdb_num_get(sdb, "FileVersionMS", 0);
         ut32 file_version_ls = sdb_num_get(sdb, "FileVersionLS", 0);
-        char *file_version =
-                rz_str_newf("%u.%u.%u.%u", file_version_ms >> 16, file_version_ms & 0xFFFF,
-                            file_version_ls >> 16, file_version_ls & 0xFFFF);
+        auto file_version = QString("%0.%1.%2.%3")
+                                    .arg(file_version_ms >> 16)
+                                    .arg(file_version_ms & 0xFFFF)
+                                    .arg(file_version_ls >> 16)
+                                    .arg(file_version_ls & 0xFFFF);
         ut32 product_version_ms = sdb_num_get(sdb, "ProductVersionMS", 0);
         ut32 product_version_ls = sdb_num_get(sdb, "ProductVersionLS", 0);
-        char *product_version =
-                rz_str_newf("%u.%u.%u.%u", product_version_ms >> 16, product_version_ms & 0xFFFF,
-                            product_version_ls >> 16, product_version_ls & 0xFFFF);
+        auto product_version = QString("%0.%1.%2.%3")
+                                       .arg(product_version_ms >> 16)
+                                       .arg(product_version_ms & 0xFFFF)
+                                       .arg(product_version_ls >> 16)
+                                       .arg(product_version_ls & 0xFFFF);
 
         auto item = new QTreeWidgetItem();
         item->setText(0, "Signature");
@@ -220,25 +223,21 @@ void VersionInfoDialog::fillVersionInfo()
         item->setText(1, RzHexString(sdb_num_get(sdb, "FileSubType", 0)));
         ui->leftTreeWidget->addTopLevelItem(item);
 
-        free(file_version);
-        free(product_version);
-
         // Adjust columns to content
         qhelpers::adjustColumns(ui->leftTreeWidget, 0);
 
         // Right tree
         for (int num_stringtable = 0;; num_stringtable++) {
-            char *path_stringtable =
-                    rz_str_newf("%s/string_file_info/stringtable%d", path_version, num_stringtable);
-            sdb = sdb_ns_path(core->sdb, path_stringtable, 0);
+            auto path_stringtable = QString("%0/string_file_info/stringtable%1")
+                                            .arg(path_version)
+                                            .arg(num_stringtable);
+            sdb = sdb_ns_path(core->sdb, path_stringtable.toStdString().c_str(), 0);
             if (!sdb) {
-                free(path_stringtable);
                 break;
             }
             for (int num_string = 0; sdb; num_string++) {
-                char *path_string = rz_str_newf("%s/string%d", path_stringtable, num_string);
-                sdb = sdb_ns_path(core->sdb, path_string, 0);
-                free(path_string);
+                auto path_string = QString("%0/string%1").arg(path_stringtable).arg(num_string);
+                sdb = sdb_ns_path(core->sdb, path_string.toStdString().c_str(), 0);
                 if (!sdb) {
                     continue;
                 }
@@ -253,9 +252,7 @@ void VersionInfoDialog::fillVersionInfo()
                 free(key_utf16);
                 free(val_utf16);
             }
-            free(path_stringtable);
         }
-        free(path_version);
         qhelpers::adjustColumns(ui->rightTreeWidget, 0);
     }
 }
