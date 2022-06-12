@@ -3137,20 +3137,30 @@ QList<ExportDescription> CutterCore::getAllExports()
 {
     CORE_LOCK();
     QList<ExportDescription> ret;
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    const RzList *symbols = rz_bin_object_get_symbols(bf->o);
+    QString lang = getConfigi("bin.demangle") ? getConfig("bin.lang") : "";
+    bool va = core->io->va || core->bin->is_debugger;
 
-    for (CutterJson exportObject : cmdj("iEj")) {
-        ExportDescription exp;
+    for (const auto &symbol : CutterRzList<RzBinSymbol>(symbols)) {
+        if (!(symbol->name && rz_core_sym_is_export(symbol))) {
+            continue;
+        }
 
-        exp.vaddr = exportObject[RJsonKey::vaddr].toRVA();
-        exp.paddr = exportObject[RJsonKey::paddr].toRVA();
-        exp.size = exportObject[RJsonKey::size].toRVA();
-        exp.type = exportObject[RJsonKey::type].toString();
-        exp.name = exportObject[RJsonKey::name].toString();
-        exp.flag_name = exportObject[RJsonKey::flagname].toString();
+        SymName sn = {};
+        rz_core_sym_name_init(core, &sn, symbol, lang.isEmpty() ? NULL : lang.toUtf8().constData());
 
-        ret << exp;
+        ExportDescription exportDescription;
+        exportDescription.vaddr = rva(bf->o, symbol->paddr, symbol->vaddr, va);
+        exportDescription.paddr = symbol->paddr;
+        exportDescription.size = symbol->size;
+        exportDescription.type = symbol->type;
+        exportDescription.name = sn.rz_symbol_name;
+        exportDescription.flag_name = sn.nameflag;
+        ret << exportDescription;
+
+        rz_core_sym_name_fini(&sn);
     }
-
     return ret;
 }
 
