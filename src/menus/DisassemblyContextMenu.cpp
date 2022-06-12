@@ -526,9 +526,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
         RzCoreLocked core(Core());
         RzList *typeoffs = rz_type_db_get_by_offset(core->analysis->typedb, memDisp);
-        RzListIter *iter;
-        RzTypePath *ty;
-        CutterRzListForeach (typeoffs, iter, RzTypePath, ty) {
+        for (const auto &ty : CutterRzList<RzTypePath>(typeoffs)) {
             if (RZ_STR_ISEMPTY(ty->path)) {
                 continue;
             }

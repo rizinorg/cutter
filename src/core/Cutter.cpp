@@ -2893,9 +2893,7 @@ void CutterCore::getOpcodes()
 
     this->regs = {};
     const RzList *rs = rz_reg_get_list(core->dbg->reg, RZ_REG_TYPE_ANY);
-    RzListIter *iter;
-    RzRegItem *r;
-    CutterRzListForeach (rs, iter, RzRegItem, r) {
+    for (const auto &r : CutterRzList<RzRegItem>(rs)) {
         this->regs.push_back(r->name);
     }
 }
@@ -4460,10 +4458,8 @@ QByteArray CutterCore::ioRead(RVA addr, int len)
 QStringList CutterCore::getConfigVariableSpaces(const QString &key)
 {
     CORE_LOCK();
-    RzListIter *iter;
-    RzConfigNode *node;
     QStringList stringList;
-    CutterRzListForeach (core->config->nodes, iter, RzConfigNode, node) {
+    for (const auto &node : CutterRzList<RzConfigNode>(core->config->nodes)) {
         stringList.push_back(node->name);
     }
 

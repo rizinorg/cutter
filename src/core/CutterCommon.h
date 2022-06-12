@@ -97,7 +97,7 @@ public:
             if (!iter) {
                 return nullptr;
             }
-            return static_cast<T *>(iter->data);
+            return reinterpret_cast<T *>(iter->data);
         }
     };
 
