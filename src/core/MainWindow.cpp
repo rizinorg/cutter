@@ -641,7 +641,9 @@ void MainWindow::finalizeOpen()
     core->updateSeek();
     refreshAll();
     // Add fortune message
-    core->message("\n" + core->cmdRaw("fo"));
+    char *fortune = rz_core_fortune_get_random(core->core());
+    core->message("\n" + QString(fortune));
+    free(fortune);
 
     // hide all docks before showing window to avoid false positive for refreshDeferrer
     for (auto dockWidget : dockWidgets) {
