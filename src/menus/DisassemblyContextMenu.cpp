@@ -526,14 +526,16 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
         RzCoreLocked core(Core());
         RzList *typeoffs = rz_type_db_get_by_offset(core->analysis->typedb, memDisp);
-        for (const auto &ty : CutterRzList<RzTypePath>(typeoffs)) {
-            if (RZ_STR_ISEMPTY(ty->path)) {
-                continue;
+        if (typeoffs) {
+            for (const auto &ty : CutterRzList<RzTypePath>(typeoffs)) {
+                if (RZ_STR_ISEMPTY(ty->path)) {
+                    continue;
+                }
+                structureOffsetMenu->addAction("[" + memBaseReg + " + " + ty->path + "]")
+                        ->setData(ty->path);
             }
-            structureOffsetMenu->addAction("[" + memBaseReg + " + " + ty->path + "]")
-                    ->setData(ty->path);
+            rz_list_free(typeoffs);
         }
-        rz_list_free(typeoffs);
 
         if (structureOffsetMenu->isEmpty()) {
             // No possible offset was found so hide the menu

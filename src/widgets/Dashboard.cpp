@@ -136,13 +136,14 @@ void Dashboard::updateContents()
     }
 
     const RzList *libs = rz_bin_object_get_libs(bf->o);
-    char *lib;
-    CutterRzListForeach (libs, iter, char, lib) {
-        QLabel *label = new QLabel(this);
-        label->setText(lib);
-        label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        label->setTextInteractionFlags(Qt::TextSelectableByMouse);
-        ui->verticalLayout_2->addWidget(label);
+    if (libs) {
+        for (const auto &lib : CutterRzList<char>(libs)) {
+            auto *label = new QLabel(this);
+            label->setText(lib);
+            label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+            label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+            ui->verticalLayout_2->addWidget(label);
+        }
     }
 
     QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding);

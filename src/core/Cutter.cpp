@@ -2893,6 +2893,9 @@ void CutterCore::getOpcodes()
 
     this->regs = {};
     const RzList *rs = rz_reg_get_list(core->dbg->reg, RZ_REG_TYPE_ANY);
+    if (!rs) {
+        return;
+    }
     for (const auto &r : CutterRzList<RzRegItem>(rs)) {
         this->regs.push_back(r->name);
     }

@@ -102,7 +102,13 @@ public:
     };
 
     explicit CutterRzList(const RzList *l) : list(l) {}
-    iterator begin() const { return iterator(list->head); }
+    iterator begin() const
+    {
+        if (!list) {
+            return iterator(nullptr);
+        }
+        return iterator(list->head);
+    }
     iterator end() const { return iterator(nullptr); }
 };
 
