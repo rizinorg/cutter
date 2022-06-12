@@ -564,7 +564,18 @@ void FunctionsWidget::refreshTree()
                     importAddresses.insert(import.plt);
                 }
 
-                mainAdress = (ut64)Core()->cmdj("iMj")["vaddr"].toUt64();
+                mainAdress = RVA_INVALID;
+                RzCoreLocked core(Core());
+                RzBinFile *bf = rz_bin_cur(core->bin);
+                if (bf) {
+                    const RzBinAddr *binmain =
+                            rz_bin_object_get_special_symbol(bf->o, RZ_BIN_SPECIAL_SYMBOL_MAIN);
+                    if (binmain) {
+                        int va = core->io->va || core->bin->is_debugger;
+                        mainAdress = va ? rz_bin_object_addr_with_base(bf->o, binmain->vaddr)
+                                        : binmain->paddr;
+                    }
+                }
 
                 functionModel->updateCurrentIndex();
                 functionModel->endResetModel();
