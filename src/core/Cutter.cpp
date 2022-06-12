@@ -1199,7 +1199,21 @@ void CutterCore::message(const QString &msg, bool debug)
 QString CutterCore::getConfig(const char *k)
 {
     CORE_LOCK();
-    return QString(rz_config_get(core->config, k));
+    return { rz_config_get(core->config, k) };
+}
+
+QStringList CutterCore::getConfigOptions(const char *k)
+{
+    CORE_LOCK();
+    RzConfigNode *node = rz_config_node_get(core->config, k);
+    if (!(node && node->options)) {
+        return {};
+    }
+    QStringList list;
+    for (const auto &s : CutterRzList<char>(node->options)) {
+        list << s;
+    }
+    return list;
 }
 
 void CutterCore::setConfig(const char *k, const QVariant &v)
@@ -4462,6 +4476,5 @@ QStringList CutterCore::getConfigVariableSpaces(const QString &key)
                        [](const QString &x) { return x.split('.').first(); });
     }
     stringList.removeDuplicates();
-    qDebug() << stringList;
     return stringList;
 }

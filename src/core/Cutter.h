@@ -393,6 +393,7 @@ public:
     QString getConfig(const char *k);
     QString getConfig(const QString &k) { return getConfig(k.toUtf8().constData()); }
     QString getConfigDescription(const char *k);
+    QStringList getConfigOptions(const char *k);
     QStringList getColorThemes();
     QHash<QString, QColor> getTheme();
     QStringList getThemeKeys();
