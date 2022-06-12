@@ -4450,13 +4450,18 @@ QStringList CutterCore::getConfigVariableSpaces(const QString &key)
     RzConfigNode *node;
     QStringList stringList;
     CutterRzListForeach (core->config->nodes, iter, RzConfigNode, node) {
-        QString space { node->name };
-        if (!key.isEmpty() && space.startsWith(key)) {
-            stringList.push_back(space.right(key.size()));
-            continue;
-        }
-        stringList.push_back(space);
+        stringList.push_back(node->name);
+    }
+
+    if (!key.isEmpty()) {
+        stringList = stringList.filter(QRegularExpression(QString("^%0\\..*").arg(key)));
+        std::transform(stringList.begin(), stringList.end(), stringList.begin(),
+                       [](const QString &x) { return x.split('.').last(); });
+    } else {
+        std::transform(stringList.begin(), stringList.end(), stringList.begin(),
+                       [](const QString &x) { return x.split('.').first(); });
     }
     stringList.removeDuplicates();
+    qDebug() << stringList;
     return stringList;
 }

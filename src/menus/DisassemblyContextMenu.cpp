@@ -532,7 +532,8 @@ void DisassemblyContextMenu::aboutToShowSlot()
             if (RZ_STR_ISEMPTY(ty->path)) {
                 continue;
             }
-            structureOffsetMenu->addAction("[" + memBaseReg + " + " + ty->path + "]")->setData(ty->path);
+            structureOffsetMenu->addAction("[" + memBaseReg + " + " + ty->path + "]")
+                    ->setData(ty->path);
         }
         rz_list_free(typeoffs);
 
