@@ -111,16 +111,25 @@ void Dashboard::updateContents()
         hashesLayout->addRow(new QLabel(label), hashLineEdit);
     }
 
-    CutterJson analinfo = Core()->cmdj("aaij");
-    setPlainText(ui->functionsLineEdit, QString::number(analinfo["fcns"].toSt64()));
-    setPlainText(ui->xRefsLineEdit, QString::number(analinfo["xrefs"].toSt64()));
-    setPlainText(ui->callsLineEdit, QString::number(analinfo["calls"].toSt64()));
-    setPlainText(ui->stringsLineEdit, QString::number(analinfo["strings"].toSt64()));
-    setPlainText(ui->symbolsLineEdit, QString::number(analinfo["symbols"].toSt64()));
-    setPlainText(ui->importsLineEdit, QString::number(analinfo["imports"].toSt64()));
-    setPlainText(ui->coverageLineEdit, QString::number(analinfo["covrage"].toSt64()) + " bytes");
-    setPlainText(ui->codeSizeLineEdit, QString::number(analinfo["codesz"].toSt64()) + " bytes");
-    setPlainText(ui->percentageLineEdit, QString::number(analinfo["percent"].toSt64()) + "%");
+    st64 fcns = rz_list_length(core->analysis->fcns);
+    st64 strs = rz_flag_count(core->flags, "str.*");
+    st64 syms = rz_flag_count(core->flags, "sym.*");
+    st64 imps = rz_flag_count(core->flags, "sym.imp.*");
+    st64 code = rz_core_analysis_code_count(core);
+    st64 covr = rz_core_analysis_coverage_count(core);
+    st64 call = rz_core_analysis_calls_count(core);
+    ut64 xrfs = rz_analysis_xrefs_count(core->analysis);
+    double precentage = (code > 0) ? (covr * 100.0 / code) : 0;
+
+    setPlainText(ui->functionsLineEdit, QString::number(fcns));
+    setPlainText(ui->xRefsLineEdit, QString::number(xrfs));
+    setPlainText(ui->callsLineEdit, QString::number(call));
+    setPlainText(ui->stringsLineEdit, QString::number(strs));
+    setPlainText(ui->symbolsLineEdit, QString::number(syms));
+    setPlainText(ui->importsLineEdit, QString::number(imps));
+    setPlainText(ui->coverageLineEdit, QString::number(covr) + " bytes");
+    setPlainText(ui->codeSizeLineEdit, QString::number(code) + " bytes");
+    setPlainText(ui->percentageLineEdit, QString::number(precentage) + "%");
 
     // dunno: why not label->setText(lines.join("\n")?
     while (ui->verticalLayout_2->count() > 0) {
