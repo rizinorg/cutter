@@ -1418,11 +1418,6 @@ bool CutterCore::registerDecompiler(Decompiler *decompiler)
     return true;
 }
 
-CutterJson CutterCore::getFileVersionInfo()
-{
-    return cmdj("iVj");
-}
-
 QString CutterCore::getSignatureInfo()
 {
     CORE_LOCK();

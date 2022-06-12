@@ -569,9 +569,7 @@ public:
     bool registerDecompiler(Decompiler *decompiler);
 
     RVA getOffsetJump(RVA addr);
-    CutterJson getFileInfo();
     QString getSignatureInfo();
-    CutterJson getFileVersionInfo();
     void setGraphEmpty(bool empty);
     bool isGraphEmpty();
 
