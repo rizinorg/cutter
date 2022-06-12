@@ -3316,22 +3316,28 @@ QList<RelocDescription> CutterCore::getAllRelocs()
 
 QList<StringDescription> CutterCore::getAllStrings()
 {
-    return parseStringsJson(cmdjTask("izzj"));
-}
+    CORE_LOCK();
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    RzBinObject *obj = rz_bin_cur_object(core->bin);
+    RzList *l = rz_core_bin_whole_strings(core, bf);
+    int va = core->io->va || core->bin->is_debugger;
+    RzStrEscOptions opt = {};
+    opt.show_asciidot = false;
+    opt.esc_bslash = true;
+    opt.esc_double_quotes = true;
 
-QList<StringDescription> CutterCore::parseStringsJson(const CutterJson &doc)
-{
     QList<StringDescription> ret;
+    for (const auto &str : CutterRzList<RzBinString>(l)) {
+        auto section = obj ? rz_bin_get_section_at(obj, str->paddr, 0) : NULL;
 
-    for (CutterJson value : doc) {
         StringDescription string;
 
-        string.string = value[RJsonKey::string].toString();
-        string.vaddr = value[RJsonKey::vaddr].toRVA();
-        string.type = value[RJsonKey::type].toString();
-        string.size = value[RJsonKey::size].toUt64();
-        string.length = value[RJsonKey::length].toUt64();
-        string.section = value[RJsonKey::section].toString();
+        string.string = rz_str_escape_utf8_keep_printable(str->string, &opt);
+        string.vaddr = obj ? rva(obj, str->paddr, str->vaddr, va) : str->paddr;
+        string.type = str->type;
+        string.size = str->size;
+        string.length = str->length;
+        string.section = section ? section->name : "";
 
         ret << string;
     }

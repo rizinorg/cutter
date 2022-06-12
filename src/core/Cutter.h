@@ -682,8 +682,6 @@ public:
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString());
 
-    QList<StringDescription> parseStringsJson(const CutterJson &doc);
-
     void handleREvent(int type, void *data);
 
     /* Signals related */
