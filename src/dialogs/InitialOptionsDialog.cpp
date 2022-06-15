@@ -40,7 +40,7 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
     updateCPUComboBox();
 
     // os combo box
-    for (const auto &plugin : core->cmdList("e asm.os=?")) {
+    for (const auto &plugin : Core()->getConfigOptions("asm.os")) {
         ui->kernelComboBox->addItem(plugin, plugin);
     }
 

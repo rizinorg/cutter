@@ -1199,7 +1199,21 @@ void CutterCore::message(const QString &msg, bool debug)
 QString CutterCore::getConfig(const char *k)
 {
     CORE_LOCK();
-    return QString(rz_config_get(core->config, k));
+    return { rz_config_get(core->config, k) };
+}
+
+QStringList CutterCore::getConfigOptions(const char *k)
+{
+    CORE_LOCK();
+    RzConfigNode *node = rz_config_node_get(core->config, k);
+    if (!(node && node->options)) {
+        return {};
+    }
+    QStringList list;
+    for (const auto &s : CutterRzList<char>(node->options)) {
+        list << s;
+    }
+    return list;
 }
 
 void CutterCore::setConfig(const char *k, const QVariant &v)
@@ -2146,11 +2160,15 @@ void CutterCore::stopDebug()
     currentlyRemoteDebugging = false;
     emit debugTaskStateChanged();
 
+    CORE_LOCK();
     if (currentlyEmulating) {
-        cmdEsil("aeim-; aei-; wcr; .ar-; aets-");
+        cmdEsil("aeim- ; aei-");
+        resetWriteCache();
+        rz_core_debug_clear_register_flags(core);
+        rz_core_analysis_esil_trace_stop(core);
         currentlyEmulating = false;
     } else {
-        rz_core_debug_process_close(core());
+        rz_core_debug_process_close(core);
         currentlyAttachedToPID = -1;
     }
 
@@ -2870,8 +2888,17 @@ bool CutterCore::isGraphEmpty()
 
 void CutterCore::getOpcodes()
 {
+    CORE_LOCK();
     this->opcodes = cmdList("?O");
-    this->regs = cmdList("drp~[1]");
+
+    this->regs = {};
+    const RzList *rs = rz_reg_get_list(core->dbg->reg, RZ_REG_TYPE_ANY);
+    if (!rs) {
+        return;
+    }
+    for (const auto &r : CutterRzList<RzRegItem>(rs)) {
+        this->regs.push_back(r->name);
+    }
 }
 
 void CutterCore::setSettings()
@@ -4429,4 +4456,24 @@ QByteArray CutterCore::ioRead(RVA addr, int len)
     }
 
     return array;
+}
+
+QStringList CutterCore::getConfigVariableSpaces(const QString &key)
+{
+    CORE_LOCK();
+    QStringList stringList;
+    for (const auto &node : CutterRzList<RzConfigNode>(core->config->nodes)) {
+        stringList.push_back(node->name);
+    }
+
+    if (!key.isEmpty()) {
+        stringList = stringList.filter(QRegularExpression(QString("^%0\\..*").arg(key)));
+        std::transform(stringList.begin(), stringList.end(), stringList.begin(),
+                       [](const QString &x) { return x.split('.').last(); });
+    } else {
+        std::transform(stringList.begin(), stringList.end(), stringList.begin(),
+                       [](const QString &x) { return x.split('.').first(); });
+    }
+    stringList.removeDuplicates();
+    return stringList;
 }

@@ -92,7 +92,7 @@ JSDecDecompiler::JSDecDecompiler(QObject *parent) : Decompiler("jsdec", "jsdec",
 
 bool JSDecDecompiler::isAvailable()
 {
-    return Core()->cmdList("es").contains("jsdec");
+    return Core()->getConfigVariableSpaces().contains("jsdec");
 }
 
 void JSDecDecompiler::decompileAt(RVA addr)
