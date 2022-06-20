@@ -2096,9 +2096,15 @@ void CutterCore::attachDebug(int pid)
         offsetPriorDebugging = getOffset();
     }
 
-    QString attach_command = currentlyOpenFile.isEmpty() ? "o" : "oodf";
-    // attach to process with dbg plugin
-    asyncCmd("e cfg.debug=true;" + attach_command + " dbg://" + QString::number(pid), debugTask);
+    CORE_LOCK();
+    setConfig("cfg.debug", true);
+    auto uri = rz_str_newf("dbg://%d", pid);
+    if (currentlyOpenFile.isEmpty()) {
+        rz_core_file_open_load(core, uri, 0, RZ_PERM_R, false);
+    } else {
+        rz_core_file_reopen_remote_debug(core, uri, 0);
+    }
+    free(uri);
 
     emit debugTaskStateChanged();
 
