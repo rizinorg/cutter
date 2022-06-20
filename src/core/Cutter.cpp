@@ -2152,7 +2152,8 @@ void CutterCore::stopDebug()
 
     CORE_LOCK();
     if (currentlyEmulating) {
-        cmdEsil("aeim- ; aei-");
+        rz_core_analysis_esil_init_mem_del(core, NULL, UT64_MAX, UT32_MAX);
+        rz_core_analysis_esil_deinit(core);
         resetWriteCache();
         rz_core_debug_clear_register_flags(core);
         rz_core_analysis_esil_trace_stop(core);
@@ -3893,8 +3894,7 @@ QString CutterCore::getTypeAsC(QString name)
         return output;
     }
     char *earg = rz_cmd_escape_arg(name.toUtf8().constData(), RZ_CMD_ESCAPE_ONE_ARG);
-    // TODO: use API for `tc` command once available
-    QString result = cmd(QString("tc %1").arg(earg));
+    QString result = fromOwnedCharPtr(rz_core_types_as_c(core, earg, true));
     free(earg);
     return result;
 }
@@ -4467,19 +4467,15 @@ QByteArray CutterCore::ioRead(RVA addr, int len)
 QStringList CutterCore::getConfigVariableSpaces(const QString &key)
 {
     CORE_LOCK();
-    QStringList stringList;
-    for (const auto &node : CutterRzList<RzConfigNode>(core->config->nodes)) {
-        stringList.push_back(node->name);
+    RzList *list = rz_core_config_variable_spaces(core, key.toUtf8().constData());
+    if (!list) {
+        return {};
     }
 
-    if (!key.isEmpty()) {
-        stringList = stringList.filter(QRegularExpression(QString("^%0\\..*").arg(key)));
-        std::transform(stringList.begin(), stringList.end(), stringList.begin(),
-                       [](const QString &x) { return x.split('.').last(); });
-    } else {
-        std::transform(stringList.begin(), stringList.end(), stringList.begin(),
-                       [](const QString &x) { return x.split('.').first(); });
+    QStringList stringList;
+    for (const auto &x : CutterRzList<char>(list)) {
+        stringList << x;
     }
-    stringList.removeDuplicates();
+    rz_list_free(list);
     return stringList;
 }
