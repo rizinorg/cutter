@@ -3143,18 +3143,25 @@ QList<ImportDescription> CutterCore::getAllImports()
 QList<ExportDescription> CutterCore::getAllExports()
 {
     CORE_LOCK();
-    QList<ExportDescription> ret;
     RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf) {
+        return {};
+    }
     const RzList *symbols = rz_bin_object_get_symbols(bf->o);
+    if (!symbols) {
+        return {};
+    }
+
     QString lang = getConfigi("bin.demangle") ? getConfig("bin.lang") : "";
     bool va = core->io->va || core->bin->is_debugger;
 
+    QList<ExportDescription> ret;
     for (const auto &symbol : CutterRzList<RzBinSymbol>(symbols)) {
         if (!(symbol->name && rz_core_sym_is_export(symbol))) {
             continue;
         }
 
-        SymName sn = {};
+        RzBinSymNames sn = {};
         rz_core_sym_name_init(core, &sn, symbol, lang.isEmpty() ? NULL : lang.toUtf8().constData());
 
         ExportDescription exportDescription;
@@ -3162,7 +3169,7 @@ QList<ExportDescription> CutterCore::getAllExports()
         exportDescription.paddr = symbol->paddr;
         exportDescription.size = symbol->size;
         exportDescription.type = symbol->type;
-        exportDescription.name = sn.rz_symbol_name;
+        exportDescription.name = sn.symbolname;
         exportDescription.flag_name = sn.nameflag;
         ret << exportDescription;
 
@@ -3325,8 +3332,18 @@ QList<StringDescription> CutterCore::getAllStrings()
 {
     CORE_LOCK();
     RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf) {
+        return {};
+    }
     RzBinObject *obj = rz_bin_cur_object(core->bin);
+    if (!obj) {
+        return {};
+    }
     RzList *l = rz_core_bin_whole_strings(core, bf);
+    if (!l) {
+        return {};
+    }
+
     int va = core->io->va || core->bin->is_debugger;
     RzStrEscOptions opt = {};
     opt.show_asciidot = false;
@@ -3338,7 +3355,6 @@ QList<StringDescription> CutterCore::getAllStrings()
         auto section = obj ? rz_bin_get_section_at(obj, str->paddr, 0) : NULL;
 
         StringDescription string;
-
         string.string = rz_str_escape_utf8_keep_printable(str->string, &opt);
         string.vaddr = obj ? rva(obj, str->paddr, str->vaddr, va) : str->paddr;
         string.type = str->type;
@@ -4473,7 +4489,7 @@ QByteArray CutterCore::ioRead(RVA addr, int len)
 QStringList CutterCore::getConfigVariableSpaces(const QString &key)
 {
     CORE_LOCK();
-    RzList *list = rz_core_config_variable_spaces(core, key.toUtf8().constData());
+    RzList *list = rz_core_config_in_space(core, key.toUtf8().constData());
     if (!list) {
         return {};
     }

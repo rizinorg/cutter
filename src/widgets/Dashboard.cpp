@@ -35,18 +35,21 @@ void Dashboard::updateContents()
     RzCoreLocked core(Core());
     int fd = rz_io_fd_get_current(core->io);
     RzIODesc *desc = rz_io_desc_get(core->io, fd);
-    RzBinFile *bf = rz_bin_cur(core->bin);
-
     setPlainText(this->ui->modeEdit, desc ? rz_str_rwx_i(desc->perm & RZ_PERM_RWX) : "");
-    setPlainText(this->ui->compilationDateEdit, rz_core_bin_get_compile_time(bf));
 
-    char *relco_buf = sdb_get(bf->o->kv, "elf.relro", 0);
-    if (RZ_STR_ISNOTEMPTY(relco_buf)) {
-        QString relro = QString(relco_buf).section(QLatin1Char(' '), 0, 0);
-        relro[0] = relro[0].toUpper();
-        setPlainText(this->ui->relroEdit, relro);
-    } else {
-        setPlainText(this->ui->relroEdit, "N/A");
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    if (bf) {
+        setPlainText(this->ui->compilationDateEdit, rz_core_bin_get_compile_time(bf));
+        if (bf->o) {
+            char *relco_buf = sdb_get(bf->o->kv, "elf.relro", 0);
+            if (RZ_STR_ISNOTEMPTY(relco_buf)) {
+                QString relro = QString(relco_buf).section(QLatin1Char(' '), 0, 0);
+                relro[0] = relro[0].toUpper();
+                setPlainText(this->ui->relroEdit, relro);
+            } else {
+                setPlainText(this->ui->relroEdit, "N/A");
+            }
+        }
     }
 
     // Add file hashes, analysis info and libraries

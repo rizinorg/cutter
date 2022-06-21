@@ -25,14 +25,19 @@ void VersionInfoDialog::fillVersionInfo()
 {
     RzCoreLocked core(Core());
     const RzBinInfo *info = rz_bin_get_info(core->bin);
+    if (!info) {
+        return;
+    }
     // Case ELF
     if (strncmp("elf", info->rclass, 3) == 0) {
-        Sdb *sdb = sdb_ns_path(core->sdb, "bin/cur/info/versioninfo/versym", 0);
-
         // Set labels
         ui->leftLabel->setText("Version symbols");
         ui->rightLabel->setText("Version need");
 
+        Sdb *sdb = sdb_ns_path(core->sdb, "bin/cur/info/versioninfo/versym", 0);
+        if (!sdb) {
+            return;
+        }
         // Left tree
         QTreeWidgetItem *secNameItemL = new QTreeWidgetItem();
         secNameItemL->setText(0, "Section name:");
