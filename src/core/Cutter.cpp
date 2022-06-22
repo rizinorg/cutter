@@ -644,6 +644,10 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
 
 bool CutterCore::tryFile(QString path, bool rw)
 {
+    if (path.isEmpty()) {
+        // opening no file is always possible
+        return true;
+    }
     CORE_LOCK();
     RzCoreFile *cf;
     int flags = RZ_PERM_R;
@@ -3484,6 +3488,9 @@ QList<EntrypointDescription> CutterCore::getAllEntrypoint()
 {
     CORE_LOCK();
     RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf) {
+        return {};
+    }
     bool va = core->io->va || core->bin->is_debugger;
     ut64 baddr = rz_bin_get_baddr(core->bin);
     ut64 laddr = rz_bin_get_laddr(core->bin);
@@ -4321,14 +4328,15 @@ void CutterCore::commitWriteCache()
     // Temporarily disable cache mode
     TempConfig tempConfig;
     tempConfig.set("io.cache", false);
-    if (!isWriteModeEnabled()) {
-        rz_core_io_file_reopen(core, core->io->desc->fd, RZ_PERM_RW);
-        rz_io_cache_commit(core->io, 0, UT64_MAX);
-        rz_core_block_read(core);
-        rz_core_io_file_open(core, core->io->desc->fd);
-    } else {
-        rz_io_cache_commit(core->io, 0, UT64_MAX);
-        rz_core_block_read(core);
+    auto desc = core->io->desc;
+    bool reopen = !isWriteModeEnabled() && desc;
+    if (reopen) {
+        rz_core_io_file_reopen(core, desc->fd, RZ_PERM_RW);
+    }
+    rz_io_cache_commit(core->io, 0, UT64_MAX);
+    rz_core_block_read(core);
+    if (reopen) {
+        rz_core_io_file_open(core, desc->fd);
     }
 }
 
@@ -4350,13 +4358,16 @@ void CutterCore::setWriteMode(bool enabled)
 
     CORE_LOCK();
     // Change from read-only to write-mode
-    if (enabled) {
-        if (!writeModeState) {
-            rz_core_io_file_reopen(core, core->io->desc->fd, RZ_PERM_RW);
+    RzIODesc *desc = core->io->desc;
+    if (desc) {
+        if (enabled) {
+            if (!writeModeState) {
+                rz_core_io_file_reopen(core, desc->fd, RZ_PERM_RW);
+            }
+        } else {
+            // Change from write-mode to read-only
+            rz_core_io_file_open(core, desc->fd);
         }
-    } else {
-        // Change from write-mode to read-only
-        rz_core_io_file_open(core, core->io->desc->fd);
     }
     // Disable cache mode because we specifically set write or
     // read-only modes.
