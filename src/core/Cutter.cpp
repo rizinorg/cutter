@@ -762,10 +762,14 @@ QString CutterCore::getInstructionOpcode(RVA addr)
     return fromOwnedCharPtr(ret);
 }
 
-void CutterCore::editInstruction(RVA addr, const QString &inst)
+void CutterCore::editInstruction(RVA addr, const QString &inst, bool fillWithNops)
 {
     CORE_LOCK();
-    rz_core_write_assembly(core, addr, inst.trimmed().toStdString().c_str());
+    if (fillWithNops) {
+        rz_core_write_assembly_fill(core, addr, inst.trimmed().toStdString().c_str());
+    } else {
+        rz_core_write_assembly(core, addr, inst.trimmed().toStdString().c_str());
+    }
     emit instructionChanged(addr);
 }
 

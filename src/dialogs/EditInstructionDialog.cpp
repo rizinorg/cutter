@@ -2,12 +2,20 @@
 #include "ui_EditInstructionDialog.h"
 #include "core/Cutter.h"
 
+#include <QCheckBox>
+
 EditInstructionDialog::EditInstructionDialog(InstructionEditMode editMode, QWidget *parent)
     : QDialog(parent), ui(new Ui::EditInstructionDialog), editMode(editMode)
 {
     ui->setupUi(this);
     ui->lineEdit->setMinimumWidth(400);
     ui->instructionLabel->setWordWrap(true);
+    if (editMode == EDIT_TEXT) {
+        ui->fillWithNops->setVisible(true);
+        ui->fillWithNops->setCheckState(Qt::Checked);
+    } else {
+        ui->fillWithNops->setVisible(false);
+    }
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
     connect(ui->lineEdit, &QLineEdit::textEdited, this, &EditInstructionDialog::updatePreview);
@@ -20,6 +28,15 @@ void EditInstructionDialog::on_buttonBox_accepted() {}
 void EditInstructionDialog::on_buttonBox_rejected()
 {
     close();
+}
+
+bool EditInstructionDialog::needsNops() const
+{
+    if (editMode != EDIT_TEXT) {
+        return false;
+    }
+
+    return ui->fillWithNops->checkState() == Qt::Checked;
 }
 
 QString EditInstructionDialog::getInstruction() const
