@@ -259,7 +259,7 @@ public:
     /* Edition functions */
     QString getInstructionBytes(RVA addr);
     QString getInstructionOpcode(RVA addr);
-    void editInstruction(RVA addr, const QString &inst);
+    void editInstruction(RVA addr, const QString &inst, bool fillWithNops = false);
     void nopInstruction(RVA addr);
     void jmpReverse(RVA addr);
     void editBytes(RVA addr, const QString &inst);

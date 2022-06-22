@@ -704,9 +704,10 @@ void DisassemblyContextMenu::on_actionEditInstruction_triggered()
     e.setInstruction(oldInstructionOpcode);
 
     if (e.exec()) {
+        bool fillWithNops = e.needsNops();
         QString userInstructionOpcode = e.getInstruction();
         if (userInstructionOpcode != oldInstructionOpcode) {
-            Core()->editInstruction(offset, userInstructionOpcode);
+            Core()->editInstruction(offset, userInstructionOpcode, fillWithNops);
         }
     }
 }
