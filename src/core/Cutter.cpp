@@ -3393,7 +3393,6 @@ QList<SectionDescription> CutterCore::getAllSections()
             section.entropy = rz_str_get(entropy);
             ht_pp_free(digests);
         }
-        section.entropy = "";
 
         sections << section;
     }
