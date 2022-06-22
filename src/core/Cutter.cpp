@@ -3477,6 +3477,7 @@ QList<SegmentDescription> CutterCore::getAllSegments()
         segDesc.size = segment->size;
         segDesc.vsize = segment->vsize;
         segDesc.perm = perms_str(segment->perm);
+        ret << segDesc;
     }
     rz_list_free(segments);
 
