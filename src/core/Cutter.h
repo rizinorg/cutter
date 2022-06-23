@@ -663,6 +663,10 @@ public:
     QList<BreakpointDescription> getBreakpoints();
     QList<ProcessDescription> getAllProcesses();
     /**
+     * @brief Get the right RzReg object based on the cutter state (debugging vs emulating)
+     */
+    RzReg *getReg();
+    /**
      * @brief returns a list of reg values and their telescoped references
      * @param depth telescoping depth
      */
