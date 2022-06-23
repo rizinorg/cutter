@@ -127,14 +127,6 @@ static QString fromOwnedCharPtr(char *str)
     return result;
 }
 
-static bool reg_sync(RzCore *core, RzRegisterType type, bool write)
-{
-    if (rz_core_is_debug(core)) {
-        return rz_debug_reg_sync(core->dbg, type, write);
-    }
-    return true;
-}
-
 RzCoreLocked::RzCoreLocked(CutterCore *core) : core(core)
 {
     core->coreMutex.lock();
@@ -1528,7 +1520,8 @@ QList<RegisterRef> CutterCore::getRegisterRefs(int depth)
     }
 
     CORE_LOCK();
-    RzList *ritems = rz_core_reg_filter_items_sync(core, getReg(), reg_sync, nullptr);
+    RzList *ritems =
+            rz_core_reg_filter_items_sync(core, getReg(), rz_core_reg_update_flags_type, nullptr);
     if (!ritems) {
         return ret;
     }
@@ -1553,7 +1546,7 @@ QList<AddrRefs> CutterCore::getStack(int size, int depth)
     }
 
     CORE_LOCK();
-    RVA addr = rz_debug_reg_get(core->dbg, "SP");
+    RVA addr = rz_core_reg_getv_by_role_or_name(core, "SP");
     if (addr == RVA_INVALID) {
         return stack;
     }
@@ -1858,7 +1851,8 @@ QVector<RegisterRefValueDescription> CutterCore::getRegisterRefValues()
 {
     QVector<RegisterRefValueDescription> result;
     CORE_LOCK();
-    RzList *ritems = rz_core_reg_filter_items_sync(core, getReg(), reg_sync, nullptr);
+    RzList *ritems =
+            rz_core_reg_filter_items_sync(core, getReg(), rz_core_reg_update_flags_type, nullptr);
     if (!ritems) {
         return result;
     }
@@ -1868,7 +1862,7 @@ QVector<RegisterRefValueDescription> CutterCore::getRegisterRefValues()
         RegisterRefValueDescription desc;
         desc.name = ri->name;
         ut64 value = rz_reg_get_value(getReg(), ri);
-        desc.value = QString::number(value);
+        desc.value = "0x" + QString::number(value, 16);
         desc.ref = rz_core_analysis_hasrefs(core, value, true);
         result.push_back(desc);
     }
@@ -1889,7 +1883,7 @@ RVA CutterCore::getProgramCounterValue()
 {
     if (currentlyDebugging) {
         CORE_LOCK();
-        return rz_debug_reg_get(core->dbg, "PC");
+        return rz_core_reg_getv_by_role_or_name(core, "PC");
     }
     return RVA_INVALID;
 }
@@ -1901,7 +1895,8 @@ void CutterCore::setRegister(QString regName, QString regValue)
     }
     CORE_LOCK();
     ut64 val = rz_num_math(core->num, regValue.toUtf8().constData());
-    rz_core_reg_assign_sync(core, getReg(), reg_sync, regName.toUtf8().constData(), val);
+    rz_core_reg_assign_sync(core, getReg(), rz_core_reg_update_flags_type,
+                            regName.toUtf8().constData(), val);
     emit registersChanged();
     emit refreshCodeViews();
 }
