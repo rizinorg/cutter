@@ -2146,13 +2146,15 @@ void CutterCore::stopDebug()
     currentlyRemoteDebugging = false;
     emit debugTaskStateChanged();
 
+    CORE_LOCK();
     if (currentlyEmulating) {
         cmdEsil("aeim-; aei-");
         resetWriteCache();
-        cmdEsil(".ar-; aets-");
+        rz_core_debug_clear_register_flags(core);
+        rz_core_analysis_esil_trace_stop(core);
         currentlyEmulating = false;
     } else {
-        rz_core_debug_process_close(core());
+        rz_core_debug_process_close(core);
         currentlyAttachedToPID = -1;
     }
 
