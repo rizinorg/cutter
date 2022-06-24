@@ -2147,7 +2147,9 @@ void CutterCore::stopDebug()
     emit debugTaskStateChanged();
 
     if (currentlyEmulating) {
-        cmdEsil("aeim-; aei-; wcr; .ar-; aets-");
+        cmdEsil("aeim-; aei-");
+        resetWriteCache();
+        cmdEsil(".ar-; aets-");
         currentlyEmulating = false;
     } else {
         rz_core_debug_process_close(core());
