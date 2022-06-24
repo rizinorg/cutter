@@ -127,6 +127,14 @@ static QString fromOwnedCharPtr(char *str)
     return result;
 }
 
+static bool reg_sync(RzCore *core, RzRegisterType type, bool write)
+{
+    if (rz_core_is_debug(core)) {
+        return rz_debug_reg_sync(core->dbg, type, write);
+    }
+    return true;
+}
+
 RzCoreLocked::RzCoreLocked(CutterCore *core) : core(core)
 {
     core->coreMutex.lock();
@@ -1520,8 +1528,7 @@ QList<RegisterRef> CutterCore::getRegisterRefs(int depth)
     }
 
     CORE_LOCK();
-    RzList *ritems =
-            rz_core_reg_filter_items_sync(core, getReg(), rz_core_reg_update_flags_type, nullptr);
+    RzList *ritems = rz_core_reg_filter_items_sync(core, getReg(), reg_sync, nullptr);
     if (!ritems) {
         return ret;
     }
@@ -1851,8 +1858,7 @@ QVector<RegisterRefValueDescription> CutterCore::getRegisterRefValues()
 {
     QVector<RegisterRefValueDescription> result;
     CORE_LOCK();
-    RzList *ritems =
-            rz_core_reg_filter_items_sync(core, getReg(), rz_core_reg_update_flags_type, nullptr);
+    RzList *ritems = rz_core_reg_filter_items_sync(core, getReg(), reg_sync, nullptr);
     if (!ritems) {
         return result;
     }
@@ -1895,8 +1901,7 @@ void CutterCore::setRegister(QString regName, QString regValue)
     }
     CORE_LOCK();
     ut64 val = rz_num_math(core->num, regValue.toUtf8().constData());
-    rz_core_reg_assign_sync(core, getReg(), rz_core_reg_update_flags_type,
-                            regName.toUtf8().constData(), val);
+    rz_core_reg_assign_sync(core, getReg(), reg_sync, regName.toUtf8().constData(), val);
     emit registersChanged();
     emit refreshCodeViews();
 }
