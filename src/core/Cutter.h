@@ -259,7 +259,7 @@ public:
     /* Edition functions */
     QString getInstructionBytes(RVA addr);
     QString getInstructionOpcode(RVA addr);
-    void editInstruction(RVA addr, const QString &inst);
+    void editInstruction(RVA addr, const QString &inst, bool fillWithNops = false);
     void nopInstruction(RVA addr);
     void jmpReverse(RVA addr);
     void editBytes(RVA addr, const QString &inst);
@@ -393,10 +393,12 @@ public:
     QString getConfig(const char *k);
     QString getConfig(const QString &k) { return getConfig(k.toUtf8().constData()); }
     QString getConfigDescription(const char *k);
+    QStringList getConfigOptions(const char *k);
     QStringList getColorThemes();
     QHash<QString, QColor> getTheme();
     QStringList getThemeKeys();
     bool setColor(const QString &key, const QString &color);
+    QStringList getConfigVariableSpaces(const QString &key = "");
 
     /* Assembly\Hexdump related methods */
     QByteArray assemble(const QString &code);
@@ -660,6 +662,10 @@ public:
     QList<SearchDescription> getAllSearch(QString searchFor, QString space, QString in);
     QList<BreakpointDescription> getBreakpoints();
     QList<ProcessDescription> getAllProcesses();
+    /**
+     * @brief Get the right RzReg object based on the cutter state (debugging vs emulating)
+     */
+    RzReg *getReg();
     /**
      * @brief returns a list of reg values and their telescoped references
      * @param depth telescoping depth

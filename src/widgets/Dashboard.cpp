@@ -63,9 +63,9 @@ void Dashboard::updateContents()
     setPlainText(ui->subsysEdit, binInfo ? binInfo->subsystem : "");
     setPlainText(ui->compilerEdit, binInfo ? binInfo->compiler : "");
     setPlainText(ui->bitsEdit, binInfo ? QString::number(binInfo->bits) : "");
-    setPlainText(ui->baddrEdit, binInfo ? RzAddressString(rz_bin_file_get_baddr(bf)) : "");
-    setPlainText(ui->sizeEdit, binInfo ? qhelpers::formatBytecount(bf->size) : "");
-    setPlainText(ui->fdEdit, binInfo ? QString::number(bf->fd) : "");
+    setPlainText(ui->baddrEdit, bf ? RzAddressString(rz_bin_file_get_baddr(bf)) : "");
+    setPlainText(ui->sizeEdit, bf ? qhelpers::formatBytecount(bf->size) : "");
+    setPlainText(ui->fdEdit, bf ? QString::number(bf->fd) : "");
 
     // Setting the value of "Endianness"
     const char *endian = binInfo ? (binInfo->big_endian ? "BE" : "LE") : "";
@@ -78,7 +78,7 @@ void Dashboard::updateContents()
     int static_value = rz_bin_is_static(core->bin);
     setPlainText(ui->staticEdit, tr(setBoolText(static_value)));
 
-    RzList *hashes = rz_bin_file_compute_hashes(core->bin, bf, UT64_MAX);
+    RzList *hashes = bf ? rz_bin_file_compute_hashes(core->bin, bf, UT64_MAX) : nullptr;
 
     // Delete hashesWidget if it isn't null to avoid duplicate components
     if (hashesWidget) {
@@ -122,12 +122,6 @@ void Dashboard::updateContents()
     setPlainText(ui->codeSizeLineEdit, QString::number(analinfo["codesz"].toSt64()) + " bytes");
     setPlainText(ui->percentageLineEdit, QString::number(analinfo["percent"].toSt64()) + "%");
 
-    QStringList libs = Core()->cmdList("il");
-    if (!libs.isEmpty()) {
-        libs.removeFirst();
-        libs.removeLast();
-    }
-
     // dunno: why not label->setText(lines.join("\n")?
     while (ui->verticalLayout_2->count() > 0) {
         QLayoutItem *item = ui->verticalLayout_2->takeAt(0);
@@ -141,12 +135,15 @@ void Dashboard::updateContents()
         }
     }
 
-    for (const QString &lib : libs) {
-        QLabel *label = new QLabel(this);
-        label->setText(lib);
-        label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        label->setTextInteractionFlags(Qt::TextSelectableByMouse);
-        ui->verticalLayout_2->addWidget(label);
+    const RzList *libs = bf ? rz_bin_object_get_libs(bf->o) : nullptr;
+    if (libs) {
+        for (const auto &lib : CutterRzList<char>(libs)) {
+            auto *label = new QLabel(this);
+            label->setText(lib);
+            label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+            label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+            ui->verticalLayout_2->addWidget(label);
+        }
     }
 
     QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding);

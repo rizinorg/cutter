@@ -220,8 +220,7 @@ bool CommentsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
     case CommentsModel::OffsetColumn:
         return leftComment.offset < rightComment.offset;
     case CommentsModel::FunctionColumn:
-        return Core()->flagAt(leftComment.offset)
-                < Core()->flagAt(rightComment.offset);
+        return Core()->flagAt(leftComment.offset) < Core()->flagAt(rightComment.offset);
     case CommentsModel::CommentColumn:
         return leftComment.name < rightComment.name;
     default:
