@@ -219,6 +219,11 @@ void CutterCore::initialize(bool loadPlugins)
     // Otherwise Rizin may ask the user for input and Cutter would freeze
     setConfig("scr.interactive", false);
 
+    // Temporary workaround for https://github.com/rizinorg/rizin/issues/2741
+    // Otherwise sometimes disassembly is truncated.
+    // The blocksize here is a rather arbitrary value larger than the default 0x100.
+    rz_core_block_size(core, 0x400);
+
     // Initialize graph node highlighter
     bbHighlighter = new BasicBlockHighlighter();
 
