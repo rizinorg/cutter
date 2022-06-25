@@ -129,7 +129,10 @@ static QString fromOwnedCharPtr(char *str)
 
 static bool reg_sync(RzCore *core, RzRegisterType type, bool write)
 {
-    return rz_debug_reg_sync(core->dbg, type, write);
+    if (rz_core_is_debug(core)) {
+        return rz_debug_reg_sync(core->dbg, type, write);
+    }
+    return true;
 }
 
 RzCoreLocked::RzCoreLocked(CutterCore *core) : core(core)
@@ -1514,6 +1517,17 @@ RefDescription CutterCore::formatRefDesc(const QSharedPointer<AddrRefs> &refItem
     return desc;
 }
 
+RzReg *CutterCore::getReg()
+{
+    CORE_LOCK();
+    if (currentlyDebugging && currentlyEmulating) {
+        return core->analysis->reg;
+    } else if (currentlyDebugging) {
+        return core->dbg->reg;
+    }
+    return core->analysis->reg;
+}
+
 QList<RegisterRef> CutterCore::getRegisterRefs(int depth)
 {
     QList<RegisterRef> ret;
@@ -1522,7 +1536,7 @@ QList<RegisterRef> CutterCore::getRegisterRefs(int depth)
     }
 
     CORE_LOCK();
-    RzList *ritems = rz_core_reg_filter_items_sync(core, core->dbg->reg, reg_sync, nullptr);
+    RzList *ritems = rz_core_reg_filter_items_sync(core, getReg(), reg_sync, nullptr);
     if (!ritems) {
         return ret;
     }
@@ -1530,7 +1544,7 @@ QList<RegisterRef> CutterCore::getRegisterRefs(int depth)
     RzRegItem *ri;
     CutterRzListForeach (ritems, it, RzRegItem, ri) {
         RegisterRef reg;
-        reg.value = rz_reg_get_value(core->dbg->reg, ri);
+        reg.value = rz_reg_get_value(getReg(), ri);
         reg.ref = getAddrRefs(reg.value, depth);
         reg.name = ri->name;
         ret.append(reg);
@@ -1547,7 +1561,7 @@ QList<AddrRefs> CutterCore::getStack(int size, int depth)
     }
 
     CORE_LOCK();
-    RVA addr = rz_debug_reg_get(core->dbg, "SP");
+    RVA addr = rz_core_reg_getv_by_role_or_name(core, "SP");
     if (addr == RVA_INVALID) {
         return stack;
     }
@@ -1596,7 +1610,7 @@ AddrRefs CutterCore::getAddrRefs(RVA addr, int depth)
     // Check if the address points to a register
     RzFlagItem *fi = rz_flag_get_i(core->flags, addr);
     if (fi) {
-        RzRegItem *r = rz_reg_get(core->dbg->reg, fi->name, -1);
+        RzRegItem *r = rz_reg_get(getReg(), fi->name, -1);
         if (r) {
             refs.reg = r->name;
         }
@@ -1852,7 +1866,7 @@ QVector<RegisterRefValueDescription> CutterCore::getRegisterRefValues()
 {
     QVector<RegisterRefValueDescription> result;
     CORE_LOCK();
-    RzList *ritems = rz_core_reg_filter_items_sync(core, core->dbg->reg, reg_sync, nullptr);
+    RzList *ritems = rz_core_reg_filter_items_sync(core, getReg(), reg_sync, nullptr);
     if (!ritems) {
         return result;
     }
@@ -1861,8 +1875,8 @@ QVector<RegisterRefValueDescription> CutterCore::getRegisterRefValues()
     CutterRzListForeach (ritems, it, RzRegItem, ri) {
         RegisterRefValueDescription desc;
         desc.name = ri->name;
-        ut64 value = rz_reg_get_value(core->dbg->reg, ri);
-        desc.value = QString::number(value);
+        ut64 value = rz_reg_get_value(getReg(), ri);
+        desc.value = "0x" + QString::number(value, 16);
         desc.ref = rz_core_analysis_hasrefs(core, value, true);
         result.push_back(desc);
     }
@@ -1876,14 +1890,14 @@ QString CutterCore::getRegisterName(QString registerRole)
         return "";
     }
     CORE_LOCK();
-    return rz_reg_get_name_by_type(core->dbg->reg, registerRole.toUtf8().constData());
+    return rz_reg_get_name_by_type(getReg(), registerRole.toUtf8().constData());
 }
 
 RVA CutterCore::getProgramCounterValue()
 {
     if (currentlyDebugging) {
         CORE_LOCK();
-        return rz_debug_reg_get(core->dbg, "PC");
+        return rz_core_reg_getv_by_role_or_name(core, "PC");
     }
     return RVA_INVALID;
 }
@@ -1895,7 +1909,7 @@ void CutterCore::setRegister(QString regName, QString regValue)
     }
     CORE_LOCK();
     ut64 val = rz_num_math(core->num, regValue.toUtf8().constData());
-    rz_core_reg_assign_sync(core, core->dbg->reg, reg_sync, regName.toUtf8().constData(), val);
+    rz_core_reg_assign_sync(core, getReg(), reg_sync, regName.toUtf8().constData(), val);
     emit registersChanged();
     emit refreshCodeViews();
 }
@@ -2900,7 +2914,7 @@ void CutterCore::getOpcodes()
     this->opcodes = cmdList("?O");
 
     this->regs = {};
-    const RzList *rs = rz_reg_get_list(core->dbg->reg, RZ_REG_TYPE_ANY);
+    const RzList *rs = rz_reg_get_list(getReg(), RZ_REG_TYPE_ANY);
     if (!rs) {
         return;
     }
