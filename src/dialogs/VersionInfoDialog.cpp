@@ -38,12 +38,8 @@ void VersionInfoDialog::fillVersionInfo()
         if (!sdb) {
             return;
         }
-        // Left tree
-        QTreeWidgetItem *secNameItemL = new QTreeWidgetItem();
-        secNameItemL->setText(0, "Section name:");
-        secNameItemL->setText(1, "");
-        ui->leftTreeWidget->addTopLevelItem(secNameItemL);
 
+        // Left tree
         QTreeWidgetItem *addrItemL = new QTreeWidgetItem();
         addrItemL->setText(0, "Address:");
         addrItemL->setText(1, RzAddressString(sdb_num_get(sdb, "addr", 0)));
@@ -53,16 +49,6 @@ void VersionInfoDialog::fillVersionInfo()
         offItemL->setText(0, "Offset:");
         offItemL->setText(1, RzAddressString(sdb_num_get(sdb, "offset", 0)));
         ui->leftTreeWidget->addTopLevelItem(offItemL);
-
-        QTreeWidgetItem *linkItemL = new QTreeWidgetItem();
-        linkItemL->setText(0, "Link:");
-        linkItemL->setText(1, "");
-        ui->leftTreeWidget->addTopLevelItem(linkItemL);
-
-        QTreeWidgetItem *linkNameItemL = new QTreeWidgetItem();
-        linkNameItemL->setText(0, "Link section name:");
-        linkNameItemL->setText(1, "");
-        ui->leftTreeWidget->addTopLevelItem(linkNameItemL);
 
         QTreeWidgetItem *entriesItemL = new QTreeWidgetItem();
         entriesItemL->setText(0, "Entries:");
@@ -83,12 +69,8 @@ void VersionInfoDialog::fillVersionInfo()
         // Adjust columns to content
         qhelpers::adjustColumns(ui->leftTreeWidget, 0);
         sdb = sdb_ns_path(core->sdb, "bin/cur/info/versioninfo/verneed", 0);
-        // Right tree
-        QTreeWidgetItem *secNameItemR = new QTreeWidgetItem();
-        secNameItemR->setText(0, "Section name:");
-        secNameItemR->setText(1, "");
-        ui->rightTreeWidget->addTopLevelItem(secNameItemR);
 
+        // Right tree
         QTreeWidgetItem *addrItemR = new QTreeWidgetItem();
         addrItemR->setText(0, "Address:");
         addrItemR->setText(1, RzAddressString(sdb_num_get(sdb, "addr", 0)));
@@ -98,16 +80,6 @@ void VersionInfoDialog::fillVersionInfo()
         offItemR->setText(0, "Offset:");
         offItemR->setText(1, RzAddressString(sdb_num_get(sdb, "offset", 0)));
         ui->rightTreeWidget->addTopLevelItem(offItemR);
-
-        QTreeWidgetItem *linkItemR = new QTreeWidgetItem();
-        linkItemR->setText(0, "Link:");
-        linkItemR->setText(1, "");
-        ui->rightTreeWidget->addTopLevelItem(linkItemR);
-
-        QTreeWidgetItem *linkNameItemR = new QTreeWidgetItem();
-        linkNameItemR->setText(0, "Link section name:");
-        linkNameItemR->setText(1, "");
-        ui->rightTreeWidget->addTopLevelItem(linkNameItemR);
 
         QTreeWidgetItem *entriesItemR = new QTreeWidgetItem();
         entriesItemR->setText(0, "Entries:");
