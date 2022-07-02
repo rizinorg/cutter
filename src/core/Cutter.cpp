@@ -1443,7 +1443,11 @@ QString CutterCore::getSignatureInfo()
         return {};
     }
     char *signature = plg->signature(cur, true);
-    if (!(signature && strncmp("{}", signature, 2) != 0)) {
+    if (!signature) {
+        return {};
+    }
+    auto sig = parseJson(signature, nullptr);
+    if (sig.size() == 0) {
         return {};
     }
     return fromOwnedCharPtr(signature);
