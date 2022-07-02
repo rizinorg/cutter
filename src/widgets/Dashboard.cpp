@@ -32,24 +32,27 @@ Dashboard::~Dashboard() {}
 
 void Dashboard::updateContents()
 {
-    CutterJson docu = Core()->getFileInfo();
-    CutterJson item = docu["core"];
-    CutterJson item2 = docu["bin"];
+    RzCoreLocked core(Core());
+    int fd = rz_io_fd_get_current(core->io);
+    RzIODesc *desc = rz_io_desc_get(core->io, fd);
+    setPlainText(this->ui->modeEdit, desc ? rz_str_rwx_i(desc->perm & RZ_PERM_RWX) : "");
 
-    setPlainText(this->ui->modeEdit, item["mode"].toString());
-    setPlainText(this->ui->compilationDateEdit, item2["compiled"].toString());
-
-    if (!item2["relro"].toString().isEmpty()) {
-        QString relro = item2["relro"].toString().section(QLatin1Char(' '), 0, 0);
-        relro[0] = relro[0].toUpper();
-        setPlainText(this->ui->relroEdit, relro);
-    } else {
-        setPlainText(this->ui->relroEdit, "N/A");
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    if (bf) {
+        setPlainText(this->ui->compilationDateEdit, rz_core_bin_get_compile_time(bf));
+        if (bf->o) {
+            char *relco_buf = sdb_get(bf->o->kv, "elf.relro", 0);
+            if (RZ_STR_ISNOTEMPTY(relco_buf)) {
+                QString relro = QString(relco_buf).section(QLatin1Char(' '), 0, 0);
+                relro[0] = relro[0].toUpper();
+                setPlainText(this->ui->relroEdit, relro);
+            } else {
+                setPlainText(this->ui->relroEdit, "N/A");
+            }
+        }
     }
 
     // Add file hashes, analysis info and libraries
-    RzCoreLocked core(Core());
-    RzBinFile *bf = rz_bin_cur(core->bin);
     RzBinInfo *binInfo = rz_bin_get_info(core->bin);
 
     setPlainText(ui->fileEdit, binInfo ? binInfo->file : "");
@@ -111,16 +114,25 @@ void Dashboard::updateContents()
         hashesLayout->addRow(new QLabel(label), hashLineEdit);
     }
 
-    CutterJson analinfo = Core()->cmdj("aaij");
-    setPlainText(ui->functionsLineEdit, QString::number(analinfo["fcns"].toSt64()));
-    setPlainText(ui->xRefsLineEdit, QString::number(analinfo["xrefs"].toSt64()));
-    setPlainText(ui->callsLineEdit, QString::number(analinfo["calls"].toSt64()));
-    setPlainText(ui->stringsLineEdit, QString::number(analinfo["strings"].toSt64()));
-    setPlainText(ui->symbolsLineEdit, QString::number(analinfo["symbols"].toSt64()));
-    setPlainText(ui->importsLineEdit, QString::number(analinfo["imports"].toSt64()));
-    setPlainText(ui->coverageLineEdit, QString::number(analinfo["covrage"].toSt64()) + " bytes");
-    setPlainText(ui->codeSizeLineEdit, QString::number(analinfo["codesz"].toSt64()) + " bytes");
-    setPlainText(ui->percentageLineEdit, QString::number(analinfo["percent"].toSt64()) + "%");
+    st64 fcns = rz_list_length(core->analysis->fcns);
+    st64 strs = rz_flag_count(core->flags, "str.*");
+    st64 syms = rz_flag_count(core->flags, "sym.*");
+    st64 imps = rz_flag_count(core->flags, "sym.imp.*");
+    st64 code = rz_core_analysis_code_count(core);
+    st64 covr = rz_core_analysis_coverage_count(core);
+    st64 call = rz_core_analysis_calls_count(core);
+    ut64 xrfs = rz_analysis_xrefs_count(core->analysis);
+    double precentage = (code > 0) ? (covr * 100.0 / code) : 0;
+
+    setPlainText(ui->functionsLineEdit, QString::number(fcns));
+    setPlainText(ui->xRefsLineEdit, QString::number(xrfs));
+    setPlainText(ui->callsLineEdit, QString::number(call));
+    setPlainText(ui->stringsLineEdit, QString::number(strs));
+    setPlainText(ui->symbolsLineEdit, QString::number(syms));
+    setPlainText(ui->importsLineEdit, QString::number(imps));
+    setPlainText(ui->coverageLineEdit, QString::number(covr) + " bytes");
+    setPlainText(ui->codeSizeLineEdit, QString::number(code) + " bytes");
+    setPlainText(ui->percentageLineEdit, QString::number(precentage) + "%");
 
     // dunno: why not label->setText(lines.join("\n")?
     while (ui->verticalLayout_2->count() > 0) {
@@ -153,9 +165,7 @@ void Dashboard::updateContents()
     if (Core()->getSignatureInfo().isEmpty()) {
         ui->certificateButton->setEnabled(false);
     }
-    if (!Core()->getFileVersionInfo().size()) {
-        ui->versioninfoButton->setEnabled(false);
-    }
+    ui->versioninfoButton->setEnabled(Core()->existsFileInfo());
 }
 
 void Dashboard::on_certificateButton_clicked()

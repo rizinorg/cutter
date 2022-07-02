@@ -681,7 +681,7 @@ bool CutterCore::mapFile(QString path, RVA mapaddr)
 {
     CORE_LOCK();
     RVA addr = mapaddr != RVA_INVALID ? mapaddr : 0;
-    ut64 baddr = Core()->getFileInfo()["bin"]["baddr"].toUt64();
+    ut64 baddr = rz_bin_get_baddr(core->bin);
     if (rz_core_file_open(core, path.toUtf8().constData(), RZ_PERM_RX, addr)) {
         rz_core_bin_load(core, path.toUtf8().constData(), baddr);
     } else {
@@ -1434,16 +1434,6 @@ bool CutterCore::registerDecompiler(Decompiler *decompiler)
     return true;
 }
 
-CutterJson CutterCore::getFileInfo()
-{
-    return cmdj("ij");
-}
-
-CutterJson CutterCore::getFileVersionInfo()
-{
-    return cmdj("iVj");
-}
-
 QString CutterCore::getSignatureInfo()
 {
     CORE_LOCK();
@@ -1456,7 +1446,21 @@ QString CutterCore::getSignatureInfo()
     if (!signature) {
         return {};
     }
+    auto sig = parseJson(signature, nullptr);
+    if (sig.size() == 0) {
+        return {};
+    }
     return fromOwnedCharPtr(signature);
+}
+
+bool CutterCore::existsFileInfo()
+{
+    CORE_LOCK();
+    const RzBinInfo *info = rz_bin_get_info(core->bin);
+    if (!(info && info->rclass)) {
+        return false;
+    }
+    return strncmp("pe", info->rclass, 2) == 0 || strncmp("elf", info->rclass, 3) == 0;
 }
 
 // Utility function to check if a telescoped item exists and add it with prefixes to the desc
@@ -2133,9 +2137,15 @@ void CutterCore::attachDebug(int pid)
         offsetPriorDebugging = getOffset();
     }
 
-    QString attach_command = currentlyOpenFile.isEmpty() ? "o" : "oodf";
-    // attach to process with dbg plugin
-    asyncCmd("e cfg.debug=true;" + attach_command + " dbg://" + QString::number(pid), debugTask);
+    CORE_LOCK();
+    setConfig("cfg.debug", true);
+    auto uri = rz_str_newf("dbg://%d", pid);
+    if (currentlyOpenFile.isEmpty()) {
+        rz_core_file_open_load(core, uri, 0, RZ_PERM_R, false);
+    } else {
+        rz_core_file_reopen_remote_debug(core, uri, 0);
+    }
+    free(uri);
 
     emit debugTaskStateChanged();
 
@@ -2189,7 +2199,8 @@ void CutterCore::stopDebug()
 
     CORE_LOCK();
     if (currentlyEmulating) {
-        cmdEsil("aeim- ; aei-");
+        rz_core_analysis_esil_init_mem_del(core, NULL, UT64_MAX, UT32_MAX);
+        rz_core_analysis_esil_deinit(core);
         resetWriteCache();
         rz_core_debug_clear_register_flags(core);
         rz_core_analysis_esil_trace_stop(core);
@@ -3173,21 +3184,38 @@ QList<ImportDescription> CutterCore::getAllImports()
 QList<ExportDescription> CutterCore::getAllExports()
 {
     CORE_LOCK();
-    QList<ExportDescription> ret;
-
-    for (CutterJson exportObject : cmdj("iEj")) {
-        ExportDescription exp;
-
-        exp.vaddr = exportObject[RJsonKey::vaddr].toRVA();
-        exp.paddr = exportObject[RJsonKey::paddr].toRVA();
-        exp.size = exportObject[RJsonKey::size].toRVA();
-        exp.type = exportObject[RJsonKey::type].toString();
-        exp.name = exportObject[RJsonKey::name].toString();
-        exp.flag_name = exportObject[RJsonKey::flagname].toString();
-
-        ret << exp;
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf) {
+        return {};
+    }
+    const RzList *symbols = rz_bin_object_get_symbols(bf->o);
+    if (!symbols) {
+        return {};
     }
 
+    QString lang = getConfigi("bin.demangle") ? getConfig("bin.lang") : "";
+    bool va = core->io->va || core->bin->is_debugger;
+
+    QList<ExportDescription> ret;
+    for (const auto &symbol : CutterRzList<RzBinSymbol>(symbols)) {
+        if (!(symbol->name && rz_core_sym_is_export(symbol))) {
+            continue;
+        }
+
+        RzBinSymNames sn = {};
+        rz_core_sym_name_init(core, &sn, symbol, lang.isEmpty() ? NULL : lang.toUtf8().constData());
+
+        ExportDescription exportDescription;
+        exportDescription.vaddr = rva(bf->o, symbol->paddr, symbol->vaddr, va);
+        exportDescription.paddr = symbol->paddr;
+        exportDescription.size = symbol->size;
+        exportDescription.type = symbol->type;
+        exportDescription.name = sn.symbolname;
+        exportDescription.flag_name = sn.nameflag;
+        ret << exportDescription;
+
+        rz_core_sym_name_fini(&sn);
+    }
     return ret;
 }
 
@@ -3343,22 +3371,37 @@ QList<RelocDescription> CutterCore::getAllRelocs()
 
 QList<StringDescription> CutterCore::getAllStrings()
 {
-    return parseStringsJson(cmdjTask("izzj"));
-}
+    CORE_LOCK();
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf) {
+        return {};
+    }
+    RzBinObject *obj = rz_bin_cur_object(core->bin);
+    if (!obj) {
+        return {};
+    }
+    RzList *l = rz_core_bin_whole_strings(core, bf);
+    if (!l) {
+        return {};
+    }
 
-QList<StringDescription> CutterCore::parseStringsJson(const CutterJson &doc)
-{
+    int va = core->io->va || core->bin->is_debugger;
+    RzStrEscOptions opt = {};
+    opt.show_asciidot = false;
+    opt.esc_bslash = true;
+    opt.esc_double_quotes = true;
+
     QList<StringDescription> ret;
+    for (const auto &str : CutterRzList<RzBinString>(l)) {
+        auto section = obj ? rz_bin_get_section_at(obj, str->paddr, 0) : NULL;
 
-    for (CutterJson value : doc) {
         StringDescription string;
-
-        string.string = value[RJsonKey::string].toString();
-        string.vaddr = value[RJsonKey::vaddr].toRVA();
-        string.type = value[RJsonKey::type].toString();
-        string.size = value[RJsonKey::size].toUt64();
-        string.length = value[RJsonKey::length].toUt64();
-        string.section = value[RJsonKey::section].toString();
+        string.string = rz_str_escape_utf8_keep_printable(str->string, &opt);
+        string.vaddr = obj ? rva(obj, str->paddr, str->vaddr, va) : str->paddr;
+        string.type = str->type;
+        string.size = str->size;
+        string.length = str->length;
+        string.section = section ? section->name : "";
 
         ret << string;
     }
@@ -3917,8 +3960,7 @@ QString CutterCore::getTypeAsC(QString name)
         return output;
     }
     char *earg = rz_cmd_escape_arg(name.toUtf8().constData(), RZ_CMD_ESCAPE_ONE_ARG);
-    // TODO: use API for `tc` command once available
-    QString result = cmd(QString("tc %1").arg(earg));
+    QString result = fromOwnedCharPtr(rz_core_types_as_c(core, earg, true));
     free(earg);
     return result;
 }
@@ -4495,19 +4537,15 @@ QByteArray CutterCore::ioRead(RVA addr, int len)
 QStringList CutterCore::getConfigVariableSpaces(const QString &key)
 {
     CORE_LOCK();
-    QStringList stringList;
-    for (const auto &node : CutterRzList<RzConfigNode>(core->config->nodes)) {
-        stringList.push_back(node->name);
+    RzList *list = rz_core_config_in_space(core, key.toUtf8().constData());
+    if (!list) {
+        return {};
     }
 
-    if (!key.isEmpty()) {
-        stringList = stringList.filter(QRegularExpression(QString("^%0\\..*").arg(key)));
-        std::transform(stringList.begin(), stringList.end(), stringList.begin(),
-                       [](const QString &x) { return x.split('.').last(); });
-    } else {
-        std::transform(stringList.begin(), stringList.end(), stringList.begin(),
-                       [](const QString &x) { return x.split('.').first(); });
+    QStringList stringList;
+    for (const auto &x : CutterRzList<char>(list)) {
+        stringList << x;
     }
-    stringList.removeDuplicates();
+    rz_list_free(list);
     return stringList;
 }

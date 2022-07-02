@@ -569,9 +569,8 @@ public:
     bool registerDecompiler(Decompiler *decompiler);
 
     RVA getOffsetJump(RVA addr);
-    CutterJson getFileInfo();
     QString getSignatureInfo();
-    CutterJson getFileVersionInfo();
+    bool existsFileInfo();
     void setGraphEmpty(bool empty);
     bool isGraphEmpty();
 
@@ -687,8 +686,6 @@ public:
     QList<XrefDescription> getXRefsForVariable(QString variableName, bool findWrites, RVA offset);
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString());
-
-    QList<StringDescription> parseStringsJson(const CutterJson &doc);
 
     void handleREvent(int type, void *data);
 
