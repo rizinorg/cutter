@@ -52,29 +52,6 @@ void UpdateWorker::checkCurrentVersion(time_t timeoutMs)
     pending = true;
 }
 
-void UpdateWorker::download(QString filename, QString version)
-{
-    downloadFile.setFileName(filename);
-    downloadFile.open(QIODevice::WriteOnly);
-
-    QNetworkRequest request;
-#    if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0) && QT_VERSION < QT_VERSION_CHECK(5, 9, 0)
-    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
-#    elif QT_VERSION >= QT_VERSION_CHECK(5, 9, 0)
-    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
-                         QNetworkRequest::RedirectPolicy::NoLessSafeRedirectPolicy);
-#    endif
-    QUrl url(QString("https://github.com/rizinorg/cutter/releases/"
-                     "download/v%1/%2")
-                     .arg(version)
-                     .arg(getRepositoryFileName()));
-    request.setUrl(url);
-
-    downloadReply = nm.get(request);
-    connect(downloadReply, &QNetworkReply::downloadProgress, this, &UpdateWorker::process);
-    connect(downloadReply, &QNetworkReply::finished, this, &UpdateWorker::serveDownloadFinish);
-}
-
 void UpdateWorker::showUpdateDialog(bool showDontCheckForUpdatesButton)
 {
     QMessageBox mb;
@@ -82,67 +59,21 @@ void UpdateWorker::showUpdateDialog(bool showDontCheckForUpdatesButton)
     mb.setText(tr("There is an update available for Cutter.<br/>") + "<b>" + tr("Current version:")
                + "</b> " CUTTER_VERSION_FULL "<br/>" + "<b>" + tr("Latest version:") + "</b> "
                + latestVersion.toString() + "<br/><br/>"
-               + tr("For update, please check the link:<br/>")
+               + tr("To update, please check the link:<br/>")
                + QString("<a href=\"https://github.com/rizinorg/cutter/releases/tag/v%1\">"
                          "https://github.com/rizinorg/cutter/releases/tag/v%1</a><br/>")
-                         .arg(latestVersion.toString())
-               + tr("or click \"Download\" to download latest version of Cutter."));
+                         .arg(latestVersion.toString()));
     if (showDontCheckForUpdatesButton) {
-        mb.setStandardButtons(QMessageBox::Save | QMessageBox::Reset | QMessageBox::Ok);
-        mb.button(QMessageBox::Reset)->setText(tr("Don't check for updates"));
+        mb.setStandardButtons(QMessageBox::Reset | QMessageBox::Ok);
+        mb.button(QMessageBox::Reset)->setText(tr("Don't check for updates automatically"));
     } else {
-        mb.setStandardButtons(QMessageBox::Save | QMessageBox::Ok);
+        mb.setStandardButtons(QMessageBox::Ok);
     }
-    mb.button(QMessageBox::Save)->setText(tr("Download"));
     mb.setDefaultButton(QMessageBox::Ok);
     int ret = mb.exec();
     if (ret == QMessageBox::Reset) {
         Config()->setAutoUpdateEnabled(false);
-    } else if (ret == QMessageBox::Save) {
-        QString fullFileName = QFileDialog::getSaveFileName(
-                nullptr, tr("Choose directory for downloading"),
-                QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + QDir::separator()
-                        + getRepositoryFileName(),
-                QString("%1 (*.%1)").arg(getRepositeryExt()));
-        if (!fullFileName.isEmpty()) {
-            QProgressDialog progressDial(tr("Downloading update..."), tr("Cancel"), 0, 100);
-            connect(this, &UpdateWorker::downloadProcess, &progressDial,
-                    [&progressDial](size_t curr, size_t total) {
-                        progressDial.setValue(100.0f * curr / total);
-                    });
-            connect(&progressDial, &QProgressDialog::canceled, this, &UpdateWorker::abortDownload);
-            connect(this, &UpdateWorker::downloadFinished, &progressDial, &QProgressDialog::cancel);
-            connect(this, &UpdateWorker::downloadFinished, this, [](QString filePath) {
-                QMessageBox info(QMessageBox::Information, tr("Download finished!"),
-                                 tr("Latest version of Cutter was succesfully downloaded!"),
-                                 QMessageBox::Yes | QMessageBox::Open | QMessageBox::Ok, nullptr);
-                info.button(QMessageBox::Open)->setText(tr("Open file"));
-                info.button(QMessageBox::Yes)->setText(tr("Open download folder"));
-                int r = info.exec();
-                if (r == QMessageBox::Open) {
-                    QDesktopServices::openUrl(filePath);
-                } else if (r == QMessageBox::Yes) {
-                    auto path = filePath.split('/');
-                    path.removeLast();
-                    QDesktopServices::openUrl(path.join('/'));
-                }
-            });
-            download(fullFileName, latestVersion.toString());
-            // Calling show() before exec() is only way make dialog non-modal
-            // it seems weird, but it works
-            progressDial.show();
-            progressDial.exec();
-        }
     }
-}
-
-void UpdateWorker::abortDownload()
-{
-    disconnect(downloadReply, &QNetworkReply::finished, this, &UpdateWorker::serveDownloadFinish);
-    disconnect(downloadReply, &QNetworkReply::downloadProgress, this, &UpdateWorker::process);
-    downloadReply->close();
-    downloadReply->deleteLater();
-    downloadFile.remove();
 }
 
 void UpdateWorker::serveVersionCheckReply()
@@ -166,51 +97,6 @@ void UpdateWorker::serveVersionCheckReply()
     checkReply->close();
     checkReply->deleteLater();
     emit checkComplete(versionReply, errStr);
-}
-
-void UpdateWorker::serveDownloadFinish()
-{
-    downloadReply->close();
-    downloadReply->deleteLater();
-    if (downloadReply->error()) {
-        emit downloadError(downloadReply->errorString());
-    } else {
-        emit downloadFinished(downloadFile.fileName());
-    }
-}
-
-void UpdateWorker::process(size_t bytesReceived, size_t bytesTotal)
-{
-    downloadFile.write(downloadReply->readAll());
-    emit downloadProcess(bytesReceived, bytesTotal);
-}
-
-QString UpdateWorker::getRepositeryExt() const
-{
-#    ifdef Q_OS_LINUX
-    return "AppImage";
-#    elif defined(Q_OS_WIN64) || defined(Q_OS_WIN32)
-    return "zip";
-#    elif defined(Q_OS_MACOS)
-    return "dmg";
-#    endif
-}
-
-QString UpdateWorker::getRepositoryFileName() const
-{
-    QString downloadFileName;
-#    ifdef Q_OS_LINUX
-    downloadFileName = "Cutter-v%1-x%2.Linux.AppImage";
-#    elif defined(Q_OS_WIN64) || defined(Q_OS_WIN32)
-    downloadFileName = "Cutter-v%1-x%2.Windows.zip";
-#    elif defined(Q_OS_MACOS)
-    downloadFileName = "Cutter-v%1-x%2.macOS.dmg";
-#    endif
-    downloadFileName =
-            downloadFileName.arg(latestVersion.toString())
-                    .arg(QSysInfo::buildAbi().split('-').at(2).contains("64") ? "64" : "32");
-
-    return downloadFileName;
 }
 
 QVersionNumber UpdateWorker::currentVersionNumber()
