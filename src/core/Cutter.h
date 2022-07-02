@@ -570,6 +570,7 @@ public:
 
     RVA getOffsetJump(RVA addr);
     QString getSignatureInfo();
+    bool existsFileInfo();
     void setGraphEmpty(bool empty);
     bool isGraphEmpty();
 

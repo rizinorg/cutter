@@ -25,7 +25,7 @@ void VersionInfoDialog::fillVersionInfo()
 {
     RzCoreLocked core(Core());
     const RzBinInfo *info = rz_bin_get_info(core->bin);
-    if (!info) {
+    if (!info || !info->rclass) {
         return;
     }
     // Case ELF

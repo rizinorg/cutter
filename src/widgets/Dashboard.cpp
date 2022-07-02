@@ -165,10 +165,7 @@ void Dashboard::updateContents()
     if (Core()->getSignatureInfo().isEmpty()) {
         ui->certificateButton->setEnabled(false);
     }
-    const RzBinInfo *info = rz_bin_get_info(core->bin);
-    if (!info) {
-        ui->versioninfoButton->setEnabled(false);
-    }
+    ui->versioninfoButton->setEnabled(Core()->existsFileInfo());
 }
 
 void Dashboard::on_certificateButton_clicked()

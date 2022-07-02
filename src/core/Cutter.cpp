@@ -1449,6 +1449,16 @@ QString CutterCore::getSignatureInfo()
     return fromOwnedCharPtr(signature);
 }
 
+bool CutterCore::existsFileInfo()
+{
+    CORE_LOCK();
+    const RzBinInfo *info = rz_bin_get_info(core->bin);
+    if (!(info && info->rclass)) {
+        return false;
+    }
+    return strncmp("pe", info->rclass, 2) == 0 || strncmp("elf", info->rclass, 3) == 0;
+}
+
 // Utility function to check if a telescoped item exists and add it with prefixes to the desc
 static inline const QString appendVar(QString &dst, const QString val, const QString prepend_val,
                                       const QString append_val)
