@@ -129,7 +129,10 @@ static QString fromOwnedCharPtr(char *str)
 
 static bool reg_sync(RzCore *core, RzRegisterType type, bool write)
 {
-    return rz_debug_reg_sync(core->dbg, type, write);
+    if (rz_core_is_debug(core)) {
+        return rz_debug_reg_sync(core->dbg, type, write);
+    }
+    return true;
 }
 
 RzCoreLocked::RzCoreLocked(CutterCore *core) : core(core)
@@ -215,6 +218,11 @@ void CutterCore::initialize(bool loadPlugins)
 
     // Otherwise Rizin may ask the user for input and Cutter would freeze
     setConfig("scr.interactive", false);
+
+    // Temporary workaround for https://github.com/rizinorg/rizin/issues/2741
+    // Otherwise sometimes disassembly is truncated.
+    // The blocksize here is a rather arbitrary value larger than the default 0x100.
+    rz_core_block_size(core, 0x400);
 
     // Initialize graph node highlighter
     bbHighlighter = new BasicBlockHighlighter();
@@ -644,6 +652,10 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
 
 bool CutterCore::tryFile(QString path, bool rw)
 {
+    if (path.isEmpty()) {
+        // opening no file is always possible
+        return true;
+    }
     CORE_LOCK();
     RzCoreFile *cf;
     int flags = RZ_PERM_R;
@@ -758,10 +770,14 @@ QString CutterCore::getInstructionOpcode(RVA addr)
     return fromOwnedCharPtr(ret);
 }
 
-void CutterCore::editInstruction(RVA addr, const QString &inst)
+void CutterCore::editInstruction(RVA addr, const QString &inst, bool fillWithNops)
 {
     CORE_LOCK();
-    rz_core_write_assembly(core, addr, inst.trimmed().toStdString().c_str());
+    if (fillWithNops) {
+        rz_core_write_assembly_fill(core, addr, inst.trimmed().toStdString().c_str());
+    } else {
+        rz_core_write_assembly(core, addr, inst.trimmed().toStdString().c_str());
+    }
     emit instructionChanged(addr);
 }
 
@@ -1496,6 +1512,17 @@ RefDescription CutterCore::formatRefDesc(const QSharedPointer<AddrRefs> &refItem
     return desc;
 }
 
+RzReg *CutterCore::getReg()
+{
+    CORE_LOCK();
+    if (currentlyDebugging && currentlyEmulating) {
+        return core->analysis->reg;
+    } else if (currentlyDebugging) {
+        return core->dbg->reg;
+    }
+    return core->analysis->reg;
+}
+
 QList<RegisterRef> CutterCore::getRegisterRefs(int depth)
 {
     QList<RegisterRef> ret;
@@ -1504,7 +1531,7 @@ QList<RegisterRef> CutterCore::getRegisterRefs(int depth)
     }
 
     CORE_LOCK();
-    RzList *ritems = rz_core_reg_filter_items_sync(core, core->dbg->reg, reg_sync, nullptr);
+    RzList *ritems = rz_core_reg_filter_items_sync(core, getReg(), reg_sync, nullptr);
     if (!ritems) {
         return ret;
     }
@@ -1512,7 +1539,7 @@ QList<RegisterRef> CutterCore::getRegisterRefs(int depth)
     RzRegItem *ri;
     CutterRzListForeach (ritems, it, RzRegItem, ri) {
         RegisterRef reg;
-        reg.value = rz_reg_get_value(core->dbg->reg, ri);
+        reg.value = rz_reg_get_value(getReg(), ri);
         reg.ref = getAddrRefs(reg.value, depth);
         reg.name = ri->name;
         ret.append(reg);
@@ -1529,7 +1556,7 @@ QList<AddrRefs> CutterCore::getStack(int size, int depth)
     }
 
     CORE_LOCK();
-    RVA addr = rz_debug_reg_get(core->dbg, "SP");
+    RVA addr = rz_core_reg_getv_by_role_or_name(core, "SP");
     if (addr == RVA_INVALID) {
         return stack;
     }
@@ -1578,7 +1605,7 @@ AddrRefs CutterCore::getAddrRefs(RVA addr, int depth)
     // Check if the address points to a register
     RzFlagItem *fi = rz_flag_get_i(core->flags, addr);
     if (fi) {
-        RzRegItem *r = rz_reg_get(core->dbg->reg, fi->name, -1);
+        RzRegItem *r = rz_reg_get(getReg(), fi->name, -1);
         if (r) {
             refs.reg = r->name;
         }
@@ -1834,7 +1861,7 @@ QVector<RegisterRefValueDescription> CutterCore::getRegisterRefValues()
 {
     QVector<RegisterRefValueDescription> result;
     CORE_LOCK();
-    RzList *ritems = rz_core_reg_filter_items_sync(core, core->dbg->reg, reg_sync, nullptr);
+    RzList *ritems = rz_core_reg_filter_items_sync(core, getReg(), reg_sync, nullptr);
     if (!ritems) {
         return result;
     }
@@ -1843,8 +1870,8 @@ QVector<RegisterRefValueDescription> CutterCore::getRegisterRefValues()
     CutterRzListForeach (ritems, it, RzRegItem, ri) {
         RegisterRefValueDescription desc;
         desc.name = ri->name;
-        ut64 value = rz_reg_get_value(core->dbg->reg, ri);
-        desc.value = QString::number(value);
+        ut64 value = rz_reg_get_value(getReg(), ri);
+        desc.value = "0x" + QString::number(value, 16);
         desc.ref = rz_core_analysis_hasrefs(core, value, true);
         result.push_back(desc);
     }
@@ -1858,14 +1885,14 @@ QString CutterCore::getRegisterName(QString registerRole)
         return "";
     }
     CORE_LOCK();
-    return rz_reg_get_name_by_type(core->dbg->reg, registerRole.toUtf8().constData());
+    return rz_reg_get_name_by_type(getReg(), registerRole.toUtf8().constData());
 }
 
 RVA CutterCore::getProgramCounterValue()
 {
     if (currentlyDebugging) {
         CORE_LOCK();
-        return rz_debug_reg_get(core->dbg, "PC");
+        return rz_core_reg_getv_by_role_or_name(core, "PC");
     }
     return RVA_INVALID;
 }
@@ -1877,7 +1904,7 @@ void CutterCore::setRegister(QString regName, QString regValue)
     }
     CORE_LOCK();
     ut64 val = rz_num_math(core->num, regValue.toUtf8().constData());
-    rz_core_reg_assign_sync(core, core->dbg->reg, reg_sync, regName.toUtf8().constData(), val);
+    rz_core_reg_assign_sync(core, getReg(), reg_sync, regName.toUtf8().constData(), val);
     emit registersChanged();
     emit refreshCodeViews();
 }
@@ -2889,7 +2916,7 @@ void CutterCore::getOpcodes()
     this->opcodes = cmdList("?O");
 
     this->regs = {};
-    const RzList *rs = rz_reg_get_list(core->dbg->reg, RZ_REG_TYPE_ANY);
+    const RzList *rs = rz_reg_get_list(getReg(), RZ_REG_TYPE_ANY);
     if (!rs) {
         return;
     }
@@ -3445,7 +3472,6 @@ QList<SectionDescription> CutterCore::getAllSections()
             section.entropy = rz_str_get(entropy);
             ht_pp_free(digests);
         }
-        section.entropy = "";
 
         sections << section;
     }
@@ -3503,6 +3529,7 @@ QList<SegmentDescription> CutterCore::getAllSegments()
         segDesc.size = segment->size;
         segDesc.vsize = segment->vsize;
         segDesc.perm = perms_str(segment->perm);
+        ret << segDesc;
     }
     rz_list_free(segments);
 
@@ -3513,6 +3540,9 @@ QList<EntrypointDescription> CutterCore::getAllEntrypoint()
 {
     CORE_LOCK();
     RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf) {
+        return {};
+    }
     bool va = core->io->va || core->bin->is_debugger;
     ut64 baddr = rz_bin_get_baddr(core->bin);
     ut64 laddr = rz_bin_get_laddr(core->bin);
@@ -4230,7 +4260,7 @@ QString CutterCore::getVersionInformation()
         { "rz_crypto", &rz_crypto_version },
         { "rz_bp", &rz_bp_version },
         { "rz_debug", &rz_debug_version },
-        { "rz_msg_digest", &rz_msg_digest_version },
+        { "rz_hash", &rz_hash_version },
         { "rz_io", &rz_io_version },
 #if !USE_LIB_MAGIC
         { "rz_magic", &rz_magic_version },
@@ -4349,14 +4379,15 @@ void CutterCore::commitWriteCache()
     // Temporarily disable cache mode
     TempConfig tempConfig;
     tempConfig.set("io.cache", false);
-    if (!isWriteModeEnabled()) {
-        rz_core_io_file_reopen(core, core->io->desc->fd, RZ_PERM_RW);
-        rz_io_cache_commit(core->io, 0, UT64_MAX);
-        rz_core_block_read(core);
-        rz_core_io_file_open(core, core->io->desc->fd);
-    } else {
-        rz_io_cache_commit(core->io, 0, UT64_MAX);
-        rz_core_block_read(core);
+    auto desc = core->io->desc;
+    bool reopen = !isWriteModeEnabled() && desc;
+    if (reopen) {
+        rz_core_io_file_reopen(core, desc->fd, RZ_PERM_RW);
+    }
+    rz_io_cache_commit(core->io, 0, UT64_MAX);
+    rz_core_block_read(core);
+    if (reopen) {
+        rz_core_io_file_open(core, desc->fd);
     }
 }
 
@@ -4378,13 +4409,16 @@ void CutterCore::setWriteMode(bool enabled)
 
     CORE_LOCK();
     // Change from read-only to write-mode
-    if (enabled) {
-        if (!writeModeState) {
-            rz_core_io_file_reopen(core, core->io->desc->fd, RZ_PERM_RW);
+    RzIODesc *desc = core->io->desc;
+    if (desc) {
+        if (enabled) {
+            if (!writeModeState) {
+                rz_core_io_file_reopen(core, desc->fd, RZ_PERM_RW);
+            }
+        } else {
+            // Change from write-mode to read-only
+            rz_core_io_file_open(core, desc->fd);
         }
-    } else {
-        // Change from write-mode to read-only
-        rz_core_io_file_open(core, core->io->desc->fd);
     }
     // Disable cache mode because we specifically set write or
     // read-only modes.

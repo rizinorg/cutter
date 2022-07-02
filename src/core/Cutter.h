@@ -259,7 +259,7 @@ public:
     /* Edition functions */
     QString getInstructionBytes(RVA addr);
     QString getInstructionOpcode(RVA addr);
-    void editInstruction(RVA addr, const QString &inst);
+    void editInstruction(RVA addr, const QString &inst, bool fillWithNops = false);
     void nopInstruction(RVA addr);
     void jmpReverse(RVA addr);
     void editBytes(RVA addr, const QString &inst);
@@ -660,6 +660,10 @@ public:
     QList<SearchDescription> getAllSearch(QString searchFor, QString space, QString in);
     QList<BreakpointDescription> getBreakpoints();
     QList<ProcessDescription> getAllProcesses();
+    /**
+     * @brief Get the right RzReg object based on the cutter state (debugging vs emulating)
+     */
+    RzReg *getReg();
     /**
      * @brief returns a list of reg values and their telescoped references
      * @param depth telescoping depth
