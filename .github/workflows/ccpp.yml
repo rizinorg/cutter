@@ -71,7 +71,7 @@ jobs:
     - name: py dependencies
       run: |
         python3 -m pip install -U pip==21.3.1
-        pip install meson
+        pip install meson==0.61.5 # https://github.com/rizinorg/cutter/runs/7170222817?check_suite_focus=true
     - name: Prepare package id
       shell: bash
       run: |
