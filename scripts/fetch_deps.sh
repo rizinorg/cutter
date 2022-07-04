@@ -41,8 +41,13 @@ DEPS_SHA256=DEPS_SHA256_${PLATFORM}_${ARCH}
 DEPS_SHA256=${!DEPS_SHA256}
 DEPS_URL=${DEPS_BASE_URL}/${DEPS_FILE}
 
+SHA256SUM=sha256sum
+if ! command -v ${SHA256SUM} &> /dev/null; then
+	SHA256SUM="shasum -a 256"
+fi
+
 curl -L "$DEPS_URL" -o "$DEPS_FILE" || exit 1
-echo "$DEPS_SHA256  $DEPS_FILE" | shasum -a 256 -c - || exit 1
+echo "$DEPS_SHA256  $DEPS_FILE" | ${SHA256SUM} -c - || exit 1
 
 tar -xf "$DEPS_FILE" || exit 1
 
