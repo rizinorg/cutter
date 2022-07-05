@@ -156,7 +156,7 @@ jobs:
             -ignore-glob=usr/lib/python3.9/**/* \
             -verbose=2
           find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
-          export APPIMAGE_FILE="Cutter-${PACKAGE_ID}-x64.Linux.AppImage"
+          export APPIMAGE_FILE="Cutter-${PACKAGE_ID}-Linux-x86_64.AppImage"
           mv Cutter-*-x86_64.AppImage "$APPIMAGE_FILE"
           echo PACKAGE_NAME=$APPIMAGE_FILE >> $GITHUB_ENV
           echo UPLOAD_ASSET_TYPE=application/x-executable >> $GITHUB_ENV
@@ -173,7 +173,7 @@ jobs:
         source scripts/prepare_breakpad_macos.sh
         mkdir build
         cd build
-        PACKAGE_NAME=Cutter-${PACKAGE_ID}-x64.macOS
+        PACKAGE_NAME=Cutter-${PACKAGE_ID}-macOS-x86_64
         cmake \
                 -DCMAKE_BUILD_TYPE=Release \
                 -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.9.dylib" \
@@ -219,7 +219,7 @@ jobs:
         cd
         mkdir build
         cd build
-        set PACKAGE_NAME=cutter-%PACKAGE_ID%-x64.Windows
+        set PACKAGE_NAME=Cutter-%PACKAGE_ID%-Windows-x86_64
         cmake ^
           -DCMAKE_BUILD_TYPE=Release ^
           -DCUTTER_USE_BUNDLED_RIZIN=ON ^
