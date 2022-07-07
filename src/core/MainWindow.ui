@@ -128,6 +128,12 @@
     <addaction name="actionSaveLayout"/>
     <addaction name="menuLayouts"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionBaseFind"/>
+   </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
@@ -184,6 +190,7 @@
    <addaction name="menuView"/>
    <addaction name="menuWindows"/>
    <addaction name="menuDebug"/>
+   <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -231,6 +238,11 @@
    </property>
    <property name="toolTip">
     <string>Zen mode</string>
+   </property>
+  </action>
+  <action name="actionBaseFind">
+   <property name="text">
+    <string>BaseFind</string>
    </property>
   </action>
   <action name="actionAbout">

@@ -115,6 +115,9 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
+// Tools
+#include "tools/basefind/BaseFindDialog.h"
+
 #define PROJECT_FILE_FILTER tr("Rizin Project (*.rzdb)")
 
 template<class T>
@@ -1087,11 +1090,11 @@ MemoryDockWidget *MainWindow::addNewMemoryWidget(MemoryWidgetType type, RVA addr
         memoryWidget = new DecompilerWidget(this);
         break;
     case MemoryWidgetType::CallGraph:
-      memoryWidget = new CallGraphWidget(this, false);
-      break;
+        memoryWidget = new CallGraphWidget(this, false);
+        break;
     case MemoryWidgetType::GlobalCallGraph:
-      memoryWidget = new CallGraphWidget(this, true);
-      break;
+        memoryWidget = new CallGraphWidget(this, true);
+        break;
     }
     auto seekable = memoryWidget->getSeekable();
     seekable->setSynchronization(synchronized);
@@ -1637,6 +1640,12 @@ void MainWindow::on_actionTabs_triggered()
     setTabLocation();
 }
 
+void MainWindow::on_actionBaseFind_triggered()
+{
+    auto dialog = new BaseFindDialog(this);
+    dialog->show();
+}
+
 void MainWindow::on_actionAbout_triggered()
 {
     AboutDialog *a = new AboutDialog(this);
@@ -1774,12 +1783,10 @@ void MainWindow::on_actionExport_as_code_triggered()
         return;
     }
 
-
-
     auto string = fromOwned(
-        dialog.selectedNameFilter() != instructionsInComments
-                ? rz_lang_byte_array(buffer.data(), size, typMap[dialog.selectedNameFilter()])
-                : rz_core_print_bytes_with_inst(rc, buffer.data(), 0, size));
+            dialog.selectedNameFilter() != instructionsInComments
+                    ? rz_lang_byte_array(buffer.data(), size, typMap[dialog.selectedNameFilter()])
+                    : rz_core_print_bytes_with_inst(rc, buffer.data(), 0, size));
     fileOut << string.get();
 }
 

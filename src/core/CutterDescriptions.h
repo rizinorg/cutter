@@ -385,6 +385,18 @@ struct Arena
     ut64 max_system_mem;
 };
 
+struct BasefindCoreStatusDescription
+{
+    size_t index;
+    ut32 percentage;
+};
+
+struct BasefindResultDescription
+{
+    RVA candidate;
+    ut32 score;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -423,5 +435,7 @@ Q_DECLARE_METATYPE(BreakpointDescription::PositionType)
 Q_DECLARE_METATYPE(ProcessDescription)
 Q_DECLARE_METATYPE(RefDescription)
 Q_DECLARE_METATYPE(VariableDescription)
+Q_DECLARE_METATYPE(BasefindCoreStatusDescription)
+Q_DECLARE_METATYPE(BasefindResultDescription)
 
 #endif // DESCRIPTIONS_H
