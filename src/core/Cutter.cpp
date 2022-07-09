@@ -1060,6 +1060,7 @@ RVA CutterCore::nextOpAddr(RVA startAddr, int count)
     }
     auto ab = reinterpret_cast<RzAnalysisBytes *>(rz_pvector_tail(vec));
     if (!(ab && ab->op)) {
+        rz_pvector_free(vec);
         return addr;
     }
     addr = ab->op->addr;

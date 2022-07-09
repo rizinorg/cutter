@@ -736,6 +736,7 @@ void DisassemblyContextMenu::showReverseJmpQuery()
     }
     auto ab = reinterpret_cast<RzAnalysisBytes *>(rz_pvector_head(vec));
     if (!(ab && ab->op)) {
+        rz_pvector_free(vec);
         return;
     }
     if (ab->op->type == RZ_ANALYSIS_OP_TYPE_CJMP) {
