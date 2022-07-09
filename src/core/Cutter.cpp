@@ -4188,7 +4188,7 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
     for (const auto &t : CutterPVector<RzAnalysisDisasmText>(vec)) {
         DisassemblyLine line;
         line.offset = t->offset;
-        line.text = t->text;
+        line.text = ansiEscapeToHtml(t->text);
         line.arrow = t->arrow;
         r << line;
     }
