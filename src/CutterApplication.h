@@ -50,6 +50,7 @@ private:
 
 private:
     bool m_FileAlreadyDropped;
+    CutterCore core;
     MainWindow *mainWindow;
     CutterCommandLineOptions clOptions;
 };
