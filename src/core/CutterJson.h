@@ -70,7 +70,6 @@ public:
     iterator end() const { return iterator(nullptr, nullptr); }
 
     bool toBool() const { return value && value->type == RZ_JSON_BOOLEAN && value->num.u_value; }
-    QString toJson() const { return rz_json_as_string(value); }
     st64 toSt64() const { return value && value->type == RZ_JSON_INTEGER ? value->num.s_value : 0; }
     ut64 toUt64() const { return value && value->type == RZ_JSON_INTEGER ? value->num.u_value : 0; }
 
