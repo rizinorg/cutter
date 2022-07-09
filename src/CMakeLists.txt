@@ -72,7 +72,6 @@ set(SOURCES
     widgets/CutterTreeWidget.cpp
     widgets/GraphWidget.cpp
     widgets/OverviewWidget.cpp
-    common/JsonTreeItem.cpp
     common/JsonModel.cpp
     dialogs/VersionInfoDialog.cpp
     widgets/FlirtWidget.cpp
@@ -222,7 +221,6 @@ set(HEADER_FILES
     widgets/CutterTreeWidget.h
     widgets/GraphWidget.h
     widgets/OverviewWidget.h
-    common/JsonTreeItem.h
     common/JsonModel.h
     dialogs/VersionInfoDialog.h
     widgets/FlirtWidget.h

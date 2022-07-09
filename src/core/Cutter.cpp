@@ -1440,7 +1440,7 @@ bool CutterCore::registerDecompiler(Decompiler *decompiler)
     return true;
 }
 
-QString CutterCore::getSignatureInfo()
+CutterJson CutterCore::getSignatureInfo()
 {
     CORE_LOCK();
     RzBinFile *cur = rz_bin_cur(core->bin);
@@ -1452,11 +1452,7 @@ QString CutterCore::getSignatureInfo()
     if (!signature) {
         return {};
     }
-    auto sig = parseJson(signature, nullptr);
-    if (sig.size() == 0) {
-        return {};
-    }
-    return fromOwnedCharPtr(signature);
+    return parseJson(signature, nullptr);
 }
 
 bool CutterCore::existsFileInfo()
