@@ -1049,24 +1049,22 @@ RVA CutterCore::prevOpAddr(RVA startAddr, int count)
 RVA CutterCore::nextOpAddr(RVA startAddr, int count)
 {
     CORE_LOCK();
-
-    CutterJson array =
-            Core()->cmdj("pdj " + QString::number(count + 1) + " @ " + QString::number(startAddr));
-    if (!array.size()) {
-        return startAddr + 1;
+    auto vec = reinterpret_cast<RzPVector *>(returnAtSeek(
+            [&]() {
+                return rz_core_analysis_bytes(core, core->block, (int)core->blocksize, count + 1);
+            },
+            startAddr));
+    RVA addr = startAddr + 1;
+    if (!vec) {
+        return addr;
     }
-
-    CutterJson instValue = array.last();
-    if (instValue.type() != RZ_JSON_OBJECT) {
-        return startAddr + 1;
+    auto ab = reinterpret_cast<RzAnalysisBytes *>(rz_pvector_tail(vec));
+    if (!ab) {
+        return addr;
     }
-
-    RVA offset = instValue[RJsonKey::offset].toRVA();
-    if (offset == RVA_INVALID) {
-        return startAddr + 1;
-    }
-
-    return offset;
+    addr = ab->op->addr;
+    rz_pvector_free(vec);
+    return addr;
 }
 
 RVA CutterCore::getOffset()
@@ -4174,18 +4172,26 @@ void CutterCore::loadPDB(const QString &file)
 
 QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
 {
-    CutterJson array = cmdj(QString("pdJ ") + QString::number(lines) + QString(" @ ")
-                            + QString::number(offset));
-    QList<DisassemblyLine> r;
+    CORE_LOCK();
+    RzPVector *vec = rz_pvector_new(reinterpret_cast<RzPVectorFree>(rz_analysis_disasm_text_free));
+    if (!vec) {
+        return {};
+    }
+    RzCoreDisasmOptions options = {
+        .cbytes = 1,
+        .vec = vec,
+    };
+    rz_core_print_disasm(core, offset, core->block, core->blocksize, lines, NULL, &options);
 
-    for (CutterJson object : array) {
+    QList<DisassemblyLine> r;
+    for (const auto &t : CutterPVector<RzAnalysisDisasmText>(vec)) {
         DisassemblyLine line;
-        line.offset = object[RJsonKey::offset].toRVA();
-        line.text = ansiEscapeToHtml(object[RJsonKey::text].toString());
-        line.arrow = object[RJsonKey::arrow].toRVA();
+        line.offset = t->offset;
+        line.text = t->text;
+        line.arrow = t->arrow;
         r << line;
     }
-
+    rz_pvector_free(vec);
     return r;
 }
 
