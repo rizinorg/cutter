@@ -4178,10 +4178,9 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
     if (!vec) {
         return {};
     }
-    RzCoreDisasmOptions options = {
-        .cbytes = 1,
-        .vec = vec,
-    };
+    RzCoreDisasmOptions options = {};
+    options.cbytes = 1;
+    options.vec = vec;
     rz_core_print_disasm(core, offset, core->block, core->blocksize, lines, NULL, &options);
 
     QList<DisassemblyLine> r;
@@ -4359,7 +4358,7 @@ QString CutterCore::ansiEscapeToHtml(const QString &text)
     int len;
     char *html = rz_cons_html_filter(text.toUtf8().constData(), &len);
     if (!html) {
-        return QString();
+        return {};
     }
     QString r = QString::fromUtf8(html, len);
     rz_mem_free(html);
