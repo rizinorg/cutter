@@ -24,7 +24,7 @@
 #include <rz_cmd.h>
 #include <sdb.h>
 
-Q_GLOBAL_STATIC(CutterCore, uniqueInstance)
+static CutterCore *uniqueInstance;
 
 #define RZ_JSON_KEY(name) static const QString name = QStringLiteral(#name)
 
@@ -182,6 +182,10 @@ CutterCore::CutterCore(QObject *parent)
       coreMutex(QMutex::Recursive)
 #endif
 {
+    if (uniqueInstance) {
+        throw std::logic_error("Only one instance of CutterCore must exist");
+    }
+    uniqueInstance = this;
 }
 
 CutterCore *CutterCore::instance()
@@ -238,6 +242,8 @@ CutterCore::~CutterCore()
     rz_core_task_sync_end(&core_->tasks);
     rz_core_free(this->core_);
     rz_cons_free();
+    assert(uniqueInstance == this);
+    uniqueInstance = nullptr;
 }
 
 RzCoreLocked CutterCore::core()
