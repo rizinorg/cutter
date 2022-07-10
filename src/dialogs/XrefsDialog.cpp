@@ -131,8 +131,13 @@ void XrefsDialog::updatePreview(RVA addr)
     tempConfig.set("asm.lines", false);
     tempConfig.set("asm.bytes", false);
 
-    // Use cmd because cmRaw cannot handle the output properly. Why?
-    QString disas = Core()->cmd("pd 40 @" + QString::number(addr - 20));
+    QString disas = Core()->getFunctionExecOut(
+            [](RzCore *core) {
+                rz_core_print_disasm(core, core->offset, core->block, (int)core->blocksize, 40,
+                                     NULL, NULL);
+                return true;
+            },
+            addr - 20);
     ui->previewTextEdit->document()->setHtml(disas);
 
     // Does it make any sense?

@@ -371,6 +371,37 @@ QString CutterCore::cmd(const char *str)
     return o;
 }
 
+QString CutterCore::getFunctionExecOut(const std::function<bool(RzCore *)> &fcn, const RVA addr)
+{
+    CORE_LOCK();
+
+    RVA offset = core->offset;
+    seekSilent(addr);
+    QString o = {};
+    rz_cons_push();
+    bool is_pipe = core->is_pipe;
+    core->is_pipe = true;
+
+    if (!fcn(core)) {
+        core->is_pipe = is_pipe;
+        rz_cons_pop();
+        goto clean_return;
+    }
+
+    core->is_pipe = is_pipe;
+    rz_cons_filter();
+    o = rz_cons_get_buffer();
+
+    rz_cons_pop();
+    rz_cons_echo(NULL);
+
+clean_return:
+    if (offset != core->offset) {
+        seekSilent(offset);
+    }
+    return o;
+}
+
 bool CutterCore::isRedirectableDebugee()
 {
     if (!currentlyDebugging || currentlyAttachedToPID != -1) {

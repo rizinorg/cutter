@@ -81,6 +81,10 @@ public:
     RVA getOffset() const { return core_->offset; }
 
     /* Core functions (commands) */
+    /* Almost the same as core_cmd_raw,
+     * only executes std::function<bool(RzCore *)> instead of char* */
+    QString getFunctionExecOut(const std::function<bool(RzCore *)> &fcn,
+                               const RVA addr = RVA_INVALID);
     static QString sanitizeStringForCommand(QString s);
     /**
      * @brief send a command to Rizin
