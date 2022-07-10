@@ -133,11 +133,16 @@ void XrefsDialog::updatePreview(RVA addr)
 
     QString disas = Core()->getFunctionExecOut(
             [](RzCore *core) {
+                ut64 offset = core->offset;
+                if (!rz_core_prevop_addr(core, core->offset, 20, &offset)) {
+                    offset = rz_core_prevop_addr_force(core, core->offset, 20);
+                }
+                rz_core_seek(core, offset, true);
                 rz_core_print_disasm(core, core->offset, core->block, (int)core->blocksize, 40,
                                      NULL, NULL);
                 return true;
             },
-            addr - 20);
+            addr);
     ui->previewTextEdit->document()->setHtml(disas);
 
     // Does it make any sense?
