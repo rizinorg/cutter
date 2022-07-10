@@ -4219,7 +4219,6 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
                     rz_cons_singleton()->is_html = false;
                     rz_cons_singleton()->was_html = true;
                 }
-                rz_core_block_read(core);
                 rz_core_print_disasm(core, offset, core->block, core->blocksize, lines, NULL,
                                      &options);
             },
