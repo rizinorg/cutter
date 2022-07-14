@@ -2,7 +2,6 @@
 #include "ui_Dashboard.h"
 #include "common/Helpers.h"
 #include "common/JsonModel.h"
-#include "common/JsonTreeItem.h"
 #include "common/TempConfig.h"
 #include "dialogs/VersionInfoDialog.h"
 
@@ -162,7 +161,7 @@ void Dashboard::updateContents()
     ui->verticalLayout_2->addSpacerItem(spacer);
 
     // Check if signature info and version info available
-    if (Core()->getSignatureInfo().isEmpty()) {
+    if (!Core()->getSignatureInfo().size()) {
         ui->certificateButton->setEnabled(false);
     }
     ui->versioninfoButton->setEnabled(Core()->existsFileInfo());
@@ -170,33 +169,24 @@ void Dashboard::updateContents()
 
 void Dashboard::on_certificateButton_clicked()
 {
-    static QDialog *viewDialog = nullptr;
-    static CutterTreeView *view = nullptr;
-    static JsonModel *model = nullptr;
-    static QString qstrCertificates;
-    if (!viewDialog) {
-        viewDialog = new QDialog(this);
-        view = new CutterTreeView(viewDialog);
-        model = new JsonModel();
-        qstrCertificates = Core()->getSignatureInfo();
-    }
-    if (!viewDialog->isVisible()) {
-        std::string strCertificates = qstrCertificates.toUtf8().constData();
-        model->loadJson(QByteArray::fromStdString(strCertificates));
-        view->setModel(model);
-        view->expandAll();
-        view->resize(900, 600);
-        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(view->sizePolicy().hasHeightForWidth());
-        viewDialog->setSizePolicy(sizePolicy);
-        viewDialog->setMinimumSize(QSize(900, 600));
-        viewDialog->setMaximumSize(QSize(900, 600));
-        viewDialog->setSizeGripEnabled(false);
-        viewDialog->setWindowTitle("Certificates");
-        viewDialog->show();
-    }
+    QDialog dialog(this);
+    auto view = new QTreeWidget(&dialog);
+    view->setHeaderLabels({ tr("Key"), tr("Value") });
+    view->addTopLevelItem(Cutter::jsonTreeWidgetItem(QString("<%1>").arg(tr("root")),
+                                                     Core()->getSignatureInfo()));
+    CutterTreeView::applyCutterStyle(view);
+    view->expandAll();
+    view->resize(900, 600);
+    QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    sizePolicy.setHorizontalStretch(0);
+    sizePolicy.setVerticalStretch(0);
+    sizePolicy.setHeightForWidth(view->sizePolicy().hasHeightForWidth());
+    dialog.setSizePolicy(sizePolicy);
+    dialog.setMinimumSize(QSize(900, 600));
+    dialog.setMaximumSize(QSize(900, 600));
+    dialog.setSizeGripEnabled(false);
+    dialog.setWindowTitle("Certificates");
+    dialog.exec();
 }
 
 void Dashboard::on_versioninfoButton_clicked()

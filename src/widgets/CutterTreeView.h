@@ -19,6 +19,8 @@ public:
     explicit CutterTreeView(QWidget *parent = nullptr);
     ~CutterTreeView();
 
+    static void applyCutterStyle(QTreeView *view);
+
 private:
     std::unique_ptr<Ui::CutterTreeView> ui;
 };

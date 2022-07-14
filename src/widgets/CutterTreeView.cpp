@@ -4,8 +4,13 @@
 CutterTreeView::CutterTreeView(QWidget *parent) : QTreeView(parent), ui(new Ui::CutterTreeView())
 {
     ui->setupUi(this);
-    this->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    this->setUniformRowHeights(true);
+    applyCutterStyle(this);
 }
 
 CutterTreeView::~CutterTreeView() {}
+
+void CutterTreeView::applyCutterStyle(QTreeView *view)
+{
+    view->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    view->setUniformRowHeights(true);
+}
