@@ -1084,11 +1084,11 @@ RVA CutterCore::prevOpAddr(RVA startAddr, int count)
 RVA CutterCore::nextOpAddr(RVA startAddr, int count)
 {
     CORE_LOCK();
-    auto vec = reinterpret_cast<RzPVector *>(returnAtSeek(
+    auto vec = returnAtSeek<RzPVector *>(
             [&]() {
                 return rz_core_analysis_bytes(core, core->block, (int)core->blocksize, count + 1);
             },
-            startAddr));
+            startAddr);
     RVA addr = startAddr + 1;
     if (!vec) {
         return addr;
