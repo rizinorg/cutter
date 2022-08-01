@@ -265,12 +265,19 @@ void DisassemblerGraphView::loadCurrentGraph()
         {
             RzCoreLocked core(Core());
             std::unique_ptr<ut8[]> buf { new ut8[bbi->size] };
+            if (!buf) {
+                break;
+            }
             rz_io_read_at(core->io, bbi->addr, buf.get(), (int)bbi->size);
 
             std::unique_ptr<RzPVector, decltype(rz_pvector_free) *> vec {
                 rz_pvector_new(reinterpret_cast<RzPVectorFree>(rz_analysis_disasm_text_free)),
                 rz_pvector_free
             };
+            if (!vec) {
+                break;
+            }
+
             RzCoreDisasmOptions options = {};
             options.vec = vec.get();
             options.cbytes = 1;
