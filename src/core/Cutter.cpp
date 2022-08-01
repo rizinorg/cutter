@@ -783,8 +783,8 @@ PRzAnalysisBytes CutterCore::getRzAnalysisBytesSingle(RVA addr)
     ut8 buf[128];
     rz_io_read_at(core->io, addr, buf, sizeof(buf));
     std::unique_ptr<RzPVector, decltype(rz_pvector_free) *> vec {
-        reinterpret_cast<RzPVector *>(returnAtSeek(
-                [&]() { return rz_core_analysis_bytes(core, buf, sizeof(buf), 1); }, addr)),
+        returnAtSeek<RzPVector *>(
+                [&]() { return rz_core_analysis_bytes(core, buf, sizeof(buf), 1); }, addr),
         rz_pvector_free
     };
     auto ab = vec && rz_pvector_len(vec.get()) > 0
@@ -908,7 +908,7 @@ QString CutterCore::getString(RVA addr, uint64_t len, RzStrEnc encoding, bool es
     opt.length = len;
     opt.encoding = encoding;
     opt.escape_nl = escape_nl;
-    char *s = (char *)returnAtSeek([&]() { return rz_str_stringify_raw_buffer(&opt, NULL); }, addr);
+    char *s = returnAtSeek<char *>([&]() { return rz_str_stringify_raw_buffer(&opt, NULL); }, addr);
     return fromOwnedCharPtr(s);
 }
 

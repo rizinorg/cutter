@@ -32,6 +32,7 @@ class RizinTaskDialog;
 #include "common/Helpers.h"
 
 #include <rz_project.h>
+#include <memory>
 
 #define Core() (CutterCore::instance())
 
@@ -163,11 +164,12 @@ public:
         seekSilent(oldOffset);
     }
 
-    void *returnAtSeek(std::function<void *()> fn, RVA address)
+    template<typename T>
+    T returnAtSeek(std::function<T()> fn, RVA address)
     {
         RVA oldOffset = getOffset();
         seekSilent(address);
-        void *ret = fn();
+        T ret = fn();
         seekSilent(oldOffset);
         return ret;
     }
