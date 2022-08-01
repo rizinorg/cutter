@@ -4299,8 +4299,7 @@ void CutterCore::loadScript(const QString &scriptname)
 
 QString CutterCore::getRizinVersionReadable()
 {
-    return QString("%1 (%2)").arg(QString::fromUtf8(RZ_VERSION),
-                                  QString::fromUtf8(RZ_GITTIP).left(7));
+    return fromOwnedCharPtr(rz_str_version(nullptr));
 }
 
 QString CutterCore::getVersionInformation()
