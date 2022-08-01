@@ -377,6 +377,37 @@ QString CutterCore::cmd(const char *str)
     return o;
 }
 
+QString CutterCore::getFunctionExecOut(const std::function<bool(RzCore *)> &fcn, const RVA addr)
+{
+    CORE_LOCK();
+
+    RVA offset = core->offset;
+    seekSilent(addr);
+    QString o = {};
+    rz_cons_push();
+    bool is_pipe = core->is_pipe;
+    core->is_pipe = true;
+
+    if (!fcn(core)) {
+        core->is_pipe = is_pipe;
+        rz_cons_pop();
+        goto clean_return;
+    }
+
+    core->is_pipe = is_pipe;
+    rz_cons_filter();
+    o = rz_cons_get_buffer();
+
+    rz_cons_pop();
+    rz_cons_echo(NULL);
+
+clean_return:
+    if (offset != core->offset) {
+        seekSilent(offset);
+    }
+    return o;
+}
+
 bool CutterCore::isRedirectableDebugee()
 {
     if (!currentlyDebugging || currentlyAttachedToPID != -1) {
@@ -1055,24 +1086,23 @@ RVA CutterCore::prevOpAddr(RVA startAddr, int count)
 RVA CutterCore::nextOpAddr(RVA startAddr, int count)
 {
     CORE_LOCK();
-
-    CutterJson array =
-            Core()->cmdj("pdj " + QString::number(count + 1) + " @ " + QString::number(startAddr));
-    if (!array.size()) {
-        return startAddr + 1;
+    auto vec = reinterpret_cast<RzPVector *>(returnAtSeek(
+            [&]() {
+                return rz_core_analysis_bytes(core, core->block, (int)core->blocksize, count + 1);
+            },
+            startAddr));
+    RVA addr = startAddr + 1;
+    if (!vec) {
+        return addr;
     }
-
-    CutterJson instValue = array.last();
-    if (instValue.type() != RZ_JSON_OBJECT) {
-        return startAddr + 1;
+    auto ab = reinterpret_cast<RzAnalysisBytes *>(rz_pvector_tail(vec));
+    if (!(ab && ab->op)) {
+        rz_pvector_free(vec);
+        return addr;
     }
-
-    RVA offset = instValue[RJsonKey::offset].toRVA();
-    if (offset == RVA_INVALID) {
-        return startAddr + 1;
-    }
-
-    return offset;
+    addr = ab->op->addr;
+    rz_pvector_free(vec);
+    return addr;
 }
 
 RVA CutterCore::getOffset()
@@ -4176,18 +4206,35 @@ void CutterCore::loadPDB(const QString &file)
 
 QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
 {
-    CutterJson array = cmdj(QString("pdJ ") + QString::number(lines) + QString(" @ ")
-                            + QString::number(offset));
-    QList<DisassemblyLine> r;
-
-    for (CutterJson object : array) {
-        DisassemblyLine line;
-        line.offset = object[RJsonKey::offset].toRVA();
-        line.text = ansiEscapeToHtml(object[RJsonKey::text].toString());
-        line.arrow = object[RJsonKey::arrow].toRVA();
-        r << line;
+    CORE_LOCK();
+    RzPVector *vec = rz_pvector_new(reinterpret_cast<RzPVectorFree>(rz_analysis_disasm_text_free));
+    if (!vec) {
+        return {};
     }
 
+    RzCoreDisasmOptions options = {};
+    options.cbytes = 1;
+    options.vec = vec;
+    applyAtSeek(
+            [&]() {
+                if (rz_cons_singleton()->is_html) {
+                    rz_cons_singleton()->is_html = false;
+                    rz_cons_singleton()->was_html = true;
+                }
+                rz_core_print_disasm(core, offset, core->block, core->blocksize, lines, NULL,
+                                     &options);
+            },
+            offset);
+
+    QList<DisassemblyLine> r;
+    for (const auto &t : CutterPVector<RzAnalysisDisasmText>(vec)) {
+        DisassemblyLine line;
+        line.offset = t->offset;
+        line.text = ansiEscapeToHtml(t->text);
+        line.arrow = t->arrow;
+        r << line;
+    }
+    rz_pvector_free(vec);
     return r;
 }
 
@@ -4354,7 +4401,7 @@ QString CutterCore::ansiEscapeToHtml(const QString &text)
     int len;
     char *html = rz_cons_html_filter(text.toUtf8().constData(), &len);
     if (!html) {
-        return QString();
+        return {};
     }
     QString r = QString::fromUtf8(html, len);
     rz_mem_free(html);

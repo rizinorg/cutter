@@ -726,19 +726,23 @@ void DisassemblyContextMenu::on_actionNopInstruction_triggered()
 
 void DisassemblyContextMenu::showReverseJmpQuery()
 {
-    QString type;
-
-    CutterJson array = Core()->cmdj("pdj 1 @ " + RzAddressString(offset));
-    if (!array.size()) {
+    actionJmpReverse.setVisible(false);
+    RzCoreLocked core(Core());
+    auto vec = reinterpret_cast<RzPVector *>(Core()->returnAtSeek(
+            [&]() { return rz_core_analysis_bytes(core, core->block, (int)core->blocksize, 1); },
+            offset));
+    if (!vec) {
         return;
     }
-
-    type = array.first()["type"].toString();
-    if (type == "cjmp") {
-        actionJmpReverse.setVisible(true);
-    } else {
-        actionJmpReverse.setVisible(false);
+    auto ab = reinterpret_cast<RzAnalysisBytes *>(rz_pvector_head(vec));
+    if (!(ab && ab->op)) {
+        rz_pvector_free(vec);
+        return;
     }
+    if (ab->op->type == RZ_ANALYSIS_OP_TYPE_CJMP) {
+        actionJmpReverse.setVisible(true);
+    }
+    rz_pvector_free(vec);
 }
 
 void DisassemblyContextMenu::on_actionJmpReverse_triggered()
