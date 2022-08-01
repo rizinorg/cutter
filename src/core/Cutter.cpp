@@ -777,34 +777,32 @@ void CutterCore::delFlag(const QString &name)
     emit flagsChanged();
 }
 
+PRzAnalysisBytes CutterCore::getRzAnalysisBytesSingle(RVA addr)
+{
+    CORE_LOCK();
+    ut8 buf[128];
+    rz_io_read_at(core->io, addr, buf, sizeof(buf));
+    std::unique_ptr<RzPVector, decltype(rz_pvector_free) *> vec {
+        reinterpret_cast<RzPVector *>(returnAtSeek(
+                [&]() { return rz_core_analysis_bytes(core, buf, sizeof(buf), 1); }, addr)),
+        rz_pvector_free
+    };
+    auto ab = vec && rz_pvector_len(vec.get()) > 0
+            ? reinterpret_cast<RzAnalysisBytes *>(rz_pvector_pop_front(vec.get()))
+            : nullptr;
+    return { ab, rz_analysis_bytes_free };
+}
+
 QString CutterCore::getInstructionBytes(RVA addr)
 {
-    auto ret = (char *)Core()->returnAtSeek(
-            [&]() {
-                CORE_LOCK();
-                RzPVector *vec = rz_core_analysis_bytes(core, core->block, (int)core->blocksize, 1);
-                auto *ab = static_cast<RzAnalysisBytes *>(rz_pvector_head(vec));
-                char *str = strdup(ab->bytes);
-                rz_pvector_free(vec);
-                return str;
-            },
-            addr);
-    return fromOwnedCharPtr(ret);
+    auto ab = getRzAnalysisBytesSingle(addr);
+    return ab ? ab->bytes : "";
 }
 
 QString CutterCore::getInstructionOpcode(RVA addr)
 {
-    auto ret = (char *)Core()->returnAtSeek(
-            [&]() {
-                CORE_LOCK();
-                RzPVector *vec = rz_core_analysis_bytes(core, core->block, (int)core->blocksize, 1);
-                auto *ab = static_cast<RzAnalysisBytes *>(rz_pvector_head(vec));
-                char *str = strdup(ab->opcode);
-                rz_pvector_free(vec);
-                return str;
-            },
-            addr);
-    return fromOwnedCharPtr(ret);
+    auto ab = getRzAnalysisBytesSingle(addr);
+    return ab ? ab->opcode : "";
 }
 
 void CutterCore::editInstruction(RVA addr, const QString &inst, bool fillWithNops)
@@ -1326,17 +1324,8 @@ QString CutterCore::disassemble(const QByteArray &data)
 
 QString CutterCore::disassembleSingleInstruction(RVA addr)
 {
-    CORE_LOCK();
-    ut8 buf[128];
-    rz_io_read_at(core->io, addr, buf, sizeof(buf));
-    std::unique_ptr<RzPVector, decltype(rz_pvector_free) *> vec {
-        rz_core_analysis_bytes(core, buf, sizeof(buf), 1), rz_pvector_free
-    };
-    if (!vec) {
-        return {};
-    }
-    auto ab = reinterpret_cast<RzAnalysisBytes *>(rz_pvector_head(vec.get()));
-    return QString(ab->opcode).simplified();
+    auto ab = getRzAnalysisBytesSingle(addr);
+    return QString(ab->disasm).simplified();
 }
 
 RzAnalysisFunction *CutterCore::functionIn(ut64 addr)
@@ -1440,19 +1429,8 @@ void CutterCore::createFunctionAt(RVA addr, QString name)
 
 RVA CutterCore::getOffsetJump(RVA addr)
 {
-    auto rva = (RVA *)Core()->returnAtSeek(
-            [&]() {
-                CORE_LOCK();
-                RzPVector *vec = rz_core_analysis_bytes(core, core->block, (int)core->blocksize, 1);
-                auto *ab = static_cast<RzAnalysisBytes *>(rz_pvector_head(vec));
-                RVA *rva = new RVA(ab->op->jump);
-                rz_pvector_free(vec);
-                return rva;
-            },
-            addr);
-    RVA ret = *rva;
-    delete rva;
-    return ret;
+    auto ab = getRzAnalysisBytesSingle(addr);
+    return ab && ab->op ? ab->op->jump : RVA_INVALID;
 }
 
 QList<Decompiler *> CutterCore::getDecompilers()

@@ -324,8 +324,7 @@ QVector<DisassemblyContextMenu::ThingUsedHere> DisassemblyContextMenu::getThingU
     QVector<ThingUsedHere> result;
     ThingUsedHere th;
     th.offset = p->offset;
-    th.name = Config()->getConfigBool("asm.flags.real") && p->realname ? p->realname
-                                                                          : p->name;
+    th.name = Config()->getConfigBool("asm.flags.real") && p->realname ? p->realname : p->name;
     switch (p->type) {
     case RZ_CORE_ANALYSIS_NAME_TYPE_FLAG:
         th.type = ThingUsedHere::Type::Flag;
@@ -483,13 +482,7 @@ void DisassemblyContextMenu::setupRenaming()
 void DisassemblyContextMenu::aboutToShowSlot()
 {
     // check if set immediate base menu makes sense
-    RzPVector *vec = (RzPVector *)Core()->returnAtSeek(
-            [&]() {
-                RzCoreLocked core(Core());
-                return rz_core_analysis_bytes(core, core->block, (int)core->blocksize, 1);
-            },
-            offset);
-    auto *ab = static_cast<RzAnalysisBytes *>(rz_pvector_head(vec));
+    auto ab = Core()->getRzAnalysisBytesSingle(offset);
 
     bool immBase = ab && ab->op && (ab->op->val || ab->op->ptr);
     setBaseMenu->menuAction()->setVisible(immBase);
@@ -515,7 +508,6 @@ void DisassemblyContextMenu::aboutToShowSlot()
             }
         }
     }
-    rz_pvector_free(vec);
 
     if (memBaseReg.isEmpty()) {
         // hide structure offset menu

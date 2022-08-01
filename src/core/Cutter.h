@@ -60,6 +60,8 @@ struct CUTTER_EXPORT RegisterRef
     QString name;
 };
 
+using PRzAnalysisBytes = std::unique_ptr<RzAnalysisBytes, decltype(rz_analysis_bytes_free) *>;
+
 class CUTTER_EXPORT CutterCore : public QObject
 {
     Q_OBJECT
@@ -273,6 +275,7 @@ public:
     void triggerFlagsChanged();
 
     /* Edition functions */
+    PRzAnalysisBytes getRzAnalysisBytesSingle(RVA addr);
     QString getInstructionBytes(RVA addr);
     QString getInstructionOpcode(RVA addr);
     void editInstruction(RVA addr, const QString &inst, bool fillWithNops = false);
