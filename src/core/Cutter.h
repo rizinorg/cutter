@@ -156,7 +156,7 @@ public:
         return cmdRawAt(str.toUtf8().constData(), address);
     }
 
-    void applyAtSeek(std::function<void()> fn, RVA address)
+    void applyAtSeek(const std::function<void()> &fn, RVA address)
     {
         RVA oldOffset = getOffset();
         seekSilent(address);
@@ -165,7 +165,7 @@ public:
     }
 
     template<typename T>
-    T returnAtSeek(std::function<T()> fn, RVA address)
+    T returnAtSeek(const std::function<T()> &fn, RVA address)
     {
         RVA oldOffset = getOffset();
         seekSilent(address);

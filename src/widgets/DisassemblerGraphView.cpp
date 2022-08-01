@@ -192,12 +192,13 @@ void DisassemblerGraphView::loadCurrentGraph()
     RzAnalysisFunction *fcn = Core()->functionIn(seekable->getOffset());
 
     windowTitle = tr("Graph");
-    QString fcn_name = fcn && RZ_STR_ISNOTEMPTY(fcn->name)
-            ? std::unique_ptr<char, decltype(std::free) *> { rz_str_escape_utf8_for_json(fcn->name,
-                                                                                         -1),
-                                                             std::free }
-                      .get()
-            : "Empty";
+    QString fcn_name = "Empty";
+    if (fcn && RZ_STR_ISNOTEMPTY(fcn->name)) {
+        std::unique_ptr<char, decltype(std::free) *> ptr {
+            rz_str_escape_utf8_for_json(fcn->name, -1), std::free
+        };
+        fcn_name = ptr.get();
+    }
     windowTitle += QString("(%0)").arg(fcn_name);
     emit nameChanged(windowTitle);
 
