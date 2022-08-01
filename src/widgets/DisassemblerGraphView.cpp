@@ -262,67 +262,65 @@ void DisassemblerGraphView::loadCurrentGraph()
             }
         }
 
-        {
-            RzCoreLocked core(Core());
-            std::unique_ptr<ut8[]> buf { new ut8[bbi->size] };
-            if (!buf) {
-                break;
-            }
-            rz_io_read_at(core->io, bbi->addr, buf.get(), (int)bbi->size);
-
-            std::unique_ptr<RzPVector, decltype(rz_pvector_free) *> vec {
-                rz_pvector_new(reinterpret_cast<RzPVectorFree>(rz_analysis_disasm_text_free)),
-                rz_pvector_free
-            };
-            if (!vec) {
-                break;
-            }
-
-            RzCoreDisasmOptions options = {};
-            options.vec = vec.get();
-            options.cbytes = 1;
-            rz_core_print_disasm(core, bbi->addr, buf.get(), (int)bbi->size, (int)bbi->size, NULL,
-                                 &options);
-
-            auto vec_visitor = CutterPVector<RzAnalysisDisasmText>(vec.get());
-            auto iter = vec_visitor.begin();
-            while (iter != vec_visitor.end()) {
-                RzAnalysisDisasmText *op = *iter;
-                Instr instr;
-                instr.addr = op->offset;
-
-                ++iter;
-                if (iter != vec_visitor.end()) {
-                    // get instruction size from distance to next instruction ...
-                    RVA nextOffset = (*iter)->offset;
-                    instr.size = nextOffset - instr.addr;
-                } else {
-                    // or to the end of the block.
-                    instr.size = (block_entry + block_size) - instr.addr;
-                }
-
-                QTextDocument textDoc;
-                textDoc.setHtml(CutterCore::ansiEscapeToHtml(op->text));
-
-                instr.plainText = textDoc.toPlainText();
-
-                RichTextPainter::List richText = RichTextPainter::fromTextDocument(textDoc);
-                // Colors::colorizeAssembly(richText, textDoc.toPlainText(), 0);
-
-                bool cropped;
-                int blockLength = Config()->getGraphBlockMaxChars()
-                        + Core()->getConfigb("asm.bytes") * 24 + Core()->getConfigb("asm.emu") * 10;
-                instr.text = Text(RichTextPainter::cropped(richText, blockLength, "...", &cropped));
-                if (cropped)
-                    instr.fullText = richText;
-                else
-                    instr.fullText = Text();
-                db.instrs.push_back(instr);
-            }
-            disassembly_blocks[db.entry] = db;
-            prepareGraphNode(gb);
-            addBlock(gb);
+        RzCoreLocked core(Core());
+        std::unique_ptr<ut8[]> buf { new ut8[bbi->size] };
+        if (!buf) {
+            break;
         }
+        rz_io_read_at(core->io, bbi->addr, buf.get(), (int)bbi->size);
+
+        std::unique_ptr<RzPVector, decltype(rz_pvector_free) *> vec {
+            rz_pvector_new(reinterpret_cast<RzPVectorFree>(rz_analysis_disasm_text_free)),
+            rz_pvector_free
+        };
+        if (!vec) {
+            break;
+        }
+
+        RzCoreDisasmOptions options = {};
+        options.vec = vec.get();
+        options.cbytes = 1;
+        rz_core_print_disasm(core, bbi->addr, buf.get(), (int)bbi->size, (int)bbi->size, NULL,
+                             &options);
+
+        auto vec_visitor = CutterPVector<RzAnalysisDisasmText>(vec.get());
+        auto iter = vec_visitor.begin();
+        while (iter != vec_visitor.end()) {
+            RzAnalysisDisasmText *op = *iter;
+            Instr instr;
+            instr.addr = op->offset;
+
+            ++iter;
+            if (iter != vec_visitor.end()) {
+                // get instruction size from distance to next instruction ...
+                RVA nextOffset = (*iter)->offset;
+                instr.size = nextOffset - instr.addr;
+            } else {
+                // or to the end of the block.
+                instr.size = (block_entry + block_size) - instr.addr;
+            }
+
+            QTextDocument textDoc;
+            textDoc.setHtml(CutterCore::ansiEscapeToHtml(op->text));
+
+            instr.plainText = textDoc.toPlainText();
+
+            RichTextPainter::List richText = RichTextPainter::fromTextDocument(textDoc);
+            // Colors::colorizeAssembly(richText, textDoc.toPlainText(), 0);
+
+            bool cropped;
+            int blockLength = Config()->getGraphBlockMaxChars()
+                    + Core()->getConfigb("asm.bytes") * 24 + Core()->getConfigb("asm.emu") * 10;
+            instr.text = Text(RichTextPainter::cropped(richText, blockLength, "...", &cropped));
+            if (cropped)
+                instr.fullText = richText;
+            else
+                instr.fullText = Text();
+            db.instrs.push_back(instr);
+        }
+        disassembly_blocks[db.entry] = db;
+        prepareGraphNode(gb);
+        addBlock(gb);
     }
     cleanupEdges(blocks);
     computeGraphPlacement();
