@@ -313,34 +313,35 @@ void DisassemblyContextMenu::addDebugMenu()
 
 QVector<DisassemblyContextMenu::ThingUsedHere> DisassemblyContextMenu::getThingUsedHere(RVA offset)
 {
-    QVector<ThingUsedHere> result;
-    const CutterJson array = Core()->cmdj("anj @ " + QString::number(offset));
-    result.reserve(array.size());
-    for (const auto &thing : array) {
-        auto obj = thing;
-        RVA offset = obj["offset"].toRVA();
-        QString name;
-
-        // If real names display is enabled, show flag's real name instead of full flag name
-        if (Config()->getConfigBool("asm.flags.real") && obj["realname"].valid()) {
-            name = obj["realname"].toString();
-        } else {
-            name = obj["name"].toString();
-        }
-
-        QString typeString = obj["type"].toString();
-        ThingUsedHere::Type type = ThingUsedHere::Type::Address;
-        if (typeString == "var") {
-            type = ThingUsedHere::Type::Var;
-        } else if (typeString == "flag") {
-            type = ThingUsedHere::Type::Flag;
-        } else if (typeString == "function") {
-            type = ThingUsedHere::Type::Function;
-        } else if (typeString == "address") {
-            type = ThingUsedHere::Type::Address;
-        }
-        result.push_back(ThingUsedHere { name, offset, type });
+    RzCoreLocked core(Core());
+    auto p = std::unique_ptr<RzCoreAnalysisName, decltype(rz_core_analysis_name_free) *> {
+        rz_core_analysis_name(core, offset), rz_core_analysis_name_free
+    };
+    if (!p) {
+        return {};
     }
+
+    QVector<ThingUsedHere> result;
+    ThingUsedHere th;
+    th.offset = p->offset;
+    th.name = Config()->getConfigBool("asm.flags.real") && p->realname ? p->realname
+                                                                          : p->name;
+    switch (p->type) {
+    case RZ_CORE_ANALYSIS_NAME_TYPE_FLAG:
+        th.type = ThingUsedHere::Type::Flag;
+        break;
+    case RZ_CORE_ANALYSIS_NAME_TYPE_FUNCTION:
+        th.type = ThingUsedHere::Type::Function;
+        break;
+    case RZ_CORE_ANALYSIS_NAME_TYPE_VAR:
+        th.type = ThingUsedHere::Type::Var;
+        break;
+    case RZ_CORE_ANALYSIS_NAME_TYPE_ADDRESS:
+    default:
+        th.type = ThingUsedHere::Type::Address;
+        break;
+    }
+    result.push_back(th);
     return result;
 }
 
