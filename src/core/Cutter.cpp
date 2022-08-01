@@ -1326,7 +1326,17 @@ QString CutterCore::disassemble(const QByteArray &data)
 
 QString CutterCore::disassembleSingleInstruction(RVA addr)
 {
-    return cmdRawAt("pi 1", addr).simplified();
+    CORE_LOCK();
+    ut8 buf[128];
+    rz_io_read_at(core->io, addr, buf, sizeof(buf));
+    std::unique_ptr<RzPVector, decltype(rz_pvector_free) *> vec {
+        rz_core_analysis_bytes(core, buf, sizeof(buf), 1), rz_pvector_free
+    };
+    if (!vec) {
+        return {};
+    }
+    auto ab = reinterpret_cast<RzAnalysisBytes *>(rz_pvector_head(vec.get()));
+    return QString(ab->opcode).simplified();
 }
 
 RzAnalysisFunction *CutterCore::functionIn(ut64 addr)
