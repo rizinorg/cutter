@@ -169,6 +169,17 @@ public:
         return ret;
     }
 
+    std::unique_ptr<RVA, std::function<void(const RVA *)>> seekTemp(RVA address)
+    {
+        auto seekBack = [&](const RVA *x) {
+            seekSilent(*x);
+            delete x;
+        };
+        std::unique_ptr<RVA, decltype(seekBack)> p { new RVA(getOffset()), seekBack };
+        seekSilent(address);
+        return p;
+    }
+
     CutterJson cmdj(const char *str);
     CutterJson cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
     CutterJson cmdjAt(const char *str, RVA address);

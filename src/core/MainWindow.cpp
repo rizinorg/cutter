@@ -149,7 +149,7 @@ void MainWindow::initUI()
             &MainWindow::addExtraDisassembly);
     connect(ui->actionExtraHexdump, &QAction::triggered, this, &MainWindow::addExtraHexdump);
     connect(ui->actionCommitChanges, &QAction::triggered, this,
-            [this]() { Core()->commitWriteCache(); });
+            []() { Core()->commitWriteCache(); });
     ui->actionCommitChanges->setEnabled(false);
     connect(Core(), &CutterCore::ioCacheChanged, ui->actionCommitChanges, &QAction::setEnabled);
 
@@ -1692,35 +1692,38 @@ void MainWindow::on_actionImportPDB_triggered()
     }
 }
 
+#define TYPE_BIG_ENDIAN(type, big_endian) big_endian ? type##_BE : type##_LE
+
 void MainWindow::on_actionExport_as_code_triggered()
 {
     QStringList filters;
-    QMap<QString, QString> cmdMap;
+    QMap<QString, RzLangByteArrayType> typMap;
+    const bool big_endian = Core()->getConfigb("big_endian");
 
     filters << tr("C uin8_t array (*.c)");
-    cmdMap[filters.last()] = "pc";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_C_CPP_BYTES;
     filters << tr("C uin16_t array (*.c)");
-    cmdMap[filters.last()] = "pch";
+    typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_HALFWORDS, big_endian);
     filters << tr("C uin32_t array (*.c)");
-    cmdMap[filters.last()] = "pcw";
+    typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_WORDS, big_endian);
     filters << tr("C uin64_t array (*.c)");
-    cmdMap[filters.last()] = "pcd";
+    typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_DOUBLEWORDS, big_endian);
     filters << tr("C string (*.c)");
-    cmdMap[filters.last()] = "pcs";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_SWIFT;
     filters << tr("Shell-script that reconstructs the bin (*.sh)");
-    cmdMap[filters.last()] = "pcS";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_BASH;
     filters << tr("JSON array (*.json)");
-    cmdMap[filters.last()] = "pcj";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_JSON;
     filters << tr("JavaScript array (*.js)");
-    cmdMap[filters.last()] = "pcJ";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_JAVA;
     filters << tr("Python array (*.py)");
-    cmdMap[filters.last()] = "pcp";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_PYTHON;
     filters << tr("Print 'wx' Rizin commands (*.rz)");
-    cmdMap[filters.last()] = "pc*";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_RIZIN;
     filters << tr("GAS .byte blob (*.asm, *.s)");
-    cmdMap[filters.last()] = "pca";
-    filters << tr(".bytes with instructions in comments (*.txt)");
-    cmdMap[filters.last()] = "pcA";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_ASM;
+    //    filters << tr(".bytes with instructions in comments (*.txt)");
+    //    cmdMap[filters.last()] = "pcA";
 
     QFileDialog dialog(this, tr("Export as code"));
     dialog.setAcceptMode(QFileDialog::AcceptSave);
@@ -1736,13 +1739,16 @@ void MainWindow::on_actionExport_as_code_triggered()
         qWarning() << "Can't open file";
         return;
     }
+
     TempConfig tempConfig;
     tempConfig.set("io.va", false);
     QTextStream fileOut(&file);
-    QString &cmd = cmdMap[dialog.selectedNameFilter()];
-
-    // Use cmd because cmdRaw would not handle such input
-    fileOut << Core()->cmd(cmd + " $s @ 0");
+    auto ps = core->seekTemp(0);
+    auto rc = core->core();
+    std::unique_ptr<char, decltype(free) *> string {
+        rz_lang_byte_array(rc->block, rc->blocksize, typMap[dialog.selectedNameFilter()]), free
+    };
+    fileOut << string.get();
 }
 
 void MainWindow::on_actionApplySigFromFile_triggered()
