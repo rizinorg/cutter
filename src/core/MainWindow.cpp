@@ -1722,8 +1722,6 @@ void MainWindow::on_actionExport_as_code_triggered()
     typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_RIZIN;
     filters << tr("GAS .byte blob (*.asm, *.s)");
     typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_ASM;
-    //    filters << tr(".bytes with instructions in comments (*.txt)");
-    //    cmdMap[filters.last()] = "pcA";
 
     QFileDialog dialog(this, tr("Export as code"));
     dialog.setAcceptMode(QFileDialog::AcceptSave);
