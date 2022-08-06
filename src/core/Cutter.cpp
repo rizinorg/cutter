@@ -4246,28 +4246,36 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
  */
 QString CutterCore::hexdump(RVA address, int size, HexdumpFormats format)
 {
-    QString command = "px";
+    CORE_LOCK();
+    char *res = nullptr;
     switch (format) {
     case HexdumpFormats::Normal:
+        res = rz_core_print_hexdump_or_hexdiff_str(core, RZ_OUTPUT_MODE_STANDARD, address, size,
+                                                   false);
         break;
     case HexdumpFormats::Half:
-        command += "h";
+        res = rz_core_print_dump_str(core, RZ_OUTPUT_MODE_STANDARD, address, 2, size,
+                                     RZ_CORE_PRINT_FORMAT_TYPE_HEXADECIMAL);
         break;
     case HexdumpFormats::Word:
-        command += "w";
+        res = rz_core_print_dump_str(core, RZ_OUTPUT_MODE_STANDARD, address, 4, size,
+                                     RZ_CORE_PRINT_FORMAT_TYPE_HEXADECIMAL);
         break;
     case HexdumpFormats::Quad:
-        command += "q";
+        res = rz_core_print_dump_str(core, RZ_OUTPUT_MODE_STANDARD, address, 8, size,
+                                     RZ_CORE_PRINT_FORMAT_TYPE_HEXADECIMAL);
         break;
     case HexdumpFormats::Signed:
-        command += "d";
+        res = rz_core_print_dump_str(core, RZ_OUTPUT_MODE_STANDARD, address, 1, size,
+                                     RZ_CORE_PRINT_FORMAT_TYPE_INTEGER);
         break;
     case HexdumpFormats::Octal:
-        command += "o";
+        res = rz_core_print_dump_str(core, RZ_OUTPUT_MODE_STANDARD, address, 1, size,
+                                     RZ_CORE_PRINT_FORMAT_TYPE_OCTAL);
         break;
     }
 
-    return cmdRawAt(QString("%1 %2").arg(command).arg(size), address);
+    return fromOwnedCharPtr(res);
 }
 
 QByteArray CutterCore::hexStringToBytes(const QString &hex)
