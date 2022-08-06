@@ -17,6 +17,7 @@
 #include <QMutex>
 #include <QDir>
 #include <functional>
+#include <memory>
 
 class AsyncTaskManager;
 class BasicInstructionHighlighter;
