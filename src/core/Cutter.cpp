@@ -4299,7 +4299,11 @@ void CutterCore::loadScript(const QString &scriptname)
 
 QString CutterCore::getRizinVersionReadable()
 {
-    return QString::fromUtf8(RZ_VERSION);
+    char *gittip_str = rz_str_gittip();
+    auto gittip = QString::fromUtf8(gittip_str).left(7);
+    free(gittip_str);
+    auto version = QString::fromUtf8(RZ_VERSION);
+    return QString("%1 (%2)").arg(version, gittip);
 }
 
 QString CutterCore::getVersionInformation()
