@@ -1708,20 +1708,36 @@ void MainWindow::on_actionExport_as_code_triggered()
     typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_WORDS, big_endian);
     filters << tr("C uin64_t array (*.c)");
     typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_DOUBLEWORDS, big_endian);
-    filters << tr("C string (*.c)");
-    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_SWIFT;
-    filters << tr("Shell-script that reconstructs the bin (*.sh)");
-    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_BASH;
+
+    filters << tr("Go array (*.go)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_GOLANG;
+    filters << tr("Java array (*.java)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_JAVA;
     filters << tr("JSON array (*.json)");
     typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_JSON;
-    filters << tr("JavaScript array (*.js)");
-    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_JAVA;
+    filters << tr("Kotlin array (*.kt)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_KOTLIN;
+
+    filters << tr("Javascript array (*.js)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_NODEJS;
+    filters << tr("ObjectiveC array (*.m)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_OBJECTIVE_C;
     filters << tr("Python array (*.py)");
     typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_PYTHON;
+    filters << tr("Rust array (*.rs)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_RUST;
+
+    filters << tr("Swift array (*.swift)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_SWIFT;
     filters << tr("Print 'wx' Rizin commands (*.rz)");
     typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_RIZIN;
+    filters << tr("Shell-script that reconstructs the bin (*.sh)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_BASH;
     filters << tr("GAS .byte blob (*.asm, *.s)");
     typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_ASM;
+
+    filters << tr("Yara (*.yar)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_YARA;
     /* special case */
     QString instructionsInComments = tr(".bytes with instructions in comments (*.txt)");
     filters << instructionsInComments;
