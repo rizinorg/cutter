@@ -1722,6 +1722,9 @@ void MainWindow::on_actionExport_as_code_triggered()
     typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_RIZIN;
     filters << tr("GAS .byte blob (*.asm, *.s)");
     typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_ASM;
+    /* special case */
+    QString instructionsInComments = tr(".bytes with instructions in comments (*.txt)");
+    filters << instructionsInComments;
 
     QFileDialog dialog(this, tr("Export as code"));
     dialog.setAcceptMode(QFileDialog::AcceptSave);
@@ -1744,7 +1747,10 @@ void MainWindow::on_actionExport_as_code_triggered()
     auto ps = core->seekTemp(0);
     auto rc = core->core();
     std::unique_ptr<char, decltype(free) *> string {
-        rz_lang_byte_array(rc->block, rc->blocksize, typMap[dialog.selectedNameFilter()]), free
+        dialog.selectedNameFilter() != instructionsInComments
+                ? rz_lang_byte_array(rc->block, rc->blocksize, typMap[dialog.selectedNameFilter()])
+                : rz_core_print_bytes_with_inst(rc, rc->block, rc->offset, rc->blocksize),
+        free
     };
     fileOut << string.get();
 }
