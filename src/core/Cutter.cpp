@@ -4307,7 +4307,7 @@ void CutterCore::loadScript(const QString &scriptname)
 
 QString CutterCore::getRizinVersionReadable()
 {
-    return fromOwnedCharPtr(rz_str_version(nullptr));
+    return fromOwnedCharPtr(rz_version_str(nullptr));
 }
 
 QString CutterCore::getVersionInformation()
