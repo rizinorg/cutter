@@ -1762,10 +1762,15 @@ void MainWindow::on_actionExport_as_code_triggered()
     QTextStream fileOut(&file);
     auto ps = core->seekTemp(0);
     auto rc = core->core();
+    auto size = Core()->num("$s");
+    auto buffer = std::unique_ptr<ut8[]> { new ut8[size] };
+    if (!buffer) {
+        return;
+    }
     std::unique_ptr<char, decltype(free) *> string {
         dialog.selectedNameFilter() != instructionsInComments
-                ? rz_lang_byte_array(rc->block, rc->blocksize, typMap[dialog.selectedNameFilter()])
-                : rz_core_print_bytes_with_inst(rc, rc->block, rc->offset, rc->blocksize),
+                ? rz_lang_byte_array(buffer.get(), size, typMap[dialog.selectedNameFilter()])
+                : rz_core_print_bytes_with_inst(rc, buffer.get(), rc->offset, size),
         free
     };
     fileOut << string.get();
