@@ -184,11 +184,6 @@ public:
     CutterJson cmdj(const char *str);
     CutterJson cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
     CutterJson cmdjAt(const char *str, RVA address);
-    QStringList cmdList(const char *str)
-    {
-        return cmd(str).split(QLatin1Char('\n'), CUTTER_QT_SKIP_EMPTY_PARTS);
-    }
-    QStringList cmdList(const QString &str) { return cmdList(str.toUtf8().constData()); }
     QString cmdTask(const QString &str);
     CutterJson cmdjTask(const QString &str);
     /**
@@ -590,8 +585,7 @@ public:
     void setGraphEmpty(bool empty);
     bool isGraphEmpty();
 
-    void getOpcodes();
-    QList<QString> opcodes;
+    void getRegs();
     QList<QString> regs;
     void setSettings();
 

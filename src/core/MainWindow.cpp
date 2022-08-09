@@ -637,7 +637,7 @@ bool MainWindow::openProject(const QString &file)
 
 void MainWindow::finalizeOpen()
 {
-    core->getOpcodes();
+    core->getRegs();
     core->updateSeek();
     refreshAll();
     // Add fortune message

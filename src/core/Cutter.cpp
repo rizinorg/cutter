@@ -2956,11 +2956,9 @@ bool CutterCore::isGraphEmpty()
     return emptyGraph;
 }
 
-void CutterCore::getOpcodes()
+void CutterCore::getRegs()
 {
     CORE_LOCK();
-    this->opcodes = cmdList("?O");
-
     this->regs = {};
     const RzList *rs = rz_reg_get_list(getReg(), RZ_REG_TYPE_ANY);
     if (!rs) {
