@@ -17,6 +17,7 @@
 #include <QMutex>
 #include <QDir>
 #include <functional>
+#include <memory>
 
 class AsyncTaskManager;
 class BasicInstructionHighlighter;
@@ -167,6 +168,17 @@ public:
         void *ret = fn();
         seekSilent(oldOffset);
         return ret;
+    }
+
+    std::unique_ptr<RVA, std::function<void(const RVA *)>> seekTemp(RVA address)
+    {
+        auto seekBack = [&](const RVA *x) {
+            seekSilent(*x);
+            delete x;
+        };
+        std::unique_ptr<RVA, decltype(seekBack)> p { new RVA(getOffset()), seekBack };
+        seekSilent(address);
+        return p;
     }
 
     CutterJson cmdj(const char *str);
