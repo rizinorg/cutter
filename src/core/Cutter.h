@@ -201,7 +201,7 @@ public:
     {
         return asyncCmdEsil(command.toUtf8().constData(), task);
     }
-    QString getRizinVersionReadable();
+    QString getRizinVersionReadable(const char *program = nullptr);
     QString getVersionInformation();
 
     CutterJson parseJson(char *res, const char *cmd = nullptr);

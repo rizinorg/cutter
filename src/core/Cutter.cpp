@@ -4297,10 +4297,9 @@ void CutterCore::loadScript(const QString &scriptname)
     triggerRefreshAll();
 }
 
-QString CutterCore::getRizinVersionReadable()
+QString CutterCore::getRizinVersionReadable(const char *program)
 {
-    return QString("%1 (%2)").arg(QString::fromUtf8(RZ_VERSION),
-                                  QString::fromUtf8(RZ_GITTIP).left(7));
+    return fromOwnedCharPtr(rz_version_str(program));
 }
 
 QString CutterCore::getVersionInformation()
@@ -4337,7 +4336,8 @@ QString CutterCore::getVersionInformation()
         /* ... */
         { NULL, NULL }
     };
-    versionInfo.append(QString("%1 rz\n").arg(getRizinVersionReadable()));
+    versionInfo.append(getRizinVersionReadable());
+    versionInfo.append("\n");
     for (i = 0; vcs[i].name; i++) {
         struct vcs_t *v = &vcs[i];
         const char *name = v->callback();
