@@ -239,7 +239,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                                              0, NULL),
                 free
             };
-            summary = QString(strings.get()).split('\n', Qt::SkipEmptyParts);
+            summary = QString(strings.get()).split('\n', CUTTER_QT_SKIP_EMPTY_PARTS);
         }
 
         const QFont &fnt = Config()->getFont();
