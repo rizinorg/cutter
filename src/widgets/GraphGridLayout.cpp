@@ -105,13 +105,14 @@ column.
 
 A sweep line is used for computing main columns: Blocks and edges are processed as events top to
 bottom based off their row (max(start row, end row) for edges). Blocked columns are tracked in a
-segment tree tracking the most recent row index of a block which blocks the column. The column of
-the starting block is favored for the main column, otherwise the target block's column is chosen
-if it is not blocked. If both the source and target columns are blocked, the segment tree allows
-for quickly locating an unblocked column. An empty column can always be found, in the worst case
-there are empty columns at the sides of drawing. The closest unblocked column is chosen as the
-main column. If two columns are equally close, the tie is broken based on whether the edge is a
-true or false branch.
+tree structure which allows searching nearest column with at least last N rows empty. The column
+of the starting block is favored for the main column, otherwise the target block's column is chosen
+if it is not blocked. If both the source and target columns are blocked, nearest unblocked column
+is chosen. An empty column can always be found, in the worst case there are empty columns at the
+sides of drawing. If two columns are equally close, the tie is broken based on whether the edge is a
+true or false branch. In case of upward edges it is allowed to choose a column on the outside which
+is slightly further than nearest empty to reduce the chance of producing tilted figure 8 shaped
+crossing between two blocks.
 
 Rough routing creates the path of edge using up to 5 segments using grid coordinates.
 Due to nodes being placed in a grid. Horizontal segments of edges can't intersect with any nodes.
