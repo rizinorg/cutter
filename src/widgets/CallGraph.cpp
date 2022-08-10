@@ -72,15 +72,22 @@ void CallGraphView::refreshView()
     SimpleTextGraphView::refreshView();
 }
 
+static inline bool clamp(ut64 a, ut64 x, ut64 b)
+{
+    return a != UT64_MAX && b != UT64_MAX && a <= x && x <= b;
+}
+
+using PRzList = std::unique_ptr<RzList, decltype(rz_list_free) *>;
+
 void CallGraphView::loadCurrentGraph()
 {
     blockContent.clear();
     blocks.clear();
 
-    CutterJson nodes = Core()->cmdj(global ? "agCj" : QString("agcj @ %1").arg(address));
-
+    const bool usenames = Core()->getConfigb("graph.json.usenames");
+    const ut64 from = Core()->getConfigi("graph.from");
+    const ut64 to = Core()->getConfigi("graph.to");
     QHash<QString, uint64_t> idMapping;
-
     auto getId = [&](const QString &name) -> uint64_t {
         auto nextId = idMapping.size();
         auto &itemId = idMapping[name];
@@ -89,37 +96,62 @@ void CallGraphView::loadCurrentGraph()
         }
         return itemId;
     };
+    auto xrefCmp = [](const void *a, const void *b) -> int {
+        auto x = reinterpret_cast<const RzAnalysisXRef *>(a)->to
+                - reinterpret_cast<const RzAnalysisXRef *>(b)->to;
+        return static_cast<int>(x);
+    };
 
-    for (CutterJson block : nodes) {
-        QString name = block["name"].toString();
+    ut64 base = UT64_MAX;
+    for (const auto &fcn : CutterRzList<RzAnalysisFunction>(Core()->core()->analysis->fcns)) {
+        if (base == UT64_MAX) {
+            base = fcn->addr;
+        }
+        if (!(clamp(from, fcn->addr, to) && (global || fcn->addr == address))) {
+            continue;
+        }
+        QString name = usenames ? fcn->name : RzAddressString(fcn->addr);
+        GraphLayout::GraphBlock block;
+        block.entry = getId(name);
 
-        auto edges = block["imports"];
-        GraphLayout::GraphBlock layoutBlock;
-        layoutBlock.entry = getId(name);
-        for (auto edge : edges) {
-            auto targetName = edge.toString();
-            auto targetId = getId(targetName);
-            layoutBlock.edges.emplace_back(targetId);
+        auto xrefs = PRzList { rz_analysis_function_get_xrefs_from(fcn), rz_list_free };
+        auto calls = PRzList { rz_list_new(), rz_list_free };
+        for (const auto &xref : CutterRzList<RzAnalysisXRef>(xrefs.get())) {
+            if (!(xref->type == RZ_ANALYSIS_XREF_TYPE_CALL
+                  && rz_list_find(calls.get(), xref, (RzListComparator)xrefCmp) == NULL)) {
+                continue;
+            }
+            rz_list_append(calls.get(), xref);
+            RzFlagItem *flag = rz_flag_get_i(Core()->core()->flags, xref->to);
+            QString xref_name = usenames
+                    ? ((flag && flag->name) ? flag->name
+                                            : QString("unk.%0").arg(RzAddressString(xref->to)))
+                    : RzAddressString(xref->to);
+            block.edges.emplace_back(getId(xref_name));
         }
 
-        // it would be good if address came directly from json instead of having to lookup by name
-        addBlock(std::move(layoutBlock), name, Core()->num(name));
+        addBlock(std::move(block), name, Core()->num(name));
+        qDebug() << "add block";
     }
-    for (auto it = idMapping.begin(), end = idMapping.end(); it != end; ++it) {
-        if (blocks.find(it.value()) == blocks.end()) {
-            GraphLayout::GraphBlock block;
-            block.entry = it.value();
-            addBlock(std::move(block), it.key(), Core()->num(it.key()));
-        }
+    for (auto it = idMapping.constBegin(), end = idMapping.constEnd(); it != end; ++it) {
+        const auto &k = it.key();
+        const auto &v = it.value();
+        if (blocks.find(v) != blocks.end())
+            continue;
+        GraphLayout::GraphBlock block;
+        block.entry = v;
+        addBlock(std::move(block), k, Core()->num(k));
     }
     if (blockContent.empty() && !global) {
         addBlock({}, RzAddressString(address), address);
     }
 
     addressMapping.clear();
-    for (auto &it : blockContent) {
+    for (const auto &it : blockContent) {
         addressMapping[it.second.address] = it.first;
     }
+
+    qDebug() << "call graph\n";
 
     computeGraphPlacement();
 }
