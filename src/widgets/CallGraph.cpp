@@ -53,11 +53,8 @@ void CallGraphView::showExportDialog()
 void CallGraphView::showAddress(RVA address)
 {
     if (global) {
-        auto addressMappingIt = addressMapping.find(address);
-        if (addressMappingIt != addressMapping.end()) {
-            selectBlockWithId(addressMappingIt->second);
-            showBlock(blocks[addressMappingIt->second]);
-        }
+        selectBlockWithId(address);
+        showBlock(blocks[address]);
     } else if (address != this->address) {
         this->address = address;
         refreshView();
@@ -72,53 +69,72 @@ void CallGraphView::refreshView()
     SimpleTextGraphView::refreshView();
 }
 
+static inline bool isBetween(ut64 a, ut64 x, ut64 b)
+{
+    return (a == UT64_MAX || a <= x) && (b == UT64_MAX || x <= b);
+}
+
+using PRzList = std::unique_ptr<RzList, decltype(rz_list_free) *>;
+
 void CallGraphView::loadCurrentGraph()
 {
     blockContent.clear();
     blocks.clear();
 
-    CutterJson nodes = Core()->cmdj(global ? "agCj" : QString("agcj @ %1").arg(address));
+    const ut64 from = Core()->getConfigi("graph.from");
+    const ut64 to = Core()->getConfigi("graph.to");
+    const bool usenames = Core()->getConfigb("graph.json.usenames");
 
-    QHash<QString, uint64_t> idMapping;
+    auto edges = std::unordered_set<ut64> {};
+    auto addFunction = [&](RzAnalysisFunction *fcn) {
+        GraphLayout::GraphBlock block;
+        block.entry = fcn->addr;
 
-    auto getId = [&](const QString &name) -> uint64_t {
-        auto nextId = idMapping.size();
-        auto &itemId = idMapping[name];
-        if (idMapping.size() != nextId) {
-            itemId = nextId;
+        auto xrefs = PRzList { rz_analysis_function_get_xrefs_from(fcn), rz_list_free };
+        auto calls = std::unordered_set<ut64>();
+        for (const auto &xref : CutterRzList<RzAnalysisXRef>(xrefs.get())) {
+            const auto x = xref->to;
+            if (!(xref->type == RZ_ANALYSIS_XREF_TYPE_CALL && calls.find(x) == calls.end())) {
+                continue;
+            }
+            calls.insert(x);
+            block.edges.emplace_back(x);
+            edges.insert(x);
         }
-        return itemId;
+
+        QString name = usenames ? fcn->name : RzAddressString(fcn->addr);
+        addBlock(std::move(block), name, fcn->addr);
     };
 
-    for (CutterJson block : nodes) {
-        QString name = block["name"].toString();
-
-        auto edges = block["imports"];
-        GraphLayout::GraphBlock layoutBlock;
-        layoutBlock.entry = getId(name);
-        for (auto edge : edges) {
-            auto targetName = edge.toString();
-            auto targetId = getId(targetName);
-            layoutBlock.edges.emplace_back(targetId);
+    if (global) {
+        for (const auto &fcn : CutterRzList<RzAnalysisFunction>(Core()->core()->analysis->fcns)) {
+            if (!isBetween(from, fcn->addr, to)) {
+                continue;
+            }
+            addFunction(fcn);
         }
-
-        // it would be good if address came directly from json instead of having to lookup by name
-        addBlock(std::move(layoutBlock), name, Core()->num(name));
+    } else {
+        const auto &fcn = Core()->functionIn(address);
+        if (fcn) {
+            addFunction(fcn);
+        }
     }
-    for (auto it = idMapping.begin(), end = idMapping.end(); it != end; ++it) {
-        if (blocks.find(it.value()) == blocks.end()) {
-            GraphLayout::GraphBlock block;
-            block.entry = it.value();
-            addBlock(std::move(block), it.key(), Core()->num(it.key()));
+
+    for (const auto &x : edges) {
+        if (blockContent.find(x) != blockContent.end()) {
+            continue;
         }
+        GraphLayout::GraphBlock block;
+        block.entry = x;
+        QString flagName = Core()->flagAt(x);
+        QString name = usenames
+                ? (!flagName.isEmpty() ? flagName : QString("unk.%0").arg(RzAddressString(x)))
+                : RzAddressString(x);
+        addBlock(std::move(block), name, x);
     }
     if (blockContent.empty() && !global) {
-        addBlock({}, RzAddressString(address), address);
-    }
-
-    addressMapping.clear();
-    for (auto &it : blockContent) {
-        addressMapping[it.second.address] = it.first;
+        const auto name = RzAddressString(address);
+        addBlock({}, name, address);
     }
 
     computeGraphPlacement();
