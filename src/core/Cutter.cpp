@@ -1349,16 +1349,6 @@ QString CutterCore::flagAt(RVA addr)
     return core->flags->realnames && f->realname ? f->realname : f->name;
 }
 
-void CutterCore::cmdEsil(const char *command)
-{
-    // use cmd and not cmdRaw because of unexpected commands
-    QString res = cmd(command);
-    if (res.contains(QStringLiteral("[ESIL] Stopped execution in an invalid instruction"))) {
-        msgBox.showMessage("Stopped when attempted to run an invalid instruction. You can disable "
-                           "this in Preferences");
-    }
-}
-
 void CutterCore::createFunctionAt(RVA addr)
 {
     createFunctionAt(addr, "");

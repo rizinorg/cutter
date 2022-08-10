@@ -175,14 +175,6 @@ public:
     CutterJson cmdjAt(const char *str, RVA address);
     QString cmdTask(const QString &str);
 
-    /**
-     * @brief send a command to Rizin and check for ESIL errors
-     * @param command the command you want to execute
-     * @note If you want to seek to an address, you should use CutterCore::seek.
-     */
-    void cmdEsil(const char *command);
-    void cmdEsil(const QString &command) { cmdEsil(command.toUtf8().constData()); }
-
     QString getRizinVersionReadable(const char *program = nullptr);
     QString getVersionInformation();
 
