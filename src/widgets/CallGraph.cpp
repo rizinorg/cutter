@@ -121,6 +121,9 @@ void CallGraphView::loadCurrentGraph()
     }
 
     for (const auto &x : edges) {
+        if (blockContent.find(x) != blocks.end()) {
+            continue;
+        }
         GraphLayout::GraphBlock block;
         block.entry = x;
         QString flagName = Core()->flagAt(x);
