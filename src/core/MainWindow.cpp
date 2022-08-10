@@ -1762,7 +1762,7 @@ void MainWindow::on_actionExport_as_code_triggered()
     QTextStream fileOut(&file);
     auto ps = core->seekTemp(0);
     auto rc = core->core();
-    auto size = static_cast<int>(Core()->num("$s"));
+    const auto size = static_cast<int>(rz_io_fd_size(rc->io, rc->file->fd));
     auto buffer = std::unique_ptr<ut8[]> { new ut8[size] };
     if (!buffer) {
         return;
