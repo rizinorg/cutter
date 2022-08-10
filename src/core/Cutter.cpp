@@ -437,48 +437,6 @@ bool CutterCore::isDebugTaskInProgress()
     return false;
 }
 
-bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<RizinTask> &task)
-{
-    asyncCmd(command, task);
-
-    if (task.isNull()) {
-        return false;
-    }
-
-    connect(task.data(), &RizinCmdTask::finished, task.data(), [this, task]() {
-        QString res = qobject_cast<RizinCmdTask *>(task.data())->getResult();
-
-        if (res.contains(QStringLiteral("[ESIL] Stopped execution in an invalid instruction"))) {
-            msgBox.showMessage("Stopped when attempted to run an invalid instruction. You can "
-                               "disable this in Preferences");
-        }
-    });
-
-    return true;
-}
-
-bool CutterCore::asyncCmd(const char *str, QSharedPointer<RizinTask> &task)
-{
-    if (!task.isNull()) {
-        return false;
-    }
-
-    CORE_LOCK();
-
-    RVA offset = core->offset;
-
-    task = QSharedPointer<RizinTask>(new RizinCmdTask(str, true));
-    connect(task.data(), &RizinTask::finished, task.data(), [this, offset, task]() {
-        CORE_LOCK();
-
-        if (offset != core->offset) {
-            updateSeek();
-        }
-    });
-
-    return true;
-}
-
 bool CutterCore::asyncTask(std::function<void *(RzCore *)> fcn, QSharedPointer<RizinTask> &task)
 {
     if (!task.isNull()) {
