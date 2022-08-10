@@ -25,6 +25,7 @@ struct CommentGroup
 class CommentsModel : public AddressableItemModel<>
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(CommentsModel)
 
     friend CommentsWidget;
 
@@ -61,6 +62,7 @@ public:
 class CommentsProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(CommentsProxyModel)
 
 public:
     CommentsProxyModel(CommentsModel *sourceModel, QObject *parent = nullptr);
@@ -73,6 +75,7 @@ protected:
 class CommentsWidget : public ListDockWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(CommentsWidget)
 
 public:
     explicit CommentsWidget(MainWindow *main);

@@ -11,6 +11,7 @@ class MainWindow;
 class CUTTER_EXPORT CutterDockWidget : public QDockWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(CutterDockWidget)
 
 public:
     CUTTER_DEPRECATED("Action will be ignored. Use CutterDockWidget(MainWindow*) instead.")

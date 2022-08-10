@@ -13,6 +13,7 @@ class ComboQuickFilterView;
 class CUTTER_EXPORT ComboQuickFilterView : public QWidget
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(ComboQuickFilterView)
 
 public:
     explicit ComboQuickFilterView(QWidget *parent = nullptr);

@@ -11,6 +11,7 @@ namespace ColorPickerHelpers {
 class ColorPickWidgetAbstract : public QWidget
 {
     Q_OBJECT
+
 public:
     ColorPickWidgetAbstract(QWidget *parent = nullptr) : QWidget(parent) {}
     virtual ~ColorPickWidgetAbstract() {}
@@ -37,6 +38,7 @@ class ColorPicker;
 class ColorPicker : public ColorPickerHelpers::ColorPickWidgetAbstract
 {
     Q_OBJECT
+
 public:
     explicit ColorPicker(QWidget *parent = nullptr);
     ~ColorPicker();
@@ -95,6 +97,7 @@ namespace ColorPickerHelpers {
 class ColorPickerWidget : public ColorPickWidgetAbstract
 {
     Q_OBJECT
+
 public:
     ColorPickerWidget(QWidget *parent = nullptr);
 
@@ -119,6 +122,7 @@ protected:
 class ColorShowWidget : public ColorPickWidgetAbstract
 {
     Q_OBJECT
+
 public:
     explicit ColorShowWidget(QWidget *parent = nullptr);
 
@@ -135,6 +139,7 @@ protected:
 class ColorPickArea : public ColorPickerWidget
 {
     Q_OBJECT
+
 public:
     explicit ColorPickArea(QWidget *parent = nullptr);
 
@@ -152,6 +157,7 @@ private:
 class AlphaChannelBar : public ColorPickerWidget
 {
     Q_OBJECT
+
 public:
     AlphaChannelBar(QWidget *parent = nullptr) : ColorPickerWidget(parent) {}
 
@@ -173,6 +179,7 @@ private:
 class ColorValueBar : public ColorPickerWidget
 {
     Q_OBJECT
+
 public:
     ColorValueBar(QWidget *parent = nullptr) : ColorPickerWidget(parent) {}
 

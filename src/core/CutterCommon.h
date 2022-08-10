@@ -161,4 +161,19 @@ inline QString RzHexString(RVA size)
 #    define CUTTER_DEPRECATED(msg)
 #endif
 
+/**
+ * @brief Since Qt versions < 5.13 don't define the Q_DISABLE_COPY_MOVE
+ * macro, we define it here. This check and this macro definition  will
+ * be deprecated when Cutter moves to a greater than 5.13.0 Qt version.
+ */
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+#    define Q_DISABLE_MOVE(Class)                                                                  \
+        Class(Class &&) = delete;                                                                  \
+        Class &operator=(Class &&) = delete;
+
+#    define Q_DISABLE_COPY_MOVE(Class)                                                             \
+        Q_DISABLE_COPY(Class)                                                                      \
+        Q_DISABLE_MOVE(Class)
+#endif
+
 #endif // CUTTERCORE_H

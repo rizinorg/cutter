@@ -9,6 +9,7 @@
 class ColorThemeComboBox : public QComboBox
 {
     Q_OBJECT
+
 public:
     explicit ColorThemeComboBox(QWidget *parent = nullptr);
 

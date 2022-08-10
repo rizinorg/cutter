@@ -14,6 +14,7 @@ class CutterTreeView;
 class CUTTER_EXPORT CutterTreeView : public QTreeView
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(CutterTreeView)
 
 public:
     explicit CutterTreeView(QWidget *parent = nullptr);
