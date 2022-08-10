@@ -2,21 +2,14 @@
 
 BasicBlockHighlighter::BasicBlockHighlighter() {}
 
-BasicBlockHighlighter::~BasicBlockHighlighter()
-{
-    for (BasicBlockIt itr = bbMap.begin(); itr != bbMap.end(); ++itr) {
-        delete itr->second;
-    }
-}
-
 /**
  * @brief Highlight the basic block at address
  */
 void BasicBlockHighlighter::highlight(RVA address, const QColor &color)
 {
-    BasicBlock *block = new BasicBlock;
-    block->address = address;
-    block->color = color;
+    BasicBlock block;
+    block.address = address;
+    block.color = color;
     bbMap[address] = block;
 }
 
@@ -33,13 +26,11 @@ void BasicBlockHighlighter::clear(RVA address)
  *
  * If there is nothing to highlight at specified address, returns nullptr
  */
-BasicBlock *BasicBlockHighlighter::getBasicBlock(RVA address)
+BasicBlockHighlighter::BasicBlock *BasicBlockHighlighter::getBasicBlock(RVA address)
 {
-    BasicBlockIt it;
-
-    it = bbMap.find(address);
+    auto it = bbMap.find(address);
     if (it != bbMap.end()) {
-        return it->second;
+        return &it->second;
     }
 
     return nullptr;
