@@ -192,14 +192,14 @@ void DisassemblerGraphView::loadCurrentGraph()
     RzAnalysisFunction *fcn = Core()->functionIn(seekable->getOffset());
 
     windowTitle = tr("Graph");
-    QString fcn_name = "Empty";
     if (fcn && RZ_STR_ISNOTEMPTY(fcn->name)) {
-        std::unique_ptr<char, decltype(std::free) *> ptr {
+        std::unique_ptr<char, decltype(std::free) *> fcnName {
             rz_str_escape_utf8_for_json(fcn->name, -1), std::free
         };
-        fcn_name = ptr.get();
+        windowTitle += QString("(%0)").arg(fcnName.get());
+    } else {
+        windowTitle += "(Empty)";
     }
-    windowTitle += QString("(%0)").arg(fcn_name);
     emit nameChanged(windowTitle);
 
     emptyGraph = !fcn;
@@ -225,15 +225,13 @@ void DisassemblerGraphView::loadCurrentGraph()
     }
 
     for (const auto &bbi : CutterRzList<RzAnalysisBlock>(fcn->bbs)) {
-        RVA block_entry = bbi->addr;
-        RVA block_size = bbi->size;
-        RVA block_fail = bbi->fail;
-        RVA block_jump = bbi->jump;
+        RVA bbiFail = bbi->fail;
+        RVA bbiJump = bbi->jump;
 
         DisassemblyBlock db;
         GraphBlock gb;
-        gb.entry = block_entry;
-        db.entry = block_entry;
+        gb.entry = bbi->addr;
+        db.entry = bbi->addr;
         if (Config()->getGraphBlockEntryOffset()) {
             // QColor(0,0,0,0) is transparent
             db.header_text = Text("[" + RzAddressString(db.entry) + "]", ConfigColor("offset"),
@@ -241,25 +239,24 @@ void DisassemblerGraphView::loadCurrentGraph()
         }
         db.true_path = RVA_INVALID;
         db.false_path = RVA_INVALID;
-        if (block_fail) {
-            db.false_path = block_fail;
-            gb.edges.emplace_back(block_fail);
+        if (bbiFail) {
+            db.false_path = bbiFail;
+            gb.edges.emplace_back(bbiFail);
         }
-        if (block_jump) {
-            if (block_fail) {
-                db.true_path = block_jump;
+        if (bbiJump) {
+            if (bbiFail) {
+                db.true_path = bbiJump;
             }
-            gb.edges.emplace_back(block_jump);
+            gb.edges.emplace_back(bbiJump);
         }
 
-        RzAnalysisSwitchOp *switch_op = bbi->switch_op;
-        if (switch_op) {
-            for (const auto &case_op : CutterRzList<RzAnalysisCaseOp>(switch_op->cases)) {
-                RVA caseJump = case_op->jump;
-                if (caseJump == RVA_INVALID) {
+        RzAnalysisSwitchOp *switchOp = bbi->switch_op;
+        if (switchOp) {
+            for (const auto &caseOp : CutterRzList<RzAnalysisCaseOp>(switchOp->cases)) {
+                if (caseOp->jump == RVA_INVALID) {
                     continue;
                 }
-                gb.edges.emplace_back(caseJump);
+                gb.edges.emplace_back(caseOp->jump);
             }
         }
 
@@ -284,21 +281,21 @@ void DisassemblerGraphView::loadCurrentGraph()
         rz_core_print_disasm(core, bbi->addr, buf.get(), (int)bbi->size, (int)bbi->size, NULL,
                              &options);
 
-        auto vec_visitor = CutterPVector<RzAnalysisDisasmText>(vec.get());
-        auto iter = vec_visitor.begin();
-        while (iter != vec_visitor.end()) {
+        auto vecVisitor = CutterPVector<RzAnalysisDisasmText>(vec.get());
+        auto iter = vecVisitor.begin();
+        while (iter != vecVisitor.end()) {
             RzAnalysisDisasmText *op = *iter;
             Instr instr;
             instr.addr = op->offset;
 
             ++iter;
-            if (iter != vec_visitor.end()) {
+            if (iter != vecVisitor.end()) {
                 // get instruction size from distance to next instruction ...
                 RVA nextOffset = (*iter)->offset;
                 instr.size = nextOffset - instr.addr;
             } else {
                 // or to the end of the block.
-                instr.size = (block_entry + block_size) - instr.addr;
+                instr.size = (bbi->addr + bbi->size) - instr.addr;
             }
 
             QTextDocument textDoc;
