@@ -79,12 +79,44 @@ static inline bool clamp(ut64 a, ut64 x, ut64 b)
 
 using PRzList = std::unique_ptr<RzList, decltype(rz_list_free) *>;
 
+void CallGraphView::addFunction(RzAnalysisFunction *fcn,
+                                const std::function<ut64(const QString &)> &getId)
+{
+    static const auto xrefCmp = [](const void *a, const void *b) -> int {
+        auto x = reinterpret_cast<const RzAnalysisXRef *>(a)->to
+                - reinterpret_cast<const RzAnalysisXRef *>(b)->to;
+        return static_cast<int>(x);
+    };
+    const bool usenames = Core()->getConfigb("graph.json.usenames");
+
+    QString name = usenames ? fcn->name : RzAddressString(fcn->addr);
+    GraphLayout::GraphBlock block;
+    block.entry = getId(name);
+
+    auto xrefs = PRzList { rz_analysis_function_get_xrefs_from(fcn), rz_list_free };
+    auto calls = PRzList { rz_list_new(), rz_list_free };
+    for (const auto &xref : CutterRzList<RzAnalysisXRef>(xrefs.get())) {
+        if (!(xref->type == RZ_ANALYSIS_XREF_TYPE_CALL
+              && rz_list_find(calls.get(), xref, (RzListComparator)xrefCmp) == NULL)) {
+            continue;
+        }
+        rz_list_append(calls.get(), xref);
+        RzFlagItem *flag = rz_flag_get_i(Core()->core()->flags, xref->to);
+        QString xref_name = usenames
+                ? ((flag && flag->name) ? flag->name
+                                        : QString("unk.%0").arg(RzAddressString(xref->to)))
+                : RzAddressString(xref->to);
+        block.edges.emplace_back(getId(xref_name));
+    }
+
+    addBlock(std::move(block), name, Core()->num(name));
+}
+
 void CallGraphView::loadCurrentGraph()
 {
     blockContent.clear();
     blocks.clear();
 
-    const bool usenames = Core()->getConfigb("graph.json.usenames");
     const ut64 from = Core()->getConfigi("graph.from");
     const ut64 to = Core()->getConfigi("graph.to");
     QHash<QString, uint64_t> idMapping;
@@ -96,43 +128,25 @@ void CallGraphView::loadCurrentGraph()
         }
         return itemId;
     };
-    auto xrefCmp = [](const void *a, const void *b) -> int {
-        auto x = reinterpret_cast<const RzAnalysisXRef *>(a)->to
-                - reinterpret_cast<const RzAnalysisXRef *>(b)->to;
-        return static_cast<int>(x);
-    };
 
     ut64 base = UT64_MAX;
-    for (const auto &fcn : CutterRzList<RzAnalysisFunction>(Core()->core()->analysis->fcns)) {
-        if (base == UT64_MAX) {
-            base = fcn->addr;
-        }
-        if (!(clamp(from, fcn->addr, to) && (global || fcn->addr == address))) {
-            continue;
-        }
-        QString name = usenames ? fcn->name : RzAddressString(fcn->addr);
-        GraphLayout::GraphBlock block;
-        block.entry = getId(name);
-
-        auto xrefs = PRzList { rz_analysis_function_get_xrefs_from(fcn), rz_list_free };
-        auto calls = PRzList { rz_list_new(), rz_list_free };
-        for (const auto &xref : CutterRzList<RzAnalysisXRef>(xrefs.get())) {
-            if (!(xref->type == RZ_ANALYSIS_XREF_TYPE_CALL
-                  && rz_list_find(calls.get(), xref, (RzListComparator)xrefCmp) == NULL)) {
+    if (global) {
+        for (const auto &fcn : CutterRzList<RzAnalysisFunction>(Core()->core()->analysis->fcns)) {
+            if (base == UT64_MAX) {
+                base = fcn->addr;
+            }
+            if (!clamp(from, fcn->addr, to)) {
                 continue;
             }
-            rz_list_append(calls.get(), xref);
-            RzFlagItem *flag = rz_flag_get_i(Core()->core()->flags, xref->to);
-            QString xref_name = usenames
-                    ? ((flag && flag->name) ? flag->name
-                                            : QString("unk.%0").arg(RzAddressString(xref->to)))
-                    : RzAddressString(xref->to);
-            block.edges.emplace_back(getId(xref_name));
+            addFunction(fcn, getId);
         }
-
-        addBlock(std::move(block), name, Core()->num(name));
-        qDebug() << "add block";
+    } else {
+        const auto &fcn = Core()->functionIn(address);
+        if (fcn) {
+            addFunction(fcn, getId);
+        }
     }
+
     for (auto it = idMapping.constBegin(), end = idMapping.constEnd(); it != end; ++it) {
         const auto &k = it.key();
         const auto &v = it.value();
@@ -150,8 +164,6 @@ void CallGraphView::loadCurrentGraph()
     for (const auto &it : blockContent) {
         addressMapping[it.second.address] = it.first;
     }
-
-    qDebug() << "call graph\n";
 
     computeGraphPlacement();
 }

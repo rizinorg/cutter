@@ -29,6 +29,7 @@ protected:
 private:
     RefreshDeferrer refreshDeferrer;
     RVA lastLoadedAddress = RVA_INVALID;
+    void addFunction(RzAnalysisFunction *fcn, const std::function<ut64(const QString &)> &getId);
 };
 
 class CallGraphWidget : public AddressableDockWidget
