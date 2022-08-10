@@ -2,6 +2,8 @@
 #include "RizinTask.h"
 #include <rz_core.h>
 
+#include <utility>
+
 RizinTask::~RizinTask()
 {
     if (task) {
@@ -72,8 +74,8 @@ const char *RizinCmdTask::getResultRaw()
 
 // RizinFunctionTask
 
-RizinFunctionTask::RizinFunctionTask(std::function<void *(RzCore *)> fcn, bool transient)
-    : fcn(fcn), res(nullptr)
+RizinFunctionTask::RizinFunctionTask(std::function<void(RzCore *)> fcn, bool transient)
+    : fcn(std::move(fcn))
 {
     task = rz_core_function_task_new(
             Core()->core(), static_cast<RzCoreTaskFunction>(&RizinFunctionTask::runner), this);
@@ -83,8 +85,8 @@ RizinFunctionTask::RizinFunctionTask(std::function<void *(RzCore *)> fcn, bool t
 
 void *RizinFunctionTask::runner(RzCore *core, void *user)
 {
-    RizinFunctionTask *task = reinterpret_cast<RizinFunctionTask *>(user);
-    task->res = task->fcn(core);
+    auto *task = reinterpret_cast<RizinFunctionTask *>(user);
+    task->fcn(core);
     task->taskFinished();
     return nullptr;
 }

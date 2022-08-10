@@ -18,7 +18,6 @@ void RunScriptTask::runTask()
         log(tr("Executing script..."));
         Core()->functionTask([&](RzCore *core) {
             rz_core_run_script(core, this->fileName.toUtf8().constData());
-            return nullptr;
         });
         if (isInterrupted()) {
             return;
