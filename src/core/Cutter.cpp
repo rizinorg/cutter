@@ -519,14 +519,6 @@ QString CutterCore::cmdTask(const QString &str)
     return task.getResult();
 }
 
-CutterJson CutterCore::cmdjTask(const QString &str)
-{
-    RizinCmdTask task(str);
-    task.startTask();
-    task.joinTask();
-    return task.getResultJson();
-}
-
 CutterJson CutterCore::parseJson(char *res, const char *cmd)
 {
     if (!res) {

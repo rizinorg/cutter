@@ -174,7 +174,7 @@ public:
     CutterJson cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
     CutterJson cmdjAt(const char *str, RVA address);
     QString cmdTask(const QString &str);
-    CutterJson cmdjTask(const QString &str);
+
     /**
      * @brief send a command to Rizin and check for ESIL errors
      * @param command the command you want to execute
