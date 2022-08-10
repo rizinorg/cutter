@@ -105,6 +105,7 @@ public:
      * @return execute successful?
      */
     bool asyncTask(std::function<void *(RzCore *)> fcn, QSharedPointer<RizinTask> &task);
+    void functionTask(std::function<void *(RzCore *)> fcn);
 
     /**
      * @brief Execute a Rizin command \a cmd.  By nature, the API

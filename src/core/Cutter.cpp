@@ -457,6 +457,13 @@ bool CutterCore::asyncTask(std::function<void *(RzCore *)> fcn, QSharedPointer<R
     return true;
 }
 
+void CutterCore::functionTask(std::function<void *(RzCore *)> fcn)
+{
+    auto task = std::unique_ptr<RizinTask>(new RizinFunctionTask(std::move(fcn), true));
+    task->startTask();
+    task->joinTask();
+}
+
 QString CutterCore::cmdRawAt(const char *cmd, RVA address)
 {
     QString res;
