@@ -121,7 +121,7 @@ void CallGraphView::loadCurrentGraph()
     }
 
     for (const auto &x : edges) {
-        if (blockContent.find(x) != blocks.end()) {
+        if (blockContent.find(x) != blockContent.end()) {
             continue;
         }
         GraphLayout::GraphBlock block;
