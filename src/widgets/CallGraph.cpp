@@ -74,7 +74,7 @@ void CallGraphView::refreshView()
 
 static inline bool clamp(ut64 a, ut64 x, ut64 b)
 {
-    return a != UT64_MAX && b != UT64_MAX && a <= x && x <= b;
+    return (a == UT64_MAX || a <= x) && (b == UT64_MAX || x <= b);
 }
 
 using PRzList = std::unique_ptr<RzList, decltype(rz_list_free) *>;
@@ -129,12 +129,8 @@ void CallGraphView::loadCurrentGraph()
         return itemId;
     };
 
-    ut64 base = UT64_MAX;
     if (global) {
         for (const auto &fcn : CutterRzList<RzAnalysisFunction>(Core()->core()->analysis->fcns)) {
-            if (base == UT64_MAX) {
-                base = fcn->addr;
-            }
             if (!clamp(from, fcn->addr, to)) {
                 continue;
             }
