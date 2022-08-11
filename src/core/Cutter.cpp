@@ -3980,22 +3980,34 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, QString spa
 QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, bool findWrites,
                                                        RVA offset)
 {
+    auto fcn = functionIn(offset);
+    if (!fcn) {
+        return {};
+    }
+    const auto typ =
+            findWrites ? RZ_ANALYSIS_VAR_ACCESS_TYPE_WRITE : RZ_ANALYSIS_VAR_ACCESS_TYPE_READ;
     QList<XrefDescription> xrefList = QList<XrefDescription>();
-    for (CutterJson xrefObject : cmdjAt(findWrites ? "afvWj" : "afvRj", offset)) {
-        QString name = xrefObject[RJsonKey::name].toString();
-        if (name == variableName) {
-            for (CutterJson address : xrefObject[RJsonKey::addrs]) {
-                XrefDescription xref;
-                RVA addr = address.toRVA();
-                xref.from = addr;
-                xref.to = addr;
-                if (findWrites) {
-                    xref.from_str = RzAddressString(addr);
-                } else {
-                    xref.to_str = RzAddressString(addr);
-                }
-                xrefList << xref;
+    RzList *vars = rz_analysis_var_all_list(Core()->core()->analysis, fcn);
+    for (const auto &v : CutterRzList<RzAnalysisVar>(vars)) {
+        if (variableName != v->name) {
+            continue;
+        }
+        RzAnalysisVarAccess *acc;
+        CutterRzVectorForeach(&v->accesses, acc, RzAnalysisVarAccess)
+        {
+            if (!(acc->type & typ)) {
+                continue;
             }
+            XrefDescription xref;
+            RVA addr = fcn->addr + acc->offset;
+            xref.from = addr;
+            xref.to = addr;
+            if (findWrites) {
+                xref.from_str = RzAddressString(addr);
+            } else {
+                xref.to_str = RzAddressString(addr);
+            }
+            xrefList << xref;
         }
     }
     return xrefList;
