@@ -313,34 +313,34 @@ void DisassemblyContextMenu::addDebugMenu()
 
 QVector<DisassemblyContextMenu::ThingUsedHere> DisassemblyContextMenu::getThingUsedHere(RVA offset)
 {
-    QVector<ThingUsedHere> result;
-    const CutterJson array = Core()->cmdj("anj @ " + QString::number(offset));
-    result.reserve(array.size());
-    for (const auto &thing : array) {
-        auto obj = thing;
-        RVA offset = obj["offset"].toRVA();
-        QString name;
-
-        // If real names display is enabled, show flag's real name instead of full flag name
-        if (Config()->getConfigBool("asm.flags.real") && obj["realname"].valid()) {
-            name = obj["realname"].toString();
-        } else {
-            name = obj["name"].toString();
-        }
-
-        QString typeString = obj["type"].toString();
-        ThingUsedHere::Type type = ThingUsedHere::Type::Address;
-        if (typeString == "var") {
-            type = ThingUsedHere::Type::Var;
-        } else if (typeString == "flag") {
-            type = ThingUsedHere::Type::Flag;
-        } else if (typeString == "function") {
-            type = ThingUsedHere::Type::Function;
-        } else if (typeString == "address") {
-            type = ThingUsedHere::Type::Address;
-        }
-        result.push_back(ThingUsedHere { name, offset, type });
+    RzCoreLocked core(Core());
+    auto p = std::unique_ptr<RzCoreAnalysisName, decltype(rz_core_analysis_name_free) *> {
+        rz_core_analysis_name(core, offset), rz_core_analysis_name_free
+    };
+    if (!p) {
+        return {};
     }
+
+    QVector<ThingUsedHere> result;
+    ThingUsedHere th;
+    th.offset = p->offset;
+    th.name = Config()->getConfigBool("asm.flags.real") && p->realname ? p->realname : p->name;
+    switch (p->type) {
+    case RZ_CORE_ANALYSIS_NAME_TYPE_FLAG:
+        th.type = ThingUsedHere::Type::Flag;
+        break;
+    case RZ_CORE_ANALYSIS_NAME_TYPE_FUNCTION:
+        th.type = ThingUsedHere::Type::Function;
+        break;
+    case RZ_CORE_ANALYSIS_NAME_TYPE_VAR:
+        th.type = ThingUsedHere::Type::Var;
+        break;
+    case RZ_CORE_ANALYSIS_NAME_TYPE_ADDRESS:
+    default:
+        th.type = ThingUsedHere::Type::Address;
+        break;
+    }
+    result.push_back(th);
     return result;
 }
 
@@ -482,13 +482,7 @@ void DisassemblyContextMenu::setupRenaming()
 void DisassemblyContextMenu::aboutToShowSlot()
 {
     // check if set immediate base menu makes sense
-    RzPVector *vec = (RzPVector *)Core()->returnAtSeek(
-            [&]() {
-                RzCoreLocked core(Core());
-                return rz_core_analysis_bytes(core, core->block, (int)core->blocksize, 1);
-            },
-            offset);
-    auto *ab = static_cast<RzAnalysisBytes *>(rz_pvector_head(vec));
+    auto ab = Core()->getRzAnalysisBytesSingle(offset);
 
     bool immBase = ab && ab->op && (ab->op->val || ab->op->ptr);
     setBaseMenu->menuAction()->setVisible(immBase);
@@ -514,7 +508,6 @@ void DisassemblyContextMenu::aboutToShowSlot()
             }
         }
     }
-    rz_pvector_free(vec);
 
     if (memBaseReg.isEmpty()) {
         // hide structure offset menu
@@ -727,22 +720,13 @@ void DisassemblyContextMenu::on_actionNopInstruction_triggered()
 void DisassemblyContextMenu::showReverseJmpQuery()
 {
     actionJmpReverse.setVisible(false);
-    RzCoreLocked core(Core());
-    auto vec = reinterpret_cast<RzPVector *>(Core()->returnAtSeek(
-            [&]() { return rz_core_analysis_bytes(core, core->block, (int)core->blocksize, 1); },
-            offset));
-    if (!vec) {
-        return;
-    }
-    auto ab = reinterpret_cast<RzAnalysisBytes *>(rz_pvector_head(vec));
+    auto ab = Core()->getRzAnalysisBytesSingle(offset);
     if (!(ab && ab->op)) {
-        rz_pvector_free(vec);
         return;
     }
     if (ab->op->type == RZ_ANALYSIS_OP_TYPE_CJMP) {
         actionJmpReverse.setVisible(true);
     }
-    rz_pvector_free(vec);
 }
 
 void DisassemblyContextMenu::on_actionJmpReverse_triggered()

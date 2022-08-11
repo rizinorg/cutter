@@ -32,6 +32,7 @@ class RizinTaskDialog;
 #include "common/Helpers.h"
 
 #include <rz_project.h>
+#include <memory>
 
 #define Core() (CutterCore::instance())
 
@@ -59,6 +60,8 @@ struct CUTTER_EXPORT RegisterRef
     AddrRefs ref;
     QString name;
 };
+
+using PRzAnalysisBytes = std::unique_ptr<RzAnalysisBytes, decltype(rz_analysis_bytes_free) *>;
 
 class CUTTER_EXPORT CutterCore : public QObject
 {
@@ -153,7 +156,7 @@ public:
         return cmdRawAt(str.toUtf8().constData(), address);
     }
 
-    void applyAtSeek(std::function<void()> fn, RVA address)
+    void applyAtSeek(const std::function<void()> &fn, RVA address)
     {
         RVA oldOffset = getOffset();
         seekSilent(address);
@@ -161,11 +164,12 @@ public:
         seekSilent(oldOffset);
     }
 
-    void *returnAtSeek(std::function<void *()> fn, RVA address)
+    template<typename T>
+    T returnAtSeek(const std::function<T()> &fn, RVA address)
     {
         RVA oldOffset = getOffset();
         seekSilent(address);
-        void *ret = fn();
+        T ret = fn();
         seekSilent(oldOffset);
         return ret;
     }
@@ -273,6 +277,7 @@ public:
     void triggerFlagsChanged();
 
     /* Edition functions */
+    PRzAnalysisBytes getRzAnalysisBytesSingle(RVA addr);
     QString getInstructionBytes(RVA addr);
     QString getInstructionOpcode(RVA addr);
     void editInstruction(RVA addr, const QString &inst, bool fillWithNops = false);
