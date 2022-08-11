@@ -47,11 +47,15 @@ class CUTTER_EXPORT RizinFunctionTask : public RizinTask
     Q_OBJECT
 
 private:
-    std::function<void(RzCore *)> fcn;
+    std::function<void *(RzCore *)> fcn;
+    void *res;
+
     static void *runner(RzCore *core, void *user);
 
 public:
-    explicit RizinFunctionTask(std::function<void(RzCore *)> fcn, bool transient = true);
+    explicit RizinFunctionTask(std::function<void *(RzCore *)> fcn, bool transient = true);
+
+    void *getResult() { return res; }
 };
 
 #endif // RZTASK_H
