@@ -231,7 +231,17 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
 
         QStringList disasmPreview =
                 Core()->getDisassemblyPreview(function.offset, kMaxTooltipDisasmPreviewLines);
-        const QStringList &summary = Core()->cmdList(QString("pdsf @ %1").arg(function.offset));
+        QStringList summary {};
+        {
+            auto seeker = Core()->seekTemp(function.offset);
+            auto strings = std::unique_ptr<char, decltype(free) *> {
+                rz_core_print_disasm_strings(Core()->core(), RZ_CORE_DISASM_STRINGS_MODE_FUNCTION,
+                                             0, NULL),
+                free
+            };
+            summary = QString(strings.get()).split('\n', CUTTER_QT_SKIP_EMPTY_PARTS);
+        }
+
         const QFont &fnt = Config()->getFont();
         QFontMetrics fm { fnt };
 
@@ -245,7 +255,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             }
         }
         if (disasmPreview.isEmpty() && highlights.isEmpty())
-            return QVariant();
+            return {};
 
         QString toolTipContent =
                 QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: "
@@ -287,7 +297,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         return importAddresses->contains(function.offset);
 
     default:
-        return QVariant();
+        return {};
     }
 }
 

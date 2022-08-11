@@ -637,7 +637,7 @@ bool MainWindow::openProject(const QString &file)
 
 void MainWindow::finalizeOpen()
 {
-    core->getOpcodes();
+    core->getRegs();
     core->updateSeek();
     refreshAll();
     // Add fortune message
@@ -1762,10 +1762,16 @@ void MainWindow::on_actionExport_as_code_triggered()
     QTextStream fileOut(&file);
     auto ps = core->seekTemp(0);
     auto rc = core->core();
+    const auto size = static_cast<int>(rz_io_fd_size(rc->io, rc->file->fd));
+    auto buffer = std::vector<ut8>(size);
+    if (!rz_io_read_at(Core()->core()->io, 0, buffer.data(), size)) {
+        return;
+    }
+
     std::unique_ptr<char, decltype(free) *> string {
         dialog.selectedNameFilter() != instructionsInComments
-                ? rz_lang_byte_array(rc->block, rc->blocksize, typMap[dialog.selectedNameFilter()])
-                : rz_core_print_bytes_with_inst(rc, rc->block, rc->offset, rc->blocksize),
+                ? rz_lang_byte_array(buffer.data(), size, typMap[dialog.selectedNameFilter()])
+                : rz_core_print_bytes_with_inst(rc, buffer.data(), 0, size),
         free
     };
     fileOut << string.get();
