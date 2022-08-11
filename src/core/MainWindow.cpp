@@ -1763,18 +1763,15 @@ void MainWindow::on_actionExport_as_code_triggered()
     auto ps = core->seekTemp(0);
     auto rc = core->core();
     const auto size = static_cast<int>(rz_io_fd_size(rc->io, rc->file->fd));
-    auto buffer = std::unique_ptr<ut8[]> { new ut8[size] };
-    if (!buffer) {
-        return;
-    }
-    if (!rz_io_read_at(Core()->core()->io, 0, buffer.get(), size)) {
+    auto buffer = std::vector<ut8>(size);
+    if (!rz_io_read_at(Core()->core()->io, 0, buffer.data(), size)) {
         return;
     }
 
     std::unique_ptr<char, decltype(free) *> string {
         dialog.selectedNameFilter() != instructionsInComments
-                ? rz_lang_byte_array(buffer.get(), size, typMap[dialog.selectedNameFilter()])
-                : rz_core_print_bytes_with_inst(rc, buffer.get(), 0, size),
+                ? rz_lang_byte_array(buffer.data(), size, typMap[dialog.selectedNameFilter()])
+                : rz_core_print_bytes_with_inst(rc, buffer.data(), 0, size),
         free
     };
     fileOut << string.get();
