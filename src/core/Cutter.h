@@ -173,7 +173,6 @@ public:
 
     CutterJson cmdj(const char *str);
     CutterJson cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
-    CutterJson cmdjAt(const char *str, RVA address);
     QString cmdTask(const QString &str);
 
     QString getRizinVersionReadable(const char *program = nullptr);

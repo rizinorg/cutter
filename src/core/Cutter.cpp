@@ -506,18 +506,6 @@ CutterJson CutterCore::cmdj(const char *str)
     return parseJson(res, str);
 }
 
-CutterJson CutterCore::cmdjAt(const char *str, RVA address)
-{
-    CutterJson res;
-    RVA oldOffset = getOffset();
-    seekSilent(address);
-
-    res = cmdj(str);
-
-    seekSilent(oldOffset);
-    return res;
-}
-
 QString CutterCore::cmdTask(const QString &str)
 {
     RizinCmdTask task(str);
