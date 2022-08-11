@@ -31,7 +31,7 @@ void openIssue()
     url = "https://github.com/rizinorg/cutter/issues/new?&body=**Environment information**\n* "
           "Operating System: "
             + osInfo + "\n* Cutter version: " + CUTTER_VERSION_FULL + "\n* Obtained from:\n"
-            + "  - [x] Built from source\n  - [ ] Downloaded release from Cutter website or GitHub "
+            + "  - [ ] Built from source\n  - [ ] Downloaded release from Cutter website or GitHub "
               "\n"
               "  - [ ] Distribution repository\n* File format: "
             + format + "\n * Arch: " + arch + "\n * Type: " + type
