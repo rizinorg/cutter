@@ -133,6 +133,10 @@ QString PluginManager::getUserPluginsDirectory() const
 void PluginManager::loadNativePlugins(const QDir &directory)
 {
     for (const QString &fileName : directory.entryList(QDir::Files)) {
+        if (!QLibrary::isLibrary(fileName)) {
+            // Reduce amount of warnings, by not attempting files which are obviously not plugins
+            continue;
+        }
         QPluginLoader pluginLoader(directory.absoluteFilePath(fileName));
         QObject *plugin = pluginLoader.instance();
         if (!plugin) {
