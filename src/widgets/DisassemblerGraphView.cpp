@@ -170,6 +170,7 @@ void DisassemblerGraphView::refreshView()
 {
     CutterGraphView::refreshView();
     loadCurrentGraph();
+    breakpoints = Core()->getBreakpointsAddresses();
     emit viewRefreshed();
 }
 
@@ -369,8 +370,6 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
     p.setBrush(Qt::gray);
     p.setFont(Config()->getFont());
     p.drawRect(blockRect);
-
-    breakpoints = Core()->getBreakpointsAddresses();
 
     // Render node
     DisassemblyBlock &db = disassembly_blocks[block.entry];
