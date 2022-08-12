@@ -3968,6 +3968,7 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, QString spa
 QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, bool findWrites,
                                                        RVA offset)
 {
+    CORE_LOCK();
     auto fcn = functionIn(offset);
     if (!fcn) {
         return {};
@@ -3975,7 +3976,7 @@ QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, boo
     const auto typ =
             findWrites ? RZ_ANALYSIS_VAR_ACCESS_TYPE_WRITE : RZ_ANALYSIS_VAR_ACCESS_TYPE_READ;
     QList<XrefDescription> xrefList = QList<XrefDescription>();
-    RzList *vars = rz_analysis_var_all_list(Core()->core()->analysis, fcn);
+    RzList *vars = rz_analysis_var_all_list(core->analysis, fcn);
     for (const auto &v : CutterRzList<RzAnalysisVar>(vars)) {
         if (variableName != v->name) {
             continue;
