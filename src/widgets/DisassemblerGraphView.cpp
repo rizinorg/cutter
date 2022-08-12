@@ -193,9 +193,7 @@ void DisassemblerGraphView::loadCurrentGraph()
 
     windowTitle = tr("Graph");
     if (fcn && RZ_STR_ISNOTEMPTY(fcn->name)) {
-        std::unique_ptr<char, decltype(std::free) *> fcnName {
-            rz_str_escape_utf8_for_json(fcn->name, -1), std::free
-        };
+        auto fcnName = fromOwned(rz_str_escape_utf8_for_json(fcn->name, -1));
         windowTitle += QString("(%0)").arg(fcnName.get());
     } else {
         windowTitle += "(Empty)";
@@ -267,10 +265,8 @@ void DisassemblerGraphView::loadCurrentGraph()
         }
         rz_io_read_at(core->io, bbi->addr, buf.get(), (int)bbi->size);
 
-        std::unique_ptr<RzPVector, decltype(rz_pvector_free) *> vec {
-            rz_pvector_new(reinterpret_cast<RzPVectorFree>(rz_analysis_disasm_text_free)),
-            rz_pvector_free
-        };
+        auto vec = fromOwned(
+                rz_pvector_new(reinterpret_cast<RzPVectorFree>(rz_analysis_disasm_text_free)));
         if (!vec) {
             break;
         }

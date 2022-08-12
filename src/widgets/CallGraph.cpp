@@ -74,7 +74,6 @@ static inline bool isBetween(ut64 a, ut64 x, ut64 b)
     return (a == UT64_MAX || a <= x) && (b == UT64_MAX || x <= b);
 }
 
-using PRzList = std::unique_ptr<RzList, decltype(rz_list_free) *>;
 
 void CallGraphView::loadCurrentGraph()
 {
@@ -90,7 +89,7 @@ void CallGraphView::loadCurrentGraph()
         GraphLayout::GraphBlock block;
         block.entry = fcn->addr;
 
-        auto xrefs = PRzList { rz_analysis_function_get_xrefs_from(fcn), rz_list_free };
+        auto xrefs = fromOwned(rz_analysis_function_get_xrefs_from(fcn));
         auto calls = std::unordered_set<ut64>();
         for (const auto &xref : CutterRzList<RzAnalysisXRef>(xrefs.get())) {
             const auto x = xref->to;

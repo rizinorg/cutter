@@ -314,9 +314,8 @@ void DisassemblyContextMenu::addDebugMenu()
 QVector<DisassemblyContextMenu::ThingUsedHere> DisassemblyContextMenu::getThingUsedHere(RVA offset)
 {
     RzCoreLocked core(Core());
-    auto p = std::unique_ptr<RzCoreAnalysisName, decltype(rz_core_analysis_name_free) *> {
-        rz_core_analysis_name(core, offset), rz_core_analysis_name_free
-    };
+    auto p = fromOwned(
+        rz_core_analysis_name(core, offset), rz_core_analysis_name_free);
     if (!p) {
         return {};
     }

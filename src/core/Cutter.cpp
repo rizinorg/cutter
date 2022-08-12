@@ -120,12 +120,6 @@ static void updateOwnedCharPtr(char *&variable, const QString &newValue)
     variable = strdup(data.data());
 }
 
-static QString fromOwnedCharPtr(char *str)
-{
-    QString result(str ? str : "");
-    rz_mem_free(str);
-    return result;
-}
 
 static bool reg_sync(RzCore *core, RzRegisterType type, bool write)
 {
@@ -782,11 +776,10 @@ PRzAnalysisBytes CutterCore::getRzAnalysisBytesSingle(RVA addr)
     CORE_LOCK();
     ut8 buf[128];
     rz_io_read_at(core->io, addr, buf, sizeof(buf));
-    std::unique_ptr<RzPVector, decltype(rz_pvector_free) *> vec {
-        returnAtSeek<RzPVector *>(
-                [&]() { return rz_core_analysis_bytes(core, buf, sizeof(buf), 1); }, addr),
-        rz_pvector_free
-    };
+
+    auto seek = seekTemp(addr);
+    auto vec = fromOwned(rz_core_analysis_bytes(core, buf, sizeof(buf), 1));
+
     auto ab = vec && rz_pvector_len(vec.get()) > 0
             ? reinterpret_cast<RzAnalysisBytes *>(rz_pvector_pop_front(vec.get()))
             : nullptr;
@@ -819,14 +812,20 @@ void CutterCore::editInstruction(RVA addr, const QString &inst, bool fillWithNop
 void CutterCore::nopInstruction(RVA addr)
 {
     CORE_LOCK();
-    applyAtSeek([&]() { rz_core_hack(core, "nop"); }, addr);
+    {
+        auto seek = seekTemp(addr);
+        rz_core_hack(core, "nop");
+    }
     emit instructionChanged(addr);
 }
 
 void CutterCore::jmpReverse(RVA addr)
 {
     CORE_LOCK();
-    applyAtSeek([&]() { rz_core_hack(core, "recj"); }, addr);
+    {
+        auto seek = seekTemp(addr);
+        rz_core_hack(core, "recj");
+    }
     emit instructionChanged(addr);
 }
 
@@ -908,8 +907,9 @@ QString CutterCore::getString(RVA addr, uint64_t len, RzStrEnc encoding, bool es
     opt.length = len;
     opt.encoding = encoding;
     opt.escape_nl = escape_nl;
-    char *s = returnAtSeek<char *>([&]() { return rz_str_stringify_raw_buffer(&opt, NULL); }, addr);
-    return fromOwnedCharPtr(s);
+    auto seek = seekTemp(addr);
+    return fromOwnedCharPtr(
+            rz_str_stringify_raw_buffer(&opt, NULL));
 }
 
 QString CutterCore::getMetaString(RVA addr)
@@ -993,12 +993,11 @@ void CutterCore::applyStructureOffset(const QString &structureOffset, RVA offset
         offset = getOffset();
     }
 
-    applyAtSeek(
-            [&]() {
-                CORE_LOCK();
-                rz_core_analysis_hint_set_offset(core, structureOffset.toUtf8().constData());
-            },
-            offset);
+    {
+        CORE_LOCK();
+        auto seek = seekTemp(offset);
+        rz_core_analysis_hint_set_offset(core, structureOffset.toUtf8().constData());
+    }
     emit instructionChanged(offset);
 }
 
@@ -1084,22 +1083,20 @@ RVA CutterCore::prevOpAddr(RVA startAddr, int count)
 RVA CutterCore::nextOpAddr(RVA startAddr, int count)
 {
     CORE_LOCK();
-    auto vec = returnAtSeek<RzPVector *>(
-            [&]() {
-                return rz_core_analysis_bytes(core, core->block, (int)core->blocksize, count + 1);
-            },
-            startAddr);
+    auto vec = fromOwned((RzPVector*)nullptr);
+    {
+        auto seek = seekTemp(startAddr);
+        vec.reset(rz_core_analysis_bytes(core, core->block, (int)core->blocksize, count + 1));
+    }
     RVA addr = startAddr + 1;
     if (!vec) {
         return addr;
     }
-    auto ab = reinterpret_cast<RzAnalysisBytes *>(rz_pvector_tail(vec));
+    auto ab = reinterpret_cast<RzAnalysisBytes *>(rz_pvector_tail(vec.get()));
     if (!(ab && ab->op)) {
-        rz_pvector_free(vec);
         return addr;
     }
     addr = ab->op->addr;
-    rz_pvector_free(vec);
     return addr;
 }
 
@@ -4193,34 +4190,32 @@ void CutterCore::loadPDB(const QString &file)
 QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
 {
     CORE_LOCK();
-    RzPVector *vec = rz_pvector_new(reinterpret_cast<RzPVectorFree>(rz_analysis_disasm_text_free));
+    auto vec = fromOwned(rz_pvector_new(reinterpret_cast<RzPVectorFree>(rz_analysis_disasm_text_free)));
     if (!vec) {
         return {};
     }
 
     RzCoreDisasmOptions options = {};
     options.cbytes = 1;
-    options.vec = vec;
-    applyAtSeek(
-            [&]() {
-                if (rz_cons_singleton()->is_html) {
-                    rz_cons_singleton()->is_html = false;
-                    rz_cons_singleton()->was_html = true;
-                }
-                rz_core_print_disasm(core, offset, core->block, core->blocksize, lines, NULL,
-                                     &options);
-            },
-            offset);
+    options.vec = vec.get();
+    {
+        auto restoreSeek = this->seekTemp(offset);
+        if (rz_cons_singleton()->is_html) {
+            rz_cons_singleton()->is_html = false;
+            rz_cons_singleton()->was_html = true;
+        }
+        rz_core_print_disasm(core, offset, core->block, core->blocksize, lines, NULL,
+                             &options);
+    }
 
     QList<DisassemblyLine> r;
-    for (const auto &t : CutterPVector<RzAnalysisDisasmText>(vec)) {
+    for (const auto &t : CutterPVector<RzAnalysisDisasmText>(vec.get())) {
         DisassemblyLine line;
         line.offset = t->offset;
         line.text = ansiEscapeToHtml(t->text);
         line.arrow = t->arrow;
         r << line;
     }
-    rz_pvector_free(vec);
     return r;
 }
 

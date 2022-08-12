@@ -234,12 +234,10 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         QStringList summary {};
         {
             auto seeker = Core()->seekTemp(function.offset);
-            auto strings = std::unique_ptr<char, decltype(free) *> {
+            auto strings = fromOwnedCharPtr(
                 rz_core_print_disasm_strings(Core()->core(), RZ_CORE_DISASM_STRINGS_MODE_FUNCTION,
-                                             0, NULL),
-                free
-            };
-            summary = QString(strings.get()).split('\n', CUTTER_QT_SKIP_EMPTY_PARTS);
+                                             0, NULL));
+            summary = strings.split('\n', CUTTER_QT_SKIP_EMPTY_PARTS);
         }
 
         const QFont &fnt = Config()->getFont();

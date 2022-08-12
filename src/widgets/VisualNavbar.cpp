@@ -21,8 +21,7 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent)
       graphicsView(new QGraphicsView),
       seekGraphicsItem(nullptr),
       PCGraphicsItem(nullptr),
-      main(main),
-      stats(nullptr, rz_core_analysis_stats_free)
+      main(main)
 {
     Q_UNUSED(parent);
 
@@ -119,7 +118,7 @@ void VisualNavbar::fetchStats()
 
     RzCoreLocked core(Core());
     stats.reset(nullptr);
-    RzList *list = rz_core_get_boundaries_prot(core, -1, NULL, "search");
+    auto list = fromOwned(rz_core_get_boundaries_prot(core, -1, NULL, "search"));
     if (!list) {
         return;
     }
@@ -127,7 +126,7 @@ void VisualNavbar::fetchStats()
     RzIOMap *map;
     ut64 from = UT64_MAX;
     ut64 to = 0;
-    CutterRzListForeach (list, iter, RzIOMap, map) {
+    CutterRzListForeach (list.get(), iter, RzIOMap, map) {
         ut64 f = rz_itv_begin(map->itv);
         ut64 t = rz_itv_end(map->itv);
         if (f < from) {
@@ -137,7 +136,6 @@ void VisualNavbar::fetchStats()
             to = t;
         }
     }
-    rz_list_free(list);
     to--; // rz_core_analysis_get_stats takes inclusive ranges
     if (to < from) {
         return;

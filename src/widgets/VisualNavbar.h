@@ -47,7 +47,7 @@ private:
     QGraphicsRectItem *PCGraphicsItem;
     MainWindow *main;
 
-    std::unique_ptr<RzCoreAnalysisStats, decltype(&rz_core_analysis_stats_free)> stats;
+    UniquePtrC<RzCoreAnalysisStats, &rz_core_analysis_stats_free> stats;
     unsigned int statsWidth = 0;
     unsigned int previousWidth = 0;
 

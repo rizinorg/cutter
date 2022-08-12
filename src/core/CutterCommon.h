@@ -7,6 +7,7 @@
 
 #include "rz_core.h"
 #include <QString>
+#include "RizinCpp.h"
 
 // Workaround for compile errors on Windows
 #ifdef Q_OS_WIN
@@ -14,103 +15,6 @@
 #    undef max
 #endif // Q_OS_WIN
 
-// Rizin list iteration macros
-#define CutterRzListForeach(list, it, type, x)                                                     \
-    if (list)                                                                                      \
-        for (it = list->head; it && ((x = static_cast<type *>(it->data))); it = it->n)
-
-#define CutterRzVectorForeach(vec, it, type)                                                       \
-    if ((vec) && (vec)->a)                                                                         \
-        for (it = (type *)(vec)->a;                                                                \
-             (char *)it != (char *)(vec)->a + ((vec)->len * (vec)->elem_size);                     \
-             it = (type *)((char *)it + (vec)->elem_size))
-
-template<typename T>
-class CutterPVector
-{
-private:
-    const RzPVector *const vec;
-
-public:
-    class iterator : public std::iterator<std::input_iterator_tag, T *>
-    {
-    private:
-        T **p;
-
-    public:
-        iterator(T **p) : p(p) {}
-        iterator(const iterator &o) : p(o.p) {}
-        iterator &operator++()
-        {
-            p++;
-            return *this;
-        }
-        iterator operator++(int)
-        {
-            iterator tmp(*this);
-            operator++();
-            return tmp;
-        }
-        bool operator==(const iterator &rhs) const { return p == rhs.p; }
-        bool operator!=(const iterator &rhs) const { return p != rhs.p; }
-        T *operator*() { return *p; }
-    };
-
-    CutterPVector(const RzPVector *vec) : vec(vec) {}
-    iterator begin() const { return iterator(reinterpret_cast<T **>(vec->v.a)); }
-    iterator end() const { return iterator(reinterpret_cast<T **>(vec->v.a) + vec->v.len); }
-};
-
-template<typename T>
-class CutterRzList
-{
-private:
-    const RzList *const list;
-
-public:
-    class iterator : public std::iterator<std::input_iterator_tag, T *>
-    {
-    private:
-        RzListIter *iter;
-
-    public:
-        explicit iterator(RzListIter *iter) : iter(iter) {}
-        iterator(const iterator &o) : iter(o.iter) {}
-        iterator &operator++()
-        {
-            if (!iter) {
-                return *this;
-            }
-            iter = iter->n;
-            return *this;
-        }
-        iterator operator++(int)
-        {
-            iterator tmp(*this);
-            operator++();
-            return tmp;
-        }
-        bool operator==(const iterator &rhs) const { return iter == rhs.iter; }
-        bool operator!=(const iterator &rhs) const { return iter != rhs.iter; }
-        T *operator*()
-        {
-            if (!iter) {
-                return nullptr;
-            }
-            return reinterpret_cast<T *>(iter->data);
-        }
-    };
-
-    explicit CutterRzList(const RzList *l) : list(l) {}
-    iterator begin() const
-    {
-        if (!list) {
-            return iterator(nullptr);
-        }
-        return iterator(list->head);
-    }
-    iterator end() const { return iterator(nullptr); }
-};
 
 // Global information for Cutter
 #define APPNAME "Cutter"
