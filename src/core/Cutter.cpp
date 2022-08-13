@@ -120,7 +120,6 @@ static void updateOwnedCharPtr(char *&variable, const QString &newValue)
     variable = strdup(data.data());
 }
 
-
 static bool reg_sync(RzCore *core, RzRegisterType type, bool write)
 {
     if (rz_core_is_debug(core)) {
@@ -908,8 +907,7 @@ QString CutterCore::getString(RVA addr, uint64_t len, RzStrEnc encoding, bool es
     opt.encoding = encoding;
     opt.escape_nl = escape_nl;
     auto seek = seekTemp(addr);
-    return fromOwnedCharPtr(
-            rz_str_stringify_raw_buffer(&opt, NULL));
+    return fromOwnedCharPtr(rz_str_stringify_raw_buffer(&opt, NULL));
 }
 
 QString CutterCore::getMetaString(RVA addr)
@@ -1083,11 +1081,10 @@ RVA CutterCore::prevOpAddr(RVA startAddr, int count)
 RVA CutterCore::nextOpAddr(RVA startAddr, int count)
 {
     CORE_LOCK();
-    auto vec = fromOwned((RzPVector*)nullptr);
-    {
-        auto seek = seekTemp(startAddr);
-        vec.reset(rz_core_analysis_bytes(core, core->block, (int)core->blocksize, count + 1));
-    }
+    auto seek = seekTemp(startAddr);
+    auto vec =
+            fromOwned(rz_core_analysis_bytes(core, core->block, (int)core->blocksize, count + 1));
+
     RVA addr = startAddr + 1;
     if (!vec) {
         return addr;
@@ -4190,7 +4187,8 @@ void CutterCore::loadPDB(const QString &file)
 QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
 {
     CORE_LOCK();
-    auto vec = fromOwned(rz_pvector_new(reinterpret_cast<RzPVectorFree>(rz_analysis_disasm_text_free)));
+    auto vec = fromOwned(
+            rz_pvector_new(reinterpret_cast<RzPVectorFree>(rz_analysis_disasm_text_free)));
     if (!vec) {
         return {};
     }
@@ -4199,13 +4197,12 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
     options.cbytes = 1;
     options.vec = vec.get();
     {
-        auto restoreSeek = this->seekTemp(offset);
+        auto restoreSeek = seekTemp(offset);
         if (rz_cons_singleton()->is_html) {
             rz_cons_singleton()->is_html = false;
             rz_cons_singleton()->was_html = true;
         }
-        rz_core_print_disasm(core, offset, core->block, core->blocksize, lines, NULL,
-                             &options);
+        rz_core_print_disasm(core, offset, core->block, core->blocksize, lines, NULL, &options);
     }
 
     QList<DisassemblyLine> r;

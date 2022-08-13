@@ -1,6 +1,6 @@
 /** \file RizinCpp.h
- * Various utilities for easier and sefer interactions with Rizin
- * from c++ code.
+ * Various utilities for easier and safer interactions with Rizin
+ * from C++ code.
  */
 #ifndef RIZINCPP_H
 #define RIZINCPP_H
@@ -53,6 +53,7 @@ static inline auto fromOwned(RZ_OWN RzList *data)
 }
 
 // Rizin list iteration macros
+// deprecated, prefer using CutterPVector and CutterRzList instead
 #define CutterRzListForeach(list, it, type, x)                                                     \
     if (list)                                                                                      \
         for (it = list->head; it && ((x = static_cast<type *>(it->data))); it = it->n)

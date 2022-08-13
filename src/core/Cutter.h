@@ -159,11 +159,24 @@ public:
     class SeekReturn
     {
         RVA returnAddress;
-        SeekReturn(const SeekReturn &) = delete;
+        bool empty = true;
+
     public:
-        SeekReturn(RVA returnAddress) : returnAddress(returnAddress) {}
-        ~SeekReturn() { Core()->seekSilent(returnAddress); }
-        SeekReturn(SeekReturn &&) = default;
+        SeekReturn(RVA returnAddress) : returnAddress(returnAddress), empty(false) {}
+        ~SeekReturn()
+        {
+            if (!empty) {
+                Core()->seekSilent(returnAddress);
+            }
+        }
+        SeekReturn(SeekReturn &&from)
+        {
+            if (this != &from) {
+                returnAddress = from.returnAddress;
+                empty = from.empty;
+                from.empty = true;
+            }
+        };
     };
 
     SeekReturn seekTemp(RVA address)
