@@ -1768,12 +1768,12 @@ void MainWindow::on_actionExport_as_code_triggered()
         return;
     }
 
-    std::unique_ptr<char, decltype(free) *> string {
+
+
+    auto string = fromOwned(
         dialog.selectedNameFilter() != instructionsInComments
                 ? rz_lang_byte_array(buffer.data(), size, typMap[dialog.selectedNameFilter()])
-                : rz_core_print_bytes_with_inst(rc, buffer.data(), 0, size),
-        free
-    };
+                : rz_core_print_bytes_with_inst(rc, buffer.data(), 0, size));
     fileOut << string.get();
 }
 

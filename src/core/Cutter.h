@@ -156,33 +156,34 @@ public:
         return cmdRawAt(str.toUtf8().constData(), address);
     }
 
-    void applyAtSeek(const std::function<void()> &fn, RVA address)
+    class SeekReturn
     {
-        RVA oldOffset = getOffset();
-        seekSilent(address);
-        fn();
-        seekSilent(oldOffset);
-    }
+        RVA returnAddress;
+        bool empty = true;
 
-    template<typename T>
-    T returnAtSeek(const std::function<T()> &fn, RVA address)
-    {
-        RVA oldOffset = getOffset();
-        seekSilent(address);
-        T ret = fn();
-        seekSilent(oldOffset);
-        return ret;
-    }
-
-    std::unique_ptr<RVA, std::function<void(const RVA *)>> seekTemp(RVA address)
-    {
-        auto seekBack = [&](const RVA *x) {
-            seekSilent(*x);
-            delete x;
+    public:
+        SeekReturn(RVA returnAddress) : returnAddress(returnAddress), empty(false) {}
+        ~SeekReturn()
+        {
+            if (!empty) {
+                Core()->seekSilent(returnAddress);
+            }
+        }
+        SeekReturn(SeekReturn &&from)
+        {
+            if (this != &from) {
+                returnAddress = from.returnAddress;
+                empty = from.empty;
+                from.empty = true;
+            }
         };
-        std::unique_ptr<RVA, decltype(seekBack)> p { new RVA(getOffset()), seekBack };
+    };
+
+    SeekReturn seekTemp(RVA address)
+    {
+        SeekReturn returner(getOffset());
         seekSilent(address);
-        return p;
+        return returner;
     }
 
     CutterJson cmdj(const char *str);

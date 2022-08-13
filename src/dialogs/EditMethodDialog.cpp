@@ -86,11 +86,7 @@ bool EditMethodDialog::inputValid()
 
 QString EditMethodDialog::convertRealNameToName(const QString &realName)
 {
-    std::unique_ptr<const char, void (*)(const char *)> sanitizedCString(
-            rz_str_sanitize_sdb_key(realName.toUtf8().constData()),
-            [](const char *s) { rz_mem_free((void*)s); });
-
-    return QString(sanitizedCString.get());
+    return fromOwnedCharPtr(rz_str_sanitize_sdb_key(realName.toUtf8().constData()));
 }
 
 void EditMethodDialog::setClass(const QString &className)

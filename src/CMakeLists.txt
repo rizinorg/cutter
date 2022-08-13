@@ -5,6 +5,7 @@ set(SOURCES
     Main.cpp
     core/Cutter.cpp
     core/CutterJson.cpp
+    core/RizinCpp.cpp
     dialogs/EditStringDialog.cpp
     dialogs/WriteCommandsDialogs.cpp
     widgets/DisassemblerGraphView.cpp
@@ -154,6 +155,7 @@ set(HEADER_FILES
     core/CutterCommon.h
     core/CutterDescriptions.h
     core/CutterJson.h
+    core/RizinCpp.h
     dialogs/EditStringDialog.h
     dialogs/WriteCommandsDialogs.h
     widgets/DisassemblerGraphView.h
