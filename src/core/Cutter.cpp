@@ -430,48 +430,6 @@ bool CutterCore::isDebugTaskInProgress()
     return false;
 }
 
-bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<RizinTask> &task)
-{
-    asyncCmd(command, task);
-
-    if (task.isNull()) {
-        return false;
-    }
-
-    connect(task.data(), &RizinCmdTask::finished, task.data(), [this, task]() {
-        QString res = qobject_cast<RizinCmdTask *>(task.data())->getResult();
-
-        if (res.contains(QStringLiteral("[ESIL] Stopped execution in an invalid instruction"))) {
-            msgBox.showMessage("Stopped when attempted to run an invalid instruction. You can "
-                               "disable this in Preferences");
-        }
-    });
-
-    return true;
-}
-
-bool CutterCore::asyncCmd(const char *str, QSharedPointer<RizinTask> &task)
-{
-    if (!task.isNull()) {
-        return false;
-    }
-
-    CORE_LOCK();
-
-    RVA offset = core->offset;
-
-    task = QSharedPointer<RizinTask>(new RizinCmdTask(str, true));
-    connect(task.data(), &RizinTask::finished, task.data(), [this, offset, task]() {
-        CORE_LOCK();
-
-        if (offset != core->offset) {
-            updateSeek();
-        }
-    });
-
-    return true;
-}
-
 bool CutterCore::asyncTask(std::function<void *(RzCore *)> fcn, QSharedPointer<RizinTask> &task)
 {
     if (!task.isNull()) {
@@ -490,6 +448,13 @@ bool CutterCore::asyncTask(std::function<void *(RzCore *)> fcn, QSharedPointer<R
     });
 
     return true;
+}
+
+void CutterCore::functionTask(std::function<void *(RzCore *)> fcn)
+{
+    auto task = std::unique_ptr<RizinTask>(new RizinFunctionTask(std::move(fcn), true));
+    task->startTask();
+    task->joinTask();
 }
 
 QString CutterCore::cmdRawAt(const char *cmd, RVA address)
@@ -534,32 +499,12 @@ CutterJson CutterCore::cmdj(const char *str)
     return parseJson(res, str);
 }
 
-CutterJson CutterCore::cmdjAt(const char *str, RVA address)
-{
-    CutterJson res;
-    RVA oldOffset = getOffset();
-    seekSilent(address);
-
-    res = cmdj(str);
-
-    seekSilent(oldOffset);
-    return res;
-}
-
 QString CutterCore::cmdTask(const QString &str)
 {
     RizinCmdTask task(str);
     task.startTask();
     task.joinTask();
     return task.getResult();
-}
-
-CutterJson CutterCore::cmdjTask(const QString &str)
-{
-    RizinCmdTask task(str);
-    task.startTask();
-    task.joinTask();
-    return task.getResultJson();
 }
 
 CutterJson CutterCore::parseJson(char *res, const char *cmd)
@@ -1391,16 +1336,6 @@ QString CutterCore::flagAt(RVA addr)
         return {};
     }
     return core->flags->realnames && f->realname ? f->realname : f->name;
-}
-
-void CutterCore::cmdEsil(const char *command)
-{
-    // use cmd and not cmdRaw because of unexpected commands
-    QString res = cmd(command);
-    if (res.contains(QStringLiteral("[ESIL] Stopped execution in an invalid instruction"))) {
-        msgBox.showMessage("Stopped when attempted to run an invalid instruction. You can disable "
-                           "this in Preferences");
-    }
 }
 
 void CutterCore::createFunctionAt(RVA addr)
@@ -4027,22 +3962,35 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, QString spa
 QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, bool findWrites,
                                                        RVA offset)
 {
+    CORE_LOCK();
+    auto fcn = functionIn(offset);
+    if (!fcn) {
+        return {};
+    }
+    const auto typ =
+            findWrites ? RZ_ANALYSIS_VAR_ACCESS_TYPE_WRITE : RZ_ANALYSIS_VAR_ACCESS_TYPE_READ;
     QList<XrefDescription> xrefList = QList<XrefDescription>();
-    for (CutterJson xrefObject : cmdjAt(findWrites ? "afvWj" : "afvRj", offset)) {
-        QString name = xrefObject[RJsonKey::name].toString();
-        if (name == variableName) {
-            for (CutterJson address : xrefObject[RJsonKey::addrs]) {
-                XrefDescription xref;
-                RVA addr = address.toRVA();
-                xref.from = addr;
-                xref.to = addr;
-                if (findWrites) {
-                    xref.from_str = RzAddressString(addr);
-                } else {
-                    xref.to_str = RzAddressString(addr);
-                }
-                xrefList << xref;
+    RzList *vars = rz_analysis_var_all_list(core->analysis, fcn);
+    for (const auto &v : CutterRzList<RzAnalysisVar>(vars)) {
+        if (variableName != v->name) {
+            continue;
+        }
+        RzAnalysisVarAccess *acc;
+        CutterRzVectorForeach(&v->accesses, acc, RzAnalysisVarAccess)
+        {
+            if (!(acc->type & typ)) {
+                continue;
             }
+            XrefDescription xref;
+            RVA addr = fcn->addr + acc->offset;
+            xref.from = addr;
+            xref.to = addr;
+            if (findWrites) {
+                xref.from_str = RzAddressString(addr);
+            } else {
+                xref.to_str = RzAddressString(addr);
+            }
+            xrefList << xref;
         }
     }
     return xrefList;

@@ -98,21 +98,6 @@ public:
      */
     QString cmd(const char *str);
     QString cmd(const QString &str) { return cmd(str.toUtf8().constData()); }
-    /**
-     * @brief send a command to Rizin asynchronously
-     * @param str the command you want to execute
-     * @param task a shared pointer that will be returned with the Rizin command task
-     * @note connect to the &RizinTask::finished signal to add your own logic once
-     *       the command is finished. Use task->getResult()/getResultJson() for the
-     *       return value.
-     *       Once you have setup connections you can start the task with task->startTask()
-     *       If you want to seek to an address, you should use CutterCore::seek.
-     */
-    bool asyncCmd(const char *str, QSharedPointer<RizinTask> &task);
-    bool asyncCmd(const QString &str, QSharedPointer<RizinTask> &task)
-    {
-        return asyncCmd(str.toUtf8().constData(), task);
-    }
 
     /**
      * @brief send a task to Rizin
@@ -120,6 +105,7 @@ public:
      * @return execute successful?
      */
     bool asyncTask(std::function<void *(RzCore *)> fcn, QSharedPointer<RizinTask> &task);
+    void functionTask(std::function<void *(RzCore *)> fcn);
 
     /**
      * @brief Execute a Rizin command \a cmd.  By nature, the API
@@ -188,31 +174,8 @@ public:
 
     CutterJson cmdj(const char *str);
     CutterJson cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
-    CutterJson cmdjAt(const char *str, RVA address);
     QString cmdTask(const QString &str);
-    CutterJson cmdjTask(const QString &str);
-    /**
-     * @brief send a command to Rizin and check for ESIL errors
-     * @param command the command you want to execute
-     * @note If you want to seek to an address, you should use CutterCore::seek.
-     */
-    void cmdEsil(const char *command);
-    void cmdEsil(const QString &command) { cmdEsil(command.toUtf8().constData()); }
-    /**
-     * @brief send a command to Rizin and check for ESIL errors
-     * @param command the command you want to execute
-     * @param task a shared pointer that will be returned with the Rizin command task
-     * @note connect to the &RizinTask::finished signal to add your own logic once
-     *       the command is finished. Use task->getResult()/getResultJson() for the
-     *       return value.
-     *       Once you have setup connections you can start the task with task->startTask()
-     *       If you want to seek to an address, you should use CutterCore::seek.
-     */
-    bool asyncCmdEsil(const char *command, QSharedPointer<RizinTask> &task);
-    bool asyncCmdEsil(const QString &command, QSharedPointer<RizinTask> &task)
-    {
-        return asyncCmdEsil(command.toUtf8().constData(), task);
-    }
+
     QString getRizinVersionReadable(const char *program = nullptr);
     QString getVersionInformation();
 
