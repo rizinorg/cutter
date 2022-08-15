@@ -133,32 +133,20 @@ void Dashboard::updateContents()
     setPlainText(ui->codeSizeLineEdit, QString::number(code) + " bytes");
     setPlainText(ui->percentageLineEdit, QString::number(precentage) + "%");
 
-    // dunno: why not label->setText(lines.join("\n")?
-    while (ui->verticalLayout_2->count() > 0) {
-        QLayoutItem *item = ui->verticalLayout_2->takeAt(0);
-        if (item != nullptr) {
-            QWidget *w = item->widget();
-            if (w != nullptr) {
-                w->deleteLater();
-            }
-
-            delete item;
-        }
-    }
-
+    ui->libraryList->setPlainText("");
     const RzList *libs = bf ? rz_bin_object_get_libs(bf->o) : nullptr;
     if (libs) {
+        QString libText;
+        bool first = true;
         for (const auto &lib : CutterRzList<char>(libs)) {
-            auto *label = new QLabel(this);
-            label->setText(lib);
-            label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-            label->setTextInteractionFlags(Qt::TextSelectableByMouse);
-            ui->verticalLayout_2->addWidget(label);
+            if (!first) {
+                libText.append("\n");
+            }
+            libText.append(lib);
+            first = false;
         }
+        ui->libraryList->setPlainText(libText);
     }
-
-    QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding);
-    ui->verticalLayout_2->addSpacerItem(spacer);
 
     // Check if signature info and version info available
     if (!Core()->getSignatureInfo().size()) {
