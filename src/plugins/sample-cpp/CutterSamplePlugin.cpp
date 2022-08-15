@@ -50,7 +50,8 @@ void CutterSamplePluginWidget::on_seekChanged(RVA addr)
     {
         TempConfig tempConfig;
         tempConfig.set("scr.color", 0);
-        res = Core()->cmd("?E `pi 1`");
+        RzCoreLocked core(Core());
+        res = rz_core_clippy(core, Core()->disassembleSingleInstruction(Core()->getOffset()));
     }
     text->setText(res);
 }
@@ -64,7 +65,7 @@ void CutterSamplePluginWidget::on_buttonClicked()
     }
     // cmdRaw can be used to execute single raw commands
     // this is especially good for user-controlled input
-    QString res = Core()->cmdRaw("?E " + QString::fromUtf8(fortune));
+    QString res = rz_core_clippy(core, fortune);
     text->setText(res);
     rz_mem_free(fortune);
 }
