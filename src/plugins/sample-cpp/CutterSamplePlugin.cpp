@@ -8,6 +8,7 @@
 #include <common/TempConfig.h>
 #include <common/Configuration.h>
 #include <MainWindow.h>
+#include <librz/rz_core.h>
 
 void CutterSamplePlugin::setupPlugin() {}
 
@@ -46,25 +47,21 @@ CutterSamplePluginWidget::CutterSamplePluginWidget(MainWindow *main) : CutterDoc
 void CutterSamplePluginWidget::on_seekChanged(RVA addr)
 {
     Q_UNUSED(addr);
-    QString res;
-    {
-        TempConfig tempConfig;
-        tempConfig.set("scr.color", 0);
-        res = Core()->cmd("?E `pi 1`");
-    }
+    RzCoreLocked core(Core());
+    TempConfig tempConfig;
+    tempConfig.set("scr.color", 0);
+    QString disasm = Core()->disassembleSingleInstruction(Core()->getOffset());
+    QString res = fromOwnedCharPtr(rz_core_clippy(core, disasm.toUtf8().constData()));
     text->setText(res);
 }
 
 void CutterSamplePluginWidget::on_buttonClicked()
 {
     RzCoreLocked core(Core());
-    char *fortune = rz_core_fortune_get_random(core);
+    auto fortune = fromOwned(rz_core_fortune_get_random(core));
     if (!fortune) {
         return;
     }
-    // cmdRaw can be used to execute single raw commands
-    // this is especially good for user-controlled input
-    QString res = Core()->cmdRaw("?E " + QString::fromUtf8(fortune));
+    QString res = fromOwnedCharPtr(rz_core_clippy(core, fortune.get()));
     text->setText(res);
-    rz_mem_free(fortune);
 }
