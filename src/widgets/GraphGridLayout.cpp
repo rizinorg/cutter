@@ -554,7 +554,7 @@ void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &stat
 
     struct Event
     {
-        size_t blockId;
+        ut64 blockId;
         size_t edgeId;
         int row;
         enum Type { Edge = 0, Block = 1 } type;
