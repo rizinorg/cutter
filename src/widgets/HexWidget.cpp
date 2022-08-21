@@ -904,15 +904,14 @@ bool HexWidget::handleNumberWrite(QKeyEvent *event)
             for (int i = editWordPos; i < editWord.length(); i++) {
                 typeOverwriteModeChar('0');
             }
-        }
-        if (editWordPos < editWord.length()) {
+        } else if (editWordPos < editWord.length()) {
             editWord.remove(editWordPos, editWord.length());
             editWordState = EditWordState::WriteEdited;
         }
         return true;
     }
     if (event->matches(QKeySequence::DeleteStartOfWord) && selection.isEmpty()) {
-        if (!editingWord) {
+        if (!editingWord || (overwrite && editWordPos == 0)) {
             if (!moveCursor(-itemByteLen, false, OverflowMove::Ignore)) {
                 return false;
             }
