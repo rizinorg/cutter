@@ -580,7 +580,7 @@ void HexWidget::mousePressEvent(QMouseEvent *event)
                     && (wordOffset < editWord.length()
                         || navigationMode == HexNavigationMode::WordChar)) {
                     editWordPos = std::max(0, wordOffset);
-                    editWordPos = std::min(editWordPos, editWord.length());
+                    editWordPos = std::min<int>(editWordPos, editWord.length());
 
                     if (isFixedWidth()) {
                         updatingSelection = true;
@@ -616,7 +616,7 @@ void HexWidget::mousePressEvent(QMouseEvent *event)
 
             if (wordOffset > 0) {
                 startEditWord();
-                editWordPos = std::min(wordOffset, editWord.length() - 1);
+                editWordPos = std::min<int>(wordOffset, editWord.length() - 1);
             }
             viewport()->update();
             return;
@@ -645,9 +645,9 @@ void HexWidget::mouseDoubleClickEvent(QMouseEvent *event)
         auto cursorPosition = screenPosToAddr(pos, false, &wordOffset);
         setCursorAddr(cursorPosition, false);
         startEditWord();
-        int padding = std::max(0, itemCharLen - editWord.length());
+        int padding = std::max<int>(0, itemCharLen - editWord.length());
         editWordPos = std::max(0, wordOffset - padding);
-        editWordPos = std::min(editWordPos, editWord.length());
+        editWordPos = std::min<int>(editWordPos, editWord.length());
     }
 }
 
@@ -810,7 +810,7 @@ bool HexWidget::handleAsciiWrite(QKeyEvent *event)
             return false;
         }
         QChar c = text[0];
-        if (c <= 0x1f || c == 0x7f) {
+        if (c <= '\x1f' || c == '\x7f') {
             return false;
         }
     }
@@ -1087,7 +1087,7 @@ void HexWidget::keyPressEvent(QKeyEvent *event)
         }
     } else if (navigationMode == HexNavigationMode::WordChar) {
         if (event->matches(QKeySequence::MoveToNextChar)) {
-            editWordPos = std::min(editWord.length(), editWordPos + 1);
+            editWordPos = std::min<int>(editWord.length(), editWordPos + 1);
             viewport()->update();
         } else if (event->matches(QKeySequence::MoveToPreviousChar)) {
             editWordPos = std::max(0, editWordPos - 1);
@@ -1720,7 +1720,7 @@ void HexWidget::drawItemArea(QPainter &painter)
         itemRect.translate(0, lineHeight);
     }
     if (haveEditWord) {
-        auto length = std::max(itemCharLen, editWord.length());
+        auto length = std::max<int>(itemCharLen, editWord.length());
         auto rect = editWordRect;
         rect.setWidth(length * charWidth);
         painter.fillRect(rect, backgroundColor);
