@@ -1815,12 +1815,16 @@ QVector<QPolygonF> HexWidget::rangePolygons(RVA start, RVA last, bool ascii)
 
     auto startRect = getRectangle(startOffset);
     auto endRect = getRectangle(endOffset);
+    bool startJagged = false;
+    bool endJagged = false;
     if (!ascii) {
         if (int startFraction = startOffset % itemByteLen) {
             startRect.setLeft(startRect.left() + startFraction * startRect.width() / itemByteLen);
+            startJagged = true;
         }
         if (int endFraction = itemByteLen - 1 - (endOffset % itemByteLen)) {
             endRect.setRight(endRect.right() - endFraction * endRect.width() / itemByteLen);
+            endJagged = true;
         }
     }
     if (endOffset - startOffset + 1 <= rowSizeBytes) {
@@ -1855,6 +1859,32 @@ QVector<QPolygonF> HexWidget::rangePolygons(RVA start, RVA last, bool ascii)
         }
         shape << shape.first(); // close the shape
         parts.push_back(shape);
+    }
+    if (!ascii && (startJagged || endJagged) && parts.length() >= 1) {
+
+        QPolygonF top;
+        top.reserve(3);
+        top << QPointF(0, 0) << QPointF(charWidth, lineHeight / 3) << QPointF(0, lineHeight / 2);
+        QPolygonF bottom;
+        bottom.reserve(3);
+        bottom << QPointF(0, lineHeight / 2) << QPointF(-charWidth, 2 * lineHeight / 3) << QPointF(0, lineHeight);
+
+        // small adjustment to make sure that edges don't overlap with rect edges, QPolygonF doesn't handle it properly
+        QPointF adjustment(charWidth / 16, 0);
+        top.translate(-adjustment);
+        bottom.translate(adjustment);
+
+        if (startJagged) {
+            auto movedTop = top.translated(startRect.topLeft());
+            auto movedBottom = bottom.translated(startRect.topLeft());
+            parts[0] = parts[0].subtracted(movedTop).united(movedBottom);
+        }
+        if (endJagged)
+        {
+            auto movedTop = top.translated(endRect.topRight());
+            auto movedBottom = bottom.translated(endRect.topRight());
+            parts.last() = parts.last().subtracted(movedBottom).united(movedTop);
+        }
     }
     return parts;
 }
