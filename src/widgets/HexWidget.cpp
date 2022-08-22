@@ -973,7 +973,7 @@ bool HexWidget::event(QEvent *event)
     if (event->type() == QEvent::ShortcutOverride) {
         auto keyEvent = static_cast<QKeyEvent *>(event);
         auto modifiers = keyEvent->modifiers();
-        if ((modifiers == Qt::NoModifier || modifiers == Qt::ShiftModifier)
+        if ((modifiers == Qt::NoModifier || modifiers == Qt::ShiftModifier || modifiers == Qt::KeypadModifier )
             && keyEvent->key() < Qt::Key_Escape && canKeyboardEdit()) {
             keyEvent->accept();
             return true;
