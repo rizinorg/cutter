@@ -657,6 +657,7 @@ void HexWidget::mouseReleaseEvent(QMouseEvent *event)
         if (selection.isEmpty()) {
             selection.init(BasicCursor(cursor.address));
             cursorEnabled = true;
+            viewport()->update();
         }
         updatingSelection = false;
     }
