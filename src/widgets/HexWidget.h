@@ -412,7 +412,7 @@ private:
     void updateAreasPosition();
     void updateAreasHeight();
     enum class OverflowMove { Clamp, Ignore };
-    bool moveCursor(int offset, bool select = false, 
+    bool moveCursor(int offset, bool select = false,
                     OverflowMove overflowMove = OverflowMove::Clamp);
     void moveCursorKeepEditOffset(int byteOffset, bool select, OverflowMove overflowMove);
     void setCursorAddr(BasicCursor addr, bool select = false);
@@ -492,7 +492,9 @@ private:
     bool isFixedWidth() const;
 
     bool canKeyboardEdit();
+    bool flushCurrentlyEditedWord();
     bool finishEditingWord(bool force = true);
+    void maybeFlushCharEdit();
     void cancelEditedWord();
     void startEditWord();
     bool validCharForEdit(QChar digit);
@@ -588,6 +590,13 @@ private:
     QString editWord;
     EditWordState editWordState = EditWordState::Read;
     HexNavigationMode navigationMode = HexNavigationMode::Words;
+    enum class EarlyEditFlush {
+        OnFinish,
+        EditNibble,
+        EditFixedWidthChar,
+        /* AllFormats(not implemented) */
+    };
+    EarlyEditFlush earlyEditFlush = EarlyEditFlush::EditFixedWidthChar;
 
     bool warningRectVisible = false;
     QRectF warningRect;

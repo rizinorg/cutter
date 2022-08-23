@@ -850,6 +850,7 @@ bool HexWidget::handleNumberWrite(QKeyEvent *event)
             editWordPos += keyText.length();
             editWordState = EditWordState::WriteEdited;
         }
+        maybeFlushCharEdit();
         return true;
     }
     if (event->matches(QKeySequence::Paste) && (editingWord || overwrite)) {
@@ -868,6 +869,7 @@ bool HexWidget::handleNumberWrite(QKeyEvent *event)
                 editWordState = EditWordState::WriteEdited;
             }
         }
+        maybeFlushCharEdit();
         return true;
     }
     if (editingWord) {
@@ -896,6 +898,7 @@ bool HexWidget::handleNumberWrite(QKeyEvent *event)
                 editWordState = EditWordState::WriteEdited;
             }
         }
+        maybeFlushCharEdit();
         return true;
     }
     if (event->matches(QKeySequence::DeleteEndOfWord) && selection.isEmpty()) {
@@ -908,6 +911,7 @@ bool HexWidget::handleNumberWrite(QKeyEvent *event)
             editWord.remove(editWordPos, editWord.length());
             editWordState = EditWordState::WriteEdited;
         }
+        maybeFlushCharEdit();
         return true;
     }
     if (event->matches(QKeySequence::DeleteStartOfWord) && selection.isEmpty()) {
@@ -924,12 +928,14 @@ bool HexWidget::handleNumberWrite(QKeyEvent *event)
                 editWord[editWordPos] = '0';
             }
             editWordState = EditWordState::WriteEdited;
+            maybeFlushCharEdit();
             return true;
         } else {
             if (editWordPos > 0) {
                 editWord.remove(0, editWordPos);
                 editWordState = EditWordState::WriteEdited;
                 editWordPos = 0;
+                maybeFlushCharEdit();
                 return true;
             }
         }
@@ -958,6 +964,7 @@ bool HexWidget::handleNumberWrite(QKeyEvent *event)
                     editWord.remove(editWordPos, 1);
                 }
                 editWordState = EditWordState::WriteEdited;
+                maybeFlushCharEdit();
                 return true;
             }
         }
@@ -973,7 +980,8 @@ bool HexWidget::event(QEvent *event)
     if (event->type() == QEvent::ShortcutOverride) {
         auto keyEvent = static_cast<QKeyEvent *>(event);
         auto modifiers = keyEvent->modifiers();
-        if ((modifiers == Qt::NoModifier || modifiers == Qt::ShiftModifier || modifiers == Qt::KeypadModifier )
+        if ((modifiers == Qt::NoModifier || modifiers == Qt::ShiftModifier
+             || modifiers == Qt::KeypadModifier)
             && keyEvent->key() < Qt::Key_Escape && canKeyboardEdit()) {
             keyEvent->accept();
             return true;
@@ -1867,9 +1875,11 @@ QVector<QPolygonF> HexWidget::rangePolygons(RVA start, RVA last, bool ascii)
         top << QPointF(0, 0) << QPointF(charWidth, lineHeight / 3) << QPointF(0, lineHeight / 2);
         QPolygonF bottom;
         bottom.reserve(3);
-        bottom << QPointF(0, lineHeight / 2) << QPointF(-charWidth, 2 * lineHeight / 3) << QPointF(0, lineHeight);
+        bottom << QPointF(0, lineHeight / 2) << QPointF(-charWidth, 2 * lineHeight / 3)
+               << QPointF(0, lineHeight);
 
-        // small adjustment to make sure that edges don't overlap with rect edges, QPolygonF doesn't handle it properly
+        // small adjustment to make sure that edges don't overlap with rect edges, QPolygonF doesn't
+        // handle it properly
         QPointF adjustment(charWidth / 16, 0);
         top.translate(-adjustment);
         bottom.translate(adjustment);
@@ -1879,8 +1889,7 @@ QVector<QPolygonF> HexWidget::rangePolygons(RVA start, RVA last, bool ascii)
             auto movedBottom = bottom.translated(startRect.topLeft());
             parts[0] = parts[0].subtracted(movedTop).united(movedBottom);
         }
-        if (endJagged)
-        {
+        if (endJagged) {
             auto movedTop = top.translated(endRect.topRight());
             auto movedBottom = bottom.translated(endRect.topRight());
             parts.last() = parts.last().subtracted(movedBottom).united(movedTop);
@@ -2351,13 +2360,24 @@ bool HexWidget::parseWord(QString word, uint8_t *buf, size_t bufferSize) const
     return false;
 }
 
+bool HexWidget::flushCurrentlyEditedWord()
+{
+    if (editWordState < EditWordState::WriteEdited) {
+        return true;
+    }
+    uint8_t buf[16];
+    if (parseWord(editWord, buf, sizeof(buf))) {
+        data->write(buf, cursor.address, itemByteLen);
+        return true;
+    }
+    editWordState = EditWordState::WriteNotEdited;
+    return false;
+}
+
 bool HexWidget::finishEditingWord(bool force)
 {
     if (editWordState == EditWordState::WriteEdited) {
-        uint8_t buf[16];
-        if (parseWord(editWord, buf, sizeof(buf))) {
-            data->write(buf, cursor.address, itemByteLen);
-        } else if (!force) {
+        if (!flushCurrentlyEditedWord() && !force) {
             qWarning() << "Not a valid number in current format or size" << editWord;
             showWarningRect(itemRectangle(cursor.address - startAddress).adjusted(-1, -1, 1, 1));
             return false;
@@ -2377,6 +2397,21 @@ void HexWidget::cancelEditedWord()
     editWord.clear();
     navigationMode = defaultNavigationMode();
     updateCursorMeta();
+    viewport()->update();
+}
+
+void HexWidget::maybeFlushCharEdit()
+{
+    if (editWordState < EditWordState::WriteEdited) {
+        return;
+    }
+    if ((itemFormat == ItemFormatHex && earlyEditFlush >= EarlyEditFlush::EditNibble)
+        || (isFixedWidth() && earlyEditFlush >= EarlyEditFlush::EditFixedWidthChar)) {
+        flushCurrentlyEditedWord();
+        if (!flushCurrentlyEditedWord()) {
+            showWarningRect(itemRectangle(cursor.address - startAddress).adjusted(-1, -1, 1, 1));
+        }
+    }
     viewport()->update();
 }
 
