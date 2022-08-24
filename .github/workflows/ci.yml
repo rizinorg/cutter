@@ -16,6 +16,7 @@ on:
 
 jobs:
   build:
+    name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -26,9 +27,6 @@ jobs:
             windows-x86_64,
             tarball
         ]
-        system-deps: [false]
-        cc-override: [default]
-        cxx-override: [default]
         include:
           - name: windows-x86_64
             os: windows-2019
