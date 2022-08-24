@@ -1,4 +1,4 @@
-name: Cutter CI
+name: CI
 
 on:
   push:
@@ -276,7 +276,7 @@ jobs:
       if: env.PACKAGE_NAME != null
       with:
         name: ${{ env.PACKAGE_NAME }}
-        path: build/${{ env.PACKAGE_NAME }}
+        path: ${{ env.PACKAGE_NAME }}
     - name: Get release
       if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
       id: get_release
