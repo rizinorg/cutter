@@ -19,23 +19,45 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, ubuntu-18.04, macos-latest, windows-2019]
-        python-version: [3.7.x]
+        name: [
+            linux-x86_64,
+            linux-x86_64-system-deps,
+            macos-x86_64,
+            windows-x86_64,
+            tarball
+        ]
         system-deps: [false]
         cc-override: [default]
         cxx-override: [default]
         include:
-          - os: windows-2019
+          - name: windows-x86_64
+            os: windows-2019
             package: true
-          - os: ubuntu-18.04 # ensure that Cutter can be built at least in basic config on Ubuntu 18.04 using sytem libraries
+            system-deps: false
+            python-version: 3.7.x
+          - name: linux-x86_64-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 18.04 using sytem libraries
+            os: ubuntu-18.04
             python-version: 3.6.x
             system-deps: true
             cc-override: '/usr/bin/gcc-7'
             cxx-override: '/usr/bin/g++-7'
-          - os: ubuntu-18.04 # release package build
+          - name: linux-x86_64
+            os: ubuntu-18.04
+            python-version: 3.7.x
             system-deps: false
             package: true
-          - os: ubuntu-20.04
+            cc-override: default
+            cxx-override: default
+          - name: macos-x86_64
+            os: macos-latest
+            python-version: 3.7.x
+            system-deps: false
+            package: true
+            cc-override: default
+            cxx-override: default
+          - name: tarball
+            python-version: 3.7.x
+            os: ubuntu-20.04
             system-deps: false
             tarball: true
       # Prevent one job from pausing the rest
@@ -161,7 +183,7 @@ jobs:
           find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
           export APPIMAGE_FILE="Cutter-${PACKAGE_ID}-Linux-x86_64.AppImage"
           mv Cutter-*-x86_64.AppImage "$APPIMAGE_FILE"
-          echo PACKAGE_NAME=$APPIMAGE_FILE >> $GITHUB_ENV
+          echo PACKAGE_NAME=build/$APPIMAGE_FILE >> $GITHUB_ENV
           echo UPLOAD_ASSET_TYPE=application/x-executable >> $GITHUB_ENV
         fi
     - name: cmake macos
@@ -201,7 +223,7 @@ jobs:
               make -j4;
         make package
         export CUTTER_VERSION=$(python3 ../scripts/get_version.py)
-        echo PACKAGE_NAME=${PACKAGE_NAME}.dmg >> $GITHUB_ENV
+        echo PACKAGE_NAME=build/${PACKAGE_NAME}.dmg >> $GITHUB_ENV
         echo UPLOAD_ASSET_TYPE=application/x-apple-diskimage >> $GITHUB_ENV
     - name: windows dependencies
       if: contains(matrix.os, 'windows')
@@ -243,7 +265,7 @@ jobs:
           ..
         cmake --build . --config Release
         cmake --build . --config Release --target package
-        echo PACKAGE_NAME=%PACKAGE_NAME%.zip >> %GITHUB_ENV%
+        echo PACKAGE_NAME=build/%PACKAGE_NAME%.zip >> %GITHUB_ENV%
         echo UPLOAD_ASSET_TYPE=application/zip >> %GITHUB_ENV%
     - name: Create tarball
       if: matrix.tarball
@@ -270,6 +292,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: build/${{ env.PACKAGE_NAME }}
+          asset_path: ${{ env.PACKAGE_NAME }}
           asset_name: ${{ env.PACKAGE_NAME }}
           asset_content_type: ${{ env.UPLOAD_ASSET_TYPE }}
