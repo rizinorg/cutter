@@ -280,7 +280,7 @@ jobs:
       if: env.PACKAGE_NAME != null
       with:
         name: ${{ env.PACKAGE_NAME }}
-        path: ${{ env.PACKAGE_NAME }}
+        path: ${{ env.PACKAGE_PATH }}
     - name: Get release
       if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
       id: get_release
