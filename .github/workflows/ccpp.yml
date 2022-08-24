@@ -35,6 +35,9 @@ jobs:
           - os: ubuntu-18.04 # release package build
             system-deps: false
             package: true
+          - os: ubuntu-20.04
+            system-deps: false
+            tarball: true
       # Prevent one job from pausing the rest
       fail-fast: false
     steps:
@@ -242,6 +245,13 @@ jobs:
         cmake --build . --config Release --target package
         echo PACKAGE_NAME=%PACKAGE_NAME%.zip >> %GITHUB_ENV%
         echo UPLOAD_ASSET_TYPE=application/zip >> %GITHUB_ENV%
+    - name: Create tarball
+      if: matrix.tarball
+      shell: bash
+      run: |
+        scripts/tarball.sh "Cutter-${PACKAGE_ID}"
+        echo PACKAGE_NAME=Cutter-${PACKAGE_ID}-src.tar.gz >> $GITHUB_ENV
+        echo UPLOAD_ASSET_TYPE=application/gzip >> $GITHUB_ENV
     - uses: actions/upload-artifact@v2
       if: env.PACKAGE_NAME != null
       with:
