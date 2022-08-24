@@ -181,7 +181,8 @@ jobs:
           find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
           export APPIMAGE_FILE="Cutter-${PACKAGE_ID}-Linux-x86_64.AppImage"
           mv Cutter-*-x86_64.AppImage "$APPIMAGE_FILE"
-          echo PACKAGE_NAME=build/$APPIMAGE_FILE >> $GITHUB_ENV
+          echo PACKAGE_NAME=$APPIMAGE_FILE >> $GITHUB_ENV
+          echo PACKAGE_PATH=build/$APPIMAGE_FILE >> $GITHUB_ENV
           echo UPLOAD_ASSET_TYPE=application/x-executable >> $GITHUB_ENV
         fi
     - name: cmake macos
@@ -221,7 +222,8 @@ jobs:
               make -j4;
         make package
         export CUTTER_VERSION=$(python3 ../scripts/get_version.py)
-        echo PACKAGE_NAME=build/${PACKAGE_NAME}.dmg >> $GITHUB_ENV
+        echo PACKAGE_NAME=${PACKAGE_NAME}.dmg >> $GITHUB_ENV
+        echo PACKAGE_PATH=build/${PACKAGE_NAME}.dmg >> $GITHUB_ENV
         echo UPLOAD_ASSET_TYPE=application/x-apple-diskimage >> $GITHUB_ENV
     - name: windows dependencies
       if: contains(matrix.os, 'windows')
@@ -263,7 +265,8 @@ jobs:
           ..
         cmake --build . --config Release
         cmake --build . --config Release --target package
-        echo PACKAGE_NAME=build/%PACKAGE_NAME%.zip >> %GITHUB_ENV%
+        echo PACKAGE_NAME=%PACKAGE_NAME%.zip >> %GITHUB_ENV%
+        echo PACKAGE_PATH=build/%PACKAGE_NAME%.zip >> %GITHUB_ENV%
         echo UPLOAD_ASSET_TYPE=application/zip >> %GITHUB_ENV%
     - name: Create tarball
       if: matrix.tarball
@@ -271,6 +274,7 @@ jobs:
       run: |
         scripts/tarball.sh "Cutter-${PACKAGE_ID}"
         echo PACKAGE_NAME=Cutter-${PACKAGE_ID}-src.tar.gz >> $GITHUB_ENV
+        echo PACKAGE_PATH=Cutter-${PACKAGE_ID}-src.tar.gz >> $GITHUB_ENV
         echo UPLOAD_ASSET_TYPE=application/gzip >> $GITHUB_ENV
     - uses: actions/upload-artifact@v2
       if: env.PACKAGE_NAME != null
@@ -290,6 +294,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ${{ env.PACKAGE_NAME }}
+          asset_path: ${{ env.PACKAGE_PATH }}
           asset_name: ${{ env.PACKAGE_NAME }}
           asset_content_type: ${{ env.UPLOAD_ASSET_TYPE }}
