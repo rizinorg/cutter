@@ -71,8 +71,15 @@ private:
     const RzPVector *const vec;
 
 public:
-    class iterator : public std::iterator<std::input_iterator_tag, T *>
+    class iterator
     {
+    public:
+        using iterator_category = std::input_iterator_tag;
+        using value_type = T *;
+        using difference_type = ptrdiff_t;
+        using pointer = T **;
+        using reference = T *&;
+
     private:
         T **p;
 
@@ -107,8 +114,15 @@ private:
     const RzList *const list;
 
 public:
-    class iterator : public std::iterator<std::input_iterator_tag, T *>
+    class iterator
     {
+    public:
+        using iterator_category = std::input_iterator_tag;
+        using value_type = T *;
+        using difference_type = ptrdiff_t;
+        using pointer = T **;
+        using reference = T *&;
+
     private:
         RzListIter *iter;
 
