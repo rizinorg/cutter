@@ -4,6 +4,7 @@
 #include "core/Cutter.h" // only needed for ut64
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/WelcomeDialog.h"
+#include "dialogs/bindiff/BinDiffDialog.h"
 #include "common/Configuration.h"
 #include "common/InitialOptions.h"
 #include "common/IOModesController.h"
@@ -151,6 +152,8 @@ public slots:
 
     void openNewFileFailed();
 
+    void openBinDiffDialog(RzAnalysisMatchResult *result);
+
     void toggleOverview(bool visibility, GraphWidget *targetGraph);
 private slots:
     void on_actionBaseFind_triggered();
@@ -175,6 +178,8 @@ private slots:
 
     void on_actionBackward_triggered();
     void on_actionForward_triggered();
+
+    void on_actionDiff_triggered();
 
     void on_actionMap_triggered();
 
@@ -329,6 +334,10 @@ private:
     MemoryDockWidget *lastSyncMemoryWidget = nullptr;
     MemoryDockWidget *lastMemoryWidget = nullptr;
     int functionDockWidthToRestore = 0;
+
+    QSharedPointer<RizinTask> task;
+    RizinTaskDialog *taskDialog = nullptr;
+    BinDiffDialog *binDiffDialog = nullptr;
 };
 
 #endif // MAINWINDOW_H

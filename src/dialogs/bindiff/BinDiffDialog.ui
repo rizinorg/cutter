@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BinDiffDialog</class>
+ <widget class="QDialog" name="BinDiffDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>935</width>
+    <height>554</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Cutter Binary Diffing Tool</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QMenuBar" name="menuBar">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>1013</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="defaultUp">
+      <bool>false</bool>
+     </property>
+     <property name="nativeMenuBar">
+      <bool>true</bool>
+     </property>
+     <widget class="QMenu" name="menuExport">
+      <property name="title">
+       <string>Export</string>
+      </property>
+     </widget>
+     <addaction name="menuExport"/>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="resultTable"/>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

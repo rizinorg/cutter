@@ -133,6 +133,7 @@
      <string>Tools</string>
     </property>
     <addaction name="actionBaseFind"/>
+    <addaction name="actionDiff"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -875,6 +876,11 @@
   <action name="actionManageLayouts">
    <property name="text">
     <string>Manage layouts</string>
+   </property>
+  </action>
+  <action name="actionDiff">
+   <property name="text">
+    <string>Diff With File..</string>
    </property>
   </action>
  </widget>

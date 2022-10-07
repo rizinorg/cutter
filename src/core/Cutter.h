@@ -84,7 +84,7 @@ public:
 
     AsyncTaskManager *getAsyncTaskManager() { return asyncTaskManager; }
 
-    RVA getOffset() const { return core_->offset; }
+    RVA getOffset() const { return core_a->offset; }
 
     /* Core functions (commands) */
     /* Almost the same as core_cmd_raw,
@@ -754,6 +754,9 @@ public:
      */
     void writeGraphvizGraphToFile(QString path, QString format, RzCoreGraphType type, RVA address);
 
+    /* Diffing/Matching */
+    RzAnalysisMatchResult *matchFunctionsFromNewFile(const QString &filePath);
+
 signals:
     void refreshAll();
 
@@ -826,7 +829,8 @@ private:
      * Internal reference to the RzCore.
      * NEVER use this directly! Always use the CORE_LOCK(); macro and access it like core->...
      */
-    RzCore *core_ = nullptr;
+    RzCore *core_a = nullptr;
+    RzCore *core_b = nullptr;
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
     QMutex coreMutex;
 #else

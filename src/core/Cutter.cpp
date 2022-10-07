@@ -152,12 +152,12 @@ RzCoreLocked::~RzCoreLocked()
 
 RzCoreLocked::operator RzCore *() const
 {
-    return core->core_;
+    return core->core_a;
 }
 
 RzCore *RzCoreLocked::operator->() const
 {
-    return core->core_;
+    return core->core_a;
 }
 
 #define CORE_LOCK() RzCoreLocked core(this)
@@ -198,20 +198,21 @@ void CutterCore::initialize(bool loadPlugins)
 #endif
 
     rz_cons_new(); // initialize console
-    core_ = rz_core_new();
-    rz_core_task_sync_begin(&core_->tasks);
+    core_a = rz_core_new();
+    core_b = nullptr;
+    rz_core_task_sync_begin(&core_a->tasks);
     coreBed = rz_cons_sleep_begin();
     CORE_LOCK();
 
-    rz_event_hook(core_->analysis->ev, RZ_EVENT_ALL, cutterREventCallback, this);
+    rz_event_hook(core_a->analysis->ev, RZ_EVENT_ALL, cutterREventCallback, this);
 
     if (loadPlugins) {
         setConfig("cfg.plugins", true);
-        rz_core_loadlibs(this->core_, RZ_CORE_LOADLIBS_ALL);
+        rz_core_loadlibs(this->core_a, RZ_CORE_LOADLIBS_ALL);
     } else {
         setConfig("cfg.plugins", false);
     }
-    // IMPLICIT rz_bin_iobind (core_->bin, core_->io);
+    // IMPLICIT rz_bin_iobind (core_a->bin, core_a->io);
 
     // Otherwise Rizin may ask the user for input and Cutter would freeze
     setConfig("scr.interactive", false);
@@ -232,8 +233,11 @@ CutterCore::~CutterCore()
 {
     delete bbHighlighter;
     rz_cons_sleep_end(coreBed);
-    rz_core_task_sync_end(&core_->tasks);
-    rz_core_free(this->core_);
+    rz_core_free(this->core_b);
+    this->core_b = nullptr;
+    rz_core_task_sync_end(&core_a->tasks);
+    rz_core_free(this->core_a);
+    this->core_a = nullptr;
     rz_cons_free();
     assert(uniqueInstance == this);
     uniqueInstance = nullptr;
@@ -1044,7 +1048,7 @@ RVA CutterCore::nextOpAddr(RVA startAddr, int count)
 
 RVA CutterCore::getOffset()
 {
-    return core_->offset;
+    return core_a->offset;
 }
 
 void CutterCore::applySignature(const QString &filepath)
@@ -4559,6 +4563,93 @@ bool CutterCore::isWriteModeEnabled()
     }
     return false;
 }
+
+RzAnalysisMatchResult *CutterCore::matchFunctionsFromNewFile(const QString &filePath) {
+    RzList *fcns_a = NULL, *fcns_b = NULL;
+    RzAnalysisMatchResult *result = NULL;
+    RzListIter *iter;
+    RzConfigNode *node;
+    void *ptr;
+
+    if (core_b) {
+        rz_core_free(core_b);
+        core_b = nullptr;
+    }
+
+    core_b = rz_core_new();
+    if (!core_b) {
+        goto fail;
+    }
+
+    rz_config_set_b(core_b->config, "io.va", rz_config_get_b(core_a->config, "io.va"));
+
+    rz_core_loadlibs(core_b, RZ_CORE_LOADLIBS_ALL);
+    core_b->print->scr_prompt = false;
+    if (!rz_core_file_open(core_b, filePath.toUtf8().constData(), RZ_PERM_RX, 0)) {
+        qWarning() << "cannot open file " << filePath;
+        goto fail;
+    }
+
+    if (!rz_core_bin_load(core_b, NULL, UT64_MAX)) {
+        qWarning() << "cannot load bin " << filePath;
+        goto fail;
+    }
+
+    if (!rz_core_bin_update_arch_bits(core_b)) {
+        qWarning() << "cannot set architecture with bits";
+        goto fail;
+    }
+
+    rz_list_foreach (core_a->config->nodes, iter, ptr) {
+        node = reinterpret_cast<RzConfigNode *>(ptr);
+        if (!strcmp(node->name, "scr.color") ||
+            !strcmp(node->name, "scr.interactive") ||
+            !strcmp(node->name, "cfg.debug")) {
+            rz_config_set(core_b->config, node->name, "0");
+            continue;
+        }
+        rz_config_set(core_b->config, node->name, node->value);
+    }
+
+    if (!rz_core_analysis_everything(core_b, false, NULL)) {
+        qWarning() << "cannot analyze binary " << filePath;
+        goto fail;
+    }
+
+    fcns_a = rz_list_clone(rz_analysis_get_fcns(core_a->analysis));
+    if (rz_list_empty(fcns_a)) {
+        qWarning() << "no functions found in the current opened file";
+        goto fail;
+    }
+
+    fcns_b = rz_list_clone(rz_analysis_get_fcns(core_b->analysis));
+    if (rz_list_empty(fcns_b)) {
+        qWarning() << "no functions found in " << filePath;
+        goto fail;
+    }
+
+    rz_list_sort(fcns_a, core_a->analysis->columnSort);
+    rz_list_sort(fcns_b, core_b->analysis->columnSort);
+
+    // calculate all the matches between the functions of the 2 different core files.
+    result = rz_analysis_match_functions_2(core_a->analysis, fcns_a, core_b->analysis, fcns_b);
+    if (!result) {
+        qWarning() << "failed to perform the function matching operation";
+        goto fail;
+    }
+
+    rz_list_free(fcns_a);
+    rz_list_free(fcns_b);
+    return result;
+
+fail:
+    rz_list_free(fcns_a);
+    rz_list_free(fcns_b);
+    rz_core_free(this->core_b);
+    this->core_b = nullptr;
+    return NULL;
+}
+
 
 /**
  * @brief get a compact disassembly preview for tooltips

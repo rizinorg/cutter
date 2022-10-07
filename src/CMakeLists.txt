@@ -58,6 +58,7 @@ set(SOURCES
     widgets/DecompilerWidget.cpp
     widgets/VisualNavbar.cpp
     widgets/GraphView.cpp
+    dialogs/bindiff/BinDiffDialog.cpp
     dialogs/preferences/PreferencesDialog.cpp
     dialogs/preferences/AppearanceOptionsWidget.cpp
     dialogs/preferences/GraphOptionsWidget.cpp
@@ -213,6 +214,7 @@ set(HEADER_FILES
     widgets/DecompilerWidget.h
     widgets/VisualNavbar.h
     widgets/GraphView.h
+    dialogs/bindiff/BinDiffDialog.h
     dialogs/preferences/PreferencesDialog.h
     dialogs/preferences/AppearanceOptionsWidget.h
     dialogs/preferences/PreferenceCategory.h
@@ -345,6 +347,7 @@ set(UI_FILES
     widgets/GlobalsWidget.ui
     widgets/StringsWidget.ui
     widgets/HexdumpWidget.ui
+    dialogs/bindiff/BinDiffDialog.ui
     dialogs/preferences/PreferencesDialog.ui
     dialogs/preferences/AppearanceOptionsWidget.ui
     dialogs/preferences/GraphOptionsWidget.ui

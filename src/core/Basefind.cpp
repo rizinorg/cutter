@@ -67,7 +67,7 @@ void Basefind::run()
     core->coreMutex.lock();
     options.callback = threadCallback;
     options.user = this;
-    scores = rz_basefind(core->core_, &options);
+    scores = rz_basefind(core->core_a, &options);
     core->coreMutex.unlock();
 
     emit complete();
