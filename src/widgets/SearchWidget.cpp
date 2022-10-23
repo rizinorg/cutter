@@ -254,6 +254,7 @@ void SearchWidget::refreshSearchspaces()
     ui->searchspaceCombo->clear();
     ui->searchspaceCombo->addItem(tr("asm code"), QVariant("/acj"));
     ui->searchspaceCombo->addItem(tr("string"), QVariant("/j"));
+    ui->searchspaceCombo->addItem(tr("string (case insensitive)"), QVariant("/ij"));
     ui->searchspaceCombo->addItem(tr("hex string"), QVariant("/xj"));
     ui->searchspaceCombo->addItem(tr("ROP gadgets"), QVariant("/Rj"));
     ui->searchspaceCombo->addItem(tr("32bit value"), QVariant("/vj"));
@@ -301,13 +302,16 @@ void SearchWidget::updatePlaceholderText(int index)
     case 1: // string
         ui->filterLineEdit->setPlaceholderText("foobar");
         break;
-    case 2: // hex string
+    case 2: // string (case insensitive)
+        ui->filterLineEdit->setPlaceholderText("FooBar");
+        break;
+    case 3: // hex string
         ui->filterLineEdit->setPlaceholderText("deadbeef");
         break;
-    case 3: // ROP gadgets
+    case 4: // ROP gadgets
         ui->filterLineEdit->setPlaceholderText("pop,,pop");
         break;
-    case 4: // 32bit value
+    case 5: // 32bit value
         ui->filterLineEdit->setPlaceholderText("0xdeadbeef");
         break;
     default:
