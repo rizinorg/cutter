@@ -7,9 +7,9 @@
 #include <QJsonObject>
 
 CallGraphWidget::CallGraphWidget(MainWindow *main, bool global)
-    : AddressableDockWidget(main), graphView(new CallGraphView(this, main, global)), global(global)
+    : MemoryDockWidget(MemoryWidgetType::CallGraph, main), graphView(new CallGraphView(this, main, global)), global(global)
 {
-    setObjectName(main->getUniqueObjectName("CallGraphWidget"));
+    setObjectName(main ? main->getUniqueObjectName(getWidgetType()) : getWidgetType());
     this->setWindowTitle(getWindowTitle());
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &CallGraphWidget::onSeekChanged);
 
@@ -21,6 +21,11 @@ CallGraphWidget::~CallGraphWidget() {}
 QString CallGraphWidget::getWindowTitle() const
 {
     return global ? tr("Global Callgraph") : tr("Callgraph");
+}
+
+QString CallGraphWidget::getWidgetType() const
+{
+    return global ? tr("GlobalCallgraph") : tr("Callgraph");
 }
 
 void CallGraphWidget::onSeekChanged(RVA address)

@@ -2,7 +2,7 @@
 #define CALL_GRAPH_WIDGET_H
 
 #include "core/Cutter.h"
-#include "AddressableDockWidget.h"
+#include "MemoryDockWidget.h"
 #include "widgets/SimpleTextGraphView.h"
 #include "common/RefreshDeferrer.h"
 
@@ -30,13 +30,15 @@ private:
     RVA lastLoadedAddress = RVA_INVALID;
 };
 
-class CallGraphWidget : public AddressableDockWidget
+class CallGraphWidget : public MemoryDockWidget
 {
     Q_OBJECT
 
 public:
     explicit CallGraphWidget(MainWindow *main, bool global);
     ~CallGraphWidget();
+
+    QString getWidgetType() const;
 
 protected:
     QString getWindowTitle() const override;

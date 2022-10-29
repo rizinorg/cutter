@@ -7,7 +7,7 @@
 #include <QAction>
 
 /* Disassembly/Graph/Hexdump/Decompiler view priority */
-enum class MemoryWidgetType { Disassembly, Graph, Hexdump, Decompiler };
+enum class MemoryWidgetType { Disassembly, Graph, Hexdump, Decompiler, CallGraph, GlobalCallGraph };
 
 class CUTTER_EXPORT MemoryDockWidget : public AddressableDockWidget
 {

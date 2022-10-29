@@ -1086,6 +1086,12 @@ MemoryDockWidget *MainWindow::addNewMemoryWidget(MemoryWidgetType type, RVA addr
     case MemoryWidgetType::Decompiler:
         memoryWidget = new DecompilerWidget(this);
         break;
+    case MemoryWidgetType::CallGraph:
+      memoryWidget = new CallGraphWidget(this, false);
+      break;
+    case MemoryWidgetType::GlobalCallGraph:
+      memoryWidget = new CallGraphWidget(this, true);
+      break;
     }
     auto seekable = memoryWidget->getSeekable();
     seekable->setSynchronization(synchronized);
