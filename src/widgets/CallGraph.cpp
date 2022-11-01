@@ -42,6 +42,7 @@ CallGraphView::CallGraphView(CutterDockWidget *parent, MainWindow *main, bool gl
     refreshDeferrer.registerFor(parent);
     connect(&refreshDeferrer, &RefreshDeferrer::refreshNow, this, &CallGraphView::refreshView);
     connect(Core(), &CutterCore::refreshAll, this, &SimpleTextGraphView::refreshView);
+    connect(Core(), &CutterCore::functionRenamed, this, &CallGraphView::refreshView);
 }
 
 void CallGraphView::showExportDialog()
