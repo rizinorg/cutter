@@ -61,7 +61,7 @@ jobs:
       # Prevent one job from pausing the rest
       fail-fast: false
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
         persist-credentials: false
@@ -79,7 +79,7 @@ jobs:
         then
           sudo apt-get install qt5-default libqt5svg5-dev qttools5-dev qttools5-dev-tools
         fi
-    - uses: actions/setup-python@v1
+    - uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: homebrew dependencies
@@ -276,7 +276,7 @@ jobs:
         echo PACKAGE_NAME=Cutter-${PACKAGE_ID}-src.tar.gz >> $GITHUB_ENV
         echo PACKAGE_PATH=Cutter-${PACKAGE_ID}-src.tar.gz >> $GITHUB_ENV
         echo UPLOAD_ASSET_TYPE=application/gzip >> $GITHUB_ENV
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       if: env.PACKAGE_NAME != null
       with:
         name: ${{ env.PACKAGE_NAME }}
