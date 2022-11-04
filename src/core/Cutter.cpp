@@ -3051,8 +3051,8 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
         FunctionDescription function;
         function.offset = fcn->addr;
         function.linearSize = rz_analysis_function_linear_size(fcn);
-        function.nargs = rz_analysis_var_count_total(fcn, RZ_ANALYSIS_VAR_TYPE_ARGUMENT);
-        function.nlocals = rz_analysis_var_count_total(fcn, RZ_ANALYSIS_VAR_TYPE_LOCAL);
+        function.nargs = rz_analysis_arg_count(fcn);
+        function.nlocals = rz_analysis_var_local_count(fcn);
         function.nbbs = rz_list_length(fcn->bbs);
         function.calltype = fcn->cc ? QString::fromUtf8(fcn->cc) : QString();
         function.name = fcn->name ? QString::fromUtf8(fcn->name) : QString();
