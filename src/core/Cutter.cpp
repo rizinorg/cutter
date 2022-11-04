@@ -3966,8 +3966,7 @@ QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, boo
     const auto typ =
             findWrites ? RZ_ANALYSIS_VAR_ACCESS_TYPE_WRITE : RZ_ANALYSIS_VAR_ACCESS_TYPE_READ;
     QList<XrefDescription> xrefList = QList<XrefDescription>();
-    RzList *vars = rz_analysis_var_all_list(core->analysis, fcn);
-    for (const auto &v : CutterRzList<RzAnalysisVar>(vars)) {
+    for (const auto &v : CutterPVector<RzAnalysisVar>(&fcn->vars)) {
         if (variableName != v->name) {
             continue;
         }
