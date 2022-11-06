@@ -28,6 +28,7 @@ private:
     const QRegularExpression banned = QRegularExpression(
             QStringLiteral("\\A(\\w\\.)*(system|strcpy|strcpyA|strcpyW|wcscpy|_tcscpy|_mbscpy|"
                            "StrCpy|StrCpyA|StrCpyW|lstrcpy|lstrcpyA|lstrcpyW"
+                           "DCIEnum|DCIOpenProvider|DCISendCommand|DCIBeginAccess"
                            "|_tccpy|_mbccpy|_ftcscpy|strcat|strcatA|strcatW|wcscat|_tcscat|_mbscat|"
                            "StrCat|StrCatA|StrCatW|lstrcat|lstrcatA|"
                            "lstrcatW|StrCatBuff|StrCatBuffA|StrCatBuffW|StrCatChainW|_tccat|_"
@@ -51,7 +52,7 @@ private:
                            "ui64tow|_ultoa|_ultot|_ultow|CharToOem|CharToOemA|CharToOemW|"
                            "OemToChar|OemToCharA|OemToCharW|CharToOemBuffA|CharToOemBuffW|alloca|_"
                            "alloca|strlen|wcslen|_mbslen|_mbstrlen|StrLen|lstrlen|"
-                           "ChangeWindowMessageFilter)\\z"));
+                           "ChangeWindowMessageFilter|ChangeWindowMessageFilterEx)\\z"));
     QList<ImportDescription> imports;
 
 public:
