@@ -2,7 +2,7 @@ blank_issues_enabled: false
 
 contact_links:
   - name: Questions Telegram
-    url: https://t.me/cutter
+    url: https://t.me/cutter_re
     about: Please ask questions about Cutter here or one of the other community channels, not in the issue tracker.
 
   - name: Questions IRC
