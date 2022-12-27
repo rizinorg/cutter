@@ -1793,18 +1793,7 @@ QList<VariableDescription> CutterCore::getVariables(RVA at)
     }
     for (auto var : CutterPVector<RzAnalysisVar>(&fcn->vars)) {
         VariableDescription desc;
-        switch (var->kind) {
-        case RZ_ANALYSIS_VAR_KIND_BPV:
-            desc.refType = VariableDescription::RefType::BP;
-            break;
-        case RZ_ANALYSIS_VAR_KIND_SPV:
-            desc.refType = VariableDescription::RefType::SP;
-            break;
-        case RZ_ANALYSIS_VAR_KIND_REG:
-        default:
-            desc.refType = VariableDescription::RefType::Reg;
-            break;
-        }
+        desc.storageType = var->storage.type;
         if (!var->name || !var->type) {
             continue;
         }

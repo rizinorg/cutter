@@ -355,8 +355,7 @@ struct RefDescription
 
 struct VariableDescription
 {
-    enum class RefType { SP, BP, Reg };
-    RefType refType;
+    RzAnalysisVarStorageType storageType;
     QString name;
     QString type;
 };
