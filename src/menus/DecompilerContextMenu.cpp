@@ -69,6 +69,11 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
 
 DecompilerContextMenu::~DecompilerContextMenu() {}
 
+QWidget *DecompilerContextMenu::parentForDialog()
+{
+    return parentWidget();
+}
+
 void DecompilerContextMenu::setAnnotationHere(RzCodeAnnotation *annotation)
 {
     annotationHere = annotation;
@@ -404,14 +409,15 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
         RzAnalysisFunction *func = Core()->functionAt(func_addr);
         if (func == NULL) {
             QString function_name = QInputDialog::getText(
-                    this, tr("Define this function at %2").arg(RzAddressString(func_addr)),
+                    parentForDialog(),
+                    tr("Define this function at %2").arg(RzAddressString(func_addr)),
                     tr("Function name:"), QLineEdit::Normal, currentName, &ok);
             if (ok && !function_name.isEmpty()) {
                 Core()->createFunctionAt(func_addr, function_name);
             }
         } else {
             QString newName = QInputDialog::getText(
-                    this->mainWindow, tr("Rename function %2").arg(currentName),
+                    parentForDialog(), tr("Rename function %2").arg(currentName),
                     tr("Function name:"), QLineEdit::Normal, currentName, &ok);
             if (ok && !newName.isEmpty()) {
                 Core()->renameFunction(func_addr, newName);
@@ -421,16 +427,16 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
         RVA var_addr = annotationHere->reference.offset;
         RzFlagItem *flagDetails = rz_flag_get_i(core->flags, var_addr);
         if (flagDetails) {
-            QString newName = QInputDialog::getText(this, tr("Rename %2").arg(flagDetails->name),
-                                                    tr("Enter name"), QLineEdit::Normal,
-                                                    flagDetails->name, &ok);
+            QString newName = QInputDialog::getText(
+                    parentForDialog(), tr("Rename %2").arg(flagDetails->name), tr("Enter name"),
+                    QLineEdit::Normal, flagDetails->name, &ok);
             if (ok && !newName.isEmpty()) {
                 Core()->renameFlag(flagDetails->name, newName);
             }
         } else {
             QString newName = QInputDialog::getText(
-                    this, tr("Add name to %2").arg(curHighlightedWord), tr("Enter name"),
-                    QLineEdit::Normal, curHighlightedWord, &ok);
+                    parentForDialog(), tr("Add name to %2").arg(curHighlightedWord),
+                    tr("Enter name"), QLineEdit::Normal, curHighlightedWord, &ok);
             if (ok && !newName.isEmpty()) {
                 Core()->addFlag(var_addr, newName, 1);
             }
@@ -439,14 +445,14 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
         if (!variablePresentInRizin()) {
             // Show can't rename this variable dialog
             QMessageBox::critical(
-                    this,
+                    parentForDialog(),
                     tr("Rename local variable %1").arg(QString(annotationHere->variable.name)),
                     tr("Can't rename this variable. "
                        "Only local variables defined in disassembly can be renamed."));
             return;
         }
         QString oldName(annotationHere->variable.name);
-        QString newName = QInputDialog::getText(this, tr("Rename %2").arg(oldName),
+        QString newName = QInputDialog::getText(parentForDialog(), tr("Rename %2").arg(oldName),
                                                 tr("Enter name"), QLineEdit::Normal, oldName, &ok);
         if (ok && !newName.isEmpty()) {
             Core()->renameFunctionVariable(newName, oldName, decompiledFunctionAddress);
@@ -465,13 +471,14 @@ void DecompilerContextMenu::actionEditFunctionVariablesTriggered()
         return;
     } else if (!variablePresentInRizin()) {
         QMessageBox::critical(
-                this, tr("Edit local variable %1").arg(QString(annotationHere->variable.name)),
+                parentForDialog(),
+                tr("Edit local variable %1").arg(QString(annotationHere->variable.name)),
                 tr("Can't edit this variable. "
                    "Only local variables defined in disassembly can be edited."));
         return;
     }
     EditVariablesDialog dialog(decompiledFunctionAddress, QString(annotationHere->variable.name),
-                               this);
+                               parentForDialog());
     dialog.exec();
 }
 
