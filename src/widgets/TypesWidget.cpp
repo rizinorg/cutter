@@ -293,7 +293,6 @@ void TypesWidget::on_actionLoad_New_Types_triggered()
     TypesInteractionDialog dialog(this);
     connect(&dialog, &TypesInteractionDialog::newTypesLoaded, this, &TypesWidget::refreshTypes);
     dialog.setWindowTitle(tr("Load New Types"));
-    dialog.setTypeName(t.type);
     dialog.exec();
 }
 
