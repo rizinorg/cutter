@@ -1023,18 +1023,15 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
 
         if (dialog.exec()) {
             QString new_name = dialog.getNameText();
-            Core()->renameFunction(fcn->addr, new_name);
+            rz_core_analysis_function_rename(core, fcn->addr, new_name.toStdString().c_str());
             QString new_start_addr = dialog.getStartAddrText();
             fcn->addr = Core()->math(new_start_addr);
             QString new_stack_size = dialog.getStackSizeText();
             fcn->stack = int(Core()->math(new_stack_size));
 
-            const char *ccSelected = dialog.getCallConSelected().toUtf8().constData();
-            if (RZ_STR_ISEMPTY(ccSelected)) {
-                return;
-            }
-            if (rz_analysis_cc_exist(core->analysis, ccSelected)) {
-                fcn->cc = rz_str_constpool_get(&core->analysis->constpool, ccSelected);
+            QByteArray newCC = dialog.getCallConSelected().toUtf8();
+            if (!newCC.isEmpty() && rz_analysis_cc_exist(core->analysis, newCC.constData())) {
+                fcn->cc = rz_str_constpool_get(&core->analysis->constpool, newCC.constData());
             }
 
             emit Core()->functionsChanged();
