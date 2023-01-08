@@ -86,11 +86,8 @@ jobs:
       if: contains(matrix.os, 'macos')
       run: |
         cd scripts
-        rm '/usr/local/bin/2to3' # symlink to some kind of existing python2.7 installation conflicts with brew python3 which gets installed as indirect dependency
-        brew update --preinstall # temporary workaround for https://github.com/Homebrew/homebrew-bundle/issues/751
+        rm /usr/local/bin/2to3* # symlink to some kind of existing python2.7 installation conflicts with brew python3 which gets installed as indirect dependency
         brew bundle
-        brew install coreutils
-        brew install pkg-config
     - name: py dependencies
       run: |
         python3 -m pip install -U pip==21.3.1
