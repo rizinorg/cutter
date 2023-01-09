@@ -30,7 +30,6 @@ install:
 
 before_build:
   - cmd: git submodule update --init --recursive
-  - scripts\prepare_breakpad.bat
 
 # Build config
 build_script:
@@ -48,7 +47,6 @@ build_script:
        -DCUTTER_PACKAGE_RZ_GHIDRA=ON
        -DCUTTER_PACKAGE_JSDEC=ON
        -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON
-       -DCUTTER_ENABLE_CRASH_REPORTS=ON
        -DCMAKE_PREFIX_PATH=%CUTTER_DEPS%\\pyside
        -DCPACK_PACKAGE_FILE_NAME=%PACKAGE_NAME%
        -G Ninja

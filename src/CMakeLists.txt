@@ -262,7 +262,6 @@ set(HEADER_FILES
     common/RunScriptTask.h
     common/Json.h
     dialogs/EditMethodDialog.h
-    common/CrashHandler.h
     dialogs/TypesInteractionDialog.h
     widgets/SdbWidget.h
     plugins/PluginManager.h
@@ -393,10 +392,6 @@ if (CUTTER_ENABLE_PYTHON)
     list(APPEND HEADER_FILES common/QtResImporter.h common/PythonManager.h common/PythonAPI.h)
 endif()
 
-if(CUTTER_ENABLE_CRASH_REPORTS)
-    list(APPEND SOURCES common/CrashHandler.cpp)
-endif()
-
 if(CUTTER_ENABLE_PYTHON_BINDINGS)
     set(BINDINGS_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bindings")
     set(BINDINGS_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/bindings")
@@ -469,19 +464,6 @@ endforeach()
 if (TARGET Graphviz::GVC)
     target_link_libraries(Cutter PRIVATE Graphviz::GVC)
     target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_GRAPHVIZ)
-endif()
-
-if(CUTTER_ENABLE_CRASH_REPORTS)
-    set(THREADS_PREFER_PTHREAD_FLAG ON)
-    find_package(Threads REQUIRED)
-    target_link_libraries(Cutter PRIVATE Threads::Threads)
-
-    add_definitions(-DCUTTER_ENABLE_CRASH_REPORTS)
-    if (NOT WIN32)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g ")
-    endif()
-    find_package(Breakpad REQUIRED)
-    target_link_libraries(Cutter PRIVATE Breakpad::client)
 endif()
 
 target_link_libraries(Cutter PUBLIC ${QT_PREFIX}::Core ${QT_PREFIX}::Widgets ${QT_PREFIX}::Gui PRIVATE  ${QT_PREFIX}::Svg ${QT_PREFIX}::Network)
