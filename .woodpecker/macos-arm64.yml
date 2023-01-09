@@ -39,7 +39,7 @@ pipeline:
   deploy:
     when:
       event: tag
-      tag: v*
+      tag: upload-test*
     image: /bin/bash
     commands:
       - gh release upload "${CI_COMMIT_TAG}" build/Cutter-*.dmg

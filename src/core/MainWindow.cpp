@@ -1523,6 +1523,11 @@ void MainWindow::on_actionDefault_triggered()
  */
 void MainWindow::on_actionNew_triggered()
 {
+    // TEMPORARY CRASH
+    int *ptr = 0;
+    *ptr = 42;
+
+
     // Create a new Cutter process
     static_cast<CutterApplication *>(qApp)->launchNewInstance();
 }
