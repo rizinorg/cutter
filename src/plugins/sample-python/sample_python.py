@@ -36,7 +36,7 @@ class FortuneWidget(cutter.CutterDockWidget):
         self.show()
 
     def generate_fortune(self):
-        fortune = cutter.cmd("fo").replace("\n", "")
+        fortune = cutter.cmd("fortune").replace("\n", "")
         res = cutter.core().cmdRaw(f"?E {fortune}")
         self.text.setText(res)
 
@@ -44,7 +44,7 @@ class FortuneWidget(cutter.CutterDockWidget):
 class CutterSamplePlugin(cutter.CutterPlugin):
     name = "Sample Plugin"
     description = "A sample plugin written in python."
-    version = "1.1"
+    version = "1.2"
     author = "Cutter developers"
 
     # Override CutterPlugin methods
