@@ -113,8 +113,7 @@ If you want to use Cutter with another version of Rizin you can set ``-DCUTTER_U
 .. note::
 
    If you are interested in building Cutter with support for Python plugins,
-   Syntax Highlighting, Crash Reporting and more,
-   please look at the full list of `CMake Building Options`_.
+   Syntax Highlighting and more, please look at the full list of `CMake Building Options`_.
 
 
 After the build process is complete, you should have the ``Cutter`` executable in the **build** dir.
@@ -252,7 +251,6 @@ Note that there are some major building options available:
 
 Cutter binary release options, not needed for most users and might not work easily outside CI environment: 
 
-* ``CUTTER_ENABLE_CRASH_REPORTS`` is used to compile Cutter with crash handling system enabled (Breakpad).
 * ``CUTTER_ENABLE_DEPENDENCY_DOWNLOADS`` Enable downloading of dependencies. Setting to OFF doesn't affect any downloads done by Rizin build. This option is used for preparing Cutter binary release packges. Turned off by default.
 * ``CUTTER_PACKAGE_DEPENDENCIES`` During install step include the third party dependencies. This option is used for preparing Cutter binary release packges. 
 
@@ -269,28 +267,6 @@ Or if one wants to explicitly disable an option:
 ::
 
    cmake -B build -DCUTTER_ENABLE_PYTHON=OFF
-
-
---------------
-
-Compiling Cutter with Breakpad Support
---------------------------------------
-
-If you want to build Cutter with crash handling system, you will want to first prepare Breakpad.
-For this, simply run one of the scripts (according to your OS) from root Cutter directory:
-    
-.. code:: sh
-
-   source scripts/prepare_breakpad_linux.sh # Linux
-   source scripts/prepare_breakpad_macos.sh # MacOS
-   scripts/prepare_breakpad.bat # Windows
-   
-Then if you are building on Linux you want to change ``PKG_CONFIG_PATH`` environment variable
-so it contains ``$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig``. For this simply run
-
-.. code:: sh
-
-   export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 
 
 --------------
