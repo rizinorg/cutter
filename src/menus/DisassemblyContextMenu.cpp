@@ -524,7 +524,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
                     continue;
                 }
                 structureOffsetMenu->addAction("[" + memBaseReg + " + " + ty->path + "]")
-                        ->setData(ty->path);
+                        ->setData(QString(ty->path));
             }
             rz_list_free(typeoffs);
         }
