@@ -54,7 +54,7 @@
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_17">
+     <layout class="QHBoxLayout" name="horizontalLayoutSection">
       <property name="spacing">
        <number>10</number>
       </property>
@@ -102,6 +102,16 @@
       </item>
      </layout>
     </item>
+    <item>
+      <widget class="QuickFilterView" name="quickFilterView" native="true">
+        <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+          </sizepolicy>
+        </property>
+      </widget>
+    </item>
    </layout>
   </widget>
   <action name="seekToVTableAction">
@@ -140,6 +150,12 @@
    <class>CutterTreeView</class>
    <extends>QTreeView</extends>
    <header>widgets/CutterTreeView.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QuickFilterView</class>
+   <extends>QWidget</extends>
+   <header>widgets/QuickFilterView.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

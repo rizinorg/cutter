@@ -9,6 +9,7 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QInputDialog>
+#include <QShortcut>
 
 QVariant ClassesModel::headerData(int section, Qt::Orientation, int role) const
 {
@@ -532,6 +533,9 @@ ClassesSortFilterProxyModel::ClassesSortFilterProxyModel(QObject *parent)
 
 bool ClassesSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
+    if (parent.isValid())
+        return true;
+
     QModelIndex index = sourceModel()->index(row, 0, parent);
     return qhelpers::filterStringContains(index.data(ClassesModel::NameRole).toString(), this);
 }
@@ -593,6 +597,21 @@ ClassesWidget::ClassesWidget(MainWindow *main) : CutterDockWidget(main), ui(new 
                                       &ClassesWidget::refreshClasses);
     connect(ui->classesTreeView, &QTreeView::customContextMenuRequested, this,
             &ClassesWidget::showContextMenu);
+
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, proxy_model,
+            &QSortFilterProxyModel::setFilterWildcard);
+
+    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
+    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
+            &QuickFilterView::showFilter);
+    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(clearShortcut, &QShortcut::activated, this, [this]() {
+        ui->quickFilterView->clearFilter();
+        ui->classesTreeView->setFocus();
+    });
+    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     refreshClasses();
 }
