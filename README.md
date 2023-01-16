@@ -23,9 +23,11 @@ Cutter release binaries for all major platforms (Linux, macOS, Windows) can be d
 - **macOS**: Download the `.dmg` file or use [Homebrew Cask](https://github.com/Homebrew/homebrew-cask):
 
     `brew install --cask cutter`
-- **Windows**: Download the `.zip` archive or use [Chocolatey](https://chocolatey.org):
+- **Windows**: Download the `.zip` archive, or use either [Chocolatey](https://chocolatey.org) or [Scoop](https://scoop.sh/):
 
     `choco install cutter`
+    
+    `scoop bucket add extras` followed by `scoop install cutter`
 
 ### Build from sources
 
