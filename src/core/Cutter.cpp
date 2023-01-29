@@ -3330,7 +3330,7 @@ QList<StringDescription> CutterCore::getAllStrings()
         StringDescription string;
         string.string = rz_str_escape_utf8_keep_printable(str->string, &opt);
         string.vaddr = obj ? rva(obj, str->paddr, str->vaddr, va) : str->paddr;
-        string.type = str->type;
+        string.type = rz_str_enc_as_string(str->type);
         string.size = str->size;
         string.length = str->length;
         string.section = section ? section->name : "";
