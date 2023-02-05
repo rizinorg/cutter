@@ -63,6 +63,9 @@ On Debian-based Linux distributions, all of these essential packages can be inst
 
    sudo apt install build-essential cmake meson libzip-dev zlib1g-dev qt5-default libqt5svg5-dev qttools5-dev qttools5-dev-tools
 
+.. note::
+ On Debian 11 (bullseye) and higher or Ubuntu 22.04 (Jammy) and higher, replace ``qt5-default`` above with ``qtbase5-dev``.
+
 Depending on your configuration you'll might also need the following:
 
 ::
