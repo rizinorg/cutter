@@ -23,6 +23,7 @@ jobs:
         name: [
             linux-x86_64,
             linux-x86_64-system-deps,
+            linux-x86_64-qt6-system-deps,
             macos-x86_64,
             windows-x86_64,
             tarball
@@ -39,6 +40,12 @@ jobs:
             system-deps: true
             cc-override: '/usr/bin/gcc-7'
             cxx-override: '/usr/bin/g++-7'
+          - name: linux-x86_64-qt6-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 22.04 using sytem libraries
+            os: ubuntu-22.04
+            python-version: 3.10.x
+            system-deps: true
+            cc-override: '/usr/bin/gcc-12'
+            cxx-override: '/usr/bin/g++-12'
           - name: linux-x86_64
             os: ubuntu-18.04
             python-version: 3.7.x
@@ -69,15 +76,20 @@ jobs:
       if: contains(matrix.os, 'ubuntu')
       run: |
         sudo apt-get update
-        sudo apt-get install libgraphviz-dev mesa-common-dev libxkbcommon-x11-dev libclang-8-dev llvm-8 ninja-build
-        if [[ "${{ matrix.os }}" = "ubuntu-18.04" ]]
+        sudo apt-get install libgraphviz-dev mesa-common-dev libxkbcommon-x11-dev ninja-build
+        if [[ "${{ matrix.os }}" = "ubuntu-18.04" || "${{ matrix.os }}" = "ubuntu-20.04" ]]
         then
           # install additional packages needed for appimage
-          sudo apt-get install libxcb1-dev libxkbcommon-dev libxcb-*-dev libegl1
+          sudo apt-get install libxcb1-dev libxkbcommon-dev libxcb-*-dev libegl1 libclang-8-dev llvm-8
         fi
-        if [[ "${{ matrix.system-deps }}" = "true" ]]
+        if [[ "${{ matrix.os }}" = "ubuntu-18.04" && "${{ matrix.system-deps }}" = "true" ]]
         then
           sudo apt-get install qt5-default libqt5svg5-dev qttools5-dev qttools5-dev-tools
+        fi
+        if [[ "${{ matrix.os }}" = "ubuntu-22.04" ]]
+        then
+          sudo apt-get install libclang-12-dev llvm-12 qt6-base-dev qt6-tools-dev \
+            qt6-tools-dev-tools libqt6svg6-dev libqt6core5compat6-dev libqt6svgwidgets6 qt6-l10n-tools
         fi
     - uses: actions/setup-python@v4
       with:
@@ -145,6 +157,14 @@ jobs:
             -DCUTTER_PACKAGE_RZ_LIBYARA=ON \
             -DCMAKE_INSTALL_PREFIX=appdir/usr \
             -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
+            ..
+        elif [[ "${{ matrix.os }}" = "ubuntu-22.04" ]]
+        then
+          cmake \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCUTTER_QT6=ON \
+            -DCUTTER_USE_BUNDLED_RIZIN=ON \
             ..
         else
           cmake \
