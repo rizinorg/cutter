@@ -119,8 +119,9 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
 
     p.setPen(palette().color(QPalette::WindowText));
     // Render node text
+    QFontMetrics fm = QFontMetrics(p.font());
     auto x = block.x + padding / 2;
-    int y = block.y + padding / 2 + p.fontMetrics().ascent();
+    int y = block.y + padding / 2 + fm.ascent();
     p.drawText(QPoint(x, y), content.text);
 }
 
