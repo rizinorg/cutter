@@ -47,15 +47,15 @@ execute_process(COMMAND git log --pretty=format:'%h' -n 1
 # Check whether we got any revision (which isn't
 # always the case, e.g. when someone downloaded a zip file
 if ("${GIT_REV}" STREQUAL "")
-	set(CUTTER_VERSION_FULL "${CUTTER_VERSION}")
+    set(CUTTER_VERSION_FULL "${CUTTER_VERSION}")
 else()
     execute_process(
         COMMAND git rev-parse --abbrev-ref HEAD
         OUTPUT_VARIABLE GIT_BRANCH)
-	string(STRIP "${GIT_REV}" GIT_REV)
-	string(SUBSTRING "${GIT_REV}" 0 7 GIT_REV)
-	string(STRIP "${GIT_BRANCH}" GIT_BRANCH)
-	set(CUTTER_VERSION_FULL "${CUTTER_VERSION}-${GIT_BRANCH}-${GIT_REV}")
+    string(STRIP "${GIT_REV}" GIT_REV)
+    string(SUBSTRING "${GIT_REV}" 0 7 GIT_REV)
+    string(STRIP "${GIT_BRANCH}" GIT_BRANCH)
+    set(CUTTER_VERSION_FULL "${CUTTER_VERSION}-${GIT_BRANCH}-${GIT_REV}")
 endif()
 
 project(Cutter VERSION "${CUTTER_VERSION}")
