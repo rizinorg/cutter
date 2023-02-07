@@ -48,8 +48,9 @@ void ColorOptionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 
     ColorOption currCO = index.data(Qt::UserRole).value<ColorOption>();
 
+    QFontMetrics fm = QFontMetrics(painter->font());
     int penWidth = painter->pen().width();
-    int fontHeight = painter->fontMetrics().height();
+    int fontHeight = fm.height();
     QPoint tl = option.rect.topLeft();
 
     QRect optionNameRect;
@@ -126,9 +127,9 @@ void ColorOptionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 
     painter->setPen(qApp->palette().text().color());
 
-    QString name =
-            painter->fontMetrics().elidedText(optionInfoMap__[currCO.optionName].displayingtext,
-                                              Qt::ElideRight, optionNameRect.width());
+    QFontMetrics fm2 = QFontMetrics(painter->font());
+    QString name = fm2.elidedText(optionInfoMap__[currCO.optionName].displayingtext,
+            Qt::ElideRight, optionNameRect.width());
     painter->drawText(optionNameRect, name);
 
     QPainterPath roundedOptionRect;
@@ -155,7 +156,8 @@ void ColorOptionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     painter->setPen(currCO.color);
     painter->fillPath(roundedColorRect, currCO.color);
 
-    QString desc = painter->fontMetrics().elidedText(
+    QFontMetrics fm3 = QFontMetrics(painter->font());
+    QString desc = fm3.elidedText(
             currCO.optionName + ": " + optionInfoMap__[currCO.optionName].info, Qt::ElideRight,
             descTextRect.width());
     painter->setPen(qApp->palette().text().color());
@@ -197,7 +199,8 @@ QPixmap ColorOptionDelegate::getPixmapFromSvg(const QString &fileName, const QCo
     data.replace(QRegularExpression("#[0-9a-fA-F]{6}"), QString("%1").arg(after.name()));
 
     QSvgRenderer svgRenderer(data.toUtf8());
-    QPixmap pix(QSize(qApp->fontMetrics().height(), qApp->fontMetrics().height()));
+    QFontMetrics fm = QFontMetrics(qApp->font());
+    QPixmap pix(QSize(fm.height(), fm.height()));
     pix.fill(Qt::transparent);
 
     QPainter pixPainter(&pix);

@@ -1114,7 +1114,7 @@ void MainWindow::initBackForwardMenu()
         connect(button, &QWidget::customContextMenuRequested, button,
                 [menu, button](const QPoint &pos) { menu->exec(button->mapToGlobal(pos)); });
 
-        QFontMetrics metrics(fontMetrics());
+        QFontMetrics metrics(font());
         // Roughly 10-16 lines depending on padding size, no need to calculate more precisely
         menu->setMaximumHeight(metrics.lineSpacing() * 20);
 
