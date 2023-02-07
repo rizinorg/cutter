@@ -38,9 +38,27 @@ set(CUTTER_VERSION_MAJOR 2)
 set(CUTTER_VERSION_MINOR 1)
 set(CUTTER_VERSION_PATCH 2)
 
-set(CUTTER_VERSION_FULL "${CUTTER_VERSION_MAJOR}.${CUTTER_VERSION_MINOR}.${CUTTER_VERSION_PATCH}")
+set(CUTTER_VERSION "${CUTTER_VERSION_MAJOR}.${CUTTER_VERSION_MINOR}.${CUTTER_VERSION_PATCH}")
 
-project(Cutter VERSION "${CUTTER_VERSION_FULL}")
+execute_process(COMMAND git log --pretty=format:'%h' -n 1
+                OUTPUT_VARIABLE GIT_REV
+                ERROR_QUIET)
+
+# Check whether we got any revision (which isn't
+# always the case, e.g. when someone downloaded a zip file
+if ("${GIT_REV}" STREQUAL "")
+	set(CUTTER_VERSION_FULL "${CUTTER_VERSION}")
+else()
+    execute_process(
+        COMMAND git rev-parse --abbrev-ref HEAD
+        OUTPUT_VARIABLE GIT_BRANCH)
+	string(STRIP "${GIT_REV}" GIT_REV)
+	string(SUBSTRING "${GIT_REV}" 0 7 GIT_REV)
+	string(STRIP "${GIT_BRANCH}" GIT_BRANCH)
+	set(CUTTER_VERSION_FULL "${CUTTER_VERSION}-${GIT_BRANCH}-${GIT_REV}")
+endif()
+
+project(Cutter VERSION "${CUTTER_VERSION}")
 
 # Enable solution folder support
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
