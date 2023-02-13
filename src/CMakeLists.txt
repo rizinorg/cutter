@@ -386,6 +386,8 @@ set(QRC_FILES
     themes/lightstyle/light.qrc
 )
 
+set(CUTTER_INCLUDE_DIRECTORIES core widgets common plugins menus .)
+
 if (CUTTER_ENABLE_PYTHON)
     list(APPEND SOURCES common/QtResImporter.cpp common/PythonManager.cpp common/PythonAPI.cpp)
     list(APPEND HEADER_FILES common/QtResImporter.h common/PythonManager.h common/PythonAPI.h)
@@ -403,7 +405,33 @@ if(CUTTER_ENABLE_PYTHON_BINDINGS)
 
     include_directories("${BINDINGS_BUILD_DIR}/CutterBindings")
 
+    set(SHIBOKEN_INCLUDE_DIRS "")
+    if(APPLE AND _qt6Core_install_prefix)
+        list(APPEND BINDINGS_INCLUDE_DIRS "${_qt6Core_install_prefix}/include")
+        list(APPEND BINDINGS_INCLUDE_DIRS "${_qt6Core_install_prefix}/include/QtCore")
+        list(APPEND BINDINGS_INCLUDE_DIRS "${_qt6Core_install_prefix}/include/QtGui")
+        list(APPEND BINDINGS_INCLUDE_DIRS "${_qt6Core_install_prefix}/include/QtWidgets")
+    endif()
+
+    if (CUTTER_QT6)
+        list(APPEND SHIBOKEN_INCLUDE_DIRS ${Qt6Core_INCLUDE_DIRS} ${Qt6Widgets_INCLUDE_DIRS} ${Qt6Gui_INCLUDE_DIRS})
+    else()
+        list(APPEND SHIBOKEN_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS})
+    endif()
+
+    foreach(_dir ${CUTTER_INCLUDE_DIRECTORIES})
+        list(APPEND SHIBOKEN_INCLUDE_DIRS
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${_dir}>
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/cutter/${_dir}>
+        )
+    endforeach()
+    list(APPEND SHIBOKEN_INCLUDE_DIRS ${Rizin_INCLUDE_DIRS})
+    if (NOT WIN32)
+        string(REPLACE ";" ":" SHIBOKEN_INCLUDE_DIRS "${SHIBOKEN_INCLUDE_DIRS}")
+    endif()
+
     set(SHIBOKEN_OPTIONS)
+    list(APPEND SHIBOKEN_OPTIONS --include-paths="${SHIBOKEN_INCLUDE_DIRS}")
     if (WIN32)
         list(APPEND SHIBOKEN_OPTIONS --avoid-protected-hack)
     endif()
@@ -458,7 +486,6 @@ target_compile_definitions(Cutter PRIVATE CUTTER_SOURCE_BUILD)
 # Set Cutter as the startup project in Visual Studio
 set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Cutter)
 
-set(CUTTER_INCLUDE_DIRECTORIES core widgets common plugins menus .)
 foreach(_dir ${CUTTER_INCLUDE_DIRECTORIES})
     target_include_directories(Cutter PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${_dir}>
@@ -519,7 +546,11 @@ if(CUTTER_ENABLE_PYTHON)
             list(APPEND BINDINGS_INCLUDE_DIRS "${_qt5Core_install_prefix}/include/QtGui")
             list(APPEND BINDINGS_INCLUDE_DIRS "${_qt5Core_install_prefix}/include/QtWidgets")
         endif()
-        list(APPEND BINDINGS_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS})
+        if (CUTTER_QT6)
+            list(APPEND BINDINGS_INCLUDE_DIRS ${Qt6Core_INCLUDE_DIRS} ${Qt6Widgets_INCLUDE_DIRS} ${Qt6Gui_INCLUDE_DIRS})
+        else()
+            list(APPEND BINDINGS_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS})
+        endif()
         list(APPEND BINDINGS_INCLUDE_DIRS ${Rizin_INCLUDE_DIRS})
         list(APPEND BINDINGS_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}")
         if (NOT WIN32)
