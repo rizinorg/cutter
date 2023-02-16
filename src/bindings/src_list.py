@@ -9,7 +9,7 @@ script_path = os.path.dirname(os.path.realpath(__file__))
 
 
 def get_cpp_files_gen(args, include_package=True):
-    ts_tree = et.parse(os.path.join(script_path, "bindings.xml"))
+    ts_tree = et.parse(os.path.join(script_path, "bindings.xml.in"))
     ts_root = ts_tree.getroot()
 
     package = ts_root.attrib["package"]

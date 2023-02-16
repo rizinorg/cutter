@@ -3,7 +3,7 @@
 generator-set = shiboken
 
 header-file = ${BINDINGS_SRC_DIR}/bindings.h
-typesystem-file = ${BINDINGS_SRC_DIR}/bindings.xml
+typesystem-file = ${BINDINGS_BUILD_DIR}/bindings.xml
 
 output-directory = ${BINDINGS_BUILD_DIR}
 

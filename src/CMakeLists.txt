@@ -394,10 +394,18 @@ if (CUTTER_ENABLE_PYTHON)
 endif()
 
 if(CUTTER_ENABLE_PYTHON_BINDINGS)
+    if (CUTTER_QT6)
+        set(PYSIDE_NAME PySide6)
+        set(SHIBOKEN_COMMAND Shiboken6::shiboken6)
+    else()
+        set(PYSIDE_NAME PySide2)
+        set(SHIBOKEN_COMMAND Shiboken2::shiboken2)
+    endif()
+
     set(BINDINGS_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bindings")
     set(BINDINGS_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/bindings")
 
-    configure_file("${BINDINGS_SRC_DIR}/bindings.xml" "${BINDINGS_BUILD_DIR}/bindings.xml" COPYONLY) # trigger reconfigure if file changes
+    configure_file("${BINDINGS_SRC_DIR}/bindings.xml.in" "${BINDINGS_BUILD_DIR}/bindings.xml")
 
     execute_process(COMMAND "${PYTHON_EXECUTABLE}" "${BINDINGS_SRC_DIR}/src_list.py" cmake "${BINDINGS_BUILD_DIR}" OUTPUT_VARIABLE BINDINGS_SOURCE)
 
@@ -436,15 +444,9 @@ if(CUTTER_ENABLE_PYTHON_BINDINGS)
         list(APPEND SHIBOKEN_OPTIONS --avoid-protected-hack)
     endif()
 
-    if (CUTTER_QT6)
-        set(SHIBOKEN_COMMAND Shiboken6::shiboken6)
-    else()
-        set(SHIBOKEN_COMMAND Shiboken2::shiboken2)
-    endif()
-
     add_custom_command(OUTPUT ${BINDINGS_SOURCE}
             COMMAND "${SHIBOKEN_COMMAND}" --project-file="${BINDINGS_BUILD_DIR}/bindings.txt" ${SHIBOKEN_OPTIONS} ${SHIBOKEN_EXTRA_OPTIONS}
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.xml" "${BINDINGS_BUILD_DIR}/bindings.txt"
+            DEPENDS "${BINDINGS_BUILD_DIR}/bindings.xml" "${BINDINGS_BUILD_DIR}/bindings.txt"
             IMPLICIT_DEPENDS CXX "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.h"
             COMMENT "Generating Python bindings with shiboken2")
 else()

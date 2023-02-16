@@ -110,9 +110,13 @@ if(CUTTER_ENABLE_PYTHON)
             find_package(Shiboken6 "${Shiboken6_VERSION_REQUIRED}" REQUIRED)
             find_package(Shiboken6Tools "${Shiboken6_VERSION_REQUIRED}" REQUIRED)
             find_package(PySide6 "${Shiboken6_VERSION_REQUIRED}" REQUIRED)
+            get_target_property(LIBSHIBOKEN_INCLUDE_DIRS Shiboken6::libshiboken INTERFACE_INCLUDE_DIRECTORIES)
             get_target_property(PYSIDE_INCLUDE_DIR PySide6::pyside6 INTERFACE_INCLUDE_DIRECTORIES)
             # Check the presence of "pysidecleanup.h"
+            include(CheckIncludeFileCXX)
+            set(CMAKE_REQUIRED_INCLUDES "${PYSIDE_INCLUDE_DIR};${LIBSHIBOKEN_INCLUDE_DIRS}")
             CHECK_INCLUDE_FILE_CXX("pysidecleanup.h" HAVE_PYSIDECLEANUP)
+            add_compile_definitions("HAVE_PYSIDECLEANUP=${HAVE_PYSIDECLEANUP}")
         else()
             # 5.12.3 => 5.12
             if("${Qt5_VERSION}" MATCHES "^([0-9]+\\.[0-9]+)\\.[0-9]+")
