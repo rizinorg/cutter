@@ -111,6 +111,8 @@ if(CUTTER_ENABLE_PYTHON)
             find_package(Shiboken6Tools "${Shiboken6_VERSION_REQUIRED}" REQUIRED)
             find_package(PySide6 "${Shiboken6_VERSION_REQUIRED}" REQUIRED)
             get_target_property(PYSIDE_INCLUDE_DIR PySide6::pyside6 INTERFACE_INCLUDE_DIRECTORIES)
+            # Check the presence of "pysidecleanup.h"
+            CHECK_INCLUDE_FILE_CXX("pysidecleanup.h" HAVE_PYSIDECLEANUP)
         else()
             # 5.12.3 => 5.12
             if("${Qt5_VERSION}" MATCHES "^([0-9]+\\.[0-9]+)\\.[0-9]+")
