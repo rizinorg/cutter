@@ -30,7 +30,7 @@
         PyErr_Print();
         return QString();
         }
-        PythonToCppFunc pythonToCpp = Shiboken::Conversions::isPythonToCppConvertible(SbkPySide2_QtCoreTypeConverters[SBK_QSTRING_IDX], pyResult);
+        PythonToCppFunc pythonToCpp = Shiboken::Conversions::isPythonToCppConvertible(Sbk${PYSIDE_NAME}_QtCoreTypeConverters[SBK_QSTRING_IDX], pyResult);
         if (!pythonToCpp) {
         Shiboken::warning(PyExc_RuntimeWarning, 2, "Invalid return value for plugin metadata VAR_NAME, expected %s, got %s.", "QString", Py_TYPE(pyResult)->tp_name);
         return ::QString();
