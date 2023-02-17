@@ -111,10 +111,10 @@ if(CUTTER_ENABLE_PYTHON)
             find_package(Shiboken6Tools "${Shiboken6_VERSION_REQUIRED}" REQUIRED)
             find_package(PySide6 "${Shiboken6_VERSION_REQUIRED}" REQUIRED)
             get_target_property(LIBSHIBOKEN_INCLUDE_DIRS Shiboken6::libshiboken INTERFACE_INCLUDE_DIRECTORIES)
-            get_target_property(PYSIDE_INCLUDE_DIR PySide6::pyside6 INTERFACE_INCLUDE_DIRECTORIES)
+            get_target_property(PYSIDE_INCLUDE_DIRS PySide6::pyside6 INTERFACE_INCLUDE_DIRECTORIES)
             # Check the presence of "pysidecleanup.h"
             include(CheckIncludeFileCXX)
-            set(CMAKE_REQUIRED_INCLUDES "${PYSIDE_INCLUDE_DIR};${LIBSHIBOKEN_INCLUDE_DIRS}")
+            set(CMAKE_REQUIRED_INCLUDES "${PYSIDE_INCLUDE_DIRS};${LIBSHIBOKEN_INCLUDE_DIRS}")
             CHECK_INCLUDE_FILE_CXX("pysidecleanup.h" HAVE_PYSIDECLEANUP)
             add_compile_definitions("HAVE_PYSIDECLEANUP=${HAVE_PYSIDECLEANUP}")
         else()
@@ -126,14 +126,15 @@ if(CUTTER_ENABLE_PYTHON)
             endif()
             find_package(Shiboken2 "${Shiboken2_VERSION_REQUIRED}" REQUIRED)
             find_package(PySide2 "${Shiboken2_VERSION_REQUIRED}" REQUIRED)
-            get_target_property(PYSIDE_INCLUDE_DIR PySide2::pyside2 INTERFACE_INCLUDE_DIRECTORIES)
+            get_target_property(PYSIDE_INCLUDE_DIRS PySide2::pyside2 INTERFACE_INCLUDE_DIRECTORIES)
         endif()
 
-        list(GET PYSIDE_INCLUDE_DIR 0 PYSIDE_INCLUDE_DIR)
-        include_directories(${PYSIDE_INCLUDE_DIR}
-            ${PYSIDE_INCLUDE_DIR}/QtCore
-            ${PYSIDE_INCLUDE_DIR}/QtGui
-            ${PYSIDE_INCLUDE_DIR}/QtWidgets)
+        foreach(_dir IN LISTS PYSIDE_INCLUDE_DIRS)
+            include_directories(${_dir}
+                ${_dir}/QtCore
+                ${_dir}/QtGui
+                ${_dir}/QtWidgets)
+        endforeach()
 
         add_definitions(-DCUTTER_ENABLE_PYTHON_BINDINGS)
     endif()
