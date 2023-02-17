@@ -1,23 +1,15 @@
-set(TS_FILES
-    translations/ar/cutter_ar.ts
-    translations/ca/cutter_ca.ts
-    translations/de/cutter_de.ts
-    translations/es-ES/cutter_es.ts
-    translations/fa/cutter_fa.ts
-    translations/fr/cutter_fr.ts
-    translations/he/cutter_he.ts
-    translations/hi/cutter_hi.ts
-    translations/it/cutter_it.ts
-    translations/ja/cutter_ja.ts
-    translations/nl/cutter_nl.ts
-    translations/pt-PT/cutter_pt.ts
-    translations/ro/cutter_ro.ts
-    translations/ru/cutter_ru.ts
-    translations/tr/cutter_tr.ts
-    translations/zh-CN/cutter_zh.ts
+file(GLOB TS_FILES
+    LIST_DIRECTORIES false
+    CONFIGURE_DEPENDS
+    "translations/*/cutter_*.ts"
 )
-# translations/ko/cutter_ko.ts problems with fonts
-# translations/pt-BR/cutter_pt.ts #2321 handling multiple versions of a language
+
+list(REMOVE_ITEM TS_FILES
+    # problems with fonts
+    translations/ko/cutter_ko.ts
+    # #2321 handling multiple versions of a language
+    translations/pt-BR/cutter_pt.ts
+)
 
 set_source_files_properties(${TS_FILES} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translations)
 if (CUTTER_QT6)
