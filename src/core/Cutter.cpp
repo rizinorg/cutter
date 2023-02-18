@@ -475,8 +475,8 @@ QString CutterCore::cmdRaw(const char *cmd)
     CORE_LOCK();
     rz_cons_push();
 
-    // rz_cmd_call does not return the output of the command
-    rz_cmd_call(core->rcmd, cmd);
+    // rz_core_cmd does not return the output of the command
+    rz_core_cmd(core, cmd, 0);
 
     // we grab the output straight from rz_cons
     res = rz_cons_get_buffer();
@@ -4494,7 +4494,6 @@ QByteArray CutterCore::ioRead(RVA addr, int len)
     /* Zero-copy */
     array.resize(len);
     if (!rz_io_read_at(core->io, addr, (uint8_t *)array.data(), len)) {
-        qWarning() << "Can't read data" << addr << len;
         array.fill(0xff);
     }
 
