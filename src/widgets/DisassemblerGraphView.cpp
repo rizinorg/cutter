@@ -194,6 +194,7 @@ void DisassemblerGraphView::loadCurrentGraph()
 
     windowTitle = tr("Graph");
     if (fcn && RZ_STR_ISNOTEMPTY(fcn->name)) {
+        currentFcnAddr = fcn->addr;
         auto fcnName = fromOwned(rz_str_escape_utf8_for_json(fcn->name, -1));
         windowTitle += QString("(%0)").arg(fcnName.get());
     } else {
@@ -891,6 +892,11 @@ void DisassemblerGraphView::contextMenuEvent(QContextMenuEvent *event)
 
 void DisassemblerGraphView::showExportDialog()
 {
+    if (currentFcnAddr == RVA_INVALID) {
+        qWarning() << "Cannot find current function.";
+        return;
+    }
+
     QString defaultName = "graph";
     if (auto f = Core()->functionIn(currentFcnAddr)) {
         QString functionName = f->name;
@@ -901,7 +907,7 @@ void DisassemblerGraphView::showExportDialog()
             defaultName = functionName;
         }
     }
-    showExportGraphDialog(defaultName, "agf", currentFcnAddr);
+    showExportGraphDialog(defaultName, RZ_CORE_GRAPH_TYPE_BLOCK_FUN, currentFcnAddr);
 }
 
 void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event,
