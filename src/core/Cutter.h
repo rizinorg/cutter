@@ -720,6 +720,25 @@ public:
      */
     bool isWriteModeEnabled();
 
+    /**
+     * @brief   Returns the textual version of global or specific graph.
+     * @param   type     Graph type, example RZ_CORE_GRAPH_TYPE_FUNCALL or RZ_CORE_GRAPH_TYPE_IMPORT
+     * @param   format   Graph format, example RZ_CORE_GRAPH_FORMAT_DOT or RZ_CORE_GRAPH_FORMAT_GML
+     * @param   address  The object address (if global set it to RVA_INVALID)
+     * @return  The textual graph string.
+     */
+    char *getTextualGraphAt(RzCoreGraphType type, RzCoreGraphFormat format, RVA address);
+
+    /**
+     * @brief   Writes a graphviz graph to a file.
+     * @param   path     The file output path
+     * @param   format   The output format (see graph.gv.format)
+     * @param   type     The graph type, example RZ_CORE_GRAPH_TYPE_FUNCALL or
+     * RZ_CORE_GRAPH_TYPE_IMPORT
+     * @param   address  The object address (if global set it to RVA_INVALID)
+     */
+    void writeGraphvizGraphToFile(QString path, QString format, RzCoreGraphType type, RVA address);
+
 signals:
     void refreshAll();
 

@@ -7,7 +7,9 @@
 #include <QJsonObject>
 
 CallGraphWidget::CallGraphWidget(MainWindow *main, bool global)
-    : MemoryDockWidget(MemoryWidgetType::CallGraph, main), graphView(new CallGraphView(this, main, global)), global(global)
+    : MemoryDockWidget(MemoryWidgetType::CallGraph, main),
+      graphView(new CallGraphView(this, main, global)),
+      global(global)
 {
     setObjectName(main ? main->getUniqueObjectName(getWidgetType()) : getWidgetType());
     this->setWindowTitle(getWindowTitle());
@@ -53,7 +55,7 @@ void CallGraphView::showExportDialog()
     } else {
         defaultName = QString("callgraph_%1").arg(RzAddressString(address));
     }
-    showExportGraphDialog(defaultName, global ? "agC" : "agc", address);
+    showExportGraphDialog(defaultName, RZ_CORE_GRAPH_TYPE_FUNCALL, global ? RVA_INVALID : address);
 }
 
 void CallGraphView::showAddress(RVA address)
@@ -79,7 +81,6 @@ static inline bool isBetween(ut64 a, ut64 x, ut64 b)
 {
     return (a == UT64_MAX || a <= x) && (b == UT64_MAX || x <= b);
 }
-
 
 void CallGraphView::loadCurrentGraph()
 {

@@ -152,7 +152,7 @@ void CutterGraphView::zoomReset()
 
 void CutterGraphView::showExportDialog()
 {
-    showExportGraphDialog("graph", "", RVA_INVALID);
+    showExportGraphDialog("global_funcall", RZ_CORE_GRAPH_TYPE_FUNCALL, RVA_INVALID);
 }
 
 void CutterGraphView::updateColors()
@@ -318,12 +318,12 @@ void CutterGraphView::mouseMoveEvent(QMouseEvent *event)
     emit graphMoved();
 }
 
-void CutterGraphView::exportGraph(QString filePath, GraphExportType type, QString graphCommand,
-                                  RVA address)
+void CutterGraphView::exportGraph(QString filePath, GraphExportType exportType,
+                                  RzCoreGraphType graphType, RVA address)
 {
     bool graphTransparent = Config()->getBitmapTransparentState();
     double graphScaleFactor = Config()->getBitmapExportScaleFactor();
-    switch (type) {
+    switch (exportType) {
     case GraphExportType::Png:
         this->saveAsBitmap(filePath, "png", graphScaleFactor, graphTransparent);
         break;
@@ -335,56 +335,55 @@ void CutterGraphView::exportGraph(QString filePath, GraphExportType type, QStrin
         break;
 
     case GraphExportType::GVDot:
-        exportRzTextGraph(filePath, graphCommand + "d", address);
+        exportRzTextGraph(filePath, graphType, RZ_CORE_GRAPH_FORMAT_DOT, address);
         break;
     case GraphExportType::RzJson:
-        exportRzTextGraph(filePath, graphCommand + "j", address);
+        exportRzTextGraph(filePath, graphType, RZ_CORE_GRAPH_FORMAT_JSON, address);
         break;
     case GraphExportType::RzGml:
-        exportRzTextGraph(filePath, graphCommand + "g", address);
-        break;
-    case GraphExportType::RzSDBKeyValue:
-        exportRzTextGraph(filePath, graphCommand + "k", address);
+        exportRzTextGraph(filePath, graphType, RZ_CORE_GRAPH_FORMAT_GML, address);
         break;
 
     case GraphExportType::GVJson:
-        exportRizinGraphvizGraph(filePath, "json", graphCommand, address);
+        Core()->writeGraphvizGraphToFile(filePath, "json", graphType, address);
         break;
     case GraphExportType::GVGif:
-        exportRizinGraphvizGraph(filePath, "gif", graphCommand, address);
+        Core()->writeGraphvizGraphToFile(filePath, "gif", graphType, address);
         break;
     case GraphExportType::GVPng:
-        exportRizinGraphvizGraph(filePath, "png", graphCommand, address);
+        Core()->writeGraphvizGraphToFile(filePath, "png", graphType, address);
         break;
     case GraphExportType::GVJpeg:
-        exportRizinGraphvizGraph(filePath, "jpg", graphCommand, address);
+        Core()->writeGraphvizGraphToFile(filePath, "jpg", graphType, address);
         break;
     case GraphExportType::GVPostScript:
-        exportRizinGraphvizGraph(filePath, "ps", graphCommand, address);
+        Core()->writeGraphvizGraphToFile(filePath, "ps", graphType, address);
         break;
     case GraphExportType::GVSvg:
-        exportRizinGraphvizGraph(filePath, "svg", graphCommand, address);
+        Core()->writeGraphvizGraphToFile(filePath, "svg", graphType, address);
+        break;
+    case GraphExportType::GVPdf:
+        Core()->writeGraphvizGraphToFile(filePath, "pdf", graphType, address);
         break;
     }
 }
 
-void CutterGraphView::exportRizinGraphvizGraph(QString filePath, QString type, QString graphCommand,
-                                               RVA address)
+void CutterGraphView::exportRzTextGraph(QString filePath, RzCoreGraphType type,
+                                        RzCoreGraphFormat format, RVA address)
 {
-    TempConfig tempConfig;
-    tempConfig.set("graph.gv.format", type);
-    qWarning() << Core()->cmdRawAt(QString("%0w \"%1\"").arg(graphCommand).arg(filePath), address);
-}
-
-void CutterGraphView::exportRzTextGraph(QString filePath, QString graphCommand, RVA address)
-{
-    QFile file(filePath);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qWarning() << "Can't open file";
+    char *string = Core()->getTextualGraphAt(type, format, address);
+    if (!string) {
         return;
     }
-    QTextStream fileOut(&file);
-    fileOut << Core()->cmdRawAt(QString("%0").arg(graphCommand), address);
+
+    QFile file(filePath);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream fileOut(&file);
+        fileOut << string;
+    } else {
+        qWarning() << "Can't open or create file: " << filePath;
+    }
+    free(string);
 }
 
 bool CutterGraphView::graphIsBitamp(CutterGraphView::GraphExportType type)
@@ -403,40 +402,39 @@ bool CutterGraphView::graphIsBitamp(CutterGraphView::GraphExportType type)
 
 Q_DECLARE_METATYPE(CutterGraphView::GraphExportType);
 
-void CutterGraphView::showExportGraphDialog(QString defaultName, QString graphCommand, RVA address)
+void CutterGraphView::showExportGraphDialog(QString defaultName, RzCoreGraphType type, RVA address)
 {
+    qWarning() << defaultName << " - " << type << " addr " << RzAddressString(address);
     QVector<MultitypeFileSaveDialog::TypeDescription> types = {
         { tr("PNG (*.png)"), "png", QVariant::fromValue(GraphExportType::Png) },
         { tr("JPEG (*.jpg)"), "jpg", QVariant::fromValue(GraphExportType::Jpeg) },
         { tr("SVG (*.svg)"), "svg", QVariant::fromValue(GraphExportType::Svg) }
     };
 
-    bool rzGraphExports = !graphCommand.isEmpty();
-    if (rzGraphExports) {
-        types.append({
-                { tr("Graphviz dot (*.dot)"), "dot", QVariant::fromValue(GraphExportType::GVDot) },
-                { tr("Graph Modelling Language (*.gml)"), "gml",
-                  QVariant::fromValue(GraphExportType::RzGml) },
-                { tr("RZ JSON (*.json)"), "json", QVariant::fromValue(GraphExportType::RzJson) },
-                { tr("SDB key-value (*.txt)"), "txt",
-                  QVariant::fromValue(GraphExportType::RzSDBKeyValue) },
-        });
-        bool hasGraphviz = !QStandardPaths::findExecutable("dot").isEmpty()
-                || !QStandardPaths::findExecutable("xdot").isEmpty();
-        if (hasGraphviz) {
-            types.append({ { tr("Graphviz json (*.json)"), "json",
-                             QVariant::fromValue(GraphExportType::GVJson) },
-                           { tr("Graphviz gif (*.gif)"), "gif",
-                             QVariant::fromValue(GraphExportType::GVGif) },
-                           { tr("Graphviz png (*.png)"), "png",
-                             QVariant::fromValue(GraphExportType::GVPng) },
-                           { tr("Graphviz jpg (*.jpg)"), "jpg",
-                             QVariant::fromValue(GraphExportType::GVJpeg) },
-                           { tr("Graphviz PostScript (*.ps)"), "ps",
-                             QVariant::fromValue(GraphExportType::GVPostScript) },
-                           { tr("Graphviz svg (*.svg)"), "svg",
-                             QVariant::fromValue(GraphExportType::GVSvg) } });
-        }
+    types.append({
+            { tr("Graphviz dot (*.dot)"), "dot", QVariant::fromValue(GraphExportType::GVDot) },
+            { tr("Graph Modelling Language (*.gml)"), "gml",
+              QVariant::fromValue(GraphExportType::RzGml) },
+            { tr("RZ JSON (*.json)"), "json", QVariant::fromValue(GraphExportType::RzJson) },
+    });
+
+    bool hasGraphviz = !QStandardPaths::findExecutable("dot").isEmpty()
+            || !QStandardPaths::findExecutable("xdot").isEmpty();
+    if (hasGraphviz) {
+        types.append({ { tr("Graphviz json (*.json)"), "json",
+                         QVariant::fromValue(GraphExportType::GVJson) },
+                       { tr("Graphviz gif (*.gif)"), "gif",
+                         QVariant::fromValue(GraphExportType::GVGif) },
+                       { tr("Graphviz png (*.png)"), "png",
+                         QVariant::fromValue(GraphExportType::GVPng) },
+                       { tr("Graphviz jpg (*.jpg)"), "jpg",
+                         QVariant::fromValue(GraphExportType::GVJpeg) },
+                       { tr("Graphviz PostScript (*.ps)"), "ps",
+                         QVariant::fromValue(GraphExportType::GVPostScript) },
+                       { tr("Graphviz svg (*.svg)"), "svg",
+                         QVariant::fromValue(GraphExportType::GVSvg) },
+                       { tr("Graphviz pdf (*.pdf)"), "pdf",
+                         QVariant::fromValue(GraphExportType::GVPdf) } });
     }
 
     MultitypeFileSaveDialog dialog(this, tr("Export Graph"));
@@ -470,5 +468,5 @@ void CutterGraphView::showExportGraphDialog(QString defaultName, QString graphCo
     }
 
     QString filePath = dialog.selectedFiles().first();
-    exportGraph(filePath, exportType, graphCommand, address);
+    exportGraph(filePath, exportType, type, address);
 }

@@ -4515,3 +4515,68 @@ QStringList CutterCore::getConfigVariableSpaces(const QString &key)
     rz_list_free(list);
     return stringList;
 }
+
+char *CutterCore::getTextualGraphAt(RzCoreGraphType type, RzCoreGraphFormat format, RVA address)
+{
+    CORE_LOCK();
+    char *string = nullptr;
+    RzGraph *graph = rz_core_graph(core, type, address);
+    if (!graph) {
+        if (address == RVA_INVALID) {
+            qWarning() << "Cannot get global graph";
+        } else {
+            qWarning() << "Cannot get graph at " << RzAddressString(address);
+        }
+        return nullptr;
+    }
+    core->graph->is_callgraph = type == RZ_CORE_GRAPH_TYPE_FUNCALL;
+
+    switch (format) {
+    case RZ_CORE_GRAPH_FORMAT_CMD: {
+        string = rz_graph_drawable_to_cmd(graph);
+        break;
+    }
+    case RZ_CORE_GRAPH_FORMAT_DOT: {
+        string = rz_core_graph_to_dot_str(core, graph);
+        break;
+    }
+    case RZ_CORE_GRAPH_FORMAT_JSON:
+        /* fall-thru */
+    case RZ_CORE_GRAPH_FORMAT_JSON_DISASM: {
+        string = rz_graph_drawable_to_json_str(graph, true);
+        break;
+    }
+    case RZ_CORE_GRAPH_FORMAT_GML: {
+        string = rz_graph_drawable_to_gml(graph);
+        break;
+    }
+    default:
+        break;
+    }
+    rz_graph_free(graph);
+
+    if (!string) {
+        qWarning() << "Failed to generate graph";
+    }
+
+    return string;
+}
+
+void CutterCore::writeGraphvizGraphToFile(QString path, QString format, RzCoreGraphType type,
+                                          RVA address)
+{
+    TempConfig tempConfig;
+    tempConfig.set("scr.color", false);
+    tempConfig.set("graph.gv.format", format);
+
+    CORE_LOCK();
+    auto filepath = path.toUtf8();
+
+    if (!rz_core_graph_write(core, address, type, filepath)) {
+        if (address == RVA_INVALID) {
+            qWarning() << "Cannot get global graph";
+        } else {
+            qWarning() << "Cannot get graph at " << RzAddressString(address);
+        }
+    }
+}
