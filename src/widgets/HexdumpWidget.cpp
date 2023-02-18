@@ -240,7 +240,7 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
 
         ui->hexDisasTextEdit->setPlainText(
                 selectedCommand != "" ? Core()->cmdRawAt(
-                        QString("%1 %2").arg(selectedCommand).arg(size), start_address)
+                        QString("%1 @! %2").arg(selectedCommand).arg(size), start_address)
                                       : "");
     } else {
         // Fill the information tab hashes and entropy
