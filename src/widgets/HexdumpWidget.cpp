@@ -144,7 +144,6 @@ void HexdumpWidget::initParsing()
     ui->parseTypeComboBox->addItem(tr("String"), "pcs");
     ui->parseTypeComboBox->addItem(tr("Assembler"), "pca");
     ui->parseTypeComboBox->addItem(tr("C bytes"), "pc");
-    ui->parseTypeComboBox->addItem(tr("C bytes with instructions"), "pci");
     ui->parseTypeComboBox->addItem(tr("C half-words (2 byte)"), "pch");
     ui->parseTypeComboBox->addItem(tr("C words (4 byte)"), "pcw");
     ui->parseTypeComboBox->addItem(tr("C dwords (8 byte)"), "pcd");
