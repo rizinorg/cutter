@@ -314,8 +314,7 @@ void DisassemblyContextMenu::addDebugMenu()
 QVector<DisassemblyContextMenu::ThingUsedHere> DisassemblyContextMenu::getThingUsedHere(RVA offset)
 {
     RzCoreLocked core(Core());
-    auto p = fromOwned(
-        rz_core_analysis_name(core, offset), rz_core_analysis_name_free);
+    auto p = fromOwned(rz_core_analysis_name(core, offset), rz_core_analysis_name_free);
     if (!p) {
         return {};
     }
@@ -799,7 +798,6 @@ void DisassemblyContextMenu::on_actionAddComment_triggered()
 
 void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
 {
-    bool ok;
     RVA flagOffset;
     QString name = Core()->nearestFlag(offset, &flagOffset);
     if (name.isEmpty() || flagOffset != offset) {
@@ -812,12 +810,20 @@ void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
     }
 
     // Create dialog
-    QString functionName =
-            QInputDialog::getText(this, tr("New function at %1").arg(RzAddressString(offset)),
-                                  tr("Function name:"), QLineEdit::Normal, name, &ok);
+    QInputDialog inputDialog(this->mainWindow);
+    inputDialog.resize(500, 100);
+    inputDialog.setWindowTitle(tr("New function at %1").arg(RzAddressString(offset)));
+    inputDialog.setLabelText(tr("Function name:"));
+    inputDialog.setTextValue(name);
+    inputDialog.setWindowFlags(Qt::Window | Qt::WindowMinimizeButtonHint);
 
-    // If user accepted
-    if (ok && !functionName.isEmpty()) {
+    if (inputDialog.exec() != QDialog::Accepted) {
+        return;
+    }
+
+    QString functionName = inputDialog.textValue().trimmed();
+
+    if (!functionName.isEmpty()) {
         Core()->createFunctionAt(offset, functionName);
     }
 }
