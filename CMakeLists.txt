@@ -25,8 +25,8 @@ option(CUTTER_ENABLE_PACKAGING "Enable building platform-specific packages for d
 option(CUTTER_ENABLE_SIGDB "Downloads and installs sigdb (only available when CUTTER_USE_BUNDLED_RIZIN=ON)." OFF)
 option(CUTTER_PACKAGE_DEPENDENCIES "During install step include the third party dependencies." OFF)
 option(CUTTER_PACKAGE_RZ_GHIDRA "Compile and install rz-ghidra during install step." OFF)
-option(CUTTER_PACKAGE_RZ_LIBSWIFT, "Compile and install rz-libswift demangler during the install step." OFF)
-option(CUTTER_PACKAGE_RZ_LIBYARA, "Compile and install rz-libyara during the install step." OFF)
+option(CUTTER_PACKAGE_RZ_LIBSWIFT "Compile and install rz-libswift demangler during the install step." OFF)
+option(CUTTER_PACKAGE_RZ_LIBYARA "Compile and install rz-libyara during the install step." OFF)
 option(CUTTER_PACKAGE_JSDEC "Compile and install jsdec during install step." OFF)
 OPTION(CUTTER_QT6 "Use QT6" OFF)
 
