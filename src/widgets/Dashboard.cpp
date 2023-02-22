@@ -2,7 +2,6 @@
 #include "ui_Dashboard.h"
 #include "common/Helpers.h"
 #include "common/JsonModel.h"
-#include "common/JsonTreeItem.h"
 #include "common/TempConfig.h"
 #include "dialogs/VersionInfoDialog.h"
 
@@ -32,24 +31,27 @@ Dashboard::~Dashboard() {}
 
 void Dashboard::updateContents()
 {
-    CutterJson docu = Core()->getFileInfo();
-    CutterJson item = docu["core"];
-    CutterJson item2 = docu["bin"];
+    RzCoreLocked core(Core());
+    int fd = rz_io_fd_get_current(core->io);
+    RzIODesc *desc = rz_io_desc_get(core->io, fd);
+    setPlainText(this->ui->modeEdit, desc ? rz_str_rwx_i(desc->perm & RZ_PERM_RWX) : "");
 
-    setPlainText(this->ui->modeEdit, item["mode"].toString());
-    setPlainText(this->ui->compilationDateEdit, item2["compiled"].toString());
-
-    if (!item2["relro"].toString().isEmpty()) {
-        QString relro = item2["relro"].toString().section(QLatin1Char(' '), 0, 0);
-        relro[0] = relro[0].toUpper();
-        setPlainText(this->ui->relroEdit, relro);
-    } else {
-        setPlainText(this->ui->relroEdit, "N/A");
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    if (bf) {
+        setPlainText(this->ui->compilationDateEdit, rz_core_bin_get_compile_time(bf));
+        if (bf->o) {
+            char *relco_buf = sdb_get(bf->o->kv, "elf.relro", 0);
+            if (RZ_STR_ISNOTEMPTY(relco_buf)) {
+                QString relro = QString(relco_buf).section(QLatin1Char(' '), 0, 0);
+                relro[0] = relro[0].toUpper();
+                setPlainText(this->ui->relroEdit, relro);
+            } else {
+                setPlainText(this->ui->relroEdit, "N/A");
+            }
+        }
     }
 
     // Add file hashes, analysis info and libraries
-    RzCoreLocked core(Core());
-    RzBinFile *bf = rz_bin_cur(core->bin);
     RzBinInfo *binInfo = rz_bin_get_info(core->bin);
 
     setPlainText(ui->fileEdit, binInfo ? binInfo->file : "");
@@ -111,82 +113,68 @@ void Dashboard::updateContents()
         hashesLayout->addRow(new QLabel(label), hashLineEdit);
     }
 
-    CutterJson analinfo = Core()->cmdj("aaij");
-    setPlainText(ui->functionsLineEdit, QString::number(analinfo["fcns"].toSt64()));
-    setPlainText(ui->xRefsLineEdit, QString::number(analinfo["xrefs"].toSt64()));
-    setPlainText(ui->callsLineEdit, QString::number(analinfo["calls"].toSt64()));
-    setPlainText(ui->stringsLineEdit, QString::number(analinfo["strings"].toSt64()));
-    setPlainText(ui->symbolsLineEdit, QString::number(analinfo["symbols"].toSt64()));
-    setPlainText(ui->importsLineEdit, QString::number(analinfo["imports"].toSt64()));
-    setPlainText(ui->coverageLineEdit, QString::number(analinfo["covrage"].toSt64()) + " bytes");
-    setPlainText(ui->codeSizeLineEdit, QString::number(analinfo["codesz"].toSt64()) + " bytes");
-    setPlainText(ui->percentageLineEdit, QString::number(analinfo["percent"].toSt64()) + "%");
+    st64 fcns = rz_list_length(core->analysis->fcns);
+    st64 strs = rz_flag_count(core->flags, "str.*");
+    st64 syms = rz_flag_count(core->flags, "sym.*");
+    st64 imps = rz_flag_count(core->flags, "sym.imp.*");
+    st64 code = rz_core_analysis_code_count(core);
+    st64 covr = rz_core_analysis_coverage_count(core);
+    st64 call = rz_core_analysis_calls_count(core);
+    ut64 xrfs = rz_analysis_xrefs_count(core->analysis);
+    double precentage = (code > 0) ? (covr * 100.0 / code) : 0;
 
-    // dunno: why not label->setText(lines.join("\n")?
-    while (ui->verticalLayout_2->count() > 0) {
-        QLayoutItem *item = ui->verticalLayout_2->takeAt(0);
-        if (item != nullptr) {
-            QWidget *w = item->widget();
-            if (w != nullptr) {
-                w->deleteLater();
-            }
+    setPlainText(ui->functionsLineEdit, QString::number(fcns));
+    setPlainText(ui->xRefsLineEdit, QString::number(xrfs));
+    setPlainText(ui->callsLineEdit, QString::number(call));
+    setPlainText(ui->stringsLineEdit, QString::number(strs));
+    setPlainText(ui->symbolsLineEdit, QString::number(syms));
+    setPlainText(ui->importsLineEdit, QString::number(imps));
+    setPlainText(ui->coverageLineEdit, QString::number(covr) + " bytes");
+    setPlainText(ui->codeSizeLineEdit, QString::number(code) + " bytes");
+    setPlainText(ui->percentageLineEdit, QString::number(precentage) + "%");
 
-            delete item;
-        }
-    }
-
+    ui->libraryList->setPlainText("");
     const RzList *libs = bf ? rz_bin_object_get_libs(bf->o) : nullptr;
     if (libs) {
+        QString libText;
+        bool first = true;
         for (const auto &lib : CutterRzList<char>(libs)) {
-            auto *label = new QLabel(this);
-            label->setText(lib);
-            label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-            label->setTextInteractionFlags(Qt::TextSelectableByMouse);
-            ui->verticalLayout_2->addWidget(label);
+            if (!first) {
+                libText.append("\n");
+            }
+            libText.append(lib);
+            first = false;
         }
+        ui->libraryList->setPlainText(libText);
     }
-
-    QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding);
-    ui->verticalLayout_2->addSpacerItem(spacer);
 
     // Check if signature info and version info available
-    if (Core()->getSignatureInfo().isEmpty()) {
+    if (!Core()->getSignatureInfo().size()) {
         ui->certificateButton->setEnabled(false);
     }
-    if (!Core()->getFileVersionInfo().size()) {
-        ui->versioninfoButton->setEnabled(false);
-    }
+    ui->versioninfoButton->setEnabled(Core()->existsFileInfo());
 }
 
 void Dashboard::on_certificateButton_clicked()
 {
-    static QDialog *viewDialog = nullptr;
-    static CutterTreeView *view = nullptr;
-    static JsonModel *model = nullptr;
-    static QString qstrCertificates;
-    if (!viewDialog) {
-        viewDialog = new QDialog(this);
-        view = new CutterTreeView(viewDialog);
-        model = new JsonModel();
-        qstrCertificates = Core()->getSignatureInfo();
-    }
-    if (!viewDialog->isVisible()) {
-        std::string strCertificates = qstrCertificates.toUtf8().constData();
-        model->loadJson(QByteArray::fromStdString(strCertificates));
-        view->setModel(model);
-        view->expandAll();
-        view->resize(900, 600);
-        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(view->sizePolicy().hasHeightForWidth());
-        viewDialog->setSizePolicy(sizePolicy);
-        viewDialog->setMinimumSize(QSize(900, 600));
-        viewDialog->setMaximumSize(QSize(900, 600));
-        viewDialog->setSizeGripEnabled(false);
-        viewDialog->setWindowTitle("Certificates");
-        viewDialog->show();
-    }
+    QDialog dialog(this);
+    auto view = new QTreeWidget(&dialog);
+    view->setHeaderLabels({ tr("Key"), tr("Value") });
+    view->addTopLevelItem(Cutter::jsonTreeWidgetItem(QString("<%1>").arg(tr("root")),
+                                                     Core()->getSignatureInfo()));
+    CutterTreeView::applyCutterStyle(view);
+    view->expandAll();
+    view->resize(900, 600);
+    QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    sizePolicy.setHorizontalStretch(0);
+    sizePolicy.setVerticalStretch(0);
+    sizePolicy.setHeightForWidth(view->sizePolicy().hasHeightForWidth());
+    dialog.setSizePolicy(sizePolicy);
+    dialog.setMinimumSize(QSize(900, 600));
+    dialog.setMaximumSize(QSize(900, 600));
+    dialog.setSizeGripEnabled(false);
+    dialog.setWindowTitle("Certificates");
+    dialog.exec();
 }
 
 void Dashboard::on_versioninfoButton_clicked()

@@ -703,7 +703,10 @@ void GraphView::mouseDoubleClickEvent(QMouseEvent *event)
 
 void GraphView::keyPressEvent(QKeyEvent *event)
 {
+    // for scrolling with arrow keys
     const int delta = static_cast<int>(30.0 / current_scale);
+    // for scrolling with pgup/pgdown keys
+    const int delta2 = static_cast<int>(100.0 / current_scale);
     int dx = 0, dy = 0;
     switch (event->key()) {
     case Qt::Key_Up:
@@ -717,6 +720,12 @@ void GraphView::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Right:
         dx = delta;
+        break;
+    case Qt::Key_PageUp:
+        dy = -delta2;
+        break;
+    case Qt::Key_PageDown:
+        dy = delta2;
         break;
     default:
         QAbstractScrollArea::keyPressEvent(event);

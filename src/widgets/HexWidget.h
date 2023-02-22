@@ -14,7 +14,7 @@ struct BasicCursor
 {
     uint64_t address;
     bool pastEnd;
-    BasicCursor(uint64_t pos) : address(pos), pastEnd(false) {}
+    explicit BasicCursor(uint64_t pos) : address(pos), pastEnd(false) {}
     BasicCursor() : address(0), pastEnd(false) {}
     BasicCursor &operator+=(int64_t offset)
     {
@@ -35,6 +35,14 @@ struct BasicCursor
         *this += int64_t(offset);
         return *this;
     }
+
+    bool moveChecked(int offset)
+    {
+        auto oldAddress = address;
+        *this += offset;
+        return address - oldAddress == uint64_t(offset);
+    }
+
     BasicCursor &operator+=(uint64_t offset)
     {
         if (uint64_t(offset) > (UINT64_MAX - address)) {
@@ -46,7 +54,10 @@ struct BasicCursor
         }
         return *this;
     }
-    bool operator<(const BasicCursor &r) { return address < r.address || (pastEnd < r.pastEnd); }
+    bool operator<(const BasicCursor &r) const
+    {
+        return address < r.address || (pastEnd < r.pastEnd);
+    }
 };
 
 struct HexCursor
@@ -74,9 +85,10 @@ struct HexCursor
 class AbstractData
 {
 public:
-    virtual ~AbstractData() {}
+    virtual ~AbstractData() = default;
     virtual void fetch(uint64_t addr, int len) = 0;
     virtual bool copy(void *out, uint64_t adr, size_t len) = 0;
+    virtual bool write(const uint8_t *in, uint64_t adr, size_t len) = 0;
     virtual uint64_t maxIndex() = 0;
     virtual uint64_t minIndex() = 0;
 };
@@ -86,7 +98,7 @@ class BufferData : public AbstractData
 public:
     BufferData() { m_buffer.fill(0, 1); }
 
-    BufferData(const QByteArray &buffer)
+    explicit BufferData(const QByteArray &buffer)
     {
         if (buffer.isEmpty()) {
             m_buffer.fill(0, 1);
@@ -95,7 +107,7 @@ public:
         }
     }
 
-    ~BufferData() override {}
+    ~BufferData() override = default;
 
     void fetch(uint64_t, int) override {}
 
@@ -104,6 +116,16 @@ public:
         if (addr < static_cast<uint64_t>(m_buffer.size())
             && (static_cast<uint64_t>(m_buffer.size()) - addr) < len) {
             memcpy(out, m_buffer.constData() + addr, len);
+            return true;
+        }
+        return false;
+    }
+
+    bool write(const uint8_t *in, uint64_t addr, size_t len) override
+    {
+        if (addr < static_cast<uint64_t>(m_buffer.size())
+            && (static_cast<uint64_t>(m_buffer.size()) - addr) < len) {
+            memcpy(m_buffer.data() + addr, in, len);
             return true;
         }
         return false;
@@ -118,8 +140,8 @@ private:
 class MemoryData : public AbstractData
 {
 public:
-    MemoryData() {}
-    ~MemoryData() override {}
+    MemoryData() = default;
+    ~MemoryData() override = default;
     static constexpr size_t BLOCK_SIZE = 4096;
 
     void fetch(uint64_t address, int length) override
@@ -144,10 +166,11 @@ public:
 
     bool copy(void *out, uint64_t addr, size_t len) override
     {
-        if (addr < m_firstBlockAddr || addr > m_lastValidAddr
-            || (m_lastValidAddr - addr + 1)
-                    < len /* do not merge with last check to handle overflows */
-            || m_blocks.isEmpty()) {
+        if (addr < m_firstBlockAddr
+            || addr > m_lastValidAddr
+            /* do not merge with previous check to handle overflows */
+            || (m_lastValidAddr - addr + 1) < len || m_blocks.isEmpty()) {
+            memset(out, 0xff, len);
             return false;
         }
 
@@ -165,9 +188,47 @@ public:
         return true;
     }
 
-    virtual uint64_t maxIndex() override { return m_lastValidAddr; }
+    void writeToCache(const uint8_t *in, uint64_t adr, size_t len)
+    {
+        if (adr < m_firstBlockAddr) {
+            uint64_t prefix = m_firstBlockAddr - adr;
+            if (prefix <= len) {
+                return;
+            }
+            in = in + prefix;
+            adr += prefix;
+            len -= prefix;
+        }
+        if (adr > m_lastValidAddr) {
+            return;
+        }
+        int offset = (int)(adr - m_firstBlockAddr);
+        int blockId = offset / BLOCK_SIZE;
+        int blockOffset = offset % BLOCK_SIZE;
+        while (len > 0 && blockId < m_blocks.size()) {
+            size_t l = BLOCK_SIZE - blockOffset;
+            l = std::min(l, len);
+            memcpy(m_blocks[blockId].data() + blockOffset, in, l);
+            len -= l;
+            blockOffset = 0;
+            adr += l;
+            in += l;
+            blockId += 1;
+        }
+    }
 
-    virtual uint64_t minIndex() override { return m_firstBlockAddr; }
+    bool write(const uint8_t *in, uint64_t adr, size_t len) override
+    {
+        RzCoreLocked core(Core());
+        rz_core_write_at(core, adr, in, len);
+        writeToCache(in, adr, len);
+        emit Core()->instructionChanged(adr);
+        return true;
+    }
+
+    uint64_t maxIndex() override { return std::numeric_limits<uint64_t>::max(); }
+
+    uint64_t minIndex() override { return m_firstBlockAddr; }
 
 private:
     QVector<QByteArray> m_blocks;
@@ -178,7 +239,11 @@ private:
 class HexSelection
 {
 public:
-    HexSelection() { m_empty = true; }
+    HexSelection()
+    {
+        m_empty = true;
+        m_start = m_end = 0;
+    }
 
     inline void init(BasicCursor addr)
     {
@@ -189,7 +254,8 @@ public:
     void set(uint64_t start, uint64_t end)
     {
         m_empty = false;
-        m_init = m_start = start;
+        m_init = BasicCursor(start);
+        m_start = start;
         m_end = end;
     }
 
@@ -219,7 +285,7 @@ public:
 
     bool contains(uint64_t pos) const { return !m_empty && m_start <= pos && pos <= m_end; }
 
-    uint64_t size()
+    uint64_t size() const
     {
         uint64_t size = 0;
         if (!isEmpty())
@@ -227,9 +293,9 @@ public:
         return size;
     }
 
-    inline bool isEmpty() { return m_empty; }
-    inline uint64_t start() { return m_start; }
-    inline uint64_t end() { return m_end; }
+    inline bool isEmpty() const { return m_empty; }
+    inline uint64_t start() const { return m_start; }
+    inline uint64_t end() const { return m_end; }
 
 private:
     BasicCursor m_init;
@@ -244,7 +310,7 @@ class HexWidget : public QScrollArea
 
 public:
     explicit HexWidget(QWidget *parent = nullptr);
-    ~HexWidget();
+    ~HexWidget() override = default;
 
     void setMonospaceFont(const QFont &font);
 
@@ -258,10 +324,12 @@ public:
         ItemFormatFloat
     };
     enum class ColumnMode { Fixed, PowerOf2 };
+    enum class EditWordState { Read, WriteNotStarted, WriteNotEdited, WriteEdited };
+    enum class HexNavigationMode { Words, WordChar, AnyChar };
 
     void setItemSize(int nbytes);
     void setItemFormat(ItemFormat format);
-    void setItemEndianess(bool bigEndian);
+    void setItemEndianness(bool bigEndian);
     void setItemGroupSize(int size);
     /**
      * @brief Sets line size in bytes.
@@ -292,7 +360,7 @@ public slots:
     void refresh();
     void updateColors();
 signals:
-    void selectionChanged(Selection selection);
+    void selectionChanged(HexWidget::Selection selection);
     void positionChanged(RVA start);
 
 protected:
@@ -300,10 +368,12 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
+    bool event(QEvent *event) override;
 
 private slots:
     void onCursorBlinked();
@@ -311,13 +381,13 @@ private slots:
     void copy();
     void copyAddress();
     void onRangeDialogAccepted();
-    void on_actionAddComment_triggered();
-    void on_actionDeleteComment_triggered();
+    void onActionAddCommentTriggered();
+    void onActionDeleteCommentTriggered();
 
     // Write command slots
     void w_writeString();
     void w_increaseDecrease();
-	void w_writeBytes();
+    void w_writeBytes();
     void w_writeZeros();
     void w_write64();
     void w_writeRandom();
@@ -325,6 +395,9 @@ private slots:
     void w_writePascalString();
     void w_writeWideString();
     void w_writeCString();
+
+    void onKeyboardEditTriggered(bool enabled);
+    void onKeyboardEditChanged(bool enabled);
 
 private:
     void updateItemLength();
@@ -338,12 +411,15 @@ private:
     void updateMetrics();
     void updateAreasPosition();
     void updateAreasHeight();
-    void moveCursor(int offset, bool select = false);
+    enum class OverflowMove { Clamp, Ignore };
+    bool moveCursor(int offset, bool select = false,
+                    OverflowMove overflowMove = OverflowMove::Clamp);
+    void moveCursorKeepEditOffset(int byteOffset, bool select, OverflowMove overflowMove);
     void setCursorAddr(BasicCursor addr, bool select = false);
     void updateCursorMeta();
     void setCursorOnAscii(bool ascii);
     bool isItemDifferentAt(uint64_t address);
-    const QColor itemColor(uint8_t byte);
+    QColor itemColor(uint8_t byte);
     QVariant readItem(int offset, QColor *color = nullptr);
     QString renderItem(int offset, QColor *color = nullptr);
     QChar renderAscii(int offset, QColor *color = nullptr);
@@ -359,12 +435,13 @@ private:
     /**
      * @brief Convert mouse position to address.
      * @param point mouse position in widget
-     * @param middle start next position from middle of symbol. Use middle=true for vertical cursror
+     * @param middle start next position from middle of symbol. Use middle=true for vertical cursor
      * position between symbols, middle=false for insert mode cursor and getting symbol under
      * cursor.
      * @return
      */
-    BasicCursor screenPosToAddr(const QPoint &point, bool middle = false) const;
+    BasicCursor screenPosToAddr(const QPoint &point, bool middle = false,
+                                int *wordOffset = nullptr) const;
     BasicCursor asciiPosToAddr(const QPoint &point, bool middle = false) const;
     BasicCursor currentAreaPosToAddr(const QPoint &point, bool middle = false) const;
     BasicCursor mousePosToAddr(const QPoint &point, bool middle = false) const;
@@ -412,6 +489,27 @@ private:
     inline uint64_t lastVisibleAddr() const { return (startAddress - 1) + bytesPerScreen(); }
 
     const QRectF &currentArea() const { return cursorOnAscii ? asciiArea : itemArea; }
+    bool isFixedWidth() const;
+
+    bool canKeyboardEdit();
+    bool flushCurrentlyEditedWord();
+    bool finishEditingWord(bool force = true);
+    void maybeFlushCharEdit();
+    void cancelEditedWord();
+    void startEditWord();
+    bool validCharForEdit(QChar digit);
+    void movePrevEditCharAny();
+    void typeOverwriteModeChar(QChar c);
+    HexNavigationMode defaultNavigationMode();
+    void refreshWordEditState();
+    bool parseWord(QString word, uint8_t *buf, size_t bufferSize) const;
+    bool handleAsciiWrite(QKeyEvent *event);
+    bool handleNumberWrite(QKeyEvent *event);
+
+    void writeZeros(uint64_t address, uint64_t length);
+
+    void hideWarningRect();
+    void showWarningRect(QRectF rect);
 
     bool cursorEnabled;
     bool cursorOnAscii;
@@ -436,14 +534,13 @@ private:
     ItemFormat itemFormat;
 
     bool itemBigEndian;
+    QString itemPrefix;
 
     int visibleLines;
     uint64_t startAddress;
     qreal charWidth;
-    int byteWidth;
     qreal lineHeight;
     int addrCharLen;
-    int addrAreaWidth;
     QFont monospaceFont;
 
     bool showHeader;
@@ -460,6 +557,7 @@ private:
     QColor b0x7fColor;
     QColor b0xffColor;
     QColor printableColor;
+    QColor warningColor;
 
     HexdumpRangeDialog rangeDialog;
 
@@ -479,14 +577,30 @@ private:
     QAction *actionCopyAddress;
     QAction *actionComment;
     QAction *actionDeleteComment;
-    QAction *actionSetFlag;
     QAction *actionSelectRange;
+    QAction *actionKeyboardEdit;
     QList<QAction *> actionsWriteString;
     QList<QAction *> actionsWriteOther;
 
     std::unique_ptr<AbstractData> oldData;
     std::unique_ptr<AbstractData> data;
     IOModesController ioModesController;
+
+    int editWordPos = 0;
+    QString editWord;
+    EditWordState editWordState = EditWordState::Read;
+    HexNavigationMode navigationMode = HexNavigationMode::Words;
+    enum class EarlyEditFlush {
+        OnFinish,
+        EditNibble,
+        EditFixedWidthChar,
+        /* AllFormats(not implemented) */
+    };
+    EarlyEditFlush earlyEditFlush = EarlyEditFlush::EditFixedWidthChar;
+
+    bool warningRectVisible = false;
+    QRectF warningRect;
+    QTimer warningTimer;
 };
 
 #endif // HEXWIDGET_H

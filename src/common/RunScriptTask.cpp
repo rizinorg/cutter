@@ -16,7 +16,10 @@ void RunScriptTask::runTask()
 {
     if (!this->fileName.isNull()) {
         log(tr("Executing script..."));
-        Core()->cmdTask(". " + this->fileName);
+        Core()->functionTask([&](RzCore *core) {
+            rz_core_run_script(core, this->fileName.toUtf8().constData());
+            return nullptr;
+        });
         if (isInterrupted()) {
             return;
         }

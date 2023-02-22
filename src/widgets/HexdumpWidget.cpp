@@ -144,7 +144,6 @@ void HexdumpWidget::initParsing()
     ui->parseTypeComboBox->addItem(tr("String"), "pcs");
     ui->parseTypeComboBox->addItem(tr("Assembler"), "pca");
     ui->parseTypeComboBox->addItem(tr("C bytes"), "pc");
-    ui->parseTypeComboBox->addItem(tr("C bytes with instructions"), "pci");
     ui->parseTypeComboBox->addItem(tr("C half-words (2 byte)"), "pch");
     ui->parseTypeComboBox->addItem(tr("C words (4 byte)"), "pcw");
     ui->parseTypeComboBox->addItem(tr("C dwords (8 byte)"), "pcd");
@@ -240,28 +239,28 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
 
         ui->hexDisasTextEdit->setPlainText(
                 selectedCommand != "" ? Core()->cmdRawAt(
-                        QString("%1 %2").arg(selectedCommand).arg(size), start_address)
+                        QString("%1 @! %2").arg(selectedCommand).arg(size), start_address)
                                       : "");
     } else {
         // Fill the information tab hashes and entropy
-        RzMsgDigestSize digest_size = 0;
+        RzHashSize digest_size = 0;
         RzCoreLocked core(Core());
         ut64 old_offset = core->offset;
         rz_core_seek(core, start_address, true);
         ut8 *block = core->block;
-        char *digest = rz_msg_digest_calculate_small_block_string("md5", block, size, &digest_size, false);
+        char *digest = rz_hash_cfg_calculate_small_block_string(core->hash, "md5", block, size, &digest_size, false);
         ui->bytesMD5->setText(QString(digest));
         free(digest);
-        digest = rz_msg_digest_calculate_small_block_string("sha1", block, size, &digest_size, false);
+        digest = rz_hash_cfg_calculate_small_block_string(core->hash, "sha1", block, size, &digest_size, false);
         ui->bytesSHA1->setText(QString(digest));
         free(digest);
-        digest = rz_msg_digest_calculate_small_block_string("sha256", block, size, &digest_size, false);
+        digest = rz_hash_cfg_calculate_small_block_string(core->hash, "sha256", block, size, &digest_size, false);
         ui->bytesSHA256->setText(QString(digest));
         free(digest);
-        digest = rz_msg_digest_calculate_small_block_string("crc32", block, size, &digest_size, false);
+        digest = rz_hash_cfg_calculate_small_block_string(core->hash, "crc32", block, size, &digest_size, false);
         ui->bytesCRC32->setText(QString(digest));
         free(digest);
-        digest = rz_msg_digest_calculate_small_block_string("entropy", block, size, &digest_size, false);
+        digest = rz_hash_cfg_calculate_small_block_string(core->hash, "entropy", block, size, &digest_size, false);
         ui->bytesEntropy->setText(QString(digest));
         free(digest);
         rz_core_seek(core, old_offset, true);

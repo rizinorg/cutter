@@ -2,7 +2,7 @@ $arch = $args[0]
 $dist = $args[1]
 
 $py_version = (python --version).Split()[1]
-$py_base = "python" + $py_version[0] + $py_version[2]
+$py_base = "python" + $py_version.Split('.')[0] + $py_version.Split('.')[1]
 $py_platform = If ($arch -eq "x64") {"amd64"} Else {"win32"}
 $py_url = "https://www.python.org/ftp/python/${py_version}/python-${py_version}-embed-${py_platform}.zip"
 

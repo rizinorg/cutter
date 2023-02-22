@@ -3,7 +3,6 @@
 #include "core/MainWindow.h"
 #include "common/UpdateWorker.h"
 #include "CutterConfig.h"
-#include "common/CrashHandler.h"
 #include "common/SettingsUpgrade.h"
 
 #include <QJsonObject>
@@ -55,17 +54,6 @@ static void connectToConsole()
 
 int main(int argc, char *argv[])
 {
-#ifdef CUTTER_ENABLE_CRASH_REPORTS
-    if (argc >= 3 && QString::fromLocal8Bit(argv[1]) == "--start-crash-handler") {
-        QApplication app(argc, argv);
-        QString dumpLocation = QString::fromLocal8Bit(argv[2]);
-        showCrashDialog(dumpLocation);
-        return 0;
-    }
-
-    initCrashHandler();
-#endif
-
 #ifdef Q_OS_WIN
     connectToConsole();
 #endif
@@ -74,6 +62,9 @@ int main(int argc, char *argv[])
     qRegisterMetaType<QList<FunctionDescription>>();
 
     QCoreApplication::setOrganizationName("rizin");
+#ifndef Q_OS_MACOS // don't set on macOS so that it doesn't affect config path there
+    QCoreApplication::setOrganizationDomain("rizin.re");
+#endif
     QCoreApplication::setApplicationName("cutter");
 
     // Importing settings after setting rename, needs separate handling in addition to regular version to version upgrade.

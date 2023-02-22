@@ -32,48 +32,38 @@ public:
         GVJpeg,
         GVPostScript,
         GVSvg,
+        GVPdf,
         RzGml,
-        RzSDBKeyValue,
         RzJson
     };
     /**
      * @brief Export graph to a file in the specified format
-     * @param filePath
-     * @param type export type, GV* and Rz* types require \p graphCommand
-     * @param graphCommand rizin graph printing command without type, not required for direct image
-     * export
-     * @param address object address for commands like agf
+     * @param filePath - output file path
+     * @param exportType - export type, GV* and Rz* types require \p graphCommand
+     * @param graphType - graph type, example RZ_CORE_GRAPH_TYPE_FUNCALL or
+     * RZ_CORE_GRAPH_TYPE_IMPORT
+     * @param address - object address (if global set it to RVA_INVALID)
      */
-    void exportGraph(QString filePath, GraphExportType type, QString graphCommand = "",
+    void exportGraph(QString filePath, GraphExportType exportType, RzCoreGraphType graphType,
                      RVA address = RVA_INVALID);
-    /**
-     * @brief Export image using rizin ag*w command and graphviz.
-     * Requires graphviz dot executable in the path.
-     *
-     * @param filePath output file path
-     * @param type image format as expected by "e graph.gv.format"
-     * @param graphCommand rizin command without type, for example agf
-     * @param address object address if required by command
-     */
-    void exportRizinGraphvizGraph(QString filePath, QString type, QString graphCommand,
-                                  RVA address);
+
     /**
      * @brief Export graph in one of the text formats supported by rizin json, gml, SDB key-value
-     * @param filePath output file path
-     * @param graphCommand graph command including the format, example "agfd" or "agfg"
-     * @param address object address if required by command
+     * @param filePath - output file path
+     * @param type - graph type, example RZ_CORE_GRAPH_TYPE_FUNCALL or RZ_CORE_GRAPH_TYPE_IMPORT
+     * @param format - graph format, example RZ_CORE_GRAPH_FORMAT_DOT or RZ_CORE_GRAPH_FORMAT_GML
+     * @param address - object address (if global set it to RVA_INVALID)
      */
-    void exportRzTextGraph(QString filePath, QString graphCommand, RVA address);
+    void exportRzTextGraph(QString filePath, RzCoreGraphType type, RzCoreGraphFormat format,
+                           RVA address);
     static bool graphIsBitamp(GraphExportType type);
     /**
      * @brief Show graph export dialog.
      * @param defaultName - default file name in the export dialog
-     * @param graphCommand - rizin graph commmand with graph type and without export type, for
-     * example afC. Leave empty for non-rizin graphs. In such case only direct image export will be
-     * available.
-     * @param address - object address if relevant for \p graphCommand
+     * @param type - graph type, example RZ_CORE_GRAPH_TYPE_FUNCALL or RZ_CORE_GRAPH_TYPE_IMPORT
+     * @param address - object address (if global set it to RVA_INVALID)
      */
-    void showExportGraphDialog(QString defaultName, QString graphCommand = "",
+    void showExportGraphDialog(QString defaultName, RzCoreGraphType type,
                                RVA address = RVA_INVALID);
 
 public slots:

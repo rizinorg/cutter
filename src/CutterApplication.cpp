@@ -1,5 +1,4 @@
 #include "common/PythonManager.h"
-#include "common/CrashHandler.h"
 #include "CutterApplication.h"
 #include "plugins/PluginManager.h"
 #include "CutterConfig.h"

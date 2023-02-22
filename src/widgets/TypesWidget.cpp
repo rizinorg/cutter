@@ -259,6 +259,10 @@ void TypesWidget::showTypesContextMenu(const QPoint &pt)
 
 void TypesWidget::on_actionExport_Types_triggered()
 {
+    char *str = rz_core_types_as_c_all(Core()->core(), true);
+    if (!str) {
+        return;
+    }
     QString filename =
             QFileDialog::getSaveFileName(this, tr("Save File"), Config()->getRecentFolder());
     if (filename.isEmpty()) {
@@ -272,8 +276,8 @@ void TypesWidget::on_actionExport_Types_triggered()
         return;
     }
     QTextStream fileOut(&file);
-    // TODO: use API for `tc` command once available
-    fileOut << Core()->cmd("tc");
+    fileOut << str;
+    free(str);
     file.close();
 }
 
@@ -289,7 +293,6 @@ void TypesWidget::on_actionLoad_New_Types_triggered()
     TypesInteractionDialog dialog(this);
     connect(&dialog, &TypesInteractionDialog::newTypesLoaded, this, &TypesWidget::refreshTypes);
     dialog.setWindowTitle(tr("Load New Types"));
-    dialog.setTypeName(t.type);
     dialog.exec();
 }
 

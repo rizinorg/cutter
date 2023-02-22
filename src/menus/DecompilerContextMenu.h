@@ -111,6 +111,12 @@ private:
     QAction actionSetPC;
 
     // Private Functions
+
+    /**
+     * \return widget that should be used as parent for presenting dialogs
+     */
+    QWidget *parentForDialog();
+
     /**
      * @brief Sets the shortcut context in all the actions contained
      * in the specified QMenu to Qt::WidgetWithChildrenShortcut.

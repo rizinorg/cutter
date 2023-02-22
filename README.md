@@ -6,7 +6,6 @@ Cutter is a free and open-source reverse engineering platform powered by [rizin]
 
 [![Cutter CI](https://github.com/rizinorg/cutter/workflows/Cutter%20CI/badge.svg)](https://github.com/rizinorg/cutter/actions?query=workflow%3A%22Cutter+CI%22)
 [![Build status](https://ci.appveyor.com/api/projects/status/tn7kttv55b8wf799/branch/dev?svg=true)](https://ci.appveyor.com/project/rizinorg/cutter/branch/dev)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/rizinorg/cutter.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/rizinorg/cutter/alerts/)
 
 ![Screenshot](https://raw.githubusercontent.com/rizinorg/cutter/dev/docs/source/images/screenshot.png)
 
@@ -23,9 +22,11 @@ Cutter release binaries for all major platforms (Linux, macOS, Windows) can be d
 - **macOS**: Download the `.dmg` file or use [Homebrew Cask](https://github.com/Homebrew/homebrew-cask):
 
     `brew install --cask cutter`
-- **Windows**: Download the `.zip` archive or use [Chocolatey](https://chocolatey.org):
+- **Windows**: Download the `.zip` archive, or use either [Chocolatey](https://chocolatey.org) or [Scoop](https://scoop.sh/):
 
     `choco install cutter`
+    
+    `scoop bucket add extras` followed by `scoop install cutter`
 
 ### Build from sources
 

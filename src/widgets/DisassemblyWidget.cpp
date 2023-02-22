@@ -211,7 +211,7 @@ QString DisassemblyWidget::getWidgetType()
 
 QFontMetrics DisassemblyWidget::getFontMetrics()
 {
-    return mDisasTextEdit->fontMetrics();
+    return QFontMetrics(mDisasTextEdit->font());
 }
 
 QList<DisassemblyLine> DisassemblyWidget::getLines()

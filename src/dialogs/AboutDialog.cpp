@@ -1,4 +1,3 @@
-#include "rz_version.h"
 #include "core/Cutter.h"
 #include "AboutDialog.h"
 
@@ -6,7 +5,6 @@
 #include "RizinPluginsDialog.h"
 #include "common/Configuration.h"
 #include "common/BugReporting.h"
-
 
 #include <QUrl>
 #include <QTimer>

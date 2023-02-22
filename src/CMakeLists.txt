@@ -5,6 +5,7 @@ set(SOURCES
     Main.cpp
     core/Cutter.cpp
     core/CutterJson.cpp
+    core/RizinCpp.cpp
     dialogs/EditStringDialog.cpp
     dialogs/WriteCommandsDialogs.cpp
     widgets/DisassemblerGraphView.cpp
@@ -72,7 +73,6 @@ set(SOURCES
     widgets/CutterTreeWidget.cpp
     widgets/GraphWidget.cpp
     widgets/OverviewWidget.cpp
-    common/JsonTreeItem.cpp
     common/JsonModel.cpp
     dialogs/VersionInfoDialog.cpp
     widgets/FlirtWidget.cpp
@@ -155,6 +155,7 @@ set(HEADER_FILES
     core/CutterCommon.h
     core/CutterDescriptions.h
     core/CutterJson.h
+    core/RizinCpp.h
     dialogs/EditStringDialog.h
     dialogs/WriteCommandsDialogs.h
     widgets/DisassemblerGraphView.h
@@ -222,7 +223,6 @@ set(HEADER_FILES
     widgets/CutterTreeWidget.h
     widgets/GraphWidget.h
     widgets/OverviewWidget.h
-    common/JsonTreeItem.h
     common/JsonModel.h
     dialogs/VersionInfoDialog.h
     widgets/FlirtWidget.h
@@ -262,7 +262,6 @@ set(HEADER_FILES
     common/RunScriptTask.h
     common/Json.h
     dialogs/EditMethodDialog.h
-    common/CrashHandler.h
     dialogs/TypesInteractionDialog.h
     widgets/SdbWidget.h
     plugins/PluginManager.h
@@ -393,10 +392,6 @@ if (CUTTER_ENABLE_PYTHON)
     list(APPEND HEADER_FILES common/QtResImporter.h common/PythonManager.h common/PythonAPI.h)
 endif()
 
-if(CUTTER_ENABLE_CRASH_REPORTS)
-    list(APPEND SOURCES common/CrashHandler.cpp)
-endif()
-
 if(CUTTER_ENABLE_PYTHON_BINDINGS)
     set(BINDINGS_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bindings")
     set(BINDINGS_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/bindings")
@@ -442,8 +437,11 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
     set_source_files_properties(${BINDINGS_SOURCE} PROPERTIES COMPILE_FLAGS -w)
 endif()
 
+# Make a source group for Visual Studio
+set(CUTTER_SOURCES ${OPTIONS} ${UI_FILES} ${QRC_FILES} ${PLATFORM_RESOURCES} ${SOURCES} ${HEADER_FILES})
+source_group(TREE "${CMAKE_CURRENT_LIST_DIR}" FILES ${CUTTER_SOURCES})
 
-add_executable(Cutter ${OPTIONS} ${UI_FILES} ${QRC_FILES} ${PLATFORM_RESOURCES} ${SOURCES} ${HEADER_FILES} ${BINDINGS_SOURCE})
+add_executable(Cutter ${CUTTER_SOURCES} ${BINDINGS_SOURCE})
 set_target_properties(Cutter PROPERTIES
         OUTPUT_NAME cutter
         RUNTIME_OUTPUT_DIRECTORY ..
@@ -451,6 +449,9 @@ set_target_properties(Cutter PROPERTIES
         ENABLE_EXPORTS ON
         CXX_VISIBILITY_PRESET hidden)
 target_compile_definitions(Cutter PRIVATE CUTTER_SOURCE_BUILD)
+
+# Set Cutter as the startup project in Visual Studio
+set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Cutter)
 
 set(CUTTER_INCLUDE_DIRECTORIES core widgets common plugins menus .)
 foreach(_dir ${CUTTER_INCLUDE_DIRECTORIES})
@@ -463,19 +464,6 @@ endforeach()
 if (TARGET Graphviz::GVC)
     target_link_libraries(Cutter PRIVATE Graphviz::GVC)
     target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_GRAPHVIZ)
-endif()
-
-if(CUTTER_ENABLE_CRASH_REPORTS)
-    set(THREADS_PREFER_PTHREAD_FLAG ON)
-    find_package(Threads REQUIRED)
-    target_link_libraries(Cutter PRIVATE Threads::Threads)
-
-    add_definitions(-DCUTTER_ENABLE_CRASH_REPORTS)
-    if (NOT WIN32)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g ")
-    endif()
-    find_package(Breakpad REQUIRED)
-    target_link_libraries(Cutter PRIVATE Breakpad::client)
 endif()
 
 target_link_libraries(Cutter PUBLIC ${QT_PREFIX}::Core ${QT_PREFIX}::Widgets ${QT_PREFIX}::Gui PRIVATE  ${QT_PREFIX}::Svg ${QT_PREFIX}::Network)
