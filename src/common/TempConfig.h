@@ -19,7 +19,6 @@
  * {
  *     TempConfig tempConfig;
  *     tempConfig.set("asm.arch", "x86").set("asm.comments", false);
- *     return Core()->cmdRaw("pd");
  *     // config automatically restored at the end of scope
  * }
  * \endcode

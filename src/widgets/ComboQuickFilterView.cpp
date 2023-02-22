@@ -6,8 +6,14 @@ ComboQuickFilterView::ComboQuickFilterView(QWidget *parent)
 {
     ui->setupUi(this);
 
+    debounceTimer = new QTimer(this);
+    debounceTimer->setSingleShot(true);
+
+    connect(debounceTimer, &QTimer::timeout, this,
+            [this]() { emit filterTextChanged(ui->lineEdit->text()); });
+
     connect(ui->lineEdit, &QLineEdit::textChanged, this,
-            [this](const QString &text) { emit filterTextChanged(text); });
+            [this](const QString &text) { debounceTimer->start(150); });
 }
 
 ComboQuickFilterView::~ComboQuickFilterView()

@@ -1,0 +1,168 @@
+/** \file RizinCpp.h
+ * Various utilities for easier and safer interactions with Rizin
+ * from C++ code.
+ */
+#ifndef RIZINCPP_H
+#define RIZINCPP_H
+
+#include "rz_core.h"
+#include <QString>
+#include <memory>
+
+static inline QString fromOwnedCharPtr(char *str)
+{
+    QString result(str ? str : "");
+    rz_mem_free(str);
+    return result;
+}
+
+template<class T, class F>
+std::unique_ptr<T, F *> fromOwned(T *data, F *freeFunction)
+{
+    return std::unique_ptr<T, F *> { data, freeFunction };
+}
+
+static inline std::unique_ptr<char, decltype(&rz_mem_free)> fromOwned(char *text)
+{
+    return { text, rz_mem_free };
+}
+
+template<class T, void (*func)(T *)>
+class FreeBinder
+{
+public:
+    void operator()(T *data) { func(data); }
+};
+
+template<class T, void (*func)(T *)>
+using UniquePtrC = std::unique_ptr<T, FreeBinder<T, func>>;
+
+template<typename T, void (*func)(T)>
+using UniquePtrCP = UniquePtrC<typename std::remove_pointer<T>::type, func>;
+
+static inline auto fromOwned(RZ_OWN RzPVector *data)
+        -> UniquePtrCP<decltype(data), &rz_pvector_free>
+{
+    return { data, {} };
+}
+
+static inline auto fromOwned(RZ_OWN RzList *data)
+        -> UniquePtrCP<decltype(data), &rz_list_free>
+{
+    return { data, {} };
+}
+
+// Rizin list iteration macros
+// deprecated, prefer using CutterPVector and CutterRzList instead
+#define CutterRzListForeach(list, it, type, x)                                                     \
+    if (list)                                                                                      \
+        for (it = list->head; it && ((x = static_cast<type *>(it->data))); it = it->n)
+
+#define CutterRzVectorForeach(vec, it, type)                                                       \
+    if ((vec) && (vec)->a)                                                                         \
+        for (it = (type *)(vec)->a;                                                                \
+             (char *)it != (char *)(vec)->a + ((vec)->len * (vec)->elem_size);                     \
+             it = (type *)((char *)it + (vec)->elem_size))
+
+template<typename T>
+class CutterPVector
+{
+private:
+    const RzPVector *const vec;
+
+public:
+    class iterator
+    {
+    public:
+        using iterator_category = std::input_iterator_tag;
+        using value_type = T *;
+        using difference_type = ptrdiff_t;
+        using pointer = T **;
+        using reference = T *&;
+
+    private:
+        T **p;
+
+    public:
+        iterator(T **p) : p(p) {}
+        iterator(const iterator &o) : p(o.p) {}
+        iterator &operator++()
+        {
+            p++;
+            return *this;
+        }
+        iterator operator++(int)
+        {
+            iterator tmp(*this);
+            operator++();
+            return tmp;
+        }
+        bool operator==(const iterator &rhs) const { return p == rhs.p; }
+        bool operator!=(const iterator &rhs) const { return p != rhs.p; }
+        T *operator*() { return *p; }
+    };
+
+    CutterPVector(const RzPVector *vec) : vec(vec) {}
+    iterator begin() const { return iterator(reinterpret_cast<T **>(vec->v.a)); }
+    iterator end() const { return iterator(reinterpret_cast<T **>(vec->v.a) + vec->v.len); }
+};
+
+template<typename T>
+class CutterRzList
+{
+private:
+    const RzList *const list;
+
+public:
+    class iterator
+    {
+    public:
+        using iterator_category = std::input_iterator_tag;
+        using value_type = T *;
+        using difference_type = ptrdiff_t;
+        using pointer = T **;
+        using reference = T *&;
+
+    private:
+        RzListIter *iter;
+
+    public:
+        explicit iterator(RzListIter *iter) : iter(iter) {}
+        iterator(const iterator &o) : iter(o.iter) {}
+        iterator &operator++()
+        {
+            if (!iter) {
+                return *this;
+            }
+            iter = iter->n;
+            return *this;
+        }
+        iterator operator++(int)
+        {
+            iterator tmp(*this);
+            operator++();
+            return tmp;
+        }
+        bool operator==(const iterator &rhs) const { return iter == rhs.iter; }
+        bool operator!=(const iterator &rhs) const { return iter != rhs.iter; }
+        T *operator*()
+        {
+            if (!iter) {
+                return nullptr;
+            }
+            return reinterpret_cast<T *>(iter->data);
+        }
+    };
+
+    explicit CutterRzList(const RzList *l) : list(l) {}
+    iterator begin() const
+    {
+        if (!list) {
+            return iterator(nullptr);
+        }
+        return iterator(list->head);
+    }
+    iterator end() const { return iterator(nullptr); }
+};
+
+#endif // RIZINCPP_H

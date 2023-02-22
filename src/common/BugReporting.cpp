@@ -8,26 +8,18 @@
 
 void openIssue()
 {
+    RzCoreLocked core(Core());
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    RzBinInfo *info = rz_bin_get_info(core->bin);
+    RzBinPlugin *plugin = rz_bin_file_cur_plugin(bf);
+
     QString url, osInfo, format, arch, type;
     // Pull in info needed for git issue
     osInfo = QSysInfo::productType() + " "
             + (QSysInfo::productVersion() == "unknown" ? "" : QSysInfo::productVersion());
-    CutterJson docu = Core()->getFileInfo();
-    CutterJson coreObj = docu["core"];
-    CutterJson binObj = docu["bin"];
-    if (binObj.size()) {
-        format = coreObj["format"].toString();
-        arch = binObj["arch"].toString();
-        if (binObj["type"].valid()) {
-            type = coreObj["type"].toString();
-        } else {
-            type = "N/A";
-        }
-    } else {
-        format = coreObj["format"].toString();
-        arch = "N/A";
-        type = "N/A";
-    }
+    format = plugin && RZ_STR_ISNOTEMPTY(plugin->name) ? plugin->name : "N/A";
+    arch = info && RZ_STR_ISNOTEMPTY(info->arch) ? info->arch : "N/A";
+    type = info && RZ_STR_ISNOTEMPTY(info->type) ? info->type : "N/A";
     url = "https://github.com/rizinorg/cutter/issues/new?&body=**Environment information**\n* "
           "Operating System: "
             + osInfo + "\n* Cutter version: " + CUTTER_VERSION_FULL + "\n* Obtained from:\n"

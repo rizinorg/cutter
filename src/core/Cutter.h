@@ -17,6 +17,7 @@
 #include <QMutex>
 #include <QDir>
 #include <functional>
+#include <memory>
 
 class AsyncTaskManager;
 class BasicInstructionHighlighter;
@@ -31,6 +32,7 @@ class RizinTaskDialog;
 #include "common/Helpers.h"
 
 #include <rz_project.h>
+#include <memory>
 
 #define Core() (CutterCore::instance())
 
@@ -59,6 +61,8 @@ struct CUTTER_EXPORT RegisterRef
     QString name;
 };
 
+using PRzAnalysisBytes = std::unique_ptr<RzAnalysisBytes, decltype(rz_analysis_bytes_free) *>;
+
 class CUTTER_EXPORT CutterCore : public QObject
 {
     Q_OBJECT
@@ -81,6 +85,10 @@ public:
     RVA getOffset() const { return core_->offset; }
 
     /* Core functions (commands) */
+    /* Almost the same as core_cmd_raw,
+     * only executes std::function<bool(RzCore *)> instead of char* */
+    QString getFunctionExecOut(const std::function<bool(RzCore *)> &fcn,
+                               const RVA addr = RVA_INVALID);
     static QString sanitizeStringForCommand(QString s);
     /**
      * @brief send a command to Rizin
@@ -90,21 +98,6 @@ public:
      */
     QString cmd(const char *str);
     QString cmd(const QString &str) { return cmd(str.toUtf8().constData()); }
-    /**
-     * @brief send a command to Rizin asynchronously
-     * @param str the command you want to execute
-     * @param task a shared pointer that will be returned with the Rizin command task
-     * @note connect to the &RizinTask::finished signal to add your own logic once
-     *       the command is finished. Use task->getResult()/getResultJson() for the
-     *       return value.
-     *       Once you have setup connections you can start the task with task->startTask()
-     *       If you want to seek to an address, you should use CutterCore::seek.
-     */
-    bool asyncCmd(const char *str, QSharedPointer<RizinTask> &task);
-    bool asyncCmd(const QString &str, QSharedPointer<RizinTask> &task)
-    {
-        return asyncCmd(str.toUtf8().constData(), task);
-    }
 
     /**
      * @brief send a task to Rizin
@@ -112,6 +105,7 @@ public:
      * @return execute successful?
      */
     bool asyncTask(std::function<void *(RzCore *)> fcn, QSharedPointer<RizinTask> &task);
+    void functionTask(std::function<void *(RzCore *)> fcn);
 
     /**
      * @brief Execute a Rizin command \a cmd.  By nature, the API
@@ -148,56 +142,41 @@ public:
         return cmdRawAt(str.toUtf8().constData(), address);
     }
 
-    void applyAtSeek(std::function<void()> fn, RVA address)
+    class SeekReturn
     {
-        RVA oldOffset = getOffset();
-        seekSilent(address);
-        fn();
-        seekSilent(oldOffset);
-    }
+        RVA returnAddress;
+        bool empty = true;
 
-    void *returnAtSeek(std::function<void *()> fn, RVA address)
+    public:
+        SeekReturn(RVA returnAddress) : returnAddress(returnAddress), empty(false) {}
+        ~SeekReturn()
+        {
+            if (!empty) {
+                Core()->seekSilent(returnAddress);
+            }
+        }
+        SeekReturn(SeekReturn &&from)
+        {
+            if (this != &from) {
+                returnAddress = from.returnAddress;
+                empty = from.empty;
+                from.empty = true;
+            }
+        };
+    };
+
+    SeekReturn seekTemp(RVA address)
     {
-        RVA oldOffset = getOffset();
+        SeekReturn returner(getOffset());
         seekSilent(address);
-        void *ret = fn();
-        seekSilent(oldOffset);
-        return ret;
+        return returner;
     }
 
     CutterJson cmdj(const char *str);
     CutterJson cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
-    CutterJson cmdjAt(const char *str, RVA address);
-    QStringList cmdList(const char *str)
-    {
-        return cmd(str).split(QLatin1Char('\n'), CUTTER_QT_SKIP_EMPTY_PARTS);
-    }
-    QStringList cmdList(const QString &str) { return cmdList(str.toUtf8().constData()); }
     QString cmdTask(const QString &str);
-    CutterJson cmdjTask(const QString &str);
-    /**
-     * @brief send a command to Rizin and check for ESIL errors
-     * @param command the command you want to execute
-     * @note If you want to seek to an address, you should use CutterCore::seek.
-     */
-    void cmdEsil(const char *command);
-    void cmdEsil(const QString &command) { cmdEsil(command.toUtf8().constData()); }
-    /**
-     * @brief send a command to Rizin and check for ESIL errors
-     * @param command the command you want to execute
-     * @param task a shared pointer that will be returned with the Rizin command task
-     * @note connect to the &RizinTask::finished signal to add your own logic once
-     *       the command is finished. Use task->getResult()/getResultJson() for the
-     *       return value.
-     *       Once you have setup connections you can start the task with task->startTask()
-     *       If you want to seek to an address, you should use CutterCore::seek.
-     */
-    bool asyncCmdEsil(const char *command, QSharedPointer<RizinTask> &task);
-    bool asyncCmdEsil(const QString &command, QSharedPointer<RizinTask> &task)
-    {
-        return asyncCmdEsil(command.toUtf8().constData(), task);
-    }
-    QString getRizinVersionReadable();
+
+    QString getRizinVersionReadable(const char *program = nullptr);
     QString getVersionInformation();
 
     CutterJson parseJson(char *res, const char *cmd = nullptr);
@@ -257,6 +236,7 @@ public:
     void triggerFlagsChanged();
 
     /* Edition functions */
+    PRzAnalysisBytes getRzAnalysisBytesSingle(RVA addr);
     QString getInstructionBytes(RVA addr);
     QString getInstructionOpcode(RVA addr);
     void editInstruction(RVA addr, const QString &inst, bool fillWithNops = false);
@@ -569,14 +549,12 @@ public:
     bool registerDecompiler(Decompiler *decompiler);
 
     RVA getOffsetJump(RVA addr);
-    CutterJson getFileInfo();
-    QString getSignatureInfo();
-    CutterJson getFileVersionInfo();
+    CutterJson getSignatureInfo();
+    bool existsFileInfo();
     void setGraphEmpty(bool empty);
     bool isGraphEmpty();
 
-    void getOpcodes();
-    QList<QString> opcodes;
+    void getRegs();
     QList<QString> regs;
     void setSettings();
 
@@ -688,8 +666,6 @@ public:
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString());
 
-    QList<StringDescription> parseStringsJson(const CutterJson &doc);
-
     void handleREvent(int type, void *data);
 
     /* Signals related */
@@ -743,6 +719,25 @@ public:
      * @return true if write mode is enabled, otherwise return false.
      */
     bool isWriteModeEnabled();
+
+    /**
+     * @brief   Returns the textual version of global or specific graph.
+     * @param   type     Graph type, example RZ_CORE_GRAPH_TYPE_FUNCALL or RZ_CORE_GRAPH_TYPE_IMPORT
+     * @param   format   Graph format, example RZ_CORE_GRAPH_FORMAT_DOT or RZ_CORE_GRAPH_FORMAT_GML
+     * @param   address  The object address (if global set it to RVA_INVALID)
+     * @return  The textual graph string.
+     */
+    char *getTextualGraphAt(RzCoreGraphType type, RzCoreGraphFormat format, RVA address);
+
+    /**
+     * @brief   Writes a graphviz graph to a file.
+     * @param   path     The file output path
+     * @param   format   The output format (see graph.gv.format)
+     * @param   type     The graph type, example RZ_CORE_GRAPH_TYPE_FUNCALL or
+     * RZ_CORE_GRAPH_TYPE_IMPORT
+     * @param   address  The object address (if global set it to RVA_INVALID)
+     */
+    void writeGraphvizGraphToFile(QString path, QString format, RzCoreGraphType type, RVA address);
 
 signals:
     void refreshAll();

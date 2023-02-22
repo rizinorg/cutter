@@ -5,6 +5,7 @@
 
 #include <QWidget>
 #include <QComboBox>
+#include <QTimer>
 
 namespace Ui {
 class ComboQuickFilterView;
@@ -32,6 +33,7 @@ signals:
 
 private:
     Ui::ComboQuickFilterView *ui;
+    QTimer *debounceTimer;
 };
 
 #endif // COMBOQUICKFILTERVIEW_H

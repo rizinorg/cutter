@@ -23,6 +23,7 @@ jobs:
         name: [
             linux-x86_64,
             linux-x86_64-system-deps,
+            linux-x86_64-qt6-system-deps,
             macos-x86_64,
             windows-x86_64,
             tarball
@@ -39,6 +40,12 @@ jobs:
             system-deps: true
             cc-override: '/usr/bin/gcc-7'
             cxx-override: '/usr/bin/g++-7'
+          - name: linux-x86_64-qt6-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 22.04 using sytem libraries
+            os: ubuntu-22.04
+            python-version: 3.10.x
+            system-deps: true
+            cc-override: '/usr/bin/gcc-12'
+            cxx-override: '/usr/bin/g++-12'
           - name: linux-x86_64
             os: ubuntu-18.04
             python-version: 3.7.x
@@ -61,7 +68,7 @@ jobs:
       # Prevent one job from pausing the rest
       fail-fast: false
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
         persist-credentials: false
@@ -69,32 +76,34 @@ jobs:
       if: contains(matrix.os, 'ubuntu')
       run: |
         sudo apt-get update
-        sudo apt-get install libgraphviz-dev mesa-common-dev libxkbcommon-x11-dev libclang-8-dev llvm-8 ninja-build
-        if [[ "${{ matrix.os }}" = "ubuntu-18.04" ]]
+        sudo apt-get install libgraphviz-dev mesa-common-dev libxkbcommon-x11-dev ninja-build
+        if [[ "${{ matrix.os }}" = "ubuntu-18.04" || "${{ matrix.os }}" = "ubuntu-20.04" ]]
         then
           # install additional packages needed for appimage
-          sudo apt-get install libxcb1-dev libxkbcommon-dev libxcb-*-dev libegl1
+          sudo apt-get install libxcb1-dev libxkbcommon-dev libxcb-*-dev libegl1 libclang-8-dev llvm-8
         fi
-        if [[ "${{ matrix.system-deps }}" = "true" ]]
+        if [[ "${{ matrix.os }}" = "ubuntu-18.04" && "${{ matrix.system-deps }}" = "true" ]]
         then
           sudo apt-get install qt5-default libqt5svg5-dev qttools5-dev qttools5-dev-tools
         fi
-    - uses: actions/setup-python@v1
+        if [[ "${{ matrix.os }}" = "ubuntu-22.04" ]]
+        then
+          sudo apt-get install libclang-12-dev llvm-12 qt6-base-dev qt6-tools-dev \
+            qt6-tools-dev-tools libqt6svg6-dev libqt6core5compat6-dev libqt6svgwidgets6 qt6-l10n-tools
+        fi
+    - uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: homebrew dependencies
       if: contains(matrix.os, 'macos')
       run: |
         cd scripts
-        rm '/usr/local/bin/2to3' # symlink to some kind of existing python2.7 installation conflicts with brew python3 which gets installed as indirect dependency
-        brew update --preinstall # temporary workaround for https://github.com/Homebrew/homebrew-bundle/issues/751
+        rm /usr/local/bin/2to3* # symlink to some kind of existing python2.7 installation conflicts with brew python3 which gets installed as indirect dependency
         brew bundle
-        brew install coreutils
-        brew install pkg-config
     - name: py dependencies
       run: |
         python3 -m pip install -U pip==21.3.1
-        pip install meson
+        pip install meson==0.61.5 # https://github.com/rizinorg/cutter/runs/7170222817?check_suite_focus=true
     - name: Prepare package id
       shell: bash
       run: |
@@ -123,8 +132,6 @@ jobs:
           export CXX="${{matrix.cxx-override}}"
         fi
 
-        source scripts/prepare_breakpad_linux.sh
-        export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}" #
         mkdir build
         cd build
         cmake --version
@@ -138,8 +145,7 @@ jobs:
             -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.9" \
             -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
             -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
-            -DCUTTER_ENABLE_GRAPHVIZ=OFF \
-            -DCUTTER_ENABLE_CRASH_REPORTS=ON \
+            -DCUTTER_ENABLE_GRAPHVIZ=ON \
             -DCUTTER_USE_BUNDLED_RIZIN=ON \
             -DCUTTER_APPIMAGE_BUILD=ON \
             -DCUTTER_ENABLE_PACKAGING=ON \
@@ -151,6 +157,14 @@ jobs:
             -DCUTTER_PACKAGE_RZ_LIBYARA=ON \
             -DCMAKE_INSTALL_PREFIX=appdir/usr \
             -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
+            ..
+        elif [[ "${{ matrix.os }}" = "ubuntu-22.04" ]]
+        then
+          cmake \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCUTTER_QT6=ON \
+            -DCUTTER_USE_BUNDLED_RIZIN=ON \
             ..
         else
           cmake \
@@ -194,7 +208,6 @@ jobs:
         source cutter-deps/env.sh
         set -euo pipefail
         export PATH=/usr/local/opt/llvm/bin:$PATH
-        source scripts/prepare_breakpad_macos.sh
         mkdir build
         cd build
         PACKAGE_NAME=Cutter-${PACKAGE_ID}-macOS-x86_64
@@ -205,7 +218,6 @@ jobs:
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
                 -DCUTTER_ENABLE_PYTHON=ON \
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
-                -DCUTTER_ENABLE_CRASH_REPORTS=ON \
                 -DCUTTER_USE_BUNDLED_RIZIN=ON \
                 -DCUTTER_ENABLE_PACKAGING=ON \
                 -DCUTTER_ENABLE_SIGDB=ON \
@@ -216,7 +228,6 @@ jobs:
                 -DCUTTER_PACKAGE_RZ_LIBSWIFT=ON \
                 -DCUTTER_PACKAGE_RZ_LIBYARA=ON \
                 -DCPACK_PACKAGE_FILE_NAME="$PACKAGE_NAME" \
-                -DCMAKE_FRAMEWORK_PATH="$BREAKPAD_FRAMEWORK_DIR" \
                 -DCPACK_BUNDLE_APPLE_CERT_APP="-" \
                 .. && \
               make -j4;
@@ -240,7 +251,6 @@ jobs:
         set CUTTER_DEPS=%CD%\cutter-deps
         set PATH=%CD%\cutter-deps\qt\bin;%PATH%
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-        call scripts\prepare_breakpad.bat
         cd
         mkdir build
         cd build
@@ -258,7 +268,6 @@ jobs:
           -DCUTTER_PACKAGE_RZ_LIBYARA=ON ^
           -DCUTTER_PACKAGE_JSDEC=ON ^
           -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON ^
-          -DCUTTER_ENABLE_CRASH_REPORTS=ON ^
           -DCMAKE_PREFIX_PATH="%CUTTER_DEPS%\pyside" ^
           -DCPACK_PACKAGE_FILE_NAME=%PACKAGE_NAME% ^
           -G Ninja ^
@@ -276,7 +285,7 @@ jobs:
         echo PACKAGE_NAME=Cutter-${PACKAGE_ID}-src.tar.gz >> $GITHUB_ENV
         echo PACKAGE_PATH=Cutter-${PACKAGE_ID}-src.tar.gz >> $GITHUB_ENV
         echo UPLOAD_ASSET_TYPE=application/gzip >> $GITHUB_ENV
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       if: env.PACKAGE_NAME != null
       with:
         name: ${{ env.PACKAGE_NAME }}
@@ -284,7 +293,7 @@ jobs:
     - name: Get release
       if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
       id: get_release
-      uses: karliss/get-release@23b8b7144dd5b0c9d6942b2fb78bd9ae71546d03
+      uses: rizinorg/gha-get-release@c8074dd5d13ddd0a194d8c9205a1466973c7dc0d
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Upload release assets

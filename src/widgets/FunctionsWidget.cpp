@@ -231,7 +231,15 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
 
         QStringList disasmPreview =
                 Core()->getDisassemblyPreview(function.offset, kMaxTooltipDisasmPreviewLines);
-        const QStringList &summary = Core()->cmdList(QString("pdsf @ %1").arg(function.offset));
+        QStringList summary {};
+        {
+            auto seeker = Core()->seekTemp(function.offset);
+            auto strings = fromOwnedCharPtr(
+                rz_core_print_disasm_strings(Core()->core(), RZ_CORE_DISASM_STRINGS_MODE_FUNCTION,
+                                             0, NULL));
+            summary = strings.split('\n', CUTTER_QT_SKIP_EMPTY_PARTS);
+        }
+
         const QFont &fnt = Config()->getFont();
         QFontMetrics fm { fnt };
 
@@ -245,7 +253,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             }
         }
         if (disasmPreview.isEmpty() && highlights.isEmpty())
-            return QVariant();
+            return {};
 
         QString toolTipContent =
                 QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: "
@@ -287,7 +295,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         return importAddresses->contains(function.offset);
 
     default:
-        return QVariant();
+        return {};
     }
 }
 
@@ -564,7 +572,18 @@ void FunctionsWidget::refreshTree()
                     importAddresses.insert(import.plt);
                 }
 
-                mainAdress = (ut64)Core()->cmdj("iMj")["vaddr"].toUt64();
+                mainAdress = RVA_INVALID;
+                RzCoreLocked core(Core());
+                RzBinFile *bf = rz_bin_cur(core->bin);
+                if (bf) {
+                    const RzBinAddr *binmain =
+                            rz_bin_object_get_special_symbol(bf->o, RZ_BIN_SPECIAL_SYMBOL_MAIN);
+                    if (binmain) {
+                        int va = core->io->va || core->bin->is_debugger;
+                        mainAdress = va ? rz_bin_object_addr_with_base(bf->o, binmain->vaddr)
+                                        : binmain->paddr;
+                    }
+                }
 
                 functionModel->updateCurrentIndex();
                 functionModel->endResetModel();

@@ -7,10 +7,16 @@ QuickFilterView::QuickFilterView(QWidget *parent, bool defaultOn)
 {
     ui->setupUi(this);
 
+    debounceTimer = new QTimer(this);
+    debounceTimer->setSingleShot(true);
+
     connect(ui->closeFilterButton, &QAbstractButton::clicked, this, &QuickFilterView::closeFilter);
 
+    connect(debounceTimer, &QTimer::timeout, this,
+            [this]() { emit filterTextChanged(ui->filterLineEdit->text()); });
+
     connect(ui->filterLineEdit, &QLineEdit::textChanged, this,
-            [this](const QString &text) { emit filterTextChanged(text); });
+            [this](const QString &text) { debounceTimer->start(150); });
 
     if (!defaultOn) {
         closeFilter();

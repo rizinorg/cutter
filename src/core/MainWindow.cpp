@@ -149,7 +149,7 @@ void MainWindow::initUI()
             &MainWindow::addExtraDisassembly);
     connect(ui->actionExtraHexdump, &QAction::triggered, this, &MainWindow::addExtraHexdump);
     connect(ui->actionCommitChanges, &QAction::triggered, this,
-            [this]() { Core()->commitWriteCache(); });
+            []() { Core()->commitWriteCache(); });
     ui->actionCommitChanges->setEnabled(false);
     connect(Core(), &CutterCore::ioCacheChanged, ui->actionCommitChanges, &QAction::setEnabled);
 
@@ -637,7 +637,7 @@ bool MainWindow::openProject(const QString &file)
 
 void MainWindow::finalizeOpen()
 {
-    core->getOpcodes();
+    core->getRegs();
     core->updateSeek();
     refreshAll();
     // Add fortune message
@@ -1086,6 +1086,12 @@ MemoryDockWidget *MainWindow::addNewMemoryWidget(MemoryWidgetType type, RVA addr
     case MemoryWidgetType::Decompiler:
         memoryWidget = new DecompilerWidget(this);
         break;
+    case MemoryWidgetType::CallGraph:
+      memoryWidget = new CallGraphWidget(this, false);
+      break;
+    case MemoryWidgetType::GlobalCallGraph:
+      memoryWidget = new CallGraphWidget(this, true);
+      break;
     }
     auto seekable = memoryWidget->getSeekable();
     seekable->setSynchronization(synchronized);
@@ -1108,7 +1114,7 @@ void MainWindow::initBackForwardMenu()
         connect(button, &QWidget::customContextMenuRequested, button,
                 [menu, button](const QPoint &pos) { menu->exec(button->mapToGlobal(pos)); });
 
-        QFontMetrics metrics(fontMetrics());
+        QFontMetrics metrics(font());
         // Roughly 10-16 lines depending on padding size, no need to calculate more precisely
         menu->setMaximumHeight(metrics.lineSpacing() * 20);
 
@@ -1692,35 +1698,55 @@ void MainWindow::on_actionImportPDB_triggered()
     }
 }
 
+#define TYPE_BIG_ENDIAN(type, big_endian) big_endian ? type##_BE : type##_LE
+
 void MainWindow::on_actionExport_as_code_triggered()
 {
     QStringList filters;
-    QMap<QString, QString> cmdMap;
+    QMap<QString, RzLangByteArrayType> typMap;
+    const bool big_endian = Core()->getConfigb("big_endian");
 
     filters << tr("C uin8_t array (*.c)");
-    cmdMap[filters.last()] = "pc";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_C_CPP_BYTES;
     filters << tr("C uin16_t array (*.c)");
-    cmdMap[filters.last()] = "pch";
+    typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_HALFWORDS, big_endian);
     filters << tr("C uin32_t array (*.c)");
-    cmdMap[filters.last()] = "pcw";
+    typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_WORDS, big_endian);
     filters << tr("C uin64_t array (*.c)");
-    cmdMap[filters.last()] = "pcd";
-    filters << tr("C string (*.c)");
-    cmdMap[filters.last()] = "pcs";
-    filters << tr("Shell-script that reconstructs the bin (*.sh)");
-    cmdMap[filters.last()] = "pcS";
+    typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_DOUBLEWORDS, big_endian);
+
+    filters << tr("Go array (*.go)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_GOLANG;
+    filters << tr("Java array (*.java)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_JAVA;
     filters << tr("JSON array (*.json)");
-    cmdMap[filters.last()] = "pcj";
-    filters << tr("JavaScript array (*.js)");
-    cmdMap[filters.last()] = "pcJ";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_JSON;
+    filters << tr("Kotlin array (*.kt)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_KOTLIN;
+
+    filters << tr("Javascript array (*.js)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_NODEJS;
+    filters << tr("ObjectiveC array (*.m)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_OBJECTIVE_C;
     filters << tr("Python array (*.py)");
-    cmdMap[filters.last()] = "pcp";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_PYTHON;
+    filters << tr("Rust array (*.rs)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_RUST;
+
+    filters << tr("Swift array (*.swift)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_SWIFT;
     filters << tr("Print 'wx' Rizin commands (*.rz)");
-    cmdMap[filters.last()] = "pc*";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_RIZIN;
+    filters << tr("Shell-script that reconstructs the bin (*.sh)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_BASH;
     filters << tr("GAS .byte blob (*.asm, *.s)");
-    cmdMap[filters.last()] = "pca";
-    filters << tr(".bytes with instructions in comments (*.txt)");
-    cmdMap[filters.last()] = "pcA";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_ASM;
+
+    filters << tr("Yara (*.yar)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_YARA;
+    /* special case */
+    QString instructionsInComments = tr(".bytes with instructions in comments (*.txt)");
+    filters << instructionsInComments;
 
     QFileDialog dialog(this, tr("Export as code"));
     dialog.setAcceptMode(QFileDialog::AcceptSave);
@@ -1736,13 +1762,25 @@ void MainWindow::on_actionExport_as_code_triggered()
         qWarning() << "Can't open file";
         return;
     }
+
     TempConfig tempConfig;
     tempConfig.set("io.va", false);
     QTextStream fileOut(&file);
-    QString &cmd = cmdMap[dialog.selectedNameFilter()];
+    auto ps = core->seekTemp(0);
+    auto rc = core->core();
+    const auto size = static_cast<int>(rz_io_fd_size(rc->io, rc->file->fd));
+    auto buffer = std::vector<ut8>(size);
+    if (!rz_io_read_at(Core()->core()->io, 0, buffer.data(), size)) {
+        return;
+    }
 
-    // Use cmd because cmdRaw would not handle such input
-    fileOut << Core()->cmd(cmd + " $s @ 0");
+
+
+    auto string = fromOwned(
+        dialog.selectedNameFilter() != instructionsInComments
+                ? rz_lang_byte_array(buffer.data(), size, typMap[dialog.selectedNameFilter()])
+                : rz_core_print_bytes_with_inst(rc, buffer.data(), 0, size));
+    fileOut << string.get();
 }
 
 void MainWindow::on_actionApplySigFromFile_triggered()

@@ -77,10 +77,6 @@ if(APPLE)
 	set(CPACK_DMG_VOLUME_NAME "Cutter")
 	set(CPACK_BUNDLE_APPLE_ENTITLEMENTS "${CMAKE_CURRENT_SOURCE_DIR}/macos/Entitlements.plist")
 	set(CPACK_APPLE_BUNDLE_ID "re.rizin.cutter")
-	if (CUTTER_ENABLE_CRASH_REPORTS)
-		list(APPEND CPACK_BUNDLE_APPLE_CODESIGN_FILES "/Contents/Frameworks/Breakpad.framework/Versions/Current/Resources/breakpadUtilities.dylib")
-	endif()
-
 
 	find_program(MACDEPLOYQT_PATH macdeployqt HINTS "${Qt5_DIR}/../../../bin")
 	if(NOT MACDEPLOYQT_PATH)
@@ -168,9 +164,9 @@ if(CUTTER_PACKAGE_RZ_GHIDRA)
 		# installed Cutter.
 		ExternalProject_Add(rz-ghidra
 			GIT_REPOSITORY https://github.com/rizinorg/rz-ghidra
-			GIT_TAG v0.4.0
+			#GIT_TAG v0.3.0
 			#GIT_TAG c7a50a2e7c0a95cd52b167c9ee0fa1805223f08e
-			#GIT_TAG dev
+			GIT_TAG dev
 			#GIT_SHALLOW ON # disable this line when using commit hash
 			CONFIGURE_COMMAND ""
 			BUILD_COMMAND ""
