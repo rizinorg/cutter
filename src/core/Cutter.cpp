@@ -2077,7 +2077,9 @@ void CutterCore::attachDebug(int pid)
 
     if (!asyncTask(
                 [&](RzCore *core) {
-                    setConfig("cfg.debug", true);
+                    // cannot use setConfig because core is
+                    // already locked, which causes a deadlock
+                    rz_config_set_b(core->config, "cfg.debug", true);
                     auto uri = rz_str_newf("dbg://%d", pid);
                     if (currentlyOpenFile.isEmpty()) {
                         rz_core_file_open_load(core, uri, 0, RZ_PERM_R, false);
@@ -2149,7 +2151,10 @@ void CutterCore::stopDebug()
         rz_core_analysis_esil_trace_stop(core);
         currentlyEmulating = false;
     } else {
-        rz_core_debug_process_close(core);
+        // ensure we have opened a file.
+        if (core->io->desc) {
+            rz_core_debug_process_close(core);
+        }
         currentlyAttachedToPID = -1;
     }
 
