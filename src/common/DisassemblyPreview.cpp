@@ -89,3 +89,13 @@ RVA DisassemblyPreview::readDisassemblyOffset(QTextCursor tc)
 
     return userData->line.offset;
 }
+
+RVA DisassemblyPreview::readDisassemblyArrow(QTextCursor tc)
+{
+    auto userData = getUserData(tc.block());
+    if (!userData && userData->line.arrow != RVA_INVALID) {
+        return RVA_INVALID;
+    }
+
+    return userData->line.arrow;
+}

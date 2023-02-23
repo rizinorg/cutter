@@ -66,6 +66,7 @@ void CutterSeekable::seekToReference(RVA offset)
     }
 
     RVA target;
+    // finds the xrefs for calls, lea, and jmp
     QList<XrefDescription> refs = Core()->getXRefs(offset, false, false);
 
     if (refs.length()) {
