@@ -163,3 +163,13 @@ bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
 
     return false;
 }
+
+RVA DisassemblyPreview::readDisassemblyArrow(QTextCursor tc)
+{
+    auto userData = getUserData(tc.block());
+    if (!userData && userData->line.arrow != RVA_INVALID) {
+        return RVA_INVALID;
+    }
+
+    return userData->line.arrow;
+}

@@ -959,6 +959,38 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
         seekable->seekToReference(ctx.offset);
         break;
     }
+    RVA arrow = NULL;
+    RVA offset = getAddrForMouseEvent(block, &pos);
+    DisassemblyBlock *db = blockForAddress(offset);
+
+    Instr lastInstruction = db->instrs.back();
+
+    // Handle the blocks without any paths
+    if (offset == lastInstruction.addr && db->false_path == RVA_INVALID
+        && db->true_path == RVA_INVALID) {
+        return;
+    }
+
+    // Handle the blocks with just one path
+    if (offset == lastInstruction.addr && db->false_path == RVA_INVALID) {
+        seekable->seek(db->true_path);
+        return;
+    }
+
+    // Handle blocks with two paths
+    if (offset == lastInstruction.addr && db->false_path != RVA_INVALID) {
+        // gets the offset for the next instruction
+        RVA nextOffset = lastInstruction.addr + lastInstruction.size;
+        // sets "arrow" to the path that isn't going to the next offset
+        if (db->false_path == nextOffset) {
+            arrow = db->true_path;
+        } else if (db->true_path == nextOffset) {
+            arrow = db->false_path;
+        }
+
+        seekable->seek(arrow);
+        return;
+    }
 }
 
 void DisassemblerGraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event,

@@ -628,7 +628,18 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 
 void DisassemblyWidget::jumpToOffsetUnderCursor(const QTextCursor &cursor)
 {
+<<<<<<< HEAD
     RVA offset = DisassemblyHelper::readDisassemblyOffset(cursor);
+=======
+    // Handles "jmp" and conditonal jump instructions
+    RVA arrow = DisassemblyPreview::readDisassemblyArrow(cursor);
+    if (arrow != RVA_INVALID) {
+        seekable->seek(arrow);
+    }
+
+    // Handles "call" and "lea" instructions
+    RVA offset = DisassemblyPreview::readDisassemblyOffset(cursor);
+>>>>>>> 5ed0f334 (Fix "return" key in disassembler widget (#3090))
     seekable->seekToReference(offset);
 }
 
@@ -659,8 +670,8 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
             }
             return true;
         }
-    } else if ((Config()->getPreviewValue() || Config()->getShowVarTooltips())
-               && event->type() == QEvent::ToolTip && obj == mDisasTextEdit->viewport()) {
+    } else if (Config()->getPreviewValue() && event->type() == QEvent::ToolTip
+               && obj == mDisasTextEdit->viewport()) {
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
 
         auto ctx = DisassemblyHelper::getContextFromCursor(
