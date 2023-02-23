@@ -41,5 +41,11 @@ bool showDisasPreview(QWidget *parent, const QPoint &pointOfEvent, const RVA off
  * @return The disassembly offset of the hovered asm text
  */
 RVA readDisassemblyOffset(QTextCursor tc);
+
+/*!
+ * @brief Reads the arrow offset for the cursor position
+ * @return The jump address of the hovered asm text
+ */
+RVA readDisassemblyArrow(QTextCursor tc);
 }
 #endif

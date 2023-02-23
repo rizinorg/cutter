@@ -99,6 +99,7 @@ private:
     void moveCursorRelative(bool up, bool page);
 
     void jumpToOffsetUnderCursor(const QTextCursor &);
+    void jumpToArrowOffsetUnderCursor(const QTextCursor &);
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea
