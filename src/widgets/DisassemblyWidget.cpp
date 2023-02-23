@@ -613,6 +613,13 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 
 void DisassemblyWidget::jumpToOffsetUnderCursor(const QTextCursor &cursor)
 {
+    // Handles "jmp" and conditonal jump instructions
+    RVA arrow = DisassemblyPreview::readDisassemblyArrow(cursor);
+    if (arrow != RVA_INVALID) {
+        seekable->seek(arrow);
+    }
+
+    // Handles "call" and "lea" instructions
     RVA offset = DisassemblyPreview::readDisassemblyOffset(cursor);
     seekable->seekToReference(offset);
 }
