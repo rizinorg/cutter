@@ -624,6 +624,12 @@ void DisassemblyWidget::jumpToOffsetUnderCursor(const QTextCursor &cursor)
     seekable->seekToReference(offset);
 }
 
+void DisassemblyWidget::jumpToArrowOffsetUnderCursor(const QTextCursor &cursor)
+{
+    RVA offset = DisassemblyPreview::readDisassemblyArrow(cursor);
+    seekable->seek(offset);
+}
+
 bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonDblClick
@@ -654,7 +660,7 @@ void DisassemblyWidget::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Return) {
         const QTextCursor cursor = mDisasTextEdit->textCursor();
-        jumpToOffsetUnderCursor(cursor);
+        jumpToArrowOffsetUnderCursor(cursor);
     }
 
     MemoryDockWidget::keyPressEvent(event);
