@@ -161,6 +161,11 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 
 DisassemblyContextMenu::~DisassemblyContextMenu() {}
 
+QWidget *DisassemblyContextMenu::parentForDialog()
+{
+    return parentWidget();
+}
+
 void DisassemblyContextMenu::addSetBaseMenu()
 {
     setBaseMenu = addMenu(tr("Set Immediate Base to..."));
@@ -690,7 +695,7 @@ void DisassemblyContextMenu::on_actionEditInstruction_triggered()
     if (!ioModesController.prepareForWriting()) {
         return;
     }
-    EditInstructionDialog e(EDIT_TEXT, this);
+    EditInstructionDialog e(EDIT_TEXT, parentForDialog());
     e.setWindowTitle(tr("Edit Instruction at %1").arg(RzAddressString(offset)));
 
     QString oldInstructionOpcode = Core()->getInstructionOpcode(offset);
@@ -740,7 +745,7 @@ void DisassemblyContextMenu::on_actionEditBytes_triggered()
     if (!ioModesController.prepareForWriting()) {
         return;
     }
-    EditInstructionDialog e(EDIT_BYTES, this);
+    EditInstructionDialog e(EDIT_BYTES, parentForDialog());
     e.setWindowTitle(tr("Edit Bytes at %1").arg(RzAddressString(offset)));
 
     QString oldBytes = Core()->getInstructionBytes(offset);
@@ -774,9 +779,9 @@ void DisassemblyContextMenu::on_actionAdvancedBreakpoint_triggered()
 {
     int index = Core()->breakpointIndexAt(offset);
     if (index >= 0) {
-        BreakpointsDialog::editBreakpoint(Core()->getBreakpointAt(offset), this);
+        BreakpointsDialog::editBreakpoint(Core()->getBreakpointAt(offset), parentForDialog());
     } else {
-        BreakpointsDialog::createNewBreakpoint(offset, this);
+        BreakpointsDialog::createNewBreakpoint(offset, parentForDialog());
     }
 }
 
@@ -793,7 +798,7 @@ void DisassemblyContextMenu::on_actionSetPC_triggered()
 
 void DisassemblyContextMenu::on_actionAddComment_triggered()
 {
-    CommentsDialog::addOrEditComment(offset, this);
+    CommentsDialog::addOrEditComment(offset, parentForDialog());
 }
 
 void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
@@ -810,7 +815,7 @@ void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
     }
 
     // Create dialog
-    QInputDialog inputDialog(this->mainWindow);
+    QInputDialog inputDialog(parentForDialog());
     inputDialog.resize(500, 100);
     inputDialog.setWindowTitle(tr("New function at %1").arg(RzAddressString(offset)));
     inputDialog.setLabelText(tr("Function name:"));
@@ -839,12 +844,12 @@ void DisassemblyContextMenu::on_actionRename_triggered()
             Core()->renameFunction(doRenameInfo.addr, newName);
         }
     } else if (doRenameAction == RENAME_FLAG || doRenameAction == RENAME_ADD_FLAG) {
-        FlagDialog dialog(doRenameInfo.addr, this->mainWindow);
+        FlagDialog dialog(doRenameInfo.addr, parentForDialog());
         ok = dialog.exec();
     } else if (doRenameAction == RENAME_LOCAL) {
         RzAnalysisFunction *fcn = Core()->functionIn(offset);
         if (fcn) {
-            EditVariablesDialog dialog(fcn->addr, curHighlightedWord, this->mainWindow);
+            EditVariablesDialog dialog(fcn->addr, curHighlightedWord, parentForDialog());
             if (!dialog.empty()) {
                 // Don't show the dialog if there are no variables
                 ok = dialog.exec();
@@ -873,7 +878,7 @@ void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
         return;
     }
 
-    EditVariablesDialog dialog(fcn->addr, curHighlightedWord, this->mainWindow);
+    EditVariablesDialog dialog(fcn->addr, curHighlightedWord, parentForDialog());
     if (dialog.empty()) { // don't show the dialog if there are no variables
         return;
     }
@@ -898,7 +903,7 @@ void DisassemblyContextMenu::on_actionXRefsForVariables_triggered()
 
 void DisassemblyContextMenu::on_actionDisplayOptions_triggered()
 {
-    PreferencesDialog dialog(this->window());
+    PreferencesDialog dialog(parentForDialog());
     dialog.showSection(PreferencesDialog::Section::Disassembly);
     dialog.exec();
 }
@@ -920,7 +925,7 @@ void DisassemblyContextMenu::on_actionSetAsStringRemove_triggered()
 
 void DisassemblyContextMenu::on_actionSetAsStringAdvanced_triggered()
 {
-    EditStringDialog dialog(parentWidget());
+    EditStringDialog dialog(parentForDialog());
     const int predictedStrSize = Core()->getString(offset).size();
     dialog.setStringSizeValue(predictedStrSize);
     dialog.setStringStartAddress(offset);
@@ -970,7 +975,7 @@ void DisassemblyContextMenu::on_actionSetToData_triggered()
 
 void DisassemblyContextMenu::on_actionSetToDataEx_triggered()
 {
-    SetToDataDialog dialog(offset, this->window());
+    SetToDataDialog dialog(offset, parentForDialog());
     if (!dialog.exec()) {
         return;
     }
@@ -1000,7 +1005,7 @@ void DisassemblyContextMenu::on_actionDeleteFunction_triggered()
 void DisassemblyContextMenu::on_actionEditFunction_triggered()
 {
     RzCore *core = Core()->core();
-    EditFunctionDialog dialog(mainWindow);
+    EditFunctionDialog dialog(parentForDialog());
     RzAnalysisFunction *fcn = rz_analysis_get_fcn_in(core->analysis, offset, 0);
 
     if (fcn) {
