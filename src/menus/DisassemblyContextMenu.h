@@ -168,6 +168,11 @@ private:
     QMenu *pluginMenu = nullptr;
     QAction *pluginActionMenuAction = nullptr;
 
+    /**
+     * \return widget that should be used as parent for presenting dialogs
+     */
+    QWidget *parentForDialog();
+
     // For creating anonymous entries (that are always visible)
     QAction *addAnonymousAction(QString name, const char *slot, QKeySequence shortcut);
 

@@ -387,7 +387,7 @@ void DecompilerContextMenu::actionCopyReferenceAddressTriggered()
 
 void DecompilerContextMenu::actionAddCommentTriggered()
 {
-    CommentsDialog::addOrEditComment(this->firstOffsetInLine, this);
+    CommentsDialog::addOrEditComment(this->firstOffsetInLine, parentForDialog());
 }
 
 void DecompilerContextMenu::actionDeleteCommentTriggered()
