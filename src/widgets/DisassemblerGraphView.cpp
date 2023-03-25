@@ -345,7 +345,6 @@ void DisassemblerGraphView::prepareGraphNode(GraphBlock &block)
             lw += mFontMetrics->width(part.text);
         if (lw > width)
             width = lw;
-        height += 1;
     }
     for (Instr &instr : db.instrs) {
         for (auto &line : instr.text.lines) {
@@ -469,11 +468,6 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
     // Render node text
     auto x = block.x + padding;
     int y = block.y + getTextOffset(0).y();
-    for (auto &line : db.header_text.lines) {
-        RichTextPainter::paintRichText<qreal>(&p, x, y, block.width, charHeight, 0, line,
-                                              mFontMetrics.get());
-        y += charHeight;
-    }
 
     auto bih = Core()->getBIHighlighter();
     for (const Instr &instr : db.instrs) {

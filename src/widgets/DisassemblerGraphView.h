@@ -108,7 +108,6 @@ public:
 
     void loadCurrentGraph();
     QString windowTitle;
-
     int getWidth() { return width; }
     int getHeight() { return height; }
     std::unordered_map<ut64, GraphBlock> getBlocks() { return blocks; }
