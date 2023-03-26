@@ -9,14 +9,6 @@ Disassembly Context Menu
 
 The Disassembly context menu contains actions that operate with selected instruction in disassembly and graph widgets.
 
-Copy
-----------------------------------------
-**Description:** Copy the selected text.  
-
-**Steps:**  Right-click on a selected text and choose ``Copy``  
-
-**Shortcut:** :kbd:`Ctrl` + :kbd:`C`  
-
 Copy Address
 ----------------------------------------
 **Description:** Copy the address of the location under the cursor.  
