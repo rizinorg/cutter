@@ -5,6 +5,7 @@
 
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
+#include "widgets/ListDockWidget.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
@@ -21,7 +22,7 @@ class ClassesWidget;
 /**
  * @brief Common abstract base class for Bin and Anal classes models
  */
-class ClassesModel : public QAbstractItemModel
+class ClassesModel : public AddressableItemModel<>
 {
 public:
     enum Columns { NAME = 0, REAL_NAME, TYPE, OFFSET, VTABLE, COUNT };
@@ -69,10 +70,13 @@ public:
      */
     static const int RealNameRole = Qt::UserRole + 4;
 
-    explicit ClassesModel(QObject *parent = nullptr) : QAbstractItemModel(parent) {}
+    explicit ClassesModel(QObject *parent = nullptr) : AddressableItemModel(parent) {}
 
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
+
+    RVA address(const QModelIndex &index) const override;
+    QString name(const QModelIndex &index) const override;
 };
 
 Q_DECLARE_METATYPE(ClassesModel::RowType)
@@ -163,7 +167,7 @@ public slots:
     void classAttrsChanged(const QString &cls);
 };
 
-class ClassesSortFilterProxyModel : public QSortFilterProxyModel
+class ClassesSortFilterProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
 
@@ -176,7 +180,7 @@ protected:
     bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
 };
 
-class ClassesWidget : public CutterDockWidget
+class ClassesWidget : public ListDockWidget
 {
     Q_OBJECT
 
@@ -185,29 +189,34 @@ public:
     ~ClassesWidget();
 
 private slots:
-    void on_classesTreeView_doubleClicked(const QModelIndex &index);
-
-    void on_seekToVTableAction_triggered();
-    void on_addMethodAction_triggered();
-    void on_editMethodAction_triggered();
-    void on_newClassAction_triggered();
-    void on_deleteClassAction_triggered();
-    void on_renameClassAction_triggered();
-
-    void showContextMenu(const QPoint &pt);
+    void seekToVTableActionTriggered();
+    void editMethodActionTriggered();
+    void addMethodActionTriggered();
+    void newClassActionTriggered();
+    void renameClassActionTriggered();
+    void deleteClassActionTriggered();
 
     void refreshClasses();
+    void updateActions();
 
 private:
     enum class Source { BIN, ANALYSIS };
 
     Source getSource();
 
-    std::unique_ptr<Ui::ClassesWidget> ui;
-
     BinClassesModel *bin_model = nullptr;
     AnalysisClassesModel *analysis_model = nullptr;
     ClassesSortFilterProxyModel *proxy_model;
+
+    QComboBox *classSourceCombo;
+
+    QAction seekToVTableAction;
+    QAction editMethodAction;
+    QAction addMethodAction;
+    QAction newClassAction;
+    QAction renameClassAction;
+    QAction deleteClassAction;
+    QAction *classesMethodsSeparator;
 };
 
 #endif // CLASSESWIDGET_H

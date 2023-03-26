@@ -112,7 +112,8 @@ void AddressableItemContextMenu::aboutToShowSlot()
 void AddressableItemContextMenu::setHasTarget(bool hasTarget)
 {
     this->hasTarget = hasTarget;
-    for (const auto &action : this->actions()) {
-        action->setEnabled(hasTarget);
-    }
+    actionShowInMenu->setEnabled(hasTarget);
+    actionCopyAddress->setEnabled(hasTarget);
+    actionShowXrefs->setEnabled(hasTarget);
+    actionAddcomment->setEnabled(hasTarget);
 }
