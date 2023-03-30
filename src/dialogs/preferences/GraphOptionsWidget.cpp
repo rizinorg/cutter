@@ -42,7 +42,7 @@ GraphOptionsWidget::~GraphOptionsWidget() {}
 void GraphOptionsWidget::updateOptionsFromVars()
 {
     qhelpers::setCheckedWithoutSignals(ui->graphOffsetCheckBox,
-                                       Config()->getConfigBool("graph.offset"));
+                                       Config()->getConfigBool("ag.offset"));
     ui->maxColsSpinBox->blockSignals(true);
     ui->maxColsSpinBox->setValue(Config()->getGraphBlockMaxChars());
     ui->maxColsSpinBox->blockSignals(false);
@@ -80,8 +80,11 @@ void GraphOptionsWidget::on_minFontSizeSpinBox_valueChanged(int value)
 
 void GraphOptionsWidget::on_graphOffsetCheckBox_toggled(bool checked)
 {
-    Config()->setConfig("graph.offset", checked);
-    emit Core()->asmOptionsChanged();
+    Config()->setConfig("ag.offset", checked);
+    Config()->setConfig("asm.offset", checked);
+    //Config()->getConfigBool('')
+    //emit Core()->asmOptionsChanged();
+    Core()->triggerAsmOptionsChanged();
     triggerOptionsChanged();
 }
 
