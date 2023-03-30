@@ -57,16 +57,30 @@ public:
         itemContextMenu = menu;
     }
 
+    /**
+     * If this is set to true, the context menu will also be shown if no item
+     * is currently selected.
+     */
+    void setShowItemContextMenuWithoutAddress(bool val) { showItemContextMenuWithoutAddress = val; }
+
 protected:
     virtual void showItemContextMenu(const QPoint &pt)
     {
+        if (!itemContextMenu) {
+            return;
+        }
         auto index = this->currentIndex();
-        if (index.isValid() && itemContextMenu) {
+        if (index.isValid()) {
             auto offset = addressableModel->address(index);
             auto name = addressableModel->name(index);
             itemContextMenu->setTarget(offset, name);
-            itemContextMenu->exec(this->mapToGlobal(pt));
+        } else {
+            if (!showItemContextMenuWithoutAddress) {
+                return;
+            }
+            itemContextMenu->clearTarget();
         }
+        itemContextMenu->exec(this->mapToGlobal(pt));
     }
 
     virtual void onItemActivated(const QModelIndex &index)
@@ -90,6 +104,7 @@ protected:
     }
 
 private:
+    bool showItemContextMenuWithoutAddress = false;
     AddressableItemModelI *addressableModel = nullptr;
     AddressableItemContextMenu *itemContextMenu = nullptr;
     MainWindow *mainWindow = nullptr;

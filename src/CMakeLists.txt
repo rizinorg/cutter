@@ -338,7 +338,6 @@ set(UI_FILES
     dialogs/preferences/InitializationFileEditor.ui
     widgets/QuickFilterView.ui
     widgets/DecompilerWidget.ui
-    widgets/ClassesWidget.ui
     widgets/VTablesWidget.ui
     widgets/TypesWidget.ui
     widgets/SearchWidget.ui
