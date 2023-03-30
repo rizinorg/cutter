@@ -82,8 +82,6 @@ void GraphOptionsWidget::on_graphOffsetCheckBox_toggled(bool checked)
 {
     Config()->setConfig("ag.offset", checked);
     Config()->setConfig("asm.offset", checked);
-    //Config()->getConfigBool('')
-    //emit Core()->asmOptionsChanged();
     Core()->triggerAsmOptionsChanged();
     triggerOptionsChanged();
 }
