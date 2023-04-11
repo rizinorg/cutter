@@ -59,6 +59,18 @@ if(WIN32)
 			endif()
 		")
 	endif()
+	if (CUTTER_PACKAGE_RZ_SILHOUETTE AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
+		install(CODE "
+			set(ENV{RZ_PREFIX} \"\${CMAKE_INSTALL_PREFIX}\")
+			set(ENV{PATH} \"\${CMAKE_INSTALL_PREFIX};\$ENV{PATH}\")
+			execute_process(COMMAND powershell \"${CMAKE_CURRENT_SOURCE_DIR}/bundle_rz_silhouette.ps1\" \"\${CMAKE_INSTALL_PREFIX}\"
+							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+							RESULT_VARIABLE SCRIPT_RESULT)
+			if (SCRIPT_RESULT)
+				message(FATAL_ERROR \"Failed to package rz-silhouette (returned \${SCRIPT_RESULT})\")
+			endif()
+		")
+	endif()
 endif()
 
 ################################################
@@ -147,6 +159,18 @@ if(CUTTER_ENABLE_DEPENDENCY_DOWNLOADS AND (NOT WIN32))
 							RESULT_VARIABLE SCRIPT_RESULT)
 			if (SCRIPT_RESULT)
 				message(FATAL_ERROR \"Failed to package rz-libyara (returned \${SCRIPT_RESULT})\")
+			endif()
+		")
+	endif()
+	if (CUTTER_PACKAGE_RZ_SILHOUETTE)
+		install(CODE "
+			execute_process(COMMAND
+							\"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/rz-silhouette.sh\"
+							\"\${CMAKE_INSTALL_PREFIX}\" \"${YARA_PLUGIN_OPTIONS}\"
+							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+							RESULT_VARIABLE SCRIPT_RESULT)
+			if (SCRIPT_RESULT)
+				message(FATAL_ERROR \"Failed to package rz-silhouette (returned \${SCRIPT_RESULT})\")
 			endif()
 		")
 	endif()
