@@ -4,8 +4,6 @@ $python = Split-Path((Get-Command python.exe).Path)
 
 if (-not (Test-Path -Path 'rz-silhouette' -PathType Container)) {
     git clone https://github.com/rizinorg/rz-silhouette.git --depth 1 rz-silhouette
-    git -C rz-silhouette submodule init
-    git -C rz-silhouette submodule update
 }
 cd rz-silhouette
 & meson.exe --buildtype=release --prefix=$dist build
