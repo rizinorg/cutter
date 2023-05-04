@@ -91,7 +91,7 @@ bool IOModesController::askCommitUnsavedChanges()
     // Check if there are uncommitted changes
     if (!allChangesComitted()) {
         QMessageBox::StandardButton ret = QMessageBox::question(
-                NULL, QObject::tr("Uncomitted changes"),
+                NULL, QObject::tr("Uncommitted changes"),
                 QObject::tr("It seems that you have changes or patches that are not committed to "
                             "the file.\n"
                             "Do you want to commit them now?"),
