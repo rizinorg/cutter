@@ -33,7 +33,7 @@ void MapFileDialog::on_buttonBox_accepted()
     }
 
     if (!Core()->mapFile(filePath, mapAddress)) {
-        QMessageBox::critical(this, tr("Map new file file"), tr("Failed to map a new file"));
+        QMessageBox::critical(this, tr("Map new file"), tr("Failed to map a new file"));
         return;
     }
     close();
