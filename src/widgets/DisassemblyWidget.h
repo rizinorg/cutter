@@ -53,6 +53,7 @@ public slots:
 protected slots:
     void on_seekChanged(RVA offset);
     void refreshIfInRange(RVA offset);
+    void instructionChanged(RVA offset);
     void refreshDisasm(RVA offset = RVA_INVALID);
 
     bool updateMaxLines();
@@ -153,6 +154,7 @@ public:
     DisassemblyLeftPanel(DisassemblyWidget *disas);
     void paintEvent(QPaintEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
+    void clearArrowFrom(RVA offset);
 
 private:
     DisassemblyWidget *disas;
