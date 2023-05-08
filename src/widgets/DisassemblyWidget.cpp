@@ -623,10 +623,12 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         && (obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
-        const QTextCursor &cursor = mDisasTextEdit->cursorForPosition(mouseEvent->pos());
-        jumpToOffsetUnderCursor(cursor);
+        if (mouseEvent->button() == Qt::LeftButton) {
+            const QTextCursor &cursor = mDisasTextEdit->cursorForPosition(mouseEvent->pos());
+            jumpToOffsetUnderCursor(cursor);
 
-        return true;
+            return true;
+        }
     } else if (Config()->getPreviewValue()
             && event->type() == QEvent::ToolTip
             && obj == mDisasTextEdit->viewport()) {
