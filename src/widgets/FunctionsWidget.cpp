@@ -508,6 +508,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     functionProxyModel = new FunctionSortFilterProxyModel(functionModel, this);
     setModels(functionProxyModel);
     ui->treeView->sortByColumn(FunctionModel::NameColumn, Qt::AscendingOrder);
+    ui->treeView->setExpandsOnDoubleClick(false);
 
     titleContextMenu = new QMenu(this);
     auto viewTypeGroup = new QActionGroup(titleContextMenu);
