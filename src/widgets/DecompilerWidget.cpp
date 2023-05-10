@@ -26,8 +26,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main)
       ui(new Ui::DecompilerWidget),
       decompilerBusy(false),
       seekFromCursor(false),
-      scrollerHorizontal(0),
-      scrollerVertical(0),
+      historyPos(0),
       previousFunctionAddr(RVA_INVALID),
       decompiledFunctionAddr(RVA_INVALID),
       code(Decompiler::makeWarning(tr("Choose an offset and refresh to get decompiled code")),
@@ -311,13 +310,6 @@ QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
 
 void DecompilerWidget::decompilationFinished(RzAnnotatedCode *codeDecompiled)
 {
-    bool isDisplayReset = false;
-    if (previousFunctionAddr == decompiledFunctionAddr) {
-        scrollerHorizontal = ui->textEdit->horizontalScrollBar()->sliderPosition();
-        scrollerVertical = ui->textEdit->verticalScrollBar()->sliderPosition();
-        isDisplayReset = true;
-    }
-
     ui->progressLabel->setVisible(false);
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
 
@@ -354,10 +346,8 @@ void DecompilerWidget::decompilationFinished(RzAnnotatedCode *codeDecompiled)
         }
     }
 
-    if (isDisplayReset) {
-        ui->textEdit->horizontalScrollBar()->setSliderPosition(scrollerHorizontal);
-        ui->textEdit->verticalScrollBar()->setSliderPosition(scrollerVertical);
-    }
+    ui->textEdit->horizontalScrollBar()->setSliderPosition(scrollHistory[historyPos].first);
+    ui->textEdit->verticalScrollBar()->setSliderPosition(scrollHistory[historyPos].second);
 }
 
 void DecompilerWidget::setAnnotationsAtCursor(size_t pos)
@@ -416,10 +406,25 @@ void DecompilerWidget::cursorPositionChanged()
     updateSelection();
 }
 
-void DecompilerWidget::seekChanged()
+void DecompilerWidget::seekChanged(RVA /* addr */, CutterCore::SeekHistoryType type)
 {
     if (seekFromCursor) {
         return;
+    }
+
+    if (!scrollHistory.empty()) { // History is empty upon init.
+        scrollHistory[historyPos] = { ui->textEdit->horizontalScrollBar()->sliderPosition(),
+                                      ui->textEdit->verticalScrollBar()->sliderPosition() };
+    }
+    if (type == CutterCore::SeekHistoryType::New) {
+        // Erase previous history past this point.
+        scrollHistory.erase(scrollHistory.begin() + historyPos + 1, scrollHistory.end());
+        scrollHistory.push_back({ 0, 0 });
+        historyPos = scrollHistory.size() - 1;
+    } else if (type == CutterCore::SeekHistoryType::Undo) {
+        --historyPos;
+    } else if (type == CutterCore::SeekHistoryType::Redo) {
+        ++historyPos;
     }
     RVA fcnAddr = Core()->getFunctionStart(seekable->getOffset());
     if (fcnAddr == RVA_INVALID || fcnAddr != decompiledFunctionAddr) {
