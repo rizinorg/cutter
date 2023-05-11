@@ -96,7 +96,7 @@ void GenericRizinGraphView::loadCurrentGraph()
         return;
     }
 
-    CutterJson functionsDoc = Core()->cmdj(QString("%1j").arg(graphCommand));
+    CutterJson functionsDoc = Core()->cmdj(QString("%1 json").arg(graphCommand));
     auto nodes = functionsDoc["nodes"];
 
     for (CutterJson block : nodes) {
