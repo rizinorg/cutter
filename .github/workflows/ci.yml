@@ -35,7 +35,9 @@ jobs:
             system-deps: false
             python-version: 3.7.x
           - name: linux-x86_64-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 18.04 using sytem libraries
-            os: ubuntu-18.04
+            os: ubuntu-latest
+            container:
+              image: ubuntu:18.04
             python-version: 3.6.x
             system-deps: true
             cc-override: '/usr/bin/gcc-7'
@@ -47,7 +49,9 @@ jobs:
             cc-override: '/usr/bin/gcc-12'
             cxx-override: '/usr/bin/g++-12'
           - name: linux-x86_64
-            os: ubuntu-18.04
+            os: ubuntu-latest
+            container:
+              image: ubuntu:18.04
             python-version: 3.7.x
             system-deps: false
             package: true
@@ -77,12 +81,12 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install libgraphviz-dev mesa-common-dev libxkbcommon-x11-dev ninja-build
-        if [[ "${{ matrix.os }}" = "ubuntu-18.04" || "${{ matrix.os }}" = "ubuntu-20.04" ]]
+        if [[ "${{ matrix.container.image }}" = "ubuntu:18.04" || "${{ matrix.os }}" = "ubuntu-20.04" ]]
         then
           # install additional packages needed for appimage
           sudo apt-get install libxcb1-dev libxkbcommon-dev libxcb-*-dev libegl1 libclang-8-dev llvm-8
         fi
-        if [[ "${{ matrix.os }}" = "ubuntu-18.04" && "${{ matrix.system-deps }}" = "true" ]]
+        if [[ "${{ matrix.container.image }}" = "ubuntu:18.04" && "${{ matrix.system-deps }}" = "true" ]]
         then
           sudo apt-get install qt5-default libqt5svg5-dev qttools5-dev qttools5-dev-tools
         fi
