@@ -13,18 +13,18 @@ CutterSeekable::~CutterSeekable() {}
 void CutterSeekable::setSynchronization(bool sync)
 {
     synchronized = sync;
-    onCoreSeekChanged(Core()->getOffset());
+    onCoreSeekChanged(Core()->getOffset(), CutterCore::SeekHistoryType::New);
     emit syncChanged();
 }
 
-void CutterSeekable::onCoreSeekChanged(RVA addr)
+void CutterSeekable::onCoreSeekChanged(RVA addr, CutterCore::SeekHistoryType type)
 {
     if (synchronized && widgetOffset != addr) {
-        updateSeek(addr, true);
+        updateSeek(addr, type, true);
     }
 }
 
-void CutterSeekable::updateSeek(RVA addr, bool localOnly)
+void CutterSeekable::updateSeek(RVA addr, CutterCore::SeekHistoryType type, bool localOnly)
 {
     previousOffset = widgetOffset;
     widgetOffset = addr;
@@ -32,7 +32,7 @@ void CutterSeekable::updateSeek(RVA addr, bool localOnly)
         Core()->seek(addr);
     }
 
-    emit seekableSeekChanged(addr);
+    emit seekableSeekChanged(addr, type);
 }
 
 void CutterSeekable::seekPrev()
@@ -40,7 +40,7 @@ void CutterSeekable::seekPrev()
     if (synchronized) {
         Core()->seekPrev();
     } else {
-        this->seek(previousOffset);
+        this->seek(previousOffset, CutterCore::SeekHistoryType::Undo);
     }
 }
 

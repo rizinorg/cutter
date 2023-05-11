@@ -327,6 +327,7 @@ void DisassemblyWidget::scrollInstructions(int count)
     }
 
     refreshDisasm(offset);
+    topOffsetHistory[topOffsetHistoryPos] = offset;
 }
 
 bool DisassemblyWidget::updateMaxLines()
@@ -660,19 +661,32 @@ QString DisassemblyWidget::getWindowTitle() const
     return tr("Disassembly");
 }
 
-void DisassemblyWidget::on_seekChanged(RVA offset)
+void DisassemblyWidget::on_seekChanged(RVA offset, CutterCore::SeekHistoryType type)
 {
+    if (type == CutterCore::SeekHistoryType::New) {
+        // Erase previous history past this point.
+        topOffsetHistory.erase(topOffsetHistory.begin() + topOffsetHistoryPos + 1,
+                               topOffsetHistory.end());
+        topOffsetHistory.push_back(offset);
+        topOffsetHistoryPos = topOffsetHistory.size() - 1;
+    } else if (type == CutterCore::SeekHistoryType::Undo) {
+        --topOffsetHistoryPos;
+    } else if (type == CutterCore::SeekHistoryType::Redo) {
+        ++topOffsetHistoryPos;
+    }
     if (!seekFromCursor) {
         cursorLineOffset = 0;
         cursorCharOffset = 0;
     }
 
-    if (topOffset != RVA_INVALID && offset >= topOffset && offset <= bottomOffset) {
+    if (topOffset != RVA_INVALID && offset >= topOffset && offset <= bottomOffset
+        && type == CutterCore::SeekHistoryType::New) {
         // if the line with the seek offset is currently visible, just move the cursor there
         updateCursorPosition();
+        topOffsetHistory[topOffsetHistoryPos] = topOffset;
     } else {
         // otherwise scroll there
-        refreshDisasm(offset);
+        refreshDisasm(topOffsetHistory[topOffsetHistoryPos]);
     }
     mCtxMenu->setOffset(offset);
 }

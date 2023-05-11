@@ -172,6 +172,8 @@ public:
         return returner;
     }
 
+    enum class SeekHistoryType { New, Undo, Redo };
+
     CutterJson cmdj(const char *str);
     CutterJson cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
     QString cmdTask(const QString &str);
@@ -324,7 +326,7 @@ public:
     void seekSilent(QString thing) { seekSilent(math(thing)); }
     void seekPrev();
     void seekNext();
-    void updateSeek();
+    void updateSeek(SeekHistoryType type = SeekHistoryType::New);
     /**
      * @brief Raise a memory widget showing current offset, prefer last active
      * memory widget.
@@ -794,8 +796,9 @@ signals:
     /**
      * @brief seekChanged is emitted each time Rizin's seek value is modified
      * @param offset
+     * @param historyType
      */
-    void seekChanged(RVA offset);
+    void seekChanged(RVA offset, SeekHistoryType type = SeekHistoryType::New);
 
     void toggleDebugView();
 

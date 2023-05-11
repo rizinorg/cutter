@@ -1002,19 +1002,19 @@ void CutterCore::seekPrev()
 {
     CORE_LOCK();
     rz_core_seek_undo(core);
-    updateSeek();
+    updateSeek(SeekHistoryType::Undo);
 }
 
 void CutterCore::seekNext()
 {
     CORE_LOCK();
     rz_core_seek_redo(core);
-    updateSeek();
+    updateSeek(SeekHistoryType::Redo);
 }
 
-void CutterCore::updateSeek()
+void CutterCore::updateSeek(SeekHistoryType type)
 {
-    emit seekChanged(getOffset());
+    emit seekChanged(getOffset(), type);
 }
 
 RVA CutterCore::prevOpAddr(RVA startAddr, int count)
