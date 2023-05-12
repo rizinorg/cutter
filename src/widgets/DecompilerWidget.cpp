@@ -418,7 +418,9 @@ void DecompilerWidget::seekChanged(RVA /* addr */, CutterCore::SeekHistoryType t
     }
     if (type == CutterCore::SeekHistoryType::New) {
         // Erase previous history past this point.
-        scrollHistory.erase(scrollHistory.begin() + historyPos + 1, scrollHistory.end());
+        if (scrollHistory.size() > historyPos + 1) {
+            scrollHistory.erase(scrollHistory.begin() + historyPos + 1, scrollHistory.end());
+        }
         scrollHistory.push_back({ 0, 0 });
         historyPos = scrollHistory.size() - 1;
     } else if (type == CutterCore::SeekHistoryType::Undo) {
