@@ -665,8 +665,10 @@ void DisassemblyWidget::on_seekChanged(RVA offset, CutterCore::SeekHistoryType t
 {
     if (type == CutterCore::SeekHistoryType::New) {
         // Erase previous history past this point.
-        topOffsetHistory.erase(topOffsetHistory.begin() + topOffsetHistoryPos + 1,
-                               topOffsetHistory.end());
+        if (topOffsetHistory.size() > topOffsetHistoryPos + 1) {
+            topOffsetHistory.erase(topOffsetHistory.begin() + topOffsetHistoryPos + 1,
+                                   topOffsetHistory.end());
+        }
         topOffsetHistory.push_back(offset);
         topOffsetHistoryPos = topOffsetHistory.size() - 1;
     } else if (type == CutterCore::SeekHistoryType::Undo) {
