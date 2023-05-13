@@ -160,7 +160,7 @@ HexWidget::HexWidget(QWidget *parent)
     connect(actionWriteCString, &QAction::triggered, this, &HexWidget::w_writeCString);
     actionsWriteString.append(actionWriteCString);
 
-    QAction *actionWrite64 = new QAction(tr("Write De\\Encoded Base64 string"), this);
+    QAction *actionWrite64 = new QAction(tr("Write a decoded or encoded Base64 string"), this);
     connect(actionWrite64, &QAction::triggered, this, &HexWidget::w_write64);
     actionsWriteString.append(actionWrite64);
 
@@ -1407,7 +1407,7 @@ void HexWidget::w_writeRandom()
     }
 
     bool ok = false;
-    int nbytes = QInputDialog::getInt(this, tr("Write random"), tr("Number of bytes:"), size, 1,
+    int nbytes = QInputDialog::getInt(this, tr("Write random bytes"), tr("Number of bytes:"), size, 1,
                                       0x7FFFFFFF, 1, &ok);
     if (!ok) {
         return;

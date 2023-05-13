@@ -168,7 +168,7 @@ QWidget *DisassemblyContextMenu::parentForDialog()
 
 void DisassemblyContextMenu::addSetBaseMenu()
 {
-    setBaseMenu = addMenu(tr("Set Immediate Base to..."));
+    setBaseMenu = addMenu(tr("Set base of immediate value to.."));
 
     initAction(&actionSetBaseBinary, tr("Binary"));
     setBaseMenu->addAction(&actionSetBaseBinary);
