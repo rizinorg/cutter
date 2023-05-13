@@ -323,7 +323,7 @@
            </size>
           </property>
           <property name="text">
-           <string>Auto Exp</string>
+           <string>Experimental</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>

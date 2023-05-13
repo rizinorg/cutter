@@ -142,7 +142,7 @@
                 <item row="17" column="1">
                  <widget class="QLabel" name="asmTabsOffLabel">
                   <property name="text">
-                   <string>Tabs before assembly (asm.tabs.off):</string>
+                   <string>The number of tabulate spaces after the offset (asm.tabs.off):</string>
                   </property>
                   <property name="textInteractionFlags">
                    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -479,7 +479,7 @@
              <item>
               <widget class="QCheckBox" name="varsubCheckBox">
                <property name="text">
-                <string>Substitute variables (asm.sub.var)</string>
+                <string>Substitute variables in disassembly (asm.sub.var)</string>
                </property>
               </widget>
              </item>

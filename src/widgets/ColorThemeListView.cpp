@@ -400,8 +400,7 @@ const QMap<QString, OptionInfo> optionInfoMap__ = {
     { "fname", { QObject::tr("Color of names of functions"), QObject::tr("Function name") } },
     { "floc", { QObject::tr("Color of function location"), QObject::tr("Function location") } },
     { "fline",
-      { QObject::tr(
-                "Color of ascii line in left side that shows what opcodes are belong to function"),
+      { QObject::tr("Color of the line which shows which opcodes belongs to a function"),
         QObject::tr("Function line") } },
     { "flag",
       { QObject::tr("Color of flags (similar to bookmarks for offset)"), QObject::tr("Flag") } },
