@@ -143,8 +143,8 @@ Configuration::Configuration() : QObject(), nativePalette(qApp->palette())
     mPtr = this;
     if (!s.isWritable()) {
         QMessageBox::critical(
-                nullptr, tr("Critical!"),
-                tr("!!! Settings are not writable! Make sure you have a write access to \"%1\"")
+                nullptr, tr("Critical Error!"),
+                tr("Settings are not writable! Make sure you have a write access to \"%1\".")
                         .arg(s.fileName()));
     }
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING

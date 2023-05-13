@@ -287,7 +287,7 @@ void NewFileDialog::fillIOPluginsList()
 {
     ui->ioPlugin->clear();
     ui->ioPlugin->addItem("file://");
-    ui->ioPlugin->setItemData(0, tr("Open a file with no extra treatment."), Qt::ToolTipRole);
+    ui->ioPlugin->setItemData(0, tr("Open a file without additional options/settings."), Qt::ToolTipRole);
 
     int index = 1;
     QList<RzIOPluginDescription> ioPlugins = Core()->getRIOPluginDescriptions();
