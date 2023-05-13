@@ -44,13 +44,6 @@ bool DisassemblyPreview::showDisasPreview(QWidget *parent, const QPoint &pointOf
         }
 
         RVA offsetTo = refs.at(0).to; // This is the offset we want to preview
-
-        if (Q_UNLIKELY(offsetFrom != refs.at(0).from)) {
-            qWarning() << QObject::tr("offsetFrom (%1) differs from refs.at(0).from (%(2))")
-                                  .arg(offsetFrom)
-                                  .arg(refs.at(0).from);
-        }
-
         /*
          * Only if the offset we point *to* is different from the one the cursor is currently
          * on *and* the former is a valid offset, we are allowed to get a preview of offsetTo
