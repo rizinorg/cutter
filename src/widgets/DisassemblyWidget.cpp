@@ -132,7 +132,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     connect(Core(), &CutterCore::functionRenamed, this, [this]() { refreshDisasm(); });
     connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshDisasm()));
-    connect(Core(), &CutterCore::instructionChanged, this, &DisassemblyWidget::refreshIfInRange);
+    connect(Core(), &CutterCore::instructionChanged, this, &DisassemblyWidget::instructionChanged);
     connect(Core(), &CutterCore::breakpointsChanged, this, &DisassemblyWidget::refreshIfInRange);
     connect(Core(), SIGNAL(refreshCodeViews()), this, SLOT(refreshDisasm()));
 
@@ -224,6 +224,12 @@ void DisassemblyWidget::refreshIfInRange(RVA offset)
     if (offset >= topOffset && offset <= bottomOffset) {
         refreshDisasm();
     }
+}
+
+void DisassemblyWidget::instructionChanged(RVA offset)
+{
+    leftPanel->clearArrowFrom(offset);
+    refreshDisasm();
 }
 
 void DisassemblyWidget::refreshDisasm(RVA offset)
@@ -1005,4 +1011,13 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     }
 
     lastBeginOffset = lines.first().offset;
+}
+
+void DisassemblyLeftPanel::clearArrowFrom(RVA offset)
+{
+    auto it = std::find_if(arrows.begin(), arrows.end(),
+                           [&](const Arrow &it) { return it.jmpFromOffset() == offset; });
+    if (it != arrows.end()) {
+        arrows.erase(it);
+    }
 }
