@@ -166,7 +166,7 @@ jobs:
         if [ "${{ matrix.system-deps }}" = "false" ]
         then
           scripts/fetch_deps.sh
-          source cutter-deps/env.sh
+          . cutter-deps/env.sh
           export PKG_CONFIG_PATH="$CUTTER_DEPS_PYTHON_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
           export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
         fi
