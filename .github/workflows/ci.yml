@@ -117,7 +117,11 @@ jobs:
 
         if [ "${{ matrix.image }}" = "ubuntu:18.04" ]; then
           # install additional packages needed for appimage
-          apt-get -y install gcc-7
+          apt-get -y install gcc-7 \
+                             libglu1-mesa-dev \
+                             freeglut3-dev \
+                             mesa-common-dev
+
         fi
         if [ "${{ matrix.image }}" = "ubuntu:18.04" ] || [ "${{ matrix.image }}" = "ubuntu:20.04" ]; then
           # install additional packages needed for appimage
