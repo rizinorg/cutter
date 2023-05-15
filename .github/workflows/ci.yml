@@ -94,7 +94,10 @@ jobs:
         git version
 
         wget "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-linux-x86_64.sh"
-        bash ./cmake-$CMAKE_VERSION-linux-x86_64.sh --skip-license
+        bash ./cmake-$CMAKE_VERSION-linux-x86_64.sh --skip-license --prefix=/usr
+
+        # ensure cmake is installed.
+        cmake --version
 
         # cleanup dev environment.
         rm -rf "$GIT_VERSION.tar.gz" "$GIT_VERSION" cmake-$CMAKE_VERSION-linux-x86_64.sh
@@ -193,7 +196,6 @@ jobs:
 
         mkdir build
         cd build
-        cmake --version
         if [ "${{ matrix.system-deps }}" = "false" ]
         then
           cmake \
