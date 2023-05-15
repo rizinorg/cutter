@@ -518,7 +518,7 @@ if(CUTTER_ENABLE_PYTHON)
         endif()
 
         configure_file("${BINDINGS_SRC_DIR}/bindings.txt.in" "${BINDINGS_BUILD_DIR}/bindings.txt")
-        add_compile_definitions(WIN32_LEAN_AND_MEAN)
+        add_definitions(-DWIN32_LEAN_AND_MEAN)
     endif()
 endif()
 
