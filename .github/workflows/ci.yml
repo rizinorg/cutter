@@ -72,7 +72,7 @@ jobs:
         export TZ=UTC
         ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-    - name: install latest git
+    - name: install latest git and cmake
       shell: bash
       run: |
         set -e
@@ -80,6 +80,7 @@ jobs:
         echo "Using image: ${{ matrix.image }}"
 
         export GIT_VERSION="git-2.36.1"
+        export CMAKE_VERSION="3.25.3"
 
         apt-get -y install wget libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev build-essential
 
@@ -92,8 +93,12 @@ jobs:
         # ensure git is installed.
         git version
 
+        wget "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-linux-x86_64.sh"
+        bash ./cmake-$CMAKE_VERSION-linux-x86_64.sh --skip-license
+
         # cleanup dev environment.
-        rm -rf "$GIT_VERSION.tar.gz" "$GIT_VERSION"
+        rm -rf "$GIT_VERSION.tar.gz" "$GIT_VERSION" cmake-$CMAKE_VERSION-linux-x86_64.sh
+        unset CMAKE_VERSION
         unset GIT_VERSION
 
     - uses: actions/checkout@v3
@@ -110,7 +115,6 @@ jobs:
                            libxkbcommon-x11-dev \
                            ninja-build \
                            python3-pip \
-                           cmake \
                            curl \
                            libpcre2-dev \
                            pkg-config
