@@ -111,7 +111,8 @@ jobs:
                            ninja-build \
                            python3-pip \
                            cmake \
-                           curl
+                           curl \
+                           pkg-config
 
         if [ "${{ matrix.image }}" = "ubuntu:18.04" ]; then
           # install additional packages needed for appimage
