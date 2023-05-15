@@ -73,6 +73,7 @@ jobs:
         ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
     - name: install latest git
+      shell: bash
       run: |
         set -e
         apt-get -y update
@@ -86,7 +87,7 @@ jobs:
         tar -zxf "$GIT_VERSION.tar.gz"
 
         # build.
-        make -C "$GIT_VERSION" prefix=/usr install -j
+        make -C "$GIT_VERSION" prefix=/usr install -j > "$GIT_VERSION/build.log"
 
         # ensure git is installed.
         git version
@@ -101,6 +102,7 @@ jobs:
         persist-credentials: false
 
     - name: apt cutter dependencies
+      shell: bash
       run: |
         # install needed packages
         apt-get -y install libgraphviz-dev \
@@ -123,6 +125,7 @@ jobs:
                              libegl1 \
                              libclang-8-dev \
                              llvm-8
+          ln -s /usr/bin/llvm-config-8 /usr/bin/llvm-config
         fi
         if [ "${{ matrix.image }}" = "ubuntu:18.04" ] && [ "${{ matrix.system-deps }}" = "true" ]; then
           apt-get -y install qt5-default \
@@ -162,6 +165,7 @@ jobs:
         PACKAGE_ID=${PACKAGE_ID##refs/tags/}
         echo PACKAGE_ID=$PACKAGE_ID >> $GITHUB_ENV
     - name: cmake ubuntu
+      shell: bash
       run: |
         if [ "${{ matrix.system-deps }}" = "false" ]
         then
