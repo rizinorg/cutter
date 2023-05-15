@@ -14,100 +14,164 @@ on:
     - dev
     - stable
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  build-linux:
     name: ${{ matrix.name }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.image }}
+      options: --privileged
     strategy:
       matrix:
         name: [
             linux-x86_64,
             linux-x86_64-system-deps,
             linux-x86_64-qt6-system-deps,
-            macos-x86_64,
-            windows-x86_64,
             tarball
         ]
         include:
-          - name: windows-x86_64
-            os: windows-2019
-            package: true
-            system-deps: false
-            python-version: 3.7.x
           - name: linux-x86_64-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 18.04 using sytem libraries
-            os: ubuntu-18.04
+            image: ubuntu:18.04
             python-version: 3.6.x
             system-deps: true
+            package: false
+            tarball: false
             cc-override: '/usr/bin/gcc-7'
             cxx-override: '/usr/bin/g++-7'
           - name: linux-x86_64-qt6-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 22.04 using sytem libraries
-            os: ubuntu-22.04
+            image: ubuntu:22.04
             python-version: 3.10.x
             system-deps: true
+            package: false
+            tarball: false
             cc-override: '/usr/bin/gcc-12'
             cxx-override: '/usr/bin/g++-12'
           - name: linux-x86_64
-            os: ubuntu-18.04
-            python-version: 3.7.x
+            image: ubuntu:18.04
+            python-version: 3.6.x
             system-deps: false
             package: true
-            cc-override: default
-            cxx-override: default
-          - name: macos-x86_64
-            os: macos-latest
-            python-version: 3.7.x
-            system-deps: false
-            package: true
+            tarball: false
             cc-override: default
             cxx-override: default
           - name: tarball
-            python-version: 3.7.x
-            os: ubuntu-20.04
+            python-version: 3.6.x
+            image: ubuntu:20.04
             system-deps: false
+            package: false
             tarball: true
       # Prevent one job from pausing the rest
       fail-fast: false
     steps:
+    - name: set timezone
+      run: |
+        # Fix timezone on ubuntu to prevent user input request during the apt-get phase.
+        export TZ=UTC
+        ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+    - name: install latest git and cmake
+      shell: bash
+      run: |
+        set -e
+        apt-get -y update
+        echo "Using image: ${{ matrix.image }}"
+
+        export GIT_VERSION="git-2.36.1"
+        export CMAKE_VERSION="3.25.3"
+
+        apt-get -y install wget libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev build-essential
+
+        wget "https://www.kernel.org/pub/software/scm/git/$GIT_VERSION.tar.gz"
+        tar -zxf "$GIT_VERSION.tar.gz"
+
+        # build.
+        make -C "$GIT_VERSION" prefix=/usr install -j > "$GIT_VERSION/build.log"
+
+        # ensure git is installed.
+        git version
+
+        wget "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-linux-x86_64.sh"
+        bash ./cmake-$CMAKE_VERSION-linux-x86_64.sh --skip-license --prefix=/usr
+
+        # ensure cmake is installed.
+        cmake --version
+
+        # cleanup dev environment.
+        rm -rf "$GIT_VERSION.tar.gz" "$GIT_VERSION" cmake-$CMAKE_VERSION-linux-x86_64.sh
+        unset CMAKE_VERSION
+        unset GIT_VERSION
+
     - uses: actions/checkout@v3
       with:
         submodules: recursive
         persist-credentials: false
-    - name: apt dependencies
-      if: contains(matrix.os, 'ubuntu')
+
+    - name: apt cutter dependencies
+      shell: bash
       run: |
-        sudo apt-get update
-        sudo apt-get install libgraphviz-dev mesa-common-dev libxkbcommon-x11-dev ninja-build
-        if [[ "${{ matrix.os }}" = "ubuntu-18.04" || "${{ matrix.os }}" = "ubuntu-20.04" ]]
-        then
+        # install needed packages
+        apt-get -y install libgraphviz-dev \
+                           mesa-common-dev \
+                           libxkbcommon-x11-dev \
+                           ninja-build \
+                           python3-pip \
+                           curl \
+                           libpcre2-dev \
+                           libfuse2 \
+                           pkg-config
+
+        if [ "${{ matrix.image }}" = "ubuntu:18.04" ]; then
           # install additional packages needed for appimage
-          sudo apt-get install libxcb1-dev libxkbcommon-dev libxcb-*-dev libegl1 libclang-8-dev llvm-8
+          apt-get -y install gcc-7 \
+                             libglu1-mesa-dev \
+                             freeglut3-dev \
+                             mesa-common-dev
+
         fi
-        if [[ "${{ matrix.os }}" = "ubuntu-18.04" && "${{ matrix.system-deps }}" = "true" ]]
-        then
-          sudo apt-get install qt5-default libqt5svg5-dev qttools5-dev qttools5-dev-tools
+        if [ "${{ matrix.image }}" = "ubuntu:18.04" ] || [ "${{ matrix.image }}" = "ubuntu:20.04" ]; then
+          # install additional packages needed for appimage
+          apt-get -y install libxcb1-dev \
+                             libxkbcommon-dev \
+                             libxcb-*-dev \
+                             libegl1 \
+                             libclang-8-dev \
+                             llvm-8
+          ln -s /usr/bin/llvm-config-8 /usr/bin/llvm-config
         fi
-        if [[ "${{ matrix.os }}" = "ubuntu-22.04" ]]
-        then
-          sudo apt-get install libclang-12-dev llvm-12 qt6-base-dev qt6-tools-dev \
-            qt6-tools-dev-tools libqt6svg6-dev libqt6core5compat6-dev libqt6svgwidgets6 qt6-l10n-tools
+        if [ "${{ matrix.image }}" = "ubuntu:18.04" ] && [ "${{ matrix.system-deps }}" = "true" ]; then
+          apt-get -y install qt5-default \
+                             libqt5svg5-dev \
+                             qttools5-dev \
+                             qttools5-dev-tools
+        fi
+        if [ "${{ matrix.image }}" = "ubuntu:22.04" ]; then
+          apt-get -y install libclang-12-dev \
+                             llvm-12 \
+                             qt6-base-dev \
+                             qt6-tools-dev \
+                             qt6-tools-dev-tools \
+                             libqt6svg6-dev \
+                             libqt6core5compat6-dev \
+                             libqt6svgwidgets6 \
+                             qt6-l10n-tools \
+                             gcc-12 \
+                             g++-12
         fi
     - uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    - name: homebrew dependencies
-      if: contains(matrix.os, 'macos')
-      run: |
-        cd scripts
-        rm /usr/local/bin/2to3* # symlink to some kind of existing python2.7 installation conflicts with brew python3 which gets installed as indirect dependency
-        brew bundle
     - name: py dependencies
       run: |
-        python3 -m pip install -U pip==21.3.1
-        pip install meson==0.61.5 # https://github.com/rizinorg/cutter/runs/7170222817?check_suite_focus=true
+        # https://github.com/rizinorg/cutter/runs/7170222817?check_suite_focus=true
+        python3 -m pip install meson==0.61.5
     - name: Prepare package id
       shell: bash
       run: |
-        if [[ "${{ startsWith(github.event.ref, 'refs/tags')}}" = "true" ]]
+        if [ "${{ startsWith(github.event.ref, 'refs/tags')}}" = "true" ]
         then
           PACKAGE_ID="${{ github.event.ref }}"
         else
@@ -116,17 +180,17 @@ jobs:
         PACKAGE_ID=${PACKAGE_ID##refs/tags/}
         echo PACKAGE_ID=$PACKAGE_ID >> $GITHUB_ENV
     - name: cmake ubuntu
-      if: contains(matrix.os, 'ubuntu')
+      shell: bash
       run: |
-        if [[ "${{ matrix.system-deps }}" = "false" ]]
+        if [ "${{ matrix.system-deps }}" = "false" ]
         then
           scripts/fetch_deps.sh
-          source cutter-deps/env.sh
+          . cutter-deps/env.sh
           export PKG_CONFIG_PATH="$CUTTER_DEPS_PYTHON_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
           export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
         fi
-        set -euo pipefail #TODO: move to top once cutter-deps doesn't fail
-        if [[ "${{ matrix.cc-override }}" != "default" ]]
+        set -e #TODO: move to top once cutter-deps doesn't fail
+        if [ "${{ matrix.cc-override }}" != "default" ]
         then
           export CC="${{matrix.cc-override}}"
           export CXX="${{matrix.cxx-override}}"
@@ -134,8 +198,7 @@ jobs:
 
         mkdir build
         cd build
-        cmake --version
-        if [[ "${{ matrix.system-deps }}" = "false" ]]
+        if [ "${{ matrix.system-deps }}" = "false" ]
         then
           cmake \
             -G Ninja \
@@ -149,6 +212,7 @@ jobs:
             -DCUTTER_USE_BUNDLED_RIZIN=ON \
             -DCUTTER_APPIMAGE_BUILD=ON \
             -DCUTTER_ENABLE_PACKAGING=ON \
+            -DCUTTER_ENABLE_KSYNTAXHIGHLIGHTING=OFF \
             -DCUTTER_ENABLE_SIGDB=ON \
             -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON \
             -DCUTTER_PACKAGE_RZ_GHIDRA=ON \
@@ -159,7 +223,7 @@ jobs:
             -DCMAKE_INSTALL_PREFIX=appdir/usr \
             -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
             ..
-        elif [[ "${{ matrix.os }}" = "ubuntu-22.04" ]]
+        elif [ "${{ matrix.image }}" = "ubuntu:22.04" ]
         then
           cmake \
             -G Ninja \
@@ -175,7 +239,7 @@ jobs:
             ..
         fi
         ninja
-        if [[ "${{ matrix.package || false }}" = "true" ]]
+        if [ "${{ matrix.package }}" = "true" ]
         then
           export CUTTER_VERSION=$(python ../scripts/get_version.py)
           export VERSION=$CUTTER_VERSION
@@ -200,6 +264,89 @@ jobs:
           echo PACKAGE_PATH=build/$APPIMAGE_FILE >> $GITHUB_ENV
           echo UPLOAD_ASSET_TYPE=application/x-executable >> $GITHUB_ENV
         fi
+    - name: Create tarball
+      if: matrix.tarball
+      shell: bash
+      run: |
+        scripts/tarball.sh "Cutter-${PACKAGE_ID}"
+        echo PACKAGE_NAME=Cutter-${PACKAGE_ID}-src.tar.gz >> $GITHUB_ENV
+        echo PACKAGE_PATH=Cutter-${PACKAGE_ID}-src.tar.gz >> $GITHUB_ENV
+        echo UPLOAD_ASSET_TYPE=application/gzip >> $GITHUB_ENV
+    - uses: actions/upload-artifact@v3
+      if: env.PACKAGE_NAME != null
+      with:
+        name: ${{ env.PACKAGE_NAME }}
+        path: ${{ env.PACKAGE_PATH }}
+    - name: Get release
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+      id: get_release
+      uses: rizinorg/gha-get-release@c8074dd5d13ddd0a194d8c9205a1466973c7dc0d
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload release assets
+      if: steps.get_release.outputs.upload_url != null && env.PACKAGE_NAME != null
+      uses: actions/upload-release-asset@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ${{ env.PACKAGE_PATH }}
+          asset_name: ${{ env.PACKAGE_NAME }}
+          asset_content_type: ${{ env.UPLOAD_ASSET_TYPE }}
+
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        name: [
+            macos-x86_64,
+            windows-x86_64,
+        ]
+        include:
+          - name: windows-x86_64
+            os: windows-2019
+            package: true
+            system-deps: false
+            python-version: 3.7.x
+          - name: macos-x86_64
+            os: macos-latest
+            python-version: 3.7.x
+            system-deps: false
+            package: true
+            cc-override: default
+            cxx-override: default
+      # Prevent one job from pausing the rest
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+        persist-credentials: false
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: homebrew dependencies
+      if: contains(matrix.os, 'macos')
+      run: |
+        cd scripts
+        rm /usr/local/bin/2to3* # symlink to some kind of existing python2.7 installation conflicts with brew python3 which gets installed as indirect dependency
+        brew bundle
+    - name: py dependencies
+      run: |
+        python3 -m pip install -U pip==21.3.1
+        pip install meson==0.61.5 # https://github.com/rizinorg/cutter/runs/7170222817?check_suite_focus=true
+    - name: Prepare package id
+      shell: bash
+      run: |
+        if [[ "${{ startsWith(github.event.ref, 'refs/tags')}}" = "true" ]]
+        then
+          PACKAGE_ID="${{ github.event.ref }}"
+        else
+          PACKAGE_ID="git-`date "+%Y-%m-%d"`-${{ format('{0}', github.sha) }}"
+        fi
+        PACKAGE_ID=${PACKAGE_ID##refs/tags/}
+        echo PACKAGE_ID=$PACKAGE_ID >> $GITHUB_ENV
     - name: cmake macos
       shell: bash
       if: contains(matrix.os, 'macos')
@@ -280,14 +427,6 @@ jobs:
         echo PACKAGE_NAME=%PACKAGE_NAME%.zip >> %GITHUB_ENV%
         echo PACKAGE_PATH=build/%PACKAGE_NAME%.zip >> %GITHUB_ENV%
         echo UPLOAD_ASSET_TYPE=application/zip >> %GITHUB_ENV%
-    - name: Create tarball
-      if: matrix.tarball
-      shell: bash
-      run: |
-        scripts/tarball.sh "Cutter-${PACKAGE_ID}"
-        echo PACKAGE_NAME=Cutter-${PACKAGE_ID}-src.tar.gz >> $GITHUB_ENV
-        echo PACKAGE_PATH=Cutter-${PACKAGE_ID}-src.tar.gz >> $GITHUB_ENV
-        echo UPLOAD_ASSET_TYPE=application/gzip >> $GITHUB_ENV
     - uses: actions/upload-artifact@v3
       if: env.PACKAGE_NAME != null
       with:
