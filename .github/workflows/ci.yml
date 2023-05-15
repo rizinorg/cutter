@@ -120,6 +120,7 @@ jobs:
                            python3-pip \
                            curl \
                            libpcre2-dev \
+                           libfuse2 \
                            pkg-config
 
         if [ "${{ matrix.image }}" = "ubuntu:18.04" ]; then
