@@ -10,13 +10,13 @@ if (-not (Test-Path -Path 'rz_libyara' -PathType Container)) {
 cd rz_libyara
 & meson.exe --buildtype=release --prefix=$dist build
 ninja -C build install
-$pathdll = "$dist/lib/plugins/rz_yara.dll"
+$pathdll = "$dist\lib\rizin\plugins\rz_yara.dll"
 if(![System.IO.File]::Exists($pathdll)) {
     type build/meson-logs/meson-log.txt
-    ls "$dist/lib/plugins/"
+    ls "$dist\lib\rizin\plugins\"
     throw (New-Object System.IO.FileNotFoundException("File not found: $pathdll", $pathdll))
 }
-Remove-Item -Recurse -Force $dist/lib/plugins/rz_yara.lib
+Remove-Item -Recurse -Force "$dist\lib\rizin\plugins\rz_yara.lib"
 
 cd cutter-plugin
 mkdir build
