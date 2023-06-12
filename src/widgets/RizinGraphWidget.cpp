@@ -27,6 +27,7 @@ RizinGraphWidget::RizinGraphWidget(MainWindow *main)
         { 'r', tr("References graph (agr)") },
         { 'R', tr("Global references graph (agR)") },
         { 'x', tr("Cross references graph (agx)") },
+        { 'I', tr("RzIL statement graph (agI)") },
         { 'g', tr("Custom graph (agg)") },
         { ' ', tr("User command") },
     };
