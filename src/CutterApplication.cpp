@@ -33,9 +33,9 @@
 // has RZ_GITTAP defined and uses it in rz_core_version().
 // After that, RZ_GITTAP is not defined anymore and RZ_VERSION is used.
 #ifdef RZ_GITTAP
-#define CUTTER_COMPILE_TIME_RZ_VERSION "" RZ_GITTAP
+#    define CUTTER_COMPILE_TIME_RZ_VERSION "" RZ_GITTAP
 #else
-#define CUTTER_COMPILE_TIME_RZ_VERSION "" RZ_VERSION
+#    define CUTTER_COMPILE_TIME_RZ_VERSION "" RZ_VERSION
 #endif
 
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
@@ -162,7 +162,8 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         appdir.cdUp(); // appdir
 
         auto sleighHome = appdir;
-        sleighHome.cd("lib/rizin/plugins/rz_ghidra_sleigh/"); // appdir/lib/rizin/plugins/rz_ghidra_sleigh/
+        // appdir/lib/rizin/plugins/rz_ghidra_sleigh/
+        sleighHome.cd("lib/rizin/plugins/rz_ghidra_sleigh/");
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
     }
 #endif
@@ -174,8 +175,8 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         rzprefix.cd("Resources"); // Contents/Resources/
 
         auto sleighHome = rzprefix;
-        sleighHome.cd(
-                "lib/rizin/plugins/rz_ghidra_sleigh"); // Contents/Resources/lib/rizin/plugins/rz_ghidra_sleigh
+        // Contents/Resources/lib/rizin/plugins/rz_ghidra_sleigh
+        sleighHome.cd("lib/rizin/plugins/rz_ghidra_sleigh");
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
     }
 #endif
@@ -183,7 +184,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 #if defined(Q_OS_WIN) && defined(CUTTER_ENABLE_PACKAGING)
     {
         auto sleighHome = QDir(QCoreApplication::applicationDirPath());
-        sleighHome.cd("lib/plugins/rz_ghidra_sleigh");
+        sleighHome.cd("lib/rizin/plugins/rz_ghidra_sleigh");
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
     }
 #endif
