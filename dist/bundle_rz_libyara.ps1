@@ -8,7 +8,7 @@ if (-not (Test-Path -Path 'rz_libyara' -PathType Container)) {
     git -C rz_libyara submodule update
 }
 cd rz_libyara
-& meson.exe --buildtype=release --prefix=$dist build
+& meson.exe --buildtype=release --prefix=$dist -Duse_sys_yara=disabled -Denable_openssl=false build
 ninja -C build install
 $pathdll = "$dist\lib\rizin\plugins\rz_yara.dll"
 if(![System.IO.File]::Exists($pathdll)) {
