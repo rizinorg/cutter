@@ -13,7 +13,7 @@ ComboQuickFilterView::ComboQuickFilterView(QWidget *parent)
             [this]() { emit filterTextChanged(ui->lineEdit->text()); });
 
     connect(ui->lineEdit, &QLineEdit::textChanged, this,
-            [this](const QString &text) { debounceTimer->start(150); });
+            [this]() { debounceTimer->start(150); });
 }
 
 ComboQuickFilterView::~ComboQuickFilterView()

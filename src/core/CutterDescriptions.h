@@ -239,7 +239,6 @@ struct BinClassDescription
     QString name;
     RVA addr = RVA_INVALID;
     RVA vtableAddr = RVA_INVALID;
-    ut64 index = 0;
     QList<BinClassBaseClassDescription> baseClasses;
     QList<BinClassMethodDescription> methods;
     QList<BinClassFieldDescription> fields;
