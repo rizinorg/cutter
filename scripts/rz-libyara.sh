@@ -15,7 +15,7 @@ fi
 
 cd rz_libyara
 
-meson --buildtype=release --pkg-config-path="$INSTALL_PREFIX/lib/pkgconfig" --prefix="$INSTALL_PREFIX" build
+meson --buildtype=release --pkg-config-path="$INSTALL_PREFIX/lib/pkgconfig" --prefix="$INSTALL_PREFIX" -Duse_sys_yara=disabled build
 ninja -C build install
 
 cd cutter-plugin

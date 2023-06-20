@@ -16,7 +16,7 @@ QuickFilterView::QuickFilterView(QWidget *parent, bool defaultOn)
             [this]() { emit filterTextChanged(ui->filterLineEdit->text()); });
 
     connect(ui->filterLineEdit, &QLineEdit::textChanged, this,
-            [this](const QString &text) { debounceTimer->start(150); });
+            [this]() { debounceTimer->start(150); });
 
     if (!defaultOn) {
         closeFilter();

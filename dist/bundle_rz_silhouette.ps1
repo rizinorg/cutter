@@ -8,10 +8,10 @@ if (-not (Test-Path -Path 'rz-silhouette' -PathType Container)) {
 cd rz-silhouette
 & meson.exe --buildtype=release --prefix=$dist build
 ninja -C build install
-$pathdll = "$dist/lib/plugins/rz_silhouette.dll"
+$pathdll = "$dist\lib\rizin\plugins\rz_silhouette.dll"
 if(![System.IO.File]::Exists($pathdll)) {
     type build/meson-logs/meson-log.txt
-    ls "$dist/lib/plugins/"
+    ls "$dist\lib\rizin\plugins\"
     throw (New-Object System.IO.FileNotFoundException("File not found: $pathdll", $pathdll))
 }
-Remove-Item -Recurse -Force $dist/lib/plugins/rz_silhouette.lib
+Remove-Item -Recurse -Force "$dist\lib\rizin\plugins\rz_silhouette.lib"

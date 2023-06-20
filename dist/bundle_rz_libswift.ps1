@@ -7,10 +7,10 @@ if (-not (Test-Path -Path 'libswift' -PathType Container)) {
 cd libswift
 & meson.exe --buildtype=release --prefix=$dist build
 ninja -C build install
-$pathdll = "$dist/lib/plugins/swift.dll"
+$pathdll = "$dist\lib\rizin\plugins\swift.dll"
 if(![System.IO.File]::Exists($pathdll)) {
     type build/meson-logs/meson-log.txt
-    ls "$dist/lib/plugins/"
+    ls "$dist\lib\rizin\plugins\"
     throw (New-Object System.IO.FileNotFoundException("File not found: $pathdll", $pathdll))
 }
-Remove-Item -Recurse -Force $dist/lib/plugins/swift.lib
+Remove-Item -Recurse -Force "$dist\lib\rizin\plugins\swift.lib"

@@ -3084,8 +3084,6 @@ QList<ImportDescription> CutterCore::getAllImports()
     RzBinImport *import;
     RzListIter *iter;
     bool va = core->io->va || core->bin->is_debugger;
-    int bin_demangle = getConfigi("bin.demangle");
-    int keep_lib = getConfigi("bin.demangle.libs");
     CutterRzListForeach (imports, iter, RzBinImport, import) {
         if (RZ_STR_ISEMPTY(import->name)) {
             continue;
@@ -3098,13 +3096,6 @@ QList<ImportDescription> CutterCore::getAllImports()
         QString name { import->name };
         if (RZ_STR_ISNOTEMPTY(import->classname)) {
             name = QString("%1.%2").arg(import->classname, import->name);
-        }
-        if (bin_demangle) {
-            char *dname = rz_bin_demangle(bf, NULL, name.toUtf8().constData(),
-                                          importDescription.plt, keep_lib);
-            if (dname) {
-                name = fromOwnedCharPtr(dname);
-            }
         }
         if (core->bin->prefix) {
             name = QString("%1.%2").arg(core->bin->prefix, name);
@@ -3135,7 +3126,6 @@ QList<ExportDescription> CutterCore::getAllExports()
         return {};
     }
 
-    QString lang = getConfigi("bin.demangle") ? getConfig("bin.lang") : "";
     bool va = core->io->va || core->bin->is_debugger;
 
     QList<ExportDescription> ret;
@@ -3145,7 +3135,7 @@ QList<ExportDescription> CutterCore::getAllExports()
         }
 
         RzBinSymNames sn = {};
-        rz_core_sym_name_init(core, &sn, symbol, lang.isEmpty() ? NULL : lang.toUtf8().constData());
+        rz_core_sym_name_init(&sn, symbol);
 
         ExportDescription exportDescription;
         exportDescription.vaddr = rva(bf->o, symbol->paddr, symbol->vaddr, va);
@@ -3543,19 +3533,18 @@ QList<BinClassDescription> CutterCore::getAllClassesFromBin()
     RzListIter *iter, *iter2, *iter3;
     RzBinClass *c;
     RzBinSymbol *sym;
-    RzBinField *f;
+    RzBinClassField *f;
     CutterRzListForeach (cs, iter, RzBinClass, c) {
         BinClassDescription classDescription;
         classDescription.name = c->name;
         classDescription.addr = c->addr;
-        classDescription.index = c->index;
         CutterRzListForeach (c->methods, iter2, RzBinSymbol, sym) {
             BinClassMethodDescription methodDescription;
             methodDescription.name = sym->name;
             methodDescription.addr = sym->vaddr;
             classDescription.methods << methodDescription;
         }
-        CutterRzListForeach (c->fields, iter3, RzBinField, f) {
+        CutterRzListForeach (c->fields, iter3, RzBinClassField, f) {
             BinClassFieldDescription fieldDescription;
             fieldDescription.name = f->name;
             fieldDescription.addr = f->vaddr;
@@ -3591,7 +3580,6 @@ QList<BinClassDescription> CutterCore::getAllClassesFromFlags()
             }
             desc->name = match.captured(1);
             desc->addr = item.offset;
-            desc->index = RVA_INVALID;
             continue;
         }
 
@@ -3605,7 +3593,6 @@ QList<BinClassDescription> CutterCore::getAllClassesFromFlags()
                 BinClassDescription cls;
                 cls.name = tr("Unknown (%1)").arg(className);
                 cls.addr = RVA_INVALID;
-                cls.index = 0;
                 ret << cls;
                 classDesc = &ret.last();
                 classesCache[className] = classDesc;
