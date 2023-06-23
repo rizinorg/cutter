@@ -52,14 +52,16 @@ private slots:
 
 private:
     void onActionCopyLine();
-    void onActionSetRebaseAddr();
+    void onActionSetLoadAddr();
+    void onActionSetMapAddr();
 
     QList<BasefindResultDescription> list;
     std::unique_ptr<Ui::BaseFindResultsDialog> ui;
     BaseFindResultsModel *model;
     QMenu *blockMenu;
     QAction *actionCopyCandidate;
-    QAction *actionSetBaseAddr;
+    QAction *actionSetLoadAddr;
+    QAction *actionSetMapAddr;
     RVA candidate;
 };
 

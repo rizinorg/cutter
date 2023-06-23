@@ -5,6 +5,7 @@
 #include <QMessageBox>
 
 #include <core/Cutter.h>
+#include <CutterApplication.h>
 
 BaseFindResultsModel::BaseFindResultsModel(QList<BasefindResultDescription> *list, QObject *parent)
     : QAbstractListModel(parent), list(list)
@@ -81,16 +82,20 @@ BaseFindResultsDialog::BaseFindResultsDialog(QList<BasefindResultDescription> re
 
     blockMenu = new QMenu(this);
     actionCopyCandidate = new QAction(tr("Copy %1"), this);
-    actionSetBaseAddr = new QAction(tr("Set base address as %1"), this);
+    actionSetLoadAddr = new QAction(tr("Reopen Cutter with base address as %1"), this);
+    actionSetMapAddr = new QAction(tr("Reopen Cutter with map address as %1"), this);
 
     connect(ui->tableView, &QWidget::customContextMenuRequested, this,
             &BaseFindResultsDialog::showItemContextMenu);
     connect(actionCopyCandidate, &QAction::triggered, this,
             &BaseFindResultsDialog::onActionCopyLine);
-    connect(actionSetBaseAddr, &QAction::triggered, this,
-            &BaseFindResultsDialog::onActionSetRebaseAddr);
+    connect(actionSetLoadAddr, &QAction::triggered, this,
+            &BaseFindResultsDialog::onActionSetLoadAddr);
+    connect(actionSetMapAddr, &QAction::triggered, this,
+            &BaseFindResultsDialog::onActionSetMapAddr);
 
-    blockMenu->addAction(actionSetBaseAddr);
+    blockMenu->addAction(actionSetLoadAddr);
+    blockMenu->addAction(actionSetMapAddr);
     blockMenu->addAction(actionCopyCandidate);
     addActions(blockMenu->actions());
 }
@@ -103,7 +108,8 @@ void BaseFindResultsDialog::showItemContextMenu(const QPoint &pt)
         candidate = entry.candidate;
         auto addr = QString::asprintf("%#010llx", candidate);
         actionCopyCandidate->setText(tr("Copy %1").arg(addr));
-        actionSetBaseAddr->setText(tr("Set base address as %1").arg(addr));
+        actionSetLoadAddr->setText(tr("Reopen Cutter with base address as %1").arg(addr));
+        actionSetMapAddr->setText(tr("Reopen Cutter with map address as %1").arg(addr));
         blockMenu->exec(this->mapToGlobal(pt));
     }
 }
@@ -114,22 +120,40 @@ void BaseFindResultsDialog::onActionCopyLine()
     clipboard->setText(QString::asprintf("%#010llx", candidate));
 }
 
-void BaseFindResultsDialog::onActionSetRebaseAddr()
+void BaseFindResultsDialog::onActionSetLoadAddr()
 {
-    QString message;
-    QMessageBox mbox;
-    mbox.setWindowTitle("BaseFind");
-    if (Core()->rebaseBin(candidate)) {
-        message = tr("Binary successfully rebased at %1.")
-                          .arg(QString::asprintf("%#010llx", candidate));
-        mbox.setIcon(QMessageBox::Information);
-    } else {
-        auto message =
-                tr("Failed to rebase binary at %1.").arg(QString::asprintf("%#010llx", candidate));
-        mbox.setIcon(QMessageBox::Warning);
-    }
-    mbox.setText(message);
-    mbox.exec();
+    auto cutter = static_cast<CutterApplication *>(qApp);
+    auto options = cutter->getInitialOptions();
+    auto oldValue = options.binLoadAddr;
+
+    // override options to generate correct args
+    options.binLoadAddr = candidate;
+    cutter->setInitialOptions(options);
+    auto args = cutter->getArgs();
+
+    // revert back options
+    options.binLoadAddr = oldValue;
+    cutter->setInitialOptions(options);
+
+    cutter->launchNewInstance(args);
+}
+
+void BaseFindResultsDialog::onActionSetMapAddr()
+{
+    auto cutter = static_cast<CutterApplication *>(qApp);
+    auto options = cutter->getInitialOptions();
+    auto oldValue = options.mapAddr;
+
+    // override options to generate correct args
+    options.mapAddr = candidate;
+    cutter->setInitialOptions(options);
+    auto args = cutter->getArgs();
+
+    // revert back options
+    options.mapAddr = oldValue;
+    cutter->setInitialOptions(options);
+
+    cutter->launchNewInstance(args);
 }
 
 BaseFindResultsDialog::~BaseFindResultsDialog() {}
