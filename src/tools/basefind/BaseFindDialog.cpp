@@ -79,17 +79,16 @@ ut32 BaseFindDialog::getMinScore() const
 
 void BaseFindDialog::on_buttonBox_accepted()
 {
-    RzBaseFindOpt options = {
-        .max_threads = getNCores(),
-        .pointer_size = getPointerSize(),
-        .start_address = getStartAddress(),
-        .end_address = getEndAddress(),
-        .alignment = getAlignment(),
-        .min_score = getMinScore(),
-        .min_string_len = getMinStrLen(),
-        .callback = nullptr,
-        .user = nullptr,
-    };
+    RzBaseFindOpt options = {};
+    options.max_threads = getNCores();
+    options.pointer_size = getPointerSize();
+    options.start_address = getStartAddress();
+    options.end_address = getEndAddress();
+    options.alignment = getAlignment();
+    options.min_score = getMinScore();
+    options.min_string_len = getMinStrLen();
+    options.callback = nullptr;
+    options.user = nullptr;
 
     BaseFindSearchDialog *bfs = new BaseFindSearchDialog(parentWidget());
     bfs->show(&options);

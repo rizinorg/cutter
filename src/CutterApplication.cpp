@@ -385,19 +385,19 @@ bool CutterApplication::parseCommandLineOptions()
             QObject::tr("level"));
     cmd_parser.addOption(analOption);
 
-    QCommandLineOption archOption({ "a", "arch" }, QObject::tr("Sets a specific arch name"),
+    QCommandLineOption archOption({ "a", "arch" }, QObject::tr("Sets a specific architecture name"),
                                   QObject::tr("arch"));
     cmd_parser.addOption(archOption);
 
-    QCommandLineOption bitsOption({ "b", "bits" }, QObject::tr("Sets a specific arch bits"),
+    QCommandLineOption bitsOption({ "b", "bits" }, QObject::tr("Sets a specific architecture bits"),
                                   QObject::tr("bits"));
     cmd_parser.addOption(bitsOption);
 
-    QCommandLineOption cpuOption({ "c", "cpu" }, QObject::tr("Sets a specific cpu"),
+    QCommandLineOption cpuOption({ "c", "cpu" }, QObject::tr("Sets a specific CPU"),
                                  QObject::tr("cpu"));
     cmd_parser.addOption(cpuOption);
 
-    QCommandLineOption osOption({ "o", "os" }, QObject::tr("Sets a specific os"),
+    QCommandLineOption osOption({ "o", "os" }, QObject::tr("Sets a specific operating system"),
                                 QObject::tr("os"));
     cmd_parser.addOption(osOption);
 
