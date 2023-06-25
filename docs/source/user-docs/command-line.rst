@@ -40,21 +40,45 @@ Options
    **2**
      aaaa (experimental)
 
+.. option:: -a, --arch <arch>
+
+   Sets a specific architecture name.
+
+.. option:: -b, --bits <bits>
+
+   Sets a specific architecture bits.
+
+.. option:: -c, --cpu <cpu>
+
+   Sets a specific CPU.
+
+.. option:: -o, --os <os>
+
+   Sets a specific operating system.
+
+.. option:: -e, --endian <big|little>
+
+   Sets the endianness (big or little).
+
 .. option:: -F, --format <name>
 
-   Force using a specific file format (bin plugin)
+   Force using a specific file format (bin plugin).
 
 .. option:: -B, --base <base address>
 
-   Load binary at a specific base address
+   Load binary at a specific base address.
+
+.. option:: -m, --map <map address>
+
+   Map the binary at a specific address.
 
 .. option:: -i <file>
 
-   Run script file
+   Run script file.
 
 .. option:: -p, --project <file>
   
-   Load project file 
+   Load project file.
 
 .. option:: -w, --writemode
 
@@ -62,9 +86,13 @@ Options
    When used together with -A/--analysis <level>, it will open a file directly
    in write mode without any further dialog or confirmation.
 
+.. option:: -P, --phymode
+
+   Disables virtual addressing.
+
 .. option:: --pythonhome <PYTHONHOME>
 
-   PYTHONHOME to use for the embedded python interpreter
+   PYTHONHOME to use for the embedded python interpreter.
 
 .. option:: --no-output-redirect
 

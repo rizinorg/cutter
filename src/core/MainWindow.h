@@ -152,6 +152,7 @@ public slots:
 
     void toggleOverview(bool visibility, GraphWidget *targetGraph);
 private slots:
+    void on_actionBaseFind_triggered();
     void on_actionAbout_triggered();
     void on_actionIssue_triggered();
     void documentationClicked();

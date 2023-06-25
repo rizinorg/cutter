@@ -4,6 +4,7 @@
 #include "core/CutterCommon.h"
 #include "core/CutterDescriptions.h"
 #include "core/CutterJson.h"
+#include "core/Basefind.h"
 #include "common/BasicInstructionHighlighter.h"
 
 #include <QMap>
@@ -69,6 +70,7 @@ class CUTTER_EXPORT CutterCore : public QObject
 
     friend class RzCoreLocked;
     friend class RizinTask;
+    friend class Basefind;
 
 public:
     explicit CutterCore(QObject *parent = nullptr);
@@ -555,6 +557,8 @@ public:
     bool existsFileInfo();
     void setGraphEmpty(bool empty);
     bool isGraphEmpty();
+
+    bool rebaseBin(RVA base_address);
 
     void getRegs();
     QList<QString> regs;

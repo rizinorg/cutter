@@ -14,6 +14,7 @@
 
 #include "core/Cutter.h"
 #include "common/AnalysisTask.h"
+#include "CutterApplication.h"
 
 InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
     : QDialog(nullptr), // parent must not be main
@@ -179,9 +180,56 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
         ui->entry_loadOffset->setText(RzAddressString(options.binLoadAddr));
     }
 
+    if (options.mapAddr != RVA_INVALID) {
+        ui->entry_mapOffset->setText(RzAddressString(options.mapAddr));
+    }
+
+    ui->vaCheckBox->setChecked(options.useVA);
     ui->writeCheckBox->setChecked(options.writeEnabled);
 
-    // TODO: all other options should also be applied to the ui
+    if (!options.arch.isNull() && !options.arch.isEmpty()) {
+        ui->archComboBox->setCurrentText(options.arch);
+    }
+
+    if (!options.cpu.isNull() && !options.cpu.isEmpty()) {
+        ui->cpuComboBox->setCurrentText(options.cpu);
+    }
+
+    if (options.bits > 0) {
+        ui->bitsComboBox->setCurrentText(QString::asprintf("%d", options.bits));
+    }
+
+    if (!options.os.isNull() && !options.os.isEmpty()) {
+        ui->kernelComboBox->setCurrentText(options.os);
+    }
+
+    if (!options.forceBinPlugin.isNull() && !options.forceBinPlugin.isEmpty()) {
+        ui->formatComboBox->setCurrentText(options.forceBinPlugin);
+    }
+
+    if (!options.loadBinInfo) {
+        ui->binCheckBox->setChecked(false);
+    }
+
+    ui->writeCheckBox->setChecked(options.writeEnabled);
+
+    switch (options.endian) {
+    case InitialOptions::Endianness::Little:
+        ui->endiannessComboBox->setCurrentIndex(1);
+        break;
+    case InitialOptions::Endianness::Big:
+        ui->endiannessComboBox->setCurrentIndex(2);
+        break;
+    default:
+        break;
+    }
+
+    ui->demangleCheckBox->setChecked(options.demangle);
+
+    if (!options.pdbFile.isNull() && !options.pdbFile.isEmpty()) {
+        ui->pdbCheckBox->setChecked(true);
+        ui->pdbLineEdit->setText(options.pdbFile);
+    }
 }
 
 void InitialOptionsDialog::setTooltipWithConfigHelp(QWidget *w, const char *config)
@@ -246,7 +294,7 @@ QList<CommandDescription> InitialOptionsDialog::getSelectedAdvancedAnalCmds() co
     return advanced;
 }
 
-void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> advanced*/)
+void InitialOptionsDialog::setupAndStartAnalysis()
 {
     InitialOptions options;
 
@@ -322,6 +370,8 @@ void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> adv
     Core()->getAsyncTaskManager()->start(analysisTaskPtr);
 
     done(0);
+
+    static_cast<CutterApplication *>(qApp)->setInitialOptions(options);
 }
 
 void InitialOptionsDialog::on_okButton_clicked()

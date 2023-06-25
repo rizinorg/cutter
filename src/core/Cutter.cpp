@@ -4577,3 +4577,9 @@ void CutterCore::writeGraphvizGraphToFile(QString path, QString format, RzCoreGr
         }
     }
 }
+
+bool CutterCore::rebaseBin(RVA base_address)
+{
+    CORE_LOCK();
+    return rz_core_bin_rebase(core, base_address);
+}

@@ -6,6 +6,7 @@ set(SOURCES
     core/Cutter.cpp
     core/CutterJson.cpp
     core/RizinCpp.cpp
+    core/Basefind.cpp
     dialogs/EditStringDialog.cpp
     dialogs/WriteCommandsDialogs.cpp
     widgets/DisassemblerGraphView.cpp
@@ -149,6 +150,9 @@ set(SOURCES
     dialogs/GlibcHeapBinsDialog.cpp
     widgets/HeapBinsGraphView.cpp
     dialogs/ArenaInfoDialog.cpp
+    tools/basefind/BaseFindDialog.cpp
+    tools/basefind/BaseFindSearchDialog.cpp
+    tools/basefind/BaseFindResultsDialog.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -156,6 +160,7 @@ set(HEADER_FILES
     core/CutterDescriptions.h
     core/CutterJson.h
     core/RizinCpp.h
+    core/Basefind.h
     dialogs/EditStringDialog.h
     dialogs/WriteCommandsDialogs.h
     widgets/DisassemblerGraphView.h
@@ -308,6 +313,9 @@ set(HEADER_FILES
     dialogs/GlibcHeapBinsDialog.h
     widgets/HeapBinsGraphView.h
     dialogs/ArenaInfoDialog.h
+    tools/basefind/BaseFindDialog.h
+    tools/basefind/BaseFindSearchDialog.h
+    tools/basefind/BaseFindResultsDialog.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -377,6 +385,9 @@ set(UI_FILES
     widgets/GlibcHeapWidget.ui
     dialogs/GlibcHeapBinsDialog.ui
     dialogs/ArenaInfoDialog.ui
+    tools/basefind/BaseFindDialog.ui
+    tools/basefind/BaseFindSearchDialog.ui
+    tools/basefind/BaseFindResultsDialog.ui
 )
 set(QRC_FILES
     resources.qrc
