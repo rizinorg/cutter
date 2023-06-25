@@ -348,6 +348,19 @@ QStringList CutterApplication::getArgs() const
         args.push_back("-o");
         args.push_back(options.os);
     }
+
+    switch (options.endian) {
+    case InitialOptions::Endianness::Little:
+        args.push_back("-e");
+        args.push_back("little");
+        break;
+    case InitialOptions::Endianness::Big:
+        args.push_back("-e");
+        args.push_back("big");
+        break;
+    default:
+        break;
+    }
     if (!options.forceBinPlugin.isEmpty()) {
         args.push_back("-F");
         args.push_back(options.forceBinPlugin);
@@ -400,6 +413,11 @@ bool CutterApplication::parseCommandLineOptions()
     QCommandLineOption osOption({ "o", "os" }, QObject::tr("Sets a specific operating system"),
                                 QObject::tr("os"));
     cmd_parser.addOption(osOption);
+
+    QCommandLineOption endianOption({ "e", "endian" },
+                                    QObject::tr("Sets the endianness (big or little)"),
+                                    QObject::tr("big|little"));
+    cmd_parser.addOption(endianOption);
 
     QCommandLineOption formatOption({ "F", "format" },
                                     QObject::tr("Force using a specific file format (bin plugin)"),
@@ -532,6 +550,23 @@ bool CutterApplication::parseCommandLineOptions()
             if (ok && bits > 0) {
                 opts.fileOpenOptions.bits = bits;
             }
+        }
+        if (cmd_parser.isSet(endianOption)) {
+            QString endian = cmd_parser.value(endianOption).toLower();
+            opts.fileOpenOptions.endian = InitialOptions::Endianness::Auto;
+            if (endian == "little") {
+                opts.fileOpenOptions.endian = InitialOptions::Endianness::Little;
+            } else if (endian == "big") {
+                opts.fileOpenOptions.endian = InitialOptions::Endianness::Big;
+            } else {
+                fprintf(stderr, "%s\n",
+                        QObject::tr("Invalid Endianness. You can only set it to `big` or `little`.")
+                                .toLocal8Bit()
+                                .constData());
+                return false;
+            }
+        } else {
+            opts.fileOpenOptions.endian = InitialOptions::Endianness::Auto;
         }
 
         opts.fileOpenOptions.writeEnabled = cmd_parser.isSet(writeModeOption);

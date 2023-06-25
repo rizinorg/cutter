@@ -56,6 +56,10 @@ Options
 
    Sets a specific operating system.
 
+.. option:: -e, --endian <big|little>
+
+   Sets the endianness (big or little).
+
 .. option:: -F, --format <name>
 
    Force using a specific file format (bin plugin).
