@@ -2,6 +2,7 @@
 #include "Cutter.h"
 #include "Configuration.h"
 #include "dialogs/WriteCommandsDialogs.h"
+#include "dialogs/CommentsDialog.h"
 
 #include <QPainter>
 #include <QPaintEvent>
@@ -25,6 +26,7 @@
 static constexpr uint64_t MAX_COPY_SIZE = 128 * 1024 * 1024;
 static constexpr int MAX_LINE_WIDTH_PRESET = 32;
 static constexpr int MAX_LINE_WIDTH_BYTES = 128 * 1024;
+static constexpr int WARNING_TIME_MS = 500;
 
 HexWidget::HexWidget(QWidget *parent)
     : QScrollArea(parent),
@@ -41,7 +43,8 @@ HexWidget::HexWidget(QWidget *parent)
       showHeader(true),
       showAscii(true),
       showExHex(true),
-      showExAddr(true)
+      showExAddr(true),
+      warningTimer(this)
 {
     setMouseTracking(true);
     setFocusPolicy(Qt::FocusPolicy::StrongFocus);
@@ -102,7 +105,7 @@ HexWidget::HexWidget(QWidget *parent)
     actionItemBigEndian = new QAction(tr("Big Endian"), this);
     actionItemBigEndian->setCheckable(true);
     actionItemBigEndian->setEnabled(false);
-    connect(actionItemBigEndian, &QAction::triggered, this, &HexWidget::setItemEndianess);
+    connect(actionItemBigEndian, &QAction::triggered, this, &HexWidget::setItemEndianness);
 
     actionHexPairs = new QAction(tr("Bytes as pairs"), this);
     actionHexPairs->setCheckable(true);
@@ -119,6 +122,20 @@ HexWidget::HexWidget(QWidget *parent)
     actionCopyAddress->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_C);
     connect(actionCopyAddress, &QAction::triggered, this, &HexWidget::copyAddress);
     addAction(actionCopyAddress);
+
+    // Add comment option
+    actionComment = new QAction(tr("Add Comment"), this);
+    actionComment->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    actionComment->setShortcut(Qt::Key_Semicolon);
+    connect(actionComment, &QAction::triggered, this, &HexWidget::onActionAddCommentTriggered);
+    addAction(actionComment);
+
+    // delete comment option
+    actionDeleteComment = new QAction(tr("Delete Comment"), this);
+    actionDeleteComment->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    connect(actionDeleteComment, &QAction::triggered, this,
+            &HexWidget::onActionDeleteCommentTriggered);
+    addAction(actionDeleteComment);
 
     actionSelectRange = new QAction(tr("Select range"), this);
     connect(actionSelectRange, &QAction::triggered, this,
@@ -143,11 +160,15 @@ HexWidget::HexWidget(QWidget *parent)
     connect(actionWriteCString, &QAction::triggered, this, &HexWidget::w_writeCString);
     actionsWriteString.append(actionWriteCString);
 
-    QAction *actionWrite64 = new QAction(tr("Write De\\Encoded Base64 string"), this);
+    QAction *actionWrite64 = new QAction(tr("Write a decoded or encoded Base64 string"), this);
     connect(actionWrite64, &QAction::triggered, this, &HexWidget::w_write64);
     actionsWriteString.append(actionWrite64);
 
-    actionsWriteOther.reserve(4);
+    actionsWriteOther.reserve(5);
+    QAction *actionWriteBytes = new QAction(tr("Write hex bytes"), this);
+    connect(actionWriteBytes, &QAction::triggered, this, &HexWidget::w_writeBytes);
+    actionsWriteOther.append(actionWriteBytes);
+
     QAction *actionWriteZeros = new QAction(tr("Write zeros"), this);
     connect(actionWriteZeros, &QAction::triggered, this, &HexWidget::w_writeZeros);
     actionsWriteOther.append(actionWriteZeros);
@@ -164,8 +185,13 @@ HexWidget::HexWidget(QWidget *parent)
     connect(actionIncDec, &QAction::triggered, this, &HexWidget::w_increaseDecrease);
     actionsWriteOther.append(actionIncDec);
 
+    actionKeyboardEdit = new QAction(tr("Edit with keyboard"), this);
+    actionKeyboardEdit->setCheckable(true);
+    connect(actionKeyboardEdit, &QAction::triggered, this, &HexWidget::onKeyboardEditTriggered);
+    connect(actionKeyboardEdit, &QAction::toggled, this, &HexWidget::onKeyboardEditChanged);
+
     connect(this, &HexWidget::selectionChanged, this,
-            [this](Selection selection) { actionCopy->setEnabled(!selection.empty); });
+            [this](Selection newSelection) { actionCopy->setEnabled(!newSelection.empty); });
 
     updateMetrics();
     updateItemLength();
@@ -183,9 +209,10 @@ HexWidget::HexWidget(QWidget *parent)
     cursor.startBlinking();
 
     updateColors();
-}
 
-HexWidget::~HexWidget() {}
+    warningTimer.setSingleShot(true);
+    connect(&warningTimer, &QTimer::timeout, this, &HexWidget::hideWarningRect);
+}
 
 void HexWidget::setMonospaceFont(const QFont &font)
 {
@@ -209,6 +236,8 @@ void HexWidget::setItemSize(int nbytes)
     if (!values.contains(nbytes))
         return;
 
+    finishEditingWord();
+
     itemByteLen = nbytes;
     if (itemByteLen > rowSizeBytes) {
         rowSizeBytes = itemByteLen;
@@ -217,7 +246,12 @@ void HexWidget::setItemSize(int nbytes)
     actionsItemFormat.at(ItemFormatFloat)->setEnabled(nbytes >= 4);
     actionItemBigEndian->setEnabled(nbytes != 1);
 
+    refreshWordEditState();
+
     updateItemLength();
+    if (!cursorOnAscii && cursor.address % itemByteLen) {
+        moveCursor(-int(cursor.address % itemByteLen));
+    }
     fetchData();
     updateCursorMeta();
 
@@ -226,6 +260,8 @@ void HexWidget::setItemSize(int nbytes)
 
 void HexWidget::setItemFormat(ItemFormat format)
 {
+    finishEditingWord();
+
     itemFormat = format;
 
     bool sizeEnabled = true;
@@ -233,6 +269,8 @@ void HexWidget::setItemFormat(ItemFormat format)
         sizeEnabled = false;
     actionsItemSize.at(0)->setEnabled(sizeEnabled);
     actionsItemSize.at(1)->setEnabled(sizeEnabled);
+
+    refreshWordEditState();
 
     updateItemLength();
     fetchData();
@@ -363,7 +401,7 @@ void HexWidget::selectRange(RVA start, RVA end)
 
 void HexWidget::clearSelection()
 {
-    setCursorAddr(cursor.address, false);
+    setCursorAddr(BasicCursor(cursor.address), false);
     emit selectionChanged(getSelection());
 }
 
@@ -374,7 +412,16 @@ HexWidget::Selection HexWidget::getSelection()
 
 void HexWidget::seek(uint64_t address)
 {
-    setCursorAddr(address);
+    if (!cursorOnAscii) {
+        // when other widget causes seek to the middle of word
+        // switch to ascii column which operates with byte positions
+        auto viewOffset = startAddress % itemByteLen;
+        auto addrOffset = address % itemByteLen;
+        if ((addrOffset + itemByteLen - viewOffset) % itemByteLen) {
+            setCursorOnAscii(true);
+        }
+    }
+    setCursorAddr(BasicCursor(address));
 }
 
 void HexWidget::refresh()
@@ -383,8 +430,9 @@ void HexWidget::refresh()
     viewport()->update();
 }
 
-void HexWidget::setItemEndianess(bool bigEndian)
+void HexWidget::setItemEndianness(bool bigEndian)
 {
+    finishEditingWord();
     itemBigEndian = bigEndian;
 
     updateCursorMeta(); // Update cached item character
@@ -403,6 +451,7 @@ void HexWidget::updateColors()
     defColor = Config()->getColor("btext");
     addrColor = Config()->getColor("func_var_addr");
     diffColor = Config()->getColor("graph.diff.unmatch");
+    warningColor = QColor("red");
 
     updateCursorMeta();
     viewport()->update();
@@ -431,6 +480,11 @@ void HexWidget::paintEvent(QPaintEvent *event)
     drawItemArea(painter);
     drawAsciiArea(painter);
 
+    if (warningRectVisible) {
+        painter.setPen(warningColor);
+        painter.drawRect(warningRect);
+    }
+
     if (!cursorEnabled)
         return;
 
@@ -446,6 +500,11 @@ void HexWidget::updateWidth()
         max += charWidth;
     horizontalScrollBar()->setMaximum(max);
     horizontalScrollBar()->setSingleStep(charWidth);
+}
+
+bool HexWidget::isFixedWidth() const
+{
+    return itemFormat == ItemFormatHex || itemFormat == ItemFormatOct;
 }
 
 void HexWidget::resizeEvent(QResizeEvent *event)
@@ -507,13 +566,88 @@ void HexWidget::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton) {
         bool selectingData = itemArea.contains(pos);
         bool selecting = selectingData || asciiArea.contains(pos);
+        bool holdingShift = event->modifiers() == Qt::ShiftModifier;
+
+        // move cursor within actively edited item
+        if (selectingData && !holdingShift && editWordState >= EditWordState::WriteNotEdited) {
+
+            auto editWordArea = itemRectangle(cursor.address - startAddress);
+            if (editWordArea.contains(pos)) {
+                int wordOffset = 0;
+                auto cursorPosition = screenPosToAddr(pos, false, &wordOffset);
+                if (cursorPosition.address == cursor.address
+                    // allow selecting after last character only when cursor limited to current word
+                    && (wordOffset < editWord.length()
+                        || navigationMode == HexNavigationMode::WordChar)) {
+                    editWordPos = std::max(0, wordOffset);
+                    editWordPos = std::min<int>(editWordPos, editWord.length());
+
+                    if (isFixedWidth()) {
+                        updatingSelection = true;
+                        auto selectionCursor = cursorPosition;
+                        if (editWordPos > itemCharLen / 2) {
+                            selectionCursor += itemByteLen;
+                        }
+                        selection.init(selectionCursor);
+                    }
+
+                    viewport()->update();
+                    return;
+                }
+            }
+        }
+
+        // cursor within any item if the mode allows
+        if (selectingData && !holdingShift && editWordState >= EditWordState::WriteNotStarted
+            && navigationMode == HexNavigationMode::AnyChar) {
+            updatingSelection = true;
+            setCursorOnAscii(false);
+            int wordOffset = 0;
+            auto cursorPosition = screenPosToAddr(pos, false, &wordOffset);
+            finishEditingWord();
+            if (isFixedWidth() && wordOffset >= itemCharLen - itemPrefixLen) {
+                wordOffset = 0;
+                cursorPosition += itemByteLen;
+            }
+            setCursorAddr(cursorPosition, holdingShift);
+            auto selectionPosition = currentAreaPosToAddr(pos, true);
+            selection.init(selectionPosition);
+            emit selectionChanged(getSelection());
+
+            if (wordOffset > 0) {
+                startEditWord();
+                editWordPos = std::min<int>(wordOffset, editWord.length() - 1);
+            }
+            viewport()->update();
+            return;
+        }
+
         if (selecting) {
+            finishEditingWord();
+
             updatingSelection = true;
             setCursorOnAscii(!selectingData);
             auto cursorPosition = currentAreaPosToAddr(pos, true);
-            setCursorAddr(cursorPosition, event->modifiers() == Qt::ShiftModifier);
+            setCursorAddr(cursorPosition, holdingShift);
             viewport()->update();
         }
+    }
+}
+
+void HexWidget::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    QPoint pos(event->pos());
+    pos.rx() += horizontalScrollBar()->value();
+
+    if (event->button() == Qt::LeftButton && !isFixedWidth()
+        && editWordState == EditWordState::WriteNotStarted && itemArea.contains(pos)) {
+        int wordOffset = 0;
+        auto cursorPosition = screenPosToAddr(pos, false, &wordOffset);
+        setCursorAddr(cursorPosition, false);
+        startEditWord();
+        int padding = std::max<int>(0, itemCharLen - editWord.length());
+        editWordPos = std::max(0, wordOffset - padding);
+        editWordPos = std::min<int>(editWordPos, editWord.length());
     }
 }
 
@@ -521,8 +655,9 @@ void HexWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         if (selection.isEmpty()) {
-            selection.init(cursor.address);
+            selection.init(BasicCursor(cursor.address));
             cursorEnabled = true;
+            viewport()->update();
         }
         updatingSelection = false;
     }
@@ -541,13 +676,14 @@ void HexWidget::wheelEvent(QWheelEvent *event)
         startAddress = 0;
     } else if (delta > 0 && data->maxIndex() < static_cast<uint64_t>(bytesPerScreen())) {
         startAddress = 0;
+    } else if ((data->maxIndex() - startAddress)
+               <= static_cast<uint64_t>(bytesPerScreen() + delta - 1)) {
+        startAddress = (data->maxIndex() - bytesPerScreen()) + 1;
     } else {
         startAddress += delta;
     }
+
     fetchData();
-    if ((data->maxIndex() - startAddress) <= static_cast<uint64_t>(bytesPerScreen() + delta - 1)) {
-        startAddress = (data->maxIndex() - bytesPerScreen()) + 1;
-    }
     if (cursor.address >= startAddress && cursor.address <= lastVisibleAddr()) {
         /* Don't enable cursor blinking if selection isn't empty */
         cursorEnabled = selection.isEmpty();
@@ -556,6 +692,304 @@ void HexWidget::wheelEvent(QWheelEvent *event)
         cursorEnabled = false;
     }
     viewport()->update();
+}
+
+bool HexWidget::validCharForEdit(QChar digit)
+{
+    switch (itemFormat) {
+    case ItemFormatHex:
+        return (digit >= '0' && digit <= '9') || (digit >= 'a' && digit <= 'f')
+                || (digit >= 'A' && digit <= 'F');
+    case ItemFormatOct: {
+        if (editWordPos > 0) {
+            return (digit >= '0' && digit <= '7');
+        } else {
+            int bitsInMSD = (itemByteLen * 8) % 3;
+            int biggestDigit = (1 << bitsInMSD) - 1;
+            return digit >= '0' && digit <= char('0' + biggestDigit);
+        }
+    }
+    case ItemFormatDec:
+        return (digit >= '0' && digit <= '9');
+    case ItemFormatSignedDec:
+        return (digit >= '0' && digit <= '9') || digit == '-';
+    case ItemFormatFloat:
+        return (digit >= '0' && digit <= '9') || digit == '-' || digit == '+' || digit == '.'
+                || digit == ',' || digit == '+' || digit == 'e' || digit == 'E' || digit == 'i'
+                || digit == 'n' || digit == 'f' || digit == 'I' || digit == 'N' || digit == 'F'
+                || digit == 'a' || digit == 'A';
+    }
+
+    return false;
+}
+
+void HexWidget::movePrevEditCharAny()
+{
+    if (!selection.isEmpty()) {
+        clearSelection();
+    }
+    editWordPos -= 1;
+    if (editWordPos < 0) {
+        finishEditingWord();
+        if (moveCursor(-itemByteLen, false, OverflowMove::Ignore)) {
+            startEditWord();
+            editWordPos = editWord.length() - 1;
+        }
+    }
+    viewport()->update();
+}
+
+void HexWidget::typeOverwriteModeChar(QChar c)
+{
+    if (editWordState < EditWordState::WriteNotEdited || !isFixedWidth()) {
+        return;
+    }
+    editWord[editWordPos] = c;
+    editWordPos++;
+    editWordState = EditWordState::WriteEdited;
+    if (editWordPos >= editWord.length()) {
+        finishEditingWord();
+        bool moved = moveCursor(itemByteLen, false, OverflowMove::Ignore);
+        startEditWord();
+        if (!moved) {
+            editWordPos = editWord.length() - 1;
+        }
+    }
+}
+
+HexWidget::HexNavigationMode HexWidget::defaultNavigationMode()
+{
+    switch (editWordState) {
+    case EditWordState::Read:
+        return HexNavigationMode::Words;
+    case EditWordState::WriteNotStarted:
+        return isFixedWidth() ? HexNavigationMode::AnyChar : HexNavigationMode::Words;
+    case EditWordState::WriteNotEdited:
+    case EditWordState::WriteEdited:
+        return isFixedWidth() ? HexNavigationMode::AnyChar : HexNavigationMode::WordChar;
+    }
+    return HexNavigationMode::Words;
+}
+
+void HexWidget::refreshWordEditState()
+{
+    navigationMode = defaultNavigationMode();
+}
+
+bool HexWidget::handleAsciiWrite(QKeyEvent *event)
+{
+    if (!cursorOnAscii || !canKeyboardEdit()) {
+        return false;
+    }
+    if (event->key() == Qt::Key_Backspace || event->matches(QKeySequence::Backspace)) {
+        if (!selection.isEmpty()) {
+            writeZeros(selection.start(), selection.size());
+        } else {
+            moveCursor(-1, false);
+            writeZeros(cursor.address, 1);
+        }
+        return true;
+    }
+    if (event->key() == Qt::Key_Delete || event->matches(QKeySequence::Delete)) {
+        if (!selection.isEmpty()) {
+            writeZeros(selection.start(), selection.size());
+        } else {
+            writeZeros(cursor.address, 1);
+            moveCursor(1, false);
+        }
+        return true;
+    }
+    QString text;
+    if (event->matches(QKeySequence::Paste)) {
+        text = QApplication::clipboard()->text();
+        if (text.length() <= 0) {
+            return false;
+        }
+    } else {
+        text = event->text();
+        if (text.length() <= 0) {
+            return false;
+        }
+        QChar c = text[0];
+        if (c <= '\x1f' || c == '\x7f') {
+            return false;
+        }
+    }
+
+    auto bytes = text.toUtf8(); // TODO:#3028 use selected text encoding
+    auto address = getLocationAddress();
+    clearSelection();
+    data->write(reinterpret_cast<const uint8_t *>(bytes.data()), address, bytes.length());
+    seek(address + bytes.length());
+    viewport()->update();
+    return true;
+}
+
+bool HexWidget::handleNumberWrite(QKeyEvent *event)
+{
+    if (editWordState < EditWordState::WriteNotStarted) {
+        return false;
+    }
+    bool overwrite = isFixedWidth();
+    auto keyText = event->text();
+    bool editingWord = editWordState >= EditWordState::WriteNotEdited;
+    if (keyText.length() > 0 && validCharForEdit(keyText[0])) {
+        if (!selection.isEmpty()) {
+            setCursorAddr(BasicCursor(selection.start()));
+        }
+        if (!editingWord) {
+            startEditWord();
+        }
+        if (overwrite) {
+            typeOverwriteModeChar(keyText[0]);
+        } else if (!editingWord /* && !overwrite */) {
+            editWord = keyText;
+            editWordPos = editWord.length();
+            editWordState = EditWordState::WriteEdited;
+        } else if (itemFormat == ItemFormatFloat || editWord.length() < itemCharLen) {
+            editWord.insert(editWordPos, keyText);
+            editWordPos += keyText.length();
+            editWordState = EditWordState::WriteEdited;
+        }
+        maybeFlushCharEdit();
+        return true;
+    }
+    if (event->matches(QKeySequence::Paste) && (editingWord || overwrite)) {
+        QString text = QApplication::clipboard()->text();
+        if (text.length() > 0) {
+            if (overwrite) {
+                startEditWord();
+                for (QChar c : text) {
+                    if (validCharForEdit(c)) {
+                        typeOverwriteModeChar(c);
+                    }
+                }
+            } else {
+                editWord.insert(editWordPos, text);
+                editWordPos += text.length();
+                editWordState = EditWordState::WriteEdited;
+            }
+        }
+        maybeFlushCharEdit();
+        return true;
+    }
+    if (editingWord) {
+        if (event->matches(QKeySequence::Cancel)) {
+            cancelEditedWord();
+            return true;
+        } else if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+            bool needToAdvance =
+                    !(editWordPos == 0 && overwrite && editWordState < EditWordState::WriteEdited);
+            if (finishEditingWord(false) && needToAdvance) {
+                moveCursor(itemByteLen);
+            }
+            return true;
+        }
+    }
+    if (event->matches(QKeySequence::Delete)) {
+        if (!selection.isEmpty()) {
+            writeZeros(selection.start(), selection.size());
+            clearSelection();
+        } else {
+            startEditWord();
+            if (overwrite) {
+                typeOverwriteModeChar('0');
+            } else if (editWordPos < editWord.length()) {
+                editWord.remove(editWordPos, 1);
+                editWordState = EditWordState::WriteEdited;
+            }
+        }
+        maybeFlushCharEdit();
+        return true;
+    }
+    if (event->matches(QKeySequence::DeleteEndOfWord) && selection.isEmpty()) {
+        startEditWord();
+        if (overwrite) {
+            for (int i = editWordPos; i < editWord.length(); i++) {
+                typeOverwriteModeChar('0');
+            }
+        } else if (editWordPos < editWord.length()) {
+            editWord.remove(editWordPos, editWord.length());
+            editWordState = EditWordState::WriteEdited;
+        }
+        maybeFlushCharEdit();
+        return true;
+    }
+    if (event->matches(QKeySequence::DeleteStartOfWord) && selection.isEmpty()) {
+        if (!editingWord || (overwrite && editWordPos == 0)) {
+            if (!moveCursor(-itemByteLen, false, OverflowMove::Ignore)) {
+                return false;
+            }
+            startEditWord();
+            editWordPos = editWord.length();
+        }
+        if (overwrite) {
+            while (editWordPos > 0) {
+                editWordPos--;
+                editWord[editWordPos] = '0';
+            }
+            editWordState = EditWordState::WriteEdited;
+            maybeFlushCharEdit();
+            return true;
+        } else {
+            if (editWordPos > 0) {
+                editWord.remove(0, editWordPos);
+                editWordState = EditWordState::WriteEdited;
+                editWordPos = 0;
+                maybeFlushCharEdit();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    if (event->key() == Qt::Key_Backspace) {
+        if (!selection.isEmpty()) {
+            writeZeros(selection.start(), selection.size());
+            clearSelection();
+            setCursorAddr(BasicCursor(selection.start()), false);
+            return true;
+        } else {
+            if (!editingWord || (overwrite && editWordPos == 0)) {
+                if (!moveCursor(-itemByteLen, false, OverflowMove::Ignore)) {
+                    return false;
+                }
+                startEditWord();
+                editWordPos = editWord.length();
+            }
+            if (editWordPos > 0) {
+                editWordPos -= 1;
+                if (overwrite) {
+                    editWord[editWordPos] = '0';
+                } else {
+                    editWord.remove(editWordPos, 1);
+                }
+                editWordState = EditWordState::WriteEdited;
+                maybeFlushCharEdit();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    return false;
+}
+
+bool HexWidget::event(QEvent *event)
+{
+    // prefer treating keys like 's' 'g' '.' as typing input instead of global shortcuts
+    if (event->type() == QEvent::ShortcutOverride) {
+        auto keyEvent = static_cast<QKeyEvent *>(event);
+        auto modifiers = keyEvent->modifiers();
+        if ((modifiers == Qt::NoModifier || modifiers == Qt::ShiftModifier
+             || modifiers == Qt::KeypadModifier)
+            && keyEvent->key() < Qt::Key_Escape && canKeyboardEdit()) {
+            keyEvent->accept();
+            return true;
+        }
+    }
+
+    return QScrollArea::event(event);
 }
 
 void HexWidget::keyPressEvent(QKeyEvent *event)
@@ -572,26 +1006,126 @@ void HexWidget::keyPressEvent(QKeyEvent *event)
         }
         return false;
     };
-    if (moveOrSelect(QKeySequence::MoveToNextLine, QKeySequence::SelectNextLine)) {
-        moveCursor(itemRowByteLen(), select);
-    } else if (moveOrSelect(QKeySequence::MoveToPreviousLine, QKeySequence::SelectPreviousLine)) {
-        moveCursor(-itemRowByteLen(), select);
-    } else if (moveOrSelect(QKeySequence::MoveToNextChar, QKeySequence::SelectNextChar)) {
-        moveCursor(cursorOnAscii ? 1 : itemByteLen, select);
-    } else if (moveOrSelect(QKeySequence::MoveToPreviousChar, QKeySequence::SelectPreviousChar)) {
-        moveCursor(cursorOnAscii ? -1 : -itemByteLen, select);
-    } else if (moveOrSelect(QKeySequence::MoveToNextPage, QKeySequence::SelectNextPage)) {
-        moveCursor(bytesPerScreen(), select);
-    } else if (moveOrSelect(QKeySequence::MoveToPreviousPage, QKeySequence::SelectPreviousPage)) {
-        moveCursor(-bytesPerScreen(), select);
-    } else if (moveOrSelect(QKeySequence::MoveToStartOfLine, QKeySequence::SelectStartOfLine)) {
-        int linePos = int((cursor.address % itemRowByteLen()) - (startAddress % itemRowByteLen()));
-        moveCursor(-linePos, select);
-    } else if (moveOrSelect(QKeySequence::MoveToEndOfLine, QKeySequence::SelectEndOfLine)) {
-        int linePos = int((cursor.address % itemRowByteLen()) - (startAddress % itemRowByteLen()));
-        moveCursor(itemRowByteLen() - linePos, select);
+
+    if (canKeyboardEdit()) {
+        if (handleAsciiWrite(event)) {
+            viewport()->update();
+            return;
+        }
+        if (editWordState >= EditWordState::WriteNotStarted && !cursorOnAscii) {
+            if (handleNumberWrite(event)) {
+                viewport()->update();
+                return;
+            }
+        }
     }
-    // viewport()->update();
+
+    if (cursorOnAscii || navigationMode == HexNavigationMode::Words
+        || navigationMode == HexNavigationMode::AnyChar) {
+        if (moveOrSelect(QKeySequence::MoveToNextPage, QKeySequence::SelectNextPage)) {
+            moveCursor(bytesPerScreen(), select);
+        } else if (moveOrSelect(QKeySequence::MoveToPreviousPage,
+                                QKeySequence::SelectPreviousPage)) {
+            moveCursor(-bytesPerScreen(), select);
+        } else if (moveOrSelect(QKeySequence::MoveToStartOfLine, QKeySequence::SelectStartOfLine)) {
+            int linePos =
+                    int((cursor.address % itemRowByteLen()) - (startAddress % itemRowByteLen()));
+            moveCursor(-linePos, select);
+        } else if (moveOrSelect(QKeySequence::MoveToEndOfLine, QKeySequence::SelectEndOfLine)) {
+            int linePos =
+                    int((cursor.address % itemRowByteLen()) - (startAddress % itemRowByteLen()));
+            moveCursor(itemRowByteLen() - linePos, select);
+        }
+    }
+
+    if (navigationMode == HexNavigationMode::Words || cursorOnAscii) {
+        if (moveOrSelect(QKeySequence::MoveToNextLine, QKeySequence::SelectNextLine)) {
+            moveCursor(itemRowByteLen(), select, OverflowMove::Ignore);
+        } else if (moveOrSelect(QKeySequence::MoveToPreviousLine,
+                                QKeySequence::SelectPreviousLine)) {
+            moveCursor(-itemRowByteLen(), select, OverflowMove::Ignore);
+        } else if (moveOrSelect(QKeySequence::MoveToNextChar, QKeySequence::SelectNextChar)
+                   || moveOrSelect(QKeySequence::MoveToNextWord, QKeySequence::SelectNextWord)) {
+            moveCursor(cursorOnAscii ? 1 : itemByteLen, select);
+        } else if (moveOrSelect(QKeySequence::MoveToPreviousChar, QKeySequence::SelectPreviousChar)
+                   || moveOrSelect(QKeySequence::MoveToPreviousWord,
+                                   QKeySequence::SelectPreviousWord)) {
+            moveCursor(cursorOnAscii ? -1 : -itemByteLen, select);
+        }
+    } else if (navigationMode == HexNavigationMode::AnyChar && !cursorOnAscii) {
+        if (moveOrSelect(QKeySequence::MoveToNextLine, QKeySequence::SelectNextLine)) {
+            moveCursorKeepEditOffset(itemRowByteLen(), select, OverflowMove::Ignore);
+        } else if (moveOrSelect(QKeySequence::MoveToPreviousLine,
+                                QKeySequence::SelectPreviousLine)) {
+            moveCursorKeepEditOffset(-itemRowByteLen(), select, OverflowMove::Ignore);
+        } else if (moveOrSelect(QKeySequence::MoveToNextChar, QKeySequence::SelectNextChar)) {
+            if (select) {
+                moveCursor(itemByteLen, select);
+            } else {
+                if (!selection.isEmpty()) {
+                    clearSelection();
+                }
+                if (editWordState == EditWordState::WriteNotStarted) {
+                    startEditWord();
+                }
+                editWordPos += 1;
+                if (editWordPos >= editWord.length()) {
+                    bool moved = moveCursor(itemByteLen, false, OverflowMove::Ignore);
+                    startEditWord();
+                    if (!moved) {
+                        editWordPos = editWord.length() - 1;
+                    }
+                }
+            }
+            viewport()->update();
+        } else if (event->matches(QKeySequence::MoveToPreviousChar)) {
+            movePrevEditCharAny();
+        } else if (event->matches(QKeySequence::SelectPreviousChar)) {
+            moveCursor(-itemByteLen, true);
+        } else if (moveOrSelect(QKeySequence::MoveToNextWord, QKeySequence::SelectNextWord)) {
+            moveCursor(itemByteLen, select);
+        } else if (event->matches(QKeySequence::MoveToPreviousWord)) {
+            if (editWordPos > 0) {
+                editWordPos = 0;
+                viewport()->update();
+            } else {
+                moveCursor(-itemByteLen, false);
+            }
+        } else if (event->matches(QKeySequence::SelectPreviousWord)) {
+            moveCursor(-itemByteLen, true);
+        }
+    } else if (navigationMode == HexNavigationMode::WordChar) {
+        if (event->matches(QKeySequence::MoveToNextChar)) {
+            editWordPos = std::min<int>(editWord.length(), editWordPos + 1);
+            viewport()->update();
+        } else if (event->matches(QKeySequence::MoveToPreviousChar)) {
+            editWordPos = std::max(0, editWordPos - 1);
+            viewport()->update();
+        } else if (event->matches(QKeySequence::MoveToStartOfLine)) {
+            editWordPos = 0;
+            viewport()->update();
+        } else if (event->matches(QKeySequence::MoveToEndOfLine)) {
+            editWordPos = editWord.length();
+            viewport()->update();
+        } else if (event->matches(QKeySequence::MoveToPreviousWord)) {
+            if (editWordPos > 0) {
+                editWordPos = 0;
+            } else {
+                moveCursor(-itemByteLen, select);
+                startEditWord();
+            }
+            viewport()->update();
+        } else if (event->matches(QKeySequence::MoveToNextWord)) {
+            if (editWordPos < editWord.length()) {
+                editWordPos = editWord.length();
+            } else {
+                moveCursor(itemByteLen, select);
+                startEditWord();
+                editWordPos = editWord.length();
+            }
+            viewport()->update();
+        }
+    }
 }
 
 void HexWidget::contextMenuEvent(QContextMenuEvent *event)
@@ -616,7 +1150,21 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
         actionCopyAddress->setDisabled(disable);
     };
 
-    QMenu *menu = new QMenu();
+    QString comment = Core()->getCommentAt(cursor.address);
+
+    if (comment.isNull() || comment.isEmpty()) {
+        actionDeleteComment->setVisible(false);
+        actionComment->setText(tr("Add Comment"));
+    } else {
+        actionDeleteComment->setVisible(true);
+        actionComment->setText(tr("Edit Comment"));
+    }
+
+    if (!ioModesController.canWrite()) {
+        actionKeyboardEdit->setChecked(false);
+    }
+
+    auto *menu = new QMenu(this);
     QMenu *sizeMenu = menu->addMenu(tr("Item size:"));
     sizeMenu->addActions(actionsItemSize);
     QMenu *formatMenu = menu->addMenu(tr("Item format:"));
@@ -628,6 +1176,8 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
     writeMenu->addActions(actionsWriteString);
     writeMenu->addSeparator();
     writeMenu->addActions(actionsWriteOther);
+    menu->addAction(actionKeyboardEdit);
+
     menu->addSeparator();
     menu->addAction(actionCopy);
     disableOutsideSelectionActions(mouseOutsideSelection);
@@ -663,26 +1213,31 @@ void HexWidget::copy()
     if (selection.isEmpty() || selection.size() > MAX_COPY_SIZE)
         return;
 
-    QClipboard *clipboard = QApplication::clipboard();
-    if (cursorOnAscii) {
-        clipboard->setText(
-                Core()->cmdRawAt(QString("psx %1").arg(selection.size()), selection.start())
-                        .trimmed());
-    } else {
-        clipboard->setText(Core()->cmdRawAt(QString("p8 %1").arg(selection.size()),
-                                            selection.start())
-                                   .trimmed()); // TODO: copy in the format shown
-    }
+    auto x = cursorOnAscii
+            ? Core()->getString(selection.start(), selection.size(), RZ_STRING_ENC_8BIT, true)
+            : Core()->ioRead(selection.start(), (int)selection.size()).toHex();
+    QApplication::clipboard()->setText(x);
 }
 
 void HexWidget::copyAddress()
 {
-    uint64_t addr = cursor.address;
-    if (!selection.isEmpty()) {
-        addr = selection.start();
-    }
+    uint64_t addr = getLocationAddress();
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(RAddressString(addr));
+    clipboard->setText(RzAddressString(addr));
+}
+
+// slot for add comment action
+void HexWidget::onActionAddCommentTriggered()
+{
+    uint64_t addr = cursor.address;
+    CommentsDialog::addOrEditComment(addr, this);
+}
+
+// slot for deleting comment action
+void HexWidget::onActionDeleteCommentTriggered()
+{
+    uint64_t addr = cursor.address;
+    Core()->delComment(addr);
 }
 
 void HexWidget::onRangeDialogAccepted()
@@ -694,19 +1249,36 @@ void HexWidget::onRangeDialogAccepted()
     selectRange(rangeDialog.getStartAddress(), rangeDialog.getEndAddress());
 }
 
+void HexWidget::writeZeros(uint64_t address, uint64_t length)
+{
+    const uint64_t MAX_BUFFER = 1024;
+    std::vector<uint8_t> zeroes(std::min(MAX_BUFFER, length), 0);
+    while (length > zeroes.size()) {
+        data->write(zeroes.data(), address, zeroes.size());
+        address += zeroes.size();
+        length -= zeroes.size();
+    }
+    if (length > 0) {
+        data->write(zeroes.data(), address, length);
+    }
+}
+
 void HexWidget::w_writeString()
 {
     if (!ioModesController.prepareForWriting()) {
         return;
     }
     bool ok = false;
-    QInputDialog d;
-    d.setInputMode(QInputDialog::InputMode::TextInput);
-    QString str = d.getText(this, tr("Write string"), tr("String:"), QLineEdit::Normal, "", &ok);
-    if (ok && !str.isEmpty()) {
-        Core()->cmdRawAt(QString("w %1").arg(str), getLocationAddress());
-        refresh();
+    QString str = QInputDialog::getText(this, tr("Write string"), tr("String:"), QLineEdit::Normal,
+                                        "", &ok);
+    if (!ok || str.isEmpty()) {
+        return;
     }
+    {
+        RzCoreLocked core(Core());
+        rz_core_write_string_at(core, getLocationAddress(), str.toUtf8().constData());
+    }
+    refresh();
 }
 
 void HexWidget::w_increaseDecrease()
@@ -719,12 +1291,51 @@ void HexWidget::w_increaseDecrease()
     if (ret == QDialog::Rejected) {
         return;
     }
-    QString mode = d.getMode() == IncrementDecrementDialog::Increase ? "+" : "-";
-    Core()->cmdRawAt(QString("w%1%2 %3")
-                             .arg(QString::number(d.getNBytes()))
-                             .arg(mode)
-                             .arg(QString::number(d.getValue())),
-                     getLocationAddress());
+    int64_t value = (int64_t)d.getValue();
+    uint8_t sz = d.getNBytes();
+    if (d.getMode() == IncrementDecrementDialog::Decrease) {
+        value *= -1;
+    }
+    {
+        RzCoreLocked core(Core());
+        rz_core_write_value_inc_at(core, getLocationAddress(), value, sz);
+    }
+    refresh();
+}
+
+void HexWidget::w_writeBytes()
+{
+    if (!ioModesController.prepareForWriting()) {
+        return;
+    }
+    bool ok = false;
+
+    int size = INT_MAX;
+    if (!selection.isEmpty() && selection.size() <= INT_MAX) {
+        size = static_cast<int>(selection.size());
+    }
+
+    QByteArray bytes = QInputDialog::getText(this, tr("Write hex bytes"), tr("Hex byte string:"),
+                                             QLineEdit::Normal, "", &ok)
+                               .toUtf8();
+    const int offset = bytes.startsWith("\\x") ? 2 : 0;
+    const int incr = offset + 2;
+    const int bytes_size = qMin(bytes.size() / incr, size);
+    if (!ok || !bytes_size) {
+        return;
+    }
+    {
+        auto *buf = (uint8_t *)malloc(static_cast<size_t>(bytes_size));
+        if (!buf) {
+            return;
+        }
+        for (int i = 0, j = 0, sz = bytes.size(); i < sz; i += incr, j++) {
+            buf[j] = static_cast<uint8_t>(bytes.mid(i + offset, 2).toInt(nullptr, 16));
+        }
+        RzCoreLocked core(Core());
+        rz_core_write_at(core, getLocationAddress(), buf, bytes_size);
+        free(buf);
+    }
     refresh();
 }
 
@@ -733,20 +1344,22 @@ void HexWidget::w_writeZeros()
     if (!ioModesController.prepareForWriting()) {
         return;
     }
-    bool ok = false;
-    QInputDialog d;
 
     int size = 1;
     if (!selection.isEmpty() && selection.size() <= INT_MAX) {
         size = static_cast<int>(selection.size());
     }
 
-    QString str = QString::number(
-            d.getInt(this, tr("Write zeros"), tr("Number of zeros:"), size, 1, 0x7FFFFFFF, 1, &ok));
-    if (ok && !str.isEmpty()) {
-        Core()->cmdRawAt(QString("w0 %1").arg(str), getLocationAddress());
-        refresh();
+    bool ok = false;
+    int len = QInputDialog::getInt(this, tr("Write zeros"), tr("Number of zeros:"), size, 1,
+                                   0x7FFFFFFF, 1, &ok);
+    if (!ok) {
+        return;
     }
+    {
+        writeZeros(getLocationAddress(), len);
+    }
+    refresh();
 }
 
 void HexWidget::w_write64()
@@ -759,10 +1372,9 @@ void HexWidget::w_write64()
     if (ret == QDialog::Rejected) {
         return;
     }
-    QString mode = d.getMode() == Base64EnDecodedWriteDialog::Encode ? "e" : "d";
     QByteArray str = d.getData();
 
-    if (mode == "d"
+    if (d.getMode() == Base64EnDecodedWriteDialog::Decode
         && (QString(str).contains(QRegularExpression("[^a-zA-Z0-9+/=]")) || str.length() % 4 != 0
             || str.isEmpty())) {
         QMessageBox::critical(
@@ -772,9 +1384,14 @@ void HexWidget::w_write64()
         return;
     }
 
-    Core()->cmdRawAt(QString("w6%1 %2").arg(mode).arg(
-                             (mode == "e" ? str.toHex() : str).toStdString().c_str()),
-                     getLocationAddress());
+    {
+        RzCoreLocked core(Core());
+        if (d.getMode() == Base64EnDecodedWriteDialog::Encode) {
+            rz_core_write_base64_at(core, getLocationAddress(), str.toHex().constData());
+        } else {
+            rz_core_write_base64d_at(core, getLocationAddress(), str.constData());
+        }
+    }
     refresh();
 }
 
@@ -783,19 +1400,24 @@ void HexWidget::w_writeRandom()
     if (!ioModesController.prepareForWriting()) {
         return;
     }
-    bool ok = false;
-    QInputDialog d;
 
     int size = 1;
     if (!selection.isEmpty() && selection.size() <= INT_MAX) {
         size = static_cast<int>(selection.size());
     }
-    QString nbytes = QString::number(d.getInt(this, tr("Write random"), tr("Number of bytes:"),
-                                              size, 1, 0x7FFFFFFF, 1, &ok));
-    if (ok && !nbytes.isEmpty()) {
-        Core()->cmdRawAt(QString("wr %1").arg(nbytes), getLocationAddress());
-        refresh();
+
+    bool ok = false;
+    int nbytes = QInputDialog::getInt(this, tr("Write random bytes"), tr("Number of bytes:"), size, 1,
+                                      0x7FFFFFFF, 1, &ok);
+    if (!ok) {
+        return;
     }
+
+    {
+        RzCoreLocked core(Core());
+        rz_core_write_random_at(core, getLocationAddress(), nbytes);
+    }
+    refresh();
 }
 
 void HexWidget::w_duplFromOffset()
@@ -808,9 +1430,12 @@ void HexWidget::w_duplFromOffset()
     if (ret == QDialog::Rejected) {
         return;
     }
-    RVA copyFrom = d.getOffset();
-    QString nBytes = QString::number(d.getNBytes());
-    Core()->cmdRawAt(QString("wd %1 %2").arg(copyFrom).arg(nBytes), getLocationAddress());
+    RVA src = d.getOffset();
+    int len = (int)d.getNBytes();
+    {
+        RzCoreLocked core(Core());
+        rz_core_write_duplicate_at(core, getLocationAddress(), src, len);
+    }
     refresh();
 }
 
@@ -820,14 +1445,16 @@ void HexWidget::w_writePascalString()
         return;
     }
     bool ok = false;
-    QInputDialog d;
-    d.setInputMode(QInputDialog::InputMode::TextInput);
-    QString str =
-            d.getText(this, tr("Write Pascal string"), tr("String:"), QLineEdit::Normal, "", &ok);
-    if (ok && !str.isEmpty()) {
-        Core()->cmdRawAt(QString("ws %1").arg(str), getLocationAddress());
-        refresh();
+    QString str = QInputDialog::getText(this, tr("Write Pascal string"), tr("String:"),
+                                        QLineEdit::Normal, "", &ok);
+    if (!ok || str.isEmpty()) {
+        return;
     }
+    {
+        RzCoreLocked core(Core());
+        rz_core_write_length_string_at(core, getLocationAddress(), str.toUtf8().constData());
+    }
+    refresh();
 }
 
 void HexWidget::w_writeWideString()
@@ -836,14 +1463,16 @@ void HexWidget::w_writeWideString()
         return;
     }
     bool ok = false;
-    QInputDialog d;
-    d.setInputMode(QInputDialog::InputMode::TextInput);
-    QString str =
-            d.getText(this, tr("Write wide string"), tr("String:"), QLineEdit::Normal, "", &ok);
-    if (ok && !str.isEmpty()) {
-        Core()->cmdRawAt(QString("ww %1").arg(str), getLocationAddress());
-        refresh();
+    QString str = QInputDialog::getText(this, tr("Write wide string"), tr("String:"),
+                                        QLineEdit::Normal, "", &ok);
+    if (!ok || str.isEmpty()) {
+        return;
     }
+    {
+        RzCoreLocked core(Core());
+        rz_core_write_string_wide_at(core, getLocationAddress(), str.toUtf8().constData());
+    }
+    refresh();
 }
 
 void HexWidget::w_writeCString()
@@ -852,25 +1481,54 @@ void HexWidget::w_writeCString()
         return;
     }
     bool ok = false;
-    QInputDialog d;
-    d.setInputMode(QInputDialog::InputMode::TextInput);
-    QString str = d.getText(this, tr("Write zero-terminated string"), tr("String:"),
-                            QLineEdit::Normal, "", &ok);
-    if (ok && !str.isEmpty()) {
-        Core()->cmdRawAt(QString("wz %1").arg(str), getLocationAddress());
-        refresh();
+    QString str = QInputDialog::getText(this, tr("Write zero-terminated string"), tr("String:"),
+                                        QLineEdit::Normal, "", &ok);
+    if (!ok || str.isEmpty()) {
+        return;
     }
+    {
+        RzCoreLocked core(Core());
+        rz_core_write_string_zero_at(core, getLocationAddress(), str.toUtf8().constData());
+    }
+    refresh();
+}
+
+void HexWidget::onKeyboardEditTriggered(bool enabled)
+{
+    if (!enabled) {
+        return;
+    }
+    if (!ioModesController.prepareForWriting()) {
+        actionKeyboardEdit->setChecked(false);
+    }
+}
+
+void HexWidget::onKeyboardEditChanged(bool enabled)
+{
+    if (!enabled) {
+        finishEditingWord();
+        navigationMode = HexNavigationMode::Words;
+        editWordState = EditWordState::Read;
+    } else {
+        editWordState = EditWordState::WriteNotStarted;
+        navigationMode = defaultNavigationMode();
+    }
+    updateCursorMeta();
+    viewport()->update();
 }
 
 void HexWidget::updateItemLength()
 {
     itemPrefixLen = 0;
+    itemPrefix.clear();
 
     switch (itemFormat) {
     case ItemFormatHex:
         itemCharLen = 2 * itemByteLen;
-        if (itemByteLen > 1 && showExHex)
+        if (itemByteLen > 1 && showExHex) {
             itemPrefixLen = hexPrefix.length();
+            itemPrefix = hexPrefix;
+        }
         break;
     case ItemFormatOct:
         itemCharLen = (itemByteLen * 8 + 3) / 3;
@@ -954,7 +1612,13 @@ void HexWidget::drawCursor(QPainter &painter, bool shadow)
         QPen pen(Qt::gray);
         pen.setStyle(Qt::DashLine);
         painter.setPen(pen);
-        shadowCursor.screenPos.setWidth(cursorOnAscii ? itemWidth() : charWidth);
+        qreal shadowWidth = charWidth;
+        if (cursorOnAscii) {
+            shadowWidth = itemWidth();
+        } else if (editWordState >= EditWordState::WriteNotEdited) {
+            shadowWidth = itemByteLen * charWidth;
+        }
+        shadowCursor.screenPos.setWidth(shadowWidth);
         painter.drawRect(shadowCursor.screenPos);
         painter.setPen(Qt::SolidLine);
     }
@@ -1000,20 +1664,26 @@ void HexWidget::drawItemArea(QPainter &painter)
 
     fillSelectionBackground(painter);
 
+    bool haveEditWord = false;
+    QRectF editWordRect;
+    QColor editWordColor;
+
     uint64_t itemAddr = startAddress;
     for (int line = 0; line < visibleLines; ++line) {
         itemRect.moveLeft(itemArea.left());
         for (int j = 0; j < itemColumns; ++j) {
             for (int k = 0; k < itemGroupSize && itemAddr <= data->maxIndex();
                  ++k, itemAddr += itemByteLen) {
+
                 itemString = renderItem(itemAddr - startAddress, &itemColor);
 
                 if (!getFlagsAndComment(itemAddr).isEmpty()) {
                     QColor markerColor(borderColor);
                     markerColor.setAlphaF(0.5);
-                    const auto shape = rangePolygons(itemAddr, itemAddr, false)[0];
                     painter.setPen(markerColor);
-                    painter.drawPolyline(shape);
+                    for (const auto &shape : rangePolygons(itemAddr, itemAddr, false)) {
+                        painter.drawPolyline(shape);
+                    }
                 }
                 if (selection.contains(itemAddr) && !cursorOnAscii) {
                     itemColor = palette().highlightedText().color();
@@ -1021,18 +1691,52 @@ void HexWidget::drawItemArea(QPainter &painter)
                 if (isItemDifferentAt(itemAddr)) {
                     itemColor.setRgb(diffColor.rgb());
                 }
-                painter.setPen(itemColor);
-                painter.drawText(itemRect, Qt::AlignVCenter, itemString);
-                itemRect.translate(itemWidth(), 0);
-                if (cursor.address == itemAddr) {
-                    auto &itemCursor = cursorOnAscii ? shadowCursor : cursor;
-                    itemCursor.cachedChar = itemString.at(0);
+
+                if (editWordState <= EditWordState::WriteNotStarted || cursor.address != itemAddr) {
+                    painter.setPen(itemColor);
+                    painter.drawText(itemRect, Qt::AlignVCenter, itemString);
+                    itemRect.translate(itemWidth(), 0);
+                    if (cursor.address == itemAddr) {
+                        auto &itemCursor = cursorOnAscii ? shadowCursor : cursor;
+                        int itemCharPos = 0;
+                        if (editWordState > EditWordState::Read) {
+                            itemCharPos += itemPrefixLen;
+                        }
+                        if (itemCharPos < itemString.length()) {
+                            itemCursor.cachedChar = itemString.at(itemCharPos);
+                        } else {
+                            itemCursor.cachedChar = ' ';
+                        }
+                        itemCursor.cachedColor = itemColor;
+                    }
+                } else {
+                    haveEditWord = true;
+                    editWordRect = itemRect;
+                    editWordColor = itemColor;
+
+                    auto &itemCursor = cursor;
+                    itemCursor.cachedChar =
+                            editWordPos < editWord.length() ? editWord[editWordPos] : QChar(' ');
                     itemCursor.cachedColor = itemColor;
+                    itemCursor.screenPos.moveTopLeft(itemRect.topLeft());
+                    itemCursor.screenPos.translate(charWidth * (editWordPos + itemPrefixLen), 0);
+
+                    itemRect.translate(itemWidth(), 0);
                 }
             }
             itemRect.translate(columnSpacingWidth(), 0);
         }
         itemRect.translate(0, lineHeight);
+    }
+    if (haveEditWord) {
+        auto length = std::max<int>(itemCharLen, editWord.length());
+        auto rect = editWordRect;
+        rect.setWidth(length * charWidth);
+        painter.fillRect(rect, backgroundColor);
+
+        painter.setPen(editWordColor);
+        editWordRect.setWidth(4000);
+        painter.drawText(editWordRect, Qt::AlignVCenter | Qt::AlignLeft, itemPrefix + editWord);
     }
 
     painter.setPen(borderColor);
@@ -1120,12 +1824,16 @@ QVector<QPolygonF> HexWidget::rangePolygons(RVA start, RVA last, bool ascii)
 
     auto startRect = getRectangle(startOffset);
     auto endRect = getRectangle(endOffset);
+    bool startJagged = false;
+    bool endJagged = false;
     if (!ascii) {
         if (int startFraction = startOffset % itemByteLen) {
             startRect.setLeft(startRect.left() + startFraction * startRect.width() / itemByteLen);
+            startJagged = true;
         }
         if (int endFraction = itemByteLen - 1 - (endOffset % itemByteLen)) {
             endRect.setRight(endRect.right() - endFraction * endRect.width() / itemByteLen);
+            endJagged = true;
         }
     }
     if (endOffset - startOffset + 1 <= rowSizeBytes) {
@@ -1160,6 +1868,33 @@ QVector<QPolygonF> HexWidget::rangePolygons(RVA start, RVA last, bool ascii)
         }
         shape << shape.first(); // close the shape
         parts.push_back(shape);
+    }
+    if (!ascii && (startJagged || endJagged) && parts.length() >= 1) {
+
+        QPolygonF top;
+        top.reserve(3);
+        top << QPointF(0, 0) << QPointF(charWidth, lineHeight / 3) << QPointF(0, lineHeight / 2);
+        QPolygonF bottom;
+        bottom.reserve(3);
+        bottom << QPointF(0, lineHeight / 2) << QPointF(-charWidth, 2 * lineHeight / 3)
+               << QPointF(0, lineHeight);
+
+        // small adjustment to make sure that edges don't overlap with rect edges, QPolygonF doesn't
+        // handle it properly
+        QPointF adjustment(charWidth / 16, 0);
+        top.translate(-adjustment);
+        bottom.translate(adjustment);
+
+        if (startJagged) {
+            auto movedTop = top.translated(startRect.topLeft());
+            auto movedBottom = bottom.translated(startRect.topLeft());
+            parts[0] = parts[0].subtracted(movedTop).united(movedBottom);
+        }
+        if (endJagged) {
+            auto movedTop = top.translated(endRect.topRight());
+            auto movedBottom = bottom.translated(endRect.topRight());
+            parts.last() = parts.last().subtracted(movedBottom).united(movedTop);
+        }
     }
     return parts;
 }
@@ -1222,18 +1957,44 @@ void HexWidget::updateAreasHeight()
     asciiArea.setHeight(height);
 }
 
-void HexWidget::moveCursor(int offset, bool select)
+bool HexWidget::moveCursor(int offset, bool select, OverflowMove overflowMove)
 {
-    BasicCursor addr = cursor.address;
-    addr += offset;
-    if (addr.address > data->maxIndex()) {
-        addr.address = data->maxIndex();
+    BasicCursor addr(cursor.address);
+    if (overflowMove == OverflowMove::Ignore) {
+        if (addr.moveChecked(offset)) {
+            if (addr.address > data->maxIndex()) {
+                addr.address = data->maxIndex();
+                addr.pastEnd = true;
+            }
+            setCursorAddr(addr, select);
+            return true;
+        }
+        return false;
+    } else {
+        addr += offset;
+        if (addr.address > data->maxIndex()) {
+            addr.address = data->maxIndex();
+        }
+        setCursorAddr(addr, select);
+        return true;
     }
-    setCursorAddr(addr, select);
+}
+
+void HexWidget::moveCursorKeepEditOffset(int byteOffset, bool select, OverflowMove overflowMove)
+{
+    int wordOffset = editWordPos;
+    moveCursor(byteOffset, select, overflowMove);
+    // preserve position within word when moving vertically in hex or oct modes
+    if (!cursorOnAscii && !select && wordOffset > 0 && navigationMode == HexNavigationMode::AnyChar
+        && editWordState > EditWordState::Read) {
+        startEditWord();
+        editWordPos = wordOffset;
+    }
 }
 
 void HexWidget::setCursorAddr(BasicCursor addr, bool select)
 {
+    finishEditingWord();
     if (!select) {
         bool clearingSelection = !selection.isEmpty();
         selection.init(addr);
@@ -1243,6 +2004,9 @@ void HexWidget::setCursorAddr(BasicCursor addr, bool select)
     emit positionChanged(addr.address);
 
     cursor.address = addr.address;
+    if (!cursorOnAscii) {
+        cursor.address -= cursor.address % itemByteLen;
+    }
 
     /* Pause cursor repainting */
     cursorEnabled = false;
@@ -1259,7 +2023,9 @@ void HexWidget::setCursorAddr(BasicCursor addr, bool select)
         addressValue -= (addressValue % itemRowByteLen());
 
         /* FIXME: handling Page Up/Down */
-        if (addressValue == startAddress + bytesPerScreen()) {
+        uint64_t rowAfterVisibleAddress = startAddress + bytesPerScreen();
+        if (addressValue == rowAfterVisibleAddress && addressValue > startAddress) {
+            // when pressing down add only one new row
             startAddress += itemRowByteLen();
         } else {
             startAddress = addressValue;
@@ -1308,6 +2074,10 @@ void HexWidget::updateCursorMeta()
     point += itemArea.topLeft();
     pointAscii += asciiArea.topLeft();
 
+    if (editWordState > EditWordState::Read && !cursorOnAscii) {
+        point.rx() += itemPrefixLen * charWidth;
+    }
+
     cursor.screenPos.moveTopLeft(cursorOnAscii ? pointAscii : point);
     shadowCursor.screenPos.moveTopLeft(cursorOnAscii ? point : pointAscii);
 }
@@ -1317,7 +2087,7 @@ void HexWidget::setCursorOnAscii(bool ascii)
     cursorOnAscii = ascii;
 }
 
-const QColor HexWidget::itemColor(uint8_t byte)
+QColor HexWidget::itemColor(uint8_t byte)
 {
     QColor color(defColor);
 
@@ -1445,7 +2215,7 @@ QString HexWidget::renderItem(int offset, QColor *color)
         item = QString("%1").arg(itemVal.toLongLong(), itemLen, 10);
         break;
     case ItemFormatFloat:
-        item = QString("%1").arg(itemVal.toDouble(), itemLen);
+        item = QString("%1").arg(itemVal.toDouble(), itemLen, 'g', itemByteLen == 4 ? 6 : 15);
         break;
     }
 
@@ -1486,13 +2256,191 @@ QString HexWidget::getFlagsAndComment(uint64_t address)
     return metaData;
 }
 
+bool HexWidget::canKeyboardEdit()
+{
+    return ioModesController.canWrite() && actionKeyboardEdit->isChecked();
+}
+
+template<class T, class BigValue>
+static bool checkRange(BigValue v)
+{
+    return v >= std::numeric_limits<T>::min() && v <= std::numeric_limits<T>::max();
+}
+
+template<class T, class BigInteger>
+static bool checkAndWrite(BigInteger value, uint8_t *buf, bool littleEndian)
+{
+    if (!checkRange<T>(value)) {
+        return false;
+    }
+    if (littleEndian) {
+        qToLittleEndian((T)value, buf);
+    } else {
+        qToBigEndian((T)value, buf);
+    }
+    return true;
+}
+
+template<class UType, class SType>
+static bool checkAndWriteWithSign(const QVariant &value, uint8_t *buf, bool isSigned,
+                                  bool littleEndian)
+{
+    if (isSigned) {
+        return checkAndWrite<SType>(value.toLongLong(), buf, littleEndian);
+    } else {
+        return checkAndWrite<UType>(value.toULongLong(), buf, littleEndian);
+    }
+}
+
+bool HexWidget::parseWord(QString word, uint8_t *buf, size_t bufferSize) const
+{
+    bool parseOk = false;
+    if (bufferSize < size_t(itemByteLen)) {
+        return false;
+    }
+    if (itemFormat == ItemFormatFloat) {
+        if (itemByteLen == 4) {
+            float value = word.toFloat(&parseOk);
+            if (!parseOk) {
+                return false;
+            }
+            if (itemBigEndian) {
+                rz_write_be_float(buf, value);
+            } else {
+                rz_write_le_float(buf, value);
+            }
+            return true;
+        } else if (itemByteLen == 8) {
+            double value = word.toDouble(&parseOk);
+            if (!parseOk) {
+                return false;
+            }
+            if (itemBigEndian) {
+                rz_write_be_double(buf, value);
+            } else {
+                rz_write_le_double(buf, value);
+            }
+            return true;
+        }
+        return false;
+    } else {
+        QVariant value;
+        bool isSigned = false;
+        switch (itemFormat) {
+        case ItemFormatHex:
+            value = word.toULongLong(&parseOk, 16);
+            break;
+        case ItemFormatOct:
+            value = word.toULongLong(&parseOk, 8);
+            break;
+        case ItemFormatDec:
+            value = word.toULongLong(&parseOk, 10);
+            break;
+        case ItemFormatSignedDec:
+            isSigned = true;
+            value = word.toLongLong(&parseOk, 10);
+            break;
+        default:
+            break;
+        }
+        if (!parseOk) {
+            return false;
+        }
+
+        switch (itemByteLen) {
+        case 1:
+            return checkAndWriteWithSign<uint8_t, int8_t>(value, buf, isSigned, !itemBigEndian);
+        case 2:
+            return checkAndWriteWithSign<uint16_t, int16_t>(value, buf, isSigned, !itemBigEndian);
+        case 4:
+            return checkAndWriteWithSign<quint32, qint32>(value, buf, isSigned, !itemBigEndian);
+        case 8:
+            return checkAndWriteWithSign<quint64, qint64>(value, buf, isSigned, !itemBigEndian);
+        }
+    }
+    return false;
+}
+
+bool HexWidget::flushCurrentlyEditedWord()
+{
+    if (editWordState < EditWordState::WriteEdited) {
+        return true;
+    }
+    uint8_t buf[16];
+    if (parseWord(editWord, buf, sizeof(buf))) {
+        data->write(buf, cursor.address, itemByteLen);
+        return true;
+    }
+    editWordState = EditWordState::WriteNotEdited;
+    return false;
+}
+
+bool HexWidget::finishEditingWord(bool force)
+{
+    if (editWordState == EditWordState::WriteEdited) {
+        if (!flushCurrentlyEditedWord() && !force) {
+            qWarning() << "Not a valid number in current format or size" << editWord;
+            showWarningRect(itemRectangle(cursor.address - startAddress).adjusted(-1, -1, 1, 1));
+            return false;
+        }
+    }
+    editWord.clear();
+    editWordPos = 0;
+    editWordState = canKeyboardEdit() ? EditWordState::WriteNotStarted : EditWordState::Read;
+    navigationMode = defaultNavigationMode();
+    return true;
+}
+
+void HexWidget::cancelEditedWord()
+{
+    editWordPos = 0;
+    editWordState = canKeyboardEdit() ? EditWordState::WriteNotStarted : EditWordState::Read;
+    editWord.clear();
+    navigationMode = defaultNavigationMode();
+    updateCursorMeta();
+    viewport()->update();
+}
+
+void HexWidget::maybeFlushCharEdit()
+{
+    if (editWordState < EditWordState::WriteEdited) {
+        return;
+    }
+    if ((itemFormat == ItemFormatHex && earlyEditFlush >= EarlyEditFlush::EditNibble)
+        || (isFixedWidth() && earlyEditFlush >= EarlyEditFlush::EditFixedWidthChar)) {
+        flushCurrentlyEditedWord();
+        if (!flushCurrentlyEditedWord()) {
+            showWarningRect(itemRectangle(cursor.address - startAddress).adjusted(-1, -1, 1, 1));
+        }
+    }
+    viewport()->update();
+}
+
+void HexWidget::startEditWord()
+{
+    if (!canKeyboardEdit()) {
+        return;
+    }
+    if (editWordState >= EditWordState::WriteNotEdited) {
+        return;
+    }
+    editWordPos = 0;
+    editWordState = EditWordState::WriteNotEdited;
+    navigationMode = defaultNavigationMode();
+    editWord = renderItem(cursor.address - startAddress).trimmed();
+    if (itemPrefixLen > 0) {
+        editWord = editWord.mid(itemPrefixLen);
+    }
+    viewport()->update();
+}
+
 void HexWidget::fetchData()
 {
     data.swap(oldData);
     data->fetch(startAddress, bytesPerScreen());
 }
 
-BasicCursor HexWidget::screenPosToAddr(const QPoint &point, bool middle) const
+BasicCursor HexWidget::screenPosToAddr(const QPoint &point, bool middle, int *wordOffset) const
 {
     QPointF pt = point - itemArea.topLeft();
 
@@ -1503,9 +2451,21 @@ BasicCursor HexWidget::screenPosToAddr(const QPoint &point, bool middle) const
     relativeAddress += column * itemGroupByteLen();
     pt.rx() -= column * columnExWidth();
     auto roundingOffset = middle ? itemWidth() / 2 : 0;
-    relativeAddress += static_cast<int>((pt.x() + roundingOffset) / itemWidth()) * itemByteLen;
+    int posInGroup = static_cast<int>((pt.x() + roundingOffset) / itemWidth());
+    if (!middle) {
+        posInGroup = std::min(posInGroup, itemGroupSize - 1);
+    }
+    relativeAddress += posInGroup * itemByteLen;
+    pt.rx() -= posInGroup * itemWidth();
     BasicCursor result(startAddress);
     result += relativeAddress;
+
+    if (!middle && wordOffset != nullptr) {
+        int charPos = static_cast<int>((pt.x() / charWidth) + 0.5);
+        charPos -= itemPrefixLen;
+        charPos = std::max(0, charPos);
+        *wordOffset = charPos;
+    }
     return result;
 }
 
@@ -1576,4 +2536,18 @@ QRectF HexWidget::asciiRectangle(int offset)
 RVA HexWidget::getLocationAddress()
 {
     return !selection.isEmpty() ? selection.start() : cursor.address;
+}
+
+void HexWidget::hideWarningRect()
+{
+    warningRectVisible = false;
+    viewport()->update();
+}
+
+void HexWidget::showWarningRect(QRectF rect)
+{
+    warningRect = rect;
+    warningRectVisible = true;
+    warningTimer.start(WARNING_TIME_MS);
+    viewport()->update();
 }

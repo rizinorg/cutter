@@ -2,7 +2,7 @@
 #include "ui_MainWindow.h"
 
 // Common Headers
-#include "common/AnalTask.h"
+#include "common/AnalysisTask.h"
 #include "common/BugReporting.h"
 #include "common/Highlighter.h"
 #include "common/Helpers.h"
@@ -55,7 +55,7 @@
 #include "widgets/ResourcesWidget.h"
 #include "widgets/VTablesWidget.h"
 #include "widgets/HeadersWidget.h"
-#include "widgets/ZignaturesWidget.h"
+#include "widgets/FlirtWidget.h"
 #include "widgets/DebugActions.h"
 #include "widgets/MemoryMapWidget.h"
 #include "widgets/BreakpointWidget.h"
@@ -115,6 +115,9 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
+// Tools
+#include "tools/basefind/BaseFindDialog.h"
+
 #define PROJECT_FILE_FILTER tr("Rizin Project (*.rzdb)")
 
 template<class T>
@@ -149,7 +152,7 @@ void MainWindow::initUI()
             &MainWindow::addExtraDisassembly);
     connect(ui->actionExtraHexdump, &QAction::triggered, this, &MainWindow::addExtraHexdump);
     connect(ui->actionCommitChanges, &QAction::triggered, this,
-            [this]() { Core()->commitWriteCache(); });
+            []() { Core()->commitWriteCache(); });
     ui->actionCommitChanges->setEnabled(false);
     connect(Core(), &CutterCore::ioCacheChanged, ui->actionCommitChanges, &QAction::setEnabled);
 
@@ -399,7 +402,7 @@ void MainWindow::initDocks()
         segmentsDock = new SegmentsWidget(this),
         symbolsDock = new SymbolsWidget(this),
         vTablesDock = new VTablesWidget(this),
-        zignaturesDock = new ZignaturesWidget(this),
+        flirtDock = new FlirtWidget(this),
         rzGraphDock = new RizinGraphWidget(this),
         callGraphDock = new CallGraphWidget(this, false),
         globalCallGraphDock = new CallGraphWidget(this, true),
@@ -619,7 +622,9 @@ bool MainWindow::openProject(const QString &file)
         const char *s = rz_project_err_message(err);
         QString msg = tr("Failed to open project: %1").arg(QString::fromUtf8(s));
         RzListIter *it;
-        CutterRListForeach(res, it, const char, s) { msg += "\n" + QString::fromUtf8(s); }
+        CutterRzListForeach (res, it, const char, s) {
+            msg += "\n" + QString::fromUtf8(s);
+        }
         QMessageBox::critical(this, tr("Open Project"), msg);
         rz_list_free(res);
         return false;
@@ -635,11 +640,15 @@ bool MainWindow::openProject(const QString &file)
 
 void MainWindow::finalizeOpen()
 {
-    core->getOpcodes();
+    core->getRegs();
     core->updateSeek();
     refreshAll();
     // Add fortune message
-    core->message("\n" + core->cmdRaw("fo"));
+    char *fortune = rz_core_fortune_get_random(core->core());
+    if (fortune) {
+        core->message("\n" + QString(fortune));
+        free(fortune);
+    }
 
     // hide all docks before showing window to avoid false positive for refreshDeferrer
     for (auto dockWidget : dockWidgets) {
@@ -695,7 +704,7 @@ RzProjectErr MainWindow::saveProject(bool *canceled)
     if (canceled) {
         *canceled = false;
     }
-    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData());
+    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData(), false);
     if (err == RZ_PROJECT_ERR_SUCCESS) {
         Config()->addRecentProject(file);
     }
@@ -724,7 +733,7 @@ RzProjectErr MainWindow::saveProjectAs(bool *canceled)
     if (canceled) {
         *canceled = false;
     }
-    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData());
+    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData(), false);
     if (err == RZ_PROJECT_ERR_SUCCESS) {
         Config()->addRecentProject(file);
     }
@@ -894,7 +903,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, typesDock);
     tabifyDockWidget(dashboardDock, searchDock);
     tabifyDockWidget(dashboardDock, headersDock);
-    tabifyDockWidget(dashboardDock, zignaturesDock);
+    tabifyDockWidget(dashboardDock, flirtDock);
     tabifyDockWidget(dashboardDock, symbolsDock);
     tabifyDockWidget(dashboardDock, classesDock);
     tabifyDockWidget(dashboardDock, resourcesDock);
@@ -1080,6 +1089,12 @@ MemoryDockWidget *MainWindow::addNewMemoryWidget(MemoryWidgetType type, RVA addr
     case MemoryWidgetType::Decompiler:
         memoryWidget = new DecompilerWidget(this);
         break;
+    case MemoryWidgetType::CallGraph:
+        memoryWidget = new CallGraphWidget(this, false);
+        break;
+    case MemoryWidgetType::GlobalCallGraph:
+        memoryWidget = new CallGraphWidget(this, true);
+        break;
     }
     auto seekable = memoryWidget->getSeekable();
     seekable->setSynchronization(synchronized);
@@ -1102,7 +1117,7 @@ void MainWindow::initBackForwardMenu()
         connect(button, &QWidget::customContextMenuRequested, button,
                 [menu, button](const QPoint &pos) { menu->exec(button->mapToGlobal(pos)); });
 
-        QFontMetrics metrics(fontMetrics());
+        QFontMetrics metrics(font());
         // Roughly 10-16 lines depending on padding size, no need to calculate more precisely
         menu->setMaximumHeight(metrics.lineSpacing() * 20);
 
@@ -1127,19 +1142,31 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
     // not too short so that reasonable length c++ names can be seen most of the time
     const int MAX_NAME_LENGTH = 64;
 
-    auto hist = Core()->cmdj("sj");
+    RzListIter *it;
+    RzCoreSeekItem *undo;
+    RzCoreLocked core(Core());
+    RzList *list = rz_core_seek_list(core);
+
     bool history = true;
     QList<QAction *> actions;
-    for (auto item : Core()->cmdj("sj").array()) {
-        QJsonObject obj = item.toObject();
-        QString name = obj["name"].toString();
-        RVA offset = obj["offset"].toVariant().toULongLong();
-        bool current = obj["current"].toBool(false);
+    CutterRzListForeach (list, it, RzCoreSeekItem, undo) {
+        RzFlagItem *f = rz_flag_get_at(core->flags, undo->offset, true);
+        char *fname = NULL;
+        if (f) {
+            if (f->offset != undo->offset) {
+                fname = rz_str_newf("%s+%" PFMT64d, f->name, undo->offset - f->offset);
+            } else {
+                fname = strdup(f->name);
+            }
+        }
+        QString name = fname;
+        RVA offset = undo->offset;
+        bool current = undo->is_current;
         if (current) {
             history = false;
         }
         if (history != redo || current) { // Include current in both directions
-            QString addressString = RAddressString(offset);
+            QString addressString = RzAddressString(offset);
 
             QString toolTip =
                     QString("%1 %2").arg(addressString, name); // show non truncated name in tooltip
@@ -1613,6 +1640,12 @@ void MainWindow::on_actionTabs_triggered()
     setTabLocation();
 }
 
+void MainWindow::on_actionBaseFind_triggered()
+{
+    auto dialog = new BaseFindDialog(this);
+    dialog->show();
+}
+
 void MainWindow::on_actionAbout_triggered()
 {
     AboutDialog *a = new AboutDialog(this);
@@ -1640,19 +1673,19 @@ void MainWindow::on_actionRefresh_Panels_triggered()
  */
 void MainWindow::on_actionAnalyze_triggered()
 {
-    auto *analTask = new AnalTask();
+    auto *analysisTask = new AnalysisTask();
     InitialOptions options;
-    options.analCmd = { { "aaa", "Auto analysis" } };
-    analTask->setOptions(options);
-    AsyncTask::Ptr analTaskPtr(analTask);
+    options.analysisCmd = { { "aaa", "Auto analysis" } };
+    analysisTask->setOptions(options);
+    AsyncTask::Ptr analysisTaskPtr(analysisTask);
 
-    auto *taskDialog = new AsyncTaskDialog(analTaskPtr);
+    auto *taskDialog = new AsyncTaskDialog(analysisTaskPtr);
     taskDialog->setInterruptOnClose(true);
     taskDialog->setAttribute(Qt::WA_DeleteOnClose);
     taskDialog->show();
-    connect(analTask, &AnalTask::finished, this, &MainWindow::refreshAll);
+    connect(analysisTask, &AnalysisTask::finished, this, &MainWindow::refreshAll);
 
-    Core()->getAsyncTaskManager()->start(analTaskPtr);
+    Core()->getAsyncTaskManager()->start(analysisTaskPtr);
 }
 
 void MainWindow::on_actionImportPDB_triggered()
@@ -1674,35 +1707,55 @@ void MainWindow::on_actionImportPDB_triggered()
     }
 }
 
+#define TYPE_BIG_ENDIAN(type, big_endian) big_endian ? type##_BE : type##_LE
+
 void MainWindow::on_actionExport_as_code_triggered()
 {
     QStringList filters;
-    QMap<QString, QString> cmdMap;
+    QMap<QString, RzLangByteArrayType> typMap;
+    const bool big_endian = Core()->getConfigb("big_endian");
 
     filters << tr("C uin8_t array (*.c)");
-    cmdMap[filters.last()] = "pc";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_C_CPP_BYTES;
     filters << tr("C uin16_t array (*.c)");
-    cmdMap[filters.last()] = "pch";
+    typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_HALFWORDS, big_endian);
     filters << tr("C uin32_t array (*.c)");
-    cmdMap[filters.last()] = "pcw";
+    typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_WORDS, big_endian);
     filters << tr("C uin64_t array (*.c)");
-    cmdMap[filters.last()] = "pcd";
-    filters << tr("C string (*.c)");
-    cmdMap[filters.last()] = "pcs";
-    filters << tr("Shell-script that reconstructs the bin (*.sh)");
-    cmdMap[filters.last()] = "pcS";
+    typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_DOUBLEWORDS, big_endian);
+
+    filters << tr("Go array (*.go)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_GOLANG;
+    filters << tr("Java array (*.java)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_JAVA;
     filters << tr("JSON array (*.json)");
-    cmdMap[filters.last()] = "pcj";
-    filters << tr("JavaScript array (*.js)");
-    cmdMap[filters.last()] = "pcJ";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_JSON;
+    filters << tr("Kotlin array (*.kt)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_KOTLIN;
+
+    filters << tr("Javascript array (*.js)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_NODEJS;
+    filters << tr("ObjectiveC array (*.m)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_OBJECTIVE_C;
     filters << tr("Python array (*.py)");
-    cmdMap[filters.last()] = "pcp";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_PYTHON;
+    filters << tr("Rust array (*.rs)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_RUST;
+
+    filters << tr("Swift array (*.swift)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_SWIFT;
     filters << tr("Print 'wx' Rizin commands (*.rz)");
-    cmdMap[filters.last()] = "pc*";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_RIZIN;
+    filters << tr("Shell-script that reconstructs the bin (*.sh)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_BASH;
     filters << tr("GAS .byte blob (*.asm, *.s)");
-    cmdMap[filters.last()] = "pca";
-    filters << tr(".bytes with instructions in comments (*.txt)");
-    cmdMap[filters.last()] = "pcA";
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_ASM;
+
+    filters << tr("Yara (*.yar)");
+    typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_YARA;
+    /* special case */
+    QString instructionsInComments = tr(".bytes with instructions in comments (*.txt)");
+    filters << instructionsInComments;
 
     QFileDialog dialog(this, tr("Export as code"));
     dialog.setAcceptMode(QFileDialog::AcceptSave);
@@ -1718,13 +1771,67 @@ void MainWindow::on_actionExport_as_code_triggered()
         qWarning() << "Can't open file";
         return;
     }
+
     TempConfig tempConfig;
     tempConfig.set("io.va", false);
     QTextStream fileOut(&file);
-    QString &cmd = cmdMap[dialog.selectedNameFilter()];
+    auto ps = core->seekTemp(0);
+    auto rc = core->core();
+    const auto size = static_cast<int>(rz_io_fd_size(rc->io, rc->file->fd));
+    auto buffer = std::vector<ut8>(size);
+    if (!rz_io_read_at(Core()->core()->io, 0, buffer.data(), size)) {
+        return;
+    }
 
-    // Use cmd because cmdRaw would not handle such input
-    fileOut << Core()->cmd(cmd + " $s @ 0");
+    auto string = fromOwned(
+            dialog.selectedNameFilter() != instructionsInComments
+                    ? rz_lang_byte_array(buffer.data(), size, typMap[dialog.selectedNameFilter()])
+                    : rz_core_print_bytes_with_inst(rc, buffer.data(), 0, size));
+    fileOut << string.get();
+}
+
+void MainWindow::on_actionApplySigFromFile_triggered()
+{
+    QStringList filters;
+    filters << tr("Signature File (*.sig)");
+    filters << tr("Pattern File (*.pat)");
+
+    QFileDialog dialog(this);
+    dialog.setWindowTitle(tr("Apply Signature From File"));
+    dialog.setNameFilters(filters);
+
+    if (!dialog.exec()) {
+        return;
+    }
+
+    const QString &sigfile = QDir::toNativeSeparators(dialog.selectedFiles().first());
+
+    if (!sigfile.isEmpty()) {
+        core->applySignature(sigfile);
+        this->refreshAll();
+    }
+}
+
+void MainWindow::on_actionCreateNewSig_triggered()
+{
+    QStringList filters;
+    filters << tr("Signature File (*.sig)");
+    filters << tr("Pattern File (*.pat)");
+
+    QFileDialog dialog(this, tr("Create New Signature File"));
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setNameFilters(filters);
+    dialog.selectFile("");
+    dialog.setDefaultSuffix("sig");
+    if (!dialog.exec())
+        return;
+
+    const QString &sigfile = QDir::toNativeSeparators(dialog.selectedFiles().first());
+
+    if (!sigfile.isEmpty()) {
+        core->createSignature(sigfile);
+    }
 }
 
 void MainWindow::on_actionGrouped_dock_dragging_triggered(bool checked)
@@ -1777,8 +1884,16 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     }
 }
 
-bool MainWindow::eventFilter(QObject *, QEvent *event)
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
+    // For every create event - disable context help and proceed to next event check
+    if (event->type() == QEvent::Create) {
+        if (obj->isWidgetType()) {
+            auto w = static_cast<QWidget *>(obj);
+            w->setWindowFlags(w->windowFlags() & (~Qt::WindowContextHelpButtonHint));
+        }
+    }
+
     if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->button() == Qt::ForwardButton || mouseEvent->button() == Qt::BackButton) {

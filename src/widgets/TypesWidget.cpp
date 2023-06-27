@@ -3,7 +3,6 @@
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include "dialogs/TypesInteractionDialog.h"
-#include "dialogs/LinkTypeDialog.h"
 
 #include <QMenu>
 #include <QFileDialog>
@@ -13,6 +12,17 @@
 TypesModel::TypesModel(QList<TypeDescription> *types, QObject *parent)
     : QAbstractListModel(parent), types(types)
 {
+}
+
+QVariant TypesModel::toolTipValue(const QModelIndex &index) const
+{
+    TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+
+    if (t.category == "Primitive") {
+        return QVariant();
+    }
+
+    return Core()->getTypeAsC(t.type).trimmed();
 }
 
 int TypesModel::rowCount(const QModelIndex &) const
@@ -46,6 +56,8 @@ QVariant TypesModel::data(const QModelIndex &index, int role) const
         default:
             return QVariant();
         }
+    case Qt::ToolTipRole:
+        return toolTipValue(index);
     case TypeDescriptionRole:
         return QVariant::fromValue(exp);
     default:
@@ -76,7 +88,8 @@ QVariant TypesModel::headerData(int section, Qt::Orientation, int role) const
 
 bool TypesModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    Core()->cmdRaw("t-" + types->at(row).type);
+    RzCoreLocked core(Core());
+    rz_type_db_del(core->analysis->typedb, types->at(row).type.toUtf8().constData());
     beginRemoveRows(parent, row, row + count - 1);
     while (count--) {
         types->removeAt(row);
@@ -241,9 +254,6 @@ void TypesWidget::showTypesContextMenu(const QPoint &pt)
             // Add "Link To Address" option
             menu.addAction(actionViewType);
             menu.addAction(actionEditType);
-            if (t.category == "Struct") {
-                menu.addAction(ui->actionLink_Type_To_Address);
-            }
         }
     }
 
@@ -262,6 +272,10 @@ void TypesWidget::showTypesContextMenu(const QPoint &pt)
 
 void TypesWidget::on_actionExport_Types_triggered()
 {
+    char *str = rz_core_types_as_c_all(Core()->core(), true);
+    if (!str) {
+        return;
+    }
     QString filename =
             QFileDialog::getSaveFileName(this, tr("Save File"), Config()->getRecentFolder());
     if (filename.isEmpty()) {
@@ -275,12 +289,20 @@ void TypesWidget::on_actionExport_Types_triggered()
         return;
     }
     QTextStream fileOut(&file);
-    fileOut << Core()->cmdRaw("tc");
+    fileOut << str;
+    free(str);
     file.close();
 }
 
 void TypesWidget::on_actionLoad_New_Types_triggered()
 {
+    QModelIndex index = ui->typesTreeView->currentIndex();
+    if (!index.isValid()) {
+        return;
+    }
+
+    TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+
     TypesInteractionDialog dialog(this);
     connect(&dialog, &TypesInteractionDialog::newTypesLoaded, this, &TypesWidget::refreshTypes);
     dialog.setWindowTitle(tr("Load New Types"));
@@ -304,7 +326,8 @@ void TypesWidget::viewType(bool readOnly)
     } else {
         dialog.setWindowTitle(tr("View Type: ") + t.type + tr(" (Read Only)"));
     }
-    dialog.fillTextArea(Core()->getTypeAsC(t.type, t.category));
+    dialog.fillTextArea(Core()->getTypeAsC(t.type));
+    dialog.setTypeName(t.type);
     dialog.exec();
 }
 
@@ -327,19 +350,6 @@ void TypesWidget::on_actionDelete_Type_triggered()
     }
 }
 
-void TypesWidget::on_actionLink_Type_To_Address_triggered()
-{
-    LinkTypeDialog dialog(this);
-
-    QModelIndex index = ui->typesTreeView->currentIndex();
-    if (index.isValid()) {
-        TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
-        dialog.setDefaultType(t.type);
-        dialog.setDefaultAddress(RAddressString(Core()->getOffset()));
-        dialog.exec();
-    }
-}
-
 void TypesWidget::typeItemDoubleClicked(const QModelIndex &index)
 {
     if (!index.isValid()) {
@@ -351,7 +361,8 @@ void TypesWidget::typeItemDoubleClicked(const QModelIndex &index)
     if (t.category == "Primitive") {
         return;
     }
-    dialog.fillTextArea(Core()->getTypeAsC(t.type, t.category));
+    dialog.fillTextArea(Core()->getTypeAsC(t.type));
     dialog.setWindowTitle(tr("View Type: ") + t.type + tr(" (Read Only)"));
+    dialog.setTypeName(t.type);
     dialog.exec();
 }

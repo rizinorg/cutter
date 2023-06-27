@@ -80,7 +80,7 @@ void SdbWidget::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int colum
     }
 }
 
-SdbWidget::~SdbWidget() {}
+SdbWidget::~SdbWidget() = default;
 
 void SdbWidget::on_lockButton_clicked()
 {

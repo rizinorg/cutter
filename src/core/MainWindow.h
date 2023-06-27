@@ -44,7 +44,7 @@ class ResourcesWidget;
 class VTablesWidget;
 class TypesWidget;
 class HeadersWidget;
-class ZignaturesWidget;
+class FlirtWidget;
 class SearchWidget;
 class QDockWidget;
 class DisassemblyWidget;
@@ -60,7 +60,7 @@ namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow
+class CUTTER_EXPORT MainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -152,6 +152,7 @@ public slots:
 
     void toggleOverview(bool visibility, GraphWidget *targetGraph);
 private slots:
+    void on_actionBaseFind_triggered();
     void on_actionAbout_triggered();
     void on_actionIssue_triggered();
     void documentationClicked();
@@ -189,6 +190,10 @@ private slots:
     void on_actionImportPDB_triggered();
 
     void on_actionExport_as_code_triggered();
+
+    void on_actionApplySigFromFile_triggered();
+
+    void on_actionCreateNewSig_triggered();
 
     void on_actionGrouped_dock_dragging_triggered(bool checked);
 
@@ -243,7 +248,7 @@ private:
     SdbWidget *sdbDock = nullptr;
     SectionsWidget *sectionsDock = nullptr;
     SegmentsWidget *segmentsDock = nullptr;
-    ZignaturesWidget *zignaturesDock = nullptr;
+    FlirtWidget *flirtDock = nullptr;
     ConsoleWidget *consoleDock = nullptr;
     ClassesWidget *classesDock = nullptr;
     ResourcesWidget *resourcesDock = nullptr;

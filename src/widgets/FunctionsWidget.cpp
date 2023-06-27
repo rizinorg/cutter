@@ -2,6 +2,7 @@
 #include "ui_ListDockWidget.h"
 
 #include "core/MainWindow.h"
+#include "common/DisassemblyPreview.h"
 #include "common/Helpers.h"
 #include "common/FunctionsTask.h"
 #include "common/TempConfig.h"
@@ -17,6 +18,8 @@
 #include <QJsonObject>
 #include <QInputDialog>
 #include <QActionGroup>
+#include <QBitmap>
+#include <QPainter>
 
 namespace {
 
@@ -36,7 +39,13 @@ FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *i
       highlightFont(highlight_font),
       defaultFont(default_font),
       nested(nested),
-      currentIndex(-1)
+      currentIndex(-1),
+      iconFuncImpDark(":/img/icons/function_import_dark.svg"),
+      iconFuncImpLight(":/img/icons/function_import_light.svg"),
+      iconFuncMainDark(":/img/icons/function_main_dark.svg"),
+      iconFuncMainLight(":/img/icons/function_main_light.svg"),
+      iconFuncDark(":/img/icons/function_dark.svg"),
+      iconFuncLight(":/img/icons/function_light.svg")
 
 {
     connect(Core(), &CutterCore::seekChanged, this, &FunctionModel::seekChanged);
@@ -101,6 +110,8 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
 
     int function_index;
     bool subnode;
+    bool is_dark;
+
     if (index.internalId() != 0) { // sub-node
         function_index = index.parent().row();
         subnode = true;
@@ -120,18 +131,18 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             if (subnode) {
                 switch (index.row()) {
                 case 0:
-                    return tr("Offset: %1").arg(RAddressString(function.offset));
+                    return tr("Offset: %1").arg(RzAddressString(function.offset));
                 case 1:
-                    return tr("Size: %1").arg(RSizeString(function.linearSize));
+                    return tr("Size: %1").arg(RzSizeString(function.linearSize));
                 case 2:
                     return tr("Import: %1")
                             .arg(functionIsImport(function.offset) ? tr("true") : tr("false"));
                 case 3:
-                    return tr("Nargs: %1").arg(RSizeString(function.nargs));
+                    return tr("Nargs: %1").arg(RzSizeString(function.nargs));
                 case 4:
-                    return tr("Nbbs: %1").arg(RSizeString(function.nbbs));
+                    return tr("Nbbs: %1").arg(RzSizeString(function.nbbs));
                 case 5:
-                    return tr("Nlocals: %1").arg(RSizeString(function.nlocals));
+                    return tr("Nlocals: %1").arg(RzSizeString(function.nlocals));
                 case 6:
                     return tr("Call type: %1").arg(function.calltype);
                 case 7:
@@ -151,8 +162,10 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 return function.name;
             case SizeColumn:
                 return QString::number(function.linearSize);
+            case ImportColumn:
+                return functionIsImport(function.offset) ? tr("true") : tr("false");
             case OffsetColumn:
-                return RAddressString(function.offset);
+                return RzAddressString(function.offset);
             case NargsColumn:
                 return QString::number(function.nargs);
             case NlocalsColumn:
@@ -172,13 +185,37 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             }
         }
 
-    case Qt::DecorationRole:
-        if (importAddresses->contains(function.offset)
-            && (nested ? false : index.column() == ImportColumn)) {
-            const static QIcon importIcon(":/img/icons/import_light.svg");
-            return importIcon;
+    case Qt::DecorationRole: {
+
+        // Check if we aren't inside a tree view
+        if (nested && subnode) {
+            return QVariant();
         }
+
+        if (index.column() == NameColumn) {
+            is_dark = Config()->windowColorIsDark();
+
+            if (functionIsImport(function.offset)) {
+                if (is_dark) {
+                    return iconFuncImpDark;
+                }
+                return iconFuncImpLight;
+
+            } else if (functionIsMain(function.offset)) {
+                if (is_dark) {
+                    return iconFuncMainDark;
+                }
+                return iconFuncMainLight;
+            }
+
+            if (is_dark) {
+                return iconFuncDark;
+            }
+            return iconFuncLight;
+        }
+
         return QVariant();
+    }
 
     case Qt::FontRole:
         if (currentIndex == function_index)
@@ -194,7 +231,15 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
 
         QStringList disasmPreview =
                 Core()->getDisassemblyPreview(function.offset, kMaxTooltipDisasmPreviewLines);
-        const QStringList &summary = Core()->cmdList(QString("pdsf @ %1").arg(function.offset));
+        QStringList summary {};
+        {
+            auto seeker = Core()->seekTemp(function.offset);
+            auto strings = fromOwnedCharPtr(
+                rz_core_print_disasm_strings(Core()->core(), RZ_CORE_DISASM_STRINGS_MODE_FUNCTION,
+                                             0, NULL));
+            summary = strings.split('\n', CUTTER_QT_SKIP_EMPTY_PARTS);
+        }
+
         const QFont &fnt = Config()->getFont();
         QFontMetrics fm { fnt };
 
@@ -208,14 +253,14 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             }
         }
         if (disasmPreview.isEmpty() && highlights.isEmpty())
-            return QVariant();
+            return {};
 
         QString toolTipContent =
                 QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: "
                         "nowrap;\">")
                         .arg(fnt.family())
-                        .arg(qMax(6, fnt.pointSize() - 1)); // slightly decrease font size, to keep
-                                                            // more text in the same box
+                        .arg(qMax(6, fnt.pointSize() - 1)); // slightly decrease font size, to
+                                                            // keep more text in the same box
 
         if (!disasmPreview.isEmpty())
             toolTipContent += tr("<div style=\"margin-bottom: 10px;\"><strong>Disassembly "
@@ -233,10 +278,14 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
     }
 
     case Qt::ForegroundRole:
-        if (functionIsImport(function.offset))
+        if (functionIsImport(function.offset)) {
             return QVariant(ConfigColor("gui.imports"));
-        if (functionIsMain(function.offset))
+        } else if (functionIsMain(function.offset)) {
             return QVariant(ConfigColor("gui.main"));
+        } else if (function.name.startsWith("flirt.")) {
+            return QVariant(ConfigColor("gui.flirt"));
+        }
+
         return QVariant(this->property("color"));
 
     case FunctionDescriptionRole:
@@ -246,7 +295,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         return importAddresses->contains(function.offset);
 
     default:
-        return QVariant();
+        return {};
     }
 }
 
@@ -459,6 +508,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     functionProxyModel = new FunctionSortFilterProxyModel(functionModel, this);
     setModels(functionProxyModel);
     ui->treeView->sortByColumn(FunctionModel::NameColumn, Qt::AscendingOrder);
+    ui->treeView->setExpandsOnDoubleClick(false);
 
     titleContextMenu = new QMenu(this);
     auto viewTypeGroup = new QActionGroup(titleContextMenu);
@@ -487,7 +537,11 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     addActions(itemConextMenu->actions());
 
     // Use a custom context menu on the dock title bar
-    actionHorizontal.setChecked(true);
+    if (Config()->getFunctionsWidgetLayout() == "horizontal") {
+        actionHorizontal.setChecked(true);
+    } else {
+        actionVertical.setChecked(true);
+    }
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this,
             &FunctionsWidget::showTitleContextMenu);
@@ -519,7 +573,18 @@ void FunctionsWidget::refreshTree()
                     importAddresses.insert(import.plt);
                 }
 
-                mainAdress = (ut64)Core()->cmdj("iMj").object()["vaddr"].toInt();
+                mainAdress = RVA_INVALID;
+                RzCoreLocked core(Core());
+                RzBinFile *bf = rz_bin_cur(core->bin);
+                if (bf) {
+                    const RzBinAddr *binmain =
+                            rz_bin_object_get_special_symbol(bf->o, RZ_BIN_SPECIAL_SYMBOL_MAIN);
+                    if (binmain) {
+                        int va = core->io->va || core->bin->is_debugger;
+                        mainAdress = va ? rz_bin_object_addr_with_base(bf->o, binmain->vaddr)
+                                        : binmain->paddr;
+                    }
+                }
 
                 functionModel->updateCurrentIndex();
                 functionModel->endResetModel();
@@ -561,10 +626,9 @@ void FunctionsWidget::onActionFunctionsRenameTriggered()
 void FunctionsWidget::onActionFunctionsUndefineTriggered()
 {
     const auto selection = ui->treeView->selectionModel()->selection().indexes();
-    std::vector<RVA> offsets;
-    offsets.reserve(selection.size());
+    QSet<RVA> offsets;
     for (const auto &index : selection) {
-        offsets.push_back(functionProxyModel->address(index));
+        offsets.insert(functionProxyModel->address(index));
     }
     for (RVA offset : offsets) {
         Core()->delFunction(offset);
@@ -579,6 +643,7 @@ void FunctionsWidget::showTitleContextMenu(const QPoint &pt)
 void FunctionsWidget::onActionHorizontalToggled(bool enable)
 {
     if (enable) {
+        Config()->setFunctionsWidgetLayout("horizontal");
         functionModel->setNested(false);
         ui->treeView->setIndentation(8);
     }
@@ -587,6 +652,7 @@ void FunctionsWidget::onActionHorizontalToggled(bool enable)
 void FunctionsWidget::onActionVerticalToggled(bool enable)
 {
     if (enable) {
+        Config()->setFunctionsWidgetLayout("vertical");
         functionModel->setNested(true);
         ui->treeView->setIndentation(20);
     }
@@ -597,10 +663,5 @@ void FunctionsWidget::onActionVerticalToggled(bool enable)
  */
 void FunctionsWidget::setTooltipStylesheet()
 {
-    setStyleSheet(QString("QToolTip { border-width: 1px; max-width: %1px;"
-                          "opacity: 230; background-color: %2;"
-                          "color: %3; border-color: %3;}")
-                          .arg(kMaxTooltipWidth)
-                          .arg(Config()->getColor("gui.tooltip.background").name())
-                          .arg(Config()->getColor("gui.tooltip.foreground").name()));
+    setStyleSheet(DisassemblyPreview::getToolTipStyleSheet());
 }

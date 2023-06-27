@@ -33,6 +33,7 @@ private:
     void display_double_linked_list(QVector<GraphHeapChunk>);
     QAction *chunkInfoAction;
     RVA selectedBlock;
+    int bits;
 };
 
 #endif // CUTTER_HEAPBINSGRAPHVIEW_H

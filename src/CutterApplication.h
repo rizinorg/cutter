@@ -13,7 +13,7 @@ enum class AutomaticAnalysisLevel { Ask, None, AAA, AAAA };
 struct CutterCommandLineOptions
 {
     QStringList args;
-    AutomaticAnalysisLevel analLevel = AutomaticAnalysisLevel::Ask;
+    AutomaticAnalysisLevel analysisLevel = AutomaticAnalysisLevel::Ask;
     InitialOptions fileOpenOptions;
     QString pythonHome;
     bool outputRedirectionEnabled = true;
@@ -33,6 +33,10 @@ public:
 
     void launchNewInstance(const QStringList &args = {});
 
+    InitialOptions getInitialOptions() const { return clOptions.fileOpenOptions; }
+    void setInitialOptions(const InitialOptions &options) { clOptions.fileOpenOptions = options; }
+    QStringList getArgs() const;
+
 protected:
     bool event(QEvent *e);
 
@@ -50,6 +54,7 @@ private:
 
 private:
     bool m_FileAlreadyDropped;
+    CutterCore core;
     MainWindow *mainWindow;
     CutterCommandLineOptions clOptions;
 };

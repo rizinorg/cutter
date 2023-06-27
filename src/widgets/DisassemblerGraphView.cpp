@@ -5,6 +5,7 @@
 #include "core/MainWindow.h"
 #include "common/Colors.h"
 #include "common/Configuration.h"
+#include "common/DisassemblyPreview.h"
 #include "common/TempConfig.h"
 #include "common/SyntaxHighlighter.h"
 #include "common/BasicBlockHighlighter.h"
@@ -41,7 +42,12 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
 {
     highlight_token = nullptr;
     auto *layout = new QVBoxLayout(this);
+    setTooltipStylesheet();
+
     // Signals that require a refresh all
+    connect(Config(), &Configuration::colorsUpdated, this,
+            &DisassemblerGraphView::setTooltipStylesheet);
+
     connect(Core(), &CutterCore::refreshAll, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::commentsChanged, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::functionRenamed, this, &DisassemblerGraphView::refreshView);
@@ -103,14 +109,14 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
         if (c.isValid()) {
             bbh->highlight(currBlockEntry, c);
         }
-        Config()->colorsUpdated();
+        emit Config()->colorsUpdated();
     });
 
     actionUnhighlight.setText(tr("Unhighlight block"));
     connect(&actionUnhighlight, &QAction::triggered, this, [this]() {
         auto bbh = Core()->getBBHighlighter();
         bbh->clear(blockForAddress(this->seekable->getOffset())->entry);
-        Config()->colorsUpdated();
+        emit Config()->colorsUpdated();
     });
 
     QAction *highlightBI = new QAction(this);
@@ -140,6 +146,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     layout->setAlignment(Qt::AlignTop);
 
     this->scale_thickness_multiplier = true;
+    installEventFilter(this);
 }
 
 void DisassemblerGraphView::connectSeekChanged(bool disconn)
@@ -155,15 +162,15 @@ void DisassemblerGraphView::connectSeekChanged(bool disconn)
 
 DisassemblerGraphView::~DisassemblerGraphView()
 {
-    for (QShortcut *shortcut : shortcuts) {
-        delete shortcut;
-    }
+    qDeleteAll(shortcuts);
+    shortcuts.clear();
 }
 
 void DisassemblerGraphView::refreshView()
 {
     CutterGraphView::refreshView();
     loadCurrentGraph();
+    breakpoints = Core()->getBreakpointsAddresses();
     emit viewRefreshed();
 }
 
@@ -175,14 +182,6 @@ void DisassemblerGraphView::loadCurrentGraph()
             .set("asm.lines", false)
             .set("asm.lines.fcn", false);
 
-    QJsonArray functions;
-    RzAnalysisFunction *fcn = Core()->functionIn(seekable->getOffset());
-    if (fcn) {
-        currentFcnAddr = fcn->addr;
-        QJsonDocument functionsDoc = Core()->cmdj("agJ " + RAddressString(fcn->addr));
-        functions = functionsDoc.array();
-    }
-
     disassembly_blocks.clear();
     blocks.clear();
 
@@ -191,7 +190,19 @@ void DisassemblerGraphView::loadCurrentGraph()
         highlight_token = nullptr;
     }
 
-    emptyGraph = functions.isEmpty();
+    RzAnalysisFunction *fcn = Core()->functionIn(seekable->getOffset());
+
+    windowTitle = tr("Graph");
+    if (fcn && RZ_STR_ISNOTEMPTY(fcn->name)) {
+        currentFcnAddr = fcn->addr;
+        auto fcnName = fromOwned(rz_str_escape_utf8_for_json(fcn->name, -1));
+        windowTitle += QString("(%0)").arg(fcnName.get());
+    } else {
+        windowTitle += "(Empty)";
+    }
+    emit nameChanged(windowTitle);
+
+    emptyGraph = !fcn;
     if (emptyGraph) {
         // If there's no function to print, just add a message
         if (!emptyText) {
@@ -207,85 +218,88 @@ void DisassemblerGraphView::loadCurrentGraph()
     }
     // Refresh global "empty graph" variable so other widget know there is nothing to show here
     Core()->setGraphEmpty(emptyGraph);
+    setEntry(fcn ? fcn->addr : RVA_INVALID);
 
-    QJsonValue funcRef = functions.first();
-    QJsonObject func = funcRef.toObject();
-
-    windowTitle = tr("Graph");
-    QString funcName = func["name"].toString().trimmed();
-    if (emptyGraph) {
-        windowTitle += " (Empty)";
-    } else if (!funcName.isEmpty()) {
-        windowTitle += " (" + funcName + ")";
+    if (!fcn) {
+        return;
     }
-    emit nameChanged(windowTitle);
 
-    RVA entry = func["offset"].toVariant().toULongLong();
-
-    setEntry(entry);
-    for (const QJsonValueRef &value : func["blocks"].toArray()) {
-        QJsonObject block = value.toObject();
-        RVA block_entry = block["offset"].toVariant().toULongLong();
-        RVA block_size = block["size"].toVariant().toULongLong();
-        RVA block_fail = block["fail"].toVariant().toULongLong();
-        RVA block_jump = block["jump"].toVariant().toULongLong();
+    for (const auto &bbi : CutterRzList<RzAnalysisBlock>(fcn->bbs)) {
+        RVA bbiFail = bbi->fail;
+        RVA bbiJump = bbi->jump;
 
         DisassemblyBlock db;
         GraphBlock gb;
-        gb.entry = block_entry;
-        db.entry = block_entry;
+        gb.entry = bbi->addr;
+        db.entry = bbi->addr;
         if (Config()->getGraphBlockEntryOffset()) {
             // QColor(0,0,0,0) is transparent
-            db.header_text = Text("[" + RAddressString(db.entry) + "]", ConfigColor("offset"),
+            db.header_text = Text("[" + RzAddressString(db.entry) + "]", ConfigColor("offset"),
                                   QColor(0, 0, 0, 0));
         }
         db.true_path = RVA_INVALID;
         db.false_path = RVA_INVALID;
-        if (block_fail) {
-            db.false_path = block_fail;
-            gb.edges.emplace_back(block_fail);
+        if (bbiFail) {
+            db.false_path = bbiFail;
+            gb.edges.emplace_back(bbiFail);
         }
-        if (block_jump) {
-            if (block_fail) {
-                db.true_path = block_jump;
+        if (bbiJump) {
+            if (bbiFail) {
+                db.true_path = bbiJump;
             }
-            gb.edges.emplace_back(block_jump);
+            gb.edges.emplace_back(bbiJump);
         }
 
-        QJsonObject switchOp = block["switchop"].toObject();
-        if (!switchOp.isEmpty()) {
-            QJsonArray caseArray = switchOp["cases"].toArray();
-            for (QJsonValue caseOpValue : caseArray) {
-                QJsonObject caseOp = caseOpValue.toObject();
-                bool ok;
-                RVA caseJump = caseOp["jump"].toVariant().toULongLong(&ok);
-                if (!ok) {
+        RzAnalysisSwitchOp *switchOp = bbi->switch_op;
+        if (switchOp) {
+            for (const auto &caseOp : CutterRzList<RzAnalysisCaseOp>(switchOp->cases)) {
+                if (caseOp->jump == RVA_INVALID) {
                     continue;
                 }
-                gb.edges.emplace_back(caseJump);
+                gb.edges.emplace_back(caseOp->jump);
             }
         }
 
-        QJsonArray opArray = block["ops"].toArray();
-        for (int opIndex = 0; opIndex < opArray.size(); opIndex++) {
-            QJsonObject op = opArray[opIndex].toObject();
-            Instr i;
-            i.addr = op["offset"].toVariant().toULongLong();
+        RzCoreLocked core(Core());
+        std::unique_ptr<ut8[]> buf { new ut8[bbi->size] };
+        if (!buf) {
+            break;
+        }
+        rz_io_read_at(core->io, bbi->addr, buf.get(), (int)bbi->size);
 
-            if (opIndex < opArray.size() - 1) {
+        auto vec = fromOwned(
+                rz_pvector_new(reinterpret_cast<RzPVectorFree>(rz_analysis_disasm_text_free)));
+        if (!vec) {
+            break;
+        }
+
+        RzCoreDisasmOptions options = {};
+        options.vec = vec.get();
+        options.cbytes = 1;
+        rz_core_print_disasm(core, bbi->addr, buf.get(), (int)bbi->size, (int)bbi->size, NULL,
+                             &options);
+
+        auto vecVisitor = CutterPVector<RzAnalysisDisasmText>(vec.get());
+        auto iter = vecVisitor.begin();
+        while (iter != vecVisitor.end()) {
+            RzAnalysisDisasmText *op = *iter;
+            Instr instr;
+            instr.addr = op->offset;
+
+            ++iter;
+            if (iter != vecVisitor.end()) {
                 // get instruction size from distance to next instruction ...
-                RVA nextOffset =
-                        opArray[opIndex + 1].toObject()["offset"].toVariant().toULongLong();
-                i.size = nextOffset - i.addr;
+                RVA nextOffset = (*iter)->offset;
+                instr.size = nextOffset - instr.addr;
             } else {
                 // or to the end of the block.
-                i.size = (block_entry + block_size) - i.addr;
+                instr.size = (bbi->addr + bbi->size) - instr.addr;
             }
 
             QTextDocument textDoc;
-            textDoc.setHtml(CutterCore::ansiEscapeToHtml(op["text"].toString()));
+            textDoc.setHtml(CutterCore::ansiEscapeToHtml(op->text));
 
-            i.plainText = textDoc.toPlainText();
+            instr.plainText = textDoc.toPlainText();
 
             RichTextPainter::List richText = RichTextPainter::fromTextDocument(textDoc);
             // Colors::colorizeAssembly(richText, textDoc.toPlainText(), 0);
@@ -293,23 +307,19 @@ void DisassemblerGraphView::loadCurrentGraph()
             bool cropped;
             int blockLength = Config()->getGraphBlockMaxChars()
                     + Core()->getConfigb("asm.bytes") * 24 + Core()->getConfigb("asm.emu") * 10;
-            i.text = Text(RichTextPainter::cropped(richText, blockLength, "...", &cropped));
+            instr.text = Text(RichTextPainter::cropped(richText, blockLength, "...", &cropped));
             if (cropped)
-                i.fullText = richText;
+                instr.fullText = richText;
             else
-                i.fullText = Text();
-            db.instrs.push_back(i);
+                instr.fullText = Text();
+            db.instrs.push_back(instr);
         }
         disassembly_blocks[db.entry] = db;
         prepareGraphNode(gb);
-
         addBlock(gb);
     }
     cleanupEdges(blocks);
-
-    if (!func["blocks"].toArray().isEmpty()) {
-        computeGraphPlacement();
-    }
+    computeGraphPlacement();
 }
 
 DisassemblerGraphView::EdgeConfigurationMapping DisassemblerGraphView::getEdgeConfigurations()
@@ -361,8 +371,6 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
     p.setBrush(Qt::gray);
     p.setFont(Config()->getFont());
     p.drawRect(blockRect);
-
-    breakpoints = Core()->getBreakpointsAddresses();
 
     // Render node
     DisassemblyBlock &db = disassembly_blocks[block.entry];
@@ -522,6 +530,40 @@ GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView:
         }
     }
     return ec;
+}
+
+bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::Type::ToolTip && Config()->getGraphPreview()) {
+
+        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+        QPoint pointOfEvent = helpEvent->globalPos();
+        QPoint point = viewToLogicalCoordinates(helpEvent->pos());
+
+        GraphBlock *block = getBlockContaining(point);
+
+        if (block == nullptr) {
+            return false;
+        }
+
+        // offsetFrom is the address which on top the cursor triggered this
+        RVA offsetFrom = RVA_INVALID;
+
+        /*
+         * getAddrForMouseEvent() doesn't work for jmps, like
+         * getInstrForMouseEvent() with false as a 3rd argument.
+         */
+        Instr *inst = getInstrForMouseEvent(*block, &point, true);
+        if (inst != nullptr) {
+            offsetFrom = inst->addr;
+        }
+
+        // Don't preview anything for a small scale
+        if (getViewScale() >= 0.8) {
+            return DisassemblyPreview::showDisasPreview(this, pointOfEvent, offsetFrom);
+        }
+    }
+    return CutterGraphView::eventFilter(obj, event);
 }
 
 RVA DisassemblerGraphView::getAddrForMouseEvent(GraphBlock &block, QPoint *point)
@@ -702,6 +744,11 @@ void DisassemblerGraphView::takeFalse()
     }
 }
 
+void DisassemblerGraphView::setTooltipStylesheet()
+{
+    setStyleSheet(DisassemblyPreview::getToolTipStyleSheet());
+}
+
 void DisassemblerGraphView::seekInstruction(bool previous_instr)
 {
     RVA addr = seekable->getOffset();
@@ -845,6 +892,11 @@ void DisassemblerGraphView::contextMenuEvent(QContextMenuEvent *event)
 
 void DisassemblerGraphView::showExportDialog()
 {
+    if (currentFcnAddr == RVA_INVALID) {
+        qWarning() << "Cannot find current function.";
+        return;
+    }
+
     QString defaultName = "graph";
     if (auto f = Core()->functionIn(currentFcnAddr)) {
         QString functionName = f->name;
@@ -855,7 +907,7 @@ void DisassemblerGraphView::showExportDialog()
             defaultName = functionName;
         }
     }
-    showExportGraphDialog(defaultName, "agf", currentFcnAddr);
+    showExportGraphDialog(defaultName, RZ_CORE_GRAPH_TYPE_BLOCK_FUN, currentFcnAddr);
 }
 
 void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event,

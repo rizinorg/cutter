@@ -26,8 +26,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main)
       ui(new Ui::DecompilerWidget),
       decompilerBusy(false),
       seekFromCursor(false),
-      scrollerHorizontal(0),
-      scrollerVertical(0),
+      historyPos(0),
       previousFunctionAddr(RVA_INVALID),
       decompiledFunctionAddr(RVA_INVALID),
       code(Decompiler::makeWarning(tr("Choose an offset and refresh to get decompiled code")),
@@ -115,6 +114,28 @@ Decompiler *DecompilerWidget::getCurrentDecompiler()
     return Core()->getDecompilerById(ui->decompilerComboBox->currentData().toString());
 }
 
+ut64 DecompilerWidget::findReference(size_t pos)
+{
+    size_t closestPos = SIZE_MAX;
+    ut64 closestOffset = RVA_INVALID;
+    void *iter;
+    rz_vector_foreach(&code->annotations, iter)
+    {
+        RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
+
+        if (!(annotation->type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE)
+            || annotation->start > pos || annotation->end <= pos) {
+            continue;
+        }
+        if (closestPos != SIZE_MAX && closestPos >= annotation->start) {
+            continue;
+        }
+        closestPos = annotation->start;
+        closestOffset = annotation->reference.offset;
+    }
+    return closestOffset;
+}
+
 ut64 DecompilerWidget::offsetForPosition(size_t pos)
 {
     size_t closestPos = SIZE_MAX;
@@ -123,7 +144,8 @@ ut64 DecompilerWidget::offsetForPosition(size_t pos)
     rz_vector_foreach(&code->annotations, iter)
     {
         RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
-        if (annotation->type != RZ_CODE_ANNOTATION_TYPE_OFFSET || annotation->start > pos
+
+        if (!(annotation->type == RZ_CODE_ANNOTATION_TYPE_OFFSET) || annotation->start > pos
             || annotation->end <= pos) {
             continue;
         }
@@ -288,13 +310,6 @@ QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
 
 void DecompilerWidget::decompilationFinished(RzAnnotatedCode *codeDecompiled)
 {
-    bool isDisplayReset = false;
-    if (previousFunctionAddr == decompiledFunctionAddr) {
-        scrollerHorizontal = ui->textEdit->horizontalScrollBar()->sliderPosition();
-        scrollerVertical = ui->textEdit->verticalScrollBar()->sliderPosition();
-        isDisplayReset = true;
-    }
-
     ui->progressLabel->setVisible(false);
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
 
@@ -331,10 +346,8 @@ void DecompilerWidget::decompilationFinished(RzAnnotatedCode *codeDecompiled)
         }
     }
 
-    if (isDisplayReset) {
-        ui->textEdit->horizontalScrollBar()->setSliderPosition(scrollerHorizontal);
-        ui->textEdit->verticalScrollBar()->setSliderPosition(scrollerVertical);
-    }
+    ui->textEdit->horizontalScrollBar()->setSliderPosition(scrollHistory[historyPos].first);
+    ui->textEdit->verticalScrollBar()->setSliderPosition(scrollHistory[historyPos].second);
 }
 
 void DecompilerWidget::setAnnotationsAtCursor(size_t pos)
@@ -393,10 +406,27 @@ void DecompilerWidget::cursorPositionChanged()
     updateSelection();
 }
 
-void DecompilerWidget::seekChanged()
+void DecompilerWidget::seekChanged(RVA /* addr */, CutterCore::SeekHistoryType type)
 {
     if (seekFromCursor) {
         return;
+    }
+
+    if (!scrollHistory.empty()) { // History is empty upon init.
+        scrollHistory[historyPos] = { ui->textEdit->horizontalScrollBar()->sliderPosition(),
+                                      ui->textEdit->verticalScrollBar()->sliderPosition() };
+    }
+    if (type == CutterCore::SeekHistoryType::New) {
+        // Erase previous history past this point.
+        if (scrollHistory.size() > historyPos + 1) {
+            scrollHistory.erase(scrollHistory.begin() + historyPos + 1, scrollHistory.end());
+        }
+        scrollHistory.push_back({ 0, 0 });
+        historyPos = scrollHistory.size() - 1;
+    } else if (type == CutterCore::SeekHistoryType::Undo) {
+        --historyPos;
+    } else if (type == CutterCore::SeekHistoryType::Redo) {
+        ++historyPos;
     }
     RVA fcnAddr = Core()->getFunctionStart(seekable->getOffset());
     if (fcnAddr == RVA_INVALID || fcnAddr != decompiledFunctionAddr) {
@@ -479,8 +509,11 @@ void DecompilerWidget::showDecompilerContextMenu(const QPoint &pt)
 void DecompilerWidget::seekToReference()
 {
     size_t pos = ui->textEdit->textCursor().position();
-    RVA offset = offsetForPosition(pos);
-    seekable->seekToReference(offset);
+    RVA offset = findReference(pos);
+    if (offset != RVA_INVALID) {
+        seekable->seek(offset);
+    }
+    seekable->seekToReference(offsetForPosition(pos));
 }
 
 bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
@@ -525,7 +558,6 @@ void DecompilerWidget::highlightBreakpoints()
     for (RVA &bp : functionBreakpoints) {
         if (bp == RVA_INVALID) {
             continue;
-            ;
         }
         cursor = getCursorForAddress(bp);
         if (!cursor.isNull()) {

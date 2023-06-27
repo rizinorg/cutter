@@ -103,14 +103,24 @@ Edge routing can be split into: main column selection, rough routing, segment of
 Transition from source to target row is done using single vertical segment. This is called main
 column.
 
+A sweep line is used for computing main columns: Blocks and edges are processed as events top to
+bottom based off their row (max(start row, end row) for edges). Blocked columns are tracked in a
+tree structure which allows searching nearest column with at least last N rows empty. The column
+of the starting block is favored for the main column, otherwise the target block's column is chosen
+if it is not blocked. If both the source and target columns are blocked, nearest unblocked column
+is chosen. An empty column can always be found, in the worst case there are empty columns at the
+sides of drawing. If two columns are equally close, the tie is broken based on whether the edge is a
+true or false branch. In case of upward edges it is allowed to choose a column on the outside which
+is slightly further than nearest empty to reduce the chance of producing tilted figure 8 shaped
+crossing between two blocks.
+
 Rough routing creates the path of edge using up to 5 segments using grid coordinates.
 Due to nodes being placed in a grid. Horizontal segments of edges can't intersect with any nodes.
 The path for edges is chosen so that it consists of at most 5 segments, typically resulting in
 sideways U shape or square Z shape.
 - short vertical segment from node to horizontal line
 - move to empty column
-- vertical segment between starting row and end row, an empty column can always be found, in the
-worst case there are empty columns at the sides of drawing
+- vertical segment between starting row and end row
 - horizontal segment to target node column
 - short vertical segment connecting to target node
 
@@ -118,9 +128,6 @@ There are 3 special cases:
 - source and target nodes are in the same column with no nodes between - single vertical segment
 - column bellow stating node is empty - segments 1-3 are merged
 - column above target node is empty - segments 3-5 are merged
-Vertical segment intersection with nodes is prevented using a 2d array marking which vertical
-segments are blocked and naively iterating through all rows between start and end at the desired
-column.
 
 After rough routing segment offsets are calculated relative to their corresponding edge column. This
 ensures that two segments don't overlap. Segment offsets within each column are assigned greedily
@@ -547,7 +554,7 @@ void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &stat
 
     struct Event
     {
-        size_t blockId;
+        ut64 blockId;
         size_t edgeId;
         int row;
         enum Type { Edge = 0, Block = 1 } type;

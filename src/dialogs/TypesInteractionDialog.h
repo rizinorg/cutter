@@ -27,6 +27,12 @@ public:
      */
     void fillTextArea(QString content);
 
+    /**
+     * @brief Set the name of the type that is going to be changed
+     * @param name - name of the type
+     */
+    void setTypeName(QString name);
+
 private slots:
     /**
      * @brief Executed when the user clicks the selectFileButton
@@ -50,6 +56,7 @@ private slots:
 private:
     std::unique_ptr<Ui::TypesInteractionDialog> ui;
     QSyntaxHighlighter *syntaxHighLighter;
+    QString typeName;
 
 signals:
     /**

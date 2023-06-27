@@ -57,9 +57,9 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case OFFSET:
-            return RAddressString(exp.offset);
+            return RzAddressString(exp.offset);
         case SIZE:
-            return RSizeString(exp.size);
+            return RzSizeString(exp.size);
         case CODE:
             return exp.code;
         case DATA:
@@ -195,14 +195,18 @@ SearchWidget::SearchWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui
 
     QShortcut *enter_press = new QShortcut(QKeySequence(Qt::Key_Return), this);
     connect(enter_press, &QShortcut::activated, this, [this]() {
+        disableSearch();
         refreshSearch();
         checkSearchResultEmpty();
+        enableSearch();
     });
     enter_press->setContext(Qt::WidgetWithChildrenShortcut);
 
     connect(ui->searchButton, &QAbstractButton::clicked, this, [this]() {
+        disableSearch();
         refreshSearch();
         checkSearchResultEmpty();
+        enableSearch();
     });
 
     connect(ui->searchspaceCombo,
@@ -250,6 +254,7 @@ void SearchWidget::refreshSearchspaces()
     ui->searchspaceCombo->clear();
     ui->searchspaceCombo->addItem(tr("asm code"), QVariant("/acj"));
     ui->searchspaceCombo->addItem(tr("string"), QVariant("/j"));
+    ui->searchspaceCombo->addItem(tr("string (case insensitive)"), QVariant("/ij"));
     ui->searchspaceCombo->addItem(tr("hex string"), QVariant("/xj"));
     ui->searchspaceCombo->addItem(tr("ROP gadgets"), QVariant("/Rj"));
     ui->searchspaceCombo->addItem(tr("32bit value"), QVariant("/vj"));
@@ -297,16 +302,32 @@ void SearchWidget::updatePlaceholderText(int index)
     case 1: // string
         ui->filterLineEdit->setPlaceholderText("foobar");
         break;
-    case 2: // hex string
+    case 2: // string (case insensitive)
+        ui->filterLineEdit->setPlaceholderText("FooBar");
+        break;
+    case 3: // hex string
         ui->filterLineEdit->setPlaceholderText("deadbeef");
         break;
-    case 3: // ROP gadgets
+    case 4: // ROP gadgets
         ui->filterLineEdit->setPlaceholderText("pop,,pop");
         break;
-    case 4: // 32bit value
+    case 5: // 32bit value
         ui->filterLineEdit->setPlaceholderText("0xdeadbeef");
         break;
     default:
         ui->filterLineEdit->setPlaceholderText("jmp rax");
     }
+}
+
+void SearchWidget::disableSearch()
+{
+    ui->searchButton->setEnabled(false);
+    ui->searchButton->setText("Searching...");
+    qApp->processEvents();
+}
+
+void SearchWidget::enableSearch()
+{
+    ui->searchButton->setEnabled(true);
+    ui->searchButton->setText("Search");
 }

@@ -20,13 +20,13 @@ public:
     explicit InitialOptionsDialog(MainWindow *main);
     ~InitialOptionsDialog();
 
-    void setupAndStartAnalysis(/*int level, QList<QString> advanced*/);
+    void setupAndStartAnalysis();
 
 private slots:
     void on_okButton_clicked();
-    void on_analSlider_valueChanged(int value);
+    void on_analysisSlider_valueChanged(int value);
     void on_AdvOptButton_clicked();
-    void on_analCheckBox_clicked(bool checked);
+    void on_analysisCheckBox_clicked(bool checked);
     void on_archComboBox_currentIndexChanged(int index);
     void on_pdbSelectButton_clicked();
     void on_scriptSelectButton_clicked();
@@ -45,7 +45,7 @@ private:
 
     QString analysisDescription(int level);
     QString shellcode;
-    int analLevel;
+    int analysisLevel;
     QList<RzAsmPluginDescription> asmPlugins;
 
     void updateCPUComboBox();

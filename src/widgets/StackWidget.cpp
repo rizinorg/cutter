@@ -145,16 +145,18 @@ StackModel::StackModel(QObject *parent) : QAbstractTableModel(parent) {}
 
 void StackModel::reload()
 {
-    QList<QJsonObject> stackItems = Core()->getStack();
+    QList<AddrRefs> stackItems = Core()->getStack();
 
     beginResetModel();
     values.clear();
-    for (const QJsonObject &stackItem : stackItems) {
+    for (const AddrRefs &stackItem : stackItems) {
         Item item;
 
-        item.offset = stackItem["addr"].toVariant().toULongLong();
-        item.value = RAddressString(stackItem["value"].toVariant().toULongLong());
-        item.refDesc = Core()->formatRefDesc(stackItem["ref"].toObject());
+        item.offset = stackItem.addr;
+        item.value = RzAddressString(stackItem.value);
+        if (!stackItem.ref.isNull()) {
+            item.refDesc = Core()->formatRefDesc(stackItem.ref);
+        }
 
         values.push_back(item);
     }
@@ -182,7 +184,7 @@ QVariant StackModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case OffsetColumn:
-            return RAddressString(item.offset);
+            return RzAddressString(item.offset);
         case ValueColumn:
             return item.value;
         case DescriptionColumn:

@@ -65,6 +65,7 @@ void PluginManager::loadPluginsFromDir(const QDir &pluginsDir, bool writable)
         nativePluginsDir.mkdir("native");
     }
     if (nativePluginsDir.cd("native")) {
+        qInfo() << "Native plugins are loaded from" << nativePluginsDir.absolutePath();
         loadNativePlugins(nativePluginsDir);
     }
 
@@ -74,6 +75,7 @@ void PluginManager::loadPluginsFromDir(const QDir &pluginsDir, bool writable)
         pythonPluginsDir.mkdir("python");
     }
     if (pythonPluginsDir.cd("python")) {
+        qInfo() << "Python plugins are loaded from" << pythonPluginsDir.absolutePath();
         loadPythonPlugins(pythonPluginsDir.absolutePath());
     }
 #endif
@@ -131,6 +133,10 @@ QString PluginManager::getUserPluginsDirectory() const
 void PluginManager::loadNativePlugins(const QDir &directory)
 {
     for (const QString &fileName : directory.entryList(QDir::Files)) {
+        if (!QLibrary::isLibrary(fileName)) {
+            // Reduce amount of warnings, by not attempting files which are obviously not plugins
+            continue;
+        }
         QPluginLoader pluginLoader(directory.absoluteFilePath(fileName));
         QObject *plugin = pluginLoader.instance();
         if (!plugin) {

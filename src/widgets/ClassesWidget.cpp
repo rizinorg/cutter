@@ -1,6 +1,6 @@
 #include "ClassesWidget.h"
 #include "core/MainWindow.h"
-#include "ui_ClassesWidget.h"
+#include "ui_ListDockWidget.h"
 #include "common/Helpers.h"
 #include "common/SvgIconEngine.h"
 #include "dialogs/EditMethodDialog.h"
@@ -9,6 +9,8 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QInputDialog>
+#include <QShortcut>
+#include <QComboBox>
 
 QVariant ClassesModel::headerData(int section, Qt::Orientation, int role) const
 {
@@ -17,6 +19,8 @@ QVariant ClassesModel::headerData(int section, Qt::Orientation, int role) const
         switch (section) {
         case NAME:
             return tr("Name");
+        case REAL_NAME:
+            return tr("Real Name");
         case TYPE:
             return tr("Type");
         case OFFSET:
@@ -29,6 +33,17 @@ QVariant ClassesModel::headerData(int section, Qt::Orientation, int role) const
     default:
         return QVariant();
     }
+}
+
+RVA ClassesModel::address(const QModelIndex &index) const
+{
+    QVariant v = data(index, OffsetRole);
+    return v.isValid() ? v.toULongLong() : RVA_INVALID;
+}
+
+QString ClassesModel::name(const QModelIndex &index) const
+{
+    return data(index, NameRole).toString();
 }
 
 BinClassesModel::BinClassesModel(QObject *parent) : ClassesModel(parent) {}
@@ -120,7 +135,7 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
             case TYPE:
                 return tr("method");
             case OFFSET:
-                return meth->addr == RVA_INVALID ? QString() : RAddressString(meth->addr);
+                return meth->addr == RVA_INVALID ? QString() : RzAddressString(meth->addr);
             case VTABLE:
                 return meth->vtableOffset < 0 ? QString() : QString("+%1").arg(meth->vtableOffset);
             default:
@@ -144,7 +159,7 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
             case TYPE:
                 return tr("field");
             case OFFSET:
-                return field->addr == RVA_INVALID ? QString() : RAddressString(field->addr);
+                return field->addr == RVA_INVALID ? QString() : RzAddressString(field->addr);
             default:
                 return QVariant();
             }
@@ -186,9 +201,10 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
             case TYPE:
                 return tr("class");
             case OFFSET:
-                return cls->addr == RVA_INVALID ? QString() : RAddressString(cls->addr);
+                return cls->addr == RVA_INVALID ? QString() : RzAddressString(cls->addr);
             case VTABLE:
-                return cls->vtableAddr == RVA_INVALID ? QString() : RAddressString(cls->vtableAddr);
+                return cls->vtableAddr == RVA_INVALID ? QString()
+                                                      : RzAddressString(cls->vtableAddr);
             default:
                 return QVariant();
             }
@@ -204,24 +220,24 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
     }
 }
 
-AnalClassesModel::AnalClassesModel(CutterDockWidget *parent)
+AnalysisClassesModel::AnalysisClassesModel(CutterDockWidget *parent)
     : ClassesModel(parent), attrs(new QMap<QString, QVector<Attribute>>)
 {
     // Just use a simple refresh deferrer. If an event was triggered in the background, simply
     // refresh everything later.
     refreshDeferrer = parent->createRefreshDeferrer([this]() { this->refreshAll(); });
 
-    connect(Core(), &CutterCore::refreshAll, this, &AnalClassesModel::refreshAll);
-    connect(Core(), &CutterCore::codeRebased, this, &AnalClassesModel::refreshAll);
-    connect(Core(), &CutterCore::classNew, this, &AnalClassesModel::classNew);
-    connect(Core(), &CutterCore::classDeleted, this, &AnalClassesModel::classDeleted);
-    connect(Core(), &CutterCore::classRenamed, this, &AnalClassesModel::classRenamed);
-    connect(Core(), &CutterCore::classAttrsChanged, this, &AnalClassesModel::classAttrsChanged);
+    connect(Core(), &CutterCore::refreshAll, this, &AnalysisClassesModel::refreshAll);
+    connect(Core(), &CutterCore::codeRebased, this, &AnalysisClassesModel::refreshAll);
+    connect(Core(), &CutterCore::classNew, this, &AnalysisClassesModel::classNew);
+    connect(Core(), &CutterCore::classDeleted, this, &AnalysisClassesModel::classDeleted);
+    connect(Core(), &CutterCore::classRenamed, this, &AnalysisClassesModel::classRenamed);
+    connect(Core(), &CutterCore::classAttrsChanged, this, &AnalysisClassesModel::classAttrsChanged);
 
     refreshAll();
 }
 
-void AnalClassesModel::refreshAll()
+void AnalysisClassesModel::refreshAll()
 {
     if (!refreshDeferrer->attemptRefresh(nullptr)) {
         return;
@@ -229,11 +245,11 @@ void AnalClassesModel::refreshAll()
 
     beginResetModel();
     attrs->clear();
-    classes = Core()->getAllAnalClasses(true); // must be sorted
+    classes = Core()->getAllAnalysisClasses(true); // must be sorted
     endResetModel();
 }
 
-void AnalClassesModel::classNew(const QString &cls)
+void AnalysisClassesModel::classNew(const QString &cls)
 {
     if (!refreshDeferrer->attemptRefresh(nullptr)) {
         return;
@@ -247,7 +263,7 @@ void AnalClassesModel::classNew(const QString &cls)
     endInsertRows();
 }
 
-void AnalClassesModel::classDeleted(const QString &cls)
+void AnalysisClassesModel::classDeleted(const QString &cls)
 {
     if (!refreshDeferrer->attemptRefresh(nullptr)) {
         return;
@@ -264,7 +280,7 @@ void AnalClassesModel::classDeleted(const QString &cls)
     endRemoveRows();
 }
 
-void AnalClassesModel::classRenamed(const QString &oldName, const QString &newName)
+void AnalysisClassesModel::classRenamed(const QString &oldName, const QString &newName)
 {
     if (!refreshDeferrer->attemptRefresh(nullptr)) {
         return;
@@ -296,7 +312,7 @@ void AnalClassesModel::classRenamed(const QString &oldName, const QString &newNa
     emit dataChanged(index(newRow, 0), index(newRow, 0));
 }
 
-void AnalClassesModel::classAttrsChanged(const QString &cls)
+void AnalysisClassesModel::classAttrsChanged(const QString &cls)
 {
     if (!refreshDeferrer->attemptRefresh(nullptr)) {
         return;
@@ -312,35 +328,36 @@ void AnalClassesModel::classAttrsChanged(const QString &cls)
     layoutChanged({ persistentIndex });
 }
 
-const QVector<AnalClassesModel::Attribute> &AnalClassesModel::getAttrs(const QString &cls) const
+const QVector<AnalysisClassesModel::Attribute> &
+AnalysisClassesModel::getAttrs(const QString &cls) const
 {
     auto it = attrs->find(cls);
     if (it != attrs->end()) {
         return it.value();
     }
 
-    QVector<AnalClassesModel::Attribute> clsAttrs;
-    QList<AnalBaseClassDescription> bases = Core()->getAnalClassBaseClasses(cls);
-    QList<AnalMethodDescription> meths = Core()->getAnalClassMethods(cls);
-    QList<AnalVTableDescription> vtables = Core()->getAnalClassVTables(cls);
+    QVector<AnalysisClassesModel::Attribute> clsAttrs;
+    QList<AnalysisBaseClassDescription> bases = Core()->getAnalysisClassBaseClasses(cls);
+    QList<AnalysisMethodDescription> meths = Core()->getAnalysisClassMethods(cls);
+    QList<AnalysisVTableDescription> vtables = Core()->getAnalysisClassVTables(cls);
     clsAttrs.reserve(bases.size() + meths.size() + vtables.size());
 
-    for (const AnalBaseClassDescription &base : bases) {
+    for (const AnalysisBaseClassDescription &base : bases) {
         clsAttrs.push_back(Attribute(Attribute::Type::Base, QVariant::fromValue(base)));
     }
 
-    for (const AnalVTableDescription &vtable : vtables) {
+    for (const AnalysisVTableDescription &vtable : vtables) {
         clsAttrs.push_back(Attribute(Attribute::Type::VTable, QVariant::fromValue(vtable)));
     }
 
-    for (const AnalMethodDescription &meth : meths) {
+    for (const AnalysisMethodDescription &meth : meths) {
         clsAttrs.push_back(Attribute(Attribute::Type::Method, QVariant::fromValue(meth)));
     }
 
     return attrs->insert(cls, clsAttrs).value();
 }
 
-QModelIndex AnalClassesModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex AnalysisClassesModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!parent.isValid()) {
         return createIndex(row, column, (quintptr)0); // root function nodes have id = 0
@@ -350,7 +367,7 @@ QModelIndex AnalClassesModel::index(int row, int column, const QModelIndex &pare
                        (quintptr)parent.row() + 1); // sub-nodes have id = class index + 1
 }
 
-QModelIndex AnalClassesModel::parent(const QModelIndex &index) const
+QModelIndex AnalysisClassesModel::parent(const QModelIndex &index) const
 {
     if (!index.isValid()) {
         return {};
@@ -363,7 +380,7 @@ QModelIndex AnalClassesModel::parent(const QModelIndex &index) const
     }
 }
 
-int AnalClassesModel::rowCount(const QModelIndex &parent) const
+int AnalysisClassesModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid()) { // root
         return classes.count();
@@ -376,17 +393,17 @@ int AnalClassesModel::rowCount(const QModelIndex &parent) const
     return 0; // below methods/fields
 }
 
-bool AnalClassesModel::hasChildren(const QModelIndex &parent) const
+bool AnalysisClassesModel::hasChildren(const QModelIndex &parent) const
 {
     return !parent.isValid() || !parent.parent().isValid();
 }
 
-int AnalClassesModel::columnCount(const QModelIndex &) const
+int AnalysisClassesModel::columnCount(const QModelIndex &) const
 {
     return Columns::COUNT;
 }
 
-QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
+QVariant AnalysisClassesModel::data(const QModelIndex &index, int role) const
 {
     if (index.internalId() == 0) { // class row
         if (index.row() >= classes.count()) {
@@ -417,7 +434,7 @@ QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
 
         switch (attr.type) {
         case Attribute::Type::Base: {
-            AnalBaseClassDescription base = attr.data.value<AnalBaseClassDescription>();
+            AnalysisBaseClassDescription base = attr.data.value<AnalysisBaseClassDescription>();
             switch (role) {
             case Qt::DisplayRole:
                 switch (index.column()) {
@@ -448,16 +465,18 @@ QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
             break;
         }
         case Attribute::Type::Method: {
-            AnalMethodDescription meth = attr.data.value<AnalMethodDescription>();
+            AnalysisMethodDescription meth = attr.data.value<AnalysisMethodDescription>();
             switch (role) {
             case Qt::DisplayRole:
                 switch (index.column()) {
                 case NAME:
                     return meth.name;
+                case REAL_NAME:
+                    return meth.realName;
                 case TYPE:
                     return tr("method");
                 case OFFSET:
-                    return meth.addr == RVA_INVALID ? QString() : RAddressString(meth.addr);
+                    return meth.addr == RVA_INVALID ? QString() : RzAddressString(meth.addr);
                 case VTABLE:
                     return meth.vtableOffset < 0 ? QString()
                                                  : QString("+%1").arg(meth.vtableOffset);
@@ -476,6 +495,8 @@ QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
                 return QVariant::fromValue(meth.addr);
             case NameRole:
                 return meth.name;
+            case RealNameRole:
+                return meth.realName;
             case TypeRole:
                 return QVariant::fromValue(RowType::Method);
             default:
@@ -484,7 +505,7 @@ QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
             break;
         }
         case Attribute::Type::VTable: {
-            AnalVTableDescription vtable = attr.data.value<AnalVTableDescription>();
+            AnalysisVTableDescription vtable = attr.data.value<AnalysisVTableDescription>();
             switch (role) {
             case Qt::DisplayRole:
                 switch (index.column()) {
@@ -493,7 +514,7 @@ QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
                 case TYPE:
                     return tr("vtable");
                 case OFFSET:
-                    return RAddressString(vtable.addr);
+                    return RzAddressString(vtable.addr);
                 default:
                     return QVariant();
                 }
@@ -518,12 +539,17 @@ QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
 }
 
 ClassesSortFilterProxyModel::ClassesSortFilterProxyModel(QObject *parent)
-    : QSortFilterProxyModel(parent)
+    : AddressableFilterProxyModel(nullptr, parent)
 {
+    setFilterCaseSensitivity(Qt::CaseInsensitive);
+    setSortCaseSensitivity(Qt::CaseInsensitive);
 }
 
 bool ClassesSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
+    if (parent.isValid())
+        return true;
+
     QModelIndex index = sourceModel()->index(row, 0, parent);
     return qhelpers::filterStringContains(index.data(ClassesModel::NameRole).toString(), this);
 }
@@ -568,23 +594,63 @@ bool ClassesSortFilterProxyModel::hasChildren(const QModelIndex &parent) const
     return !parent.isValid() || !parent.parent().isValid();
 }
 
-ClassesWidget::ClassesWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::ClassesWidget)
+ClassesWidget::ClassesWidget(MainWindow *main)
+    : ListDockWidget(main),
+      seekToVTableAction(tr("Seek to VTable"), this),
+      editMethodAction(tr("Edit Method"), this),
+      addMethodAction(tr("Add Method"), this),
+      newClassAction(tr("Create new Class"), this),
+      renameClassAction(tr("Rename Class"), this),
+      deleteClassAction(tr("Delete Class"), this)
 {
-    ui->setupUi(this);
+    setWindowTitle(tr("Classes"));
+    setObjectName("ClassesWidget");
 
-    ui->classesTreeView->setIconSize(QSize(10, 10));
+    ui->treeView->setIconSize(QSize(10, 10));
 
     proxy_model = new ClassesSortFilterProxyModel(this);
-    ui->classesTreeView->setModel(proxy_model);
-    ui->classesTreeView->sortByColumn(ClassesModel::TYPE, Qt::AscendingOrder);
-    ui->classesTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    setModels(proxy_model);
 
-    ui->classSourceCombo->setCurrentIndex(1);
+    classSourceCombo = new QComboBox(this);
+    // User an intermediate single-child layout to contain the combo box, otherwise
+    // when the combo box is inserted directly, the entire vertical layout gets a
+    // weird horizontal padding on macOS.
+    QBoxLayout *comboLayout = new QBoxLayout(QBoxLayout::Direction::LeftToRight, nullptr);
+    comboLayout->addWidget(classSourceCombo);
+    ui->verticalLayout->insertLayout(ui->verticalLayout->indexOf(ui->quickFilterView), comboLayout);
+    classSourceCombo->addItem(tr("Binary Info (Fixed)"));
+    classSourceCombo->addItem(tr("Analysis (Editable)"));
+    classSourceCombo->setCurrentIndex(1);
 
-    connect<void (QComboBox::*)(int)>(ui->classSourceCombo, &QComboBox::currentIndexChanged, this,
+    connect<void (QComboBox::*)(int)>(classSourceCombo, &QComboBox::currentIndexChanged, this,
                                       &ClassesWidget::refreshClasses);
-    connect(ui->classesTreeView, &QTreeView::customContextMenuRequested, this,
-            &ClassesWidget::showContextMenu);
+
+    connect(&seekToVTableAction, &QAction::triggered, this,
+            &ClassesWidget::seekToVTableActionTriggered);
+    connect(&editMethodAction, &QAction::triggered, this,
+            &ClassesWidget::editMethodActionTriggered);
+    connect(&addMethodAction, &QAction::triggered, this, &ClassesWidget::addMethodActionTriggered);
+    connect(&newClassAction, &QAction::triggered, this, &ClassesWidget::newClassActionTriggered);
+    connect(&renameClassAction, &QAction::triggered, this,
+            &ClassesWidget::renameClassActionTriggered);
+    connect(&deleteClassAction, &QAction::triggered, this,
+            &ClassesWidget::deleteClassActionTriggered);
+
+    // Build context menu like this:
+    //   class-related actions
+    //   -- classesMethodsSeparator
+    //   method-related actions
+    //   -- separator
+    //   default actions from AddressableItemList
+    auto contextMenu = ui->treeView->getItemContextMenu();
+    contextMenu->insertSeparator(contextMenu->actions().first());
+    contextMenu->insertActions(contextMenu->actions().first(),
+                               { &addMethodAction, &editMethodAction, &seekToVTableAction });
+    classesMethodsSeparator = contextMenu->insertSeparator(contextMenu->actions().first());
+    contextMenu->insertActions(classesMethodsSeparator,
+                               { &newClassAction, &renameClassAction, &deleteClassAction });
+    connect(contextMenu, &QMenu::aboutToShow, this, &ClassesWidget::updateActions);
+    ui->treeView->setShowItemContextMenuWithoutAddress(true);
 
     refreshClasses();
 }
@@ -593,7 +659,7 @@ ClassesWidget::~ClassesWidget() {}
 
 ClassesWidget::Source ClassesWidget::getSource()
 {
-    switch (ui->classSourceCombo->currentIndex()) {
+    switch (classSourceCombo->currentIndex()) {
     case 0:
         return Source::BIN;
     default:
@@ -606,91 +672,71 @@ void ClassesWidget::refreshClasses()
     switch (getSource()) {
     case Source::BIN:
         if (!bin_model) {
-            proxy_model->setSourceModel(nullptr);
+            proxy_model->setSourceModel(static_cast<AddressableItemModelI *>(nullptr));
             delete analysis_model;
             analysis_model = nullptr;
             bin_model = new BinClassesModel(this);
-            proxy_model->setSourceModel(bin_model);
+            proxy_model->setSourceModel(static_cast<AddressableItemModelI *>(bin_model));
         }
         bin_model->setClasses(Core()->getAllClassesFromBin());
         break;
     case Source::ANALYSIS:
         if (!analysis_model) {
-            proxy_model->setSourceModel(nullptr);
+            proxy_model->setSourceModel(static_cast<AddressableItemModelI *>(nullptr));
             delete bin_model;
             bin_model = nullptr;
-            analysis_model = new AnalClassesModel(this);
-            proxy_model->setSourceModel(analysis_model);
+            analysis_model = new AnalysisClassesModel(this);
+            proxy_model->setSourceModel(static_cast<AddressableItemModelI *>(analysis_model));
         }
         break;
     }
 
-    qhelpers::adjustColumns(ui->classesTreeView, 3, 0);
+    qhelpers::adjustColumns(ui->treeView, 3, 0);
 
-    ui->classesTreeView->setColumnWidth(0, 200);
+    ui->treeView->setColumnWidth(0, 200);
 }
 
-void ClassesWidget::on_classesTreeView_doubleClicked(const QModelIndex &index)
+void ClassesWidget::updateActions()
 {
-    if (!index.isValid())
-        return;
+    bool isAnalysis = !!analysis_model;
+    newClassAction.setVisible(isAnalysis);
+    addMethodAction.setVisible(isAnalysis);
 
-    QVariant offsetData = index.data(ClassesModel::OffsetRole);
-    if (!offsetData.isValid()) {
-        return;
-    }
-    RVA offset = offsetData.value<RVA>();
-    Core()->seekAndShow(offset);
-}
-
-void ClassesWidget::showContextMenu(const QPoint &pt)
-{
-    if (!analysis_model) {
-        // no context menu for bin classes
-        return;
+    bool rowIsAnalysisClass = false;
+    bool rowIsAnalysisMethod = false;
+    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
+    if (isAnalysis && index.isValid()) {
+        auto type = static_cast<ClassesModel::RowType>(index.data(ClassesModel::TypeRole).toInt());
+        rowIsAnalysisClass = type == ClassesModel::RowType::Class;
+        rowIsAnalysisMethod = type == ClassesModel::RowType::Method;
     }
 
-    QModelIndex index = ui->classesTreeView->selectionModel()->currentIndex();
-    if (!index.isValid()) {
-        return;
-    }
-    auto type = static_cast<ClassesModel::RowType>(index.data(ClassesModel::TypeRole).toInt());
+    renameClassAction.setVisible(rowIsAnalysisClass);
+    deleteClassAction.setVisible(rowIsAnalysisClass);
 
-    QMenu menu(ui->classesTreeView);
+    classesMethodsSeparator->setVisible(rowIsAnalysisClass || rowIsAnalysisMethod);
 
-    menu.addAction(ui->newClassAction);
-
-    if (type == ClassesModel::RowType::Class) {
-        menu.addAction(ui->renameClassAction);
-        menu.addAction(ui->deleteClassAction);
-    }
-
-    menu.addSeparator();
-
-    menu.addAction(ui->addMethodAction);
-
-    if (type == ClassesModel::RowType::Method) {
-        menu.addAction(ui->editMethodAction);
-
+    editMethodAction.setVisible(rowIsAnalysisMethod);
+    bool rowHasVTable = false;
+    if (rowIsAnalysisMethod) {
         QString className = index.parent().data(ClassesModel::NameRole).toString();
         QString methodName = index.data(ClassesModel::NameRole).toString();
-        AnalMethodDescription desc;
-        if (Core()->getAnalMethod(className, methodName, &desc)) {
+        AnalysisMethodDescription desc;
+        if (Core()->getAnalysisMethod(className, methodName, &desc)) {
             if (desc.vtableOffset >= 0) {
-                menu.addAction(ui->seekToVTableAction);
+                rowHasVTable = true;
             }
         }
     }
-
-    menu.exec(ui->classesTreeView->mapToGlobal(pt));
+    seekToVTableAction.setVisible(rowHasVTable);
 }
 
-void ClassesWidget::on_seekToVTableAction_triggered()
+void ClassesWidget::seekToVTableActionTriggered()
 {
-    QModelIndex index = ui->classesTreeView->selectionModel()->currentIndex();
+    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     QString className = index.parent().data(ClassesModel::NameRole).toString();
 
-    QList<AnalVTableDescription> vtables = Core()->getAnalClassVTables(className);
+    QList<AnalysisVTableDescription> vtables = Core()->getAnalysisClassVTables(className);
     if (vtables.isEmpty()) {
         QMessageBox::warning(this, tr("Missing VTable in class"),
                              tr("The class %1 does not have any VTable!").arg(className));
@@ -698,17 +744,17 @@ void ClassesWidget::on_seekToVTableAction_triggered()
     }
 
     QString methodName = index.data(ClassesModel::NameRole).toString();
-    AnalMethodDescription desc;
-    if (!Core()->getAnalMethod(className, methodName, &desc) || desc.vtableOffset < 0) {
+    AnalysisMethodDescription desc;
+    if (!Core()->getAnalysisMethod(className, methodName, &desc) || desc.vtableOffset < 0) {
         return;
     }
 
     Core()->seekAndShow(vtables[0].addr + desc.vtableOffset);
 }
 
-void ClassesWidget::on_addMethodAction_triggered()
+void ClassesWidget::addMethodActionTriggered()
 {
-    QModelIndex index = ui->classesTreeView->selectionModel()->currentIndex();
+    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     if (!index.isValid()) {
         return;
     }
@@ -724,9 +770,9 @@ void ClassesWidget::on_addMethodAction_triggered()
     EditMethodDialog::newMethod(className, QString(), this);
 }
 
-void ClassesWidget::on_editMethodAction_triggered()
+void ClassesWidget::editMethodActionTriggered()
 {
-    QModelIndex index = ui->classesTreeView->selectionModel()->currentIndex();
+    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     if (!index.isValid()
         || index.data(ClassesModel::TypeRole).toInt()
                 != static_cast<int>(ClassesModel::RowType::Method)) {
@@ -737,7 +783,7 @@ void ClassesWidget::on_editMethodAction_triggered()
     EditMethodDialog::editMethod(className, methName, this);
 }
 
-void ClassesWidget::on_newClassAction_triggered()
+void ClassesWidget::newClassActionTriggered()
 {
     bool ok;
     QString name = QInputDialog::getText(this, tr("Create new Class"), tr("Class Name:"),
@@ -747,9 +793,9 @@ void ClassesWidget::on_newClassAction_triggered()
     }
 }
 
-void ClassesWidget::on_deleteClassAction_triggered()
+void ClassesWidget::deleteClassActionTriggered()
 {
-    QModelIndex index = ui->classesTreeView->selectionModel()->currentIndex();
+    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     if (!index.isValid()
         || index.data(ClassesModel::TypeRole).toInt()
                 != static_cast<int>(ClassesModel::RowType::Class)) {
@@ -764,9 +810,9 @@ void ClassesWidget::on_deleteClassAction_triggered()
     Core()->deleteClass(className);
 }
 
-void ClassesWidget::on_renameClassAction_triggered()
+void ClassesWidget::renameClassActionTriggered()
 {
-    QModelIndex index = ui->classesTreeView->selectionModel()->currentIndex();
+    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     if (!index.isValid()
         || index.data(ClassesModel::TypeRole).toInt()
                 != static_cast<int>(ClassesModel::RowType::Class)) {

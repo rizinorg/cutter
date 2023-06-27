@@ -1,5 +1,11 @@
 <RCC>
   <qresource prefix="native">
       <file>native.qss</file>
+      <file>native-macos-dark.qss</file>
+      <file>macos-close-dark.svg</file>
+      <file>macos-float-dark.svg</file>
+      <file>native-macos-light.qss</file>
+      <file>macos-close-light.svg</file>
+      <file>macos-float-light.svg</file>
   </qresource>
 </RCC>

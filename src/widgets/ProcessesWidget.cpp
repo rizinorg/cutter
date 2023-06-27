@@ -84,9 +84,9 @@ void ProcessesWidget::updateContents()
     }
 }
 
-QString ProcessesWidget::translateStatus(QString status)
+QString ProcessesWidget::translateStatus(const char status)
 {
-    switch (status.toStdString().c_str()[0]) {
+    switch (status) {
     case RZ_DBG_PROC_STOP:
         return "Stopped";
     case RZ_DBG_PROC_RUN:
@@ -106,17 +106,15 @@ QString ProcessesWidget::translateStatus(QString status)
 
 void ProcessesWidget::setProcessesGrid()
 {
-    QJsonArray processesValues = Core()->getChildProcesses(DEBUGGED_PID).array();
     int i = 0;
     QFont font;
 
-    for (const QJsonValue &value : processesValues) {
-        QJsonObject processesItem = value.toObject();
-        int pid = processesItem["pid"].toVariant().toInt();
-        int uid = processesItem["uid"].toVariant().toInt();
-        QString status = translateStatus(processesItem["status"].toString());
-        QString path = processesItem["path"].toString();
-        bool current = processesItem["current"].toBool();
+    for (const auto &processesItem : Core()->getProcessThreads(DEBUGGED_PID)) {
+        st64 pid = processesItem.pid;
+        st64 uid = processesItem.uid;
+        QString status = translateStatus(processesItem.status);
+        QString path = processesItem.path;
+        bool current = processesItem.current;
 
         // Use bold font to highlight active thread
         font.setBold(current);
@@ -145,7 +143,6 @@ void ProcessesWidget::setProcessesGrid()
 
     modelFilter->setSourceModel(modelProcesses);
     ui->viewProcesses->resizeColumnsToContents();
-    ;
 }
 
 void ProcessesWidget::fontsUpdatedSlot()
@@ -159,25 +156,23 @@ void ProcessesWidget::onActivated(const QModelIndex &index)
         return;
 
     int pid = modelFilter->data(index.sibling(index.row(), COLUMN_PID)).toInt();
-
     // Verify that the selected pid is still in the processes list since dp= will
     // attach to any given id. If it isn't found simply update the UI.
-    QJsonArray processesValues = Core()->getChildProcesses(DEBUGGED_PID).array();
-    for (QJsonValue value : processesValues) {
-        QString status = value.toObject()["status"].toString();
-        if (pid == value.toObject()["pid"].toInt()) {
-            if (QString(QChar(RZ_DBG_PROC_ZOMBIE)) == status
-                || QString(QChar(RZ_DBG_PROC_DEAD)) == status) {
-                QMessageBox msgBox;
+    for (const auto &value : Core()->getAllProcesses()) {
+        if (pid == value.pid) {
+            QMessageBox msgBox;
+            switch (value.status) {
+            case RZ_DBG_PROC_ZOMBIE:
+            case RZ_DBG_PROC_DEAD:
                 msgBox.setText(tr("Unable to switch to the requested process."));
                 msgBox.exec();
-            } else {
+                break;
+            default:
                 Core()->setCurrentDebugProcess(pid);
+                break;
             }
-            break;
         }
     }
-
     updateContents();
 }
 

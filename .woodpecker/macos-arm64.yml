@@ -1,0 +1,47 @@
+platform: darwin/arm64
+
+pipeline:
+  fetch-deps:
+    image: /bin/bash
+    commands:
+      - scripts/fetch_deps.sh
+  build:
+    image: /bin/bash
+    commands:
+      - set -e
+      - export PACKAGE_ID=${CI_COMMIT_TAG=git-`date "+%Y-%m-%d"`-${CI_COMMIT_SHA}}
+      - export PACKAGE_NAME=Cutter-$${PACKAGE_ID}-macOS-arm64
+      - source cutter-deps/env.sh
+      - cmake -Bbuild -GNinja
+        -DCMAKE_BUILD_TYPE=Release
+        -DPYTHON_LIBRARY="$$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.9.dylib"
+        -DPYTHON_INCLUDE_DIR="$$CUTTER_DEPS_PYTHON_PREFIX/include/python3.9"
+        -DPYTHON_EXECUTABLE="$$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
+        -DCUTTER_ENABLE_PYTHON=ON
+        -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
+        -DCUTTER_USE_BUNDLED_RIZIN=ON
+        -DCUTTER_ENABLE_PACKAGING=ON
+        -DCUTTER_ENABLE_SIGDB=ON
+        -DCUTTER_PACKAGE_DEPENDENCIES=ON
+        -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON
+        -DCUTTER_PACKAGE_RZ_GHIDRA=ON
+        -DCUTTER_PACKAGE_JSDEC=ON
+        -DCUTTER_PACKAGE_RZ_LIBSWIFT=ON
+        -DCUTTER_PACKAGE_RZ_LIBYARA=ON
+        -DCUTTER_PACKAGE_RZ_SILHOUETTE=ON
+        -DCPACK_PACKAGE_FILE_NAME="$$PACKAGE_NAME"
+        -DCPACK_BUNDLE_APPLE_CERT_APP="-"
+      - ninja -C build
+  package:
+    image: /bin/bash
+    commands:
+      - source cutter-deps/env.sh
+      - ninja -C build package
+  deploy:
+    when:
+      event: tag
+      tag: v*
+    image: /bin/bash
+    commands:
+      - gh release upload "${CI_COMMIT_TAG}" build/Cutter-*.dmg
+    secrets: [ github_token ]

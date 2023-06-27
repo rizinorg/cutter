@@ -47,7 +47,7 @@ Example:
 
 .. code:: cpp
 
-   QJsonArray array = Core()->cmdj("pdj 1 @ main").array();
+   CutterJson array = Core()->cmdj("pdj 1 @ main");
 
 Seek the Current File
 ~~~~~~~~~~~~~~~~~~~~~
@@ -257,7 +257,7 @@ In order to update one submodule individually, use the following code:
 .. code:: sh
 
    cd rizin
-   git checkout master && git pull
+   git checkout dev && git pull
    cd ..
    git add rizin
    git commit -m "Update rizin submodule"

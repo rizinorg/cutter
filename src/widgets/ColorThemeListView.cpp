@@ -48,8 +48,9 @@ void ColorOptionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 
     ColorOption currCO = index.data(Qt::UserRole).value<ColorOption>();
 
+    QFontMetrics fm = QFontMetrics(painter->font());
     int penWidth = painter->pen().width();
-    int fontHeight = painter->fontMetrics().height();
+    int fontHeight = fm.height();
     QPoint tl = option.rect.topLeft();
 
     QRect optionNameRect;
@@ -126,9 +127,9 @@ void ColorOptionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 
     painter->setPen(qApp->palette().text().color());
 
-    QString name =
-            painter->fontMetrics().elidedText(optionInfoMap__[currCO.optionName].displayingtext,
-                                              Qt::ElideRight, optionNameRect.width());
+    QFontMetrics fm2 = QFontMetrics(painter->font());
+    QString name = fm2.elidedText(optionInfoMap__[currCO.optionName].displayingtext,
+            Qt::ElideRight, optionNameRect.width());
     painter->drawText(optionNameRect, name);
 
     QPainterPath roundedOptionRect;
@@ -155,7 +156,8 @@ void ColorOptionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     painter->setPen(currCO.color);
     painter->fillPath(roundedColorRect, currCO.color);
 
-    QString desc = painter->fontMetrics().elidedText(
+    QFontMetrics fm3 = QFontMetrics(painter->font());
+    QString desc = fm3.elidedText(
             currCO.optionName + ": " + optionInfoMap__[currCO.optionName].info, Qt::ElideRight,
             descTextRect.width());
     painter->setPen(qApp->palette().text().color());
@@ -197,7 +199,8 @@ QPixmap ColorOptionDelegate::getPixmapFromSvg(const QString &fileName, const QCo
     data.replace(QRegularExpression("#[0-9a-fA-F]{6}"), QString("%1").arg(after.name()));
 
     QSvgRenderer svgRenderer(data.toUtf8());
-    QPixmap pix(QSize(qApp->fontMetrics().height(), qApp->fontMetrics().height()));
+    QFontMetrics fm = QFontMetrics(qApp->font());
+    QPixmap pix(QSize(fm.height(), fm.height()));
     pix.fill(Qt::transparent);
 
     QPainter pixPainter(&pix);
@@ -220,13 +223,7 @@ ColorThemeListView::ColorThemeListView(QWidget *parent) : QListView(parent)
     setItemDelegate(new ColorOptionDelegate(this));
     setResizeMode(ResizeMode::Adjust);
 
-    QJsonArray rgb =
-            colorSettingsModel()->getTheme().object().find("gui.background").value().toArray();
-    if (rgb.size() == 3) {
-        backgroundColor = QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt());
-    } else {
-        backgroundColor = palette().base().color();
-    }
+    backgroundColor = colorSettingsModel()->getTheme().find("gui.background").value();
 
     connect(&blinkTimer, &QTimer::timeout, this, &ColorThemeListView::blinkTimeout);
 
@@ -241,7 +238,7 @@ void ColorThemeListView::currentChanged(const QModelIndex &current, const QModel
     ColorOption prev = previous.data(Qt::UserRole).value<ColorOption>();
     Config()->setColor(prev.optionName, prev.color);
     if (ThemeWorker().getRizinSpecificOptions().contains(prev.optionName)) {
-        Core()->cmdRaw(QString("ec %1 %2").arg(prev.optionName).arg(prev.color.name()));
+        Core()->setColor(prev.optionName, prev.color.name());
     }
 
     QListView::currentChanged(current, previous);
@@ -267,9 +264,7 @@ void ColorThemeListView::mouseReleaseEvent(QMouseEvent *e)
                 .contains(e->pos())) {
         ColorOption co = currentIndex().data(Qt::UserRole).value<ColorOption>();
         co.changed = false;
-        QJsonArray rgb =
-                ThemeWorker().getTheme(Config()->getColorTheme()).object()[co.optionName].toArray();
-        co.color = QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt());
+        co.color = ThemeWorker().getTheme(Config()->getColorTheme())[co.optionName];
         model()->setData(currentIndex(), QVariant::fromValue(co));
         QCursor c;
         c.setShape(Qt::CursorShape::ArrowCursor);
@@ -307,7 +302,7 @@ void ColorThemeListView::blinkTimeout()
     auto updateColor = [](const QString &name, const QColor &color) {
         Config()->setColor(name, color);
         if (ThemeWorker().getRizinSpecificOptions().contains(name)) {
-            Core()->cmdRaw(QString("ec %1 %2").arg(name).arg(color.name()));
+            Core()->setColor(name, color.name());
         }
     };
 
@@ -374,16 +369,10 @@ void ColorSettingsModel::updateTheme()
 {
     beginResetModel();
     theme.clear();
-    QJsonObject obj = ThemeWorker().getTheme(Config()->getColorTheme()).object();
+    ColorThemeWorker::Theme obj = ThemeWorker().getTheme(Config()->getColorTheme());
 
     for (auto it = obj.constBegin(); it != obj.constEnd(); it++) {
-        QJsonArray rgb = it.value().toArray();
-        if (rgb.size() != 4) {
-            continue;
-        }
-        theme.push_back({ it.key(),
-                          QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt(), rgb[3].toInt()),
-                          false });
+        theme.push_back({ it.key(), it.value(), false });
     }
 
     std::sort(theme.begin(), theme.end(), [](const ColorOption &f, const ColorOption &s) {
@@ -395,15 +384,13 @@ void ColorSettingsModel::updateTheme()
     endResetModel();
 }
 
-QJsonDocument ColorSettingsModel::getTheme() const
+ColorThemeWorker::Theme ColorSettingsModel::getTheme() const
 {
-    QJsonObject obj;
-    int r, g, b, a;
+    ColorThemeWorker::Theme th;
     for (auto &it : theme) {
-        it.color.getRgb(&r, &g, &b, &a);
-        obj.insert(it.optionName, QJsonArray({ r, g, b, a }));
+        th.insert(it.optionName, it.color);
     }
-    return QJsonDocument(obj);
+    return th;
 }
 
 const QMap<QString, OptionInfo> optionInfoMap__ = {
@@ -413,8 +400,7 @@ const QMap<QString, OptionInfo> optionInfoMap__ = {
     { "fname", { QObject::tr("Color of names of functions"), QObject::tr("Function name") } },
     { "floc", { QObject::tr("Color of function location"), QObject::tr("Function location") } },
     { "fline",
-      { QObject::tr(
-                "Color of ascii line in left side that shows what opcodes are belong to function"),
+      { QObject::tr("Color of the line which shows which opcodes belongs to a function"),
         QObject::tr("Function line") } },
     { "flag",
       { QObject::tr("Color of flags (similar to bookmarks for offset)"), QObject::tr("Flag") } },

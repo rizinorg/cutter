@@ -26,6 +26,11 @@ TypesInteractionDialog::TypesInteractionDialog(QWidget *parent, bool readOnly)
 
 TypesInteractionDialog::~TypesInteractionDialog() {}
 
+void TypesInteractionDialog::setTypeName(QString name)
+{
+    this->typeName = name;
+}
+
 void TypesInteractionDialog::on_selectFileButton_clicked()
 {
     QString filename =
@@ -57,8 +62,22 @@ void TypesInteractionDialog::on_plainTextEdit_textChanged()
 void TypesInteractionDialog::done(int r)
 {
     if (r == QDialog::Accepted) {
-        QString error = Core()->addTypes(ui->plainTextEdit->toPlainText());
-        if (error.isEmpty()) {
+        RzCoreLocked core(Core());
+        bool success;
+        if (!typeName.isEmpty()) {
+            success = rz_type_db_edit_base_type(
+                core->analysis->typedb, this->typeName.toUtf8().constData(),
+                ui->plainTextEdit->toPlainText().toUtf8().constData());
+        } else {
+            char *error_msg = NULL;
+            success = rz_type_parse_string_stateless(core->analysis->typedb->parser,
+                ui->plainTextEdit->toPlainText().toUtf8().constData(), &error_msg) == 0;
+            if (error_msg) {
+                RZ_LOG_ERROR("%s\n", error_msg);
+                rz_mem_free(error_msg);
+            }
+        }
+        if (success) {
             emit newTypesLoaded();
             QDialog::done(r);
             return;
@@ -67,7 +86,6 @@ void TypesInteractionDialog::done(int r)
         QMessageBox popup(this);
         popup.setWindowTitle(tr("Error"));
         popup.setText(tr("There was some error while loading new types"));
-        popup.setDetailedText(error);
         popup.setStandardButtons(QMessageBox::Ok);
         popup.exec();
     } else {

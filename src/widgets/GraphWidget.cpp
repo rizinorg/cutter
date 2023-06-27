@@ -84,11 +84,13 @@ QString GraphWidget::getWidgetType()
 
 void GraphWidget::prepareHeader()
 {
-    QString afcf = Core()->cmdRawAt("afcf", seekable->getOffset()).trimmed();
-    if (afcf.isEmpty()) {
+    RzAnalysisFunction *f = Core()->functionIn(seekable->getOffset());
+    char *str = f ? rz_analysis_function_get_signature(f) : nullptr;
+    if (!str) {
         header->hide();
         return;
     }
     header->show();
-    header->setText(afcf);
+    header->setText(str);
+    free(str);
 }

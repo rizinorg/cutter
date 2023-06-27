@@ -139,10 +139,13 @@ protected:
                                    QPoint pos) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
     void restoreCurrentBlock() override;
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
 private slots:
     void showExportDialog() override;
     void onActionHighlightBITriggered();
     void onActionUnhighlightBITriggered();
+    void setTooltipStylesheet();
 
 private:
     bool transition_dont_seek = false;

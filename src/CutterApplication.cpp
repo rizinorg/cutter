@@ -1,5 +1,4 @@
 #include "common/PythonManager.h"
-#include "common/CrashHandler.h"
 #include "CutterApplication.h"
 #include "plugins/PluginManager.h"
 #include "CutterConfig.h"
@@ -34,21 +33,24 @@
 // has RZ_GITTAP defined and uses it in rz_core_version().
 // After that, RZ_GITTAP is not defined anymore and RZ_VERSION is used.
 #ifdef RZ_GITTAP
-#define CUTTER_COMPILE_TIME_RZ_VERSION "" RZ_GITTAP
+#    define CUTTER_COMPILE_TIME_RZ_VERSION "" RZ_GITTAP
 #else
-#define CUTTER_COMPILE_TIME_RZ_VERSION "" RZ_VERSION
+#    define CUTTER_COMPILE_TIME_RZ_VERSION "" RZ_VERSION
 #endif
 
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
 {
     // Setup application information
     setApplicationVersion(CUTTER_VERSION_FULL);
+#ifdef Q_OS_MACOS
+    setWindowIcon(QIcon(":/img/cutter_macos_simple.svg"));
+#else
     setWindowIcon(QIcon(":/img/cutter.svg"));
+#endif
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     setAttribute(Qt::AA_UseHighDpiPixmaps); // always enabled on Qt >= 6.0.0
 #endif
     setLayoutDirection(Qt::LeftToRight);
-
     // WARN!!! Put initialization code below this line. Code above this line is mandatory to be run
     // First
 
@@ -149,7 +151,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         }
         mainWindow->displayNewFileDialog();
     } else { // filename specified as positional argument
-        bool askOptions = (clOptions.analLevel != AutomaticAnalysisLevel::Ask)
+        bool askOptions = (clOptions.analysisLevel != AutomaticAnalysisLevel::Ask)
                 || !clOptions.fileOpenOptions.projectFile.isEmpty();
         mainWindow->openNewFile(clOptions.fileOpenOptions, askOptions);
     }
@@ -160,43 +162,29 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         appdir.cdUp(); // appdir
 
         auto sleighHome = appdir;
-        sleighHome.cd(
-                "share/rizin/plugins/rz_ghidra_sleigh"); // appdir/share/rizin/plugins/rz_ghidra_sleigh
+        // appdir/lib/rizin/plugins/rz_ghidra_sleigh/
+        sleighHome.cd("lib/rizin/plugins/rz_ghidra_sleigh/");
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
-
-        auto jsdecHome = appdir;
-        jsdecHome.cd("share/rizin/plugins/jsdec"); // appdir/share/rizin/plugins/jsdec
-        qputenv("JSDEC_HOME", jsdecHome.absolutePath().toLocal8Bit());
     }
 #endif
 
-#ifdef Q_OS_MACOS
+#if defined(Q_OS_MACOS) && defined(CUTTER_ENABLE_PACKAGING)
     {
         auto rzprefix = QDir(QCoreApplication::applicationDirPath()); // Contents/MacOS
         rzprefix.cdUp(); // Contents
-        rzprefix.cd("Resources"); // Contents/Resources/rz
+        rzprefix.cd("Resources"); // Contents/Resources/
 
         auto sleighHome = rzprefix;
-        sleighHome.cd(
-                "share/rizin/plugins/rz_ghidra_sleigh"); // Contents/Resources/rz/share/rizin/plugins/rz_ghidra_sleigh
+        // Contents/Resources/lib/rizin/plugins/rz_ghidra_sleigh
+        sleighHome.cd("lib/rizin/plugins/rz_ghidra_sleigh");
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
-
-#    ifdef CUTTER_BUNDLE_JSDEC
-        auto jsdecHome = rzprefix;
-        jsdecHome.cd(
-                "share/rizin/plugins/jsdec"); // Contents/Resources/rz/share/rizin/plugins/jsdec
-        qputenv("JSDEC_HOME", jsdecHome.absolutePath().toLocal8Bit());
-#    endif
     }
 #endif
 
 #if defined(Q_OS_WIN) && defined(CUTTER_ENABLE_PACKAGING)
     {
-#    ifdef CUTTER_BUNDLE_JSDEC
-        qputenv("JSDEC_HOME", "lib\\plugins\\jsdec");
-#    endif
         auto sleighHome = QDir(QCoreApplication::applicationDirPath());
-        sleighHome.cd("lib/plugins/rz_ghidra_sleigh");
+        sleighHome.cd("lib/rizin/plugins/rz_ghidra_sleigh");
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
     }
 #endif
@@ -308,6 +296,89 @@ bool CutterApplication::loadTranslations()
     return false;
 }
 
+QStringList CutterApplication::getArgs() const
+{
+    auto &options = clOptions.fileOpenOptions;
+
+    QStringList args;
+    switch (clOptions.analysisLevel) {
+    case AutomaticAnalysisLevel::None:
+        args.push_back("-A");
+        args.push_back("0");
+        break;
+    case AutomaticAnalysisLevel::AAA:
+        args.push_back("-A");
+        args.push_back("1");
+        break;
+    case AutomaticAnalysisLevel::AAAA:
+        args.push_back("-A");
+        args.push_back("2");
+        break;
+    default:
+        break;
+    }
+
+    if (!options.useVA) {
+        args.push_back("-P");
+    }
+    if (options.writeEnabled) {
+        args.push_back("-w");
+    }
+    if (!options.script.isEmpty()) {
+        args.push_back("-i");
+        args.push_back(options.script);
+    }
+    if (!options.projectFile.isEmpty()) {
+        args.push_back("-p");
+        args.push_back(options.projectFile);
+    }
+    if (!options.arch.isEmpty()) {
+        args.push_back("-a");
+        args.push_back(options.arch);
+    }
+    if (options.bits > 0) {
+        args.push_back("-b");
+        args.push_back(QString::asprintf("%d", options.bits));
+    }
+    if (!options.cpu.isEmpty()) {
+        args.push_back("-c");
+        args.push_back(options.cpu);
+    }
+    if (!options.os.isEmpty()) {
+        args.push_back("-o");
+        args.push_back(options.os);
+    }
+
+    switch (options.endian) {
+    case InitialOptions::Endianness::Little:
+        args.push_back("-e");
+        args.push_back("little");
+        break;
+    case InitialOptions::Endianness::Big:
+        args.push_back("-e");
+        args.push_back("big");
+        break;
+    default:
+        break;
+    }
+    if (!options.forceBinPlugin.isEmpty()) {
+        args.push_back("-F");
+        args.push_back(options.forceBinPlugin);
+    }
+    if (options.binLoadAddr != RVA_INVALID) {
+        args.push_back("-B");
+        args.push_back(RzAddressString(options.binLoadAddr));
+    }
+    if (options.mapAddr != RVA_INVALID) {
+        args.push_back("-m");
+        args.push_back(RzAddressString(options.mapAddr));
+    }
+    if (!options.filename.isEmpty()) {
+        args.push_back(options.filename);
+    }
+    return args;
+}
+
 bool CutterApplication::parseCommandLineOptions()
 {
     // Keep this function in sync with documentation
@@ -327,6 +398,27 @@ bool CutterApplication::parseCommandLineOptions()
             QObject::tr("level"));
     cmd_parser.addOption(analOption);
 
+    QCommandLineOption archOption({ "a", "arch" }, QObject::tr("Sets a specific architecture name"),
+                                  QObject::tr("arch"));
+    cmd_parser.addOption(archOption);
+
+    QCommandLineOption bitsOption({ "b", "bits" }, QObject::tr("Sets a specific architecture bits"),
+                                  QObject::tr("bits"));
+    cmd_parser.addOption(bitsOption);
+
+    QCommandLineOption cpuOption({ "c", "cpu" }, QObject::tr("Sets a specific CPU"),
+                                 QObject::tr("cpu"));
+    cmd_parser.addOption(cpuOption);
+
+    QCommandLineOption osOption({ "o", "os" }, QObject::tr("Sets a specific operating system"),
+                                QObject::tr("os"));
+    cmd_parser.addOption(osOption);
+
+    QCommandLineOption endianOption({ "e", "endian" },
+                                    QObject::tr("Sets the endianness (big or little)"),
+                                    QObject::tr("big|little"));
+    cmd_parser.addOption(endianOption);
+
     QCommandLineOption formatOption({ "F", "format" },
                                     QObject::tr("Force using a specific file format (bin plugin)"),
                                     QObject::tr("name"));
@@ -336,6 +428,11 @@ bool CutterApplication::parseCommandLineOptions()
                                    QObject::tr("Load binary at a specific base address"),
                                    QObject::tr("base address"));
     cmd_parser.addOption(baddrOption);
+
+    QCommandLineOption maddrOption({ "m", "map" },
+                                   QObject::tr("Map the binary at a specific address"),
+                                   QObject::tr("map address"));
+    cmd_parser.addOption(maddrOption);
 
     QCommandLineOption scriptOption("i", QObject::tr("Run script file"), QObject::tr("file"));
     cmd_parser.addOption(scriptOption);
@@ -347,6 +444,10 @@ bool CutterApplication::parseCommandLineOptions()
     QCommandLineOption writeModeOption({ "w", "writemode" },
                                        QObject::tr("Open file in write mode"));
     cmd_parser.addOption(writeModeOption);
+
+    QCommandLineOption phyModeOption({ "P", "phymode" },
+                                     QObject::tr("Disables virtual addressing"));
+    cmd_parser.addOption(phyModeOption);
 
     QCommandLineOption pythonHomeOption(
             "pythonhome", QObject::tr("PYTHONHOME to use for embedded python interpreter"),
@@ -378,30 +479,30 @@ bool CutterApplication::parseCommandLineOptions()
     opts.args = cmd_parser.positionalArguments();
 
     if (cmd_parser.isSet(analOption)) {
-        bool analLevelSpecified = false;
-        int analLevel = cmd_parser.value(analOption).toInt(&analLevelSpecified);
+        bool analysisLevelSpecified = false;
+        int analysisLevel = cmd_parser.value(analOption).toInt(&analysisLevelSpecified);
 
-        if (!analLevelSpecified || analLevel < 0 || analLevel > 2) {
+        if (!analysisLevelSpecified || analysisLevel < 0 || analysisLevel > 2) {
             fprintf(stderr, "%s\n",
                     QObject::tr("Invalid Analysis Level. May be a value between 0 and 2.")
                             .toLocal8Bit()
                             .constData());
             return false;
         }
-        switch (analLevel) {
+        switch (analysisLevel) {
         case 0:
-            opts.analLevel = AutomaticAnalysisLevel::None;
+            opts.analysisLevel = AutomaticAnalysisLevel::None;
             break;
         case 1:
-            opts.analLevel = AutomaticAnalysisLevel::AAA;
+            opts.analysisLevel = AutomaticAnalysisLevel::AAA;
             break;
         case 2:
-            opts.analLevel = AutomaticAnalysisLevel::AAAA;
+            opts.analysisLevel = AutomaticAnalysisLevel::AAAA;
             break;
         }
     }
 
-    if (opts.args.empty() && opts.analLevel != AutomaticAnalysisLevel::Ask) {
+    if (opts.args.empty() && opts.analysisLevel != AutomaticAnalysisLevel::Ask) {
         fprintf(stderr, "%s\n",
                 QObject::tr("Filename must be specified to start analysis automatically.")
                         .toLocal8Bit()
@@ -409,33 +510,67 @@ bool CutterApplication::parseCommandLineOptions()
         return false;
     }
 
-    InitialOptions options;
     if (!opts.args.isEmpty()) {
         opts.fileOpenOptions.filename = opts.args[0];
         opts.fileOpenOptions.forceBinPlugin = cmd_parser.value(formatOption);
         if (cmd_parser.isSet(baddrOption)) {
-            bool ok;
+            bool ok = false;
             RVA baddr = cmd_parser.value(baddrOption).toULongLong(&ok, 0);
             if (ok) {
-                options.binLoadAddr = baddr;
+                opts.fileOpenOptions.binLoadAddr = baddr;
             }
         }
-        switch (opts.analLevel) {
+        if (cmd_parser.isSet(maddrOption)) {
+            bool ok = false;
+            RVA maddr = cmd_parser.value(maddrOption).toULongLong(&ok, 0);
+            if (ok) {
+                opts.fileOpenOptions.mapAddr = maddr;
+            }
+        }
+        switch (opts.analysisLevel) {
         case AutomaticAnalysisLevel::Ask:
             break;
         case AutomaticAnalysisLevel::None:
-            opts.fileOpenOptions.analCmd = {};
+            opts.fileOpenOptions.analysisCmd = {};
             break;
         case AutomaticAnalysisLevel::AAA:
-            opts.fileOpenOptions.analCmd = { { "aaa", "Auto analysis" } };
+            opts.fileOpenOptions.analysisCmd = { { "aaa", "Auto analysis" } };
             break;
         case AutomaticAnalysisLevel::AAAA:
-            opts.fileOpenOptions.analCmd = { { "aaaa", "Auto analysis (experimental)" } };
+            opts.fileOpenOptions.analysisCmd = { { "aaaa", "Auto analysis (experimental)" } };
             break;
         }
         opts.fileOpenOptions.script = cmd_parser.value(scriptOption);
+        opts.fileOpenOptions.arch = cmd_parser.value(archOption);
+        opts.fileOpenOptions.cpu = cmd_parser.value(cpuOption);
+        opts.fileOpenOptions.os = cmd_parser.value(osOption);
+        if (cmd_parser.isSet(bitsOption)) {
+            bool ok = false;
+            int bits = cmd_parser.value(bitsOption).toInt(&ok, 10);
+            if (ok && bits > 0) {
+                opts.fileOpenOptions.bits = bits;
+            }
+        }
+        if (cmd_parser.isSet(endianOption)) {
+            QString endian = cmd_parser.value(endianOption).toLower();
+            opts.fileOpenOptions.endian = InitialOptions::Endianness::Auto;
+            if (endian == "little") {
+                opts.fileOpenOptions.endian = InitialOptions::Endianness::Little;
+            } else if (endian == "big") {
+                opts.fileOpenOptions.endian = InitialOptions::Endianness::Big;
+            } else {
+                fprintf(stderr, "%s\n",
+                        QObject::tr("Invalid Endianness. You can only set it to `big` or `little`.")
+                                .toLocal8Bit()
+                                .constData());
+                return false;
+            }
+        } else {
+            opts.fileOpenOptions.endian = InitialOptions::Endianness::Auto;
+        }
 
         opts.fileOpenOptions.writeEnabled = cmd_parser.isSet(writeModeOption);
+        opts.fileOpenOptions.useVA = !cmd_parser.isSet(phyModeOption);
     }
 
     opts.fileOpenOptions.projectFile = cmd_parser.value(projectOption);

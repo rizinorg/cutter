@@ -6,6 +6,10 @@
 
 #include "core/Cutter.h"
 
+#include <rz_core.h>
+
+#include <memory>
+
 class MainWindow;
 class QGraphicsView;
 
@@ -43,11 +47,12 @@ private:
     QGraphicsRectItem *PCGraphicsItem;
     MainWindow *main;
 
-    BlockStatistics stats;
+    UniquePtrC<RzCoreAnalysisStats, &rz_core_analysis_stats_free> stats;
     unsigned int statsWidth = 0;
     unsigned int previousWidth = 0;
 
     QList<XToAddress> xToAddress;
+    bool blockTooltip;
 
     RVA localXToAddress(double x);
     double addressToLocalX(RVA address);

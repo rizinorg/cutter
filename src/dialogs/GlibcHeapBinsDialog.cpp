@@ -25,7 +25,7 @@ GlibcHeapBinsDialog::GlibcHeapBinsDialog(RVA m_state, MainWindow *main, QWidget 
     binsModel->reload();
     ui->viewBins->resizeColumnsToContents();
     graphView = nullptr;
-    this->setWindowTitle(tr("Bins info for arena @ ") + RAddressString(m_state));
+    this->setWindowTitle(tr("Bins info for arena @ ") + RzAddressString(m_state));
 }
 
 GlibcHeapBinsDialog::~GlibcHeapBinsDialog()
@@ -49,9 +49,9 @@ void GlibcHeapBinsDialog::setChainInfo(int index)
     RzHeapChunkListItem *item;
     RzList *chunks = binsModel->getChunks(index);
     QString chainInfo;
-    CutterRListForeach(chunks, iter, RzHeapChunkListItem, item)
+    CutterRzListForeach(chunks, iter, RzHeapChunkListItem, item)
     {
-        chainInfo += " → " + RAddressString(item->addr);
+        chainInfo += " → " + RzAddressString(item->addr);
     }
 
     // Add bin message at the end of the list
@@ -127,15 +127,15 @@ QVariant BinsModel::data(const QModelIndex &index, int role) const
         case BinNumColumn:
             return item->bin_num;
         case FdColumn:
-            return (item->fd == 0) ? tr("N/A") : RAddressString(item->fd);
+            return (item->fd == 0) ? tr("N/A") : RzAddressString(item->fd);
         case BkColumn:
-            return (item->bk == 0) ? tr("N/A") : RAddressString(item->bk);
+            return (item->bk == 0) ? tr("N/A") : RzAddressString(item->bk);
         case TypeColumn:
             return tr(item->type);
         case CountColumn:
             return rz_list_length(item->chunks);
         case SizeColumn:
-            return (item->size == 0) ? tr("N/A") : RHexString(item->size);
+            return (item->size == 0) ? tr("N/A") : RzHexString(item->size);
         default:
             return QVariant();
         }

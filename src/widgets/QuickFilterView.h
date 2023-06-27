@@ -7,6 +7,7 @@
 #include <memory>
 
 #include <QWidget>
+#include <QTimer>
 
 namespace Ui {
 class QuickFilterView;
@@ -31,6 +32,7 @@ signals:
 
 private:
     std::unique_ptr<Ui::QuickFilterView> ui;
+    QTimer *debounceTimer;
 };
 
 #endif // QUICKFILTERVIEW_H

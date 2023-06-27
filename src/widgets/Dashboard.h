@@ -3,6 +3,7 @@
 
 #include <QFormLayout>
 #include <memory>
+#include "core/Cutter.h"
 #include "CutterDockWidget.h"
 
 QT_BEGIN_NAMESPACE
@@ -32,7 +33,8 @@ private slots:
 private:
     std::unique_ptr<Ui::Dashboard> ui;
     void setPlainText(QLineEdit *textBox, const QString &text);
-    void setBool(QLineEdit *textBox, const QJsonObject &jsonObject, const QString &key);
+    void setRzBinInfo(RzBinInfo *binInfo);
+    const char *setBoolText(bool value);
 
     QWidget *hashesWidget = nullptr;
 };

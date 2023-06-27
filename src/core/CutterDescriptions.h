@@ -60,16 +60,16 @@ struct HeaderDescription
     QString name;
 };
 
-struct ZignatureDescription
+struct FlirtDescription
 {
-    QString name;
-    QString bytes;
-    RVA cc;
-    RVA nbbs;
-    RVA edges;
-    RVA ebbs;
-    RVA offset;
-    QStringList refs;
+    QString bin_name;
+    QString arch_name;
+    QString arch_bits;
+    QString base_name;
+    QString short_path;
+    QString file_path;
+    QString details;
+    QString n_modules;
 };
 
 struct TypeDescription
@@ -194,6 +194,7 @@ struct RzCorePluginDescription
 {
     QString name;
     QString description;
+    QString license;
 };
 
 struct RzAsmPluginDescription
@@ -238,27 +239,27 @@ struct BinClassDescription
     QString name;
     RVA addr = RVA_INVALID;
     RVA vtableAddr = RVA_INVALID;
-    ut64 index = 0;
     QList<BinClassBaseClassDescription> baseClasses;
     QList<BinClassMethodDescription> methods;
     QList<BinClassFieldDescription> fields;
 };
 
-struct AnalMethodDescription
+struct AnalysisMethodDescription
 {
     QString name;
+    QString realName;
     RVA addr;
     st64 vtableOffset;
 };
 
-struct AnalBaseClassDescription
+struct AnalysisBaseClassDescription
 {
     QString id;
     RVA offset;
     QString className;
 };
 
-struct AnalVTableDescription
+struct AnalysisVTableDescription
 {
     QString id;
     ut64 offset;
@@ -337,9 +338,11 @@ struct BreakpointDescription
 
 struct ProcessDescription
 {
+    bool current;
     int pid;
     int uid;
-    QString status;
+    int ppid;
+    RzDebugPidState status;
     QString path;
 };
 
@@ -351,8 +354,7 @@ struct RefDescription
 
 struct VariableDescription
 {
-    enum class RefType { SP, BP, Reg };
-    RefType refType;
+    RzAnalysisVarStorageType storageType;
     QString name;
     QString type;
 };
@@ -375,6 +377,24 @@ struct Arena
 {
     RVA offset;
     QString type;
+    ut64 top;
+    ut64 last_remainder;
+    ut64 next;
+    ut64 next_free;
+    ut64 system_mem;
+    ut64 max_system_mem;
+};
+
+struct BasefindCoreStatusDescription
+{
+    size_t index;
+    ut32 percentage;
+};
+
+struct BasefindResultDescription
+{
+    RVA candidate;
+    ut32 score;
 };
 
 Q_DECLARE_METATYPE(FunctionDescription)
@@ -398,14 +418,14 @@ Q_DECLARE_METATYPE(BinClassDescription)
 Q_DECLARE_METATYPE(const BinClassDescription *)
 Q_DECLARE_METATYPE(const BinClassMethodDescription *)
 Q_DECLARE_METATYPE(const BinClassFieldDescription *)
-Q_DECLARE_METATYPE(AnalBaseClassDescription)
-Q_DECLARE_METATYPE(AnalMethodDescription)
-Q_DECLARE_METATYPE(AnalVTableDescription)
+Q_DECLARE_METATYPE(AnalysisBaseClassDescription)
+Q_DECLARE_METATYPE(AnalysisMethodDescription)
+Q_DECLARE_METATYPE(AnalysisVTableDescription)
 Q_DECLARE_METATYPE(ResourcesDescription)
 Q_DECLARE_METATYPE(VTableDescription)
 Q_DECLARE_METATYPE(TypeDescription)
 Q_DECLARE_METATYPE(HeaderDescription)
-Q_DECLARE_METATYPE(ZignatureDescription)
+Q_DECLARE_METATYPE(FlirtDescription)
 Q_DECLARE_METATYPE(SearchDescription)
 Q_DECLARE_METATYPE(SectionDescription)
 Q_DECLARE_METATYPE(SegmentDescription)
@@ -415,5 +435,7 @@ Q_DECLARE_METATYPE(BreakpointDescription::PositionType)
 Q_DECLARE_METATYPE(ProcessDescription)
 Q_DECLARE_METATYPE(RefDescription)
 Q_DECLARE_METATYPE(VariableDescription)
+Q_DECLARE_METATYPE(BasefindCoreStatusDescription)
+Q_DECLARE_METATYPE(BasefindResultDescription)
 
 #endif // DESCRIPTIONS_H

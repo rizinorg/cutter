@@ -76,7 +76,7 @@ void AddressableItemContextMenu::clearTarget()
 void AddressableItemContextMenu::onActionCopyAddress()
 {
     auto clipboard = QApplication::clipboard();
-    clipboard->setText(RAddressString(offset));
+    clipboard->setText(RzAddressString(offset));
 }
 
 void AddressableItemContextMenu::onActionShowXrefs()
@@ -85,7 +85,7 @@ void AddressableItemContextMenu::onActionShowXrefs()
     XrefsDialog dialog(mainWindow, true);
     QString tmpName = name;
     if (name.isEmpty()) {
-        name = RAddressString(offset);
+        name = RzAddressString(offset);
     }
     dialog.fillRefsForAddress(offset, name, wholeFunction);
     dialog.exec();
@@ -112,7 +112,8 @@ void AddressableItemContextMenu::aboutToShowSlot()
 void AddressableItemContextMenu::setHasTarget(bool hasTarget)
 {
     this->hasTarget = hasTarget;
-    for (const auto &action : this->actions()) {
-        action->setEnabled(hasTarget);
-    }
+    actionShowInMenu->setEnabled(hasTarget);
+    actionCopyAddress->setEnabled(hasTarget);
+    actionShowXrefs->setEnabled(hasTarget);
+    actionAddcomment->setEnabled(hasTarget);
 }

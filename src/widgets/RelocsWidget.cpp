@@ -25,7 +25,7 @@ QVariant RelocsModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case RelocsModel::VAddrColumn:
-            return RAddressString(reloc.vaddr);
+            return RzAddressString(reloc.vaddr);
         case RelocsModel::TypeColumn:
             return reloc.type;
         case RelocsModel::NameColumn:

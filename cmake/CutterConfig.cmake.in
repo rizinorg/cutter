@@ -1,0 +1,22 @@
+@PACKAGE_INIT@
+
+set(Cutter_RIZIN_BUNDLED @CUTTER_USE_BUNDLED_RIZIN@)
+
+include(CMakeFindDependencyMacro)
+find_dependency(@QT_PREFIX@ COMPONENTS @QT_COMPONENTS@)
+find_dependency(Rizin COMPONENTS Core)
+
+# Make a best guess for a user location from where plugins can be loaded.
+# This can be used in Cutter plugins like
+# set(CUTTER_INSTALL_PLUGDIR "${Cutter_USER_PLUGINDIR}" CACHE STRING "Directory to install Cutter plugin into")
+# see https://doc.qt.io/qt-5/qstandardpaths.html under AppDataLocation
+if(APPLE)
+    set(Cutter_USER_PLUGINDIR "$ENV{HOME}/Library/Application Support/rizin/cutter/plugins/native")
+elseif(WIN32)
+    file(TO_CMAKE_PATH "$ENV{APPDATA}" Cutter_USER_PLUGINDIR)
+    set(Cutter_USER_PLUGINDIR "${Cutter_USER_PLUGINDIR}/rizin/cutter/plugins/native")
+else()
+    set(Cutter_USER_PLUGINDIR "$ENV{HOME}/.local/share/rizin/cutter/plugins/native")
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/CutterTargets.cmake")

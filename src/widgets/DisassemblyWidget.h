@@ -51,8 +51,9 @@ public slots:
     QList<DisassemblyLine> getLines();
 
 protected slots:
-    void on_seekChanged(RVA offset);
+    void on_seekChanged(RVA offset, CutterCore::SeekHistoryType type);
     void refreshIfInRange(RVA offset);
+    void instructionChanged(RVA offset);
     void refreshDisasm(RVA offset = RVA_INVALID);
 
     bool updateMaxLines();
@@ -83,10 +84,12 @@ private:
     RefreshDeferrer *disasmRefresh;
 
     RVA readCurrentDisassemblyOffset();
-    RVA readDisassemblyOffset(QTextCursor tc);
     bool eventFilter(QObject *obj, QEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     QString getWindowTitle() const override;
+
+    int topOffsetHistoryPos = 0;
+    QList<RVA> topOffsetHistory;
 
     QList<RVA> breakpoints;
 
@@ -154,6 +157,7 @@ public:
     DisassemblyLeftPanel(DisassemblyWidget *disas);
     void paintEvent(QPaintEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
+    void clearArrowFrom(RVA offset);
 
 private:
     DisassemblyWidget *disas;

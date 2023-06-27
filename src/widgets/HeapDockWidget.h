@@ -22,7 +22,7 @@ private:
     enum Allocator { Glibc = 0, AllocatorCount };
     Ui::HeapDockWidget *ui;
     MainWindow *main;
-    QWidget* currentHeapWidget = nullptr;
+    QWidget *currentHeapWidget = nullptr;
 };
 
 #endif // HEAPDOCKWIDGET_H

@@ -29,7 +29,7 @@ void EntrypointWidget::fillEntrypoint()
     ui->entrypointTreeWidget->clear();
     for (const EntrypointDescription &i : Core()->getAllEntrypoint()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setText(0, RAddressString(i.vaddr));
+        item->setText(0, RzAddressString(i.vaddr));
         item->setText(1, i.type);
         item->setData(0, Qt::UserRole, QVariant::fromValue(i));
         ui->entrypointTreeWidget->addTopLevelItem(item);

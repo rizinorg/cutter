@@ -1,14 +1,13 @@
-<img width="150" height="150" align="left" style="float: left; margin: 0 10px 0 0;" alt="Cutter logo" src="https://raw.githubusercontent.com/rizinorg/cutter/master/src/img/cutter.svg?sanitize=true">
+<img width="150" height="150" align="left" style="float: left; margin: 0 10px 0 0;" alt="Cutter logo" src="https://raw.githubusercontent.com/rizinorg/cutter/dev/src/img/cutter.svg?sanitize=true">
 
 # Cutter
 
 Cutter is a free and open-source reverse engineering platform powered by [rizin](https://github.com/rizinorg/rizin). It aims at being an advanced and customizable reverse engineering platform while keeping the user experience in mind. Cutter is created by reverse engineers for reverse engineers.  
 
 [![Cutter CI](https://github.com/rizinorg/cutter/workflows/Cutter%20CI/badge.svg)](https://github.com/rizinorg/cutter/actions?query=workflow%3A%22Cutter+CI%22)
-[![Build status](https://ci.appveyor.com/api/projects/status/tn7kttv55b8wf799/branch/master?svg=true)](https://ci.appveyor.com/project/rizinorg/cutter/branch/master)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/rizinorg/cutter.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/rizinorg/cutter/alerts/)
+[![Build status](https://ci.appveyor.com/api/projects/status/tn7kttv55b8wf799/branch/dev?svg=true)](https://ci.appveyor.com/project/rizinorg/cutter/branch/dev)
 
-![Screenshot](https://raw.githubusercontent.com/rizinorg/cutter/master/docs/source/images/screenshot.png)
+![Screenshot](https://raw.githubusercontent.com/rizinorg/cutter/dev/docs/source/images/screenshot.png)
 
 ## Learn more at [cutter.re](https://cutter.re).
 
@@ -17,15 +16,17 @@ Cutter is a free and open-source reverse engineering platform powered by [rizin]
 
 Cutter release binaries for all major platforms (Linux, macOS, Windows) can be downloaded from [GitHub Releases](https://github.com/rizinorg/cutter/releases).
 
-- **Linux**: Download the `.AppImage` file. Then make it executable and run as below or use [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher).
+- **Linux**: If your distribution provides it, check for `cutter` package in your package manager (or `cutter-re`). If not available there, we have setup repositories in [OBS](https://openbuildservice.org/) for some common distributions. Look at [https://software.opensuse.org/package/cutter-re](https://software.opensuse.org/download/package?package=cutter-re&project=home%3ARizinOrg) and follow the instructions there. Otherwise download the `.AppImage` file from our release, make it executable and run as below or use [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher).
 
     `chmod +x Cutter*.AppImage; ./Cutter*.AppImage`
 - **macOS**: Download the `.dmg` file or use [Homebrew Cask](https://github.com/Homebrew/homebrew-cask):
 
     `brew install --cask cutter`
-- **Windows**: Download the `.zip` archive or use [Chocolatey](https://chocolatey.org):
+- **Windows**: Download the `.zip` archive, or use either [Chocolatey](https://chocolatey.org) or [Scoop](https://scoop.sh/):
 
     `choco install cutter`
+    
+    `scoop bucket add extras` followed by `scoop install cutter`
 
 ### Build from sources
 

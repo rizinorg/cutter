@@ -3,18 +3,22 @@
 
 #include "core/CutterCommon.h"
 #include "core/CutterDescriptions.h"
+#include "core/CutterJson.h"
+#include "core/Basefind.h"
 #include "common/BasicInstructionHighlighter.h"
 
 #include <QMap>
 #include <QMenu>
 #include <QDebug>
 #include <QObject>
+#include <QSharedPointer>
 #include <QStringList>
 #include <QMessageBox>
-#include <QJsonDocument>
 #include <QErrorMessage>
 #include <QMutex>
 #include <QDir>
+#include <functional>
+#include <memory>
 
 class AsyncTaskManager;
 class BasicInstructionHighlighter;
@@ -22,16 +26,43 @@ class CutterCore;
 class Decompiler;
 class RizinTask;
 class RizinCmdTask;
+class RizinFunctionTask;
 class RizinTaskDialog;
 
 #include "common/BasicBlockHighlighter.h"
 #include "common/Helpers.h"
 
 #include <rz_project.h>
+#include <memory>
 
 #define Core() (CutterCore::instance())
 
 class RzCoreLocked;
+
+struct CUTTER_EXPORT AddrRefs
+{
+    RVA addr;
+    QString mapname;
+    QString section;
+    QString reg;
+    QString fcn;
+    QString type;
+    QString asm_op;
+    QString perms;
+    ut64 value;
+    bool has_value;
+    QString string;
+    QSharedPointer<AddrRefs> ref;
+};
+
+struct CUTTER_EXPORT RegisterRef
+{
+    ut64 value;
+    AddrRefs ref;
+    QString name;
+};
+
+using PRzAnalysisBytes = std::unique_ptr<RzAnalysisBytes, decltype(rz_analysis_bytes_free) *>;
 
 class CUTTER_EXPORT CutterCore : public QObject
 {
@@ -39,6 +70,7 @@ class CUTTER_EXPORT CutterCore : public QObject
 
     friend class RzCoreLocked;
     friend class RizinTask;
+    friend class Basefind;
 
 public:
     explicit CutterCore(QObject *parent = nullptr);
@@ -55,6 +87,10 @@ public:
     RVA getOffset() const { return core_->offset; }
 
     /* Core functions (commands) */
+    /* Almost the same as core_cmd_raw,
+     * only executes std::function<bool(RzCore *)> instead of char* */
+    QString getFunctionExecOut(const std::function<bool(RzCore *)> &fcn,
+                               const RVA addr = RVA_INVALID);
     static QString sanitizeStringForCommand(QString s);
     /**
      * @brief send a command to Rizin
@@ -64,21 +100,14 @@ public:
      */
     QString cmd(const char *str);
     QString cmd(const QString &str) { return cmd(str.toUtf8().constData()); }
+
     /**
-     * @brief send a command to Rizin asynchronously
-     * @param str the command you want to execute
-     * @param task a shared pointer that will be returned with the Rizin command task
-     * @note connect to the &RizinTask::finished signal to add your own logic once
-     *       the command is finished. Use task->getResult()/getResultJson() for the
-     *       return value.
-     *       Once you have setup connections you can start the task with task->startTask()
-     *       If you want to seek to an address, you should use CutterCore::seek.
+     * @brief send a task to Rizin
+     * @param fcn the task you want to execute
+     * @return execute successful?
      */
-    bool asyncCmd(const char *str, QSharedPointer<RizinCmdTask> &task);
-    bool asyncCmd(const QString &str, QSharedPointer<RizinCmdTask> &task)
-    {
-        return asyncCmd(str.toUtf8().constData(), task);
-    }
+    bool asyncTask(std::function<void *(RzCore *)> fcn, QSharedPointer<RizinTask> &task);
+    void functionTask(std::function<void *(RzCore *)> fcn);
 
     /**
      * @brief Execute a Rizin command \a cmd.  By nature, the API
@@ -115,43 +144,47 @@ public:
         return cmdRawAt(str.toUtf8().constData(), address);
     }
 
-    QJsonDocument cmdj(const char *str);
-    QJsonDocument cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
-    QJsonDocument cmdjAt(const char *str, RVA address);
-    QStringList cmdList(const char *str)
+    class SeekReturn
     {
-        return cmd(str).split(QLatin1Char('\n'), CUTTER_QT_SKIP_EMPTY_PARTS);
+        RVA returnAddress;
+        bool empty = true;
+
+    public:
+        SeekReturn(RVA returnAddress) : returnAddress(returnAddress), empty(false) {}
+        ~SeekReturn()
+        {
+            if (!empty) {
+                Core()->seekSilent(returnAddress);
+            }
+        }
+        SeekReturn(SeekReturn &&from)
+        {
+            if (this != &from) {
+                returnAddress = from.returnAddress;
+                empty = from.empty;
+                from.empty = true;
+            }
+        };
+    };
+
+    SeekReturn seekTemp(RVA address)
+    {
+        SeekReturn returner(getOffset());
+        seekSilent(address);
+        return returner;
     }
-    QStringList cmdList(const QString &str) { return cmdList(str.toUtf8().constData()); }
+
+    enum class SeekHistoryType { New, Undo, Redo };
+
+    CutterJson cmdj(const char *str);
+    CutterJson cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
     QString cmdTask(const QString &str);
-    QJsonDocument cmdjTask(const QString &str);
-    /**
-     * @brief send a command to Rizin and check for ESIL errors
-     * @param command the command you want to execute
-     * @note If you want to seek to an address, you should use CutterCore::seek.
-     */
-    void cmdEsil(const char *command);
-    void cmdEsil(const QString &command) { cmdEsil(command.toUtf8().constData()); }
-    /**
-     * @brief send a command to Rizin and check for ESIL errors
-     * @param command the command you want to execute
-     * @param task a shared pointer that will be returned with the Rizin command task
-     * @note connect to the &RizinTask::finished signal to add your own logic once
-     *       the command is finished. Use task->getResult()/getResultJson() for the
-     *       return value.
-     *       Once you have setup connections you can start the task with task->startTask()
-     *       If you want to seek to an address, you should use CutterCore::seek.
-     */
-    bool asyncCmdEsil(const char *command, QSharedPointer<RizinCmdTask> &task);
-    bool asyncCmdEsil(const QString &command, QSharedPointer<RizinCmdTask> &task)
-    {
-        return asyncCmdEsil(command.toUtf8().constData(), task);
-    }
-    QString getRizinVersionReadable();
+
+    QString getRizinVersionReadable(const char *program = nullptr);
     QString getVersionInformation();
 
-    QJsonDocument parseJson(const char *res, const char *cmd = nullptr);
-    QJsonDocument parseJson(const char *res, const QString &cmd = QString())
+    CutterJson parseJson(char *res, const char *cmd = nullptr);
+    CutterJson parseJson(char *res, const QString &cmd = QString())
     {
         return parseJson(res, cmd.isNull() ? nullptr : cmd.toLocal8Bit().constData());
     }
@@ -187,10 +220,9 @@ public:
     RVA getFunctionStart(RVA addr);
     RVA getFunctionEnd(RVA addr);
     RVA getLastFunctionInstruction(RVA addr);
-    QString cmdFunctionAt(QString addr);
-    QString cmdFunctionAt(RVA addr);
-    QString createFunctionAt(RVA addr);
-    QString createFunctionAt(RVA addr, QString name);
+    QString flagAt(RVA addr);
+    void createFunctionAt(RVA addr);
+    void createFunctionAt(RVA addr, QString name);
     QStringList getDisassemblyPreview(RVA address, int num_of_lines);
 
     /* Flags */
@@ -208,9 +240,10 @@ public:
     void triggerFlagsChanged();
 
     /* Edition functions */
+    PRzAnalysisBytes getRzAnalysisBytesSingle(RVA addr);
     QString getInstructionBytes(RVA addr);
     QString getInstructionOpcode(RVA addr);
-    void editInstruction(RVA addr, const QString &inst);
+    void editInstruction(RVA addr, const QString &inst, bool fillWithNops = false);
     void nopInstruction(RVA addr);
     void jmpReverse(RVA addr);
     void editBytes(RVA addr, const QString &inst);
@@ -235,11 +268,19 @@ public:
     void removeString(RVA addr);
     /**
      * @brief Gets string at address
+     * That function correspond the 'Cs.' command
+     * \param addr The address of the string
+     * @return string at requested address
+     */
+    QString getMetaString(RVA addr);
+    /**
+     * @brief Gets string at address
      * That function calls the 'ps' command
      * \param addr The address of the first byte of the array
      * @return string at requested address
      */
     QString getString(RVA addr);
+    QString getString(RVA addr, uint64_t len, RzStrEnc encoding, bool escape_nl = false);
     void setToData(RVA addr, int size, int repeat = 1);
     int sizeofDataMeta(RVA addr);
 
@@ -260,17 +301,18 @@ public:
     void applyStructureOffset(const QString &structureOffset, RVA offset = RVA_INVALID);
 
     /* Classes */
-    QList<QString> getAllAnalClasses(bool sorted);
-    QList<AnalMethodDescription> getAnalClassMethods(const QString &cls);
-    QList<AnalBaseClassDescription> getAnalClassBaseClasses(const QString &cls);
-    QList<AnalVTableDescription> getAnalClassVTables(const QString &cls);
+    QList<QString> getAllAnalysisClasses(bool sorted);
+    QList<AnalysisMethodDescription> getAnalysisClassMethods(const QString &cls);
+    QList<AnalysisBaseClassDescription> getAnalysisClassBaseClasses(const QString &cls);
+    QList<AnalysisVTableDescription> getAnalysisClassVTables(const QString &cls);
     void createNewClass(const QString &cls);
     void renameClass(const QString &oldName, const QString &newName);
     void deleteClass(const QString &cls);
-    bool getAnalMethod(const QString &cls, const QString &meth, AnalMethodDescription *desc);
-    void renameAnalMethod(const QString &className, const QString &oldMethodName,
-                          const QString &newMethodName);
-    void setAnalMethod(const QString &cls, const AnalMethodDescription &meth);
+    bool getAnalysisMethod(const QString &cls, const QString &meth,
+                           AnalysisMethodDescription *desc);
+    void renameAnalysisMethod(const QString &className, const QString &oldMethodName,
+                              const QString &newMethodName);
+    void setAnalysisMethod(const QString &cls, const AnalysisMethodDescription &meth);
 
     /* File related methods */
     bool loadFile(QString path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = RZ_PERM_R,
@@ -278,7 +320,6 @@ public:
     bool tryFile(QString path, bool rw);
     bool mapFile(QString path, RVA mapaddr);
     void loadScript(const QString &scriptname);
-    QJsonArray getOpenedFiles();
 
     /* Seek functions */
     void seek(QString thing);
@@ -287,7 +328,7 @@ public:
     void seekSilent(QString thing) { seekSilent(math(thing)); }
     void seekPrev();
     void seekNext();
-    void updateSeek();
+    void updateSeek(SeekHistoryType type = SeekHistoryType::New);
     /**
      * @brief Raise a memory widget showing current offset, prefer last active
      * memory widget.
@@ -306,6 +347,10 @@ public:
     RVA getOffset();
     RVA prevOpAddr(RVA startAddr, int count);
     RVA nextOpAddr(RVA startAddr, int count);
+
+    /* SigDB / Flirt functions */
+    void applySignature(const QString &filepath);
+    void createSignature(const QString &filepath);
 
     /* Math functions */
     ut64 math(const QString &expr);
@@ -332,7 +377,12 @@ public:
     QString getConfig(const char *k);
     QString getConfig(const QString &k) { return getConfig(k.toUtf8().constData()); }
     QString getConfigDescription(const char *k);
-    QList<QString> getColorThemes();
+    QStringList getConfigOptions(const char *k);
+    QStringList getColorThemes();
+    QHash<QString, QColor> getTheme();
+    QStringList getThemeKeys();
+    bool setColor(const QString &key, const QString &color);
+    QStringList getConfigVariableSpaces(const QString &key = "");
 
     /* Assembly\Hexdump related methods */
     QByteArray assemble(const QString &code);
@@ -356,8 +406,6 @@ public:
     bool sdbSet(QString path, QString key, QString val);
 
     /* Debug */
-    QJsonDocument getRegistersInfo();
-    QJsonDocument getRegisterValues();
     QString getRegisterName(QString registerRole);
     RVA getProgramCounterValue();
     void setRegister(QString regName, QString regValue);
@@ -371,32 +419,25 @@ public:
      * @param size number of bytes to scan
      * @param depth telescoping depth
      */
-    QList<QJsonObject> getStack(int size = 0x100, int depth = 6);
+    QList<AddrRefs> getStack(int size = 0x100, int depth = 6);
     /**
      * @brief Recursively dereferences pointers starting at the specified address
      *        up to a given depth
      * @param addr telescoping addr
      * @param depth telescoping depth
      */
-    QJsonObject getAddrRefs(RVA addr, int depth);
+    AddrRefs getAddrRefs(RVA addr, int depth);
     /**
      * @brief return a RefDescription with a formatted ref string and configured colors
      * @param ref the "ref" JSON node from getAddrRefs
      */
-    RefDescription formatRefDesc(QJsonObject ref);
+    RefDescription formatRefDesc(const QSharedPointer<AddrRefs> &ref);
     /**
      * @brief Get a list of a given process's threads
      * @param pid The pid of the process, -1 for the currently debugged process
-     * @return JSON object result of dptj
+     * @return List of ProcessDescription
      */
-    QJsonDocument getProcessThreads(int pid);
-    /**
-     * @brief Get a list of a given process's child processes
-     * @param pid The pid of the process, -1 for the currently debugged process
-     * @return JSON object result of dptj
-     */
-    QJsonDocument getChildProcesses(int pid);
-    QJsonDocument getBacktrace();
+    QList<ProcessDescription> getProcessThreads(int pid);
     /**
      * @brief Get a list of heap chunks
      * Uses RZ_API rz_heap_chunks_list to get vector of chunks
@@ -419,7 +460,20 @@ public:
      * @return RzHeapChunkSimple struct pointer for the heap chunk
      */
     RzHeapChunkSimple *getHeapChunk(ut64 addr);
+    /**
+     * @brief Get heap bins of an arena with given base address
+     * (including large, small, fast, unsorted, tcache)
+     * @param arena_addr Base address of the arena
+     * @return QVector of non empty RzHeapBin pointers
+     */
     QVector<RzHeapBin *> getHeapBins(ut64 arena_addr);
+    /**
+     * @brief Write the given chunk header to memory
+     * @param chunkSimple RzHeapChunkSimple pointer of the chunk to be written
+     * @return true if the write succeeded else false
+     */
+    bool writeHeapChunk(RzHeapChunkSimple *chunkSimple);
+    int getArchBits();
     void startDebug();
     void startEmulation();
     /**
@@ -436,7 +490,7 @@ public:
     void continueBackDebug();
     void continueUntilCall();
     void continueUntilSyscall();
-    void continueUntilDebug(QString offset);
+    void continueUntilDebug(ut64 offset);
     void stepDebug();
     void stepOverDebug();
     void stepOutDebug();
@@ -499,15 +553,14 @@ public:
     bool registerDecompiler(Decompiler *decompiler);
 
     RVA getOffsetJump(RVA addr);
-    QJsonDocument getFileInfo();
-    QJsonDocument getSignatureInfo();
-    QJsonDocument getFileVersionInfo();
-    QStringList getStats();
+    CutterJson getSignatureInfo();
+    bool existsFileInfo();
     void setGraphEmpty(bool empty);
     bool isGraphEmpty();
 
-    void getOpcodes();
-    QList<QString> opcodes;
+    bool rebaseBin(RVA base_address);
+
+    void getRegs();
     QList<QString> regs;
     void setSettings();
 
@@ -519,10 +572,10 @@ public:
 
     /* Plugins */
     QStringList getAsmPluginNames();
-    QStringList getAnalPluginNames();
+    QStringList getAnalysisPluginNames();
 
     /* Widgets */
-    QList<RzBinPluginDescription> getRBinPluginDescriptions(const QString &type = QString());
+    QList<RzBinPluginDescription> getBinPluginDescriptions(bool bin = true, bool xtr = true);
     QList<RzIOPluginDescription> getRIOPluginDescriptions();
     QList<RzCorePluginDescription> getRCorePluginDescriptions();
     QList<RzAsmPluginDescription> getRAsmPluginDescriptions();
@@ -531,7 +584,7 @@ public:
     QList<ExportDescription> getAllExports();
     QList<SymbolDescription> getAllSymbols();
     QList<HeaderDescription> getAllHeaders();
-    QList<ZignatureDescription> getAllZignatures();
+    QList<FlirtDescription> getSignaturesDB();
     QList<CommentDescription> getAllComments(const QString &filterType);
     QList<RelocDescription> getAllRelocs();
     QList<StringDescription> getAllStrings();
@@ -577,23 +630,10 @@ public:
 
     /**
      * @brief Fetching the C representation of a given Type
-     * @param name - the name or the type of the given Type / Struct
-     * @param category - the category of the given Type (Struct, Union, Enum, ...)
+     * @param name - the name or the type of the given Type
      * @return The type decleration as C output
      */
-    QString getTypeAsC(QString name, QString category);
-
-    /**
-     * @brief Adds new types
-     * It first uses the rz_parse_c_string() function from Rizin API to parse the
-     * supplied C file (in the form of a string). If there were errors, they are displayed.
-     * If there were no errors, it uses sdb_query_lines() function from Rizin API
-     * to save the parsed types returned by rz_parse_c_string()
-     * \param str Contains the definition of the data types
-     * \return returns an empty QString if there was no error, else returns the error
-     */
-    QString addTypes(const char *str);
-    QString addTypes(const QString &str) { return addTypes(str.toUtf8().constData()); }
+    QString getTypeAsC(QString name);
 
     /**
      * @brief Checks if the given address is mapped to a region
@@ -604,14 +644,17 @@ public:
 
     QList<MemoryMapDescription> getMemoryMap();
     QList<SearchDescription> getAllSearch(QString searchFor, QString space, QString in);
-    BlockStatistics getBlockStatistics(unsigned int blocksCount);
     QList<BreakpointDescription> getBreakpoints();
     QList<ProcessDescription> getAllProcesses();
+    /**
+     * @brief Get the right RzReg object based on the cutter state (debugging vs emulating)
+     */
+    RzReg *getReg();
     /**
      * @brief returns a list of reg values and their telescoped references
      * @param depth telescoping depth
      */
-    QList<QJsonObject> getRegisterRefs(int depth = 6);
+    QList<RegisterRef> getRegisterRefs(int depth = 6);
     QVector<RegisterRefValueDescription> getRegisterRefValues();
     QList<VariableDescription> getVariables(RVA at);
     /**
@@ -628,8 +671,6 @@ public:
     QList<XrefDescription> getXRefsForVariable(QString variableName, bool findWrites, RVA offset);
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString());
-
-    QList<StringDescription> parseStringsJson(const QJsonDocument &doc);
 
     void handleREvent(int type, void *data);
 
@@ -667,6 +708,10 @@ public:
      * @brief Commit write cache to the file on disk.
      */
     void commitWriteCache();
+    /**
+     * @brief Reset write cache.
+     */
+    void resetWriteCache();
 
     /**
      * @brief Enable or disable Write mode. When the file is opened in write mode, any changes to it
@@ -680,6 +725,25 @@ public:
      * @return true if write mode is enabled, otherwise return false.
      */
     bool isWriteModeEnabled();
+
+    /**
+     * @brief   Returns the textual version of global or specific graph.
+     * @param   type     Graph type, example RZ_CORE_GRAPH_TYPE_FUNCALL or RZ_CORE_GRAPH_TYPE_IMPORT
+     * @param   format   Graph format, example RZ_CORE_GRAPH_FORMAT_DOT or RZ_CORE_GRAPH_FORMAT_GML
+     * @param   address  The object address (if global set it to RVA_INVALID)
+     * @return  The textual graph string.
+     */
+    char *getTextualGraphAt(RzCoreGraphType type, RzCoreGraphFormat format, RVA address);
+
+    /**
+     * @brief   Writes a graphviz graph to a file.
+     * @param   path     The file output path
+     * @param   format   The output format (see graph.gv.format)
+     * @param   type     The graph type, example RZ_CORE_GRAPH_TYPE_FUNCALL or
+     * RZ_CORE_GRAPH_TYPE_IMPORT
+     * @param   address  The object address (if global set it to RVA_INVALID)
+     */
+    void writeGraphvizGraphToFile(QString path, QString format, RzCoreGraphType type, RVA address);
 
 signals:
     void refreshAll();
@@ -736,8 +800,9 @@ signals:
     /**
      * @brief seekChanged is emitted each time Rizin's seek value is modified
      * @param offset
+     * @param historyType
      */
-    void seekChanged(RVA offset);
+    void seekChanged(RVA offset, SeekHistoryType type = SeekHistoryType::New);
 
     void toggleDebugView();
 
@@ -771,10 +836,11 @@ private:
     bool iocache = false;
     BasicInstructionHighlighter biHighlighter;
 
-    QSharedPointer<RizinCmdTask> debugTask;
+    QSharedPointer<RizinTask> debugTask;
     RizinTaskDialog *debugTaskDialog;
 
     QVector<QString> getCutterRCFilePaths() const;
+    QList<TypeDescription> getBaseType(RzBaseTypeKind kind, const char *category);
 };
 
 class CUTTER_EXPORT RzCoreLocked

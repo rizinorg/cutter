@@ -119,8 +119,9 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
 
     p.setPen(palette().color(QPalette::WindowText));
     // Render node text
-    auto x = block.x + padding;
-    int y = block.y + padding + p.fontMetrics().ascent();
+    QFontMetrics fm = QFontMetrics(p.font());
+    auto x = block.x + padding / 2;
+    int y = block.y + padding / 2 + fm.ascent();
     p.drawText(QPoint(x, y), content.text);
 }
 
@@ -222,7 +223,7 @@ void SimpleTextGraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEven
                                          QPoint /*pos*/)
 {
     if (haveAddresses) {
-        QToolTip::showText(event->globalPos(), RAddressString(blockContent[block.entry].address));
+        QToolTip::showText(event->globalPos(), RzAddressString(blockContent[block.entry].address));
     }
 }
 

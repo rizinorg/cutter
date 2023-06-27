@@ -53,7 +53,7 @@ private slots:
      *     - Seek changed to an offset contained in the decompiled function.
      *     - Auto-refresh is disabled.
      */
-    void seekChanged();
+    void seekChanged(RVA /* addr */, CutterCore::SeekHistoryType type);
     void decompilationFinished(RzAnnotatedCode *code);
 
 private:
@@ -72,8 +72,8 @@ private:
     bool decompilerBusy;
 
     bool seekFromCursor;
-    int scrollerHorizontal;
-    int scrollerVertical;
+    int historyPos;
+    QVector<QPair<int, int>> scrollHistory;
     RVA previousFunctionAddr;
     RVA decompiledFunctionAddr;
     std::unique_ptr<RzAnnotatedCode, void (*)(RzAnnotatedCode *)> code;
@@ -198,6 +198,18 @@ private:
      * @param endPos - Position of the end of the range(inclusive).
      */
     void gatherBreakpointInfo(RzAnnotatedCode &codeDecompiled, size_t startPos, size_t endPos);
+    /**
+     * @brief Finds the global variable reference that's closes to the specified position in the
+     * decompiled code. Same as offsetForPosition but for global references only
+     *
+     * @note If no global reference annotations are found at the given position, an RVA_INVALID is
+     * returned
+     *
+     * @param pos - Position in the decompiled code
+     * @return Address of the referenced global for the specified position, or RVA_INVALID if none
+     * is found
+     */
+    ut64 findReference(size_t pos);
     /**
      * @brief Finds the offset that's closest to the specified position in the decompiled code.
      *

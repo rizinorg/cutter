@@ -9,15 +9,6 @@ Highlighter::Highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent)
 
     core = Core();
 
-    keywordFormat.setForeground(QColor(65, 131, 215));
-
-    for (const QString &pattern : this->core->opcodes) {
-        rule.pattern.setPattern("\\b" + pattern + "\\b");
-        rule.pattern.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
-        rule.format = keywordFormat;
-        highlightingRules.append(rule);
-    }
-
     regFormat.setForeground(QColor(236, 100, 75));
 
     for (const QString &pattern : this->core->regs) {

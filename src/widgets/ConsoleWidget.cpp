@@ -17,6 +17,7 @@
 #include "WidgetShortcuts.h"
 
 #ifdef Q_OS_WIN
+#    include <windows.h>
 #    include <io.h>
 #    define dup2 _dup2
 #    define dup _dup
@@ -223,7 +224,7 @@ void ConsoleWidget::executeCommand(const QString &command)
     }
     ui->rzInputLineEdit->setEnabled(false);
 
-    QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + command;
+    QString cmd_line = "[" + RzAddressString(Core()->getOffset()) + "]> " + command;
     addOutput(cmd_line);
 
     RVA oldOffset = Core()->getOffset();
@@ -424,7 +425,9 @@ void ConsoleWidget::processQueuedOutput()
     while (pipeSocket->canReadLine()) {
         QString output = QString(pipeSocket->readLine());
 
-        fprintf(origStderr, "%s", output.toStdString().c_str());
+        if (origStderr) {
+            fprintf(origStderr, "%s", output.toStdString().c_str());
+        }
 
         // Get the last segment that wasn't overwritten by carriage return
         output = output.trimmed();
@@ -449,7 +452,7 @@ void ConsoleWidget::redirectOutput()
 
     pipeSocket = new QLocalSocket(this);
 
-    origStdin = fdopen(dup(fileno(stderr)), "r");
+    origStdin = fdopen(dup(fileno(stdin)), "r");
     origStderr = fdopen(dup(fileno(stderr)), "a");
     origStdout = fdopen(dup(fileno(stdout)), "a");
 #ifdef Q_OS_WIN

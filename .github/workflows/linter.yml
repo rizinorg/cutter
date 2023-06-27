@@ -3,10 +3,12 @@ name: "Linter"
 on:
   push:
     branches:
-    - master
+    - dev
+    - stable
   pull_request:
     branches:
-    - master
+    - dev
+    - stable
 
 jobs:
   changes:
@@ -14,7 +16,7 @@ jobs:
     outputs:
       clang-format: ${{ steps.filter.outputs.clang-format }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: dorny/paths-filter@v2
       id: filter
       with:
@@ -31,7 +33,7 @@ jobs:
     if: ${{ needs.changes.outputs.clang-format == 'true' }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Install wget
       run: sudo apt --assume-yes install wget

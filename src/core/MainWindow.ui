@@ -77,6 +77,9 @@
     <addaction name="actionImportPDB"/>
     <addaction name="actionAnalyze"/>
     <addaction name="separator"/>
+    <addaction name="actionApplySigFromFile"/>
+    <addaction name="actionCreateNewSig"/>
+    <addaction name="separator"/>
     <addaction name="menuSetMode"/>
     <addaction name="actionCommitChanges"/>
     <addaction name="separator"/>
@@ -124,6 +127,12 @@
     <addaction name="actionManageLayouts"/>
     <addaction name="actionSaveLayout"/>
     <addaction name="menuLayouts"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionBaseFind"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -181,6 +190,7 @@
    <addaction name="menuView"/>
    <addaction name="menuWindows"/>
    <addaction name="menuDebug"/>
+   <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -228,6 +238,11 @@
    </property>
    <property name="toolTip">
     <string>Zen mode</string>
+   </property>
+  </action>
+  <action name="actionBaseFind">
+   <property name="text">
+    <string>BaseFind</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -738,6 +753,16 @@
   <action name="actionExport_as_code">
    <property name="text">
     <string>Export as code</string>
+   </property>
+  </action>
+  <action name="actionApplySigFromFile">
+   <property name="text">
+    <string>Apply Signature From File</string>
+   </property>
+  </action>
+  <action name="actionCreateNewSig">
+   <property name="text">
+    <string>Create New Signature File</string>
    </property>
   </action>
   <action name="actionExtraHexdump">

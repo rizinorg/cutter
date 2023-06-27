@@ -3,7 +3,6 @@
 #include "core/MainWindow.h"
 #include "common/UpdateWorker.h"
 #include "CutterConfig.h"
-#include "common/CrashHandler.h"
 #include "common/SettingsUpgrade.h"
 
 #include <QJsonObject>
@@ -12,27 +11,30 @@
 
 /**
  * @brief Attempt to connect to a parent console and configure outputs.
- *
- * @note Doesn't do anything if the exe wasn't executed from a console.
  */
 #ifdef Q_OS_WIN
+#include <windows.h>
+
 static void connectToConsole()
 {
-    if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
-        return;
-    }
+    BOOL attached = AttachConsole(ATTACH_PARENT_PROCESS);
 
-    // Avoid reconfiguring stderr/stdout if one of them is already connected to a stream.
+    // Avoid reconfiguring stdin/stderr/stdout if one of them is already connected to a stream.
     // This can happen when running with stdout/stderr redirected to a file.
-    if (0 > fileno(stdout)) {
-        // Overwrite FD 1 and 2 for the benefit of any code that uses the FDs
+    if (0 > fileno(stdin)) {
+        // Overwrite FD 0, FD 1 and 2 for the benefit of any code that uses the FDs
         // directly.  This is safe because the CRT allocates FDs 0, 1 and
         // 2 at startup even if they don't have valid underlying Windows
         // handles.  This means we won't be overwriting an FD created by
         // _open() after startup.
+        _close(0);
+
+        freopen(attached ? "CONIN$" : "NUL", "r+", stdin);
+    }
+    if (0 > fileno(stdout)) {
         _close(1);
 
-        if (freopen("CONOUT$", "a+", stdout)) {
+        if (freopen(attached ? "CONOUT$" : "NUL", "a+", stdout)) {
             // Avoid buffering stdout/stderr since IOLBF is replaced by IOFBF in Win32.
             setvbuf(stdout, nullptr, _IONBF, 0);
         }
@@ -40,7 +42,7 @@ static void connectToConsole()
     if (0 > fileno(stderr)) {
         _close(2);
 
-        if (freopen("CONOUT$", "a+", stderr)) {
+        if (freopen(attached ? "CONOUT$" : "NUL", "a+", stderr)) {
             setvbuf(stderr, nullptr, _IONBF, 0);
         }
     }
@@ -52,17 +54,6 @@ static void connectToConsole()
 
 int main(int argc, char *argv[])
 {
-#ifdef CUTTER_ENABLE_CRASH_REPORTS
-    if (argc >= 3 && QString::fromLocal8Bit(argv[1]) == "--start-crash-handler") {
-        QApplication app(argc, argv);
-        QString dumpLocation = QString::fromLocal8Bit(argv[2]);
-        showCrashDialog(dumpLocation);
-        return 0;
-    }
-
-    initCrashHandler();
-#endif
-
 #ifdef Q_OS_WIN
     connectToConsole();
 #endif
@@ -71,6 +62,9 @@ int main(int argc, char *argv[])
     qRegisterMetaType<QList<FunctionDescription>>();
 
     QCoreApplication::setOrganizationName("rizin");
+#ifndef Q_OS_MACOS // don't set on macOS so that it doesn't affect config path there
+    QCoreApplication::setOrganizationDomain("rizin.re");
+#endif
     QCoreApplication::setApplicationName("cutter");
 
     // Importing settings after setting rename, needs separate handling in addition to regular version to version upgrade.

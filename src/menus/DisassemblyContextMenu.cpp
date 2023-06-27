@@ -7,7 +7,6 @@
 #include "dialogs/EditVariablesDialog.h"
 #include "dialogs/SetToDataDialog.h"
 #include "dialogs/EditFunctionDialog.h"
-#include "dialogs/LinkTypeDialog.h"
 #include "dialogs/EditStringDialog.h"
 #include "dialogs/BreakpointsDialog.h"
 #include "MainWindow.h"
@@ -42,7 +41,6 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
       actionDeleteComment(this),
       actionDeleteFlag(this),
       actionDeleteFunction(this),
-      actionLinkType(this),
       actionSetBaseBinary(this),
       actionSetBaseOctal(this),
       actionSetBaseDecimal(this),
@@ -122,10 +120,6 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     connect(structureOffsetMenu, &QMenu::triggered, this,
             &DisassemblyContextMenu::on_actionStructureOffsetMenu_triggered);
 
-    initAction(&actionLinkType, tr("Link Type to Address"), SLOT(on_actionLinkType_triggered()),
-               getLinkTypeSequence());
-    addAction(&actionLinkType);
-
     addSetAsMenu();
 
     addSeparator();
@@ -167,9 +161,14 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 
 DisassemblyContextMenu::~DisassemblyContextMenu() {}
 
+QWidget *DisassemblyContextMenu::parentForDialog()
+{
+    return parentWidget();
+}
+
 void DisassemblyContextMenu::addSetBaseMenu()
 {
-    setBaseMenu = addMenu(tr("Set Immediate Base to..."));
+    setBaseMenu = addMenu(tr("Set base of immediate value to.."));
 
     initAction(&actionSetBaseBinary, tr("Binary"));
     setBaseMenu->addAction(&actionSetBaseBinary);
@@ -319,34 +318,32 @@ void DisassemblyContextMenu::addDebugMenu()
 
 QVector<DisassemblyContextMenu::ThingUsedHere> DisassemblyContextMenu::getThingUsedHere(RVA offset)
 {
-    QVector<ThingUsedHere> result;
-    const QJsonArray array = Core()->cmdj("anj @ " + QString::number(offset)).array();
-    result.reserve(array.size());
-    for (const auto &thing : array) {
-        auto obj = thing.toObject();
-        RVA offset = obj["offset"].toVariant().toULongLong();
-        QString name;
-
-        // If real names display is enabled, show flag's real name instead of full flag name
-        if (Config()->getConfigBool("asm.flags.real") && obj.contains("realname")) {
-            name = obj["realname"].toString();
-        } else {
-            name = obj["name"].toString();
-        }
-
-        QString typeString = obj["type"].toString();
-        ThingUsedHere::Type type = ThingUsedHere::Type::Address;
-        if (typeString == "var") {
-            type = ThingUsedHere::Type::Var;
-        } else if (typeString == "flag") {
-            type = ThingUsedHere::Type::Flag;
-        } else if (typeString == "function") {
-            type = ThingUsedHere::Type::Function;
-        } else if (typeString == "address") {
-            type = ThingUsedHere::Type::Address;
-        }
-        result.push_back(ThingUsedHere { name, offset, type });
+    RzCoreLocked core(Core());
+    auto p = fromOwned(rz_core_analysis_name(core, offset), rz_core_analysis_name_free);
+    if (!p) {
+        return {};
     }
+
+    QVector<ThingUsedHere> result;
+    ThingUsedHere th;
+    th.offset = p->offset;
+    th.name = Config()->getConfigBool("asm.flags.real") && p->realname ? p->realname : p->name;
+    switch (p->type) {
+    case RZ_CORE_ANALYSIS_NAME_TYPE_FLAG:
+        th.type = ThingUsedHere::Type::Flag;
+        break;
+    case RZ_CORE_ANALYSIS_NAME_TYPE_FUNCTION:
+        th.type = ThingUsedHere::Type::Function;
+        break;
+    case RZ_CORE_ANALYSIS_NAME_TYPE_VAR:
+        th.type = ThingUsedHere::Type::Var;
+        break;
+    case RZ_CORE_ANALYSIS_NAME_TYPE_ADDRESS:
+    default:
+        th.type = ThingUsedHere::Type::Address;
+        break;
+    }
+    result.push_back(th);
     return result;
 }
 
@@ -409,7 +406,7 @@ void DisassemblyContextMenu::buildRenameMenu(ThingUsedHere *tuh)
     actionDeleteFlag.setVisible(false);
     if (tuh->type == ThingUsedHere::Type::Address) {
         doRenameAction = RENAME_ADD_FLAG;
-        doRenameInfo.name = RAddressString(tuh->offset);
+        doRenameInfo.name = RzAddressString(tuh->offset);
         doRenameInfo.addr = tuh->offset;
         actionRename.setText(tr("Add flag at %1 (used here)").arg(doRenameInfo.name));
     } else if (tuh->type == ThingUsedHere::Type::Function) {
@@ -488,31 +485,33 @@ void DisassemblyContextMenu::setupRenaming()
 void DisassemblyContextMenu::aboutToShowSlot()
 {
     // check if set immediate base menu makes sense
-    QJsonObject instObject =
-            Core()->cmdj("aoj @ " + QString::number(offset)).array().first().toObject();
-    auto keys = instObject.keys();
-    bool immBase = keys.contains("val") || keys.contains("ptr");
+    auto ab = Core()->getRzAnalysisBytesSingle(offset);
+
+    bool immBase = ab && ab->op && (ab->op->val || ab->op->ptr);
     setBaseMenu->menuAction()->setVisible(immBase);
     setBitsMenu->menuAction()->setVisible(true);
 
     // Create structure offset menu if it makes sense
     QString memBaseReg; // Base register
-    QVariant memDisp; // Displacement
-    if (instObject.contains("opex") && instObject["opex"].toObject().contains("operands")) {
+    st64 memDisp = 0; // Displacement
+
+    if (ab && ab->op) {
+        const char *opexstr = RZ_STRBUF_SAFEGET(&ab->op->opex);
+        CutterJson operands = Core()->parseJson(strdup(opexstr), nullptr);
+
         // Loop through both the operands of the instruction
-        for (const QJsonValue value : instObject["opex"].toObject()["operands"].toArray()) {
-            QJsonObject operand = value.toObject();
-            if (operand.contains("type") && operand["type"].toString() == "mem"
-                && operand.contains("base") && !operand["base"].toString().contains("bp")
-                && operand.contains("disp") && operand["disp"].toVariant().toLongLong() > 0) {
+        for (const CutterJson operand : operands) {
+            if (operand["type"].toString() == "mem" && !operand["base"].toString().contains("bp")
+                && operand["disp"].toSt64() > 0) {
 
                 // The current operand is the one which has an immediate displacement
                 memBaseReg = operand["base"].toString();
-                memDisp = operand["disp"].toVariant();
+                memDisp = operand["disp"].toSt64();
                 break;
             }
         }
     }
+
     if (memBaseReg.isEmpty()) {
         // hide structure offset menu
         structureOffsetMenu->menuAction()->setVisible(false);
@@ -521,15 +520,19 @@ void DisassemblyContextMenu::aboutToShowSlot()
         structureOffsetMenu->menuAction()->setVisible(true);
         structureOffsetMenu->clear();
 
-        // Get the possible offsets using the "ahts" command
-        // TODO: add ahtj command to Rizin and then use it here
-        QStringList ret = Core()->cmdList("ahts " + memDisp.toString());
-        for (const QString &val : ret) {
-            if (val.isEmpty()) {
-                continue;
+        RzCoreLocked core(Core());
+        RzList *typeoffs = rz_type_db_get_by_offset(core->analysis->typedb, memDisp);
+        if (typeoffs) {
+            for (const auto &ty : CutterRzList<RzTypePath>(typeoffs)) {
+                if (RZ_STR_ISEMPTY(ty->path)) {
+                    continue;
+                }
+                structureOffsetMenu->addAction("[" + memBaseReg + " + " + ty->path + "]")
+                        ->setData(QString(ty->path));
             }
-            structureOffsetMenu->addAction("[" + memBaseReg + " + " + val + "]")->setData(val);
+            rz_list_free(typeoffs);
         }
+
         if (structureOffsetMenu->isEmpty()) {
             // No possible offset was found so hide the menu
             structureOffsetMenu->menuAction()->setVisible(false);
@@ -539,10 +542,10 @@ void DisassemblyContextMenu::aboutToShowSlot()
     actionAnalyzeFunction.setVisible(true);
 
     // Show the option to remove a defined string only if a string is defined in this address
-    QString stringDefinition = Core()->cmdRawAt("Cs.", offset);
+    QString stringDefinition = Core()->getMetaString(offset);
     actionSetAsStringRemove.setVisible(!stringDefinition.isEmpty());
 
-    QString comment = Core()->cmdRawAt("CC.", offset);
+    QString comment = Core()->getCommentAt(offset);
 
     if (comment.isNull() || comment.isEmpty()) {
         actionDeleteComment.setVisible(false);
@@ -667,11 +670,6 @@ QKeySequence DisassemblyContextMenu::getDisplayOptionsSequence() const
     return {}; // TODO insert correct sequence
 }
 
-QKeySequence DisassemblyContextMenu::getLinkTypeSequence() const
-{
-    return { Qt::Key_L };
-}
-
 QList<QKeySequence> DisassemblyContextMenu::getAddBPSequence() const
 {
     return { Qt::Key_F2, Qt::CTRL | Qt::Key_B };
@@ -697,8 +695,8 @@ void DisassemblyContextMenu::on_actionEditInstruction_triggered()
     if (!ioModesController.prepareForWriting()) {
         return;
     }
-    EditInstructionDialog e(EDIT_TEXT, this);
-    e.setWindowTitle(tr("Edit Instruction at %1").arg(RAddressString(offset)));
+    EditInstructionDialog e(EDIT_TEXT, parentForDialog());
+    e.setWindowTitle(tr("Edit Instruction at %1").arg(RzAddressString(offset)));
 
     QString oldInstructionOpcode = Core()->getInstructionOpcode(offset);
     QString oldInstructionBytes = Core()->getInstructionBytes(offset);
@@ -706,9 +704,10 @@ void DisassemblyContextMenu::on_actionEditInstruction_triggered()
     e.setInstruction(oldInstructionOpcode);
 
     if (e.exec()) {
+        bool fillWithNops = e.needsNops();
         QString userInstructionOpcode = e.getInstruction();
         if (userInstructionOpcode != oldInstructionOpcode) {
-            Core()->editInstruction(offset, userInstructionOpcode);
+            Core()->editInstruction(offset, userInstructionOpcode, fillWithNops);
         }
     }
 }
@@ -723,18 +722,13 @@ void DisassemblyContextMenu::on_actionNopInstruction_triggered()
 
 void DisassemblyContextMenu::showReverseJmpQuery()
 {
-    QString type;
-
-    QJsonArray array = Core()->cmdj("pdj 1 @ " + RAddressString(offset)).array();
-    if (array.isEmpty()) {
+    actionJmpReverse.setVisible(false);
+    auto ab = Core()->getRzAnalysisBytesSingle(offset);
+    if (!(ab && ab->op)) {
         return;
     }
-
-    type = array.first().toObject()["type"].toString();
-    if (type == "cjmp") {
+    if (ab->op->type == RZ_ANALYSIS_OP_TYPE_CJMP) {
         actionJmpReverse.setVisible(true);
-    } else {
-        actionJmpReverse.setVisible(false);
     }
 }
 
@@ -751,8 +745,8 @@ void DisassemblyContextMenu::on_actionEditBytes_triggered()
     if (!ioModesController.prepareForWriting()) {
         return;
     }
-    EditInstructionDialog e(EDIT_BYTES, this);
-    e.setWindowTitle(tr("Edit Bytes at %1").arg(RAddressString(offset)));
+    EditInstructionDialog e(EDIT_BYTES, parentForDialog());
+    e.setWindowTitle(tr("Edit Bytes at %1").arg(RzAddressString(offset)));
 
     QString oldBytes = Core()->getInstructionBytes(offset);
     e.setInstruction(oldBytes);
@@ -773,7 +767,7 @@ void DisassemblyContextMenu::on_actionCopy_triggered()
 void DisassemblyContextMenu::on_actionCopyAddr_triggered()
 {
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(RAddressString(offset));
+    clipboard->setText(RzAddressString(offset));
 }
 
 void DisassemblyContextMenu::on_actionAddBreakpoint_triggered()
@@ -785,31 +779,30 @@ void DisassemblyContextMenu::on_actionAdvancedBreakpoint_triggered()
 {
     int index = Core()->breakpointIndexAt(offset);
     if (index >= 0) {
-        BreakpointsDialog::editBreakpoint(Core()->getBreakpointAt(offset), this);
+        BreakpointsDialog::editBreakpoint(Core()->getBreakpointAt(offset), parentForDialog());
     } else {
-        BreakpointsDialog::createNewBreakpoint(offset, this);
+        BreakpointsDialog::createNewBreakpoint(offset, parentForDialog());
     }
 }
 
 void DisassemblyContextMenu::on_actionContinueUntil_triggered()
 {
-    Core()->continueUntilDebug(RAddressString(offset));
+    Core()->continueUntilDebug(offset);
 }
 
 void DisassemblyContextMenu::on_actionSetPC_triggered()
 {
     QString progCounterName = Core()->getRegisterName("PC");
-    Core()->setRegister(progCounterName, RAddressString(offset).toUpper());
+    Core()->setRegister(progCounterName, RzAddressString(offset).toUpper());
 }
 
 void DisassemblyContextMenu::on_actionAddComment_triggered()
 {
-    CommentsDialog::addOrEditComment(offset, this);
+    CommentsDialog::addOrEditComment(offset, parentForDialog());
 }
 
 void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
 {
-    bool ok;
     RVA flagOffset;
     QString name = Core()->nearestFlag(offset, &flagOffset);
     if (name.isEmpty() || flagOffset != offset) {
@@ -822,12 +815,20 @@ void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
     }
 
     // Create dialog
-    QString functionName =
-            QInputDialog::getText(this, tr("New function at %1").arg(RAddressString(offset)),
-                                  tr("Function name:"), QLineEdit::Normal, name, &ok);
+    QInputDialog inputDialog(parentForDialog());
+    inputDialog.resize(500, 100);
+    inputDialog.setWindowTitle(tr("New function at %1").arg(RzAddressString(offset)));
+    inputDialog.setLabelText(tr("Function name:"));
+    inputDialog.setTextValue(name);
+    inputDialog.setWindowFlags(Qt::Window | Qt::WindowMinimizeButtonHint);
 
-    // If user accepted
-    if (ok && !functionName.isEmpty()) {
+    if (inputDialog.exec() != QDialog::Accepted) {
+        return;
+    }
+
+    QString functionName = inputDialog.textValue().trimmed();
+
+    if (!functionName.isEmpty()) {
         Core()->createFunctionAt(offset, functionName);
     }
 }
@@ -843,12 +844,12 @@ void DisassemblyContextMenu::on_actionRename_triggered()
             Core()->renameFunction(doRenameInfo.addr, newName);
         }
     } else if (doRenameAction == RENAME_FLAG || doRenameAction == RENAME_ADD_FLAG) {
-        FlagDialog dialog(doRenameInfo.addr, this->mainWindow);
+        FlagDialog dialog(doRenameInfo.addr, parentForDialog());
         ok = dialog.exec();
     } else if (doRenameAction == RENAME_LOCAL) {
         RzAnalysisFunction *fcn = Core()->functionIn(offset);
         if (fcn) {
-            EditVariablesDialog dialog(fcn->addr, curHighlightedWord, this->mainWindow);
+            EditVariablesDialog dialog(fcn->addr, curHighlightedWord, parentForDialog());
             if (!dialog.empty()) {
                 // Don't show the dialog if there are no variables
                 ok = dialog.exec();
@@ -877,7 +878,7 @@ void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
         return;
     }
 
-    EditVariablesDialog dialog(fcn->addr, curHighlightedWord, this);
+    EditVariablesDialog dialog(fcn->addr, curHighlightedWord, parentForDialog());
     if (dialog.empty()) { // don't show the dialog if there are no variables
         return;
     }
@@ -887,7 +888,7 @@ void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
 void DisassemblyContextMenu::on_actionXRefs_triggered()
 {
     XrefsDialog dialog(mainWindow);
-    dialog.fillRefsForAddress(offset, RAddressString(offset), false);
+    dialog.fillRefsForAddress(offset, RzAddressString(offset), false);
     dialog.exec();
 }
 
@@ -902,7 +903,7 @@ void DisassemblyContextMenu::on_actionXRefsForVariables_triggered()
 
 void DisassemblyContextMenu::on_actionDisplayOptions_triggered()
 {
-    PreferencesDialog dialog(this->window());
+    PreferencesDialog dialog(parentForDialog());
     dialog.showSection(PreferencesDialog::Section::Disassembly);
     dialog.exec();
 }
@@ -924,7 +925,7 @@ void DisassemblyContextMenu::on_actionSetAsStringRemove_triggered()
 
 void DisassemblyContextMenu::on_actionSetAsStringAdvanced_triggered()
 {
-    EditStringDialog dialog(parentWidget());
+    EditStringDialog dialog(parentForDialog());
     const int predictedStrSize = Core()->getString(offset).size();
     dialog.setStringSizeValue(predictedStrSize);
     dialog.setStringStartAddress(offset);
@@ -974,7 +975,7 @@ void DisassemblyContextMenu::on_actionSetToData_triggered()
 
 void DisassemblyContextMenu::on_actionSetToDataEx_triggered()
 {
-    SetToDataDialog dialog(offset, this->window());
+    SetToDataDialog dialog(offset, parentForDialog());
     if (!dialog.exec()) {
         return;
     }
@@ -984,15 +985,6 @@ void DisassemblyContextMenu::on_actionSetToDataEx_triggered()
 void DisassemblyContextMenu::on_actionStructureOffsetMenu_triggered(QAction *action)
 {
     Core()->applyStructureOffset(action->data().toString(), offset);
-}
-
-void DisassemblyContextMenu::on_actionLinkType_triggered()
-{
-    LinkTypeDialog dialog(mainWindow);
-    if (!dialog.setDefaultAddress(curHighlightedWord)) {
-        dialog.setDefaultAddress(RAddressString(offset));
-    }
-    dialog.exec();
 }
 
 void DisassemblyContextMenu::on_actionDeleteComment_triggered()
@@ -1013,7 +1005,7 @@ void DisassemblyContextMenu::on_actionDeleteFunction_triggered()
 void DisassemblyContextMenu::on_actionEditFunction_triggered()
 {
     RzCore *core = Core()->core();
-    EditFunctionDialog dialog(mainWindow);
+    EditFunctionDialog dialog(parentForDialog());
     RzAnalysisFunction *fcn = rz_analysis_get_fcn_in(core->analysis, offset, 0);
 
     if (fcn) {
@@ -1025,19 +1017,34 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
 
         dialog.setStackSizeText(QString::number(fcn->stack));
 
-        QStringList callConList = Core()->cmdRaw("afcl").split("\n");
-        callConList.removeLast();
+        QStringList callConList;
+        RzList *list = rz_analysis_calling_conventions(core->analysis);
+        if (!list) {
+            return;
+        }
+        RzListIter *iter;
+        const char *cc;
+        CutterRzListForeach (list, iter, const char, cc) {
+            callConList << cc;
+        }
+        rz_list_free(list);
+
         dialog.setCallConList(callConList);
         dialog.setCallConSelected(fcn->cc);
 
         if (dialog.exec()) {
             QString new_name = dialog.getNameText();
-            Core()->renameFunction(fcn->addr, new_name);
+            rz_core_analysis_function_rename(core, fcn->addr, new_name.toStdString().c_str());
             QString new_start_addr = dialog.getStartAddrText();
             fcn->addr = Core()->math(new_start_addr);
             QString new_stack_size = dialog.getStackSizeText();
             fcn->stack = int(Core()->math(new_stack_size));
-            Core()->cmdRaw("afc " + dialog.getCallConSelected());
+
+            QByteArray newCC = dialog.getCallConSelected().toUtf8();
+            if (!newCC.isEmpty() && rz_analysis_cc_exist(core->analysis, newCC.constData())) {
+                fcn->cc = rz_str_constpool_get(&core->analysis->constpool, newCC.constData());
+            }
+
             emit Core()->functionsChanged();
         }
     }
