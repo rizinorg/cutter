@@ -3,6 +3,7 @@
 #include "dialogs/EditInstructionDialog.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/FlagDialog.h"
+#include "dialogs/GlobalVariableDialog.h"
 #include "dialogs/XrefsDialog.h"
 #include "dialogs/EditVariablesDialog.h"
 #include "dialogs/SetToDataDialog.h"
@@ -34,6 +35,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
       actionAnalyzeFunction(this),
       actionEditFunction(this),
       actionRename(this),
+      actionGlobalVar(this),
       actionSetFunctionVarTypes(this),
       actionXRefs(this),
       actionXRefsForVariables(this),
@@ -83,10 +85,6 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
                getCommentSequence());
     addAction(&actionAddComment);
 
-    initAction(&actionRename, tr("Rename or add flag"), SLOT(on_actionRename_triggered()),
-               getRenameSequence());
-    addAction(&actionRename);
-
     initAction(&actionSetFunctionVarTypes, tr("Re-type Local Variables"),
                SLOT(on_actionSetFunctionVarTypes_triggered()), getRetypeSequence());
     addAction(&actionSetFunctionVarTypes);
@@ -111,6 +109,8 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     addAction(&actionAnalyzeFunction);
 
     addSeparator();
+
+    addAddAtMenu();
 
     addSetBaseMenu();
 
@@ -164,6 +164,19 @@ DisassemblyContextMenu::~DisassemblyContextMenu() {}
 QWidget *DisassemblyContextMenu::parentForDialog()
 {
     return parentWidget();
+}
+
+void DisassemblyContextMenu::addAddAtMenu()
+{
+    setAsMenu = addMenu(tr("Add at..."));
+
+    initAction(&actionRename, tr("Rename or add flag"), SLOT(on_actionRename_triggered()),
+               getRenameSequence());
+    setAsMenu->addAction(&actionRename);
+
+    initAction(&actionGlobalVar, tr("Change or add global variable"),
+               SLOT(on_actionGlobalVar_triggered()), getGlobalVarSequence());
+    setAsMenu->addAction(&actionGlobalVar);
 }
 
 void DisassemblyContextMenu::addSetBaseMenu()
@@ -479,7 +492,12 @@ void DisassemblyContextMenu::setupRenaming()
 
     // Now, build the renaming menu and show it
     buildRenameMenu(tuh);
+
+    auto name = RzAddressString(tuh->offset);
+    actionGlobalVar.setText(tr("Add or change global variable at %1 (used here)").arg(name));
+
     actionRename.setVisible(true);
+    actionGlobalVar.setVisible(true);
 }
 
 void DisassemblyContextMenu::aboutToShowSlot()
@@ -653,6 +671,11 @@ QKeySequence DisassemblyContextMenu::getSetToDataExSequence() const
 QKeySequence DisassemblyContextMenu::getRenameSequence() const
 {
     return { Qt::Key_N };
+}
+
+QKeySequence DisassemblyContextMenu::getGlobalVarSequence() const
+{
+    return { Qt::Key_G };
 }
 
 QKeySequence DisassemblyContextMenu::getRetypeSequence() const
@@ -861,6 +884,18 @@ void DisassemblyContextMenu::on_actionRename_triggered()
         qWarning() << "Unhandled renaming action: " << doRenameAction;
         assert(false);
     }
+
+    if (ok) {
+        // Rebuild menu in case the user presses the rename shortcut directly before clicking
+        setupRenaming();
+    }
+}
+
+void DisassemblyContextMenu::on_actionGlobalVar_triggered()
+{
+    bool ok = false;
+    GlobalVariableDialog dialog(doRenameInfo.addr, parentForDialog());
+    ok = dialog.exec();
 
     if (ok) {
         // Rebuild menu in case the user presses the rename shortcut directly before clicking

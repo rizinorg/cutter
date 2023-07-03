@@ -26,6 +26,7 @@ class FunctionsWidget;
 class ImportsWidget;
 class ExportsWidget;
 class SymbolsWidget;
+class GlobalsWidget;
 class RelocsWidget;
 class CommentsWidget;
 class StringsWidget;
@@ -240,6 +241,7 @@ private:
     TypesWidget *typesDock = nullptr;
     SearchWidget *searchDock = nullptr;
     SymbolsWidget *symbolsDock = nullptr;
+    GlobalsWidget *globalsDock = nullptr;
     RelocsWidget *relocsDock = nullptr;
     CommentsWidget *commentsDock = nullptr;
     StringsWidget *stringsDock = nullptr;

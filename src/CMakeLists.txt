@@ -18,6 +18,7 @@ set(SOURCES
     dialogs/CommentsDialog.cpp
     dialogs/EditInstructionDialog.cpp
     dialogs/FlagDialog.cpp
+    dialogs/GlobalVariableDialog.cpp
     dialogs/RemoteDebugDialog.cpp
     dialogs/NativeDebugDialog.cpp
     dialogs/XrefsDialog.cpp
@@ -36,6 +37,7 @@ set(SOURCES
     widgets/ExportsWidget.cpp
     widgets/FlagsWidget.cpp
     widgets/FunctionsWidget.cpp
+    widgets/GlobalsWidget.cpp
     widgets/ImportsWidget.cpp
     widgets/Omnibar.cpp
     widgets/RelocsWidget.cpp
@@ -172,6 +174,7 @@ set(HEADER_FILES
     dialogs/CommentsDialog.h
     dialogs/EditInstructionDialog.h
     dialogs/FlagDialog.h
+    dialogs/GlobalVariableDialog.h
     dialogs/RemoteDebugDialog.h
     dialogs/NativeDebugDialog.h
     dialogs/XrefsDialog.h
@@ -327,6 +330,7 @@ set(UI_FILES
     dialogs/CommentsDialog.ui
     dialogs/EditInstructionDialog.ui
     dialogs/FlagDialog.ui
+    dialogs/GlobalVariableDialog.ui
     dialogs/RemoteDebugDialog.ui
     dialogs/NativeDebugDialog.ui
     dialogs/XrefsDialog.ui
@@ -338,6 +342,7 @@ set(UI_FILES
     widgets/Dashboard.ui
     widgets/EntrypointWidget.ui
     widgets/FlagsWidget.ui
+    widgets/GlobalsWidget.ui
     widgets/StringsWidget.ui
     widgets/HexdumpWidget.ui
     dialogs/preferences/PreferencesDialog.ui

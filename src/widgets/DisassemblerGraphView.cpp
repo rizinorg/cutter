@@ -52,6 +52,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     connect(Core(), &CutterCore::commentsChanged, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::functionRenamed, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::flagsChanged, this, &DisassemblerGraphView::refreshView);
+    connect(Core(), &CutterCore::globalVarsChanged, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::varsChanged, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::instructionChanged, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::breakpointsChanged, this, &DisassemblerGraphView::refreshView);

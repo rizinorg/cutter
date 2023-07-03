@@ -360,6 +360,13 @@ struct VariableDescription
     QString value;
 };
 
+struct GlobalDescription
+{
+    RVA addr;
+    QString type;
+    QString name;
+};
+
 struct RegisterRefValueDescription
 {
     QString name;
@@ -407,6 +414,7 @@ Q_DECLARE_METATYPE(RelocDescription)
 Q_DECLARE_METATYPE(StringDescription)
 Q_DECLARE_METATYPE(FlagspaceDescription)
 Q_DECLARE_METATYPE(FlagDescription)
+Q_DECLARE_METATYPE(GlobalDescription)
 Q_DECLARE_METATYPE(XrefDescription)
 Q_DECLARE_METATYPE(EntrypointDescription)
 Q_DECLARE_METATYPE(RzBinPluginDescription)

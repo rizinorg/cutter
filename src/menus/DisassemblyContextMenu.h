@@ -45,6 +45,7 @@ private slots:
     void on_actionAddComment_triggered();
     void on_actionAnalyzeFunction_triggered();
     void on_actionRename_triggered();
+    void on_actionGlobalVar_triggered();
     void on_actionSetFunctionVarTypes_triggered();
     void on_actionXRefs_triggered();
     void on_actionXRefsForVariables_triggered();
@@ -78,6 +79,7 @@ private:
     QKeySequence getCopySequence() const;
     QKeySequence getCommentSequence() const;
     QKeySequence getCopyAddressSequence() const;
+    QKeySequence getGlobalVarSequence() const;
     QKeySequence getSetToCodeSequence() const;
     QKeySequence getSetAsStringSequence() const;
     QKeySequence getSetAsStringAdvanced() const;
@@ -118,6 +120,7 @@ private:
     QAction actionXRefs;
     QAction actionXRefsForVariables;
     QAction actionDisplayOptions;
+    QAction actionGlobalVar;
 
     QAction actionDeleteComment;
     QAction actionDeleteFlag;
@@ -190,6 +193,7 @@ private:
     void addSetAsMenu();
     void addSetToDataMenu();
     void addEditMenu();
+    void addAddAtMenu();
     void addBreakpointMenu();
     void addDebugMenu();
 

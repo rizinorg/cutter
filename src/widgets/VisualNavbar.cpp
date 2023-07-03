@@ -50,6 +50,7 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent)
     connect(Core(), &CutterCore::refreshAll, this, &VisualNavbar::fetchAndPaintData);
     connect(Core(), &CutterCore::functionsChanged, this, &VisualNavbar::fetchAndPaintData);
     connect(Core(), &CutterCore::flagsChanged, this, &VisualNavbar::fetchAndPaintData);
+    connect(Core(), &CutterCore::globalVarsChanged, this, &VisualNavbar::fetchAndPaintData);
 
     graphicsScene = new QGraphicsScene(this);
 
