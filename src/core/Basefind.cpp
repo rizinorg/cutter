@@ -38,17 +38,17 @@ bool Basefind::setOptions(const RzBaseFindOpt *opts)
     mutex.unlock();
 
     if (options.start_address >= options.end_address) {
-        qWarning() << "Start address is >= end address";
+        qWarning() << tr("Start address is >= end address");
         return false;
     } else if (options.alignment < RZ_BASEFIND_BASE_ALIGNMENT) {
-        qWarning() << "Alignment must be at least "
+        qWarning() << tr("Alignment must be at least ")
                    << QString::asprintf("0x%x", RZ_BASEFIND_BASE_ALIGNMENT);
         return false;
     } else if (options.min_score < 1) {
-        qWarning() << "Min score must be at least 1";
+        qWarning() << tr("Min score must be at least 1");
         return false;
     } else if (options.min_string_len < 1) {
-        qWarning() << "Min string length must be at least 1";
+        qWarning() << tr("Min string length must be at least 1");
         return false;
     }
     return true;

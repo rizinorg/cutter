@@ -271,7 +271,7 @@ void CutterCore::loadCutterRC()
         if (!cutterRCFileInfo.exists() || !cutterRCFileInfo.isFile()) {
             continue;
         }
-        qInfo() << "Loading initialization file from " << cutterRCFilePath;
+        qInfo() << tr("Loading initialization file from ") << cutterRCFilePath;
         rz_core_cmd_file(core, cutterRCFilePath.toUtf8().constData());
     }
 }
@@ -284,7 +284,7 @@ void CutterCore::loadDefaultCutterRC()
     if (!cutterRCFileInfo.exists() || !cutterRCFileInfo.isFile()) {
         return;
     }
-    qInfo() << "Loading initialization file from " << cutterRCFilePath;
+    qInfo() << tr("Loading initialization file from ") << cutterRCFilePath;
     rz_core_cmd_file(core, cutterRCFilePath.toUtf8().constData());
 }
 
@@ -4553,7 +4553,7 @@ char *CutterCore::getTextualGraphAt(RzCoreGraphType type, RzCoreGraphFormat form
     rz_graph_free(graph);
 
     if (!string) {
-        qWarning() << "Failed to generate graph";
+        qWarning() << tr("Failed to generate graph");
     }
 
     return string;
@@ -4571,9 +4571,9 @@ void CutterCore::writeGraphvizGraphToFile(QString path, QString format, RzCoreGr
 
     if (!rz_core_graph_write(core, address, type, filepath)) {
         if (address == RVA_INVALID) {
-            qWarning() << "Cannot get global graph";
+            qWarning() << tr("Cannot get global graph");
         } else {
-            qWarning() << "Cannot get graph at " << RzAddressString(address);
+            qWarning() << tr("Cannot get graph at ") << RzAddressString(address);
         }
     }
 }

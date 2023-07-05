@@ -164,7 +164,7 @@ bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
 SectionsWidget::SectionsWidget(MainWindow *main) : ListDockWidget(main)
 {
     setObjectName("SectionsWidget");
-    setWindowTitle(QStringLiteral("Sections"));
+    setWindowTitle(tr("Sections"));
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
     sectionsRefreshDeferrer = createRefreshDeferrer([this]() { refreshSections(); });

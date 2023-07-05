@@ -271,7 +271,7 @@ void MainWindow::initUI()
     readSettings();
 
     // Display tooltip for the Analyze Program action
-    ui->actionAnalyze->setToolTip("Analyze the program using Rizin's \"aaa\" command");
+    ui->actionAnalyze->setToolTip(tr("Analyze the program using Rizin's \"aaa\" command"));
     ui->menuFile->setToolTipsVisible(true);
 }
 
@@ -1768,7 +1768,7 @@ void MainWindow::on_actionExport_as_code_triggered()
 
     QFile file(dialog.selectedFiles()[0]);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qWarning() << "Can't open file";
+        qWarning() << tr("Can't open file");
         return;
     }
 
