@@ -106,11 +106,10 @@ bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &po
 
     if (selectedText.at(0).isLetter()) {
         {
-            // TODO: Lookup by name instead of loop
             const auto registerRefs = Core()->getRegisterRefValues();
             for (auto &reg : registerRefs) {
                 if (reg.name == selectedText) {
-                    auto msg = QString("%1=%2").arg(reg.name, reg.value);
+                    auto msg = QString("reg %1 = %2").arg(reg.name, reg.value);
                     QToolTip::showText(pointOfEvent, msg, parent);
                     return true;
                 }
@@ -118,12 +117,11 @@ bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &po
         }
 
         if (offset != RVA_INVALID) {
-            const auto vars = Core()->getVariables(offset);
-            for (auto &var : vars) {
+            auto vars = Core()->getVariables(offset);
+            for (auto &var: vars) {
                 if (var.name == selectedText) {
-                    // TODO: Value/refs
-                    auto msg = QString("%1: %2").arg(var.name, var.type);
-                    QToolTip::showText(pointOfEvent, msg, parent);
+                    auto msg = Core()->cmdRawAt(QString("afvd %1").arg(var.name), offset);
+                    QToolTip::showText(pointOfEvent, msg.trimmed(), parent);
                     return true;
                 }
             }
@@ -131,19 +129,26 @@ bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &po
 
         {
             // Lookup MMIO address
-            RzPlatformTarget *arch_target = Core()->core()->analysis->arch_target;
-            if (arch_target && arch_target->profile) {
-                mmio_lookup_context_t ctx;
-                ctx.selected = selectedText;
-                ctx.mmio_address = 0;
-                ht_up_foreach(arch_target->profile->registers_mmio, lookup_mmio_addr_cb, &ctx);
-                if (ctx.mmio_address) {
-                    auto msg = QString("%1 (0x%2)").arg(selectedText, QString::number(ctx.mmio_address, 16));
-                    QToolTip::showText(pointOfEvent, msg, parent);
-                    return true;
+            mmio_lookup_context_t ctx;
+            ctx.selected = selectedText;
+            ctx.mmio_address = RVA_INVALID;
+            {
+                auto core = Core()->core();
+                RzPlatformTarget *arch_target = core->analysis->arch_target;
+                if (arch_target && arch_target->profile) {
+                    ht_up_foreach(arch_target->profile->registers_mmio, lookup_mmio_addr_cb, &ctx);
                 }
+            }
+            if (ctx.mmio_address != RVA_INVALID && offset != RVA_INVALID) {
+                auto addr = QString::number(ctx.mmio_address, 16);
+                QString size = "8"; // TODO: Determine proper size
+                auto value = Core()->cmdRawAt(QString("px %1 @ 0x%2").arg(size, addr), offset);
+                auto msg = QString("mmio %1 @ 0x%2\n%3").arg(selectedText, addr, value);
+                QToolTip::showText(pointOfEvent, msg, parent);
+                return true;
             }
         }
     }
+    // Else show preview for value?
     return false;
 }
