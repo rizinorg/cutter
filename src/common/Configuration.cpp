@@ -134,6 +134,7 @@ static const QHash<QString, QVariant> asmOptions = { { "asm.esil", false },
                                                      { "asm.flags.real", true },
                                                      { "asm.reloff", false },
                                                      { "asm.reloff.flags", false },
+                                                     { "asm.varTooltips", false },
                                                      { "esil.breakoninvalid", true },
                                                      { "dbg.trace_continue", true },
                                                      { "graph.offset", false } };
@@ -781,6 +782,16 @@ void Configuration::setPreviewValue(bool checked)
 bool Configuration::getPreviewValue() const
 {
     return s.value("asm.preview").toBool();
+}
+
+void Configuration::setShowVarTooltips(bool enabled)
+{
+    s.setValue("asm.varTooltips", enabled);
+}
+
+bool Configuration::getShowVarTooltips() const
+{
+    return s.value("asm.varTooltips").toBool();
 }
 
 bool Configuration::getGraphBlockEntryOffset()

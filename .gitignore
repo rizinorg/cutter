@@ -94,3 +94,7 @@ docs/source/_build
 # Local gdb files
 .gdb_history
 .gdbinit
+
+# Kdevelop
+.kdev/
+*.kdev4

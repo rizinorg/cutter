@@ -42,7 +42,8 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
                    { ui->emuStrCheckBox, "emu.str" },
                    { ui->varsumCheckBox, "asm.var.summary" },
                    { ui->sizeCheckBox, "asm.size" },
-                   { ui->realnameCheckBox, "asm.flags.real" } };
+                   { ui->realnameCheckBox, "asm.flags.real" },
+                   { ui->varTooltipsCheckBox, "asm.varTooltips" } };
 
     QList<ConfigCheckbox>::iterator confCheckbox;
 
