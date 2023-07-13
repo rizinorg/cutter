@@ -535,7 +535,7 @@ GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView:
 bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
 {
     if ((Config()->getGraphPreview() || Config()->getShowVarTooltips())
-        && event->type() == QEvent::Type::ToolTip ) {
+        && event->type() == QEvent::Type::ToolTip) {
 
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
         QPoint pointOfEvent = helpEvent->globalPos();
@@ -549,9 +549,9 @@ bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
             RVA offsetFrom = RVA_INVALID;
 
             /*
-            * getAddrForMouseEvent() doesn't work for jmps, like
-            * getInstrForMouseEvent() with false as a 3rd argument.
-            */
+             * getAddrForMouseEvent() doesn't work for jmps, like
+             * getInstrForMouseEvent() with false as a 3rd argument.
+             */
             Instr *inst = getInstrForMouseEvent(*block, &pos, true);
             if (inst != nullptr) {
                 offsetFrom = inst->addr;
@@ -560,13 +560,14 @@ bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
             // Don't preview anything for a small scale
             if (getViewScale() >= 0.8) {
                 if (Config()->getGraphPreview()
-                     && DisassemblyPreview::showDisasPreview(this, pointOfEvent, offsetFrom)) {
+                    && DisassemblyPreview::showDisasPreview(this, pointOfEvent, offsetFrom)) {
                     return true;
                 }
                 if (Config()->getShowVarTooltips() && inst) {
                     auto token = getToken(inst, pos.x());
-                    if (token && DisassemblyPreview::showDebugValueTooltip(
-                            this, pointOfEvent, token->content, offsetFrom)) {
+                    if (token
+                        && DisassemblyPreview::showDebugValueTooltip(this, pointOfEvent,
+                                                                     token->content, offsetFrom)) {
                         return true;
                     }
                 }

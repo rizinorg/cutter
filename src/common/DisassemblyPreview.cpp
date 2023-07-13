@@ -83,23 +83,24 @@ RVA DisassemblyPreview::readDisassemblyOffset(QTextCursor tc)
     return userData->line.offset;
 }
 
-
-typedef struct mmio_lookup_context {
+typedef struct mmio_lookup_context
+{
     QString selected;
     RVA mmio_address;
 } mmio_lookup_context_t;
 
-
-static bool lookup_mmio_addr_cb(void *user, const ut64 key, const void *value) {
-    mmio_lookup_context_t* ctx = (mmio_lookup_context_t*) user;
-    if (ctx->selected == (const char*)value) {
+static bool lookup_mmio_addr_cb(void *user, const ut64 key, const void *value)
+{
+    mmio_lookup_context_t *ctx = (mmio_lookup_context_t *)user;
+    if (ctx->selected == (const char *)value) {
         ctx->mmio_address = key;
         return false;
     }
     return true;
 }
 
-bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &pointOfEvent, const QString &selectedText, const RVA offset)
+bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &pointOfEvent,
+                                               const QString &selectedText, const RVA offset)
 {
     if (selectedText.isEmpty())
         return false;
@@ -118,7 +119,7 @@ bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &po
 
         if (offset != RVA_INVALID) {
             auto vars = Core()->getVariables(offset);
-            for (auto &var: vars) {
+            for (auto &var : vars) {
                 if (var.name == selectedText) {
                     auto msg = Core()->cmdRawAt(QString("afvd %1").arg(var.name), offset);
                     QToolTip::showText(pointOfEvent, msg.trimmed(), parent);

@@ -636,11 +636,8 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 
             return true;
         }
-    } else if (
-        (Config()->getPreviewValue() || Config()->getShowVarTooltips())
-        && event->type() == QEvent::ToolTip
-        && obj == mDisasTextEdit->viewport())
-    {
+    } else if ((Config()->getPreviewValue() || Config()->getShowVarTooltips())
+               && event->type() == QEvent::ToolTip && obj == mDisasTextEdit->viewport()) {
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
         auto cursorForWord = mDisasTextEdit->cursorForPosition(helpEvent->pos());
         cursorForWord.select(QTextCursor::WordUnderCursor);
@@ -649,11 +646,11 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 
         if (Config()->getPreviewValue()
             && DisassemblyPreview::showDisasPreview(this, helpEvent->globalPos(), offsetFrom)) {
-                return true;
+            return true;
         }
         if (Config()->getShowVarTooltips()
             && DisassemblyPreview::showDebugValueTooltip(
-                this, helpEvent->globalPos(), cursorForWord.selectedText(), offsetFrom)) {
+                    this, helpEvent->globalPos(), cursorForWord.selectedText(), offsetFrom)) {
             return true;
         }
     }
