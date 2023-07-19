@@ -286,7 +286,7 @@
                 <item row="16" column="1">
                  <widget class="QCheckBox" name="varTooltipsCheckBox">
                   <property name="text">
-                   <string>Show known variables values when hovering</string>
+                   <string>Show known variable values when hovering</string>
                   </property>
                  </widget>
                 </item>
