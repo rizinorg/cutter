@@ -133,20 +133,21 @@ bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &po
             mmio_lookup_context_t ctx;
             ctx.selected = selectedText;
             ctx.mmio_address = RVA_INVALID;
-            {
-                auto core = Core()->core();
-                RzPlatformTarget *arch_target = core->analysis->arch_target;
-                if (arch_target && arch_target->profile) {
-                    ht_up_foreach(arch_target->profile->registers_mmio, lookup_mmio_addr_cb, &ctx);
-                }
+            auto core = Core()->core();
+            RzPlatformTarget *arch_target = core->analysis->arch_target;
+            if (arch_target && arch_target->profile) {
+                ht_up_foreach(arch_target->profile->registers_mmio, lookup_mmio_addr_cb, &ctx);
             }
-            if (ctx.mmio_address != RVA_INVALID && offset != RVA_INVALID) {
-                auto addr = QString::number(ctx.mmio_address, 16);
-                QString size = "8"; // TODO: Determine proper size
-                auto value = Core()->cmdRawAt(QString("px %1 @ 0x%2").arg(size, addr), offset);
-                auto msg = QString("mmio %1 @ 0x%2\n%3").arg(selectedText, addr, value);
-                QToolTip::showText(pointOfEvent, msg, parent);
-                return true;
+            if (ctx.mmio_address != RVA_INVALID) {
+                int len = 8; // TODO: Determine proper len of mmio address for the cpu
+                if (char *r = rz_core_print_hexdump_or_hexdiff_str(core, RZ_OUTPUT_MODE_STANDARD,
+                                                                   ctx.mmio_address, len, false)) {
+                    auto val = QString::fromUtf8(r).trimmed().split("\n").last();
+                    auto msg = QString("mmio %1 %2").arg(selectedText, val);
+                    free(r);
+                    QToolTip::showText(pointOfEvent, msg, parent);
+                    return true;
+                }
             }
         }
     }
