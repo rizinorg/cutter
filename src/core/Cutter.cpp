@@ -1804,6 +1804,12 @@ QList<VariableDescription> CutterCore::getVariables(RVA at)
         }
         desc.type = QString::fromUtf8(tn);
         rz_mem_free(tn);
+
+        if (char *v = rz_core_analysis_var_display(core, var, false)) {
+            desc.value = QString::fromUtf8(v).trimmed();
+            rz_mem_free(v);
+        }
+
         ret.push_back(desc);
     }
     return ret;

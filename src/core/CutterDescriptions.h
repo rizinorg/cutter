@@ -357,6 +357,7 @@ struct VariableDescription
     RzAnalysisVarStorageType storageType;
     QString name;
     QString type;
+    QString value;
 };
 
 struct RegisterRefValueDescription

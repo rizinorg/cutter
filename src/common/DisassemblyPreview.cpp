@@ -121,8 +121,8 @@ bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &po
             auto vars = Core()->getVariables(offset);
             for (auto &var : vars) {
                 if (var.name == selectedText) {
-                    auto msg = Core()->cmdRawAt(QString("afvd %1").arg(var.name), offset);
-                    QToolTip::showText(pointOfEvent, msg.trimmed(), parent);
+                    auto msg = QString("var %1 = %2").arg(var.name, var.value);
+                    QToolTip::showText(pointOfEvent, msg, parent);
                     return true;
                 }
             }
