@@ -783,6 +783,16 @@ bool Configuration::getPreviewValue() const
     return s.value("asm.preview").toBool();
 }
 
+void Configuration::setShowVarTooltips(bool enabled)
+{
+    s.setValue("showVarTooltips", enabled);
+}
+
+bool Configuration::getShowVarTooltips() const
+{
+    return s.value("showVarTooltips").toBool();
+}
+
 bool Configuration::getGraphBlockEntryOffset()
 {
     return s.value("graphBlockEntryOffset", true).value<bool>();

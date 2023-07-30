@@ -65,6 +65,12 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
             &AsmOptionsWidget::relOffCheckBoxToggled);
     connect(Core(), &CutterCore::asmOptionsChanged, this,
             &AsmOptionsWidget::updateAsmOptionsFromVars);
+
+    connect(ui->varTooltipsCheckBox, &QCheckBox::toggled, [this](bool checked) {
+        Config()->setShowVarTooltips(checked);
+        triggerAsmOptionsChanged();
+    });
+
     updateAsmOptionsFromVars();
 }
 
@@ -137,6 +143,8 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     ui->previewCheckBox->blockSignals(true);
     ui->previewCheckBox->setChecked(Config()->getPreviewValue());
     ui->previewCheckBox->blockSignals(false);
+
+    qhelpers::setCheckedWithoutSignals(ui->varTooltipsCheckBox, Config()->getShowVarTooltips());
 
     QList<ConfigCheckbox>::iterator confCheckbox;
 
