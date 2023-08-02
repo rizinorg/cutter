@@ -3133,6 +3133,7 @@ QList<ExportDescription> CutterCore::getAllExports()
     }
 
     bool va = core->io->va || core->bin->is_debugger;
+    bool demangle = rz_config_get_b(core->config, "bin.demangle");
 
     QList<ExportDescription> ret;
     for (const auto &symbol : CutterRzList<RzBinSymbol>(symbols)) {
@@ -3141,7 +3142,7 @@ QList<ExportDescription> CutterCore::getAllExports()
         }
 
         RzBinSymNames sn = {};
-        rz_core_sym_name_init(&sn, symbol);
+        rz_core_sym_name_init(&sn, symbol, demangle);
 
         ExportDescription exportDescription;
         exportDescription.vaddr = rva(bf->o, symbol->paddr, symbol->vaddr, va);
