@@ -248,19 +248,24 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
         ut64 old_offset = core->offset;
         rz_core_seek(core, start_address, true);
         ut8 *block = core->block;
-        char *digest = rz_hash_cfg_calculate_small_block_string(core->hash, "md5", block, size, &digest_size, false);
+        char *digest = rz_hash_cfg_calculate_small_block_string(core->hash, "md5", block, size,
+                                                                &digest_size, false);
         ui->bytesMD5->setText(QString(digest));
         free(digest);
-        digest = rz_hash_cfg_calculate_small_block_string(core->hash, "sha1", block, size, &digest_size, false);
+        digest = rz_hash_cfg_calculate_small_block_string(core->hash, "sha1", block, size,
+                                                          &digest_size, false);
         ui->bytesSHA1->setText(QString(digest));
         free(digest);
-        digest = rz_hash_cfg_calculate_small_block_string(core->hash, "sha256", block, size, &digest_size, false);
+        digest = rz_hash_cfg_calculate_small_block_string(core->hash, "sha256", block, size,
+                                                          &digest_size, false);
         ui->bytesSHA256->setText(QString(digest));
         free(digest);
-        digest = rz_hash_cfg_calculate_small_block_string(core->hash, "crc32", block, size, &digest_size, false);
+        digest = rz_hash_cfg_calculate_small_block_string(core->hash, "crc32", block, size,
+                                                          &digest_size, false);
         ui->bytesCRC32->setText(QString(digest));
         free(digest);
-        digest = rz_hash_cfg_calculate_small_block_string(core->hash, "entropy", block, size, &digest_size, false);
+        digest = rz_hash_cfg_calculate_small_block_string(core->hash, "entropy", block, size,
+                                                          &digest_size, false);
         ui->bytesEntropy->setText(QString(digest));
         free(digest);
         rz_core_seek(core, old_offset, true);

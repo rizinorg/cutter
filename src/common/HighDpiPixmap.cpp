@@ -16,8 +16,8 @@ static qreal GetDevicePixelRatio(qreal devicePixelRatio)
 }
 
 HighDpiPixmap::HighDpiPixmap(int width, int height, qreal devicePixelRatio)
-    : QPixmap(int(width *GetDevicePixelRatio(devicePixelRatio)),
-              int(height *GetDevicePixelRatio(devicePixelRatio)))
+    : QPixmap(int(width * GetDevicePixelRatio(devicePixelRatio)),
+              int(height * GetDevicePixelRatio(devicePixelRatio)))
 {
     setDevicePixelRatio(GetDevicePixelRatio(devicePixelRatio));
 }

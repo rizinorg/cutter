@@ -49,8 +49,7 @@ void GlibcHeapBinsDialog::setChainInfo(int index)
     RzHeapChunkListItem *item;
     RzList *chunks = binsModel->getChunks(index);
     QString chainInfo;
-    CutterRzListForeach(chunks, iter, RzHeapChunkListItem, item)
-    {
+    CutterRzListForeach (chunks, iter, RzHeapChunkListItem, item) {
         chainInfo += " → " + RzAddressString(item->addr);
     }
 

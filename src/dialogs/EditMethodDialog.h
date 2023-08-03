@@ -74,7 +74,7 @@ private:
     QString fixedClass;
 
     bool inputValid();
-    static QString convertRealNameToName(const QString& realName);
+    static QString convertRealNameToName(const QString &realName);
 };
 
 #endif // EDITMETHODDIALOG_H

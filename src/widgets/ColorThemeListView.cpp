@@ -128,8 +128,8 @@ void ColorOptionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     painter->setPen(qApp->palette().text().color());
 
     QFontMetrics fm2 = QFontMetrics(painter->font());
-    QString name = fm2.elidedText(optionInfoMap__[currCO.optionName].displayingtext,
-            Qt::ElideRight, optionNameRect.width());
+    QString name = fm2.elidedText(optionInfoMap__[currCO.optionName].displayingtext, Qt::ElideRight,
+                                  optionNameRect.width());
     painter->drawText(optionNameRect, name);
 
     QPainterPath roundedOptionRect;
@@ -157,9 +157,9 @@ void ColorOptionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     painter->fillPath(roundedColorRect, currCO.color);
 
     QFontMetrics fm3 = QFontMetrics(painter->font());
-    QString desc = fm3.elidedText(
-            currCO.optionName + ": " + optionInfoMap__[currCO.optionName].info, Qt::ElideRight,
-            descTextRect.width());
+    QString desc =
+            fm3.elidedText(currCO.optionName + ": " + optionInfoMap__[currCO.optionName].info,
+                           Qt::ElideRight, descTextRect.width());
     painter->setPen(qApp->palette().text().color());
     painter->setBrush(qApp->palette().text());
     painter->drawText(descTextRect, desc);
