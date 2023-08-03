@@ -13,10 +13,10 @@
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
 #    include <shiboken.h>
 #    include <pyside.h>
-#ifdef HAVE_PYSIDECLEANUP
-     // This header is introduced in PySide 6
-#    include <pysidecleanup.h>
-#endif
+#    ifdef HAVE_PYSIDECLEANUP
+// This header is introduced in PySide 6
+#        include <pysidecleanup.h>
+#    endif
 #    include <signalmanager.h>
 #endif
 

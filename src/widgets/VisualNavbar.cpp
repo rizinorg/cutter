@@ -140,7 +140,8 @@ void VisualNavbar::fetchStats()
     if (to < from) {
         return;
     }
-    stats.reset(rz_core_analysis_get_stats(core, from, to, RZ_MAX(1, (to + 1 - from) / blocksCount)));
+    stats.reset(
+            rz_core_analysis_get_stats(core, from, to, RZ_MAX(1, (to + 1 - from) / blocksCount)));
 }
 
 enum class DataType : int { Empty, Code, String, Symbol, Count };

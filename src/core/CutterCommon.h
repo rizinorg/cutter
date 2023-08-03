@@ -15,7 +15,6 @@
 #    undef max
 #endif // Q_OS_WIN
 
-
 // Global information for Cutter
 #define APPNAME "Cutter"
 

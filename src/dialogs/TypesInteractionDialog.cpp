@@ -66,12 +66,14 @@ void TypesInteractionDialog::done(int r)
         bool success;
         if (!typeName.isEmpty()) {
             success = rz_type_db_edit_base_type(
-                core->analysis->typedb, this->typeName.toUtf8().constData(),
-                ui->plainTextEdit->toPlainText().toUtf8().constData());
+                    core->analysis->typedb, this->typeName.toUtf8().constData(),
+                    ui->plainTextEdit->toPlainText().toUtf8().constData());
         } else {
             char *error_msg = NULL;
-            success = rz_type_parse_string_stateless(core->analysis->typedb->parser,
-                ui->plainTextEdit->toPlainText().toUtf8().constData(), &error_msg) == 0;
+            success = rz_type_parse_string_stateless(
+                              core->analysis->typedb->parser,
+                              ui->plainTextEdit->toPlainText().toUtf8().constData(), &error_msg)
+                    == 0;
             if (error_msg) {
                 RZ_LOG_ERROR("%s\n", error_msg);
                 rz_mem_free(error_msg);

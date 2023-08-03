@@ -46,8 +46,7 @@ static inline auto fromOwned(RZ_OWN RzPVector *data)
     return { data, {} };
 }
 
-static inline auto fromOwned(RZ_OWN RzList *data)
-        -> UniquePtrCP<decltype(data), &rz_list_free>
+static inline auto fromOwned(RZ_OWN RzList *data) -> UniquePtrCP<decltype(data), &rz_list_free>
 {
     return { data, {} };
 }

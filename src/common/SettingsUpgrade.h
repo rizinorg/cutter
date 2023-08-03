@@ -7,7 +7,8 @@
 namespace Cutter {
 void initializeSettings();
 /**
- * @brief Check if Cutter should offer importing settings from version that can't be directly updated.
+ * @brief Check if Cutter should offer importing settings from version that can't be directly
+ * updated.
  * @return True if this is first time running Cutter and r2 based Cutter <= 1.12 settings exist.
  */
 bool shouldOfferSettingImport();
