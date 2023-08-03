@@ -4143,11 +4143,20 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
 
     QList<DisassemblyLine> r;
     for (const auto &t : CutterPVector<RzAnalysisDisasmText>(vec.get())) {
-        DisassemblyLine line;
-        line.offset = t->offset;
-        line.text = ansiEscapeToHtml(t->text);
-        line.arrow = t->arrow;
-        r << line;
+        QString text = t->text;
+        QStringList tokens = text.split('\n');
+        // text might contain multiple lines
+        // so we split them and keep only one
+        // arrow/jump to addr.
+        for (const auto &tok : tokens) {
+            DisassemblyLine line;
+            line.offset = t->offset;
+            line.text = ansiEscapeToHtml(tok);
+            line.arrow = t->arrow;
+            r << line;
+            // only the first one.
+            t->arrow = RVA_INVALID;
+        }
     }
     return r;
 }
