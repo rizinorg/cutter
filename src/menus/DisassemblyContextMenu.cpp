@@ -174,7 +174,7 @@ void DisassemblyContextMenu::addAddAtMenu()
                getRenameSequence());
     setAsMenu->addAction(&actionRename);
 
-    initAction(&actionGlobalVar, tr("Change or add global variable"),
+    initAction(&actionGlobalVar, tr("Modify or add global variable"),
                SLOT(on_actionGlobalVar_triggered()), getGlobalVarSequence());
     setAsMenu->addAction(&actionGlobalVar);
 }
