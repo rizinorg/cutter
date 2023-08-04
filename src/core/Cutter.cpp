@@ -1815,6 +1815,32 @@ QList<VariableDescription> CutterCore::getVariables(RVA at)
     return ret;
 }
 
+QList<GlobalDescription> CutterCore::getAllGlobals()
+{
+    CORE_LOCK();
+    RzListIter *it;
+
+    QList<GlobalDescription> ret;
+
+    RzAnalysisVarGlobal *glob;
+    if (core && core->analysis && core->analysis->typedb) {
+        const RzList *globals = rz_analysis_var_global_get_all(core->analysis);
+        CutterRzListForeach (globals, it, RzAnalysisVarGlobal, glob) {
+            const char *gtype = rz_type_as_string(core->analysis->typedb, glob->type);
+            if (!gtype) {
+                continue;
+            }
+            GlobalDescription global;
+            global.addr = glob->addr;
+            global.name = QString(glob->name);
+            global.type = QString(gtype);
+            ret << global;
+        }
+    }
+
+    return ret;
+}
+
 QVector<RegisterRefValueDescription> CutterCore::getRegisterRefValues()
 {
     QVector<RegisterRefValueDescription> result;
@@ -4022,6 +4048,99 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
     return xrefList;
 }
 
+void CutterCore::addGlobalVariable(RVA offset, QString name, QString typ)
+{
+    name = sanitizeStringForCommand(name);
+    CORE_LOCK();
+    char *errmsg = NULL;
+    RzType *globType = rz_type_parse_string_single(core->analysis->typedb->parser,
+                                                   typ.toStdString().c_str(), &errmsg);
+    if (errmsg) {
+        qWarning() << tr("Error parsing type: \"%1\" message: ").arg(typ) << errmsg;
+        free(errmsg);
+        return;
+    }
+    if (!rz_analysis_var_global_create(core->analysis, name.toStdString().c_str(), globType,
+                                       offset)) {
+        qWarning() << tr("Error creating global variable: \"%1\"").arg(name);
+        return;
+    }
+
+    emit globalVarsChanged();
+}
+
+void CutterCore::modifyGlobalVariable(RVA offset, QString name, QString typ)
+{
+    name = sanitizeStringForCommand(name);
+    CORE_LOCK();
+    RzAnalysisVarGlobal *glob = rz_analysis_var_global_get_byaddr_at(core->analysis, offset);
+    if (!glob) {
+        return;
+    }
+    // Compare if the name is not the same - also rename it
+    if (name.compare(glob->name)) {
+        rz_analysis_var_global_rename(core->analysis, glob->name, name.toStdString().c_str());
+    }
+    char *errmsg = NULL;
+    RzType *globType = rz_type_parse_string_single(core->analysis->typedb->parser,
+                                                   typ.toStdString().c_str(), &errmsg);
+    if (errmsg) {
+        qWarning() << tr("Error parsing type: \"%1\" message: ").arg(typ) << errmsg;
+        free(errmsg);
+        return;
+    }
+    rz_analysis_var_global_set_type(glob, globType);
+
+    emit globalVarsChanged();
+}
+
+void CutterCore::delGlobalVariable(QString name)
+{
+    name = sanitizeStringForCommand(name);
+    CORE_LOCK();
+    rz_analysis_var_global_delete_byname(core->analysis, name.toStdString().c_str());
+
+    emit globalVarsChanged();
+}
+
+void CutterCore::delGlobalVariable(RVA offset)
+{
+    CORE_LOCK();
+    rz_analysis_var_global_delete_byaddr_at(core->analysis, offset);
+
+    emit globalVarsChanged();
+}
+
+QString CutterCore::getGlobalVariableType(QString name)
+{
+    name = sanitizeStringForCommand(name);
+    CORE_LOCK();
+    RzAnalysisVarGlobal *glob =
+            rz_analysis_var_global_get_byname(core->analysis, name.toStdString().c_str());
+    if (!glob) {
+        return QString("");
+    }
+    const char *gtype = rz_type_as_string(core->analysis->typedb, glob->type);
+    if (!gtype) {
+        return QString("");
+    }
+    return QString(gtype);
+}
+
+QString CutterCore::getGlobalVariableType(RVA offset)
+{
+    CORE_LOCK();
+    RzAnalysisVarGlobal *glob = rz_analysis_var_global_get_byaddr_at(core->analysis, offset);
+    if (!glob) {
+        return QString("");
+    }
+    const char *gtype = rz_type_as_string(core->analysis->typedb, glob->type);
+    if (!gtype) {
+        return QString("");
+    }
+    return QString(gtype);
+}
+
 void CutterCore::addFlag(RVA offset, QString name, RVA size)
 {
     name = sanitizeStringForCommand(name);
@@ -4536,9 +4655,9 @@ char *CutterCore::getTextualGraphAt(RzCoreGraphType type, RzCoreGraphFormat form
     RzGraph *graph = rz_core_graph(core, type, address);
     if (!graph) {
         if (address == RVA_INVALID) {
-            qWarning() << "Cannot get global graph";
+            qWarning() << tr("Cannot get global graph");
         } else {
-            qWarning() << "Cannot get graph at " << RzAddressString(address);
+            qWarning() << tr("Cannot get graph at ") << RzAddressString(address);
         }
         return nullptr;
     }

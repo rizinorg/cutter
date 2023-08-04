@@ -239,6 +239,14 @@ public:
     QString nearestFlag(RVA offset, RVA *flagOffsetOut);
     void triggerFlagsChanged();
 
+    /* Global Variables */
+    void addGlobalVariable(RVA offset, QString name, QString typ);
+    void delGlobalVariable(QString name);
+    void delGlobalVariable(RVA offset);
+    void modifyGlobalVariable(RVA offset, QString name, QString typ);
+    QString getGlobalVariableType(QString name);
+    QString getGlobalVariableType(RVA offset);
+
     /* Edition functions */
     PRzAnalysisBytes getRzAnalysisBytesSingle(RVA addr);
     QString getInstructionBytes(RVA addr);
@@ -584,6 +592,7 @@ public:
     QList<ExportDescription> getAllExports();
     QList<SymbolDescription> getAllSymbols();
     QList<HeaderDescription> getAllHeaders();
+    QList<GlobalDescription> getAllGlobals();
     QList<FlirtDescription> getSignaturesDB();
     QList<CommentDescription> getAllComments(const QString &filterType);
     QList<RelocDescription> getAllRelocs();
@@ -750,6 +759,7 @@ signals:
 
     void functionRenamed(const RVA offset, const QString &new_name);
     void varsChanged();
+    void globalVarsChanged();
     void functionsChanged();
     void flagsChanged();
     void commentsChanged(RVA addr);

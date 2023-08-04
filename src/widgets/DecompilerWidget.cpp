@@ -90,6 +90,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main)
     connect(Core(), &CutterCore::varsChanged, this, &DecompilerWidget::doRefresh);
     connect(Core(), &CutterCore::functionsChanged, this, &DecompilerWidget::doRefresh);
     connect(Core(), &CutterCore::flagsChanged, this, &DecompilerWidget::doRefresh);
+    connect(Core(), &CutterCore::globalVarsChanged, this, &DecompilerWidget::doRefresh);
     connect(Core(), &CutterCore::commentsChanged, this, &DecompilerWidget::refreshIfChanged);
     connect(Core(), &CutterCore::instructionChanged, this, &DecompilerWidget::refreshIfChanged);
     connect(Core(), &CutterCore::refreshCodeViews, this, &DecompilerWidget::doRefresh);

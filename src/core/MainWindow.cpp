@@ -31,6 +31,7 @@
 #include "widgets/DisassemblerGraphView.h"
 #include "widgets/GraphView.h"
 #include "widgets/GraphWidget.h"
+#include "widgets/GlobalsWidget.h"
 #include "widgets/OverviewWidget.h"
 #include "widgets/OverviewView.h"
 #include "widgets/FunctionsWidget.h"
@@ -401,6 +402,7 @@ void MainWindow::initDocks()
         sectionsDock = new SectionsWidget(this),
         segmentsDock = new SegmentsWidget(this),
         symbolsDock = new SymbolsWidget(this),
+        globalsDock = new GlobalsWidget(this),
         vTablesDock = new VTablesWidget(this),
         flirtDock = new FlirtWidget(this),
         rzGraphDock = new RizinGraphWidget(this),
@@ -905,6 +907,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, headersDock);
     tabifyDockWidget(dashboardDock, flirtDock);
     tabifyDockWidget(dashboardDock, symbolsDock);
+    tabifyDockWidget(dashboardDock, globalsDock);
     tabifyDockWidget(dashboardDock, classesDock);
     tabifyDockWidget(dashboardDock, resourcesDock);
     tabifyDockWidget(dashboardDock, vTablesDock);
