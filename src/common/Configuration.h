@@ -216,6 +216,12 @@ public:
     bool getPreviewValue() const;
 
     /**
+     * @brief Show tooltips for known values of registers, variables, and memory when debugging
+     */
+    void setShowVarTooltips(bool enabled);
+    bool getShowVarTooltips() const;
+
+    /**
      * @brief Recently opened binaries, as shown in NewFileDialog.
      */
     QStringList getRecentFiles() const;

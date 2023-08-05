@@ -234,9 +234,8 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         QStringList summary {};
         {
             auto seeker = Core()->seekTemp(function.offset);
-            auto strings = fromOwnedCharPtr(
-                rz_core_print_disasm_strings(Core()->core(), RZ_CORE_DISASM_STRINGS_MODE_FUNCTION,
-                                             0, NULL));
+            auto strings = fromOwnedCharPtr(rz_core_print_disasm_strings(
+                    Core()->core(), RZ_CORE_DISASM_STRINGS_MODE_FUNCTION, 0, NULL));
             summary = strings.split('\n', CUTTER_QT_SKIP_EMPTY_PARTS);
         }
 
@@ -508,6 +507,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     functionProxyModel = new FunctionSortFilterProxyModel(functionModel, this);
     setModels(functionProxyModel);
     ui->treeView->sortByColumn(FunctionModel::NameColumn, Qt::AscendingOrder);
+    ui->treeView->setExpandsOnDoubleClick(false);
 
     titleContextMenu = new QMenu(this);
     auto viewTypeGroup = new QActionGroup(titleContextMenu);

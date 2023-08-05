@@ -14,6 +14,7 @@ set(TS_FILES
     translations/ro/cutter_ro.ts
     translations/ru/cutter_ru.ts
     translations/tr/cutter_tr.ts
+    translations/uk/cutter_uk.ts
     translations/zh-CN/cutter_zh.ts
 )
 # translations/ko/cutter_ko.ts problems with fonts

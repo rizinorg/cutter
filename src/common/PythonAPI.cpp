@@ -32,7 +32,7 @@ PyObject *api_refresh(PyObject *self, PyObject *args)
     Q_UNUSED(self);
     Q_UNUSED(args);
     Core()->triggerRefreshAll();
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *api_message(PyObject *self, PyObject *args, PyObject *kwargs)
@@ -46,8 +46,7 @@ PyObject *api_message(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
     Core()->message(QString(message), debug);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyMethodDef CutterMethods[] = {

@@ -50,6 +50,7 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent)
     connect(Core(), &CutterCore::refreshAll, this, &VisualNavbar::fetchAndPaintData);
     connect(Core(), &CutterCore::functionsChanged, this, &VisualNavbar::fetchAndPaintData);
     connect(Core(), &CutterCore::flagsChanged, this, &VisualNavbar::fetchAndPaintData);
+    connect(Core(), &CutterCore::globalVarsChanged, this, &VisualNavbar::fetchAndPaintData);
 
     graphicsScene = new QGraphicsScene(this);
 
@@ -140,7 +141,8 @@ void VisualNavbar::fetchStats()
     if (to < from) {
         return;
     }
-    stats.reset(rz_core_analysis_get_stats(core, from, to, RZ_MAX(1, (to + 1 - from) / blocksCount)));
+    stats.reset(
+            rz_core_analysis_get_stats(core, from, to, RZ_MAX(1, (to + 1 - from) / blocksCount)));
 }
 
 enum class DataType : int { Empty, Code, String, Symbol, Count };

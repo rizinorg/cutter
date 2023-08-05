@@ -14,6 +14,17 @@ TypesModel::TypesModel(QList<TypeDescription> *types, QObject *parent)
 {
 }
 
+QVariant TypesModel::toolTipValue(const QModelIndex &index) const
+{
+    TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+
+    if (t.category == "Primitive") {
+        return QVariant();
+    }
+
+    return Core()->getTypeAsC(t.type).trimmed();
+}
+
 int TypesModel::rowCount(const QModelIndex &) const
 {
     return types->count();
@@ -45,6 +56,8 @@ QVariant TypesModel::data(const QModelIndex &index, int role) const
         default:
             return QVariant();
         }
+    case Qt::ToolTipRole:
+        return toolTipValue(index);
     case TypeDescriptionRole:
         return QVariant::fromValue(exp);
     default:

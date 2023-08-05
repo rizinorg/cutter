@@ -53,7 +53,7 @@ private slots:
      *     - Seek changed to an offset contained in the decompiled function.
      *     - Auto-refresh is disabled.
      */
-    void seekChanged();
+    void seekChanged(RVA /* addr */, CutterCore::SeekHistoryType type);
     void decompilationFinished(RzAnnotatedCode *code);
 
 private:
@@ -72,8 +72,8 @@ private:
     bool decompilerBusy;
 
     bool seekFromCursor;
-    int scrollerHorizontal;
-    int scrollerVertical;
+    int historyPos;
+    QVector<QPair<int, int>> scrollHistory;
     RVA previousFunctionAddr;
     RVA decompiledFunctionAddr;
     std::unique_ptr<RzAnnotatedCode, void (*)(RzAnnotatedCode *)> code;

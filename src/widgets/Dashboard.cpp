@@ -173,7 +173,7 @@ void Dashboard::on_certificateButton_clicked()
     dialog.setMinimumSize(QSize(900, 600));
     dialog.setMaximumSize(QSize(900, 600));
     dialog.setSizeGripEnabled(false);
-    dialog.setWindowTitle("Certificates");
+    dialog.setWindowTitle(tr("Certificates"));
     dialog.exec();
 }
 

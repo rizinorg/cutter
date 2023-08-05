@@ -31,6 +31,7 @@
 #include "widgets/DisassemblerGraphView.h"
 #include "widgets/GraphView.h"
 #include "widgets/GraphWidget.h"
+#include "widgets/GlobalsWidget.h"
 #include "widgets/OverviewWidget.h"
 #include "widgets/OverviewView.h"
 #include "widgets/FunctionsWidget.h"
@@ -114,6 +115,9 @@
 #include <QGraphicsEllipseItem>
 #include <QGraphicsScene>
 #include <QGraphicsView>
+
+// Tools
+#include "tools/basefind/BaseFindDialog.h"
 
 #define PROJECT_FILE_FILTER tr("Rizin Project (*.rzdb)")
 
@@ -268,7 +272,7 @@ void MainWindow::initUI()
     readSettings();
 
     // Display tooltip for the Analyze Program action
-    ui->actionAnalyze->setToolTip("Analyze the program using Rizin's \"aaa\" command");
+    ui->actionAnalyze->setToolTip(tr("Analyze the program using Rizin's \"aaa\" command"));
     ui->menuFile->setToolTipsVisible(true);
 }
 
@@ -398,6 +402,7 @@ void MainWindow::initDocks()
         sectionsDock = new SectionsWidget(this),
         segmentsDock = new SegmentsWidget(this),
         symbolsDock = new SymbolsWidget(this),
+        globalsDock = new GlobalsWidget(this),
         vTablesDock = new VTablesWidget(this),
         flirtDock = new FlirtWidget(this),
         rzGraphDock = new RizinGraphWidget(this),
@@ -902,6 +907,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, headersDock);
     tabifyDockWidget(dashboardDock, flirtDock);
     tabifyDockWidget(dashboardDock, symbolsDock);
+    tabifyDockWidget(dashboardDock, globalsDock);
     tabifyDockWidget(dashboardDock, classesDock);
     tabifyDockWidget(dashboardDock, resourcesDock);
     tabifyDockWidget(dashboardDock, vTablesDock);
@@ -1087,11 +1093,11 @@ MemoryDockWidget *MainWindow::addNewMemoryWidget(MemoryWidgetType type, RVA addr
         memoryWidget = new DecompilerWidget(this);
         break;
     case MemoryWidgetType::CallGraph:
-      memoryWidget = new CallGraphWidget(this, false);
-      break;
+        memoryWidget = new CallGraphWidget(this, false);
+        break;
     case MemoryWidgetType::GlobalCallGraph:
-      memoryWidget = new CallGraphWidget(this, true);
-      break;
+        memoryWidget = new CallGraphWidget(this, true);
+        break;
     }
     auto seekable = memoryWidget->getSeekable();
     seekable->setSynchronization(synchronized);
@@ -1637,6 +1643,12 @@ void MainWindow::on_actionTabs_triggered()
     setTabLocation();
 }
 
+void MainWindow::on_actionBaseFind_triggered()
+{
+    auto dialog = new BaseFindDialog(this);
+    dialog->show();
+}
+
 void MainWindow::on_actionAbout_triggered()
 {
     AboutDialog *a = new AboutDialog(this);
@@ -1759,7 +1771,7 @@ void MainWindow::on_actionExport_as_code_triggered()
 
     QFile file(dialog.selectedFiles()[0]);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qWarning() << "Can't open file";
+        qWarning() << tr("Can't open file");
         return;
     }
 
@@ -1774,12 +1786,10 @@ void MainWindow::on_actionExport_as_code_triggered()
         return;
     }
 
-
-
     auto string = fromOwned(
-        dialog.selectedNameFilter() != instructionsInComments
-                ? rz_lang_byte_array(buffer.data(), size, typMap[dialog.selectedNameFilter()])
-                : rz_core_print_bytes_with_inst(rc, buffer.data(), 0, size));
+            dialog.selectedNameFilter() != instructionsInComments
+                    ? rz_lang_byte_array(buffer.data(), size, typMap[dialog.selectedNameFilter()])
+                    : rz_core_print_bytes_with_inst(rc, buffer.data(), 0, size));
     fileOut << string.get();
 }
 

@@ -4,6 +4,7 @@
 #include "core/CutterCommon.h"
 #include "core/CutterDescriptions.h"
 #include "core/CutterJson.h"
+#include "core/Basefind.h"
 #include "common/BasicInstructionHighlighter.h"
 
 #include <QMap>
@@ -69,6 +70,7 @@ class CUTTER_EXPORT CutterCore : public QObject
 
     friend class RzCoreLocked;
     friend class RizinTask;
+    friend class Basefind;
 
 public:
     explicit CutterCore(QObject *parent = nullptr);
@@ -172,6 +174,8 @@ public:
         return returner;
     }
 
+    enum class SeekHistoryType { New, Undo, Redo };
+
     CutterJson cmdj(const char *str);
     CutterJson cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
     QString cmdTask(const QString &str);
@@ -234,6 +238,14 @@ public:
      */
     QString nearestFlag(RVA offset, RVA *flagOffsetOut);
     void triggerFlagsChanged();
+
+    /* Global Variables */
+    void addGlobalVariable(RVA offset, QString name, QString typ);
+    void delGlobalVariable(QString name);
+    void delGlobalVariable(RVA offset);
+    void modifyGlobalVariable(RVA offset, QString name, QString typ);
+    QString getGlobalVariableType(QString name);
+    QString getGlobalVariableType(RVA offset);
 
     /* Edition functions */
     PRzAnalysisBytes getRzAnalysisBytesSingle(RVA addr);
@@ -324,7 +336,7 @@ public:
     void seekSilent(QString thing) { seekSilent(math(thing)); }
     void seekPrev();
     void seekNext();
-    void updateSeek();
+    void updateSeek(SeekHistoryType type = SeekHistoryType::New);
     /**
      * @brief Raise a memory widget showing current offset, prefer last active
      * memory widget.
@@ -554,6 +566,8 @@ public:
     void setGraphEmpty(bool empty);
     bool isGraphEmpty();
 
+    bool rebaseBin(RVA base_address);
+
     void getRegs();
     QList<QString> regs;
     void setSettings();
@@ -578,6 +592,7 @@ public:
     QList<ExportDescription> getAllExports();
     QList<SymbolDescription> getAllSymbols();
     QList<HeaderDescription> getAllHeaders();
+    QList<GlobalDescription> getAllGlobals();
     QList<FlirtDescription> getSignaturesDB();
     QList<CommentDescription> getAllComments(const QString &filterType);
     QList<RelocDescription> getAllRelocs();
@@ -744,6 +759,7 @@ signals:
 
     void functionRenamed(const RVA offset, const QString &new_name);
     void varsChanged();
+    void globalVarsChanged();
     void functionsChanged();
     void flagsChanged();
     void commentsChanged(RVA addr);
@@ -794,8 +810,9 @@ signals:
     /**
      * @brief seekChanged is emitted each time Rizin's seek value is modified
      * @param offset
+     * @param historyType
      */
-    void seekChanged(RVA offset);
+    void seekChanged(RVA offset, SeekHistoryType type = SeekHistoryType::New);
 
     void toggleDebugView();
 

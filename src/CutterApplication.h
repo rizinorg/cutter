@@ -33,6 +33,10 @@ public:
 
     void launchNewInstance(const QStringList &args = {});
 
+    InitialOptions getInitialOptions() const { return clOptions.fileOpenOptions; }
+    void setInitialOptions(const InitialOptions &options) { clOptions.fileOpenOptions = options; }
+    QStringList getArgs() const;
+
 protected:
     bool event(QEvent *e);
 

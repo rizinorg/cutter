@@ -52,6 +52,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     connect(Core(), &CutterCore::commentsChanged, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::functionRenamed, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::flagsChanged, this, &DisassemblerGraphView::refreshView);
+    connect(Core(), &CutterCore::globalVarsChanged, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::varsChanged, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::instructionChanged, this, &DisassemblerGraphView::refreshView);
     connect(Core(), &CutterCore::breakpointsChanged, this, &DisassemblerGraphView::refreshView);
@@ -534,33 +535,44 @@ GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView:
 
 bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::Type::ToolTip && Config()->getGraphPreview()) {
+    if ((Config()->getGraphPreview() || Config()->getShowVarTooltips())
+        && event->type() == QEvent::Type::ToolTip) {
 
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
         QPoint pointOfEvent = helpEvent->globalPos();
         QPoint point = viewToLogicalCoordinates(helpEvent->pos());
 
-        GraphBlock *block = getBlockContaining(point);
+        if (auto block = getBlockContaining(point)) {
+            // Get pos relative to start of block
+            QPoint pos = point - QPoint(block->x, block->y);
 
-        if (block == nullptr) {
-            return false;
-        }
+            // offsetFrom is the address which on top the cursor triggered this
+            RVA offsetFrom = RVA_INVALID;
 
-        // offsetFrom is the address which on top the cursor triggered this
-        RVA offsetFrom = RVA_INVALID;
+            /*
+             * getAddrForMouseEvent() doesn't work for jmps, like
+             * getInstrForMouseEvent() with false as a 3rd argument.
+             */
+            Instr *inst = getInstrForMouseEvent(*block, &pos, true);
+            if (inst != nullptr) {
+                offsetFrom = inst->addr;
+            }
 
-        /*
-         * getAddrForMouseEvent() doesn't work for jmps, like
-         * getInstrForMouseEvent() with false as a 3rd argument.
-         */
-        Instr *inst = getInstrForMouseEvent(*block, &point, true);
-        if (inst != nullptr) {
-            offsetFrom = inst->addr;
-        }
-
-        // Don't preview anything for a small scale
-        if (getViewScale() >= 0.8) {
-            return DisassemblyPreview::showDisasPreview(this, pointOfEvent, offsetFrom);
+            // Don't preview anything for a small scale
+            if (getViewScale() >= 0.8) {
+                if (Config()->getGraphPreview()
+                    && DisassemblyPreview::showDisasPreview(this, pointOfEvent, offsetFrom)) {
+                    return true;
+                }
+                if (Config()->getShowVarTooltips() && inst) {
+                    auto token = getToken(inst, pos.x());
+                    if (token
+                        && DisassemblyPreview::showDebugValueTooltip(this, pointOfEvent,
+                                                                     token->content, offsetFrom)) {
+                        return true;
+                    }
+                }
+            }
         }
     }
     return CutterGraphView::eventFilter(obj, event);

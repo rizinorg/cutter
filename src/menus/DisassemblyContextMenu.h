@@ -45,6 +45,7 @@ private slots:
     void on_actionAddComment_triggered();
     void on_actionAnalyzeFunction_triggered();
     void on_actionRename_triggered();
+    void on_actionGlobalVar_triggered();
     void on_actionSetFunctionVarTypes_triggered();
     void on_actionXRefs_triggered();
     void on_actionXRefsForVariables_triggered();
@@ -78,6 +79,7 @@ private:
     QKeySequence getCopySequence() const;
     QKeySequence getCommentSequence() const;
     QKeySequence getCopyAddressSequence() const;
+    QKeySequence getGlobalVarSequence() const;
     QKeySequence getSetToCodeSequence() const;
     QKeySequence getSetAsStringSequence() const;
     QKeySequence getSetAsStringAdvanced() const;
@@ -114,6 +116,7 @@ private:
     QAction actionAnalyzeFunction;
     QAction actionEditFunction;
     QAction actionRename;
+    QAction actionGlobalVar;
     QAction actionSetFunctionVarTypes;
     QAction actionXRefs;
     QAction actionXRefsForVariables;
@@ -168,6 +171,11 @@ private:
     QMenu *pluginMenu = nullptr;
     QAction *pluginActionMenuAction = nullptr;
 
+    /**
+     * \return widget that should be used as parent for presenting dialogs
+     */
+    QWidget *parentForDialog();
+
     // For creating anonymous entries (that are always visible)
     QAction *addAnonymousAction(QString name, const char *slot, QKeySequence shortcut);
 
@@ -185,6 +193,7 @@ private:
     void addSetAsMenu();
     void addSetToDataMenu();
     void addEditMenu();
+    void addAddAtMenu();
     void addBreakpointMenu();
     void addDebugMenu();
 

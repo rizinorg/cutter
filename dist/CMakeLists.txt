@@ -7,7 +7,7 @@ unset(RZ_GHIDRA_PREFIX_PATH)
 
 if(WIN32)
 	set(CPACK_GENERATOR "ZIP")
-	set(RIZIN_INSTALL_PLUGDIR "lib/plugins")
+	set(RIZIN_INSTALL_PLUGDIR "lib/rizin/plugins")
 
 	if (CUTTER_PACKAGE_DEPENDENCIES)
 		if (CUTTER_ENABLE_PYTHON)
@@ -56,6 +56,18 @@ if(WIN32)
 							RESULT_VARIABLE SCRIPT_RESULT)
 			if (SCRIPT_RESULT)
 				message(FATAL_ERROR \"Failed to package rz_libyara (returned \${SCRIPT_RESULT})\")
+			endif()
+		")
+	endif()
+	if (CUTTER_PACKAGE_RZ_SILHOUETTE AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
+		install(CODE "
+			set(ENV{RZ_PREFIX} \"\${CMAKE_INSTALL_PREFIX}\")
+			set(ENV{PATH} \"\${CMAKE_INSTALL_PREFIX};\$ENV{PATH}\")
+			execute_process(COMMAND powershell \"${CMAKE_CURRENT_SOURCE_DIR}/bundle_rz_silhouette.ps1\" \"\${CMAKE_INSTALL_PREFIX}\"
+							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+							RESULT_VARIABLE SCRIPT_RESULT)
+			if (SCRIPT_RESULT)
+				message(FATAL_ERROR \"Failed to package rz-silhouette (returned \${SCRIPT_RESULT})\")
 			endif()
 		")
 	endif()
@@ -150,6 +162,18 @@ if(CUTTER_ENABLE_DEPENDENCY_DOWNLOADS AND (NOT WIN32))
 			endif()
 		")
 	endif()
+	if (CUTTER_PACKAGE_RZ_SILHOUETTE)
+		install(CODE "
+			execute_process(COMMAND
+							\"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/rz-silhouette.sh\"
+							\"\${CMAKE_INSTALL_PREFIX}\" \"${YARA_PLUGIN_OPTIONS}\"
+							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+							RESULT_VARIABLE SCRIPT_RESULT)
+			if (SCRIPT_RESULT)
+				message(FATAL_ERROR \"Failed to package rz-silhouette (returned \${SCRIPT_RESULT})\")
+			endif()
+		")
+	endif()
 endif()
 
 ################################################
@@ -164,9 +188,9 @@ if(CUTTER_PACKAGE_RZ_GHIDRA)
 		# installed Cutter.
 		ExternalProject_Add(rz-ghidra
 			GIT_REPOSITORY https://github.com/rizinorg/rz-ghidra
-			GIT_TAG v0.5.0
+			#GIT_TAG v0.3.0
 			#GIT_TAG c7a50a2e7c0a95cd52b167c9ee0fa1805223f08e
-			#GIT_TAG dev
+			GIT_TAG dev
 			#GIT_SHALLOW ON # disable this line when using commit hash
 			CONFIGURE_COMMAND ""
 			BUILD_COMMAND ""

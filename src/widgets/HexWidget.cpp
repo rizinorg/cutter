@@ -1407,8 +1407,8 @@ void HexWidget::w_writeRandom()
     }
 
     bool ok = false;
-    int nbytes = QInputDialog::getInt(this, tr("Write random bytes"), tr("Number of bytes:"), size, 1,
-                                      0x7FFFFFFF, 1, &ok);
+    int nbytes = QInputDialog::getInt(this, tr("Write random bytes"), tr("Number of bytes:"), size,
+                                      1, 0x7FFFFFFF, 1, &ok);
     if (!ok) {
         return;
     }

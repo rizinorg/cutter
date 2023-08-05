@@ -13,7 +13,7 @@
  * @brief Attempt to connect to a parent console and configure outputs.
  */
 #ifdef Q_OS_WIN
-#include <windows.h>
+#    include <windows.h>
 
 static void connectToConsole()
 {
@@ -67,9 +67,9 @@ int main(int argc, char *argv[])
 #endif
     QCoreApplication::setApplicationName("cutter");
 
-    // Importing settings after setting rename, needs separate handling in addition to regular version to version upgrade.
-    if (Cutter::shouldOfferSettingImport())
-    {
+    // Importing settings after setting rename, needs separate handling in addition to regular
+    // version to version upgrade.
+    if (Cutter::shouldOfferSettingImport()) {
         Cutter::showSettingImportDialog(argc, argv);
     }
 

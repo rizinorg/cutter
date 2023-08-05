@@ -30,6 +30,11 @@ class TypesModel : public QAbstractListModel
 private:
     QList<TypeDescription> *types;
 
+    /**
+     * @brief Returns a description of the type for the given index
+     */
+    QVariant toolTipValue(const QModelIndex &index) const;
+
 public:
     enum Columns { TYPE = 0, SIZE, CATEGORY, FORMAT, COUNT };
     static const int TypeDescriptionRole = Qt::UserRole;

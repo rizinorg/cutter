@@ -128,6 +128,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
 
     connect(Core(), &CutterCore::commentsChanged, this, [this]() { refreshDisasm(); });
     connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshDisasm()));
+    connect(Core(), SIGNAL(globalVarsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), &CutterCore::functionRenamed, this, [this]() { refreshDisasm(); });
     connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshDisasm()));
@@ -333,6 +334,7 @@ void DisassemblyWidget::scrollInstructions(int count)
     }
 
     refreshDisasm(offset);
+    topOffsetHistory[topOffsetHistoryPos] = offset;
 }
 
 bool DisassemblyWidget::updateMaxLines()
@@ -629,21 +631,29 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         && (obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
-        const QTextCursor &cursor = mDisasTextEdit->cursorForPosition(mouseEvent->pos());
-        jumpToOffsetUnderCursor(cursor);
+        if (mouseEvent->button() == Qt::LeftButton) {
+            const QTextCursor &cursor = mDisasTextEdit->cursorForPosition(mouseEvent->pos());
+            jumpToOffsetUnderCursor(cursor);
 
-        return true;
-    } else if (Config()->getPreviewValue()
-            && event->type() == QEvent::ToolTip
-            && obj == mDisasTextEdit->viewport()) {
+            return true;
+        }
+    } else if ((Config()->getPreviewValue() || Config()->getShowVarTooltips())
+               && event->type() == QEvent::ToolTip && obj == mDisasTextEdit->viewport()) {
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
-
         auto cursorForWord = mDisasTextEdit->cursorForPosition(helpEvent->pos());
         cursorForWord.select(QTextCursor::WordUnderCursor);
 
         RVA offsetFrom = DisassemblyPreview::readDisassemblyOffset(cursorForWord);
 
-        return DisassemblyPreview::showDisasPreview(this, helpEvent->globalPos(), offsetFrom);
+        if (Config()->getPreviewValue()
+            && DisassemblyPreview::showDisasPreview(this, helpEvent->globalPos(), offsetFrom)) {
+            return true;
+        }
+        if (Config()->getShowVarTooltips()
+            && DisassemblyPreview::showDebugValueTooltip(
+                    this, helpEvent->globalPos(), cursorForWord.selectedText(), offsetFrom)) {
+            return true;
+        }
     }
 
     return MemoryDockWidget::eventFilter(obj, event);
@@ -664,19 +674,34 @@ QString DisassemblyWidget::getWindowTitle() const
     return tr("Disassembly");
 }
 
-void DisassemblyWidget::on_seekChanged(RVA offset)
+void DisassemblyWidget::on_seekChanged(RVA offset, CutterCore::SeekHistoryType type)
 {
+    if (type == CutterCore::SeekHistoryType::New) {
+        // Erase previous history past this point.
+        if (topOffsetHistory.size() > topOffsetHistoryPos + 1) {
+            topOffsetHistory.erase(topOffsetHistory.begin() + topOffsetHistoryPos + 1,
+                                   topOffsetHistory.end());
+        }
+        topOffsetHistory.push_back(offset);
+        topOffsetHistoryPos = topOffsetHistory.size() - 1;
+    } else if (type == CutterCore::SeekHistoryType::Undo) {
+        --topOffsetHistoryPos;
+    } else if (type == CutterCore::SeekHistoryType::Redo) {
+        ++topOffsetHistoryPos;
+    }
     if (!seekFromCursor) {
         cursorLineOffset = 0;
         cursorCharOffset = 0;
     }
 
-    if (topOffset != RVA_INVALID && offset >= topOffset && offset <= bottomOffset) {
+    if (topOffset != RVA_INVALID && offset >= topOffset && offset <= bottomOffset
+        && type == CutterCore::SeekHistoryType::New) {
         // if the line with the seek offset is currently visible, just move the cursor there
         updateCursorPosition();
+        topOffsetHistory[topOffsetHistoryPos] = topOffset;
     } else {
         // otherwise scroll there
-        refreshDisasm(offset);
+        refreshDisasm(topOffsetHistory[topOffsetHistoryPos]);
     }
     mCtxMenu->setOffset(offset);
 }

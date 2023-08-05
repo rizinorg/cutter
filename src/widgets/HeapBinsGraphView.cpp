@@ -36,8 +36,7 @@ void HeapBinsGraphView::loadCurrentGraph()
             || QString(heapBin->type) == QString("Tcache");
 
     // store info about the chunks in a vector for easy access
-    CutterRzListForeach(heapBin->chunks, iter, RzHeapChunkListItem, item)
-    {
+    CutterRzListForeach (heapBin->chunks, iter, RzHeapChunkListItem, item) {
         GraphHeapChunk graphHeapChunk;
         graphHeapChunk.addr = item->addr;
         RzHeapChunkSimple *chunkInfo = Core()->getHeapChunk(item->addr);

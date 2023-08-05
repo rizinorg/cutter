@@ -1,6 +1,6 @@
 #include "ClassesWidget.h"
 #include "core/MainWindow.h"
-#include "ui_ClassesWidget.h"
+#include "ui_ListDockWidget.h"
 #include "common/Helpers.h"
 #include "common/SvgIconEngine.h"
 #include "dialogs/EditMethodDialog.h"
@@ -9,6 +9,8 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QInputDialog>
+#include <QShortcut>
+#include <QComboBox>
 
 QVariant ClassesModel::headerData(int section, Qt::Orientation, int role) const
 {
@@ -31,6 +33,17 @@ QVariant ClassesModel::headerData(int section, Qt::Orientation, int role) const
     default:
         return QVariant();
     }
+}
+
+RVA ClassesModel::address(const QModelIndex &index) const
+{
+    QVariant v = data(index, OffsetRole);
+    return v.isValid() ? v.toULongLong() : RVA_INVALID;
+}
+
+QString ClassesModel::name(const QModelIndex &index) const
+{
+    return data(index, NameRole).toString();
 }
 
 BinClassesModel::BinClassesModel(QObject *parent) : ClassesModel(parent) {}
@@ -526,12 +539,17 @@ QVariant AnalysisClassesModel::data(const QModelIndex &index, int role) const
 }
 
 ClassesSortFilterProxyModel::ClassesSortFilterProxyModel(QObject *parent)
-    : QSortFilterProxyModel(parent)
+    : AddressableFilterProxyModel(nullptr, parent)
 {
+    setFilterCaseSensitivity(Qt::CaseInsensitive);
+    setSortCaseSensitivity(Qt::CaseInsensitive);
 }
 
 bool ClassesSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
+    if (parent.isValid())
+        return true;
+
     QModelIndex index = sourceModel()->index(row, 0, parent);
     return qhelpers::filterStringContains(index.data(ClassesModel::NameRole).toString(), this);
 }
@@ -576,23 +594,63 @@ bool ClassesSortFilterProxyModel::hasChildren(const QModelIndex &parent) const
     return !parent.isValid() || !parent.parent().isValid();
 }
 
-ClassesWidget::ClassesWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::ClassesWidget)
+ClassesWidget::ClassesWidget(MainWindow *main)
+    : ListDockWidget(main),
+      seekToVTableAction(tr("Seek to VTable"), this),
+      editMethodAction(tr("Edit Method"), this),
+      addMethodAction(tr("Add Method"), this),
+      newClassAction(tr("Create new Class"), this),
+      renameClassAction(tr("Rename Class"), this),
+      deleteClassAction(tr("Delete Class"), this)
 {
-    ui->setupUi(this);
+    setWindowTitle(tr("Classes"));
+    setObjectName("ClassesWidget");
 
-    ui->classesTreeView->setIconSize(QSize(10, 10));
+    ui->treeView->setIconSize(QSize(10, 10));
 
     proxy_model = new ClassesSortFilterProxyModel(this);
-    ui->classesTreeView->setModel(proxy_model);
-    ui->classesTreeView->sortByColumn(ClassesModel::TYPE, Qt::AscendingOrder);
-    ui->classesTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    setModels(proxy_model);
 
-    ui->classSourceCombo->setCurrentIndex(1);
+    classSourceCombo = new QComboBox(this);
+    // User an intermediate single-child layout to contain the combo box, otherwise
+    // when the combo box is inserted directly, the entire vertical layout gets a
+    // weird horizontal padding on macOS.
+    QBoxLayout *comboLayout = new QBoxLayout(QBoxLayout::Direction::LeftToRight, nullptr);
+    comboLayout->addWidget(classSourceCombo);
+    ui->verticalLayout->insertLayout(ui->verticalLayout->indexOf(ui->quickFilterView), comboLayout);
+    classSourceCombo->addItem(tr("Binary Info (Fixed)"));
+    classSourceCombo->addItem(tr("Analysis (Editable)"));
+    classSourceCombo->setCurrentIndex(1);
 
-    connect<void (QComboBox::*)(int)>(ui->classSourceCombo, &QComboBox::currentIndexChanged, this,
+    connect<void (QComboBox::*)(int)>(classSourceCombo, &QComboBox::currentIndexChanged, this,
                                       &ClassesWidget::refreshClasses);
-    connect(ui->classesTreeView, &QTreeView::customContextMenuRequested, this,
-            &ClassesWidget::showContextMenu);
+
+    connect(&seekToVTableAction, &QAction::triggered, this,
+            &ClassesWidget::seekToVTableActionTriggered);
+    connect(&editMethodAction, &QAction::triggered, this,
+            &ClassesWidget::editMethodActionTriggered);
+    connect(&addMethodAction, &QAction::triggered, this, &ClassesWidget::addMethodActionTriggered);
+    connect(&newClassAction, &QAction::triggered, this, &ClassesWidget::newClassActionTriggered);
+    connect(&renameClassAction, &QAction::triggered, this,
+            &ClassesWidget::renameClassActionTriggered);
+    connect(&deleteClassAction, &QAction::triggered, this,
+            &ClassesWidget::deleteClassActionTriggered);
+
+    // Build context menu like this:
+    //   class-related actions
+    //   -- classesMethodsSeparator
+    //   method-related actions
+    //   -- separator
+    //   default actions from AddressableItemList
+    auto contextMenu = ui->treeView->getItemContextMenu();
+    contextMenu->insertSeparator(contextMenu->actions().first());
+    contextMenu->insertActions(contextMenu->actions().first(),
+                               { &addMethodAction, &editMethodAction, &seekToVTableAction });
+    classesMethodsSeparator = contextMenu->insertSeparator(contextMenu->actions().first());
+    contextMenu->insertActions(classesMethodsSeparator,
+                               { &newClassAction, &renameClassAction, &deleteClassAction });
+    connect(contextMenu, &QMenu::aboutToShow, this, &ClassesWidget::updateActions);
+    ui->treeView->setShowItemContextMenuWithoutAddress(true);
 
     refreshClasses();
 }
@@ -601,7 +659,7 @@ ClassesWidget::~ClassesWidget() {}
 
 ClassesWidget::Source ClassesWidget::getSource()
 {
-    switch (ui->classSourceCombo->currentIndex()) {
+    switch (classSourceCombo->currentIndex()) {
     case 0:
         return Source::BIN;
     default:
@@ -614,88 +672,68 @@ void ClassesWidget::refreshClasses()
     switch (getSource()) {
     case Source::BIN:
         if (!bin_model) {
-            proxy_model->setSourceModel(nullptr);
+            proxy_model->setSourceModel(static_cast<AddressableItemModelI *>(nullptr));
             delete analysis_model;
             analysis_model = nullptr;
             bin_model = new BinClassesModel(this);
-            proxy_model->setSourceModel(bin_model);
+            proxy_model->setSourceModel(static_cast<AddressableItemModelI *>(bin_model));
         }
         bin_model->setClasses(Core()->getAllClassesFromBin());
         break;
     case Source::ANALYSIS:
         if (!analysis_model) {
-            proxy_model->setSourceModel(nullptr);
+            proxy_model->setSourceModel(static_cast<AddressableItemModelI *>(nullptr));
             delete bin_model;
             bin_model = nullptr;
             analysis_model = new AnalysisClassesModel(this);
-            proxy_model->setSourceModel(analysis_model);
+            proxy_model->setSourceModel(static_cast<AddressableItemModelI *>(analysis_model));
         }
         break;
     }
 
-    qhelpers::adjustColumns(ui->classesTreeView, 3, 0);
+    qhelpers::adjustColumns(ui->treeView, 3, 0);
 
-    ui->classesTreeView->setColumnWidth(0, 200);
+    ui->treeView->setColumnWidth(0, 200);
 }
 
-void ClassesWidget::on_classesTreeView_doubleClicked(const QModelIndex &index)
+void ClassesWidget::updateActions()
 {
-    if (!index.isValid())
-        return;
+    bool isAnalysis = !!analysis_model;
+    newClassAction.setVisible(isAnalysis);
+    addMethodAction.setVisible(isAnalysis);
 
-    QVariant offsetData = index.data(ClassesModel::OffsetRole);
-    if (!offsetData.isValid()) {
-        return;
-    }
-    RVA offset = offsetData.value<RVA>();
-    Core()->seekAndShow(offset);
-}
-
-void ClassesWidget::showContextMenu(const QPoint &pt)
-{
-    if (!analysis_model) {
-        // no context menu for bin classes
-        return;
+    bool rowIsAnalysisClass = false;
+    bool rowIsAnalysisMethod = false;
+    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
+    if (isAnalysis && index.isValid()) {
+        auto type = static_cast<ClassesModel::RowType>(index.data(ClassesModel::TypeRole).toInt());
+        rowIsAnalysisClass = type == ClassesModel::RowType::Class;
+        rowIsAnalysisMethod = type == ClassesModel::RowType::Method;
     }
 
-    QModelIndex index = ui->classesTreeView->selectionModel()->currentIndex();
-    if (!index.isValid()) {
-        return;
-    }
-    auto type = static_cast<ClassesModel::RowType>(index.data(ClassesModel::TypeRole).toInt());
+    renameClassAction.setVisible(rowIsAnalysisClass);
+    deleteClassAction.setVisible(rowIsAnalysisClass);
 
-    QMenu menu(ui->classesTreeView);
+    classesMethodsSeparator->setVisible(rowIsAnalysisClass || rowIsAnalysisMethod);
 
-    menu.addAction(ui->newClassAction);
-
-    if (type == ClassesModel::RowType::Class) {
-        menu.addAction(ui->renameClassAction);
-        menu.addAction(ui->deleteClassAction);
-    }
-
-    menu.addSeparator();
-
-    menu.addAction(ui->addMethodAction);
-
-    if (type == ClassesModel::RowType::Method) {
-        menu.addAction(ui->editMethodAction);
-
+    editMethodAction.setVisible(rowIsAnalysisMethod);
+    bool rowHasVTable = false;
+    if (rowIsAnalysisMethod) {
         QString className = index.parent().data(ClassesModel::NameRole).toString();
         QString methodName = index.data(ClassesModel::NameRole).toString();
         AnalysisMethodDescription desc;
         if (Core()->getAnalysisMethod(className, methodName, &desc)) {
             if (desc.vtableOffset >= 0) {
-                menu.addAction(ui->seekToVTableAction);
+                rowHasVTable = true;
             }
         }
     }
-
-    menu.exec(ui->classesTreeView->mapToGlobal(pt));
+    seekToVTableAction.setVisible(rowHasVTable);
 }
 
-void ClassesWidget::on_seekToVTableAction_triggered()
+void ClassesWidget::seekToVTableActionTriggered()
 {
-    QModelIndex index = ui->classesTreeView->selectionModel()->currentIndex();
+    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     QString className = index.parent().data(ClassesModel::NameRole).toString();
 
     QList<AnalysisVTableDescription> vtables = Core()->getAnalysisClassVTables(className);
@@ -714,9 +752,9 @@ void ClassesWidget::on_seekToVTableAction_triggered()
     Core()->seekAndShow(vtables[0].addr + desc.vtableOffset);
 }
 
-void ClassesWidget::on_addMethodAction_triggered()
+void ClassesWidget::addMethodActionTriggered()
 {
-    QModelIndex index = ui->classesTreeView->selectionModel()->currentIndex();
+    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     if (!index.isValid()) {
         return;
     }
@@ -732,9 +770,9 @@ void ClassesWidget::on_addMethodAction_triggered()
     EditMethodDialog::newMethod(className, QString(), this);
 }
 
-void ClassesWidget::on_editMethodAction_triggered()
+void ClassesWidget::editMethodActionTriggered()
 {
-    QModelIndex index = ui->classesTreeView->selectionModel()->currentIndex();
+    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     if (!index.isValid()
         || index.data(ClassesModel::TypeRole).toInt()
                 != static_cast<int>(ClassesModel::RowType::Method)) {
@@ -745,7 +783,7 @@ void ClassesWidget::on_editMethodAction_triggered()
     EditMethodDialog::editMethod(className, methName, this);
 }
 
-void ClassesWidget::on_newClassAction_triggered()
+void ClassesWidget::newClassActionTriggered()
 {
     bool ok;
     QString name = QInputDialog::getText(this, tr("Create new Class"), tr("Class Name:"),
@@ -755,9 +793,9 @@ void ClassesWidget::on_newClassAction_triggered()
     }
 }
 
-void ClassesWidget::on_deleteClassAction_triggered()
+void ClassesWidget::deleteClassActionTriggered()
 {
-    QModelIndex index = ui->classesTreeView->selectionModel()->currentIndex();
+    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     if (!index.isValid()
         || index.data(ClassesModel::TypeRole).toInt()
                 != static_cast<int>(ClassesModel::RowType::Class)) {
@@ -772,9 +810,9 @@ void ClassesWidget::on_deleteClassAction_triggered()
     Core()->deleteClass(className);
 }
 
-void ClassesWidget::on_renameClassAction_triggered()
+void ClassesWidget::renameClassActionTriggered()
 {
-    QModelIndex index = ui->classesTreeView->selectionModel()->currentIndex();
+    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     if (!index.isValid()
         || index.data(ClassesModel::TypeRole).toInt()
                 != static_cast<int>(ClassesModel::RowType::Class)) {

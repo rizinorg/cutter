@@ -26,6 +26,7 @@ class FunctionsWidget;
 class ImportsWidget;
 class ExportsWidget;
 class SymbolsWidget;
+class GlobalsWidget;
 class RelocsWidget;
 class CommentsWidget;
 class StringsWidget;
@@ -152,6 +153,7 @@ public slots:
 
     void toggleOverview(bool visibility, GraphWidget *targetGraph);
 private slots:
+    void on_actionBaseFind_triggered();
     void on_actionAbout_triggered();
     void on_actionIssue_triggered();
     void documentationClicked();
@@ -239,6 +241,7 @@ private:
     TypesWidget *typesDock = nullptr;
     SearchWidget *searchDock = nullptr;
     SymbolsWidget *symbolsDock = nullptr;
+    GlobalsWidget *globalsDock = nullptr;
     RelocsWidget *relocsDock = nullptr;
     CommentsWidget *commentsDock = nullptr;
     StringsWidget *stringsDock = nullptr;

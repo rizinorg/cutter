@@ -322,12 +322,12 @@ void SearchWidget::updatePlaceholderText(int index)
 void SearchWidget::disableSearch()
 {
     ui->searchButton->setEnabled(false);
-    ui->searchButton->setText("Searching...");
+    ui->searchButton->setText(tr("Searching..."));
     qApp->processEvents();
 }
 
 void SearchWidget::enableSearch()
 {
     ui->searchButton->setEnabled(true);
-    ui->searchButton->setText("Search");
+    ui->searchButton->setText(tr("Search"));
 }

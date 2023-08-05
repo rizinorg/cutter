@@ -26,27 +26,34 @@ jobs:
             - '**.c'
             - '**.h'
             - '.github/workflows/linter.yml'
+            - 'scripts/clang-format.py'
+            - '_clang-format'
 
   clang-format:
     needs: changes
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     if: ${{ needs.changes.outputs.clang-format == 'true' }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Install wget
-      run: sudo apt --assume-yes install wget
+    - name: Install wget, software-properties-common, lsb-release (dependencies of LLVM install script)
+      run: sudo apt --assume-yes install wget software-properties-common lsb-release
 
-    - name: Install automatic llvm (stable branch)
-      run: sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+    - name: Uninstall old conflicting packages
+      run: sudo apt purge --assume-yes --auto-remove llvm python3-lldb-14 llvm-14
 
-    - name: Install clang-format-11
-      run: sudo apt --assume-yes install clang-format-11
+    - name: Install automatic LLVM 16
+      run: wget https://apt.llvm.org/llvm.sh -O /tmp/llvm-install.sh; chmod +x /tmp/llvm-install.sh; sudo /tmp/llvm-install.sh 16
+
+    - name: Install clang-format-16
+      run: sudo apt --assume-yes install clang-format-16
 
     - name: Install gitpython
       run: sudo pip install gitpython
 
     - name: Run clang-format
       run: |
-        find ./src -regex '.*\.\(cpp\|h\|c\)' -exec clang-format -style=file --dry-run --Werror {} \;
+        sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-16 160
+        clang-format --version
+        python scripts/clang-format.py --check --verbose

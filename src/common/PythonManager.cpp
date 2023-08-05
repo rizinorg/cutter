@@ -13,6 +13,10 @@
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
 #    include <shiboken.h>
 #    include <pyside.h>
+#    ifdef HAVE_PYSIDECLEANUP
+// This header is introduced in PySide 6
+#        include <pysidecleanup.h>
+#    endif
 #    include <signalmanager.h>
 #endif
 
@@ -72,7 +76,10 @@ void PythonManager::initialize()
     PyImport_AppendInittab("CutterBindings", &PyInit_CutterBindings);
 #endif
     Py_Initialize();
+    // This function is deprecated does nothing starting from Python 3.9
+#if (PY_MAJOR_VERSION <= 3) && (PY_MICRO_VERSION < 9)
     PyEval_InitThreads();
+#endif
     pyThreadStateCounter = 1; // we have the thread now => 1
 
     RegQtResImporter();
@@ -159,7 +166,7 @@ void PythonManager::addPythonPath(char *path)
     if (!append) {
         return;
     }
-    PyEval_CallFunction(append, "(s)", path);
+    PyObject_CallFunction(append, "(s)", path);
 
     saveThread();
 }

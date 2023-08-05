@@ -6,6 +6,7 @@ set(SOURCES
     core/Cutter.cpp
     core/CutterJson.cpp
     core/RizinCpp.cpp
+    core/Basefind.cpp
     dialogs/EditStringDialog.cpp
     dialogs/WriteCommandsDialogs.cpp
     widgets/DisassemblerGraphView.cpp
@@ -17,6 +18,7 @@ set(SOURCES
     dialogs/CommentsDialog.cpp
     dialogs/EditInstructionDialog.cpp
     dialogs/FlagDialog.cpp
+    dialogs/GlobalVariableDialog.cpp
     dialogs/RemoteDebugDialog.cpp
     dialogs/NativeDebugDialog.cpp
     dialogs/XrefsDialog.cpp
@@ -35,6 +37,7 @@ set(SOURCES
     widgets/ExportsWidget.cpp
     widgets/FlagsWidget.cpp
     widgets/FunctionsWidget.cpp
+    widgets/GlobalsWidget.cpp
     widgets/ImportsWidget.cpp
     widgets/Omnibar.cpp
     widgets/RelocsWidget.cpp
@@ -149,6 +152,9 @@ set(SOURCES
     dialogs/GlibcHeapBinsDialog.cpp
     widgets/HeapBinsGraphView.cpp
     dialogs/ArenaInfoDialog.cpp
+    tools/basefind/BaseFindDialog.cpp
+    tools/basefind/BaseFindSearchDialog.cpp
+    tools/basefind/BaseFindResultsDialog.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -156,6 +162,7 @@ set(HEADER_FILES
     core/CutterDescriptions.h
     core/CutterJson.h
     core/RizinCpp.h
+    core/Basefind.h
     dialogs/EditStringDialog.h
     dialogs/WriteCommandsDialogs.h
     widgets/DisassemblerGraphView.h
@@ -167,6 +174,7 @@ set(HEADER_FILES
     dialogs/CommentsDialog.h
     dialogs/EditInstructionDialog.h
     dialogs/FlagDialog.h
+    dialogs/GlobalVariableDialog.h
     dialogs/RemoteDebugDialog.h
     dialogs/NativeDebugDialog.h
     dialogs/XrefsDialog.h
@@ -308,6 +316,9 @@ set(HEADER_FILES
     dialogs/GlibcHeapBinsDialog.h
     widgets/HeapBinsGraphView.h
     dialogs/ArenaInfoDialog.h
+    tools/basefind/BaseFindDialog.h
+    tools/basefind/BaseFindSearchDialog.h
+    tools/basefind/BaseFindResultsDialog.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -319,6 +330,7 @@ set(UI_FILES
     dialogs/CommentsDialog.ui
     dialogs/EditInstructionDialog.ui
     dialogs/FlagDialog.ui
+    dialogs/GlobalVariableDialog.ui
     dialogs/RemoteDebugDialog.ui
     dialogs/NativeDebugDialog.ui
     dialogs/XrefsDialog.ui
@@ -330,6 +342,7 @@ set(UI_FILES
     widgets/Dashboard.ui
     widgets/EntrypointWidget.ui
     widgets/FlagsWidget.ui
+    widgets/GlobalsWidget.ui
     widgets/StringsWidget.ui
     widgets/HexdumpWidget.ui
     dialogs/preferences/PreferencesDialog.ui
@@ -338,7 +351,6 @@ set(UI_FILES
     dialogs/preferences/InitializationFileEditor.ui
     widgets/QuickFilterView.ui
     widgets/DecompilerWidget.ui
-    widgets/ClassesWidget.ui
     widgets/VTablesWidget.ui
     widgets/TypesWidget.ui
     widgets/SearchWidget.ui
@@ -378,6 +390,9 @@ set(UI_FILES
     widgets/GlibcHeapWidget.ui
     dialogs/GlibcHeapBinsDialog.ui
     dialogs/ArenaInfoDialog.ui
+    tools/basefind/BaseFindDialog.ui
+    tools/basefind/BaseFindSearchDialog.ui
+    tools/basefind/BaseFindResultsDialog.ui
 )
 set(QRC_FILES
     resources.qrc
@@ -387,16 +402,26 @@ set(QRC_FILES
     themes/lightstyle/light.qrc
 )
 
+set(CUTTER_INCLUDE_DIRECTORIES core widgets common plugins menus .)
+
 if (CUTTER_ENABLE_PYTHON)
     list(APPEND SOURCES common/QtResImporter.cpp common/PythonManager.cpp common/PythonAPI.cpp)
     list(APPEND HEADER_FILES common/QtResImporter.h common/PythonManager.h common/PythonAPI.h)
 endif()
 
 if(CUTTER_ENABLE_PYTHON_BINDINGS)
+    if (CUTTER_QT6)
+        set(PYSIDE_NAME PySide6)
+        set(SHIBOKEN_COMMAND Shiboken6::shiboken6)
+    else()
+        set(PYSIDE_NAME PySide2)
+        set(SHIBOKEN_COMMAND Shiboken2::shiboken2)
+    endif()
+
     set(BINDINGS_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bindings")
     set(BINDINGS_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/bindings")
 
-    configure_file("${BINDINGS_SRC_DIR}/bindings.xml" "${BINDINGS_BUILD_DIR}/bindings.xml" COPYONLY) # trigger reconfigure if file changes
+    configure_file("${BINDINGS_SRC_DIR}/bindings.xml.in" "${BINDINGS_BUILD_DIR}/bindings.xml")
 
     execute_process(COMMAND "${PYTHON_EXECUTABLE}" "${BINDINGS_SRC_DIR}/src_list.py" cmake "${BINDINGS_BUILD_DIR}" OUTPUT_VARIABLE BINDINGS_SOURCE)
 
@@ -404,14 +429,40 @@ if(CUTTER_ENABLE_PYTHON_BINDINGS)
 
     include_directories("${BINDINGS_BUILD_DIR}/CutterBindings")
 
+    set(SHIBOKEN_INCLUDE_DIRS "")
+    if(APPLE AND _qt6Core_install_prefix)
+        list(APPEND BINDINGS_INCLUDE_DIRS "${_qt6Core_install_prefix}/include")
+        list(APPEND BINDINGS_INCLUDE_DIRS "${_qt6Core_install_prefix}/include/QtCore")
+        list(APPEND BINDINGS_INCLUDE_DIRS "${_qt6Core_install_prefix}/include/QtGui")
+        list(APPEND BINDINGS_INCLUDE_DIRS "${_qt6Core_install_prefix}/include/QtWidgets")
+    endif()
+
+    if (CUTTER_QT6)
+        list(APPEND SHIBOKEN_INCLUDE_DIRS ${Qt6Core_INCLUDE_DIRS} ${Qt6Widgets_INCLUDE_DIRS} ${Qt6Gui_INCLUDE_DIRS})
+    else()
+        list(APPEND SHIBOKEN_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS})
+    endif()
+
+    foreach(_dir ${CUTTER_INCLUDE_DIRECTORIES})
+        list(APPEND SHIBOKEN_INCLUDE_DIRS
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${_dir}>
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/cutter/${_dir}>
+        )
+    endforeach()
+    list(APPEND SHIBOKEN_INCLUDE_DIRS ${Rizin_INCLUDE_DIRS})
+    if (NOT WIN32)
+        string(REPLACE ";" ":" SHIBOKEN_INCLUDE_DIRS "${SHIBOKEN_INCLUDE_DIRS}")
+    endif()
+
     set(SHIBOKEN_OPTIONS)
+    list(APPEND SHIBOKEN_OPTIONS --include-paths="${SHIBOKEN_INCLUDE_DIRS}")
     if (WIN32)
         list(APPEND SHIBOKEN_OPTIONS --avoid-protected-hack)
     endif()
 
     add_custom_command(OUTPUT ${BINDINGS_SOURCE}
-            COMMAND Shiboken2::shiboken2 --project-file="${BINDINGS_BUILD_DIR}/bindings.txt" ${SHIBOKEN_OPTIONS} ${SHIBOKEN_EXTRA_OPTIONS}
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.xml" "${BINDINGS_BUILD_DIR}/bindings.txt"
+            COMMAND "${SHIBOKEN_COMMAND}" --project-file="${BINDINGS_BUILD_DIR}/bindings.txt" ${SHIBOKEN_OPTIONS} ${SHIBOKEN_EXTRA_OPTIONS}
+            DEPENDS "${BINDINGS_BUILD_DIR}/bindings.xml" "${BINDINGS_BUILD_DIR}/bindings.txt"
             IMPLICIT_DEPENDS CXX "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.h"
             COMMENT "Generating Python bindings with shiboken2")
 else()
@@ -453,7 +504,6 @@ target_compile_definitions(Cutter PRIVATE CUTTER_SOURCE_BUILD)
 # Set Cutter as the startup project in Visual Studio
 set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Cutter)
 
-set(CUTTER_INCLUDE_DIRECTORIES core widgets common plugins menus .)
 foreach(_dir ${CUTTER_INCLUDE_DIRECTORIES})
     target_include_directories(Cutter PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${_dir}>
@@ -488,7 +538,11 @@ if(CUTTER_ENABLE_PYTHON)
     endif()
     target_link_libraries(Cutter PRIVATE ${PYTHON_LIBRARIES})
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
-        target_link_libraries(Cutter PRIVATE Shiboken2::libshiboken PySide2::pyside2)
+        if (CUTTER_QT6)
+            target_link_libraries(Cutter PRIVATE Shiboken6::libshiboken PySide6::pyside6)
+        else()
+            target_link_libraries(Cutter PRIVATE Shiboken2::libshiboken PySide2::pyside2)
+        endif()
 
         get_target_property(RAW_BINDINGS_INCLUDE_DIRS Cutter INCLUDE_DIRECTORIES)
         if(NOT CUTTER_USE_BUNDLED_RIZIN)
@@ -510,7 +564,11 @@ if(CUTTER_ENABLE_PYTHON)
             list(APPEND BINDINGS_INCLUDE_DIRS "${_qt5Core_install_prefix}/include/QtGui")
             list(APPEND BINDINGS_INCLUDE_DIRS "${_qt5Core_install_prefix}/include/QtWidgets")
         endif()
-        list(APPEND BINDINGS_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS})
+        if (CUTTER_QT6)
+            list(APPEND BINDINGS_INCLUDE_DIRS ${Qt6Core_INCLUDE_DIRS} ${Qt6Widgets_INCLUDE_DIRS} ${Qt6Gui_INCLUDE_DIRS})
+        else()
+            list(APPEND BINDINGS_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS})
+        endif()
         list(APPEND BINDINGS_INCLUDE_DIRS ${Rizin_INCLUDE_DIRS})
         list(APPEND BINDINGS_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}")
         if (NOT WIN32)
