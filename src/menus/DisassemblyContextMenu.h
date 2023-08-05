@@ -116,11 +116,11 @@ private:
     QAction actionAnalyzeFunction;
     QAction actionEditFunction;
     QAction actionRename;
+    QAction actionGlobalVar;
     QAction actionSetFunctionVarTypes;
     QAction actionXRefs;
     QAction actionXRefsForVariables;
     QAction actionDisplayOptions;
-    QAction actionGlobalVar;
 
     QAction actionDeleteComment;
     QAction actionDeleteFlag;
