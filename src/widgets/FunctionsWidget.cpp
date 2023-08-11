@@ -310,7 +310,7 @@ QVariant FunctionModel::headerData(int section, Qt::Orientation orientation, int
             case SizeColumn:
                 return tr("Size");
             case ImportColumn:
-                return tr("Imp.");
+                return tr("Import");
             case OffsetColumn:
                 return tr("Offset");
             case NargsColumn:
