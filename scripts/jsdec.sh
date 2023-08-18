@@ -7,7 +7,7 @@ SCRIPTPATH=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
 cd "$SCRIPTPATH/.."
 
 if [[ ! -d jsdec ]]; then
-	git clone https://github.com/rizinorg/jsdec.git --depth 2 --branch master
+	git clone https://github.com/rizinorg/jsdec.git --depth 1 --branch "v0.6.0"
 fi
 
 cd jsdec
