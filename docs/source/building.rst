@@ -85,7 +85,13 @@ On Arch-based Linux distributions:
 
 ::
 
+   # When building with CUTTER_ENABLE_KSYNTAXHIGHLIGHTING (Default)
+   sudo pacman -Syu --needed syntax-highlighting
+   # When building with CUTTER_ENABLE_GRAPHVIZ (Default)
+   sudo pacman -Syu --needed graphviz
+   
    sudo pacman -Syu --needed base-devel cmake meson qt5-base qt5-svg qt5-tools
+
 
 On dnf/yum based distributions:
 
