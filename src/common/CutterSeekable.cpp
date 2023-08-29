@@ -65,7 +65,6 @@ void CutterSeekable::seekToReference(RVA offset)
         return;
     }
 
-    RVA target;
     QList<XrefDescription> refs = Core()->getXRefs(offset, false, false);
 
     if (refs.length()) {
@@ -73,10 +72,19 @@ void CutterSeekable::seekToReference(RVA offset)
             qWarning() << tr("More than one (%1) references here. Weird behaviour expected.")
                                   .arg(refs.length());
         }
-
-        target = refs.at(0).to;
-        if (target != RVA_INVALID) {
-            seek(target);
+        // Try first call
+        for (auto &ref : refs) {
+            if (ref.to != RVA_INVALID && ref.type == "CALL") {
+                seek(ref.to);
+                return;
+            }
+        }
+        // Fallback to first valid, if any
+        for (auto &ref : refs) {
+            if (ref.to != RVA_INVALID) {
+                seek(ref.to);
+                return;
+            }
         }
     }
 }
