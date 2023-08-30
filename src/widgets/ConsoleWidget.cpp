@@ -229,10 +229,10 @@ void ConsoleWidget::executeCommand(const QString &command)
 
     RVA oldOffset = Core()->getOffset();
     commandTask = QSharedPointer<CommandTask>(
-            new CommandTask(command, CommandTask::ColorMode::MODE_256, true));
+            new CommandTask(command, CommandTask::ColorMode::MODE_256, false));
     connect(commandTask.data(), &CommandTask::finished, this,
             [this, cmd_line, command, oldOffset](const QString &result) {
-                ui->outputTextEdit->appendHtml(result);
+                ui->outputTextEdit->appendPlainText(result);
                 scrollOutputToEnd();
                 historyAdd(command);
                 commandTask.clear();
