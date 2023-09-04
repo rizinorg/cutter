@@ -42,6 +42,7 @@ private slots:
 
     void on_actionCopy_triggered();
     void on_actionCopyAddr_triggered();
+    void on_actionCopyInstrBytes_triggered();
     void on_actionAddComment_triggered();
     void on_actionAnalyzeFunction_triggered();
     void on_actionRename_triggered();
@@ -79,6 +80,7 @@ private:
     QKeySequence getCopySequence() const;
     QKeySequence getCommentSequence() const;
     QKeySequence getCopyAddressSequence() const;
+    QKeySequence getCopyInstrBytesSequence() const;
     QKeySequence getGlobalVarSequence() const;
     QKeySequence getSetToCodeSequence() const;
     QKeySequence getSetAsStringSequence() const;
@@ -111,6 +113,7 @@ private:
     QAction actionCopy;
     QAction *copySeparator;
     QAction actionCopyAddr;
+    QAction actionCopyInstrBytes;
 
     QAction actionAddComment;
     QAction actionAnalyzeFunction;
