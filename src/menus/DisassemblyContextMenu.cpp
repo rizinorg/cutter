@@ -31,6 +31,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
       actionEditBytes(this),
       actionCopy(this),
       actionCopyAddr(this),
+      actionCopyInstrBytes(this),
       actionAddComment(this),
       actionAnalyzeFunction(this),
       actionEditFunction(this),
@@ -75,6 +76,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     initAction(&actionCopyAddr, tr("Copy address"), SLOT(on_actionCopyAddr_triggered()),
                getCopyAddressSequence());
     addAction(&actionCopyAddr);
+
+    initAction(&actionCopyInstrBytes, tr("Copy instruction bytes"),
+               SLOT(on_actionCopyInstrBytes_triggered()), getCopyInstrBytesSequence());
+    addAction(&actionCopyInstrBytes);
 
     initAction(&showInSubmenu, tr("Show in"), nullptr);
     addAction(&showInSubmenu);
@@ -643,6 +648,11 @@ QKeySequence DisassemblyContextMenu::getCopyAddressSequence() const
     return { Qt::CTRL | Qt::SHIFT | Qt::Key_C };
 }
 
+QKeySequence DisassemblyContextMenu::getCopyInstrBytesSequence() const
+{
+    return { Qt::CTRL | Qt::ALT | Qt::Key_C };
+}
+
 QKeySequence DisassemblyContextMenu::getSetToCodeSequence() const
 {
     return { Qt::Key_C };
@@ -791,6 +801,12 @@ void DisassemblyContextMenu::on_actionCopyAddr_triggered()
 {
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(RzAddressString(offset));
+}
+
+void DisassemblyContextMenu::on_actionCopyInstrBytes_triggered()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(Core()->getInstructionBytes(offset));
 }
 
 void DisassemblyContextMenu::on_actionAddBreakpoint_triggered()
