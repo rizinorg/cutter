@@ -3107,16 +3107,16 @@ QList<ImportDescription> CutterCore::getAllImports()
     if (!bf) {
         return {};
     }
-    const RzList *imports = rz_bin_object_get_imports(bf->o);
+    const RzPVector *imports = rz_bin_object_get_imports(bf->o);
     if (!imports) {
         return {};
     }
 
     QList<ImportDescription> qList;
-    RzBinImport *import;
-    RzListIter *iter;
     bool va = core->io->va || core->bin->is_debugger;
-    CutterRzListForeach (imports, iter, RzBinImport, import) {
+
+
+    for (auto import : CutterPVector<RzBinImport>(imports)) {
         if (RZ_STR_ISEMPTY(import->name)) {
             continue;
         }
