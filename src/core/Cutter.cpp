@@ -3109,14 +3109,14 @@ QList<ImportDescription> CutterCore::getAllImports()
     if (!bf) {
         return {};
     }
-    const auto *imports = new CutterPVector<RzBinImport>(rz_bin_object_get_imports(bf->o));
+    const RzPVector *imports = rz_bin_object_get_imports(bf->o);
     if (!imports) {
         return {};
     }
 
     QList<ImportDescription> qList;
     bool va = core->io->va || core->bin->is_debugger;
-    for (auto import : *imports) {
+    for (const auto &import : CutterPVector<RzBinImport>(imports)) {
         if (RZ_STR_ISEMPTY(import->name)) {
             continue;
         }
@@ -3557,17 +3557,16 @@ QList<BinClassDescription> CutterCore::getAllClassesFromBin()
         return {};
     }
 
-    const RzList *cs = rz_bin_object_get_classes(bf->o);
+    const RzPVector *cs = rz_bin_object_get_classes(bf->o);
     if (!cs) {
         return {};
     }
 
     QList<BinClassDescription> qList;
-    RzListIter *iter, *iter2, *iter3;
-    RzBinClass *c;
+    RzListIter *iter2, *iter3;
     RzBinSymbol *sym;
     RzBinClassField *f;
-    CutterRzListForeach (cs, iter, RzBinClass, c) {
+    for (const auto &c : CutterPVector<RzBinClass>(cs)) {
         BinClassDescription classDescription;
         classDescription.name = c->name;
         classDescription.addr = c->addr;
