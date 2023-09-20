@@ -2372,7 +2372,9 @@ void CutterCore::continueUntilSyscall()
     } else {
         if (!asyncTask(
                     [](RzCore *core) {
-                        rz_cons_break_push(reinterpret_cast<RzConsBreak>(rz_debug_stop), core->dbg);
+                        rz_cons_break_push(
+                                [](void *x) { rz_debug_stop(reinterpret_cast<RzDebug *>(x)); },
+                                core->dbg);
                         rz_reg_arena_swap(core->dbg->reg, true);
                         rz_debug_continue_syscalls(core->dbg, NULL, 0);
                         rz_cons_break_pop();
@@ -2681,8 +2683,8 @@ void CutterCore::addBreakpoint(const BreakpointDescription &config)
         moduleNameData = config.positionExpression.toUtf8();
         module = moduleNameData.data();
     }
-    breakpoint = rz_debug_bp_add(core->dbg, address, (config.hw && watchpoint_prot == 0),
-                                 watchpoint_prot, watchpoint_prot, module, config.moduleDelta);
+    breakpoint = rz_debug_bp_add(core->dbg, address, config.size, config.hw, (watchpoint_prot != 0),
+                                 watchpoint_prot, module, config.moduleDelta);
     if (!breakpoint) {
         QMessageBox::critical(nullptr, tr("Breakpoint error"), tr("Failed to create breakpoint"));
         return;
@@ -3107,16 +3109,14 @@ QList<ImportDescription> CutterCore::getAllImports()
     if (!bf) {
         return {};
     }
-    const RzList *imports = rz_bin_object_get_imports(bf->o);
+    const auto *imports = new CutterPVector<RzBinImport>(rz_bin_object_get_imports(bf->o));
     if (!imports) {
         return {};
     }
 
     QList<ImportDescription> qList;
-    RzBinImport *import;
-    RzListIter *iter;
     bool va = core->io->va || core->bin->is_debugger;
-    CutterRzListForeach (imports, iter, RzBinImport, import) {
+    for (auto import : *imports) {
         if (RZ_STR_ISEMPTY(import->name)) {
             continue;
         }
