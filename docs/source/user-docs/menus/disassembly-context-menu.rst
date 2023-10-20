@@ -13,9 +13,15 @@ Copy
 ----------------------------------------
 **Description:** Copy the selected text.  
 
-**Steps:**  Right-click on a selected text and choose ``Copy``  
+**Steps:**  Double click to select word or triple click to select line under cursor.
 
-**Shortcut:** :kbd:`Ctrl` + :kbd:`C`  
+**Shortcut:** :kbd:`Ctrl` + :kbd:`C`
+
+Jump to address
+----------------------------------------
+**Description** Jump to the address or function
+
+**Steps** Hold :kbd:`Ctrl` and double click
 
 Copy Address
 ----------------------------------------

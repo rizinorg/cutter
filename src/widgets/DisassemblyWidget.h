@@ -49,6 +49,7 @@ public slots:
     void setPreviewMode(bool previewMode);
     QFontMetrics getFontMetrics();
     QList<DisassemblyLine> getLines();
+    void jumpToOffsetUnderCursor(const QTextCursor &);
 
 protected slots:
     void on_seekChanged(RVA offset, CutterCore::SeekHistoryType type);
@@ -101,8 +102,6 @@ private:
     void connectCursorPositionChanged(bool disconnect);
 
     void moveCursorRelative(bool up, bool page);
-
-    void jumpToOffsetUnderCursor(const QTextCursor &);
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea
@@ -128,8 +127,8 @@ class DisassemblyTextEdit : public QPlainTextEdit
     Q_OBJECT
 
 public:
-    explicit DisassemblyTextEdit(QWidget *parent = nullptr)
-        : QPlainTextEdit(parent), lockScroll(false)
+    explicit DisassemblyTextEdit(DisassemblyWidget *parent = nullptr)
+        : QPlainTextEdit(parent), lockScroll(false), mDisassemblyWidget(parent)
     {
     }
 
@@ -145,6 +144,7 @@ protected:
 
 private:
     bool lockScroll;
+    DisassemblyWidget *mDisassemblyWidget;
 };
 
 /**
