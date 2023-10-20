@@ -627,7 +627,7 @@ void DisassemblyWidget::jumpToOffsetUnderCursor(const QTextCursor &cursor)
 bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if ((Config()->getPreviewValue() || Config()->getShowVarTooltips())
-               && event->type() == QEvent::ToolTip && obj == mDisasTextEdit->viewport()) {
+        && event->type() == QEvent::ToolTip && obj == mDisasTextEdit->viewport()) {
         auto *helpEvent = dynamic_cast<QHelpEvent *>(event);
         auto cursorForWord = mDisasTextEdit->cursorForPosition(helpEvent->pos());
         cursorForWord.select(QTextCursor::WordUnderCursor);
