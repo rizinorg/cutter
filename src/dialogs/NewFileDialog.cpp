@@ -358,7 +358,7 @@ void NewFileDialog::loadProject(const QString &project)
 
 void NewFileDialog::loadShellcode(const QString &shellcode, const int size)
 {
-    MainWindow *main = new MainWindow();
+    std::unique_ptr<MainWindow> main(new MainWindow());
     InitialOptions options;
     options.filename = QString("malloc://%1").arg(size);
     options.shellcode = shellcode;

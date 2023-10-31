@@ -1690,7 +1690,6 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
     equalities.clear();
     inequalities.clear();
     objectiveFunction.clear();
-    segments.clear();
     variableIndex = blockMapping.size();
     edgeIndex = 0;
     for (auto &blockIt : *state.blocks) {
