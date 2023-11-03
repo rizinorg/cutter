@@ -185,6 +185,7 @@ void RegisterRefsWidget::refreshRegisterRef()
     registerRefModel->beginResetModel();
 
     registerRefs.clear();
+    registerRefs.reserve(Core()->getRegisterRefs().size());
     for (const RegisterRef &reg : Core()->getRegisterRefs()) {
         RegisterRefDescription desc;
 

@@ -115,6 +115,7 @@ void GenericRizinGraphView::loadCurrentGraph()
         auto edges = block["out_nodes"];
         GraphLayout::GraphBlock layoutBlock;
         layoutBlock.entry = id;
+        layoutBlock.edges.reserve(edges.size());
         for (auto edge : edges) {
             auto targetId = edge.toUt64();
             layoutBlock.edges.emplace_back(targetId);

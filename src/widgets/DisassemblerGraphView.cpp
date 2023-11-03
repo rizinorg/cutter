@@ -280,8 +280,9 @@ void DisassemblerGraphView::loadCurrentGraph()
         rz_core_print_disasm(core, bbi->addr, buf.get(), (int)bbi->size, (int)bbi->size, NULL,
                              &options);
 
-        auto vecVisitor = CutterPVector<RzAnalysisDisasmText>(vec.get());
+        auto vecVisitor = CutterPVector<RzAnalysisDisasmText>(options.vec);
         auto iter = vecVisitor.begin();
+        db.instrs.reserve(rz_pvector_len(options.vec));
         while (iter != vecVisitor.end()) {
             RzAnalysisDisasmText *op = *iter;
             Instr instr;

@@ -149,6 +149,7 @@ void StackModel::reload()
 
     beginResetModel();
     values.clear();
+    values.reserve(stackItems.size());
     for (const AddrRefs &stackItem : stackItems) {
         Item item;
 

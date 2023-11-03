@@ -254,6 +254,7 @@ QVector<QString> CutterCore::getCutterRCFilePaths() const
     QVector<QString> result;
     result.push_back(QFileInfo(QDir::home(), ".cutterrc").absoluteFilePath());
     QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation);
+    result.reserve(locations.size() + 1);
     for (auto &location : locations) {
         result.push_back(QFileInfo(QDir(location), ".cutterrc").absoluteFilePath());
     }
@@ -1851,6 +1852,7 @@ QVector<RegisterRefValueDescription> CutterCore::getRegisterRefValues()
     }
     RzListIter *it;
     RzRegItem *ri;
+    result.reserve(ritems->length);
     CutterRzListForeach (ritems, it, RzRegItem, ri) {
         RegisterRefValueDescription desc;
         desc.name = ri->name;
@@ -2806,8 +2808,10 @@ QList<BreakpointDescription> CutterCore::getBreakpoints()
     CORE_LOCK();
     QList<BreakpointDescription> ret;
     // TODO: use higher level API, don't touch rizin bps_idx directly
-    for (int i = 0; i < core->dbg->bp->bps_idx_count; i++) {
-        if (auto bpi = core->dbg->bp->bps_idx[i]) {
+    const auto* breakpoints = core->dbg->bp;
+    ret.reserve(breakpoints->bps_idx_count);
+    for (int i = 0; i < breakpoints->bps_idx_count; i++) {
+        if (auto bpi = breakpoints->bps_idx[i]) {
             ret.push_back(breakpointDescriptionFromRizin(i, bpi));
         }
     }

@@ -85,8 +85,9 @@ void HeapBinsGraphView::display_single_linked_list(QVector<GraphHeapChunk> chunk
     addBlock(gbBin, content);
 
     // add the graph blocks for the chunks
+    GraphLayout::GraphBlock gbChunk;
+    gbChunk.edges.reserve(chunks.size());
     for (int i = 0; i < chunks.size(); i++) {
-        GraphLayout::GraphBlock gbChunk;
         gbChunk.entry = chunks[i].addr;
 
         if (tcache && chunks[i].fd) {
@@ -101,6 +102,7 @@ void HeapBinsGraphView::display_single_linked_list(QVector<GraphHeapChunk> chunk
         }
 
         addBlock(gbChunk, chunks[i].content, chunks[i].addr);
+        memset(&gbChunk, 0, sizeof(gbChunk));
     }
 
     // add the END block if no message
@@ -126,8 +128,9 @@ void HeapBinsGraphView::display_double_linked_list(QVector<GraphHeapChunk> chunk
     addBlock(gbBin, content, heapBin->addr);
 
     // add the blocks for the chunks
+    GraphLayout::GraphBlock gbChunk;
+    gbChunk.edges.reserve(chunks.size() * 2);
     for (int i = 0; i < chunks.size(); i++) {
-        GraphLayout::GraphBlock gbChunk;
         gbChunk.entry = chunks[i].addr;
         gbChunk.edges.emplace_back(chunks[i].fd);
         gbChunk.edges.emplace_back(chunks[i].bk);
@@ -138,6 +141,7 @@ void HeapBinsGraphView::display_double_linked_list(QVector<GraphHeapChunk> chunk
         }
 
         addBlock(gbChunk, chunks[i].content, chunks[i].addr);
+        memset(&gbChunk, 0, sizeof(gbChunk));
     }
 }
 

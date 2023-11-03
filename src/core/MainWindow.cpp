@@ -412,7 +412,8 @@ void MainWindow::initDocks()
 
     auto makeActionList = [this](QList<CutterDockWidget *> docks) {
         QList<QAction *> result;
-        for (auto dock : docks) {
+        result.reserve(docks.size());
+        for (const auto* dock : docks) {
             if (dock != nullptr) {
                 result.push_back(dock->toggleViewAction());
             } else {
