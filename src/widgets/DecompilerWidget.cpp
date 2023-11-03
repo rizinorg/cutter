@@ -347,8 +347,10 @@ void DecompilerWidget::decompilationFinished(RzAnnotatedCode *codeDecompiled)
         }
     }
 
-    ui->textEdit->horizontalScrollBar()->setSliderPosition(scrollHistory[historyPos].first);
-    ui->textEdit->verticalScrollBar()->setSliderPosition(scrollHistory[historyPos].second);
+    if (!scrollHistory.empty()) {
+        ui->textEdit->horizontalScrollBar()->setSliderPosition(scrollHistory[historyPos].first);
+        ui->textEdit->verticalScrollBar()->setSliderPosition(scrollHistory[historyPos].second);
+    }
 }
 
 void DecompilerWidget::setAnnotationsAtCursor(size_t pos)
