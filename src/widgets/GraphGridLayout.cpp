@@ -806,12 +806,12 @@ void calculateSegmentOffsets(std::vector<EdgeSegment> &segments, std::vector<int
         }
         maxSegment.setRange(0, H, -leftColumWidth);
         while (rightSideIt != nodeRightSide.end() && rightSideIt->x + 1 < x) {
-            rightSideIt++;
+            ++rightSideIt;
         }
         while (rightSideIt != nodeRightSide.end() && rightSideIt->x + 1 == x) {
             maxSegment.setRange(rightSideIt->y0, rightSideIt->y1 + 1,
                                 rightSideIt->size - leftColumWidth);
-            rightSideIt++;
+            ++rightSideIt;
         }
 
         while (nextSegmentIt != segments.end() && nextSegmentIt->x == x
@@ -823,7 +823,7 @@ void calculateSegmentOffsets(std::vector<EdgeSegment> &segments, std::vector<int
             y += nextSegmentIt->spacingOverride ? nextSegmentIt->spacingOverride : segmentSpacing;
             maxSegment.setRange(nextSegmentIt->y0, nextSegmentIt->y1 + 1, y);
             edgeOffsets[nextSegmentIt->edgeIndex] = y;
-            nextSegmentIt++;
+            ++nextSegmentIt;
         }
 
         auto firstRightSideSegment = nextSegmentIt;
@@ -836,19 +836,19 @@ void calculateSegmentOffsets(std::vector<EdgeSegment> &segments, std::vector<int
 
         maxSegment.setRange(0, H, -rightColumnWidth);
         while (leftSideIt != nodeLeftSide.end() && leftSideIt->x < x) {
-            leftSideIt++;
+            ++leftSideIt;
         }
         while (leftSideIt != nodeLeftSide.end() && leftSideIt->x == x) {
             maxSegment.setRange(leftSideIt->y0, leftSideIt->y1 + 1,
                                 leftSideIt->size - rightColumnWidth);
-            leftSideIt++;
+            ++leftSideIt;
         }
         while (nextSegmentIt != segments.end() && nextSegmentIt->x == x) {
             int y = maxSegment.rangeMaximum(nextSegmentIt->y0, nextSegmentIt->y1 + 1);
             y += nextSegmentIt->spacingOverride ? nextSegmentIt->spacingOverride : segmentSpacing;
             maxSegment.setRange(nextSegmentIt->y0, nextSegmentIt->y1 + 1, y);
             edgeOffsets[nextSegmentIt->edgeIndex] = y;
-            nextSegmentIt++;
+            ++nextSegmentIt;
         }
         auto rightSideMiddle = std::max(maxSegment.rangeMaximum(0, H), 0);
         rightSideMiddle =
@@ -916,10 +916,10 @@ static void centerEdges(std::vector<int> &segmentOffsets, const std::vector<int>
             int offset = segmentOffsets[it->index];
             left = std::min(left, offset);
             right = std::max(right, offset);
-            it++;
+            ++it;
         }
         int spacing = (edgeColumnWidth[chunkStart->x] - (right - left)) / 2 - left;
-        for (auto segment = chunkStart; segment != it; segment++) {
+        for (auto segment = chunkStart; segment != it; ++segment) {
             if (segment->start) {
                 segmentOffsets[segment->index] += spacing;
             }
@@ -1556,7 +1556,7 @@ static void createInequalitiesFromSegments(std::vector<Segment> segments,
             ++it;
         }
         if (startPos->first < segment.y0) {
-            startPos++;
+            ++startPos;
         }
         lastSegments.erase(startPos, it); // erase segments covered by current one
         lastSegments[segment.y0] = {

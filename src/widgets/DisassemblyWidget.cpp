@@ -376,7 +376,7 @@ void DisassemblyWidget::highlightCurrentLine()
 
     // Highlight the current line
     QTextEdit::ExtraSelection highlightSelection;
-    highlightSelection.cursor = cursor;
+    highlightSelection.cursor = std::move(cursor);
     highlightSelection.cursor.movePosition(QTextCursor::Start);
     while (true) {
         RVA lineOffset = DisassemblyPreview::readDisassemblyOffset(highlightSelection.cursor);

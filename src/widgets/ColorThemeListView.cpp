@@ -371,7 +371,7 @@ void ColorSettingsModel::updateTheme()
     theme.clear();
     ColorThemeWorker::Theme obj = ThemeWorker().getTheme(Config()->getColorTheme());
 
-    for (auto it = obj.constBegin(); it != obj.constEnd(); it++) {
+    for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) {
         theme.push_back({ it.key(), it.value(), false });
     }
 

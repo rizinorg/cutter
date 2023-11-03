@@ -26,8 +26,9 @@ void ColorPickArea::paintEvent(QPaintEvent *event)
 {
     QPainter p(this);
 
-    for (int x = event->rect().x(); x <= event->rect().right(); x++) {
-        for (int y = event->rect().y(); y <= event->rect().bottom(); y++) {
+    const auto& erect = event->rect();
+    for (int x = erect.x(); x <= erect.right(); x++) {
+        for (int y = erect.y(); y <= erect.bottom(); y++) {
             qhelpers::ColorFloat h, s, v;
             QColor c = pointToColor(x, y);
             c.getHsvF(&h, &s, &v);

@@ -57,9 +57,10 @@ DecompilerWidget::DecompilerWidget(MainWindow *main)
         selectedDecompilerId = "ghidra";
     }
     for (Decompiler *dec : decompilers) {
-        ui->decompilerComboBox->addItem(dec->getName(), dec->getId());
+        auto* combobox = ui->decompilerComboBox;
+        combobox->addItem(dec->getName(), dec->getId());
         if (dec->getId() == selectedDecompilerId) {
-            ui->decompilerComboBox->setCurrentIndex(ui->decompilerComboBox->count() - 1);
+            combobox->setCurrentIndex(combobox->count() - 1);
         }
     }
     decompilerSelectionEnabled = decompilers.size() > 1;
