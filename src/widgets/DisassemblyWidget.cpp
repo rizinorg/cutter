@@ -19,6 +19,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QSplitter>
+#include <QClipboard>
 
 #include <algorithm>
 #include <cmath>
@@ -785,8 +786,25 @@ void DisassemblyTextEdit::scrollContentsBy(int dx, int dy)
 
 void DisassemblyTextEdit::keyPressEvent(QKeyEvent *event)
 {
-    Q_UNUSED(event)
+    qDebug() << "keypress";
+//    Q_UNUSED(event)
     // QPlainTextEdit::keyPressEvent(event);
+//    if (event->matches(QKeySequence::Copy)) {
+        QString selectedText = this->textCursor().selectedText();
+        QClipboard *clipboard = QApplication::clipboard();
+
+        auto parentDisassemblyWidget = dynamic_cast<DisassemblyWidget*>(this->parentWidget());
+
+        // Now check if the cast was successful to ensure the parent is indeed a DisassemblyWidget
+        if (parentDisassemblyWidget) {
+            // Call the getter to obtain the current highlighted word
+            QString highlightedWord = parentDisassemblyWidget->getCurrentHighlightedWord();
+
+            clipboard->setText(highlightedWord);
+            qDebug() << highlightedWord;
+        }
+//    }
+
 }
 
 void DisassemblyTextEdit::mousePressEvent(QMouseEvent *event)

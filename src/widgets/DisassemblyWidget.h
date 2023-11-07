@@ -25,6 +25,7 @@ class DisassemblyWidget : public MemoryDockWidget
 public:
     explicit DisassemblyWidget(MainWindow *main);
     QWidget *getTextWidget();
+    const QString& getCurrentHighlightedWord() const { return curHighlightedWord; }
 
     static QString getWidgetType();
 
