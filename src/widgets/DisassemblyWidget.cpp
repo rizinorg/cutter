@@ -105,7 +105,8 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     QTextDocument *asm_docu = mDisasTextEdit->document();
     asm_docu->setDocumentMargin(10);
 
-    // Event filter to intercept showing tooltips when hovering above those offsets
+    // Event filter to intercept double clicks in the textbox
+    // and showing tooltips when hovering above those offsets
     mDisasTextEdit->viewport()->installEventFilter(this);
 
     // Set Disas context menu
@@ -626,9 +627,19 @@ void DisassemblyWidget::jumpToOffsetUnderCursor(const QTextCursor &cursor)
 
 bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 {
-    if ((Config()->getPreviewValue() || Config()->getShowVarTooltips())
-        && event->type() == QEvent::ToolTip && obj == mDisasTextEdit->viewport()) {
-        auto *helpEvent = dynamic_cast<QHelpEvent *>(event);
+    if (event->type() == QEvent::MouseButtonDblClick
+        && (obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+
+        if (mouseEvent->button() == Qt::LeftButton) {
+            const QTextCursor &cursor = mDisasTextEdit->cursorForPosition(mouseEvent->pos());
+            jumpToOffsetUnderCursor(cursor);
+
+            return true;
+        }
+    } else if ((Config()->getPreviewValue() || Config()->getShowVarTooltips())
+               && event->type() == QEvent::ToolTip && obj == mDisasTextEdit->viewport()) {
+        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
         auto cursorForWord = mDisasTextEdit->cursorForPosition(helpEvent->pos());
         cursorForWord.select(QTextCursor::WordUnderCursor);
 
@@ -780,12 +791,6 @@ void DisassemblyTextEdit::keyPressEvent(QKeyEvent *event)
 
 void DisassemblyTextEdit::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton && event->modifiers() & Qt::ControlModifier) {
-        if (mDisassemblyWidget) {
-            mDisassemblyWidget->jumpToOffsetUnderCursor(textCursor());
-        }
-    }
-
     QPlainTextEdit::mousePressEvent(event);
 
     if (event->button() == Qt::RightButton && !textCursor().hasSelection()) {
