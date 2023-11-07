@@ -3805,19 +3805,22 @@ QList<ResourcesDescription> CutterCore::getAllResources()
     if (!bf) {
         return {};
     }
-    const RzList *resources = rz_bin_object_get_resources(bf->o);
+    const RzPVector *resources = rz_bin_object_get_resources(bf->o);
+    if (!resources) {
+        return {};
+    }
+
     QList<ResourcesDescription> resourcesDescriptions;
 
-    RzBinResource *r;
-    RzListIter *it;
-    CutterRzListForeach (resources, it, RzBinResource, r) {
+    for (const auto &resource : CutterPVector<RzBinResource>(resources)) {
         ResourcesDescription description;
-        description.name = r->name;
-        description.vaddr = r->vaddr;
-        description.index = r->index;
-        description.type = r->type;
-        description.size = r->size;
-        description.lang = r->language;
+        description.name = resource->name;
+        description.vaddr = resource->vaddr;
+        description.index = resource->index;
+        description.type = resource->type;
+        description.size = resource->size;
+        description.lang = resource->language;
+
         resourcesDescriptions << description;
     }
 
