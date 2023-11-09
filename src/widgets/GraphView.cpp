@@ -159,7 +159,6 @@ void GraphView::beginMouseDrag(QMouseEvent *event)
     scrollBase = event->pos();
     scroll_mode = true;
     setCursor(Qt::ClosedHandCursor);
-    viewport()->grabMouse();
 }
 
 void GraphView::setViewOffset(QPoint offset)
@@ -741,7 +740,6 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event)
     if (scroll_mode && (event->buttons() & (Qt::LeftButton | Qt::MiddleButton)) == 0) {
         scroll_mode = false;
         setCursor(Qt::ArrowCursor);
-        viewport()->releaseMouse();
     }
 }
 
