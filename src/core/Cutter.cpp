@@ -4451,11 +4451,13 @@ bool CutterCore::setColor(const QString &key, const QString &color)
 QString CutterCore::ansiEscapeToHtml(const QString &text)
 {
     int len;
-    char *html = rz_cons_html_filter(text.toUtf8().constData(), &len);
+    QString r = text;
+    r.replace("\t", "        ");
+    char *html = rz_cons_html_filter(r.toUtf8().constData(), &len);
     if (!html) {
         return {};
     }
-    QString r = QString::fromUtf8(html, len);
+    r = QString::fromUtf8(html, len);
     rz_mem_free(html);
     return r;
 }
