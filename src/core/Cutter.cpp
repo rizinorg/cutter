@@ -3226,15 +3226,12 @@ QList<HeaderDescription> CutterCore::getAllHeaders()
     if (!bf) {
         return {};
     }
-    const RzList *fields = rz_bin_object_get_fields(bf->o);
+    const RzPVector *fields = rz_bin_object_get_fields(bf->o);
     if (!fields) {
         return {};
     }
-    RzListIter *iter;
-    RzBinField *field;
     QList<HeaderDescription> ret;
-
-    CutterRzListForeach (fields, iter, RzBinField, field) {
+    for (auto field : CutterPVector<RzBinField>(fields)) {
         HeaderDescription header;
         header.vaddr = field->vaddr;
         header.paddr = field->paddr;
@@ -3242,7 +3239,6 @@ QList<HeaderDescription> CutterCore::getAllHeaders()
         header.name = field->name;
         ret << header;
     }
-
     return ret;
 }
 

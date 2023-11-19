@@ -134,11 +134,11 @@ void Dashboard::updateContents()
     setPlainText(ui->percentageLineEdit, QString::number(precentage) + "%");
 
     ui->libraryList->setPlainText("");
-    const RzList *libs = bf ? rz_bin_object_get_libs(bf->o) : nullptr;
+    const RzPVector *libs = bf ? rz_bin_object_get_libs(bf->o) : nullptr;
     if (libs) {
         QString libText;
         bool first = true;
-        for (const auto &lib : CutterRzList<char>(libs)) {
+        for (const auto &lib : CutterPVector<char>(libs)) {
             if (!first) {
                 libText.append("\n");
             }
