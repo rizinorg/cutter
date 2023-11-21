@@ -429,33 +429,7 @@ if(CUTTER_ENABLE_PYTHON_BINDINGS)
 
     include_directories("${BINDINGS_BUILD_DIR}/CutterBindings")
 
-    set(SHIBOKEN_INCLUDE_DIRS "")
-    if(APPLE AND _qt6Core_install_prefix)
-        list(APPEND BINDINGS_INCLUDE_DIRS "${_qt6Core_install_prefix}/include")
-        list(APPEND BINDINGS_INCLUDE_DIRS "${_qt6Core_install_prefix}/include/QtCore")
-        list(APPEND BINDINGS_INCLUDE_DIRS "${_qt6Core_install_prefix}/include/QtGui")
-        list(APPEND BINDINGS_INCLUDE_DIRS "${_qt6Core_install_prefix}/include/QtWidgets")
-    endif()
-
-    if (CUTTER_QT6)
-        list(APPEND SHIBOKEN_INCLUDE_DIRS ${Qt6Core_INCLUDE_DIRS} ${Qt6Widgets_INCLUDE_DIRS} ${Qt6Gui_INCLUDE_DIRS})
-    else()
-        list(APPEND SHIBOKEN_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS})
-    endif()
-
-    foreach(_dir ${CUTTER_INCLUDE_DIRECTORIES})
-        list(APPEND SHIBOKEN_INCLUDE_DIRS
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${_dir}>
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/cutter/${_dir}>
-        )
-    endforeach()
-    list(APPEND SHIBOKEN_INCLUDE_DIRS ${Rizin_INCLUDE_DIRS})
-    if (NOT WIN32)
-        string(REPLACE ";" ":" SHIBOKEN_INCLUDE_DIRS "${SHIBOKEN_INCLUDE_DIRS}")
-    endif()
-
     set(SHIBOKEN_OPTIONS)
-    list(APPEND SHIBOKEN_OPTIONS --include-paths="${SHIBOKEN_INCLUDE_DIRS}")
     if (WIN32)
         list(APPEND SHIBOKEN_OPTIONS --avoid-protected-hack)
     endif()
@@ -571,9 +545,13 @@ if(CUTTER_ENABLE_PYTHON)
         endif()
         list(APPEND BINDINGS_INCLUDE_DIRS ${Rizin_INCLUDE_DIRS})
         list(APPEND BINDINGS_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}")
-        if (NOT WIN32)
-            string(REPLACE ";" ":" BINDINGS_INCLUDE_DIRS "${BINDINGS_INCLUDE_DIRS}")
-        endif()
+
+        set(BINDINGS_INCLUDE_DIR_LINES "")
+        foreach(_dir ${BINDINGS_INCLUDE_DIRS})
+            if (NOT "${_dir}" STREQUAL "")
+                string(APPEND BINDINGS_INCLUDE_DIR_LINES "include-path = ${_dir}\n")
+            endif()
+        endforeach()
 
         configure_file("${BINDINGS_SRC_DIR}/bindings.txt.in" "${BINDINGS_BUILD_DIR}/bindings.txt")
         add_definitions(-DWIN32_LEAN_AND_MEAN)

@@ -7,7 +7,7 @@ typesystem-file = ${BINDINGS_BUILD_DIR}/bindings.xml
 
 output-directory = ${BINDINGS_BUILD_DIR}
 
-include-path = ${BINDINGS_INCLUDE_DIRS}
+${BINDINGS_INCLUDE_DIR_LINES}
 
 typesystem-paths = ${PYSIDE_TYPESYSTEMS}
 
