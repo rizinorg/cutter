@@ -74,7 +74,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 //    initAction(&actionCopy, tr("Copy"), SLOT(on_actionCopy_triggered()), getCopySequence());
 //    addAction(&actionCopy);
 //
-    initAction(&actionCopyWord, tr("Copy Word"), SLOT(on_actionCopyWord_triggered()), getCopySequence());
+    initAction(&actionCopyWord, tr("Copy word"), SLOT(on_actionCopyWord_triggered()), getCopySequence());
     addAction(&actionCopyWord);
 
     initAction(&actionCopyAddr, tr("Copy address"), SLOT(on_actionCopyAddr_triggered()),

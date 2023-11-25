@@ -76,13 +76,6 @@ void AddressableItemContextMenu::clearTarget()
     setHasTarget(false);
 }
 
-void AddressableItemContextMenu::onActionCopyWord()
-{
-    auto clipboard = QApplication::clipboard();
-    qDebug() << "copy";
-//    clipboard->setText()
-}
-
 void AddressableItemContextMenu::onActionCopyAddress()
 {
     auto clipboard = QApplication::clipboard();
