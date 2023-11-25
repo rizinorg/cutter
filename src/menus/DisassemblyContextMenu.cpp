@@ -11,6 +11,7 @@
 #include "dialogs/EditStringDialog.h"
 #include "dialogs/BreakpointsDialog.h"
 #include "MainWindow.h"
+#include "DisassemblyWidget.h"
 
 #include <QtCore>
 #include <QShortcut>
@@ -23,13 +24,13 @@
 DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *mainWindow)
     : QMenu(parent),
       offset(0),
-      canCopy(false),
+      canCopy(true),
       mainWindow(mainWindow),
       actionEditInstruction(this),
       actionNopInstruction(this),
       actionJmpReverse(this),
       actionEditBytes(this),
-      actionCopy(this),
+      actionCopyWord(this),
       actionCopyAddr(this),
       actionCopyInstrBytes(this),
       actionAddComment(this),
@@ -70,8 +71,11 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
       actionSetToDataQword(this),
       showInSubmenu(this)
 {
-    initAction(&actionCopy, tr("Copy"), SLOT(on_actionCopy_triggered()), getCopySequence());
-    addAction(&actionCopy);
+//    initAction(&actionCopy, tr("Copy"), SLOT(on_actionCopy_triggered()), getCopySequence());
+//    addAction(&actionCopy);
+//
+    initAction(&actionCopyWord, tr("Copy Word"), SLOT(on_actionCopyWord_triggered()), getCopySequence());
+    addAction(&actionCopyWord);
 
     initAction(&actionCopyAddr, tr("Copy address"), SLOT(on_actionCopyAddr_triggered()),
                getCopyAddressSequence());
@@ -578,8 +582,8 @@ void DisassemblyContextMenu::aboutToShowSlot()
         actionAddComment.setText(tr("Edit Comment"));
     }
 
-    actionCopy.setVisible(canCopy);
-    copySeparator->setVisible(canCopy);
+//    actionCopy.setVisible(canCopy);
+//    copySeparator->setVisible(canCopy);
 
     // Handle renaming of variable, function, flag, ...
     // Note: This might be useless if we consider setCurrentHighlightedWord is always called before
@@ -792,9 +796,19 @@ void DisassemblyContextMenu::on_actionEditBytes_triggered()
     }
 }
 
-void DisassemblyContextMenu::on_actionCopy_triggered()
+//void DisassemblyContextMenu::on_actionCopy_triggered()
+//{
+//    emit copy();
+//}
+
+void DisassemblyContextMenu::on_actionCopyWord_triggered()
 {
-    emit copy();
+    DisassemblyWidget* disassemblyWidget = dynamic_cast<DisassemblyWidget*>(parentWidget());
+    if (disassemblyWidget != nullptr) {
+        const QString& text = disassemblyWidget->getCurrentHighlightedWord();
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setText(text);
+    }
 }
 
 void DisassemblyContextMenu::on_actionCopyAddr_triggered()

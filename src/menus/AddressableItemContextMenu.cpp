@@ -14,9 +14,12 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
     : QMenu(parent), mainWindow(mainWindow)
 {
     actionShowInMenu = new QAction(tr("Show in"), this);
+    actionCopyWord = new QAction(tr("Copy word"), this);
     actionCopyAddress = new QAction(tr("Copy address"), this);
     actionShowXrefs = new QAction(tr("Show X-Refs"), this);
     actionAddcomment = new QAction(tr("Add comment"), this);
+
+    connect(actionCopyWord, &QAction::triggered, this, &AddressableItemContextMenu::onActionCopyWord);
 
     connect(actionCopyAddress, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionCopyAddress);
@@ -71,6 +74,13 @@ void AddressableItemContextMenu::setTarget(RVA offset, QString name)
 void AddressableItemContextMenu::clearTarget()
 {
     setHasTarget(false);
+}
+
+void AddressableItemContextMenu::onActionCopyWord()
+{
+    auto clipboard = QApplication::clipboard();
+    qDebug() << "copy";
+//    clipboard->setText()
 }
 
 void AddressableItemContextMenu::onActionCopyAddress()

@@ -104,6 +104,7 @@ private:
     void moveCursorRelative(bool up, bool page);
 
     void jumpToOffsetUnderCursor(const QTextCursor &);
+    void copyHighlightedWord();
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea

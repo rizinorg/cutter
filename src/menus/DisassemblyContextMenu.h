@@ -40,7 +40,8 @@ private slots:
     void on_actionEditBytes_triggered();
     void showReverseJmpQuery();
 
-    void on_actionCopy_triggered();
+//    void on_actionCopy_triggered();
+    void on_actionCopyWord_triggered();
     void on_actionCopyAddr_triggered();
     void on_actionCopyInstrBytes_triggered();
     void on_actionAddComment_triggered();
@@ -110,7 +111,8 @@ private:
     QAction actionJmpReverse;
     QAction actionEditBytes;
 
-    QAction actionCopy;
+//    QAction actionCopy;
+    QAction actionCopyWord;
     QAction *copySeparator;
     QAction actionCopyAddr;
     QAction actionCopyInstrBytes;

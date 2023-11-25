@@ -169,6 +169,8 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
 
     ADD_ACTION(Qt::Key_Escape, Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::seekPrev)
 
+    ADD_ACTION(Qt::CopyAction, Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::copyHighlightedWord)
+
     ADD_ACTION(Qt::Key_J, Qt::WidgetWithChildrenShortcut,
                [this]() { moveCursorRelative(false, false); })
     ADD_ACTION(QKeySequence::MoveToNextLine, Qt::WidgetWithChildrenShortcut,
@@ -662,7 +664,14 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 
 void DisassemblyWidget::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Return) {
+    qDebug() << event->key();
+    qDebug() << event->modifiers();
+    if (event->key() == Qt::Key_C && (event->modifiers() & Qt::ControlModifier)) {
+        // If there is selected text in the text edit, copy it
+        if (!mDisasTextEdit->textCursor().selectedText().isEmpty()) {
+            mDisasTextEdit->copy();
+        }
+    } else if (event->key() == Qt::Key_Return) {
         const QTextCursor cursor = mDisasTextEdit->textCursor();
         jumpToOffsetUnderCursor(cursor);
     }
@@ -786,25 +795,7 @@ void DisassemblyTextEdit::scrollContentsBy(int dx, int dy)
 
 void DisassemblyTextEdit::keyPressEvent(QKeyEvent *event)
 {
-    qDebug() << "keypress";
-//    Q_UNUSED(event)
-    // QPlainTextEdit::keyPressEvent(event);
-//    if (event->matches(QKeySequence::Copy)) {
-        QString selectedText = this->textCursor().selectedText();
-        QClipboard *clipboard = QApplication::clipboard();
-
-        auto parentDisassemblyWidget = dynamic_cast<DisassemblyWidget*>(this->parentWidget());
-
-        // Now check if the cast was successful to ensure the parent is indeed a DisassemblyWidget
-        if (parentDisassemblyWidget) {
-            // Call the getter to obtain the current highlighted word
-            QString highlightedWord = parentDisassemblyWidget->getCurrentHighlightedWord();
-
-            clipboard->setText(highlightedWord);
-            qDebug() << highlightedWord;
-        }
-//    }
-
+    Q_UNUSED(event)
 }
 
 void DisassemblyTextEdit::mousePressEvent(QMouseEvent *event)
@@ -819,6 +810,10 @@ void DisassemblyTextEdit::mousePressEvent(QMouseEvent *event)
 void DisassemblyWidget::seekPrev()
 {
     Core()->seekPrev();
+}
+
+void DisassemblyWidget::copyHighlightedWord() {
+    qDebug() << "success!";
 }
 
 /*********************

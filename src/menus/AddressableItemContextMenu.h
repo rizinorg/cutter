@@ -28,6 +28,7 @@ signals:
     void xrefsTriggered();
 
 private:
+    void onActionCopyWord();
     void onActionCopyAddress();
     void onActionShowXrefs();
     void onActionAddComment();
@@ -44,6 +45,7 @@ private:
 protected:
     void setHasTarget(bool hasTarget);
     QAction *actionShowInMenu;
+    QAction *actionCopyWord;
     QAction *actionCopyAddress;
     QAction *actionShowXrefs;
     QAction *actionAddcomment;
