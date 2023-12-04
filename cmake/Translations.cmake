@@ -8,6 +8,7 @@ set(TS_FILES
     translations/he/cutter_he.ts
     translations/hi/cutter_hi.ts
     translations/it/cutter_it.ts
+    translations/ko/cutter_ko.ts
     translations/ja/cutter_ja.ts
     translations/nl/cutter_nl.ts
     translations/pt-PT/cutter_pt.ts
@@ -16,8 +17,8 @@ set(TS_FILES
     translations/tr/cutter_tr.ts
     translations/uk/cutter_uk.ts
     translations/zh-CN/cutter_zh.ts
+    translations/vi/cutter_vi.ts
 )
-# translations/ko/cutter_ko.ts problems with fonts
 # translations/pt-BR/cutter_pt.ts #2321 handling multiple versions of a language
 
 set_source_files_properties(${TS_FILES} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/translations)
