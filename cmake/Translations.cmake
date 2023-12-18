@@ -1,5 +1,6 @@
 set(TS_FILES
     translations/ar/cutter_ar.ts
+    translations/bn/cutter_bn.ts
     translations/ca/cutter_ca.ts
     translations/de/cutter_de.ts
     translations/es-ES/cutter_es.ts
@@ -16,6 +17,7 @@ set(TS_FILES
     translations/ru/cutter_ru.ts
     translations/tr/cutter_tr.ts
     translations/uk/cutter_uk.ts
+    translations/ur-PK/cutter_ur.ts
     translations/zh-CN/cutter_zh.ts
     translations/vi/cutter_vi.ts
 )
