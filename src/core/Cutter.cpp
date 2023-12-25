@@ -1666,7 +1666,7 @@ QVector<Chunk> CutterCore::getHeapChunks(RVA arena_addr)
             rz_list_free(arenas);
             return chunks_vector;
         }
-        m_arena = ((RzArenaListItem *)arenas->head->data)->addr;
+        m_arena = ((RzArenaListItem *)arenas->head->elem)->addr;
         rz_list_free(arenas);
     } else {
         m_arena = arena_addr;
