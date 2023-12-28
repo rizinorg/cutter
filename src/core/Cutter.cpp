@@ -2793,7 +2793,7 @@ int CutterCore::breakpointIndexAt(RVA addr)
 BreakpointDescription CutterCore::getBreakpointAt(RVA addr)
 {
     CORE_LOCK();
-    int index = breakpointIndexAt(addr);
+    int index = rz_bp_get_index_at(core->dbg->bp, addr);
     auto bp = rz_bp_get_index(core->dbg->bp, index);
     if (bp) {
         return breakpointDescriptionFromRizin(index, bp);
