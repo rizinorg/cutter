@@ -1028,7 +1028,7 @@ RVA CutterCore::nextOpAddr(RVA startAddr, int count)
     CORE_LOCK();
     auto seek = seekTemp(startAddr);
     auto vec =
-            fromOwned(rz_core_analysis_bytes(core, startAddr, core->block, (int)core->blocksize, count + 1));
+            fromOwned(rz_core_analysis_bytes(core, core->offset, core->block, (int)core->blocksize, count + 1));
 
     RVA addr = startAddr + 1;
     if (!vec) {
