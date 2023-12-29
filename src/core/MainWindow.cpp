@@ -119,6 +119,7 @@
 
 // Tools
 #include "tools/basefind/BaseFindDialog.h"
+#include "tools/bindiff/DiffLoadDialog.h"
 
 #define PROJECT_FILE_FILTER tr("Rizin Project (*.rzdb)")
 
@@ -1616,60 +1617,14 @@ void MainWindow::on_actionBackward_triggered()
 
 void MainWindow::on_actionDiff_triggered()
 {
-    QFileDialog dialog(this);
-    dialog.setWindowTitle(tr("Select a file to use for diffing"));
-    dialog.setNameFilters({ tr("All files (*)") });
-
-    if (!dialog.exec()) {
-        return;
-    }
-
-    const QString &fileName = QDir::toNativeSeparators(dialog.selectedFiles().first());
-
-    if (fileName.isEmpty()) {
-        return;
-    }
-
-    auto compareTask = new RizinFunctionTask([=](RzCore *) {
-        return Core()->matchFunctionsFromNewFile(fileName);
-    }, false);
-
-    task = QSharedPointer<RizinTask>(compareTask);
-    taskDialog = new RizinTaskDialog(task);
-    taskDialog->setAttribute(Qt::WA_DeleteOnClose);
-    taskDialog->setDesc(tr("Performing function comparison..."));
-    taskDialog->show();
-
-    connect(task.data(), &RizinTask::finished, this, [this, compareTask]() {
-        RzAnalysisMatchResult *result = static_cast<RzAnalysisMatchResult *>(compareTask->getResult());
-        openBinDiffDialog(result);
-        delete taskDialog;
-        taskDialog = nullptr;
-    });
-
-    compareTask->startTask();
+    auto dialog = new DiffLoadDialog(this);
+    dialog->show();
 }
 
 void MainWindow::on_actionForward_triggered()
 {
     core->seekNext();
 }
-
-void MainWindow::openBinDiffDialog(RzAnalysisMatchResult *result)
-{
-    if (!result) {
-        messageBoxWarning(tr("Error"), tr("Failed to perform the function matching."));
-        return;
-    }
-
-    if (binDiffDialog) {
-        delete binDiffDialog;
-    }
-
-    binDiffDialog = new BinDiffDialog(result, this);
-    binDiffDialog->show();
-}
-
 void MainWindow::on_actionDisasAdd_comment_triggered()
 {
     CommentsDialog c(this);

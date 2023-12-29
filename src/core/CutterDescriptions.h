@@ -405,6 +405,14 @@ struct BasefindResultDescription
     ut32 score;
 };
 
+struct BinDiffMatchDescription
+{
+    FunctionDescription original;
+    FunctionDescription modified;
+    QString simtype;
+    double similarity;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -446,5 +454,6 @@ Q_DECLARE_METATYPE(RefDescription)
 Q_DECLARE_METATYPE(VariableDescription)
 Q_DECLARE_METATYPE(BasefindCoreStatusDescription)
 Q_DECLARE_METATYPE(BasefindResultDescription)
+Q_DECLARE_METATYPE(BinDiffMatchDescription)
 
 #endif // DESCRIPTIONS_H

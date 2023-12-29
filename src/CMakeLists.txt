@@ -7,6 +7,7 @@ set(SOURCES
     core/CutterJson.cpp
     core/RizinCpp.cpp
     core/Basefind.cpp
+    core/BinDiff.cpp
     dialogs/EditStringDialog.cpp
     dialogs/WriteCommandsDialogs.cpp
     widgets/DisassemblerGraphView.cpp
@@ -58,7 +59,6 @@ set(SOURCES
     widgets/DecompilerWidget.cpp
     widgets/VisualNavbar.cpp
     widgets/GraphView.cpp
-    dialogs/bindiff/BinDiffDialog.cpp
     dialogs/preferences/PreferencesDialog.cpp
     dialogs/preferences/AppearanceOptionsWidget.cpp
     dialogs/preferences/GraphOptionsWidget.cpp
@@ -156,6 +156,7 @@ set(SOURCES
     tools/basefind/BaseFindDialog.cpp
     tools/basefind/BaseFindSearchDialog.cpp
     tools/basefind/BaseFindResultsDialog.cpp
+    tools/bindiff/DiffLoadDialog.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -164,6 +165,7 @@ set(HEADER_FILES
     core/CutterJson.h
     core/RizinCpp.h
     core/Basefind.h
+    core/BinDiff.h
     dialogs/EditStringDialog.h
     dialogs/WriteCommandsDialogs.h
     widgets/DisassemblerGraphView.h
@@ -214,7 +216,6 @@ set(HEADER_FILES
     widgets/DecompilerWidget.h
     widgets/VisualNavbar.h
     widgets/GraphView.h
-    dialogs/bindiff/BinDiffDialog.h
     dialogs/preferences/PreferencesDialog.h
     dialogs/preferences/AppearanceOptionsWidget.h
     dialogs/preferences/PreferenceCategory.h
@@ -321,6 +322,7 @@ set(HEADER_FILES
     tools/basefind/BaseFindDialog.h
     tools/basefind/BaseFindSearchDialog.h
     tools/basefind/BaseFindResultsDialog.h
+    tools/bindiff/DiffLoadDialog.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -347,7 +349,6 @@ set(UI_FILES
     widgets/GlobalsWidget.ui
     widgets/StringsWidget.ui
     widgets/HexdumpWidget.ui
-    dialogs/bindiff/BinDiffDialog.ui
     dialogs/preferences/PreferencesDialog.ui
     dialogs/preferences/AppearanceOptionsWidget.ui
     dialogs/preferences/GraphOptionsWidget.ui
@@ -396,6 +397,7 @@ set(UI_FILES
     tools/basefind/BaseFindDialog.ui
     tools/basefind/BaseFindSearchDialog.ui
     tools/basefind/BaseFindResultsDialog.ui
+    tools/bindiff/DiffLoadDialog.ui
 )
 set(QRC_FILES
     resources.qrc

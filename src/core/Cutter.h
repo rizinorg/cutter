@@ -5,6 +5,7 @@
 #include "core/CutterDescriptions.h"
 #include "core/CutterJson.h"
 #include "core/Basefind.h"
+#include "core/BinDiff.h"
 #include "common/BasicInstructionHighlighter.h"
 
 #include <QMap>
@@ -71,6 +72,7 @@ class CUTTER_EXPORT CutterCore : public QObject
     friend class RzCoreLocked;
     friend class RizinTask;
     friend class Basefind;
+    friend class BinDiff;
 
 public:
     explicit CutterCore(QObject *parent = nullptr);
@@ -755,7 +757,8 @@ public:
     void writeGraphvizGraphToFile(QString path, QString format, RzCoreGraphType type, RVA address);
 
     /* Diffing/Matching */
-    RzAnalysisMatchResult *matchFunctionsFromNewFile(const QString &filePath);
+    RzAnalysisMatchResult *diffNewFile(const QString &filePath,
+                                       RzAnalysisMatchThreadInfoCb callback, void *user);
 
 signals:
     void refreshAll();

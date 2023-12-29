@@ -396,7 +396,7 @@ QString CutterCore::getFunctionExecOut(const std::function<bool(RzCore *)> &fcn,
     o = rz_cons_get_buffer();
 
     rz_cons_pop();
-    rz_cons_echo(NULL);
+    rz_cons_echo(nullptr);
 
 clean_return:
     if (offset != core->offset) {
@@ -487,7 +487,7 @@ QString CutterCore::cmdRaw(const char *cmd)
 
     // cleaning up
     rz_cons_pop();
-    rz_cons_echo(NULL);
+    rz_cons_echo(nullptr);
 
     return res;
 }
@@ -603,14 +603,14 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
             // load RzBin information
             // XXX only for sub-bins
             rz_core_bin_load(core, path.toUtf8(), baddr);
-            rz_bin_select_idx(core->bin, NULL, idx);
+            rz_bin_select_idx(core->bin, nullptr, idx);
         }
 #endif
     } else {
         // Not loading RzBin info coz va = false
     }
 
-    auto iod = core->io ? core->io->desc : NULL;
+    auto iod = core->io ? core->io->desc : nullptr;
     auto debug =
             core->file && iod && (core->file->fd == iod->fd) && iod->plugin && iod->plugin->isdbg;
 
@@ -856,7 +856,7 @@ QString CutterCore::getString(RVA addr, uint64_t len, RzStrEnc encoding, bool es
     opt.encoding = encoding;
     opt.escape_nl = escape_nl;
     auto seek = seekTemp(addr);
-    return fromOwnedCharPtr(rz_str_stringify_raw_buffer(&opt, NULL));
+    return fromOwnedCharPtr(rz_str_stringify_raw_buffer(&opt, nullptr));
 }
 
 QString CutterCore::getMetaString(RVA addr)
@@ -1093,13 +1093,13 @@ void CutterCore::createSignature(const QString &filepath)
 ut64 CutterCore::math(const QString &expr)
 {
     CORE_LOCK();
-    return rz_num_math(core ? core->num : NULL, expr.toUtf8().constData());
+    return rz_num_math(core ? core->num : nullptr, expr.toUtf8().constData());
 }
 
 ut64 CutterCore::num(const QString &expr)
 {
     CORE_LOCK();
-    return rz_num_get(core ? core->num : NULL, expr.toUtf8().constData());
+    return rz_num_get(core ? core->num : nullptr, expr.toUtf8().constData());
 }
 
 QString CutterCore::itoa(ut64 num, int rdx)
@@ -1902,7 +1902,7 @@ void CutterCore::setCurrentDebugThread(int tid)
     if (!asyncTask(
                 [=](RzCore *core) {
                     rz_debug_select(core->dbg, core->dbg->pid, tid);
-                    return (void *)NULL;
+                    return (void *)nullptr;
                 },
                 debugTask)) {
         return;
@@ -1929,7 +1929,7 @@ void CutterCore::setCurrentDebugProcess(int pid)
                 [=](RzCore *core) {
                     rz_debug_select(core->dbg, pid, core->dbg->tid);
                     core->dbg->main_pid = pid;
-                    return (void *)NULL;
+                    return (void *)nullptr;
                 },
                 debugTask)) {
         return;
@@ -2004,7 +2004,7 @@ void CutterCore::startEmulation()
     asyncTask(
             [&](RzCore *core) {
                 rz_core_analysis_esil_reinit(core);
-                rz_core_analysis_esil_init_mem(core, NULL, UT64_MAX, UT32_MAX);
+                rz_core_analysis_esil_init_mem(core, nullptr, UT64_MAX, UT32_MAX);
                 rz_core_analysis_esil_init_regs(core);
                 return nullptr;
             },
@@ -2180,7 +2180,7 @@ void CutterCore::stopDebug()
 
     CORE_LOCK();
     if (currentlyEmulating) {
-        rz_core_analysis_esil_init_mem_del(core, NULL, UT64_MAX, UT32_MAX);
+        rz_core_analysis_esil_init_mem_del(core, nullptr, UT64_MAX, UT32_MAX);
         rz_core_analysis_esil_deinit(core);
         resetWriteCache();
         rz_core_debug_clear_register_flags(core);
@@ -2218,7 +2218,7 @@ void CutterCore::continueDebug()
     if (currentlyEmulating) {
         if (!asyncTask(
                     [](RzCore *core) {
-                        rz_core_esil_step(core, UT64_MAX, "0", NULL, false);
+                        rz_core_esil_step(core, UT64_MAX, "0", nullptr, false);
                         rz_core_reg_update_flags(core);
                         return nullptr;
                     },
@@ -2294,7 +2294,7 @@ void CutterCore::continueUntilDebug(ut64 offset)
     if (currentlyEmulating) {
         if (!asyncTask(
                     [=](RzCore *core) {
-                        rz_core_esil_step(core, offset, NULL, NULL, false);
+                        rz_core_esil_step(core, offset, nullptr, nullptr, false);
                         rz_core_reg_update_flags(core);
                         return nullptr;
                     },
@@ -2380,7 +2380,7 @@ void CutterCore::continueUntilSyscall()
                                 [](void *x) { rz_debug_stop(reinterpret_cast<RzDebug *>(x)); },
                                 core->dbg);
                         rz_reg_arena_swap(core->dbg->reg, true);
-                        rz_debug_continue_syscalls(core->dbg, NULL, 0);
+                        rz_debug_continue_syscalls(core->dbg, nullptr, 0);
                         rz_cons_break_pop();
                         rz_core_dbg_follow_seek_register(core);
                         return nullptr;
@@ -2410,7 +2410,7 @@ void CutterCore::stepDebug()
     if (currentlyEmulating) {
         if (!asyncTask(
                     [](RzCore *core) {
-                        rz_core_esil_step(core, UT64_MAX, NULL, NULL, false);
+                        rz_core_esil_step(core, UT64_MAX, nullptr, nullptr, false);
                         rz_core_reg_update_flags(core);
                         return nullptr;
                     },
@@ -2635,7 +2635,7 @@ void CutterCore::stopTraceSession()
         if (!asyncTask(
                     [](RzCore *core) {
                         rz_debug_session_free(core->dbg->session);
-                        core->dbg->session = NULL;
+                        core->dbg->session = nullptr;
                         return nullptr;
                     },
                     debugTask)) {
@@ -3255,8 +3255,8 @@ QList<FlirtDescription> CutterCore::getSignaturesDB()
 {
     CORE_LOCK();
 
-    void *ptr = NULL;
-    RzListIter *iter = NULL;
+    void *ptr = nullptr;
+    RzListIter *iter = nullptr;
     QList<FlirtDescription> sigdb;
 
     RzList *list = rz_core_analysis_sigdb_list(core, true);
@@ -3451,7 +3451,7 @@ QList<SectionDescription> CutterCore::getAllSections()
             if (!digests) {
                 continue;
             }
-            const char *entropy = (const char *)ht_pp_find(digests, "entropy", NULL);
+            const char *entropy = (const char *)ht_pp_find(digests, "entropy", nullptr);
             section.entropy = rz_str_get(entropy);
             ht_pp_free(digests);
         }
@@ -4055,7 +4055,7 @@ void CutterCore::addGlobalVariable(RVA offset, QString name, QString typ)
 {
     name = sanitizeStringForCommand(name);
     CORE_LOCK();
-    char *errmsg = NULL;
+    char *errmsg = nullptr;
     RzType *globType = rz_type_parse_string_single(core->analysis->typedb->parser,
                                                    typ.toStdString().c_str(), &errmsg);
     if (errmsg) {
@@ -4084,7 +4084,7 @@ void CutterCore::modifyGlobalVariable(RVA offset, QString name, QString typ)
     if (name.compare(glob->name)) {
         rz_analysis_var_global_rename(core->analysis, glob->name, name.toStdString().c_str());
     }
-    char *errmsg = NULL;
+    char *errmsg = nullptr;
     RzType *globType = rz_type_parse_string_single(core->analysis->typedb->parser,
                                                    typ.toStdString().c_str(), &errmsg);
     if (errmsg) {
@@ -4260,7 +4260,7 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
             rz_cons_singleton()->is_html = false;
             rz_cons_singleton()->was_html = true;
         }
-        rz_core_print_disasm(core, offset, core->block, core->blocksize, lines, NULL, &options);
+        rz_core_print_disasm(core, offset, core->block, core->blocksize, lines, nullptr, &options);
     }
 
     QList<DisassemblyLine> r;
@@ -4387,7 +4387,7 @@ QString CutterCore::getVersionInformation()
         { "rz_syscall", &rz_syscall_version },
         { "rz_util", &rz_util_version },
         /* ... */
-        { NULL, NULL }
+        { nullptr, nullptr }
     };
     versionInfo.append(getRizinVersionReadable());
     versionInfo.append("\n");
@@ -4564,9 +4564,12 @@ bool CutterCore::isWriteModeEnabled()
     return false;
 }
 
-RzAnalysisMatchResult *CutterCore::matchFunctionsFromNewFile(const QString &filePath) {
-    RzList *fcns_a = NULL, *fcns_b = NULL;
-    RzAnalysisMatchResult *result = NULL;
+RzAnalysisMatchResult *CutterCore::diffNewFile(const QString &filePath,
+                                               RzAnalysisMatchThreadInfoCb callback, void *user)
+{
+    RzList *fcns_a = nullptr, *fcns_b = nullptr;
+    RzAnalysisMatchResult *result = nullptr;
+    RzAnalysisMatchOpt opts;
     RzListIter *iter;
     RzConfigNode *node;
     void *ptr;
@@ -4590,7 +4593,7 @@ RzAnalysisMatchResult *CutterCore::matchFunctionsFromNewFile(const QString &file
         goto fail;
     }
 
-    if (!rz_core_bin_load(core_b, NULL, UT64_MAX)) {
+    if (!rz_core_bin_load(core_b, nullptr, UT64_MAX)) {
         qWarning() << "cannot load bin " << filePath;
         goto fail;
     }
@@ -4600,18 +4603,18 @@ RzAnalysisMatchResult *CutterCore::matchFunctionsFromNewFile(const QString &file
         goto fail;
     }
 
-    rz_list_foreach (core_a->config->nodes, iter, ptr) {
+    rz_list_foreach(core_a->config->nodes, iter, ptr)
+    {
         node = reinterpret_cast<RzConfigNode *>(ptr);
-        if (!strcmp(node->name, "scr.color") ||
-            !strcmp(node->name, "scr.interactive") ||
-            !strcmp(node->name, "cfg.debug")) {
+        if (!strcmp(node->name, "scr.color") || !strcmp(node->name, "scr.interactive")
+            || !strcmp(node->name, "cfg.debug")) {
             rz_config_set(core_b->config, node->name, "0");
             continue;
         }
         rz_config_set(core_b->config, node->name, node->value);
     }
 
-    if (!rz_core_analysis_everything(core_b, false, NULL)) {
+    if (!rz_core_analysis_everything(core_b, false, nullptr)) {
         qWarning() << "cannot analyze binary " << filePath;
         goto fail;
     }
@@ -4631,10 +4634,15 @@ RzAnalysisMatchResult *CutterCore::matchFunctionsFromNewFile(const QString &file
     rz_list_sort(fcns_a, core_a->analysis->columnSort);
     rz_list_sort(fcns_b, core_b->analysis->columnSort);
 
+    opts.analysis_a = core_a->analysis;
+    opts.analysis_b = core_b->analysis;
+    opts.callback = callback;
+    opts.user = user;
+
     // calculate all the matches between the functions of the 2 different core files.
-    result = rz_analysis_match_functions_2(core_a->analysis, fcns_a, core_b->analysis, fcns_b);
+    result = rz_analysis_match_functions(fcns_a, fcns_b, &opts);
     if (!result) {
-        qWarning() << "failed to perform the function matching operation";
+        qWarning() << "failed to perform the function matching operation or job was cancelled.";
         goto fail;
     }
 
@@ -4647,9 +4655,8 @@ fail:
     rz_list_free(fcns_b);
     rz_core_free(this->core_b);
     this->core_b = nullptr;
-    return NULL;
+    return nullptr;
 }
-
 
 /**
  * @brief get a compact disassembly preview for tooltips
