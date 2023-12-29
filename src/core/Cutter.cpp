@@ -722,7 +722,7 @@ PRzAnalysisBytes CutterCore::getRzAnalysisBytesSingle(RVA addr)
     rz_io_read_at(core->io, addr, buf, sizeof(buf));
 
     auto seek = seekTemp(addr);
-    auto vec = fromOwned(rz_core_analysis_bytes(core, buf, sizeof(buf), 1));
+    auto vec = fromOwned(rz_core_analysis_bytes(core, addr, buf, sizeof(buf), 1));
 
     auto ab = vec && rz_pvector_len(vec.get()) > 0
             ? reinterpret_cast<RzAnalysisBytes *>(rz_pvector_pop_front(vec.get()))
@@ -1027,8 +1027,8 @@ RVA CutterCore::nextOpAddr(RVA startAddr, int count)
 {
     CORE_LOCK();
     auto seek = seekTemp(startAddr);
-    auto vec =
-            fromOwned(rz_core_analysis_bytes(core, core->block, (int)core->blocksize, count + 1));
+    auto vec = fromOwned(rz_core_analysis_bytes(core, core->offset, core->block,
+                                                (int)core->blocksize, count + 1));
 
     RVA addr = startAddr + 1;
     if (!vec) {
@@ -1666,7 +1666,7 @@ QVector<Chunk> CutterCore::getHeapChunks(RVA arena_addr)
             rz_list_free(arenas);
             return chunks_vector;
         }
-        m_arena = ((RzArenaListItem *)arenas->head->elem)->addr;
+        m_arena = ((RzArenaListItem *)rz_list_get_head_data(arenas))->addr;
         rz_list_free(arenas);
     } else {
         m_arena = arena_addr;
@@ -2793,7 +2793,7 @@ int CutterCore::breakpointIndexAt(RVA addr)
 BreakpointDescription CutterCore::getBreakpointAt(RVA addr)
 {
     CORE_LOCK();
-    int index = breakpointIndexAt(addr);
+    int index = rz_bp_get_index_at(core->dbg->bp, addr);
     auto bp = rz_bp_get_index(core->dbg->bp, index);
     if (bp) {
         return breakpointDescriptionFromRizin(index, bp);
