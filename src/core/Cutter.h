@@ -72,7 +72,6 @@ class CUTTER_EXPORT CutterCore : public QObject
     friend class RzCoreLocked;
     friend class RizinTask;
     friend class Basefind;
-    friend class BinDiff;
 
 public:
     explicit CutterCore(QObject *parent = nullptr);
@@ -757,7 +756,13 @@ public:
     void writeGraphvizGraphToFile(QString path, QString format, RzCoreGraphType type, RVA address);
 
     /* Diffing/Matching */
-    RzAnalysisMatchResult *diffNewFile(const QString &filePath,
+    enum {
+        AnalysisLevelSymbols = 0,
+        AnalysisLevelComplete,
+        AnalysisLevelExperimental,
+    };
+
+    RzAnalysisMatchResult *diffNewFile(const QString &filePath, int level,
                                        RzAnalysisMatchThreadInfoCb callback, void *user);
 
 signals:

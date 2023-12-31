@@ -6,10 +6,9 @@ bool BinDiff::threadCallback(const size_t nLeft, const size_t nMatch, void *user
     return bdiff->updateProgress(nLeft, nMatch);
 }
 
-BinDiff::BinDiff(CutterCore *core)
-    : core(core),
-      result(nullptr),
-      continue_run(true),
+BinDiff::BinDiff()
+    : result(nullptr),
+      continueRun(true),
       maxTotal(1)
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
       ,
@@ -20,31 +19,48 @@ BinDiff::BinDiff(CutterCore *core)
 
 BinDiff::~BinDiff()
 {
-    cancel();
-    wait();
     rz_analysis_match_result_free(result);
 }
 
-void BinDiff::run(QString fileName)
+void BinDiff::setFile(QString filePath)
 {
+    mutex.lock();
+    file = filePath;
+    mutex.unlock();
+}
+
+void BinDiff::setAnalysisLevel(int aLevel)
+{
+    mutex.lock();
+    level = aLevel;
+    mutex.unlock();
+}
+
+void BinDiff::run()
+{
+    qRegisterMetaType<BinDiffStatusDescription>();
+
     mutex.lock();
     rz_analysis_match_result_free(result);
     result = nullptr;
-    continue_run = true;
+    continueRun = true;
     maxTotal = 1; // maxTotal must be at least 1.
     mutex.unlock();
 
-    core->coreMutex.lock();
-    result = core->diffNewFile(fileName, threadCallback, this);
-    core->coreMutex.unlock();
+    result = Core()->diffNewFile(file, level, threadCallback, this);
 
-    emit complete();
+    mutex.lock();
+    bool canComplete = continueRun;
+    mutex.unlock();
+    if (canComplete) {
+        emit complete();
+    }
 }
 
 void BinDiff::cancel()
 {
     mutex.lock();
-    continue_run = false;
+    continueRun = false;
     mutex.unlock();
 }
 
@@ -68,6 +84,10 @@ QList<BinDiffMatchDescription> BinDiff::matches()
     RzListIter *it = nullptr;
     const RzAnalysisFunction *fcn_a = nullptr;
     const RzAnalysisFunction *fcn_b = nullptr;
+
+    if (!result) {
+        return pairs;
+    }
 
     CutterRzListForeach (result->matches, it, RzAnalysisMatchPair, pair) {
         BinDiffMatchDescription desc;
@@ -93,6 +113,10 @@ QList<FunctionDescription> BinDiff::mismatch(bool fileA)
     RzList *unmatch = fileA ? result->unmatch_a : result->unmatch_b;
     RzListIter *it = nullptr;
 
+    if (!result) {
+        return list;
+    }
+
     CutterRzListForeach (unmatch, it, RzAnalysisFunction, func) {
         FunctionDescription desc;
         setFunctionDescription(&desc, func);
@@ -102,19 +126,23 @@ QList<FunctionDescription> BinDiff::mismatch(bool fileA)
     return list;
 }
 
-bool BinDiff::updateProgress(const size_t nLeft, const size_t nMatch)
+bool BinDiff::updateProgress(size_t nLeft, size_t nMatch)
 {
     mutex.lock();
-
-    if (maxTotal < nMatch) {
+    if (nMatch > maxTotal) {
         maxTotal = nMatch;
     }
-    if (maxTotal < nLeft) {
+    if (nLeft > maxTotal) {
         maxTotal = nLeft;
     }
 
-    emit progress(maxTotal, nLeft, nMatch);
-    bool ret = continue_run;
+    BinDiffStatusDescription status;
+    status.total = maxTotal;
+    status.nLeft = nLeft;
+    status.nMatch = nMatch;
+
+    emit progress(status);
+    bool ret = continueRun;
     mutex.unlock();
     return ret;
 }

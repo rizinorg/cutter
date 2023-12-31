@@ -157,6 +157,7 @@ set(SOURCES
     tools/basefind/BaseFindSearchDialog.cpp
     tools/basefind/BaseFindResultsDialog.cpp
     tools/bindiff/DiffLoadDialog.cpp
+    tools/bindiff/DiffWaitDialog.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -323,6 +324,7 @@ set(HEADER_FILES
     tools/basefind/BaseFindSearchDialog.h
     tools/basefind/BaseFindResultsDialog.h
     tools/bindiff/DiffLoadDialog.h
+    tools/bindiff/DiffWaitDialog.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -398,6 +400,7 @@ set(UI_FILES
     tools/basefind/BaseFindSearchDialog.ui
     tools/basefind/BaseFindResultsDialog.ui
     tools/bindiff/DiffLoadDialog.ui
+    tools/bindiff/DiffWaitDialog.ui
 )
 set(QRC_FILES
     resources.qrc
@@ -586,6 +589,12 @@ endif()
 
 if(CUTTER_ENABLE_PACKAGING)
     target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_PACKAGING)
+endif()
+
+if(CUTTER_ASAN)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdiagnostics-color=always -fsanitize=address,undefined -fno-omit-frame-pointer -fsanitize-address-use-after-scope")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color=always -fsanitize=address,undefined -fno-omit-frame-pointer -fsanitize-address-use-after-scope")
+    set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fdiagnostics-color=always -fsanitize=address,undefined -fno-omit-frame-pointer -fsanitize-address-use-after-scope")
 endif()
 
 include(Translations)

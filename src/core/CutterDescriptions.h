@@ -413,6 +413,13 @@ struct BinDiffMatchDescription
     double similarity;
 };
 
+struct BinDiffStatusDescription
+{
+    size_t total;
+    size_t nLeft;
+    size_t nMatch;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -455,5 +462,6 @@ Q_DECLARE_METATYPE(VariableDescription)
 Q_DECLARE_METATYPE(BasefindCoreStatusDescription)
 Q_DECLARE_METATYPE(BasefindResultDescription)
 Q_DECLARE_METATYPE(BinDiffMatchDescription)
+Q_DECLARE_METATYPE(BinDiffStatusDescription)
 
 #endif // DESCRIPTIONS_H

@@ -4,12 +4,12 @@
 #include "core/Cutter.h" // only needed for ut64
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/WelcomeDialog.h"
-#include "dialogs/bindiff/BinDiffDialog.h"
 #include "common/Configuration.h"
 #include "common/InitialOptions.h"
 #include "common/IOModesController.h"
 #include "common/CutterLayout.h"
 #include "MemoryDockWidget.h"
+#include "tools/bindiff/DiffLoadDialog.h"
 
 #include <memory>
 
@@ -164,6 +164,7 @@ private slots:
     void addExtraHexdump();
     void addExtraDisassembly();
     void addExtraDecompiler();
+    void startDiffing();
 
     void on_actionRefresh_Panels_triggered();
 
@@ -271,6 +272,7 @@ private:
     CallGraphWidget *callGraphDock = nullptr;
     CallGraphWidget *globalCallGraphDock = nullptr;
     CutterDockWidget *heapDock = nullptr;
+    DiffLoadDialog *diffLoadDialog = nullptr;
 
     QMenu *disassemblyContextMenuExtensions = nullptr;
     QMenu *addressableContextMenuExtensions = nullptr;
@@ -335,7 +337,7 @@ private:
 
     QSharedPointer<RizinTask> task;
     RizinTaskDialog *taskDialog = nullptr;
-    BinDiffDialog *binDiffDialog = nullptr;
+    DiffLoadDialog *binDiffDialog = nullptr;
 };
 
 #endif // MAINWINDOW_H

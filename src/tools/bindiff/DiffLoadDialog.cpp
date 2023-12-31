@@ -1,6 +1,8 @@
 #include "DiffLoadDialog.h"
 #include "ui_DiffLoadDialog.h"
 
+#include "DiffWaitDialog.h"
+
 #include <core/Cutter.h>
 #include <rz_th.h>
 
@@ -17,6 +19,13 @@ DiffLoadDialog::DiffLoadDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Di
 
     ui->lineEditDiffFile->setReadOnly(true);
     ui->lineEditDiffFile->setText("");
+
+    ui->comboBoxAnalysis->addItem(tr("Basic"));
+    ui->comboBoxAnalysis->addItem(tr("Auto"));
+    ui->comboBoxAnalysis->addItem(tr("Experimental"));
+
+    auto index = ui->comboBoxAnalysis->findData(tr("Auto"), Qt::DisplayRole);
+    ui->comboBoxAnalysis->setCurrentIndex(index);
 }
 
 DiffLoadDialog::~DiffLoadDialog() {}
@@ -29,6 +38,11 @@ QString DiffLoadDialog::getFileToOpen() const
 QString DiffLoadDialog::getPreviousDiffFile() const
 {
     return ui->lineEditDiffFile->text();
+}
+
+int DiffLoadDialog::getLevel() const
+{
+    return ui->comboBoxAnalysis->currentIndex();
 }
 
 void DiffLoadDialog::on_buttonDiffOpen_clicked()
@@ -69,26 +83,9 @@ void DiffLoadDialog::on_buttonFileOpen_clicked()
     ui->lineEditFileName->setText(fileName);
 }
 
-void DiffLoadDialog::openErrorBox(QString errorMessage)
-{
-    QMessageBox mb(this);
-    mb.setIcon(QMessageBox::Warning);
-    mb.setStandardButtons(QMessageBox::Ok);
-    mb.setWindowTitle(tr("Error"));
-    mb.setText(errorMessage);
-    mb.exec();
-}
-
 void DiffLoadDialog::on_buttonBox_accepted()
 {
-    QString fileName = getFileToOpen();
-    if (fileName.isEmpty()) {
-        openErrorBox(tr("The compare file was not selected."));
-        return;
-    }
+    emit startDiffing();
 }
 
-void DiffLoadDialog::on_buttonBox_rejected()
-{
-    // cancel
-}
+void DiffLoadDialog::on_buttonBox_rejected() {}

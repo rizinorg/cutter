@@ -21,6 +21,10 @@ public:
 
     QString getFileToOpen() const;
     QString getPreviousDiffFile() const;
+    int getLevel() const;
+
+signals:
+    void startDiffing();
 
 private slots:
     void on_buttonDiffOpen_clicked();
@@ -30,8 +34,6 @@ private slots:
 
 private:
     std::unique_ptr<Ui::DiffLoadDialog> ui;
-
-    void openErrorBox(QString errorMessage);
 };
 
 #endif // DIFF_LOAD_DIALOG_H

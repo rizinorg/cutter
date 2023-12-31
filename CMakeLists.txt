@@ -30,6 +30,7 @@ option(CUTTER_PACKAGE_RZ_LIBYARA "Compile and install rz-libyara during the inst
 option(CUTTER_PACKAGE_RZ_SILHOUETTE "Compile and install rz-silhouette during the install step." OFF)
 option(CUTTER_PACKAGE_JSDEC "Compile and install jsdec during install step." OFF)
 OPTION(CUTTER_QT6 "Use QT6" OFF)
+OPTION(CUTTER_ASAN "Build with ASAN" OFF)
 
 if(NOT CUTTER_ENABLE_PYTHON)
     set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
@@ -188,6 +189,7 @@ message(STATUS "- Package RzLibYara: ${CUTTER_PACKAGE_RZ_LIBYARA}")
 message(STATUS "- Package RzSilhouette: ${CUTTER_PACKAGE_RZ_SILHOUETTE}")
 message(STATUS "- Package JSDec: ${CUTTER_PACKAGE_JSDEC}")
 message(STATUS "- QT6: ${CUTTER_QT6}")
+message(STATUS "- ASAN: ${CUTTER_ASAN}")
 message(STATUS "")
 
 add_subdirectory(src)

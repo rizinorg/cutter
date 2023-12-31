@@ -119,7 +119,7 @@
 
 // Tools
 #include "tools/basefind/BaseFindDialog.h"
-#include "tools/bindiff/DiffLoadDialog.h"
+#include "tools/bindiff/DiffWaitDialog.h"
 
 #define PROJECT_FILE_FILTER tr("Rizin Project (*.rzdb)")
 
@@ -1617,8 +1617,29 @@ void MainWindow::on_actionBackward_triggered()
 
 void MainWindow::on_actionDiff_triggered()
 {
-    auto dialog = new DiffLoadDialog(this);
-    dialog->show();
+    if (diffLoadDialog) {
+        delete diffLoadDialog;
+    }
+    diffLoadDialog = new DiffLoadDialog(this);
+    diffLoadDialog->show();
+    connect(diffLoadDialog, &DiffLoadDialog::startDiffing, this, &MainWindow::startDiffing);
+}
+
+void MainWindow::startDiffing()
+{
+    if (!diffLoadDialog) {
+        return;
+    }
+
+    QString modified = diffLoadDialog->getFileToOpen();
+    if (modified.isEmpty()) {
+        messageBoxWarning(tr("Error"), tr("The compare file was not selected."));
+        return;
+    }
+
+    auto level = diffLoadDialog->getLevel();
+    auto diffWait = new DiffWaitDialog(this);
+    diffWait->show(filename, modified, level);
 }
 
 void MainWindow::on_actionForward_triggered()

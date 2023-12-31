@@ -233,11 +233,11 @@ CutterCore::~CutterCore()
 {
     delete bbHighlighter;
     rz_cons_sleep_end(coreBed);
-    rz_core_free(this->core_b);
-    this->core_b = nullptr;
     rz_core_task_sync_end(&core_a->tasks);
     rz_core_free(this->core_a);
     this->core_a = nullptr;
+    rz_core_free(this->core_b);
+    this->core_b = nullptr;
     rz_cons_free();
     assert(uniqueInstance == this);
     uniqueInstance = nullptr;
@@ -4564,30 +4564,28 @@ bool CutterCore::isWriteModeEnabled()
     return false;
 }
 
-RzAnalysisMatchResult *CutterCore::diffNewFile(const QString &filePath,
+RzAnalysisMatchResult *CutterCore::diffNewFile(const QString &filePath, int level,
                                                RzAnalysisMatchThreadInfoCb callback, void *user)
 {
+    CORE_LOCK();
     RzList *fcns_a = nullptr, *fcns_b = nullptr;
     RzAnalysisMatchResult *result = nullptr;
     RzAnalysisMatchOpt opts;
     RzListIter *iter;
     RzConfigNode *node;
-    void *ptr;
 
-    if (core_b) {
-        rz_core_free(core_b);
-        core_b = nullptr;
-    }
-
-    core_b = rz_core_new();
     if (!core_b) {
-        goto fail;
+        // FIXME: allocating and deallocating a new core here, taints some pointer on core_a
+        core_b = rz_core_new();
+        if (!core_b) {
+            return nullptr;
+        }
+        rz_config_set_b(core_b->config, "io.va", rz_config_get_b(core_a->config, "io.va"));
+
+        rz_core_loadlibs(core_b, RZ_CORE_LOADLIBS_ALL);
+        core_b->print->scr_prompt = false;
     }
 
-    rz_config_set_b(core_b->config, "io.va", rz_config_get_b(core_a->config, "io.va"));
-
-    rz_core_loadlibs(core_b, RZ_CORE_LOADLIBS_ALL);
-    core_b->print->scr_prompt = false;
     if (!rz_core_file_open(core_b, filePath.toUtf8().constData(), RZ_PERM_RX, 0)) {
         qWarning() << "cannot open file " << filePath;
         goto fail;
@@ -4603,9 +4601,7 @@ RzAnalysisMatchResult *CutterCore::diffNewFile(const QString &filePath,
         goto fail;
     }
 
-    rz_list_foreach(core_a->config->nodes, iter, ptr)
-    {
-        node = reinterpret_cast<RzConfigNode *>(ptr);
+    CutterRzListForeach (core_a->config->nodes, iter, RzConfigNode, node) {
         if (!strcmp(node->name, "scr.color") || !strcmp(node->name, "scr.interactive")
             || !strcmp(node->name, "cfg.debug")) {
             rz_config_set(core_b->config, node->name, "0");
@@ -4614,8 +4610,14 @@ RzAnalysisMatchResult *CutterCore::diffNewFile(const QString &filePath,
         rz_config_set(core_b->config, node->name, node->value);
     }
 
-    if (!rz_core_analysis_everything(core_b, false, nullptr)) {
-        qWarning() << "cannot analyze binary " << filePath;
+    if (!rz_core_analysis_all(core_b)) {
+        qWarning() << "cannot perform basic analysis of the binary " << filePath;
+        goto fail;
+    }
+
+    if (level != AnalysisLevelSymbols
+        && !rz_core_analysis_everything(core_b, level == AnalysisLevelExperimental, nullptr)) {
+        qWarning() << "cannot perform complete analysis of the binary " << filePath;
         goto fail;
     }
 
@@ -4651,10 +4653,10 @@ RzAnalysisMatchResult *CutterCore::diffNewFile(const QString &filePath,
     return result;
 
 fail:
+
     rz_list_free(fcns_a);
     rz_list_free(fcns_b);
-    rz_core_free(this->core_b);
-    this->core_b = nullptr;
+    rz_core_file_close_all_but(core_b);
     return nullptr;
 }
 
