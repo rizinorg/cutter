@@ -22,7 +22,7 @@ public:
     void setAnalysisLevel(int aLevel);
 
     QList<BinDiffMatchDescription> matches();
-    QList<FunctionDescription> mismatch(bool fileA);
+    QList<FunctionDescription> mismatch(bool originalFile);
 
 public slots:
     void cancel();

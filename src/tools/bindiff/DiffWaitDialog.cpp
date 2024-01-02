@@ -6,6 +6,8 @@
 #include <core/Cutter.h>
 #include <rz_util.h>
 
+#include "DiffWindow.h"
+
 DiffWaitDialog::DiffWaitDialog(QWidget *parent)
     : QDialog(parent), timer(parent), bDiff(new BinDiff()), ui(new Ui::DiffWaitDialog)
 {
@@ -29,27 +31,18 @@ DiffWaitDialog::DiffWaitDialog(QWidget *parent)
 
 DiffWaitDialog::~DiffWaitDialog()
 {
-    if (bDiff->isRunning()) {
+    if (bDiff && bDiff->isRunning()) {
         bDiff->cancel();
         bDiff->wait();
+        delete bDiff;
     }
-}
-
-QList<BinDiffMatchDescription> DiffWaitDialog::matches()
-{
-    return bDiff->matches();
-}
-
-QList<FunctionDescription> DiffWaitDialog::mismatch(bool fileA)
-{
-    return bDiff->mismatch(fileA);
 }
 
 void DiffWaitDialog::show(QString original, QString modified, int level)
 {
-    connect(this, &DiffWaitDialog::cancelJob, bDiff.get(), &BinDiff::cancel);
-    connect(bDiff.get(), &BinDiff::progress, this, &DiffWaitDialog::onProgress);
-    connect(bDiff.get(), &BinDiff::complete, this, &DiffWaitDialog::onCompletion);
+    connect(this, &DiffWaitDialog::cancelJob, bDiff, &BinDiff::cancel);
+    connect(bDiff, &BinDiff::progress, this, &DiffWaitDialog::onProgress);
+    connect(bDiff, &BinDiff::complete, this, &DiffWaitDialog::onCompletion);
     connect(&timer, &QTimer::timeout, this, &DiffWaitDialog::updateElapsedTime);
 
     ui->lineEditOriginal->setText(original);
@@ -86,6 +79,12 @@ void DiffWaitDialog::onProgress(BinDiffStatusDescription status)
 void DiffWaitDialog::onCompletion()
 {
     timer.stop();
+
+    auto results = new DiffWindow(bDiff, parentWidget());
+    bDiff = nullptr;
+
+    results->showMaximized();
+    close();
 }
 
 void DiffWaitDialog::updateElapsedTime()

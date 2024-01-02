@@ -100,27 +100,27 @@ QList<BinDiffMatchDescription> BinDiff::matches()
         desc.simtype = RZ_ANALYSIS_SIMILARITY_TYPE_STR(pair->similarity);
         desc.similarity = pair->similarity;
 
-        pairs << desc;
+        pairs.push_back(desc);
     }
 
     return pairs;
 }
 
-QList<FunctionDescription> BinDiff::mismatch(bool fileA)
+QList<FunctionDescription> BinDiff::mismatch(bool originalFile)
 {
     QList<FunctionDescription> list;
-    RzAnalysisFunction *func = nullptr;
-    RzList *unmatch = fileA ? result->unmatch_a : result->unmatch_b;
-    RzListIter *it = nullptr;
-
     if (!result) {
         return list;
     }
 
+    RzAnalysisFunction *func = nullptr;
+    RzList *unmatch = originalFile ? result->unmatch_a : result->unmatch_b;
+    RzListIter *it = nullptr;
+
     CutterRzListForeach (unmatch, it, RzAnalysisFunction, func) {
         FunctionDescription desc;
         setFunctionDescription(&desc, func);
-        list << desc;
+        list.push_back(desc);
     }
 
     return list;

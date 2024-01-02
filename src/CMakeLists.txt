@@ -158,6 +158,7 @@ set(SOURCES
     tools/basefind/BaseFindResultsDialog.cpp
     tools/bindiff/DiffLoadDialog.cpp
     tools/bindiff/DiffWaitDialog.cpp
+    tools/bindiff/DiffWindow.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -325,6 +326,7 @@ set(HEADER_FILES
     tools/basefind/BaseFindResultsDialog.h
     tools/bindiff/DiffLoadDialog.h
     tools/bindiff/DiffWaitDialog.h
+    tools/bindiff/DiffWindow.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -401,6 +403,7 @@ set(UI_FILES
     tools/basefind/BaseFindResultsDialog.ui
     tools/bindiff/DiffLoadDialog.ui
     tools/bindiff/DiffWaitDialog.ui
+    tools/bindiff/DiffWindow.ui
 )
 set(QRC_FILES
     resources.qrc

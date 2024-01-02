@@ -24,9 +24,6 @@ public:
 
     void show(QString original, QString modified, int level);
 
-    QList<BinDiffMatchDescription> matches();
-    QList<FunctionDescription> mismatch(bool fileA);
-
 public slots:
     void onProgress(BinDiffStatusDescription status);
     void onCompletion();
@@ -41,7 +38,7 @@ private slots:
 private:
     QElapsedTimer eTimer;
     QTimer timer;
-    std::unique_ptr<BinDiff> bDiff;
+    BinDiff *bDiff;
     std::unique_ptr<Ui::DiffWaitDialog> ui;
 };
 

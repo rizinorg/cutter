@@ -4564,6 +4564,32 @@ bool CutterCore::isWriteModeEnabled()
     return false;
 }
 
+RzList *get_functions(RzAnalysis *analysis)
+{
+    RzList *functions = rz_analysis_get_fcns(analysis);
+    if (!functions) {
+        return nullptr;
+    }
+
+    RzList *list = rz_list_newf(nullptr);
+    if (!list) {
+        return list;
+    }
+
+    RzAnalysisFunction *func = nullptr;
+    RzListIter *it = nullptr;
+
+    CutterRzListForeach (functions, it, RzAnalysisFunction, func) {
+        QString name = func->name;
+        if (name.startsWith("sym.imp.") || name.startsWith("loc.imp.") || name.startsWith("imp.")) {
+            continue;
+        }
+        rz_list_add_sorted(list, func, analysis->columnSort);
+    }
+
+    return list;
+}
+
 RzAnalysisMatchResult *CutterCore::diffNewFile(const QString &filePath, int level,
                                                RzAnalysisMatchThreadInfoCb callback, void *user)
 {
@@ -4621,20 +4647,17 @@ RzAnalysisMatchResult *CutterCore::diffNewFile(const QString &filePath, int leve
         goto fail;
     }
 
-    fcns_a = rz_list_clone(rz_analysis_get_fcns(core_a->analysis));
+    fcns_a = get_functions(core_a->analysis);
     if (rz_list_empty(fcns_a)) {
         qWarning() << "no functions found in the current opened file";
         goto fail;
     }
 
-    fcns_b = rz_list_clone(rz_analysis_get_fcns(core_b->analysis));
+    fcns_b = get_functions(core_b->analysis);
     if (rz_list_empty(fcns_b)) {
         qWarning() << "no functions found in " << filePath;
         goto fail;
     }
-
-    rz_list_sort(fcns_a, core_a->analysis->columnSort);
-    rz_list_sort(fcns_b, core_b->analysis->columnSort);
 
     opts.analysis_a = core_a->analysis;
     opts.analysis_b = core_b->analysis;

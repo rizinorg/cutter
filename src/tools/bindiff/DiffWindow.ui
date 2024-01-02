@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DiffWindow</class>
+ <widget class="QDialog" name="DiffWindow">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>992</width>
+    <height>641</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Diff Between Binaries</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetMinimumSize</enum>
+   </property>
+   <item>
+    <widget class="QMenuBar" name="menuBar">
+     <property name="defaultUp">
+      <bool>false</bool>
+     </property>
+     <property name="nativeMenuBar">
+      <bool>true</bool>
+     </property>
+     <widget class="QMenu" name="menuExport">
+      <property name="title">
+       <string>Export as ...</string>
+      </property>
+      <addaction name="actionExport_as_JSON"/>
+      <addaction name="actionExport_as_Markdown"/>
+     </widget>
+     <addaction name="menuExport"/>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tabMatchFunc">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="contextMenuPolicy">
+       <enum>Qt::DefaultContextMenu</enum>
+      </property>
+      <attribute name="title">
+       <string>Match Funcs</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QTableView" name="tableViewMatch"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabMismatchRem">
+      <attribute name="title">
+       <string>Removed Funcs</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayoutMismatchRem">
+       <item>
+        <widget class="QTableView" name="tableViewRem"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabMismatchAdd">
+      <attribute name="title">
+       <string>Added Funcs</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayoutMismatchAdd">
+       <item>
+        <widget class="QTableView" name="tableViewAdd"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabInfo">
+      <attribute name="title">
+       <string>Info Diff</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayoutInfo">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetDefaultConstraint</enum>
+         </property>
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>527</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Show...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBoxShowInfo">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTableView" name="tableViewInfo"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout"/>
+   </item>
+  </layout>
+  <action name="actionExport_as_JSON">
+   <property name="text">
+    <string>Export as JSON</string>
+   </property>
+  </action>
+  <action name="actionExport_as_Markdown">
+   <property name="text">
+    <string>Export as Markdown</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
