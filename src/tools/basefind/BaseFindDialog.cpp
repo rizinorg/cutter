@@ -10,6 +10,7 @@ BaseFindDialog::BaseFindDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Ba
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
+    setModal(true);
 
     // Fill in N-thread Combo
     size_t n_cores = rz_th_physical_core_number();

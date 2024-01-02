@@ -14,6 +14,7 @@ BaseFindSearchDialog::BaseFindSearchDialog(QWidget *parent)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
+    setModal(true);
 }
 
 BaseFindSearchDialog::~BaseFindSearchDialog() {}

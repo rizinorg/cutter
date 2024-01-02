@@ -13,11 +13,10 @@ DiffWaitDialog::DiffWaitDialog(QWidget *parent)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
+    setModal(true);
 
     ui->lineEditNFuncs->setReadOnly(true);
     ui->lineEditMatches->setReadOnly(true);
-    ui->lineEditEstimatedTime->setReadOnly(true);
-    ui->lineEditElapsedTime->setReadOnly(true);
     ui->lineEditOriginal->setReadOnly(true);
     ui->lineEditModified->setReadOnly(true);
     ui->progressBar->setValue(0);
@@ -34,11 +33,11 @@ DiffWaitDialog::~DiffWaitDialog()
     if (bDiff && bDiff->isRunning()) {
         bDiff->cancel();
         bDiff->wait();
-        delete bDiff;
     }
+    delete bDiff;
 }
 
-void DiffWaitDialog::show(QString original, QString modified, int level)
+void DiffWaitDialog::show(QString original, QString modified, int level, int compare)
 {
     connect(this, &DiffWaitDialog::cancelJob, bDiff, &BinDiff::cancel);
     connect(bDiff, &BinDiff::progress, this, &DiffWaitDialog::onProgress);
@@ -49,6 +48,7 @@ void DiffWaitDialog::show(QString original, QString modified, int level)
     ui->lineEditModified->setText(modified);
 
     bDiff->setAnalysisLevel(level);
+    bDiff->setCompareLogic(compare);
     bDiff->setFile(modified);
     eTimer.restart();
     timer.setSingleShot(false);
@@ -80,10 +80,12 @@ void DiffWaitDialog::onCompletion()
 {
     timer.stop();
 
-    auto results = new DiffWindow(bDiff, parentWidget());
-    bDiff = nullptr;
+    if (bDiff->hasData()) {
+        auto results = new DiffWindow(bDiff, parentWidget());
+        bDiff = nullptr;
+        results->showMaximized();
+    }
 
-    results->showMaximized();
     close();
 }
 
@@ -102,4 +104,5 @@ void DiffWaitDialog::on_buttonBox_rejected()
 {
     timer.stop();
     emit cancelJob();
+    close();
 }

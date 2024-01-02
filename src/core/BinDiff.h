@@ -20,6 +20,8 @@ public:
 
     void setFile(QString filePth);
     void setAnalysisLevel(int aLevel);
+    void setCompareLogic(int cLogic);
+    bool hasData();
 
     QList<BinDiffMatchDescription> matches();
     QList<FunctionDescription> mismatch(bool originalFile);
@@ -42,6 +44,7 @@ private:
 #endif
     QString file;
     int level;
+    int compareLogic;
 
     bool updateProgress(const size_t nLeft, const size_t nMatch);
     static bool threadCallback(const size_t nLeft, const size_t nMatch, void *user);

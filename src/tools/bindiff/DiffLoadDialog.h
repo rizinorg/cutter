@@ -22,6 +22,7 @@ public:
     QString getFileToOpen() const;
     QString getPreviousDiffFile() const;
     int getLevel() const;
+    int getCompare() const;
 
 signals:
     void startDiffing();

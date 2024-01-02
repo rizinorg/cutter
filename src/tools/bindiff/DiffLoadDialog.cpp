@@ -13,6 +13,7 @@ DiffLoadDialog::DiffLoadDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Di
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
+    setModal(true);
 
     ui->lineEditFileName->setReadOnly(true);
     ui->lineEditFileName->setText("");
@@ -23,6 +24,10 @@ DiffLoadDialog::DiffLoadDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Di
     ui->comboBoxAnalysis->addItem(tr("Basic"));
     ui->comboBoxAnalysis->addItem(tr("Auto"));
     ui->comboBoxAnalysis->addItem(tr("Experimental"));
+
+    ui->comboBoxCompare->addItem(tr("Default"));
+    ui->comboBoxCompare->addItem(tr("All functions"));
+    ui->comboBoxCompare->addItem(tr("Only Symbols"));
 
     auto index = ui->comboBoxAnalysis->findData(tr("Auto"), Qt::DisplayRole);
     ui->comboBoxAnalysis->setCurrentIndex(index);
@@ -43,6 +48,11 @@ QString DiffLoadDialog::getPreviousDiffFile() const
 int DiffLoadDialog::getLevel() const
 {
     return ui->comboBoxAnalysis->currentIndex();
+}
+
+int DiffLoadDialog::getCompare() const
+{
+    return ui->comboBoxCompare->currentIndex();
 }
 
 void DiffLoadDialog::on_buttonDiffOpen_clicked()

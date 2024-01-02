@@ -64,7 +64,42 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QTableView" name="tableViewMatch"/>
+        <widget class="CutterTreeView" name="tableViewMatch">
+         <attribute name="title">
+          <string>Matches</string>
+         </attribute>
+         <property name="styleSheet">
+          <string notr="true">CutterTreeView::item
+{
+    padding-top: 1px;
+    padding-bottom: 1px;
+}</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="lineWidth">
+          <number>0</number>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAsNeeded</enum>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
+         </property>
+         <property name="autoScroll">
+          <bool>true</bool>
+         </property>
+         <property name="horizontalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <property name="indentation">
+          <number>8</number>
+         </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -74,7 +109,42 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayoutMismatchRem">
        <item>
-        <widget class="QTableView" name="tableViewRem"/>
+        <widget class="CutterTreeView" name="tableViewRem">
+         <attribute name="title">
+          <string>Matches</string>
+         </attribute>
+         <property name="styleSheet">
+          <string notr="true">CutterTreeView::item
+{
+    padding-top: 1px;
+    padding-bottom: 1px;
+}</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="lineWidth">
+          <number>0</number>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAsNeeded</enum>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
+         </property>
+         <property name="autoScroll">
+          <bool>true</bool>
+         </property>
+         <property name="horizontalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <property name="indentation">
+          <number>8</number>
+         </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -84,7 +154,42 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayoutMismatchAdd">
        <item>
-        <widget class="QTableView" name="tableViewAdd"/>
+        <widget class="CutterTreeView" name="tableViewAdd">
+         <attribute name="title">
+          <string>Matches</string>
+         </attribute>
+         <property name="styleSheet">
+          <string notr="true">CutterTreeView::item
+{
+    padding-top: 1px;
+    padding-bottom: 1px;
+}</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="lineWidth">
+          <number>0</number>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAsNeeded</enum>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
+         </property>
+         <property name="autoScroll">
+          <bool>true</bool>
+         </property>
+         <property name="horizontalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <property name="indentation">
+          <number>8</number>
+         </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -151,6 +256,14 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CutterTreeView</class>
+   <extends>QTreeView</extends>
+   <header>widgets/CutterTreeView.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

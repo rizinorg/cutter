@@ -762,7 +762,13 @@ public:
         AnalysisLevelExperimental,
     };
 
-    RzAnalysisMatchResult *diffNewFile(const QString &filePath, int level,
+    enum {
+        CompareLogicDefault = 0, ///< Only symbols and functions (no imports)
+        CompareLogicComplete, ///< All functions (imports included)
+        CompareLogicSymbols, ///< Only symbols
+    };
+
+    RzAnalysisMatchResult *diffNewFile(const QString &filePath, int level, int compareLogic,
                                        RzAnalysisMatchThreadInfoCb callback, void *user);
 
 signals:

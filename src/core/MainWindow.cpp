@@ -1638,8 +1638,9 @@ void MainWindow::startDiffing()
     }
 
     auto level = diffLoadDialog->getLevel();
+    auto compare = diffLoadDialog->getCompare();
     auto diffWait = new DiffWaitDialog(this);
-    diffWait->show(filename, modified, level);
+    diffWait->show(filename, modified, level, compare);
 }
 
 void MainWindow::on_actionForward_triggered()

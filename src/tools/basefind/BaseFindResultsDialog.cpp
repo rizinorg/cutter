@@ -72,6 +72,7 @@ BaseFindResultsDialog::BaseFindResultsDialog(QList<BasefindResultDescription> re
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
+    setModal(true);
 
     model = new BaseFindResultsModel(&list, this);
     ui->tableView->setModel(model);

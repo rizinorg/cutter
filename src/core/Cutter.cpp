@@ -4564,8 +4564,13 @@ bool CutterCore::isWriteModeEnabled()
     return false;
 }
 
-RzList *get_functions(RzAnalysis *analysis)
+#define IS_IMPORT(name)                                                                            \
+    (name.startsWith("sym.imp.") || name.startsWith("loc.imp.") || name.startsWith("imp."))
+#define IS_SYMBOL(name, pfx) (IS_IMPORT(name) || name.startsWith(pfx))
+
+RzList *get_functions(RzAnalysis *analysis, int compareLogic)
 {
+
     RzList *functions = rz_analysis_get_fcns(analysis);
     if (!functions) {
         return nullptr;
@@ -4576,12 +4581,21 @@ RzList *get_functions(RzAnalysis *analysis)
         return list;
     }
 
+    QString pfx = Config()->getConfigString("analysis.fcnprefix");
+    if (pfx.isEmpty()) {
+        pfx = "fcn.";
+    } else {
+        pfx += ".";
+    }
+
     RzAnalysisFunction *func = nullptr;
     RzListIter *it = nullptr;
 
     CutterRzListForeach (functions, it, RzAnalysisFunction, func) {
         QString name = func->name;
-        if (name.startsWith("sym.imp.") || name.startsWith("loc.imp.") || name.startsWith("imp.")) {
+        if (compareLogic == CutterCore::CompareLogicDefault && IS_IMPORT(name)) {
+            continue;
+        } else if (compareLogic == CutterCore::CompareLogicSymbols && IS_SYMBOL(name, pfx)) {
             continue;
         }
         rz_list_add_sorted(list, func, analysis->columnSort);
@@ -4590,7 +4604,7 @@ RzList *get_functions(RzAnalysis *analysis)
     return list;
 }
 
-RzAnalysisMatchResult *CutterCore::diffNewFile(const QString &filePath, int level,
+RzAnalysisMatchResult *CutterCore::diffNewFile(const QString &filePath, int level, int compareLogic,
                                                RzAnalysisMatchThreadInfoCb callback, void *user)
 {
     CORE_LOCK();
@@ -4613,17 +4627,17 @@ RzAnalysisMatchResult *CutterCore::diffNewFile(const QString &filePath, int leve
     }
 
     if (!rz_core_file_open(core_b, filePath.toUtf8().constData(), RZ_PERM_RX, 0)) {
-        qWarning() << "cannot open file " << filePath;
+        qWarning() << tr("cannot open file %1").arg(filePath);
         goto fail;
     }
 
     if (!rz_core_bin_load(core_b, nullptr, UT64_MAX)) {
-        qWarning() << "cannot load bin " << filePath;
+        qWarning() << tr("cannot load bin %1").arg(filePath);
         goto fail;
     }
 
     if (!rz_core_bin_update_arch_bits(core_b)) {
-        qWarning() << "cannot set architecture with bits";
+        qWarning() << tr("cannot set architecture with bits");
         goto fail;
     }
 
@@ -4637,25 +4651,25 @@ RzAnalysisMatchResult *CutterCore::diffNewFile(const QString &filePath, int leve
     }
 
     if (!rz_core_analysis_all(core_b)) {
-        qWarning() << "cannot perform basic analysis of the binary " << filePath;
+        qWarning() << tr("cannot perform basic analysis of the binary %1").arg(filePath);
         goto fail;
     }
 
     if (level != AnalysisLevelSymbols
         && !rz_core_analysis_everything(core_b, level == AnalysisLevelExperimental, nullptr)) {
-        qWarning() << "cannot perform complete analysis of the binary " << filePath;
+        qWarning() << tr("cannot perform complete analysis of the binary %1").arg(filePath);
         goto fail;
     }
 
-    fcns_a = get_functions(core_a->analysis);
+    fcns_a = get_functions(core_a->analysis, compareLogic);
     if (rz_list_empty(fcns_a)) {
-        qWarning() << "no functions found in the current opened file";
+        qWarning() << tr("no functions found in the current opened file");
         goto fail;
     }
 
-    fcns_b = get_functions(core_b->analysis);
+    fcns_b = get_functions(core_b->analysis, compareLogic);
     if (rz_list_empty(fcns_b)) {
-        qWarning() << "no functions found in " << filePath;
+        qWarning() << tr("no functions found in the just opene file %1").arg(filePath);
         goto fail;
     }
 
@@ -4667,7 +4681,7 @@ RzAnalysisMatchResult *CutterCore::diffNewFile(const QString &filePath, int leve
     // calculate all the matches between the functions of the 2 different core files.
     result = rz_analysis_match_functions(fcns_a, fcns_b, &opts);
     if (!result) {
-        qWarning() << "failed to perform the function matching operation or job was cancelled.";
+        qWarning() << tr("failed to perform the function matching operation or job was cancelled.");
         goto fail;
     }
 

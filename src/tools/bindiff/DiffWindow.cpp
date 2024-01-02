@@ -56,7 +56,26 @@ QVariant DiffMatchModel::data(const QModelIndex &index, int role) const
         }
 
     case Qt::ToolTipRole: {
-        return entry.simtype;
+        switch (index.column()) {
+        case NameOrig:
+            return entry.original.name;
+        case SizeOrig:
+            return QString::asprintf("%llu (%#llx)", entry.original.linearSize,
+                                     entry.original.linearSize);
+        case AddressOrig:
+            return RzAddressString(entry.original.offset);
+        case Similarity:
+            return entry.simtype;
+        case AddressMod:
+            return RzAddressString(entry.modified.offset);
+        case SizeMod:
+            return QString::asprintf("%llu (%#llx)", entry.modified.linearSize,
+                                     entry.modified.linearSize);
+        case NameMod:
+            return entry.modified.name;
+        default:
+            return QVariant();
+        }
     }
 
     case Qt::BackgroundRole: {
@@ -126,6 +145,8 @@ QVariant DiffMismatchModel::data(const QModelIndex &index, int role) const
     const FunctionDescription &entry = list->at(index.row());
 
     switch (role) {
+    case Qt::ToolTipRole:
+        /* fall-thru */
     case Qt::DisplayRole:
         switch (index.column()) {
         case FuncName:
@@ -149,10 +170,6 @@ QVariant DiffMismatchModel::data(const QModelIndex &index, int role) const
         default:
             return QVariant();
         }
-
-    case Qt::ToolTipRole: {
-        return entry.name;
-    }
 
     default:
         return QVariant();
@@ -194,6 +211,7 @@ DiffWindow::DiffWindow(BinDiff *bd, QWidget *parent)
     : QDialog(parent), ui(new Ui::DiffWindow), bDiff(bd)
 {
     ui->setupUi(this);
+    setModal(true);
 
     ui->comboBoxShowInfo->addItem(tr("Summary"));
     ui->comboBoxShowInfo->addItem(tr("AAAA"));
@@ -213,22 +231,16 @@ DiffWindow::DiffWindow(BinDiff *bd, QWidget *parent)
     // Matches Table
     ui->tableViewMatch->setModel(modelMatch);
     ui->tableViewMatch->sortByColumn(DiffMatchModel::Similarity, Qt::AscendingOrder);
-    ui->tableViewMatch->verticalHeader()->hide();
-    ui->tableViewMatch->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableViewMatch->setContextMenuPolicy(Qt::CustomContextMenu);
 
     // Deletion Table
     ui->tableViewRem->setModel(modelDel);
     ui->tableViewRem->sortByColumn(DiffMismatchModel::FuncName, Qt::AscendingOrder);
-    ui->tableViewRem->verticalHeader()->hide();
-    ui->tableViewRem->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableViewRem->setContextMenuPolicy(Qt::CustomContextMenu);
 
     // Addition Table
     ui->tableViewAdd->setModel(modelAdd);
     ui->tableViewAdd->sortByColumn(DiffMismatchModel::FuncName, Qt::AscendingOrder);
-    ui->tableViewAdd->verticalHeader()->hide();
-    ui->tableViewAdd->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableViewAdd->setContextMenuPolicy(Qt::CustomContextMenu);
 }
 

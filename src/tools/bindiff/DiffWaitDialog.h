@@ -22,7 +22,7 @@ public:
     explicit DiffWaitDialog(QWidget *parent = nullptr);
     ~DiffWaitDialog();
 
-    void show(QString original, QString modified, int level);
+    void show(QString original, QString modified, int level, int compare);
 
 public slots:
     void onProgress(BinDiffStatusDescription status);

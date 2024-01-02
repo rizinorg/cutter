@@ -22,6 +22,11 @@ BinDiff::~BinDiff()
     rz_analysis_match_result_free(result);
 }
 
+bool BinDiff::hasData()
+{
+    return result != nullptr;
+}
+
 void BinDiff::setFile(QString filePath)
 {
     mutex.lock();
@@ -36,6 +41,13 @@ void BinDiff::setAnalysisLevel(int aLevel)
     mutex.unlock();
 }
 
+void BinDiff::setCompareLogic(int cLogic)
+{
+    mutex.lock();
+    compareLogic = cLogic;
+    mutex.unlock();
+}
+
 void BinDiff::run()
 {
     qRegisterMetaType<BinDiffStatusDescription>();
@@ -47,7 +59,7 @@ void BinDiff::run()
     maxTotal = 1; // maxTotal must be at least 1.
     mutex.unlock();
 
-    result = Core()->diffNewFile(file, level, threadCallback, this);
+    result = Core()->diffNewFile(file, level, compareLogic, threadCallback, this);
 
     mutex.lock();
     bool canComplete = continueRun;
