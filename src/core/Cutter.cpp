@@ -3188,13 +3188,13 @@ QList<ExportDescription> CutterCore::getAllExports()
 QList<SymbolDescription> CutterCore::getAllSymbols()
 {
     CORE_LOCK();
-    QList<SymbolDescription> ret;
-
-    if (!(core && core->bin && core->bin->cur && core->bin->cur->o)) {
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf) {
         return {};
     }
 
-    const RzPVector *symbols = rz_bin_object_get_symbols(core->bin->cur->o);
+    QList<SymbolDescription> ret;
+    const RzPVector *symbols = rz_bin_object_get_symbols(bf->o);
     if (symbols) {
         for (const auto &bs : CutterPVector<RzBinSymbol>(symbols)) {
             QString type = QString(bs->bind) + " " + QString(bs->type);
@@ -3207,7 +3207,7 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
         }
     }
 
-    const RzList *entries = rz_bin_object_get_entries(core->bin->cur->o);
+    const RzList *entries = rz_bin_object_get_entries(bf->o);
     if (entries) {
         /* list entrypoints as symbols too */
         int n = 0;
