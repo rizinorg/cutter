@@ -3153,7 +3153,8 @@ QList<ExportDescription> CutterCore::getAllExports()
     if (!bf) {
         return {};
     }
-    const RzList *symbols = rz_bin_object_get_symbols(bf->o);
+
+    const RzPVector *symbols = rz_bin_object_get_symbols(bf->o);
     if (!symbols) {
         return {};
     }
@@ -3162,7 +3163,7 @@ QList<ExportDescription> CutterCore::getAllExports()
     bool demangle = rz_config_get_b(core->config, "bin.demangle");
 
     QList<ExportDescription> ret;
-    for (const auto &symbol : CutterRzList<RzBinSymbol>(symbols)) {
+    for (const auto &symbol : CutterPVector<RzBinSymbol>(symbols)) {
         if (!(symbol->name && rz_core_sym_is_export(symbol))) {
             continue;
         }
@@ -3187,13 +3188,15 @@ QList<ExportDescription> CutterCore::getAllExports()
 QList<SymbolDescription> CutterCore::getAllSymbols()
 {
     CORE_LOCK();
-    RzListIter *it;
-
     QList<SymbolDescription> ret;
 
-    RzBinSymbol *bs;
-    if (core && core->bin && core->bin->cur && core->bin->cur->o) {
-        CutterRzListForeach (core->bin->cur->o->symbols, it, RzBinSymbol, bs) {
+    if (!(core && core->bin && core->bin->cur && core->bin->cur->o)) {
+        return {};
+    }
+
+    const RzPVector *symbols = rz_bin_object_get_symbols(core->bin->cur->o);
+    if (symbols) {
+        for (const auto &bs : CutterPVector<RzBinSymbol>(symbols)) {
             QString type = QString(bs->bind) + " " + QString(bs->type);
             SymbolDescription symbol;
             symbol.vaddr = bs->vaddr;
@@ -3202,11 +3205,13 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
             symbol.type = QString(bs->type);
             ret << symbol;
         }
+    }
 
+    const RzList *entries = rz_bin_object_get_entries(core->bin->cur->o);
+    if (entries) {
         /* list entrypoints as symbols too */
         int n = 0;
-        RzBinAddr *entry;
-        CutterRzListForeach (core->bin->cur->o->entries, it, RzBinAddr, entry) {
+        for (const auto &entry : CutterRzList<RzBinSymbol>(entries)) {
             SymbolDescription symbol;
             symbol.vaddr = entry->vaddr;
             symbol.name = QString("entry") + QString::number(n++);
@@ -3341,8 +3346,9 @@ QList<StringDescription> CutterCore::getAllStrings()
     if (!obj) {
         return {};
     }
-    RzList *l = rz_core_bin_whole_strings(core, bf);
-    if (!l) {
+
+    RzPVector *strings = rz_core_bin_whole_strings(core, bf);
+    if (!strings) {
         return {};
     }
 
@@ -3353,7 +3359,7 @@ QList<StringDescription> CutterCore::getAllStrings()
     opt.esc_double_quotes = true;
 
     QList<StringDescription> ret;
-    for (const auto &str : CutterRzList<RzBinString>(l)) {
+    for (const auto &str : CutterPVector<RzBinString>(strings)) {
         auto section = obj ? rz_bin_get_section_at(obj, str->paddr, 0) : NULL;
 
         StringDescription string;
