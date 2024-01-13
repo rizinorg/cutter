@@ -3422,7 +3422,7 @@ QList<SectionDescription> CutterCore::getAllSections()
         return sections;
     }
 
-    RzList *sects = rz_bin_object_get_sections(o);
+    RzPVector *sects = rz_bin_object_get_sections(o);
     if (!sects) {
         return sections;
     }
@@ -3431,9 +3431,7 @@ QList<SectionDescription> CutterCore::getAllSections()
         return sections;
     }
     rz_list_push(hashnames, rz_str_new("entropy"));
-    RzListIter *it;
-    RzBinSection *sect;
-    CutterRzListForeach (sects, it, RzBinSection, sect) {
+    for (const auto &sect : CutterPVector<RzBinSection>(sects)) {
         if (RZ_STR_ISEMPTY(sect->name))
             continue;
 
@@ -3456,7 +3454,7 @@ QList<SectionDescription> CutterCore::getAllSections()
 
         sections << section;
     }
-    rz_list_free(sects);
+    rz_pvector_free(sects);
     return sections;
 }
 
@@ -3470,15 +3468,14 @@ QStringList CutterCore::getSectionList()
         return ret;
     }
 
-    RzList *sects = rz_bin_object_get_sections(o);
+    RzPVector *sects = rz_bin_object_get_sections(o);
     if (!sects) {
         return ret;
     }
-    RzListIter *it;
-    RzBinSection *sect;
-    CutterRzListForeach (sects, it, RzBinSection, sect) {
+    for (const auto &sect : CutterPVector<RzBinSection>(sects)) {
         ret << sect->name;
     }
+    rz_pvector_free(sects);
     return ret;
 }
 
@@ -3494,15 +3491,13 @@ QList<SegmentDescription> CutterCore::getAllSegments()
     if (!bf) {
         return {};
     }
-    RzList *segments = rz_bin_object_get_segments(bf->o);
+    RzPVector *segments = rz_bin_object_get_segments(bf->o);
     if (!segments) {
         return {};
     }
 
-    RzBinSection *segment;
-    RzListIter *iter;
     QList<SegmentDescription> ret;
-    CutterRzListForeach (segments, iter, RzBinSection, segment) {
+    for (const auto &segment : CutterPVector<RzBinSection>(segments)) {
         SegmentDescription segDesc;
         segDesc.name = segment->name;
         segDesc.vaddr = segment->vaddr;
@@ -3512,7 +3507,7 @@ QList<SegmentDescription> CutterCore::getAllSegments()
         segDesc.perm = perms_str(segment->perm);
         ret << segDesc;
     }
-    rz_list_free(segments);
+    rz_pvector_free(segments);
 
     return ret;
 }
