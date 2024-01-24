@@ -23,14 +23,27 @@ QList<QTextEdit::ExtraSelection> createSameWordsSelections(QPlainTextEdit *textE
 
     highlightSelection.cursor = textEdit->textCursor();
 
-    if (word == "{") {
+    if (word == "{" || word == "}") {
+        int val;
+        if (word == "{") {
+            val = 0;
+        } else {
+            val = 1;
+        }
         selections.append(highlightSelection);
-        int val = 0;
+
         while (!highlightSelection.cursor.isNull() && !highlightSelection.cursor.atEnd()) {
-            highlightSelection.cursor =
-                    document->find(QRegularExpression("{|}"), highlightSelection.cursor);
+            if (word == "{") {
+                highlightSelection.cursor =
+                        document->find(QRegularExpression("{|}"), highlightSelection.cursor);
+            } else {
+                highlightSelection.cursor =
+                        document->find(QRegularExpression("{|}"), highlightSelection.cursor,
+                                       QTextDocument::FindBackward);
+            }
+
             if (!highlightSelection.cursor.isNull()) {
-                if (highlightSelection.cursor.selectedText() == "{") {
+                if (highlightSelection.cursor.selectedText() == word) {
                     val++;
                 } else {
                     val--;
