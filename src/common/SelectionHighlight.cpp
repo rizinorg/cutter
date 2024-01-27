@@ -7,6 +7,7 @@
 #include <QColor>
 #include <QTextCursor>
 #include <QPlainTextEdit>
+#include <QRegularExpression>
 
 QList<QTextEdit::ExtraSelection> createSameWordsSelections(QPlainTextEdit *textEdit,
                                                            const QString &word)
@@ -21,6 +22,42 @@ QList<QTextEdit::ExtraSelection> createSameWordsSelections(QPlainTextEdit *textE
     }
 
     highlightSelection.cursor = textEdit->textCursor();
+
+    if (word == "{" || word == "}") {
+        int val;
+        if (word == "{") {
+            val = 0;
+        } else {
+            val = 1;
+        }
+        selections.append(highlightSelection);
+
+        while (!highlightSelection.cursor.isNull() && !highlightSelection.cursor.atEnd()) {
+            if (word == "{") {
+                highlightSelection.cursor =
+                        document->find(QRegularExpression("{|}"), highlightSelection.cursor);
+            } else {
+                highlightSelection.cursor =
+                        document->find(QRegularExpression("{|}"), highlightSelection.cursor,
+                                       QTextDocument::FindBackward);
+            }
+
+            if (!highlightSelection.cursor.isNull()) {
+                if (highlightSelection.cursor.selectedText() == word) {
+                    val++;
+                } else {
+                    val--;
+                }
+                if (val == 0) {
+                    highlightSelection.format.setBackground(highlightWordColor);
+                    selections.append(highlightSelection);
+                    break;
+                }
+            }
+        }
+        return selections;
+    }
+
     highlightSelection.cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
 
     while (!highlightSelection.cursor.isNull() && !highlightSelection.cursor.atEnd()) {
