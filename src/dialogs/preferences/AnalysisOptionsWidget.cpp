@@ -38,7 +38,7 @@ AnalysisOptionsWidget::AnalysisOptionsWidget(PreferencesDialog *dialog)
         QString val = confCheckbox.config;
         QCheckBox &cb = *confCheckbox.checkBox;
         connect(confCheckbox.checkBox, &QCheckBox::stateChanged, this,
-                [this, val, &cb]() { checkboxEnabler(&cb, val); });
+                [val, &cb]() { checkboxEnabler(&cb, val); });
     }
 
     ui->analyzePushButton->setToolTip("Analyze the program using Rizin's \"aaa\" command");
