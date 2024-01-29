@@ -36,7 +36,7 @@ InitializationFileEditor::InitializationFileEditor(PreferencesDialog *dialog)
                     .arg(QUrl::fromLocalFile(cutterRCDirectory.absolutePath()).toString(),
                          cutterRCLocation.toHtmlEscaped()));
 
-    ui->executeNow->button(QDialogButtonBox::Retry)->setText("Execute");
+    ui->executeNow->button(QDialogButtonBox::Retry)->setText(tr("Execute"));
     ui->ConfigFileEdit->clear();
     if (cutterRCFileInfo.exists()) {
         QFile cutterRC(cutterRCLocation);

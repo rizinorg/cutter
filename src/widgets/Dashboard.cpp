@@ -232,3 +232,8 @@ const char *Dashboard::setBoolText(bool value)
 {
     return value ? "True" : "False";
 }
+
+QString Dashboard::getWindowTitle() const
+{
+    return tr("Dashboard");
+}

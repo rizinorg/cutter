@@ -167,3 +167,8 @@ void SegmentsWidget::refreshSegments()
 
     qhelpers::adjustColumns(ui->treeView, SegmentsModel::ColumnCount, 0);
 }
+
+QString SegmentsWidget::getWindowTitle() const
+{
+    return tr("Segments");
+}
