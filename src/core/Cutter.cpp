@@ -3430,7 +3430,7 @@ QList<SectionDescription> CutterCore::getAllSections()
     if (!hashnames) {
         return sections;
     }
-    rz_list_push(hashnames, rz_str_new("entropy"));
+    rz_list_push(hashnames, rz_str_dup("entropy"));
     for (const auto &sect : CutterPVector<RzBinSection>(sects)) {
         if (RZ_STR_ISEMPTY(sect->name))
             continue;
@@ -3778,8 +3778,8 @@ void CutterCore::setAnalysisMethod(const QString &className, const AnalysisMetho
 {
     CORE_LOCK();
     RzAnalysisMethod analysisMeth;
-    analysisMeth.name = rz_str_new(meth.name.toUtf8().constData());
-    analysisMeth.real_name = rz_str_new(meth.realName.toUtf8().constData());
+    analysisMeth.name = rz_str_dup(meth.name.toUtf8().constData());
+    analysisMeth.real_name = rz_str_dup(meth.realName.toUtf8().constData());
     analysisMeth.addr = meth.addr;
     analysisMeth.vtable_offset = meth.vtableOffset;
     rz_analysis_class_method_set(core->analysis, className.toUtf8().constData(), &analysisMeth);
