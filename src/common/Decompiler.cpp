@@ -16,7 +16,7 @@ static char *jsonToStrdup(const CutterJson &str)
     if (!j || j->type != RZ_JSON_STRING) {
         return NULL;
     }
-    return rz_str_new(j->str_value);
+    return rz_str_dup(j->str_value);
 }
 
 static RzAnnotatedCode *parseJsonCode(CutterJson &json)
