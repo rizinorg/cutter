@@ -4,8 +4,6 @@
 #include "dialogs/WriteCommandsDialogs.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/FlagDialog.h"
-#include <iostream>
-
 #include <QPainter>
 #include <QPaintEvent>
 #include <QResizeEvent>
@@ -1182,14 +1180,12 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
     }
 
     QString flag = Core()->flagAt(cursor.address);
-    std::cout << "Flag at " << std::hex << cursor.address << " is " << flag.toStdString() << std::endl;
 
     if (flag.isNull() || flag.isEmpty()) {
         actionDeleteFlag->setVisible(false);
         actionFlag->setText(tr("Add Flag"));
     } else {
         actionDeleteFlag->setVisible(true);
-        actionFlag->setText(tr("Edit Flag"));
     }
 
     if (!ioModesController.canWrite()) {
@@ -1268,7 +1264,6 @@ void HexWidget::onActionAddCommentTriggered()
 void HexWidget::onActionAddFlagTriggered()
 {
     uint64_t addr = cursor.address;
-    std::cout << "Add flag at " << std::hex << addr << std::endl;
     FlagDialog dialog(addr, this);
     dialog.exec();
 }
