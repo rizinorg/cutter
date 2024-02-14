@@ -4598,7 +4598,7 @@ RzList *get_functions(RzAnalysis *analysis, int compareLogic)
         } else if (compareLogic == CutterCore::CompareLogicSymbols && IS_SYMBOL(name, pfx)) {
             continue;
         }
-        rz_list_add_sorted(list, func, analysis->columnSort);
+        rz_list_add_sorted(list, func, analysis->columnSort, NULL);
     }
 
     return list;
