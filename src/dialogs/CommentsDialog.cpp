@@ -1,12 +1,13 @@
 #include "CommentsDialog.h"
 #include "ui_CommentsDialog.h"
-
+#include <iostream>
 #include <QErrorMessage>
 
 #include "core/Cutter.h"
 
 CommentsDialog::CommentsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::CommentsDialog)
 {
+    std::cout << "Comments dialog parent object name" << " " << parent->objectName().toStdString() << std::endl;
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 

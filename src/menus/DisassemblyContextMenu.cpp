@@ -11,7 +11,7 @@
 #include "dialogs/EditStringDialog.h"
 #include "dialogs/BreakpointsDialog.h"
 #include "MainWindow.h"
-
+#include <iostream>
 #include <QtCore>
 #include <QShortcut>
 #include <QJsonArray>
