@@ -136,7 +136,6 @@ HexWidget::HexWidget(QWidget *parent)
             &HexWidget::onActionDeleteCommentTriggered);
     addAction(actionDeleteComment);
 
-    // Flag Option - Rohan
     // Add flag option
     actionFlag = new QAction(tr("Add Flag"), this);
     actionFlag->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
@@ -1180,12 +1179,14 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
     }
 
     QString flag = Core()->flagAt(cursor.address);
+    RzFlagItem *flagItem = rz_flag_get_i(Core()->core()->flags, cursor.address); 
 
-    if (flag.isNull() || flag.isEmpty()) {
+    if (flagItem == 0x0 || flag.isNull() || flag.isEmpty()) {
         actionDeleteFlag->setVisible(false);
         actionFlag->setText(tr("Add Flag"));
     } else {
         actionDeleteFlag->setVisible(true);
+        actionFlag->setText(tr("Edit Flag"));
     }
 
     if (!ioModesController.canWrite()) {
@@ -1261,6 +1262,7 @@ void HexWidget::onActionAddCommentTriggered()
     CommentsDialog::addOrEditComment(addr, this);
 }
 
+// slog for add flag action
 void HexWidget::onActionAddFlagTriggered()
 {
     uint64_t addr = cursor.address;
