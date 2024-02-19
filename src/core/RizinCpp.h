@@ -51,6 +51,12 @@ static inline auto fromOwned(RZ_OWN RzList *data) -> UniquePtrCP<decltype(data),
     return { data, {} };
 }
 
+static inline auto fromOwned(RZ_OWN RzIterator *data)
+        -> UniquePtrCP<decltype(data), &rz_iterator_free>
+{
+    return { data, {} };
+}
+
 // Rizin list iteration macros
 // deprecated, prefer using CutterPVector and CutterRzList instead
 #define CutterRzListForeach(list, it, type, x)                                                     \

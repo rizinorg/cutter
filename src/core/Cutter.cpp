@@ -722,11 +722,10 @@ PRzAnalysisBytes CutterCore::getRzAnalysisBytesSingle(RVA addr)
     rz_io_read_at(core->io, addr, buf, sizeof(buf));
 
     auto seek = seekTemp(addr);
-    auto vec = fromOwned(rz_core_analysis_bytes(core, addr, buf, sizeof(buf), 1));
+    auto abiter = fromOwned(rz_core_analysis_bytes(core, addr, buf, sizeof(buf), 1));
+    auto ab =
+            abiter ? reinterpret_cast<RzAnalysisBytes *>(rz_iterator_next(abiter.get())) : nullptr;
 
-    auto ab = vec && rz_pvector_len(vec.get()) > 0
-            ? reinterpret_cast<RzAnalysisBytes *>(rz_pvector_pop_front(vec.get()))
-            : nullptr;
     return { ab, rz_analysis_bytes_free };
 }
 
@@ -1027,18 +1026,10 @@ RVA CutterCore::nextOpAddr(RVA startAddr, int count)
 {
     CORE_LOCK();
     auto seek = seekTemp(startAddr);
-    auto vec = fromOwned(rz_core_analysis_bytes(core, core->offset, core->block,
-                                                (int)core->blocksize, count + 1));
+    auto consumed =
+            rz_core_analysis_ops_size(core, core->offset, core->block, (int)core->blocksize, count);
 
-    RVA addr = startAddr + 1;
-    if (!vec) {
-        return addr;
-    }
-    auto ab = reinterpret_cast<RzAnalysisBytes *>(rz_pvector_tail(vec.get()));
-    if (!(ab && ab->op)) {
-        return addr;
-    }
-    addr = ab->op->addr;
+    RVA addr = startAddr + consumed;
     return addr;
 }
 
