@@ -146,8 +146,7 @@ HexWidget::HexWidget(QWidget *parent)
     // Delete flag option
     actionDeleteFlag = new QAction(tr("Delete Flag"), this);
     actionDeleteFlag->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    connect(actionDeleteFlag, &QAction::triggered, this,
-            &HexWidget::onActionDeleteFlagTriggered);
+    connect(actionDeleteFlag, &QAction::triggered, this, &HexWidget::onActionDeleteFlagTriggered);
     addAction(actionDeleteFlag);
 
     actionSelectRange = new QAction(tr("Select range"), this);
@@ -1179,7 +1178,7 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
     }
 
     QString flag = Core()->flagAt(cursor.address);
-    RzFlagItem *flagItem = rz_flag_get_i(Core()->core()->flags, cursor.address); 
+    RzFlagItem *flagItem = rz_flag_get_i(Core()->core()->flags, cursor.address);
 
     if (flagItem == 0x0 || flag.isNull() || flag.isEmpty()) {
         actionDeleteFlag->setVisible(false);
