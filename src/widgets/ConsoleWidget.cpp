@@ -228,11 +228,11 @@ void ConsoleWidget::executeCommand(const QString &command)
     addOutput(cmd_line);
 
     RVA oldOffset = Core()->getOffset();
-    commandTask = QSharedPointer<CommandTask>(
-            new CommandTask(command, CommandTask::ColorMode::MODE_256, true));
+    commandTask =
+            QSharedPointer<CommandTask>(new CommandTask(command, CommandTask::ColorMode::MODE_16M));
     connect(commandTask.data(), &CommandTask::finished, this,
             [this, cmd_line, command, oldOffset](const QString &result) {
-                ui->outputTextEdit->appendHtml(result);
+                ui->outputTextEdit->appendHtml(CutterCore::ansiEscapeToHtml(result));
                 scrollOutputToEnd();
                 historyAdd(command);
                 commandTask.clear();

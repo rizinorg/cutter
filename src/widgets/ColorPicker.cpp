@@ -286,7 +286,6 @@ void ColorPicker::startPickingFromScreen()
 {
     if (!pickingFromScreen) {
         setMouseTracking(true);
-        grabMouse(Qt::CursorShape::CrossCursor);
         pickingFromScreen = true;
         bufferColor = currColor;
     }
@@ -298,7 +297,6 @@ void ColorPicker::mouseReleaseEvent(QMouseEvent *event)
         setColor(getColorAtMouse());
         pickingFromScreen = false;
         setMouseTracking(false);
-        releaseMouse();
     }
     QWidget::mouseReleaseEvent(event);
 }

@@ -94,7 +94,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
 
     std::unordered_map<ut64, Agnode_t *> nodes;
     for (const auto &block : blocks) {
-        nodes[block.first] = agnode(g, nullptr, TRUE);
+        nodes[block.first] = agnode(g, nullptr, true);
     }
 
     std::vector<std::string> strc;
@@ -143,7 +143,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
             if (v == nodes.end()) {
                 continue;
             }
-            auto e = agedge(g, u, v->second, nullptr, TRUE);
+            auto e = agedge(g, u, v->second, nullptr, true);
             edges[{ blockIt.first, edge.target }] = e;
             if (loopEdges.find({ blockIt.first, edge.target }) != loopEdges.end()) {
                 agxset(e, constraintAttr, STR("0"));

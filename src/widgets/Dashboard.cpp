@@ -80,7 +80,7 @@ void Dashboard::updateContents()
     int static_value = rz_bin_is_static(core->bin);
     setPlainText(ui->staticEdit, tr(setBoolText(static_value)));
 
-    RzList *hashes = bf ? rz_bin_file_compute_hashes(core->bin, bf, UT64_MAX) : nullptr;
+    const RzPVector *hashes = bf ? rz_bin_file_compute_hashes(core->bin, bf, UT64_MAX) : nullptr;
 
     // Delete hashesWidget if it isn't null to avoid duplicate components
     if (hashesWidget) {
@@ -94,23 +94,23 @@ void Dashboard::updateContents()
     ui->hashesVerticalLayout->addWidget(hashesWidget);
 
     // Add hashes as a pair of Hash Name : Hash Value.
-    RzListIter *iter;
-    RzBinFileHash *hash;
-    CutterRzListForeach (hashes, iter, RzBinFileHash, hash) {
-        // Create a bold QString with the hash name uppercased
-        QString label = QString("<b>%1:</b>").arg(QString(hash->type).toUpper());
+    if (hashes != nullptr) {
+        for (const auto &hash : CutterPVector<RzBinFileHash>(hashes)) {
+            // Create a bold QString with the hash name uppercased
+            QString label = QString("<b>%1:</b>").arg(QString(hash->type).toUpper());
 
-        // Define a Read-Only line edit to display the hash value
-        QLineEdit *hashLineEdit = new QLineEdit();
-        hashLineEdit->setReadOnly(true);
-        hashLineEdit->setText(hash->hex);
+            // Define a Read-Only line edit to display the hash value
+            QLineEdit *hashLineEdit = new QLineEdit();
+            hashLineEdit->setReadOnly(true);
+            hashLineEdit->setText(hash->hex);
 
-        // Set cursor position to begining to avoid long hashes (e.g sha256)
-        // to look truncated at the begining
-        hashLineEdit->setCursorPosition(0);
+            // Set cursor position to begining to avoid long hashes (e.g sha256)
+            // to look truncated at the begining
+            hashLineEdit->setCursorPosition(0);
 
-        // Add both controls to a form layout in a single row
-        hashesLayout->addRow(new QLabel(label), hashLineEdit);
+            // Add both controls to a form layout in a single row
+            hashesLayout->addRow(new QLabel(label), hashLineEdit);
+        }
     }
 
     st64 fcns = rz_list_length(core->analysis->fcns);
@@ -134,11 +134,11 @@ void Dashboard::updateContents()
     setPlainText(ui->percentageLineEdit, QString::number(precentage) + "%");
 
     ui->libraryList->setPlainText("");
-    const RzList *libs = bf ? rz_bin_object_get_libs(bf->o) : nullptr;
+    const RzPVector *libs = bf ? rz_bin_object_get_libs(bf->o) : nullptr;
     if (libs) {
         QString libText;
         bool first = true;
-        for (const auto &lib : CutterRzList<char>(libs)) {
+        for (const auto &lib : CutterPVector<char>(libs)) {
             if (!first) {
                 libText.append("\n");
             }

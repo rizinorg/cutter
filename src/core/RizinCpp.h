@@ -51,11 +51,17 @@ static inline auto fromOwned(RZ_OWN RzList *data) -> UniquePtrCP<decltype(data),
     return { data, {} };
 }
 
+static inline auto fromOwned(RZ_OWN RzIterator *data)
+        -> UniquePtrCP<decltype(data), &rz_iterator_free>
+{
+    return { data, {} };
+}
+
 // Rizin list iteration macros
 // deprecated, prefer using CutterPVector and CutterRzList instead
 #define CutterRzListForeach(list, it, type, x)                                                     \
     if (list)                                                                                      \
-        for (it = list->head; it && ((x = static_cast<type *>(it->data))); it = it->n)
+        for (it = list->head; it && ((x = static_cast<type *>(it->elem))); it = it->next)
 
 #define CutterRzVectorForeach(vec, it, type)                                                       \
     if ((vec) && (vec)->a)                                                                         \
@@ -133,7 +139,7 @@ public:
             if (!iter) {
                 return *this;
             }
-            iter = iter->n;
+            iter = iter->next;
             return *this;
         }
         iterator operator++(int)
@@ -149,7 +155,7 @@ public:
             if (!iter) {
                 return nullptr;
             }
-            return reinterpret_cast<T *>(iter->data);
+            return reinterpret_cast<T *>(iter->elem);
         }
     };
 
