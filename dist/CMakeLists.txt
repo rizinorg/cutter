@@ -24,7 +24,9 @@ if(WIN32)
 		install(CODE "
 			set(ENV{RZ_PREFIX} \"\${CMAKE_INSTALL_PREFIX}\")
 			set(ENV{PATH} \"\${CMAKE_INSTALL_PREFIX};\$ENV{PATH}\")
-			execute_process(COMMAND powershell \"${CMAKE_CURRENT_SOURCE_DIR}/bundle_jsdec.ps1\" \"\${CMAKE_INSTALL_PREFIX}\"
+			execute_process(COMMAND powershell \"${CMAKE_CURRENT_SOURCE_DIR}/bundle_jsdec.ps1\"
+							\"\${CMAKE_INSTALL_PREFIX}\"
+							\"-DCUTTER_INSTALL_PLUGDIR=plugins/native\"
 							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 							RESULT_VARIABLE SCRIPT_RESULT)
 			if (SCRIPT_RESULT)
@@ -124,9 +126,14 @@ endif()
 
 if(CUTTER_ENABLE_DEPENDENCY_DOWNLOADS AND (NOT WIN32))
 	if (CUTTER_PACKAGE_JSDEC)
+		if(APPLE)
+			set (JSDEC_PLUGIN_OPTIONS "-DCUTTER_INSTALL_PLUGDIR=plugins/native")
+		else()
+			set (JSDEC_PLUGIN_OPTIONS "")
+		endif()
 		install(CODE "
 			execute_process(COMMAND \"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/jsdec.sh\"
-							--pkg-config-path=\${CMAKE_INSTALL_PREFIX}/lib/pkgconfig --prefix=\${CMAKE_INSTALL_PREFIX}
+							\"\${CMAKE_INSTALL_PREFIX}\" \"${JSDEC_PLUGIN_OPTIONS}\"
 							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 							RESULT_VARIABLE SCRIPT_RESULT)
 			if (SCRIPT_RESULT)
