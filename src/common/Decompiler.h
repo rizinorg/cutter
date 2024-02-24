@@ -37,20 +37,4 @@ signals:
     void finished(RzAnnotatedCode *codeDecompiled);
 };
 
-class JSDecDecompiler : public Decompiler
-{
-    Q_OBJECT
-
-private:
-    RizinCmdTask *task;
-
-public:
-    explicit JSDecDecompiler(QObject *parent = nullptr);
-    void decompileAt(RVA addr) override;
-
-    bool isRunning() override { return task != nullptr; }
-
-    static bool isAvailable();
-};
-
 #endif // DECOMPILER_H

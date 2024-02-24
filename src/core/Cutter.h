@@ -183,10 +183,10 @@ public:
     QString getRizinVersionReadable(const char *program = nullptr);
     QString getVersionInformation();
 
-    CutterJson parseJson(char *res, const char *cmd = nullptr);
-    CutterJson parseJson(char *res, const QString &cmd = QString())
+    CutterJson parseJson(const char *name, char *res, const char *cmd = nullptr);
+    CutterJson parseJson(const char *name, char *res, const QString &cmd = QString())
     {
-        return parseJson(res, cmd.isNull() ? nullptr : cmd.toLocal8Bit().constData());
+        return parseJson(name, res, cmd.isNull() ? nullptr : cmd.toLocal8Bit().constData());
     }
 
     QStringList autocomplete(const QString &cmd, RzLinePromptType promptType, size_t limit = 4096);

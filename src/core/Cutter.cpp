@@ -273,6 +273,7 @@ void CutterCore::loadCutterRC()
         }
         qInfo() << tr("Loading initialization file from ") << cutterRCFilePath;
         rz_core_cmd_file(core, cutterRCFilePath.toUtf8().constData());
+        rz_cons_flush();
     }
 }
 
@@ -286,6 +287,7 @@ void CutterCore::loadDefaultCutterRC()
     }
     qInfo() << tr("Loading initialization file from ") << cutterRCFilePath;
     rz_core_cmd_file(core, cutterRCFilePath.toUtf8().constData());
+    rz_cons_flush();
 }
 
 QList<QString> CutterCore::sdbList(QString path)
@@ -473,19 +475,7 @@ QString CutterCore::cmdRaw(const char *cmd)
 {
     QString res;
     CORE_LOCK();
-    rz_cons_push();
-
-    // rz_core_cmd does not return the output of the command
-    rz_core_cmd(core, cmd, 0);
-
-    // we grab the output straight from rz_cons
-    res = rz_cons_get_buffer();
-
-    // cleaning up
-    rz_cons_pop();
-    rz_cons_echo(NULL);
-
-    return res;
+    return rz_core_cmd_str(core, cmd);
 }
 
 CutterJson CutterCore::cmdj(const char *str)
@@ -496,7 +486,7 @@ CutterJson CutterCore::cmdj(const char *str)
         res = rz_core_cmd_str(core, str);
     }
 
-    return parseJson(res, str);
+    return parseJson("cmdj", res, str);
 }
 
 QString CutterCore::cmdTask(const QString &str)
@@ -507,9 +497,9 @@ QString CutterCore::cmdTask(const QString &str)
     return task.getResult();
 }
 
-CutterJson CutterCore::parseJson(char *res, const char *cmd)
+CutterJson CutterCore::parseJson(const char *name, char *res, const char *cmd)
 {
-    if (!res) {
+    if (RZ_STR_ISEMPTY(res)) {
         return CutterJson();
     }
 
@@ -517,18 +507,11 @@ CutterJson CutterCore::parseJson(char *res, const char *cmd)
 
     if (!doc) {
         if (cmd) {
-            eprintf("Failed to parse JSON for command \"%s\"\n", cmd);
+            RZ_LOG_ERROR("%s: Failed to parse JSON for command \"%s\"\n%s\n", name, cmd, res);
         } else {
-            eprintf("Failed to parse JSON\n");
+            RZ_LOG_ERROR("%s: Failed to parse JSON %s\n", name, res);
         }
-        const int MAX_JSON_DUMP_SIZE = 8 * 1024;
-        size_t originalSize = strlen(res);
-        if (originalSize > MAX_JSON_DUMP_SIZE) {
-            res[MAX_JSON_DUMP_SIZE] = 0;
-            eprintf("%zu bytes total: %s ...\n", originalSize, res);
-        } else {
-            eprintf("%s\n", res);
-        }
+        RZ_LOG_ERROR("%s: %s\n", name, res);
     }
 
     return CutterJson(doc, QSharedPointer<CutterJsonOwner>::create(doc, res));
@@ -602,8 +585,6 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
             rz_bin_select_idx(core->bin, NULL, idx);
         }
 #endif
-    } else {
-        // Not loading RzBin info coz va = false
     }
 
     auto iod = core->io ? core->io->desc : NULL;
@@ -611,7 +592,8 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
             core->file && iod && (core->file->fd == iod->fd) && iod->plugin && iod->plugin->isdbg;
 
     if (!debug && rz_flag_get(core->flags, "entry0")) {
-        rz_core_cmd0(core, "s entry0");
+        ut64 addr = rz_num_math(core->num, "entry0");
+        rz_core_seek_and_save(core, addr, true);
     }
 
     if (perms & RZ_PERM_W) {
@@ -621,6 +603,7 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
         }
     }
 
+    rz_cons_flush();
     fflush(stdout);
     return true;
 }
@@ -1390,7 +1373,7 @@ CutterJson CutterCore::getSignatureInfo()
     if (!signature) {
         return {};
     }
-    return parseJson(signature, nullptr);
+    return parseJson("signature", signature, nullptr);
 }
 
 bool CutterCore::existsFileInfo()
@@ -4333,6 +4316,7 @@ void CutterCore::loadScript(const QString &scriptname)
     {
         CORE_LOCK();
         rz_core_cmd_file(core, scriptname.toUtf8().constData());
+        rz_cons_flush();
     }
     triggerRefreshAll();
 }
