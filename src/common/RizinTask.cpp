@@ -62,7 +62,7 @@ CutterJson RizinCmdTask::getResultJson()
     }
     char *copy = static_cast<char *>(rz_mem_alloc(strlen(res) + 1));
     strcpy(copy, res);
-    return Core()->parseJson(copy, nullptr);
+    return Core()->parseJson("task", copy, nullptr);
 }
 
 const char *RizinCmdTask::getResultRaw()
