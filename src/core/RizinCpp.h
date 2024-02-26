@@ -51,12 +51,6 @@ static inline auto fromOwned(RZ_OWN RzList *data) -> UniquePtrCP<decltype(data),
     return { data, {} };
 }
 
-static inline auto fromOwned(RZ_OWN RzIterator *data)
-        -> UniquePtrCP<decltype(data), &rz_iterator_free>
-{
-    return { data, {} };
-}
-
 // Rizin list iteration macros
 // deprecated, prefer using CutterPVector and CutterRzList instead
 #define CutterRzListForeach(list, it, type, x)                                                     \
@@ -168,6 +162,32 @@ public:
         return iterator(list->head);
     }
     iterator end() const { return iterator(nullptr); }
+};
+
+template<typename T>
+class CutterRzIter
+{
+    UniquePtrC<RzIterator, &rz_iterator_free> rzIter;
+
+public:
+    CutterRzIter(RzIterator *rzIter) : rzIter(rzIter)
+    {
+        // immediately attempt advancing by 1, otherwise it's hard to distinguish whether current
+        // element is null due to not having called next, or due to having run out of elements
+        if (rzIter) {
+            ++*this;
+        }
+    }
+
+    CutterRzIter<T> &operator++()
+    {
+        rz_iterator_next(rzIter.get());
+        return *this;
+    }
+    operator bool() { return rzIter && rzIter->cur; }
+    T &operator*() { return *reinterpret_cast<RzAnalysisBytes *>(rzIter->cur); }
+    T *get() { return reinterpret_cast<RzAnalysisBytes *>(rzIter->cur); }
+    T *operator->() { return reinterpret_cast<RzAnalysisBytes *>(rzIter->cur); }
 };
 
 #endif // RIZINCPP_H

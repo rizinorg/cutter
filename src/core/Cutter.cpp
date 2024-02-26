@@ -715,18 +715,16 @@ void CutterCore::delFlag(const QString &name)
     emit flagsChanged();
 }
 
-PRzAnalysisBytes CutterCore::getRzAnalysisBytesSingle(RVA addr)
+CutterRzIter<RzAnalysisBytes> CutterCore::getRzAnalysisBytesSingle(RVA addr)
 {
     CORE_LOCK();
     ut8 buf[128];
     rz_io_read_at(core->io, addr, buf, sizeof(buf));
 
-    auto seek = seekTemp(addr);
-    auto abiter = fromOwned(rz_core_analysis_bytes(core, addr, buf, sizeof(buf), 1));
-    auto ab =
-            abiter ? reinterpret_cast<RzAnalysisBytes *>(rz_iterator_next(abiter.get())) : nullptr;
-
-    return { ab, rz_analysis_bytes_free };
+    // Warning! only safe to use with stack buffer, due to instruction count being 1
+    auto result =
+            CutterRzIter<RzAnalysisBytes>(rz_core_analysis_bytes(core, addr, buf, sizeof(buf), 1));
+    return result;
 }
 
 QString CutterCore::getInstructionBytes(RVA addr)
