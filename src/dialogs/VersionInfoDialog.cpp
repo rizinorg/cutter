@@ -24,7 +24,11 @@ VersionInfoDialog::~VersionInfoDialog() {}
 void VersionInfoDialog::fillVersionInfo()
 {
     RzCoreLocked core(Core());
-    const RzBinInfo *info = rz_bin_get_info(core->bin);
+    RzBinObject *bobj = rz_bin_cur_object(core->bin);
+    if (!bobj) {
+        return;
+    }
+    const RzBinInfo *info = rz_bin_object_get_info(bobj);
     if (!info || !info->rclass) {
         return;
     }

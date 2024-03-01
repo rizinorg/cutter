@@ -33,7 +33,7 @@ private slots:
 private:
     std::unique_ptr<Ui::Dashboard> ui;
     void setPlainText(QLineEdit *textBox, const QString &text);
-    void setRzBinInfo(RzBinInfo *binInfo);
+    void setRzBinInfo(const RzBinInfo *binInfo);
     const char *setBoolText(bool value);
 
     QWidget *hashesWidget = nullptr;

@@ -517,7 +517,7 @@ CutterJson CutterCore::parseJson(const char *name, char *res, const char *cmd)
     return CutterJson(doc, QSharedPointer<CutterJsonOwner>::create(doc, res));
 }
 
-QStringList CutterCore::autocomplete(const QString &cmd, RzLinePromptType promptType, size_t limit)
+QStringList CutterCore::autocomplete(const QString &cmd, RzLinePromptType promptType)
 {
     RzLineBuffer buf;
     int c = snprintf(buf.data, sizeof(buf.data), "%s", cmd.toUtf8().constData());
@@ -526,18 +526,17 @@ QStringList CutterCore::autocomplete(const QString &cmd, RzLinePromptType prompt
     }
     buf.index = buf.length = std::min((int)(sizeof(buf.data) - 1), c);
 
-    RzLineCompletion completion;
-    rz_line_completion_init(&completion, limit);
-    rz_core_autocomplete(core(), &completion, &buf, promptType);
+    RzLineNSCompletionResult *compr = rz_core_autocomplete_rzshell(core(), &buf, promptType);
 
     QStringList r;
-    r.reserve(rz_pvector_len(&completion.args));
-    for (size_t i = 0; i < rz_pvector_len(&completion.args); i++) {
+    auto optslen = rz_pvector_len(&compr->options);
+    r.reserve(optslen);
+    for (size_t i = 0; i < optslen; i++) {
         r.push_back(QString::fromUtf8(
-                reinterpret_cast<const char *>(rz_pvector_at(&completion.args, i))));
+                reinterpret_cast<const char *>(rz_pvector_at(&compr->options, i))));
     }
+    rz_line_ns_completion_result_free(compr);
 
-    rz_line_completion_fini(&completion);
     return r;
 }
 
@@ -1377,7 +1376,11 @@ CutterJson CutterCore::getSignatureInfo()
 bool CutterCore::existsFileInfo()
 {
     CORE_LOCK();
-    const RzBinInfo *info = rz_bin_get_info(core->bin);
+    RzBinObject *bobj = rz_bin_cur_object(core->bin);
+    if (!bobj) {
+        return false;
+    }
+    const RzBinInfo *info = rz_bin_object_get_info(bobj);
     if (!(info && info->rclass)) {
         return false;
     }
@@ -3179,11 +3182,11 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
         }
     }
 
-    const RzList *entries = rz_bin_object_get_entries(bf->o);
-    if (entries) {
+    const RzPVector *entries = rz_bin_object_get_entries(bf->o);
+    if (symbols) {
         /* list entrypoints as symbols too */
         int n = 0;
-        for (const auto &entry : CutterRzList<RzBinSymbol>(entries)) {
+        for (const auto &entry : CutterPVector<RzBinAddr>(entries)) {
             SymbolDescription symbol;
             symbol.vaddr = entry->vaddr;
             symbol.name = QString("entry") + QString::number(n++);
@@ -3496,10 +3499,8 @@ QList<EntrypointDescription> CutterCore::getAllEntrypoint()
     ut64 laddr = rz_bin_get_laddr(core->bin);
 
     QList<EntrypointDescription> qList;
-    const RzList *entries = rz_bin_object_get_entries(bf->o);
-    RzListIter *iter;
-    RzBinAddr *entry;
-    CutterRzListForeach (entries, iter, RzBinAddr, entry) {
+    const RzPVector *entries = rz_bin_object_get_entries(bf->o);
+    for (const auto &entry : CutterPVector<RzBinAddr>(entries)) {
         if (entry->type != RZ_BIN_ENTRY_TYPE_PROGRAM) {
             continue;
         }
