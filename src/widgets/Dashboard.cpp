@@ -52,7 +52,8 @@ void Dashboard::updateContents()
     }
 
     // Add file hashes, analysis info and libraries
-    RzBinInfo *binInfo = rz_bin_get_info(core->bin);
+    RzBinObject *bobj = rz_bin_cur_object(core->bin);
+    const RzBinInfo *binInfo = bobj ? rz_bin_object_get_info(bobj) : nullptr;
 
     setPlainText(ui->fileEdit, binInfo ? binInfo->file : "");
     setPlainText(ui->formatEdit, binInfo ? binInfo->rclass : "");
@@ -211,7 +212,7 @@ void Dashboard::setPlainText(QLineEdit *textBox, const QString &text)
  * @brief Setting boolean values of binary information in dashboard
  * @param RzBinInfo
  */
-void Dashboard::setRzBinInfo(RzBinInfo *binInfo)
+void Dashboard::setRzBinInfo(const RzBinInfo *binInfo)
 {
     setPlainText(ui->vaEdit, binInfo ? setBoolText(binInfo->has_va) : "");
     setPlainText(ui->canaryEdit, binInfo ? setBoolText(binInfo->has_canary) : "");

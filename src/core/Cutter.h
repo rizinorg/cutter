@@ -187,7 +187,7 @@ public:
         return parseJson(name, res, cmd.isNull() ? nullptr : cmd.toLocal8Bit().constData());
     }
 
-    QStringList autocomplete(const QString &cmd, RzLinePromptType promptType, size_t limit = 4096);
+    QStringList autocomplete(const QString &cmd, RzLinePromptType promptType);
 
     /* Functions methods */
     void renameFunction(const RVA offset, const QString &newName);

@@ -10,7 +10,8 @@ void openIssue()
 {
     RzCoreLocked core(Core());
     RzBinFile *bf = rz_bin_cur(core->bin);
-    RzBinInfo *info = rz_bin_get_info(core->bin);
+    RzBinObject *bobj = rz_bin_cur_object(core->bin);
+    const RzBinInfo *info = bobj ? rz_bin_object_get_info(bobj) : nullptr;
     RzBinPlugin *plugin = rz_bin_file_cur_plugin(bf);
 
     QString url, osInfo, format, arch, type;
