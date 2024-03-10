@@ -31,6 +31,13 @@ class ProcessesWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
+    enum ColumnIndex {
+        COLUMN_PID = 0,
+        COLUMN_UID,
+        COLUMN_STATUS,
+        COLUMN_PATH,
+    };
+
     explicit ProcessesWidget(MainWindow *main);
     ~ProcessesWidget();
 
