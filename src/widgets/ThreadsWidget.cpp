@@ -9,21 +9,17 @@
 
 #define DEBUGGED_PID (-1)
 
-enum ColumnIndex {
-    COLUMN_PID = 0,
-    COLUMN_STATUS,
-    COLUMN_PATH,
-};
-
 ThreadsWidget::ThreadsWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::ThreadsWidget)
 {
     ui->setupUi(this);
 
     // Setup threads model
     modelThreads = new QStandardItemModel(1, 3, this);
-    modelThreads->setHorizontalHeaderItem(COLUMN_PID, new QStandardItem(tr("PID")));
-    modelThreads->setHorizontalHeaderItem(COLUMN_STATUS, new QStandardItem(tr("Status")));
-    modelThreads->setHorizontalHeaderItem(COLUMN_PATH, new QStandardItem(tr("Path")));
+    modelThreads->setHorizontalHeaderItem(ThreadsWidget::COLUMN_PID, new QStandardItem(tr("PID")));
+    modelThreads->setHorizontalHeaderItem(ThreadsWidget::COLUMN_STATUS,
+                                          new QStandardItem(tr("Status")));
+    modelThreads->setHorizontalHeaderItem(ThreadsWidget::COLUMN_PATH,
+                                          new QStandardItem(tr("Path")));
     ui->viewThreads->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     ui->viewThreads->verticalHeader()->setVisible(false);
     ui->viewThreads->setFont(Config()->getFont());
@@ -120,9 +116,9 @@ void ThreadsWidget::setThreadsGrid()
         rowStatus->setFont(font);
         QStandardItem *rowPath = new QStandardItem(path);
         rowPath->setFont(font);
-        modelThreads->setItem(i, COLUMN_PID, rowPid);
-        modelThreads->setItem(i, COLUMN_STATUS, rowStatus);
-        modelThreads->setItem(i, COLUMN_PATH, rowPath);
+        modelThreads->setItem(i, ThreadsWidget::COLUMN_PID, rowPid);
+        modelThreads->setItem(i, ThreadsWidget::COLUMN_STATUS, rowStatus);
+        modelThreads->setItem(i, ThreadsWidget::COLUMN_PATH, rowPath);
         i++;
     }
 
@@ -146,7 +142,7 @@ void ThreadsWidget::onActivated(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    int tid = modelFilter->data(index.sibling(index.row(), COLUMN_PID)).toInt();
+    int tid = modelFilter->data(index.sibling(index.row(), ThreadsWidget::COLUMN_PID)).toInt();
 
     // Verify that the selected tid is still in the threads list since dpt= will
     // attach to any given id. If it isn't found simply update the UI.
@@ -169,7 +165,7 @@ ThreadsFilterModel::ThreadsFilterModel(QObject *parent) : QSortFilterProxyModel(
 bool ThreadsFilterModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     // All columns are checked for a match
-    for (int i = COLUMN_PID; i <= COLUMN_PATH; ++i) {
+    for (int i = ThreadsWidget::COLUMN_PID; i <= ThreadsWidget::COLUMN_PATH; ++i) {
         QModelIndex index = sourceModel()->index(row, i, parent);
         if (qhelpers::filterStringContains(sourceModel()->data(index).toString(), this)) {
             return true;

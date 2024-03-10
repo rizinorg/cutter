@@ -31,6 +31,12 @@ class ThreadsWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
+    enum ColumnIndex {
+        COLUMN_PID = 0,
+        COLUMN_STATUS,
+        COLUMN_PATH,
+    };
+
     explicit ThreadsWidget(MainWindow *main);
     ~ThreadsWidget();
 
