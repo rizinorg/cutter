@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QTreeWidget>
+#include <QClipboard>
 
 VersionInfoDialog::VersionInfoDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::VersionInfoDialog), core(Core())
@@ -20,6 +21,45 @@ VersionInfoDialog::VersionInfoDialog(QWidget *parent)
 }
 
 VersionInfoDialog::~VersionInfoDialog() {}
+
+void VersionInfoDialog::on_buttonBox_rejected()
+{
+    close();
+}
+
+void VersionInfoDialog::on_copyVersionInfoButton_clicked()
+{
+    QString vinfo = "# " + ui->leftLabel->text() + "\n";
+
+    // Iterate & Copy leftTreeWidget items
+    QTreeWidgetItemIterator itl(ui->leftTreeWidget);
+
+    int keyColumnIndex = 0, valueColumnIndex = 1;
+
+    while (*itl) {
+        QString row = (*itl)->text(keyColumnIndex) + " : " + (*itl)->text(valueColumnIndex) + "\n";
+        vinfo.append(row);
+        ++itl;
+    }
+
+    vinfo.append("\n# " + ui->rightLabel->text() + "\n");
+
+    // Iterate & Copy rightTreeWidget items
+    QTreeWidgetItemIterator itr(ui->rightTreeWidget);
+
+    while (*itr) {
+        QString row = (*itr)->text(keyColumnIndex) + " : " + (*itr)->text(valueColumnIndex) + "\n";
+        vinfo.append(row);
+        ++itr;
+    }
+
+    // Copy to Clipboard
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(vinfo);
+
+    QMessageBox::information(this, tr("Copy to Clipboard"),
+                             tr("Version information was successfully copied!"));
+}
 
 void VersionInfoDialog::fillVersionInfo()
 {

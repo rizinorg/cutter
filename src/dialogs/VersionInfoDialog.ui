@@ -135,6 +135,29 @@
      </item>
     </layout>
    </item>
+   
+   <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+         <widget class="QPushButton" name="copyVersionInfoButton">
+            <property name="icon">
+            <iconset resource="../resources.qrc">
+            <normaloff>:/img/icons/copy.svg</normaloff>:/img/icons/copy.svg</iconset>
+            </property>
+            <property name="text">
+            <string>Copy</string>
+            </property>
+         </widget>
+         </item>
+         <item>
+         <widget class="QDialogButtonBox" name="buttonBox">
+         <property name="standardButtons">
+            <set>QDialogButtonBox::Close</set>
+         </property>
+         </widget>
+         </item>
+      </layout>
+   </item>
   </layout>
  </widget>
  <resources/>
