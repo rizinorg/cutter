@@ -13,7 +13,7 @@
 
 VersionInfoDialog::VersionInfoDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::VersionInfoDialog), core(Core())
-{   
+{
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
@@ -25,35 +25,32 @@ VersionInfoDialog::VersionInfoDialog(QWidget *parent)
     copyActionLeftTreewidget->setIcon(QIcon(":/img/icons/copy.svg"));
     copyActionLeftTreewidget->setShortcut(QKeySequence::StandardKey::Copy);
     copyActionLeftTreewidget->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    
+
     copyActionRightTreewidget = new QAction(tr("Copy"), this);
     copyActionRightTreewidget->setIcon(QIcon(":/img/icons/copy.svg"));
     copyActionRightTreewidget->setShortcut(QKeySequence::StandardKey::Copy);
     copyActionRightTreewidget->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    
+
     selAllActionLeftTreewidget = new QAction(tr("Select All"), this);
     selAllActionLeftTreewidget->setShortcut(QKeySequence::StandardKey::SelectAll);
     selAllActionLeftTreewidget->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     selAllActionRightTreewidget = new QAction(tr("Select All"), this);
     selAllActionRightTreewidget->setShortcut(QKeySequence::StandardKey::SelectAll);
-    selAllActionRightTreewidget->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    
-    connect(copyActionLeftTreewidget, &QAction::triggered, this, [this](){
-        CopyTreeWidgetSelection(ui->leftTreeWidget);
-    });
+    selAllActionRightTreewidget->setShortcutContext(
+            Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
-    connect(copyActionRightTreewidget, &QAction::triggered, this, [this](){
-        CopyTreeWidgetSelection(ui->rightTreeWidget);
-    });
+    connect(copyActionLeftTreewidget, &QAction::triggered, this,
+            [this]() { CopyTreeWidgetSelection(ui->leftTreeWidget); });
 
-    connect(selAllActionLeftTreewidget, &QAction::triggered, this, [this](){
-        ui->leftTreeWidget->selectAll();
-    });
+    connect(copyActionRightTreewidget, &QAction::triggered, this,
+            [this]() { CopyTreeWidgetSelection(ui->rightTreeWidget); });
 
-    connect(selAllActionRightTreewidget, &QAction::triggered, this, [this](){
-        ui->rightTreeWidget->selectAll();
-    });
+    connect(selAllActionLeftTreewidget, &QAction::triggered, this,
+            [this]() { ui->leftTreeWidget->selectAll(); });
+
+    connect(selAllActionRightTreewidget, &QAction::triggered, this,
+            [this]() { ui->rightTreeWidget->selectAll(); });
 
     ui->leftTreeWidget->addAction(copyActionLeftTreewidget);
     ui->leftTreeWidget->addAction(selAllActionLeftTreewidget);
@@ -67,11 +64,11 @@ VersionInfoDialog::VersionInfoDialog(QWidget *parent)
 VersionInfoDialog::~VersionInfoDialog() {}
 
 void VersionInfoDialog::CopyTreeWidgetSelection(QTreeWidget *t)
-{    
-    const int keyColumnIndex = 0, valueColumnIndex = 1;    
+{
+    const int keyColumnIndex = 0, valueColumnIndex = 1;
     QString vinfo, row;
 
-    for(QTreeWidgetItem *x: t->selectedItems()){
+    for (QTreeWidgetItem *x : t->selectedItems()) {
         row = x->text(keyColumnIndex) + " = " + x->text(valueColumnIndex) + "\n";
         vinfo.append(row);
     }
@@ -80,7 +77,8 @@ void VersionInfoDialog::CopyTreeWidgetSelection(QTreeWidget *t)
     clipboard->setText(vinfo.trimmed());
 }
 
-void VersionInfoDialog::contextMenuEvent(QContextMenuEvent *event){
+void VersionInfoDialog::contextMenuEvent(QContextMenuEvent *event)
+{
     contextMenu->exec(event->globalPos());
     event->accept();
 }

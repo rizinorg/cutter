@@ -15,19 +15,19 @@ class VersionInfoDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit VersionInfoDialog(QWidget *parent = nullptr);    
+    explicit VersionInfoDialog(QWidget *parent = nullptr);
     ~VersionInfoDialog();
 
 private slots:
     void CopyTreeWidgetSelection(QTreeWidget *t);
 
 protected:
-    QMenu *contextMenu = nullptr;    
+    QMenu *contextMenu = nullptr;
     QAction *copyActionLeftTreewidget = nullptr;
     QAction *copyActionRightTreewidget = nullptr;
     QAction *selAllActionLeftTreewidget = nullptr;
     QAction *selAllActionRightTreewidget = nullptr;
-    
+
     void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
