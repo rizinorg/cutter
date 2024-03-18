@@ -225,7 +225,7 @@ void DisassemblerGraphView::loadCurrentGraph()
         return;
     }
 
-    for (const auto &bbi : CutterRzList<RzAnalysisBlock>(fcn->bbs)) {
+    for (const auto &bbi : CutterPVector<RzAnalysisBlock>(fcn->bbs)) {
         RVA bbiFail = bbi->fail;
         RVA bbiJump = bbi->jump;
 
