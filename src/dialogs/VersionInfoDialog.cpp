@@ -57,8 +57,6 @@ VersionInfoDialog::VersionInfoDialog(QWidget *parent)
 
     ui->rightTreeWidget->addAction(copyActionRightTreewidget);
     ui->rightTreeWidget->addAction(selAllActionRightTreewidget);
-
-    contextMenu = new QMenu(this);
 }
 
 VersionInfoDialog::~VersionInfoDialog() {}
@@ -68,19 +66,18 @@ void VersionInfoDialog::CopyTreeWidgetSelection(QTreeWidget *t)
     const int keyColumnIndex = 0, valueColumnIndex = 1;
     QString vinfo, row;
 
-    for (QTreeWidgetItem *x : t->selectedItems()) {
-        row = x->text(keyColumnIndex) + " = " + x->text(valueColumnIndex) + "\n";
-        vinfo.append(row);
+    QTreeWidgetItemIterator it(t);
+
+    while (*it) {
+        if ((*it)->isSelected()) {
+            row = (*it)->text(keyColumnIndex) + " = " + (*it)->text(valueColumnIndex) + "\n";
+            vinfo.append(row);
+        }
+        it++;
     }
 
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(vinfo.trimmed());
-}
-
-void VersionInfoDialog::contextMenuEvent(QContextMenuEvent *event)
-{
-    contextMenu->exec(event->globalPos());
-    event->accept();
 }
 
 void VersionInfoDialog::fillVersionInfo()

@@ -22,13 +22,10 @@ private slots:
     void CopyTreeWidgetSelection(QTreeWidget *t);
 
 protected:
-    QMenu *contextMenu = nullptr;
     QAction *copyActionLeftTreewidget = nullptr;
     QAction *copyActionRightTreewidget = nullptr;
     QAction *selAllActionLeftTreewidget = nullptr;
     QAction *selAllActionRightTreewidget = nullptr;
-
-    void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
     std::unique_ptr<Ui::VersionInfoDialog> ui;
