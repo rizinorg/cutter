@@ -8,6 +8,8 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QTreeWidget>
+#include <QContextMenuEvent>
+#include <QClipboard>
 
 VersionInfoDialog::VersionInfoDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::VersionInfoDialog), core(Core())
@@ -17,9 +19,131 @@ VersionInfoDialog::VersionInfoDialog(QWidget *parent)
 
     // Get version information
     fillVersionInfo();
+
+    // Setup context menu and actions
+    copyActionLeftTreewidget = new QAction(tr("Copy"), this);
+    copyActionLeftTreewidget->setIcon(QIcon(":/img/icons/copy.svg"));
+    copyActionLeftTreewidget->setShortcut(QKeySequence::StandardKey::Copy);
+    copyActionLeftTreewidget->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+
+    copyActionRightTreewidget = new QAction(tr("Copy"), this);
+    copyActionRightTreewidget->setIcon(QIcon(":/img/icons/copy.svg"));
+    copyActionRightTreewidget->setShortcut(QKeySequence::StandardKey::Copy);
+    copyActionRightTreewidget->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+
+    selAllActionLeftTreewidget = new QAction(tr("Select All"), this);
+    selAllActionLeftTreewidget->setShortcut(QKeySequence::StandardKey::SelectAll);
+    selAllActionLeftTreewidget->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+
+    selAllActionRightTreewidget = new QAction(tr("Select All"), this);
+    selAllActionRightTreewidget->setShortcut(QKeySequence::StandardKey::SelectAll);
+    selAllActionRightTreewidget->setShortcutContext(
+            Qt::ShortcutContext::WidgetWithChildrenShortcut);
+
+    // Connect Copy actions
+    connect(copyActionLeftTreewidget, &QAction::triggered, this,
+            [this]() { CopyTreeWidgetSelection(ui->leftTreeWidget); });
+
+    connect(copyActionRightTreewidget, &QAction::triggered, this,
+            [this]() { CopyTreeWidgetSelection(ui->rightTreeWidget); });
+
+    // Connect select sll actions
+    connect(selAllActionLeftTreewidget, &QAction::triggered, this,
+            [this]() { ui->leftTreeWidget->selectAll(); });
+
+    connect(selAllActionRightTreewidget, &QAction::triggered, this,
+            [this]() { ui->rightTreeWidget->selectAll(); });
+
+    // Connect selection handles
+    connect(ui->leftTreeWidget->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+            [this]() { ui->rightTreeWidget->clearSelection(); });
+    connect(ui->rightTreeWidget->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+            [this]() { ui->leftTreeWidget->clearSelection(); });
+    connect(this, &VersionInfoDialog::finished, this, &VersionInfoDialog::clearSelectionOnClose);
+
+    // Add actions to context menu
+    ui->leftTreeWidget->addAction(copyActionLeftTreewidget);
+    ui->leftTreeWidget->addAction(selAllActionLeftTreewidget);
+
+    ui->rightTreeWidget->addAction(copyActionRightTreewidget);
+    ui->rightTreeWidget->addAction(selAllActionRightTreewidget);
 }
 
 VersionInfoDialog::~VersionInfoDialog() {}
+
+void VersionInfoDialog::clearSelectionOnClose()
+{
+    ui->leftTreeWidget->clearSelection();
+    ui->rightTreeWidget->clearSelection();
+
+    // remove default "current" item selection after dialog close
+    QModelIndex defaultIndex;
+    ui->leftTreeWidget->setCurrentIndex(defaultIndex);
+    ui->rightTreeWidget->setCurrentIndex(defaultIndex);
+}
+
+void VersionInfoDialog::CopyTreeWidgetSelection(QTreeWidget *t)
+{
+    QString vinfo, row;
+
+    QTreeWidgetItemIterator it(t);
+
+    while (*it) {
+        if ((*it)->isSelected()) {
+            row = (*it)->text(KeyColumn) + " " + (*it)->text(ValueColumn) + "\n";
+            vinfo.append(row);
+        }
+        it++;
+    }
+
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(vinfo.trimmed());
+}
+
+void VersionInfoDialog::contextMenuEvent(QContextMenuEvent *event)
+{
+    contextMenu->exec(event->globalPos());
+    event->accept();
+}
+
+void VersionInfoDialog::on_buttonBox_rejected()
+{
+    close();
+}
+
+void VersionInfoDialog::on_copyVersionInfoButton_clicked()
+{
+    QString vinfo = "# " + ui->leftLabel->text() + "\n";
+
+    // Iterate & Copy leftTreeWidget items
+    QTreeWidgetItemIterator itl(ui->leftTreeWidget);
+
+    int keyColumnIndex = 0, valueColumnIndex = 1;
+
+    while (*itl) {
+        QString row = (*itl)->text(keyColumnIndex) + " : " + (*itl)->text(valueColumnIndex) + "\n";
+        vinfo.append(row);
+        ++itl;
+    }
+
+    vinfo.append("\n# " + ui->rightLabel->text() + "\n");
+
+    // Iterate & Copy rightTreeWidget items
+    QTreeWidgetItemIterator itr(ui->rightTreeWidget);
+
+    while (*itr) {
+        QString row = (*itr)->text(keyColumnIndex) + " : " + (*itr)->text(valueColumnIndex) + "\n";
+        vinfo.append(row);
+        ++itr;
+    }
+
+    // Copy to Clipboard
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(vinfo);
+
+    QMessageBox::information(this, tr("Copy to Clipboard"),
+                             tr("Version information was successfully copied!"));
+}
 
 void VersionInfoDialog::fillVersionInfo()
 {
@@ -64,8 +188,8 @@ void VersionInfoDialog::fillVersionInfo()
                 continue;
             }
             auto item = new QTreeWidgetItem();
-            item->setText(0, RzAddressString(i));
-            item->setText(1, value);
+            item->setText(KeyColumn, RzAddressString(i));
+            item->setText(ValueColumn, value);
             entriesItemL->addChild(item);
         }
         ui->leftTreeWidget->addTopLevelItem(entriesItemL);
@@ -170,13 +294,13 @@ void VersionInfoDialog::fillVersionInfo()
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
-        item->setText(0, "FileVersion");
-        item->setText(1, file_version);
+        item->setText(KeyColumn, "FileVersion");
+        item->setText(ValueColumn, file_version);
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
-        item->setText(0, "ProductVersion");
-        item->setText(1, product_version);
+        item->setText(KeyColumn, "ProductVersion");
+        item->setText(ValueColumn, product_version);
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
@@ -227,8 +351,10 @@ void VersionInfoDialog::fillVersionInfo()
                 ut8 *key_utf16 = sdb_decode(sdb_const_get(sdb, "key"), &lenkey);
                 ut8 *val_utf16 = sdb_decode(sdb_const_get(sdb, "value"), &lenval);
                 item = new QTreeWidgetItem();
-                item->setText(0, QString::fromUtf16(reinterpret_cast<const ushort *>(key_utf16)));
-                item->setText(1, QString::fromUtf16(reinterpret_cast<const ushort *>(val_utf16)));
+                item->setText(KeyColumn,
+                              QString::fromUtf16(reinterpret_cast<const ushort *>(key_utf16)));
+                item->setText(ValueColumn,
+                              QString::fromUtf16(reinterpret_cast<const ushort *>(val_utf16)));
                 ui->rightTreeWidget->addTopLevelItem(item);
                 free(key_utf16);
                 free(val_utf16);
