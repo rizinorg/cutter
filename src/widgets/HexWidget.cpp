@@ -3,7 +3,7 @@
 #include "Configuration.h"
 #include "dialogs/WriteCommandsDialogs.h"
 #include "dialogs/CommentsDialog.h"
-
+#include "dialogs/FlagDialog.h"
 #include <QPainter>
 #include <QPaintEvent>
 #include <QResizeEvent>
@@ -50,7 +50,6 @@ HexWidget::HexWidget(QWidget *parent)
     setFocusPolicy(Qt::FocusPolicy::StrongFocus);
     connect(horizontalScrollBar(), &QScrollBar::valueChanged, this,
             [this]() { viewport()->update(); });
-
     connect(Config(), &Configuration::colorsUpdated, this, &HexWidget::updateColors);
     connect(Config(), &Configuration::fontsUpdated, this,
             [this]() { setMonospaceFont(Config()->getFont()); });
@@ -136,6 +135,19 @@ HexWidget::HexWidget(QWidget *parent)
     connect(actionDeleteComment, &QAction::triggered, this,
             &HexWidget::onActionDeleteCommentTriggered);
     addAction(actionDeleteComment);
+
+    // Add flag option
+    actionFlag = new QAction(tr("Add Flag"), this);
+    actionFlag->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    actionFlag->setShortcut(Qt::Key_N);
+    connect(actionFlag, &QAction::triggered, this, &HexWidget::onActionAddFlagTriggered);
+    addAction(actionFlag);
+
+    // Delete flag option
+    actionDeleteFlag = new QAction(tr("Delete Flag"), this);
+    actionDeleteFlag->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    connect(actionDeleteFlag, &QAction::triggered, this, &HexWidget::onActionDeleteFlagTriggered);
+    addAction(actionDeleteFlag);
 
     actionSelectRange = new QAction(tr("Select range"), this);
     connect(actionSelectRange, &QAction::triggered, this,
@@ -1160,6 +1172,17 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
         actionComment->setText(tr("Edit Comment"));
     }
 
+    auto coreLock = Core()->core();
+    RzFlagItem *flagItem = rz_flag_get_i(coreLock->flags, cursor.address);
+
+    if (flagItem == 0x0) {
+        actionDeleteFlag->setVisible(false);
+        actionFlag->setText(tr("Add Flag"));
+    } else {
+        actionDeleteFlag->setVisible(true);
+        actionFlag->setText(tr("Edit Flag"));
+    }
+
     if (!ioModesController.canWrite()) {
         actionKeyboardEdit->setChecked(false);
     }
@@ -1231,6 +1254,21 @@ void HexWidget::onActionAddCommentTriggered()
 {
     uint64_t addr = cursor.address;
     CommentsDialog::addOrEditComment(addr, this);
+}
+
+// slog for add flag action
+void HexWidget::onActionAddFlagTriggered()
+{
+    uint64_t addr = cursor.address;
+    FlagDialog dialog(addr, this);
+    dialog.exec();
+}
+
+// slot for deleting flag action
+void HexWidget::onActionDeleteFlagTriggered()
+{
+    uint64_t addr = cursor.address;
+    Core()->delFlag(addr);
 }
 
 // slot for deleting comment action
