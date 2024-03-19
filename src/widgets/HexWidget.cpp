@@ -1173,7 +1173,7 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
     }
 
     auto coreLock = Core()->core();
-    RZFlagItem *flagItem = rz_flag_get_i(coreLock->flags, cursor.address);
+    RzFlagItem *flagItem = rz_flag_get_i(coreLock->flags, cursor.address);
 
     if (flagItem == 0x0) {
         actionDeleteFlag->setVisible(false);
