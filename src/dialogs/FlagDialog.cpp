@@ -1,5 +1,6 @@
 #include "FlagDialog.h"
 #include "ui_FlagDialog.h"
+
 #include <QIntValidator>
 #include "core/Cutter.h"
 

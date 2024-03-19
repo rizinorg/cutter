@@ -1,5 +1,6 @@
 #include "CommentsDialog.h"
 #include "ui_CommentsDialog.h"
+
 #include <QErrorMessage>
 
 #include "core/Cutter.h"
