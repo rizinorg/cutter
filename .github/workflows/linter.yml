@@ -16,7 +16,7 @@ jobs:
     outputs:
       clang-format: ${{ steps.filter.outputs.clang-format }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: dorny/paths-filter@v2
       id: filter
       with:
@@ -35,7 +35,7 @@ jobs:
     if: ${{ needs.changes.outputs.clang-format == 'true' }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install wget, software-properties-common, lsb-release (dependencies of LLVM install script)
       run: sudo apt --assume-yes install wget software-properties-common lsb-release
