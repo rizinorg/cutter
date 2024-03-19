@@ -226,11 +226,6 @@ HexWidget::HexWidget(QWidget *parent)
     connect(&warningTimer, &QTimer::timeout, this, &HexWidget::hideWarningRect);
 }
 
-QWidget *HexWidget::parentForDialog()
-{
-    return parentWidget();
-}
-
 void HexWidget::setMonospaceFont(const QFont &font)
 {
     if (!(font.styleHint() & QFont::Monospace)) {
@@ -1177,10 +1172,10 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
         actionComment->setText(tr("Edit Comment"));
     }
 
-    QString flag = Core()->flagAt(cursor.address);
-    RzFlagItem *flagItem = rz_flag_get_i(Core()->core()->flags, cursor.address);
+    auto coreLock = Core()->core();
+    RZFlagItem *flagItem = rz_flag_get_i(coreLock->flags, cursor.address);
 
-    if (flagItem == 0x0 || flag.isNull() || flag.isEmpty()) {
+    if (flagItem == 0x0) {
         actionDeleteFlag->setVisible(false);
         actionFlag->setText(tr("Add Flag"));
     } else {
