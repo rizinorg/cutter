@@ -55,11 +55,23 @@ void PythonManager::initPythonHome()
     }
 #endif
 
+#if (PY_MAJOR_VERSION <= 3) && (PY_MICRO_VERSION < 11)
     if (!customPythonHome.isNull()) {
         qInfo() << "PYTHONHOME =" << customPythonHome;
         pythonHome = Py_DecodeLocale(customPythonHome.toLocal8Bit().constData(), nullptr);
+
+        // This function is deprecated starting from Python 3.11
         Py_SetPythonHome(pythonHome);
     }
+#else
+    PyConfig config;
+    PyConfig_InitPythonConfig(&config);
+
+    if (!customPythonHome.isNull()) {
+        qInfo() << "PYTHONHOME =" << customPythonHome;
+        PyConfig_SetBytesString(&config, &config.home, customPythonHome);
+    }
+#endif
 }
 
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
@@ -75,11 +87,20 @@ void PythonManager::initialize()
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
     PyImport_AppendInittab("CutterBindings", &PyInit_CutterBindings);
 #endif
+#if (PY_MAJOR_VERSION <= 3) && (PY_MICRO_VERSION < 11)
     Py_Initialize();
+#else
+    Py_InitializeFromConfig(&config);
+#endif
     // This function is deprecated does nothing starting from Python 3.9
 #if (PY_MAJOR_VERSION <= 3) && (PY_MICRO_VERSION < 9)
     PyEval_InitThreads();
 #endif
+
+#if (PY_MAJOR_VERSION <= 3) && (PY_MICRO_VERSION >= 11)
+    PyConfig_Clear(&config);
+#endif
+
     pyThreadStateCounter = 1; // we have the thread now => 1
 
     RegQtResImporter();
