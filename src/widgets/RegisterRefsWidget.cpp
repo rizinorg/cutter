@@ -252,3 +252,8 @@ void RegisterRefsWidget::copyClip(int column)
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(value);
 }
+
+QString RegisterRefsWidget::getWindowTitle() const
+{
+    return tr("Register References");
+}

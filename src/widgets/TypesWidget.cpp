@@ -366,3 +366,8 @@ void TypesWidget::typeItemDoubleClicked(const QModelIndex &index)
     dialog.setTypeName(t.type);
     dialog.exec();
 }
+
+QString TypesWidget::getWindowTitle() const
+{
+    return tr("Types");
+}

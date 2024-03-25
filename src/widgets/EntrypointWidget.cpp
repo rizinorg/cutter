@@ -51,3 +51,8 @@ void EntrypointWidget::on_entrypointTreeWidget_itemDoubleClicked(QTreeWidgetItem
     EntrypointDescription ep = item->data(0, Qt::UserRole).value<EntrypointDescription>();
     Core()->seekAndShow(ep.vaddr);
 }
+
+QString EntrypointWidget::getWindowTitle() const
+{
+    return tr("Entry Points");
+}

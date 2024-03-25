@@ -39,8 +39,8 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent)
     /*
     QComboBox *addsCombo = new QComboBox();
     addsCombo->addItem("");
-    addsCombo->addItem("Entry points");
-    addsCombo->addItem("Marks");
+    addsCombo->addItem(tr("Entry points"));
+    addsCombo->addItem(tr("Marks"));
     */
     addWidget(this->graphicsView);
     // addWidget(addsCombo);

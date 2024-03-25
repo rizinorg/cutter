@@ -293,3 +293,8 @@ void BreakpointWidget::editBreakpoint()
         }
     }
 }
+
+QString BreakpointWidget::getWindowTitle() const
+{
+    return tr("Breakpoints");
+}

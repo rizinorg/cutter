@@ -186,3 +186,8 @@ void FlirtWidget::showItemContextMenu(const QPoint &pt)
         blockMenu->exec(this->mapToGlobal(pt));
     }
 }
+
+QString FlirtWidget::getWindowTitle() const
+{
+    return tr("Signatures");
+}

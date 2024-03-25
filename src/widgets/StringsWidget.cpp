@@ -273,3 +273,8 @@ void StringsWidget::on_actionCopy()
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(index.data().toString());
 }
+
+QString StringsWidget::getWindowTitle() const
+{
+    return tr("Strings");
+}

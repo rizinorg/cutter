@@ -16,7 +16,7 @@ BaseFindDialog::BaseFindDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Ba
     ui->nCoresCombo->clear();
     for (size_t i = n_cores; i > 0; i--) {
         if (n_cores == i) {
-            ui->nCoresCombo->addItem("All Cores");
+            ui->nCoresCombo->addItem(tr("All Cores"));
             continue;
         }
         ui->nCoresCombo->addItem(QString::number(i));

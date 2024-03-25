@@ -77,3 +77,8 @@ void BacktraceWidget::fontsUpdatedSlot()
 {
     viewBacktrace->setFont(Config()->getFont());
 }
+
+QString BacktraceWidget::getWindowTitle() const
+{
+    return tr("Backtrace");
+}

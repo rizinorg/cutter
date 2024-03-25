@@ -133,3 +133,8 @@ void GenericRizinGraphView::loadCurrentGraph()
         center();
     }
 }
+
+QString GenericRizinGraphView::getWindowTitle() const
+{
+    return tr("Rizin Graphs");
+}

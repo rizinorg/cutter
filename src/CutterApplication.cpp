@@ -530,10 +530,10 @@ bool CutterApplication::parseCommandLineOptions()
             opts.fileOpenOptions.analysisCmd = {};
             break;
         case AutomaticAnalysisLevel::AAA:
-            opts.fileOpenOptions.analysisCmd = { { "aaa", "Auto analysis" } };
+            opts.fileOpenOptions.analysisCmd = { { "aaa", tr("Auto analysis") } };
             break;
         case AutomaticAnalysisLevel::AAAA:
-            opts.fileOpenOptions.analysisCmd = { { "aaaa", "Auto analysis (experimental)" } };
+            opts.fileOpenOptions.analysisCmd = { { "aaaa", tr("Auto analysis (experimental)") } };
             break;
         }
         opts.fileOpenOptions.script = cmd_parser.value(scriptOption);

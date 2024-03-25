@@ -282,3 +282,8 @@ void FlagsWidget::setScrollMode()
 {
     qhelpers::setVerticalScrollMode(ui->flagsTreeView);
 }
+
+QString FlagsWidget::getWindowTitle() const
+{
+    return tr("Flags");
+}
