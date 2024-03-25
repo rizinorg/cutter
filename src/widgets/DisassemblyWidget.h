@@ -41,6 +41,7 @@ public slots:
      * overrides all previous highlighting.
      */
     void highlightPCLine();
+    void highlightMultiLineSelections();
     void showDisasContextMenu(const QPoint &pt);
     void fontsUpdatedSlot();
     void colorsUpdatedSlot();
@@ -86,6 +87,7 @@ private:
     RVA readCurrentDisassemblyOffset();
     bool eventFilter(QObject *obj, QEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
     QString getWindowTitle() const override;
 
     int topOffsetHistoryPos = 0;
@@ -129,11 +131,16 @@ class DisassemblyTextEdit : public QPlainTextEdit
 
 public:
     explicit DisassemblyTextEdit(QWidget *parent = nullptr)
-        : QPlainTextEdit(parent), lockScroll(false)
+        : QPlainTextEdit(parent), lockScroll(false), multiLineSelection(false)
     {
     }
 
     void setLockScroll(bool lock) { this->lockScroll = lock; }
+    void setMultiLineSelection(bool multiLineSelection) { this->multiLineSelection = multiLineSelection; }
+    void setMultiLineSelections(const QList<QTextEdit::ExtraSelection> &selections) { multilineSelections = selections; }
+
+    bool getMultiLineSelection() const { return multiLineSelection; }
+    QList<QTextEdit::ExtraSelection> getMultiLineSelections() const { return multilineSelections; }
 
     qreal textOffset() const;
 
@@ -145,6 +152,8 @@ protected:
 
 private:
     bool lockScroll;
+    bool multiLineSelection;
+    QList<QTextEdit::ExtraSelection> multilineSelections;
 };
 
 /**
