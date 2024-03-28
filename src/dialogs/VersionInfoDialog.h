@@ -18,6 +18,8 @@ public:
     explicit VersionInfoDialog(QWidget *parent = nullptr);
     ~VersionInfoDialog();
 
+    enum Column { KeyColumn = 0, ValueColumn = 1 };
+
 private slots:
     void CopyTreeWidgetSelection(QTreeWidget *t);
 
