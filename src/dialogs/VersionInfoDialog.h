@@ -18,6 +18,17 @@ public:
     explicit VersionInfoDialog(QWidget *parent = nullptr);
     ~VersionInfoDialog();
 
+    enum Column { KeyColumn = 0, ValueColumn = 1 };
+
+private slots:
+    void CopyTreeWidgetSelection(QTreeWidget *t);
+
+protected:
+    QAction *copyActionLeftTreewidget = nullptr;
+    QAction *copyActionRightTreewidget = nullptr;
+    QAction *selAllActionLeftTreewidget = nullptr;
+    QAction *selAllActionRightTreewidget = nullptr;
+
 private:
     std::unique_ptr<Ui::VersionInfoDialog> ui;
     CutterCore *core;
