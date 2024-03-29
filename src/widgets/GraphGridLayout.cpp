@@ -49,28 +49,28 @@ the resulting layout is usually readable without node reordering within layers.
 
 # Grid
 To simplify the layout algorithm, its initial steps assume that all nodes have the same size and that edges
-are zero-width. After nodes placement and edges rounting, the row/column of nodes is known as well as the amount of edges between each rows pair. Using this information, positions
-are converted from grid cells to pixel coordinates. Routing zero-width edges between rows can also
-be interpreted as every second row and column being reserved for edges. The row numbers in code are
-using the first interpretation. To allow better centering of nodes one above other, each node is 2
-columns wide and 1 row high.
+are zero-width. After nodes placement and edges rounting, the row/column of nodes is known as well as the 
+amount of edges between each rows pair. Using this information, positions are converted from grid cells to 
+pixel coordinates. Routing zero-width edges between rows can also be interpreted as every second row and column
+ being reserved for edges. The row numbers in code are using the first interpretation. To allow better 
+ centering of nodes one above other, each node is 2 columns wide and 1 row high.
 
 \image html graph_grid.svg
 
 # 1-2 Cycle removal and toposort
 
-Cycle removal and toposort are done at a single DFS traversal. In case the entrypoint
+Cycle removal and toposort are done in a single DFS traversal. In case the entrypoint
 is part of a loop, the DFS starts from the entrypoint. This ensures that the entrypoint is at the top of
 resulting layout, if possible. The resulting toposort order is used in many of the following layout steps
 that require calculating some property of a vertex based on a child property or the other way around.
-Using toposort order, such operations can be implemented by iteration through array in either forward or
-reverse direction. To prevent running out of stack memory when processing large graphs, DFS is
+Using toposort order, such operations can be implemented by array iteration in either forward/backward
+direction. To prevent running out of stack memory when processing large graphs, DFS is
 implemented non-recursively.
 
 # Row assignment
 
 Rows are assigned in toposort order from top to bottom, with nodes row being max(predecessor.row)+1.
-This ensures that loop edges are the only edges going from lower to higher layers.
+This ensures that loop back-edges are the only edges going from lower to higher layers.
 
 To further simply node placement, a subset of edges is selected which forms a tree. This turns a DAG
 drawing problem into a tree drawing problem. For each node in level n the following nodes with
@@ -82,13 +82,11 @@ assigned then the corresponding edge is not part of the tree.
 Since the graph has been reduced to a tree, node placement is more or less putting subtrees side by
 side with parent on top. There is some room for interpretation what exactly 'side by side' means and
 where exactly 'on top' is: drawing the graph either too dense or too sparse may make it less readable, so
-configuration options can result in denser or sparser
-layout.
+configuration options can result in denser or sparser layout.
 
 Once the subtrees are placed side by side, the parent node can be placed either in the middle of
-the horizontal bounds or in the middle of its direct children. The first option results in narrower layout, and
-the second option results in more spread out layout which may help seeing
-where each edge goes.
+the horizontal bounds or in the middle of its direct children. The first option results in narrower layout, 
+and the second option results in more spread out layout which may help seeing where each edge goes.
 
 In compact mode two subtrees are placed side by side accounting for their shape. In wider
 mode the bounding box of the shorter subtree is used instead of its exact shape. This gives slightly sparser
@@ -99,8 +97,8 @@ layout without being too wide.
 # Edge routing
 Edge routing can be split into: main column selection, rough routing, and segment offset calculation.
 
-Transition from source to target row is done using a single vertical segment. This segment is called the 'main
-column'.
+Transition from source to target row is done using a single vertical segment. This segment is called 
+the 'main column'.
 
 Main columns are computed using a sweep line: blocks and edges are processed as events top to
 bottom based off their row (max(start row, end row) for edges). Blocked columns are tracked in a
@@ -143,13 +141,14 @@ typically a block with switch statement or block after switch statement.
 
 # Layout compacting
 
-Doing the layout on a grid limits the minimal spacing to the widest block within a column and tallest block within a row. One common case is afunction-entry block being wider due to
-function name, causing wide horizontal space between branching blocks. Another case is rows in two
-parallel columns being aligned.
+Doing the layout on a grid limits the minimal spacing to the widest block within a column and tallest 
+block within a row. One common case is a function-entry block being wider due to the function name, 
+causing wide horizontal space between branching blocks. Another case is rows in two parallel columns 
+being aligned.
 
 \image html layout_compacting.svg
 
-Both problems are mitigated by squishing graph. Compressing in each of the two direction is done
+Both problems are mitigated by squishing-graph. Compressing in each of the two direction is done
 separately. The process is defined as liner program. Each variable represents a position of edge
 segment or node in the direction being optimized.
 
@@ -159,8 +158,8 @@ The following constraints are used:
 on the corresponding side of the node's center.
 - Equality constraint to keep relative position between nodes and and segments directly connected to
 them.
-- For a node above an edge (even if not connected), maintain this vertical order.This helps when vertical block-spacing is set
-bigger than double edge spacing and an edge shadows relationship between two blocks.
+- For a node above an edge (even if not connected), maintain this vertical order.This helps when vertical 
+block-spacing is set bigger than double edge spacing and an edge shadows relationship between two blocks.
 - Equality constraint to keep a node centered when control flow merges.
 
 In the vertical direction the objective function minimizes y positions of nodes and lengths of vertical
