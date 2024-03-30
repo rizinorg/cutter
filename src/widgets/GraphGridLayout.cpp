@@ -40,7 +40,7 @@ with parent on top
 7. [optional] Layout compacting
 
 
-Contrary to many other layered graph-drawing algorithm this implementation doesn't perform node
+Contrary to many other layered graph-drawing algorithms this implementation doesn't perform node
 reordering to minimize edge crossing. This simplifies the implementation, and preserves the original control-flow 
 structure for conditional jumps ( true jump on one side, false jump on other). Due to most of
 the control flow resulting from structured programming constructs like if/then/else and loops,
