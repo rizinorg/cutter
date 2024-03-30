@@ -148,7 +148,7 @@ being aligned.
 
 \image html layout_compacting.svg
 
-Both problems are mitigated by squishing-graph. Compressing in each of the two direction is done
+Both problems are mitigated by squishing the graph. Compressing in each of the two direction is done
 separately. The process is defined as liner program. Each variable represents a position of edge
 segment or node in the direction being optimized.
 
