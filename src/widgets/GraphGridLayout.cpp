@@ -49,8 +49,8 @@ the resulting layout is usually readable without node reordering within layers.
 
 # Grid
 To simplify the layout algorithm, its initial steps assume that all nodes have the same size and that edges
-are zero-width. After node placement and edges routing, the row/column of nodes is known as well as the 
-amount of edges between each rows pair. Using this information, positions are converted from grid cells to 
+are zero-width. After nodes placement and edges rounting, the row/column of nodes is known as well as the 
+amount of edges between each pair of rows. Using this information, positions are converted from grid cells to 
 pixel coordinates. Routing zero-width edges between rows can also be interpreted as every second row and column
  being reserved for edges. The row numbers in code are using the first interpretation. To allow better 
  centering of nodes one above other, each node is 2 columns wide and 1 row high.
@@ -80,13 +80,14 @@ assigned then the corresponding edge is not part of the tree.
 # Node placement
 
 Since the graph has been reduced to a tree, node placement is more or less putting subtrees side by
-side with parent on top. There is some room for interpretation what exactly 'side by side' means and
+side with parent on top. There is some room for interpretation as to what exactly 'side by side' means and
 where exactly 'on top' is: drawing the graph either too dense or too sparse may make it less readable, so
-configuration options can result in denser or sparser layout.
+there are configuration options which allow choosing these things resulting in more or less dense
+layout.
 
 Once the subtrees are placed side by side, the parent node can be placed either in the middle of
-the horizontal bounds or in the middle of its direct children. The first option results in narrower layout, 
-and the second option results in more spread out layout which may help seeing where each edge goes.
+the horizontal bounds or in the middle of its direct children. The first option results in narrower layout 
+and more vertical columns, while the second option results in more spread out layout which may help seeing where each edge goes.
 
 In compact mode two subtrees are placed side by side accounting for their shape. In wider
 mode the bounding box of the shorter subtree is used instead of its exact shape. This gives slightly sparser
@@ -168,7 +169,7 @@ segments. In the horizontal direction the objective function minimizes the lengt
 In the resulting linear program all constraints besides x_i >= 0 consist of exactly two variables:
 either x_i - x_j <= c_k or x_i = x_j + c_k.
 
-Since a perfect solution isn't necessary and to avoid poor performance, the current
+Since a perfect solution isn't necessary and to avoid worst case performance, the current
 implementation isn't using a general purpose linear solver. Instead, each variable is modified
 until a constraint is satisfied and afterwards variables are grouped and modified together.
 
