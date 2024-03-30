@@ -49,7 +49,7 @@ the resulting layout is usually readable without node reordering within layers.
 
 # Grid
 To simplify the layout algorithm, its initial steps assume that all nodes have the same size and that edges
-are zero-width. After nodes placement and edges rounting, the row/column of nodes is known as well as the 
+are zero-width. After node placement and edges routing, the row/column of nodes is known as well as the 
 amount of edges between each rows pair. Using this information, positions are converted from grid cells to 
 pixel coordinates. Routing zero-width edges between rows can also be interpreted as every second row and column
  being reserved for edges. The row numbers in code are using the first interpretation. To allow better 
