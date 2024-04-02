@@ -40,18 +40,28 @@ VersionInfoDialog::VersionInfoDialog(QWidget *parent)
     selAllActionRightTreewidget->setShortcutContext(
             Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
+    // Connect Copy actions
     connect(copyActionLeftTreewidget, &QAction::triggered, this,
             [this]() { CopyTreeWidgetSelection(ui->leftTreeWidget); });
 
     connect(copyActionRightTreewidget, &QAction::triggered, this,
             [this]() { CopyTreeWidgetSelection(ui->rightTreeWidget); });
 
+    // Connect select sll actions
     connect(selAllActionLeftTreewidget, &QAction::triggered, this,
             [this]() { ui->leftTreeWidget->selectAll(); });
 
     connect(selAllActionRightTreewidget, &QAction::triggered, this,
             [this]() { ui->rightTreeWidget->selectAll(); });
 
+    // Connect selection handles
+    connect(ui->leftTreeWidget->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+            [this]() { ui->rightTreeWidget->clearSelection(); });
+    connect(ui->rightTreeWidget->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+            [this]() { ui->leftTreeWidget->clearSelection(); });
+    connect(this, &VersionInfoDialog::finished, this, &VersionInfoDialog::clearSelectionOnClose);
+
+    // Add actions to context menu
     ui->leftTreeWidget->addAction(copyActionLeftTreewidget);
     ui->leftTreeWidget->addAction(selAllActionLeftTreewidget);
 
@@ -60,6 +70,18 @@ VersionInfoDialog::VersionInfoDialog(QWidget *parent)
 }
 
 VersionInfoDialog::~VersionInfoDialog() {}
+
+void VersionInfoDialog::clearSelectionOnClose()
+{
+    ui->leftTreeWidget->clearSelection();
+    ui->rightTreeWidget->clearSelection();
+
+    // remove default "current" item selection after dialog close
+    auto model = ui->leftTreeWidget->model();
+    ui->leftTreeWidget->setCurrentIndex(model->index(-1, -1));
+    model = ui->rightTreeWidget->model();
+    ui->leftTreeWidget->setCurrentIndex(model->index(-1, -1));
+}
 
 void VersionInfoDialog::CopyTreeWidgetSelection(QTreeWidget *t)
 {
@@ -78,6 +100,27 @@ void VersionInfoDialog::CopyTreeWidgetSelection(QTreeWidget *t)
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(vinfo.trimmed());
 }
+
+/*
+void VersionInfoDialog::leftTreeWidgetItemSelectionChanged()
+{
+    auto index = ui->leftTreeWidget->currentIndex();
+    if (!ui->leftTreeWidget->selectionModel()->hasSelection() || !index.isValid()) {
+        return;
+    }
+    ui->leftTreeWidget->clearSelection();
+}
+
+void VersionInfoDialog::rightTreeWidgetItemSelectionChanged()
+{
+    auto index = ui->rightTreeWidget->currentIndex();
+    if (!ui->rightTreeWidget->selectionModel()->hasSelection() || !index.isValid()) {
+        return;
+    }
+    if (ui->rightTreeWidget->selectionModel()->hasSelection())
+        ui->rightTreeWidget->clearSelection();
+}
+*/
 
 void VersionInfoDialog::fillVersionInfo()
 {

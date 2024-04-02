@@ -22,6 +22,7 @@ public:
 
 private slots:
     void CopyTreeWidgetSelection(QTreeWidget *t);
+    void clearSelectionOnClose();
 
 protected:
     QAction *copyActionLeftTreewidget = nullptr;
