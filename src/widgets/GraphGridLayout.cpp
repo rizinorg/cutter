@@ -159,8 +159,9 @@ The following constraints are used:
 on the corresponding side of the node's center.
 - Equality constraint to keep relative position between nodes and and segments directly connected to
 them.
-- For a node above an edge (even if not connected), maintain this vertical order.This helps when vertical 
-block-spacing is set bigger than double edge spacing and an edge shadows relationship between two blocks.
+- For all blocks connected by forward edge, keep the vertical distance at least as big as configured block 
+vertical spacing. This helps when vertical block-spacing is set bigger than double edge spacing and an edge 
+shadows relationship between two blocks.
 - Equality constraint to keep a node centered when control flow merges.
 
 In the vertical direction the objective function minimizes y positions of nodes and lengths of vertical
