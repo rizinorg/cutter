@@ -101,27 +101,6 @@ void VersionInfoDialog::CopyTreeWidgetSelection(QTreeWidget *t)
     clipboard->setText(vinfo.trimmed());
 }
 
-/*
-void VersionInfoDialog::leftTreeWidgetItemSelectionChanged()
-{
-    auto index = ui->leftTreeWidget->currentIndex();
-    if (!ui->leftTreeWidget->selectionModel()->hasSelection() || !index.isValid()) {
-        return;
-    }
-    ui->leftTreeWidget->clearSelection();
-}
-
-void VersionInfoDialog::rightTreeWidgetItemSelectionChanged()
-{
-    auto index = ui->rightTreeWidget->currentIndex();
-    if (!ui->rightTreeWidget->selectionModel()->hasSelection() || !index.isValid()) {
-        return;
-    }
-    if (ui->rightTreeWidget->selectionModel()->hasSelection())
-        ui->rightTreeWidget->clearSelection();
-}
-*/
-
 void VersionInfoDialog::fillVersionInfo()
 {
     RzCoreLocked core(Core());
