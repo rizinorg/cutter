@@ -14,10 +14,10 @@
 Basic familiarity with graph algorithms is recommended.
 
 # Terms used:
-- **Vertex**, **node**, **block** - read the description of graph for a precise definition. Within this text
+- **Vertex**, **node**, **block** - see the definition of graph. Within this text
 vertex/node/block are used interchangeably due to the code being purposed for visualizing basic 
 block control flow graph.
-- **edge** - read the description of graph for a precise definition.
+- **edge** - see the definition of graph.
 - **DAG** - directed acyclic graph, a graph using directed edges which doesn't have cycles. A DAG may
 contain loops if following them would require going in both directions of edges. Example 1->2 1->3
 3->2 is a DAG, 2->1 1->3 3->2 isn't a DAG.
