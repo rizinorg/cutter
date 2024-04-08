@@ -15,16 +15,16 @@ Basic familiarity with graph algorithms is recommended.
 
 # Terms used:
 - **Vertex**, **node**, **block** - see the definition of graph. Within this text
-vertex/node/block are used interchangeably due to the code being purposed for visualizing basic 
+vertex/node/block are used interchangeably due to the code being purposed for visualizing basic
 block control flow graph.
 - **edge** - see the definition of graph.
-- **DAG** - directed acyclic graph, a graph using directed edges which doesn't have cycles. A DAG may
-contain loops if following them would require going in both directions of edges. Example 1->2 1->3
-3->2 is a DAG, 2->1 1->3 3->2 isn't a DAG.
+- **DAG** - directed acyclic graph, a graph using directed edges which doesn't have cycles. A DAG
+may contain loops if following them would require going in both directions of edges. Example 1->2
+1->3 3->2 is a DAG, 2->1 1->3 3->2 isn't a DAG.
 - **DFS** - depth first search, a graph traversal algorithm
-- **toposort** - topological sorting, the process of ordering a DAG vertices that results in all edges going from
-vertices earlier in the toposort order to vertices later in toposort order. There are multiple
-algorithms implementing toposort. A single DAG can have multiple valid topological
+- **toposort** - topological sorting, the process of ordering a DAG vertices that results in all
+edges going from vertices earlier in the toposort order to vertices later in toposort order. There
+are multiple algorithms implementing toposort. A single DAG can have multiple valid topological
 orderings, a toposort algorithm can be designed to prioritize a specific one from all valid toposort
 orders. Example: for graph 1->4, 2->1, 2->3, 3->4 valid topological orders are [2,1,3,4] and
 [2,3,1,4].
@@ -41,31 +41,32 @@ with parent on top
 
 
 Contrary to many other layered graph-drawing algorithms this implementation doesn't perform node
-reordering to minimize edge crossing. This simplifies the implementation, and preserves the original control-flow 
-structure for conditional jumps ( true jump on one side, false jump on other). Due to most of
-the control flow resulting from structured programming constructs like if/then/else and loops,
-the resulting layout is usually readable without node reordering within layers.
+reordering to minimize edge crossing. This simplifies the implementation, and preserves the original
+control-flow structure for conditional jumps ( true jump on one side, false jump on other). Due to
+most of the control flow resulting from structured programming constructs like if/then/else and
+loops, the resulting layout is usually readable without node reordering within layers.
 
 
 # Grid
-To simplify the layout algorithm, its initial steps assume that all nodes have the same size and that edges
-are zero-width. After nodes placement and edges rounting, the row/column of nodes is known as well as the 
-amount of edges between each pair of rows. Using this information, positions are converted from grid cells to 
-pixel coordinates. Routing zero-width edges between rows can also be interpreted as every second row and column
- being reserved for edges. The row numbers in code are using the first interpretation. To allow better 
- centering of nodes one above other, each node is 2 columns wide and 1 row high.
+To simplify the layout algorithm, its initial steps assume that all nodes have the same size and
+that edges are zero-width. After nodes placement and edges rounting, the row/column of nodes is
+known as well as the amount of edges between each pair of rows. Using this information, positions
+are converted from grid cells to pixel coordinates. Routing zero-width edges between rows can also
+be interpreted as every second row and column being reserved for edges. The row numbers in code are
+using the first interpretation. To allow better centering of nodes one above other, each node is 2
+columns wide and 1 row high.
 
 \image html graph_grid.svg
 
 # 1-2 Cycle removal and toposort
 
 Cycle removal and toposort are done in a single DFS traversal. In case the entrypoint
-is part of a loop, the DFS starts from the entrypoint. This ensures that the entrypoint is at the top of
-resulting layout, if possible. The resulting toposort order is used in many of the following layout steps
-that require calculating some property of a vertex based on a child property or the other way around.
-Using toposort order, such operations can be implemented by array iteration in either forward/backward
-direction. To prevent running out of stack memory when processing large graphs, DFS is
-implemented non-recursively.
+is part of a loop, the DFS starts from the entrypoint. This ensures that the entrypoint is at the
+top of resulting layout, if possible. The resulting toposort order is used in many of the following
+layout steps that require calculating some property of a vertex based on a child property or the
+other way around. Using toposort order, such operations can be implemented by array iteration in
+either forward/backward direction. To prevent running out of stack memory when processing large
+graphs, DFS is implemented non-recursively.
 
 # Row assignment
 
@@ -80,25 +81,27 @@ assigned then the corresponding edge is not part of the tree.
 # Node placement
 
 Since the graph has been reduced to a tree, node placement is more or less putting subtrees side by
-side with parent on top. There is some room for interpretation as to what exactly 'side by side' means and
-where exactly 'on top' is: drawing the graph either too dense or too sparse may make it less readable, so
-there are configuration options which allow choosing these things resulting in more or less dense
-layout.
+side with parent on top. There is some room for interpretation as to what exactly 'side by side'
+means and where exactly 'on top' is: drawing the graph either too dense or too sparse may make it
+less readable, so there are configuration options which allow choosing these things resulting in
+more or less dense layout.
 
 Once the subtrees are placed side by side, the parent node can be placed either in the middle of
-the horizontal bounds or in the middle of its direct children. The first option results in narrower layout 
-and more vertical columns, while the second option results in more spread out layout which may help seeing where each edge goes.
+the horizontal bounds or in the middle of its direct children. The first option results in narrower
+layout and more vertical columns, while the second option results in more spread out layout which
+may help seeing where each edge goes.
 
 In compact mode two subtrees are placed side by side accounting for their shape. In wider
-mode the bounding box of the shorter subtree is used instead of its exact shape. This gives slightly sparser
-layout without being too wide.
+mode the bounding box of the shorter subtree is used instead of its exact shape. This gives slightly
+sparser layout without being too wide.
 
 \image html graph_parent_placement.svg
 
 # Edge routing
-Edge routing can be split into: main column selection, rough routing, and segment offset calculation.
+Edge routing can be split into: main column selection, rough routing, and segment offset
+calculation.
 
-Transition from source to target row is done using a single vertical segment. This segment is called 
+Transition from source to target row is done using a single vertical segment. This segment is called
 the 'main column'.
 
 Main columns are computed using a sweep line: blocks and edges are processed as events top to
@@ -142,10 +145,10 @@ typically a block with switch statement or block after switch statement.
 
 # Layout compacting
 
-Doing the layout on a grid limits the minimal spacing to the widest block within a column and tallest 
-block within a row. One common case is a function-entry block being wider due to the function name, 
-causing wide horizontal space between branching blocks. Another case is rows in two parallel columns 
-being aligned.
+Doing the layout on a grid limits the minimal spacing to the widest block within a column and
+tallest block within a row. One common case is a function-entry block being wider due to the
+function name, causing wide horizontal space between branching blocks. Another case is rows in two
+parallel columns being aligned.
 
 \image html layout_compacting.svg
 
@@ -159,13 +162,14 @@ The following constraints are used:
 on the corresponding side of the node's center.
 - Equality constraint to keep relative position between nodes and and segments directly connected to
 them.
-- For all blocks connected by forward edge, keep the vertical distance at least as big as configured block 
-vertical spacing. This helps when vertical block-spacing is set bigger than double edge spacing and an edge 
-shadows relationship between two blocks.
+- For all blocks connected by forward edge, keep the vertical distance at least as big as configured
+block vertical spacing. This helps when vertical block-spacing is set bigger than double edge
+spacing and an edge shadows relationship between two blocks.
 - Equality constraint to keep a node centered when control flow merges.
 
-In the vertical direction the objective function minimizes y positions of nodes and lengths of vertical
-segments. In the horizontal direction the objective function minimizes the lengths of horizontal segments.
+In the vertical direction the objective function minimizes y positions of nodes and lengths of
+vertical segments. In the horizontal direction the objective function minimizes the lengths of
+horizontal segments.
 
 In the resulting linear program all constraints besides x_i >= 0 consist of exactly two variables:
 either x_i - x_j <= c_k or x_i = x_j + c_k.
