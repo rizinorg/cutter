@@ -14,96 +14,97 @@
 Basic familiarity with graph algorithms is recommended.
 
 # Terms used:
-- **Vertex**, **node**, **block** - read description of graph for definition. Within this text
-vertex and node are used interchangeably with block due to code being written for visualizing basic
+- **Vertex**, **node**, **block** - see the definition of graph. Within this text
+vertex/node/block are used interchangeably due to the code being purposed for visualizing basic
 block control flow graph.
-- **edge** - read description of graph for definition for precise definition.
-- **DAG** - directed acyclic graph, graph using directed edges which doesn't have cycles. DAG may
-contain loops if following them would require going in both directions of edges. Example 1->2 1->3
-3->2 is a DAG, 2->1 1->3 3->2 isn't a DAG.
+- **edge** - see the definition of graph.
+- **DAG** - directed acyclic graph, a graph using directed edges which doesn't have cycles. A DAG
+may contain loops if following them would require going in both directions of edges. Example 1->2
+1->3 3->2 is a DAG, 2->1 1->3 3->2 isn't a DAG.
 - **DFS** - depth first search, a graph traversal algorithm
-- **toposort** - topological sorting, process of ordering a DAG vertices that all edges go from
-vertices earlier in the toposort order to vertices later in toposort order. There are multiple
-algorithms for implementing toposort operation. Single DAG can have multiple valid topological
+- **toposort** - topological sorting, the process of ordering a DAG vertices that results in all
+edges going from vertices earlier in the toposort order to vertices later in toposort order. There
+are multiple algorithms implementing toposort. A single DAG can have multiple valid topological
 orderings, a toposort algorithm can be designed to prioritize a specific one from all valid toposort
 orders. Example: for graph 1->4, 2->1, 2->3, 3->4 valid topological orders are [2,1,3,4] and
 [2,3,1,4].
 
-# High level structure of the algorithm
-1. select subset of edges that form a DAG (remove cycles)
-2. toposort the DAG
-3. choose a subset of edges that form a tree and assign layers
-4. assign node positions within grid using tree structure, child subtrees are placed side by side
+# High level algorithm structure
+1. Select a subset of edges that form a DAG (remove cycles)
+2. Toposort the DAG
+3. Choose a subset of edges that form a tree and assign layers
+4. Assign node positions within grid using tree structure, child subtrees are placed side by side
 with parent on top
-5. perform edge routing
-6. calculate column and row pixel positions based on node sizes and amount edges between the rows
-7. [optional] layout compacting
+5. Perform edge routing
+6. Calculate column and row pixel positions based on node sizes and amount edges between the rows
+7. [optional] Layout compacting
 
 
-Contrary to many other layered graph drawing algorithm this implementation doesn't perform node
-reordering to minimize edge crossing. This simplifies implementation, and preserves original control
-flow structure for conditional jumps ( true jump on one side, false jump on other). Due to most of
-control flow being result of structured programming constructs like if/then/else and loops,
-resulting layout is usually readable without node reordering within layers.
+Contrary to many other layered graph-drawing algorithms this implementation doesn't perform node
+reordering to minimize edge crossing. This simplifies the implementation, and preserves the original
+control-flow structure for conditional jumps ( true jump on one side, false jump on other). Due to
+most of the control flow resulting from structured programming constructs like if/then/else and
+loops, the resulting layout is usually readable without node reordering within layers.
 
 
-# Description of grid.
-To simplify the layout algorithm initial steps assume that all nodes have the same size and edges
-are zero width. After placing the nodes and routing the edges it is known which nodes are in in
-which row and column, how many edges are between each pair of rows. Using this information positions
-are converted from the grid cells to pixel coordinates. Routing 0 width edges between rows can also
+# Grid
+To simplify the layout algorithm, its initial steps assume that all nodes have the same size and
+that edges are zero-width. After nodes placement and edges rounting, the row/column of nodes is
+known as well as the amount of edges between each pair of rows. Using this information, positions
+are converted from grid cells to pixel coordinates. Routing zero-width edges between rows can also
 be interpreted as every second row and column being reserved for edges. The row numbers in code are
-using first interpretation. To allow better centering of nodes one above other each node is 2
+using the first interpretation. To allow better centering of nodes one above other, each node is 2
 columns wide and 1 row high.
 
 \image html graph_grid.svg
 
 # 1-2 Cycle removal and toposort
 
-Cycle removal and toposort are done at the same time during single DFS traversal. In case entrypoint
-is part of a loop DFS started from entrypoint. This ensures that entrypoint is at the top of
-resulting layout if possible. Resulting toposort order is used in many of the following layout steps
-that require calculating some property of a vertex based on child property or the other way around.
-Using toposort order such operations can be implemented iteration through array in either forward or
-reverse direction. To prevent running out of stack memory when processing large graphs DFS is
-implemented non-recursively.
+Cycle removal and toposort are done in a single DFS traversal. In case the entrypoint
+is part of a loop, the DFS starts from the entrypoint. This ensures that the entrypoint is at the
+top of resulting layout, if possible. The resulting toposort order is used in many of the following
+layout steps that require calculating some property of a vertex based on a child property or the
+other way around. Using toposort order, such operations can be implemented by array iteration in
+either forward/backward direction. To prevent running out of stack memory when processing large
+graphs, DFS is implemented non-recursively.
 
 # Row assignment
 
 Rows are assigned in toposort order from top to bottom, with nodes row being max(predecessor.row)+1.
-This ensures that loop edges are only ones going from deeper levels to previous layers.
+This ensures that loop back-edges are the only edges going from lower to higher layers.
 
-To further simply node placement a subset of edges is selected which forms a tree. This turns DAG
-drawing problem into a tree drawing problem. For each node in level n following nodes which have
-level exactly n+1 are greedily assigned as child nodes in tree. If a node already has parent
-assigned then corresponding edge is not part of tree.
+To further simply node placement, a subset of edges is selected which forms a tree. This turns a DAG
+drawing problem into a tree drawing problem. For each node in level n the following nodes with
+level exactly n+1 are greedily assigned as child nodes in the tree. If a node already has a parent
+assigned then the corresponding edge is not part of the tree.
 
-# Node position assignment
+# Node placement
 
 Since the graph has been reduced to a tree, node placement is more or less putting subtrees side by
-side with parent on top. There is some room for interpretation what exactly side by side means and
-where exactly on top is. Drawing the graph either too dense or too big may make it less readable so
-there are configuration options which allow choosing these things resulting in more or less dense
-layout.
+side with parent on top. There is some room for interpretation as to what exactly 'side by side'
+means and where exactly 'on top' is: drawing the graph either too dense or too sparse may make it
+less readable, so there are configuration options which allow choosing these things resulting in
+more or less dense layout.
 
-Once the subtrees are placed side by side. Parent node can be placed either in the middle of
-horizontal bounds or in the middle of direct children. First option results in narrower layout and
-more vertical columns. Second option results in nodes being more spread out which may help seeing
-where each edge goes.
+Once the subtrees are placed side by side, the parent node can be placed either in the middle of
+the horizontal bounds or in the middle of its direct children. The first option results in narrower
+layout and more vertical columns, while the second option results in more spread out layout which
+may help seeing where each edge goes.
 
-In more compact mode two subtrees are placed side by side taking into account their shape. In wider
-mode bounding box of shorter subtree is used instead of exact shape. This gives slightly sparse
-layout without it being too wide.
+In compact mode two subtrees are placed side by side accounting for their shape. In wider
+mode the bounding box of the shorter subtree is used instead of its exact shape. This gives slightly
+sparser layout without being too wide.
 
 \image html graph_parent_placement.svg
 
 # Edge routing
-Edge routing can be split into: main column selection, rough routing, segment offset calculation.
+Edge routing can be split into: main column selection, rough routing, and segment offset
+calculation.
 
-Transition from source to target row is done using single vertical segment. This is called main
-column.
+Transition from source to target row is done using a single vertical segment. This segment is called
+the 'main column'.
 
-A sweep line is used for computing main columns: Blocks and edges are processed as events top to
+Main columns are computed using a sweep line: blocks and edges are processed as events top to
 bottom based off their row (max(start row, end row) for edges). Blocked columns are tracked in a
 tree structure which allows searching nearest column with at least last N rows empty. The column
 of the starting block is favored for the main column, otherwise the target block's column is chosen
@@ -114,10 +115,9 @@ true or false branch. In case of upward edges it is allowed to choose a column o
 is slightly further than nearest empty to reduce the chance of producing tilted figure 8 shaped
 crossing between two blocks.
 
-Rough routing creates the path of edge using up to 5 segments using grid coordinates.
-Due to nodes being placed in a grid. Horizontal segments of edges can't intersect with any nodes.
+Due to nodes being placed in a grid, horizontal segments of edges can't intersect with any nodes.
 The path for edges is chosen so that it consists of at most 5 segments, typically resulting in
-sideways U shape or square Z shape.
+sideways U shape or square Z shape:
 - short vertical segment from node to horizontal line
 - move to empty column
 - vertical segment between starting row and end row
@@ -134,45 +134,49 @@ ensures that two segments don't overlap. Segment offsets within each column are 
 with some heuristics for assignment order to reduce amount of edge crossings and result in more
 visually pleasing output for a typical CFG graph. Each segment gets assigned an offset that is
 maximum of previously assigned offsets overlapping with current segment + segment spacing.
-Assignment order is chosen based on:
-* direction of previous and last segment - helps reducing crossings and place the segments between
+
+Assignment order is based on:
+- direction of previous and last segment - helps reducing crossings and place the segments between
 nodes
-* segment length - reduces crossing when segment endpoints have the same structure as valid
+- segment length - reduces crossing when segment endpoints have the same structure as valid
 parentheses expression
-* edge length - establishes some kind of order when single node is connected to many edges,
+- edge length - establishes some kind of order when single node is connected to many edges,
 typically a block with switch statement or block after switch statement.
 
 # Layout compacting
 
-Doing the layout within a grid causes minimal spacing to be limited by widest and tallest block
-within each column and row. One common case is block with function entrypoint being wider due to
-function name causing wide horizontal space between branching blocks. Another case is rows in two
+Doing the layout on a grid limits the minimal spacing to the widest block within a column and
+tallest block within a row. One common case is a function-entry block being wider due to the
+function name, causing wide horizontal space between branching blocks. Another case is rows in two
 parallel columns being aligned.
 
 \image html layout_compacting.svg
 
-Both problems are mitigated by squishing graph. Compressing in each of the two direction is done
+Both problems are mitigated by squishing the graph. Compressing in each of the two direction is done
 separately. The process is defined as liner program. Each variable represents a position of edge
 segment or node in the direction being optimized.
 
-Following constraints are used
+The following constraints are used:
 - Keep the order with nearest segments.
-- If the node has two outgoing edges, one to the node on left side and other to the right, keep them
-on the corresponding side of node's center.
-- For all edges keep the node which is above above. This helps when vertical block spacing is set
-bigger than double edge spacing and edge shadows relationship between two blocks.
+- If a node has two outgoing edges, one to the left and one to the right, keep them
+on the corresponding side of the node's center.
 - Equality constraint to keep relative position between nodes and and segments directly connected to
 them.
-- Equality constraint to keep the node centered when control flow merges
-In the vertical direction objective function minimizes y positions of nodes and lengths of vertical
-segments. In the horizontal direction objective function minimizes lengths of horizontal segments.
+- For all blocks connected by forward edge, keep the vertical distance at least as big as configured
+block vertical spacing. This helps when vertical block-spacing is set bigger than double edge
+spacing and an edge shadows relationship between two blocks.
+- Equality constraint to keep a node centered when control flow merges.
 
-In the resulting linear program all constraints beside x_i >= 0 consist of exactly two variables:
+In the vertical direction the objective function minimizes y positions of nodes and lengths of
+vertical segments. In the horizontal direction the objective function minimizes the lengths of
+horizontal segments.
+
+In the resulting linear program all constraints besides x_i >= 0 consist of exactly two variables:
 either x_i - x_j <= c_k or x_i = x_j + c_k.
 
-Since it isn't necessary get perfect solution and to avoid worst case performance current
-implementation isn't using a general purpose linear programming solver. Each variable is changed
-until constraint is reached and afterwards variables are grouped and changed together.
+Since a perfect solution isn't necessary and to avoid worst case performance, the current
+implementation isn't using a general purpose linear solver. Instead, each variable is modified
+until a constraint is satisfied and afterwards variables are grouped and modified together.
 
 */
 
