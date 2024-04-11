@@ -77,10 +77,9 @@ void VersionInfoDialog::clearSelectionOnClose()
     ui->rightTreeWidget->clearSelection();
 
     // remove default "current" item selection after dialog close
-    auto model = ui->leftTreeWidget->model();
-    ui->leftTreeWidget->setCurrentIndex(model->index(-1, -1));
-    model = ui->rightTreeWidget->model();
-    ui->leftTreeWidget->setCurrentIndex(model->index(-1, -1));
+    QModelIndex defaultIndex;
+    ui->leftTreeWidget->setCurrentIndex(defaultIndex);
+    ui->rightTreeWidget->setCurrentIndex(defaultIndex);
 }
 
 void VersionInfoDialog::CopyTreeWidgetSelection(QTreeWidget *t)
