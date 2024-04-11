@@ -9,13 +9,6 @@
 
 #define DEBUGGED_PID (-1)
 
-enum ColumnIndex {
-    COLUMN_PID = 0,
-    COLUMN_UID,
-    COLUMN_STATUS,
-    COLUMN_PATH,
-};
-
 ProcessesWidget::ProcessesWidget(MainWindow *main)
     : CutterDockWidget(main), ui(new Ui::ProcessesWidget)
 {
@@ -23,10 +16,14 @@ ProcessesWidget::ProcessesWidget(MainWindow *main)
 
     // Setup processes model
     modelProcesses = new QStandardItemModel(1, 4, this);
-    modelProcesses->setHorizontalHeaderItem(COLUMN_PID, new QStandardItem(tr("PID")));
-    modelProcesses->setHorizontalHeaderItem(COLUMN_UID, new QStandardItem(tr("UID")));
-    modelProcesses->setHorizontalHeaderItem(COLUMN_STATUS, new QStandardItem(tr("Status")));
-    modelProcesses->setHorizontalHeaderItem(COLUMN_PATH, new QStandardItem(tr("Path")));
+    modelProcesses->setHorizontalHeaderItem(ProcessesWidget::COLUMN_PID,
+                                            new QStandardItem(tr("PID")));
+    modelProcesses->setHorizontalHeaderItem(ProcessesWidget::COLUMN_UID,
+                                            new QStandardItem(tr("UID")));
+    modelProcesses->setHorizontalHeaderItem(ProcessesWidget::COLUMN_STATUS,
+                                            new QStandardItem(tr("Status")));
+    modelProcesses->setHorizontalHeaderItem(ProcessesWidget::COLUMN_PATH,
+                                            new QStandardItem(tr("Path")));
     ui->viewProcesses->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     ui->viewProcesses->verticalHeader()->setVisible(false);
     ui->viewProcesses->setFont(Config()->getFont());
@@ -129,10 +126,10 @@ void ProcessesWidget::setProcessesGrid()
         rowStatus->setFont(font);
         rowPath->setFont(font);
 
-        modelProcesses->setItem(i, COLUMN_PID, rowPid);
-        modelProcesses->setItem(i, COLUMN_UID, rowUid);
-        modelProcesses->setItem(i, COLUMN_STATUS, rowStatus);
-        modelProcesses->setItem(i, COLUMN_PATH, rowPath);
+        modelProcesses->setItem(i, ProcessesWidget::COLUMN_PID, rowPid);
+        modelProcesses->setItem(i, ProcessesWidget::COLUMN_UID, rowUid);
+        modelProcesses->setItem(i, ProcessesWidget::COLUMN_STATUS, rowStatus);
+        modelProcesses->setItem(i, ProcessesWidget::COLUMN_PATH, rowPath);
         i++;
     }
 
@@ -155,7 +152,7 @@ void ProcessesWidget::onActivated(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    int pid = modelFilter->data(index.sibling(index.row(), COLUMN_PID)).toInt();
+    int pid = modelFilter->data(index.sibling(index.row(), ProcessesWidget::COLUMN_PID)).toInt();
     // Verify that the selected pid is still in the processes list since dp= will
     // attach to any given id. If it isn't found simply update the UI.
     for (const auto &value : Core()->getAllProcesses()) {
@@ -185,7 +182,7 @@ ProcessesFilterModel::ProcessesFilterModel(QObject *parent) : QSortFilterProxyMo
 bool ProcessesFilterModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     // All columns are checked for a match
-    for (int i = COLUMN_PID; i <= COLUMN_PATH; ++i) {
+    for (int i = ProcessesWidget::COLUMN_PID; i <= ProcessesWidget::COLUMN_PATH; ++i) {
         QModelIndex index = sourceModel()->index(row, i, parent);
         if (qhelpers::filterStringContains(sourceModel()->data(index).toString(), this)) {
             return true;

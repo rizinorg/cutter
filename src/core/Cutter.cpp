@@ -1295,7 +1295,7 @@ RVA CutterCore::getLastFunctionInstruction(RVA addr)
     if (!fcn) {
         return RVA_INVALID;
     }
-    RzAnalysisBlock *lastBB = (RzAnalysisBlock *)rz_list_last(fcn->bbs);
+    RzAnalysisBlock *lastBB = (RzAnalysisBlock *)rz_pvector_tail(fcn->bbs);
     return lastBB ? rz_analysis_block_get_op_addr(lastBB, lastBB->ninstr - 1) : RVA_INVALID;
 }
 
@@ -1641,7 +1641,7 @@ QVector<Chunk> CutterCore::getHeapChunks(RVA arena_addr)
             rz_list_free(arenas);
             return chunks_vector;
         }
-        m_arena = ((RzArenaListItem *)rz_list_get_head_data(arenas))->addr;
+        m_arena = ((RzArenaListItem *)rz_list_first(arenas))->addr;
         rz_list_free(arenas);
     } else {
         m_arena = arena_addr;
@@ -3061,7 +3061,7 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
         function.linearSize = rz_analysis_function_linear_size(fcn);
         function.nargs = rz_analysis_arg_count(fcn);
         function.nlocals = rz_analysis_var_local_count(fcn);
-        function.nbbs = rz_list_length(fcn->bbs);
+        function.nbbs = rz_pvector_len(fcn->bbs);
         function.calltype = fcn->cc ? QString::fromUtf8(fcn->cc) : QString();
         function.name = fcn->name ? QString::fromUtf8(fcn->name) : QString();
         function.edges = rz_analysis_function_count_edges(fcn, nullptr);
@@ -4334,10 +4334,9 @@ QString CutterCore::getVersionInformation()
         const char *name;
         const char *(*callback)();
     } vcs[] = {
-        { "rz_analysis", &rz_analysis_version },
+        { "rz_arch", &rz_arch_version },
         { "rz_lib", &rz_lib_version },
         { "rz_egg", &rz_egg_version },
-        { "rz_asm", &rz_asm_version },
         { "rz_bin", &rz_bin_version },
         { "rz_cons", &rz_cons_version },
         { "rz_flag", &rz_flag_version },
@@ -4350,7 +4349,6 @@ QString CutterCore::getVersionInformation()
 #if !USE_LIB_MAGIC
         { "rz_magic", &rz_magic_version },
 #endif
-        { "rz_parse", &rz_parse_version },
         { "rz_reg", &rz_reg_version },
         { "rz_sign", &rz_sign_version },
         { "rz_search", &rz_search_version },
