@@ -3418,13 +3418,13 @@ QList<SectionDescription> CutterCore::getAllSections()
         section.size = sect->size;
         section.perm = rz_str_rwx_i(sect->perm);
         if (sect->size > 0) {
-            HtPP *digests = rz_core_bin_create_digests(core, sect->paddr, sect->size, hashnames);
+            HtSS *digests = rz_core_bin_create_digests(core, sect->paddr, sect->size, hashnames);
             if (!digests) {
                 continue;
             }
-            const char *entropy = (const char *)ht_pp_find(digests, "entropy", NULL);
+            const char *entropy = (const char *)ht_ss_find(digests, "entropy", NULL);
             section.entropy = rz_str_get(entropy);
-            ht_pp_free(digests);
+            ht_ss_free(digests);
         }
 
         sections << section;
