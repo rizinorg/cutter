@@ -3,7 +3,7 @@ $cmake_opts = $args[1]
 $python = Split-Path((Get-Command python.exe).Path)
 
 if (-not (Test-Path -Path 'rz_libyara' -PathType Container)) {
-    git clone https://github.com/rizinorg/rz-libyara.git --depth 1 rz_libyara
+    git clone https://github.com/rizinorg/rz-libyara.git --depth 1 --branch main rz_libyara
     git -C rz_libyara submodule init
     git -C rz_libyara submodule update
 }
