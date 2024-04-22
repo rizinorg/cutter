@@ -273,6 +273,7 @@ void CutterCore::loadCutterRC()
         }
         qInfo() << tr("Loading initialization file from ") << cutterRCFilePath;
         rz_core_cmd_file(core, cutterRCFilePath.toUtf8().constData());
+        rz_cons_flush();
     }
 }
 
@@ -286,6 +287,7 @@ void CutterCore::loadDefaultCutterRC()
     }
     qInfo() << tr("Loading initialization file from ") << cutterRCFilePath;
     rz_core_cmd_file(core, cutterRCFilePath.toUtf8().constData());
+    rz_cons_flush();
 }
 
 QList<QString> CutterCore::sdbList(QString path)
@@ -473,19 +475,7 @@ QString CutterCore::cmdRaw(const char *cmd)
 {
     QString res;
     CORE_LOCK();
-    rz_cons_push();
-
-    // rz_core_cmd does not return the output of the command
-    rz_core_cmd(core, cmd, 0);
-
-    // we grab the output straight from rz_cons
-    res = rz_cons_get_buffer();
-
-    // cleaning up
-    rz_cons_pop();
-    rz_cons_echo(NULL);
-
-    return res;
+    return rz_core_cmd_str(core, cmd);
 }
 
 CutterJson CutterCore::cmdj(const char *str)
@@ -496,7 +486,7 @@ CutterJson CutterCore::cmdj(const char *str)
         res = rz_core_cmd_str(core, str);
     }
 
-    return parseJson(res, str);
+    return parseJson("cmdj", res, str);
 }
 
 QString CutterCore::cmdTask(const QString &str)
@@ -507,9 +497,9 @@ QString CutterCore::cmdTask(const QString &str)
     return task.getResult();
 }
 
-CutterJson CutterCore::parseJson(char *res, const char *cmd)
+CutterJson CutterCore::parseJson(const char *name, char *res, const char *cmd)
 {
-    if (!res) {
+    if (RZ_STR_ISEMPTY(res)) {
         return CutterJson();
     }
 
@@ -517,24 +507,17 @@ CutterJson CutterCore::parseJson(char *res, const char *cmd)
 
     if (!doc) {
         if (cmd) {
-            eprintf("Failed to parse JSON for command \"%s\"\n", cmd);
+            RZ_LOG_ERROR("%s: Failed to parse JSON for command \"%s\"\n%s\n", name, cmd, res);
         } else {
-            eprintf("Failed to parse JSON\n");
+            RZ_LOG_ERROR("%s: Failed to parse JSON %s\n", name, res);
         }
-        const int MAX_JSON_DUMP_SIZE = 8 * 1024;
-        size_t originalSize = strlen(res);
-        if (originalSize > MAX_JSON_DUMP_SIZE) {
-            res[MAX_JSON_DUMP_SIZE] = 0;
-            eprintf("%zu bytes total: %s ...\n", originalSize, res);
-        } else {
-            eprintf("%s\n", res);
-        }
+        RZ_LOG_ERROR("%s: %s\n", name, res);
     }
 
     return CutterJson(doc, QSharedPointer<CutterJsonOwner>::create(doc, res));
 }
 
-QStringList CutterCore::autocomplete(const QString &cmd, RzLinePromptType promptType, size_t limit)
+QStringList CutterCore::autocomplete(const QString &cmd, RzLinePromptType promptType)
 {
     RzLineBuffer buf;
     int c = snprintf(buf.data, sizeof(buf.data), "%s", cmd.toUtf8().constData());
@@ -543,18 +526,17 @@ QStringList CutterCore::autocomplete(const QString &cmd, RzLinePromptType prompt
     }
     buf.index = buf.length = std::min((int)(sizeof(buf.data) - 1), c);
 
-    RzLineCompletion completion;
-    rz_line_completion_init(&completion, limit);
-    rz_core_autocomplete(core(), &completion, &buf, promptType);
+    RzLineNSCompletionResult *compr = rz_core_autocomplete_rzshell(core(), &buf, promptType);
 
     QStringList r;
-    r.reserve(rz_pvector_len(&completion.args));
-    for (size_t i = 0; i < rz_pvector_len(&completion.args); i++) {
+    auto optslen = rz_pvector_len(&compr->options);
+    r.reserve(optslen);
+    for (size_t i = 0; i < optslen; i++) {
         r.push_back(QString::fromUtf8(
-                reinterpret_cast<const char *>(rz_pvector_at(&completion.args, i))));
+                reinterpret_cast<const char *>(rz_pvector_at(&compr->options, i))));
     }
+    rz_line_ns_completion_result_free(compr);
 
-    rz_line_completion_fini(&completion);
     return r;
 }
 
@@ -602,8 +584,6 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
             rz_bin_select_idx(core->bin, NULL, idx);
         }
 #endif
-    } else {
-        // Not loading RzBin info coz va = false
     }
 
     auto iod = core->io ? core->io->desc : NULL;
@@ -611,7 +591,8 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
             core->file && iod && (core->file->fd == iod->fd) && iod->plugin && iod->plugin->isdbg;
 
     if (!debug && rz_flag_get(core->flags, "entry0")) {
-        rz_core_cmd0(core, "s entry0");
+        ut64 addr = rz_num_math(core->num, "entry0");
+        rz_core_seek_and_save(core, addr, true);
     }
 
     if (perms & RZ_PERM_W) {
@@ -621,6 +602,7 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
         }
     }
 
+    rz_cons_flush();
     fflush(stdout);
     return true;
 }
@@ -715,19 +697,16 @@ void CutterCore::delFlag(const QString &name)
     emit flagsChanged();
 }
 
-PRzAnalysisBytes CutterCore::getRzAnalysisBytesSingle(RVA addr)
+CutterRzIter<RzAnalysisBytes> CutterCore::getRzAnalysisBytesSingle(RVA addr)
 {
     CORE_LOCK();
     ut8 buf[128];
     rz_io_read_at(core->io, addr, buf, sizeof(buf));
 
-    auto seek = seekTemp(addr);
-    auto vec = fromOwned(rz_core_analysis_bytes(core, addr, buf, sizeof(buf), 1));
-
-    auto ab = vec && rz_pvector_len(vec.get()) > 0
-            ? reinterpret_cast<RzAnalysisBytes *>(rz_pvector_pop_front(vec.get()))
-            : nullptr;
-    return { ab, rz_analysis_bytes_free };
+    // Warning! only safe to use with stack buffer, due to instruction count being 1
+    auto result =
+            CutterRzIter<RzAnalysisBytes>(rz_core_analysis_bytes(core, addr, buf, sizeof(buf), 1));
+    return result;
 }
 
 QString CutterCore::getInstructionBytes(RVA addr)
@@ -1027,18 +1006,10 @@ RVA CutterCore::nextOpAddr(RVA startAddr, int count)
 {
     CORE_LOCK();
     auto seek = seekTemp(startAddr);
-    auto vec = fromOwned(rz_core_analysis_bytes(core, core->offset, core->block,
-                                                (int)core->blocksize, count + 1));
+    auto consumed =
+            rz_core_analysis_ops_size(core, core->offset, core->block, (int)core->blocksize, count);
 
-    RVA addr = startAddr + 1;
-    if (!vec) {
-        return addr;
-    }
-    auto ab = reinterpret_cast<RzAnalysisBytes *>(rz_pvector_tail(vec.get()));
-    if (!(ab && ab->op)) {
-        return addr;
-    }
-    addr = ab->op->addr;
+    RVA addr = startAddr + consumed;
     return addr;
 }
 
@@ -1324,7 +1295,7 @@ RVA CutterCore::getLastFunctionInstruction(RVA addr)
     if (!fcn) {
         return RVA_INVALID;
     }
-    RzAnalysisBlock *lastBB = (RzAnalysisBlock *)rz_list_last(fcn->bbs);
+    RzAnalysisBlock *lastBB = (RzAnalysisBlock *)rz_pvector_tail(fcn->bbs);
     return lastBB ? rz_analysis_block_get_op_addr(lastBB, lastBB->ninstr - 1) : RVA_INVALID;
 }
 
@@ -1399,13 +1370,17 @@ CutterJson CutterCore::getSignatureInfo()
     if (!signature) {
         return {};
     }
-    return parseJson(signature, nullptr);
+    return parseJson("signature", signature, nullptr);
 }
 
 bool CutterCore::existsFileInfo()
 {
     CORE_LOCK();
-    const RzBinInfo *info = rz_bin_get_info(core->bin);
+    RzBinObject *bobj = rz_bin_cur_object(core->bin);
+    if (!bobj) {
+        return false;
+    }
+    const RzBinInfo *info = rz_bin_object_get_info(bobj);
     if (!(info && info->rclass)) {
         return false;
     }
@@ -1666,7 +1641,7 @@ QVector<Chunk> CutterCore::getHeapChunks(RVA arena_addr)
             rz_list_free(arenas);
             return chunks_vector;
         }
-        m_arena = ((RzArenaListItem *)rz_list_get_head_data(arenas))->addr;
+        m_arena = ((RzArenaListItem *)rz_list_first(arenas))->addr;
         rz_list_free(arenas);
     } else {
         m_arena = arena_addr;
@@ -3086,7 +3061,7 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
         function.linearSize = rz_analysis_function_linear_size(fcn);
         function.nargs = rz_analysis_arg_count(fcn);
         function.nlocals = rz_analysis_var_local_count(fcn);
-        function.nbbs = rz_list_length(fcn->bbs);
+        function.nbbs = rz_pvector_len(fcn->bbs);
         function.calltype = fcn->cc ? QString::fromUtf8(fcn->cc) : QString();
         function.name = fcn->name ? QString::fromUtf8(fcn->name) : QString();
         function.edges = rz_analysis_function_count_edges(fcn, nullptr);
@@ -3207,11 +3182,11 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
         }
     }
 
-    const RzList *entries = rz_bin_object_get_entries(bf->o);
-    if (entries) {
+    const RzPVector *entries = rz_bin_object_get_entries(bf->o);
+    if (symbols) {
         /* list entrypoints as symbols too */
         int n = 0;
-        for (const auto &entry : CutterRzList<RzBinSymbol>(entries)) {
+        for (const auto &entry : CutterPVector<RzBinAddr>(entries)) {
             SymbolDescription symbol;
             symbol.vaddr = entry->vaddr;
             symbol.name = QString("entry") + QString::number(n++);
@@ -3443,13 +3418,13 @@ QList<SectionDescription> CutterCore::getAllSections()
         section.size = sect->size;
         section.perm = rz_str_rwx_i(sect->perm);
         if (sect->size > 0) {
-            HtPP *digests = rz_core_bin_create_digests(core, sect->paddr, sect->size, hashnames);
+            HtSS *digests = rz_core_bin_create_digests(core, sect->paddr, sect->size, hashnames);
             if (!digests) {
                 continue;
             }
-            const char *entropy = (const char *)ht_pp_find(digests, "entropy", NULL);
+            const char *entropy = (const char *)ht_ss_find(digests, "entropy", NULL);
             section.entropy = rz_str_get(entropy);
-            ht_pp_free(digests);
+            ht_ss_free(digests);
         }
 
         sections << section;
@@ -3524,10 +3499,8 @@ QList<EntrypointDescription> CutterCore::getAllEntrypoint()
     ut64 laddr = rz_bin_get_laddr(core->bin);
 
     QList<EntrypointDescription> qList;
-    const RzList *entries = rz_bin_object_get_entries(bf->o);
-    RzListIter *iter;
-    RzBinAddr *entry;
-    CutterRzListForeach (entries, iter, RzBinAddr, entry) {
+    const RzPVector *entries = rz_bin_object_get_entries(bf->o);
+    for (const auto &entry : CutterPVector<RzBinAddr>(entries)) {
         if (entry->type != RZ_BIN_ENTRY_TYPE_PROGRAM) {
             continue;
         }
@@ -4342,6 +4315,7 @@ void CutterCore::loadScript(const QString &scriptname)
     {
         CORE_LOCK();
         rz_core_cmd_file(core, scriptname.toUtf8().constData());
+        rz_cons_flush();
     }
     triggerRefreshAll();
 }
@@ -4360,10 +4334,9 @@ QString CutterCore::getVersionInformation()
         const char *name;
         const char *(*callback)();
     } vcs[] = {
-        { "rz_analysis", &rz_analysis_version },
+        { "rz_arch", &rz_arch_version },
         { "rz_lib", &rz_lib_version },
         { "rz_egg", &rz_egg_version },
-        { "rz_asm", &rz_asm_version },
         { "rz_bin", &rz_bin_version },
         { "rz_cons", &rz_cons_version },
         { "rz_flag", &rz_flag_version },
@@ -4376,7 +4349,6 @@ QString CutterCore::getVersionInformation()
 #if !USE_LIB_MAGIC
         { "rz_magic", &rz_magic_version },
 #endif
-        { "rz_parse", &rz_parse_version },
         { "rz_reg", &rz_reg_version },
         { "rz_sign", &rz_sign_version },
         { "rz_search", &rz_search_version },

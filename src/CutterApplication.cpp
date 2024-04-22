@@ -120,10 +120,6 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
     Config()->setOutputRedirectionEnabled(clOptions.outputRedirectionEnabled);
 
-    if (JSDecDecompiler::isAvailable()) {
-        Core()->registerDecompiler(new JSDecDecompiler(Core()));
-    }
-
 #if CUTTER_RZGHIDRA_STATIC
     Core()->registerDecompiler(new RzGhidraDecompiler(Core()));
 #endif

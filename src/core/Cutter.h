@@ -62,8 +62,6 @@ struct CUTTER_EXPORT RegisterRef
     QString name;
 };
 
-using PRzAnalysisBytes = std::unique_ptr<RzAnalysisBytes, decltype(rz_analysis_bytes_free) *>;
-
 class CUTTER_EXPORT CutterCore : public QObject
 {
     Q_OBJECT
@@ -183,13 +181,13 @@ public:
     QString getRizinVersionReadable(const char *program = nullptr);
     QString getVersionInformation();
 
-    CutterJson parseJson(char *res, const char *cmd = nullptr);
-    CutterJson parseJson(char *res, const QString &cmd = QString())
+    CutterJson parseJson(const char *name, char *res, const char *cmd = nullptr);
+    CutterJson parseJson(const char *name, char *res, const QString &cmd = QString())
     {
-        return parseJson(res, cmd.isNull() ? nullptr : cmd.toLocal8Bit().constData());
+        return parseJson(name, res, cmd.isNull() ? nullptr : cmd.toLocal8Bit().constData());
     }
 
-    QStringList autocomplete(const QString &cmd, RzLinePromptType promptType, size_t limit = 4096);
+    QStringList autocomplete(const QString &cmd, RzLinePromptType promptType);
 
     /* Functions methods */
     void renameFunction(const RVA offset, const QString &newName);
@@ -248,7 +246,7 @@ public:
     QString getGlobalVariableType(RVA offset);
 
     /* Edition functions */
-    PRzAnalysisBytes getRzAnalysisBytesSingle(RVA addr);
+    CutterRzIter<RzAnalysisBytes> getRzAnalysisBytesSingle(RVA addr);
     QString getInstructionBytes(RVA addr);
     QString getInstructionOpcode(RVA addr);
     void editInstruction(RVA addr, const QString &inst, bool fillWithNops = false);

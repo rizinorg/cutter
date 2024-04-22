@@ -94,7 +94,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
 
     std::unordered_map<ut64, Agnode_t *> nodes;
     for (const auto &block : blocks) {
-        nodes[block.first] = agnode(g, nullptr, TRUE);
+        nodes[block.first] = agnode(g, nullptr, true);
     }
 
     std::vector<std::string> strc;
@@ -143,7 +143,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
             if (v == nodes.end()) {
                 continue;
             }
-            auto e = agedge(g, u, v->second, nullptr, TRUE);
+            auto e = agedge(g, u, v->second, nullptr, true);
             edges[{ blockIt.first, edge.target }] = e;
             if (loopEdges.find({ blockIt.first, edge.target }) != loopEdges.end()) {
                 agxset(e, constraintAttr, STR("0"));
@@ -193,11 +193,11 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
             if (it != edges.end()) {
                 auto e = it->second;
                 if (auto spl = ED_spl(e)) {
-                    for (int i = 0; i < 1 && i < spl->size; i++) {
+                    for (size_t i = 0; i < 1 && i < spl->size; i++) {
                         auto bz = spl->list[i];
                         edge.polyline.clear();
                         edge.polyline.reserve(bz.size + 1);
-                        for (int j = 0; j < bz.size; j++) {
+                        for (size_t j = 0; j < bz.size; j++) {
                             edge.polyline.push_back(QPointF(bz.list[j].x, bz.list[j].y));
                         }
                         QPointF last(0, 0);
