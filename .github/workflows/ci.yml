@@ -310,7 +310,7 @@ jobs:
             system-deps: false
             python-version: 3.7.x
           - name: macos-x86_64
-            os: macos-latest
+            os: macos-14-large
             python-version: 3.7.x
             system-deps: false
             package: true
