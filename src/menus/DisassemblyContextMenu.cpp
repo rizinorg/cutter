@@ -1,4 +1,5 @@
 #include "DisassemblyContextMenu.h"
+#include "common/DisassemblyPreview.h"
 #include "dialogs/preferences/PreferencesDialog.h"
 #include "dialogs/EditInstructionDialog.h"
 #include "dialogs/CommentsDialog.h"
@@ -15,6 +16,8 @@
 #include <QtCore>
 #include <QShortcut>
 #include <QJsonArray>
+#include <QDebug>
+#include <QTextEdit>
 #include <QClipboard>
 #include <QApplication>
 #include <QPushButton>
@@ -242,7 +245,7 @@ void DisassemblyContextMenu::addSetAsMenu()
 {
     setAsMenu = addMenu(tr("Set as..."));
 
-    initAction(&actionSetToCode, tr("Code"), SLOT(on_actionSetToCode_triggered()),
+    initAction(&actionSetToCode, tr("Code"), SLOT(applySetToCode()),
                getSetToCodeSequence());
     setAsMenu->addAction(&actionSetToCode);
 
@@ -262,34 +265,82 @@ void DisassemblyContextMenu::addSetAsMenu()
     addSetToDataMenu();
 }
 
+void DisassemblyContextMenu::applySetToCode() {
+    qDebug() << "Applying set to code" << "\n";
+    if (selectedLines.size() > 1) {
+        QVector<QPair<int, RVA>> offsets;
+        for (const auto &selection : selectedLines) {
+            int startPos = selection.cursor.selectionStart();
+            RVA lineOffset = DisassemblyPreview::readDisassemblyOffset(selection.cursor);
+            offsets.append(qMakePair(startPos, lineOffset));
+        }
+
+        // Sorting by start position in descending order
+        std::sort(offsets.begin(), offsets.end(), 
+            [](const QPair<int, RVA> &a, const QPair<int, RVA> &b) {
+                return a.first > b.first;
+            });
+
+            for (const auto &offset : offsets) {
+                qDebug() << "Offset:" << offset.second;
+                on_actionSetToCode_triggered(offset.second);
+            }
+    } else if (selectedLines.size() <= 1) {
+        on_actionSetToCode_triggered();
+    }
+    selectedLines.clear();
+}
+
 void DisassemblyContextMenu::addSetToDataMenu()
 {
     setToDataMenu = setAsMenu->addMenu(tr("Data..."));
 
     initAction(&actionSetToDataByte, tr("Byte"));
     setToDataMenu->addAction(&actionSetToDataByte);
-    connect(&actionSetToDataByte, &QAction::triggered, this, [this] { setToData(1); });
+    connect(&actionSetToDataByte, &QAction::triggered, this, [this] { applySetToData(1); });
 
     initAction(&actionSetToDataWord, tr("Word"));
     setToDataMenu->addAction(&actionSetToDataWord);
-    connect(&actionSetToDataWord, &QAction::triggered, this, [this] { setToData(2); });
+    connect(&actionSetToDataWord, &QAction::triggered, this, [this] { applySetToData(2); });
 
     initAction(&actionSetToDataDword, tr("Dword"));
     setToDataMenu->addAction(&actionSetToDataDword);
-    connect(&actionSetToDataDword, &QAction::triggered, this, [this] { setToData(4); });
+    connect(&actionSetToDataDword, &QAction::triggered, this, [this] { applySetToData(4); });
 
     initAction(&actionSetToDataQword, tr("Qword"));
     setToDataMenu->addAction(&actionSetToDataQword);
-    connect(&actionSetToDataQword, &QAction::triggered, this, [this] { setToData(8); });
+    connect(&actionSetToDataQword, &QAction::triggered, this, [this] { applySetToData(8); });
 
-    initAction(&actionSetToDataEx, "...", SLOT(on_actionSetToDataEx_triggered()),
-               getSetToDataExSequence());
+    initAction(&actionSetToDataEx, "...", SLOT(on_actionSetToDataEx_triggered()), getSetToDataExSequence());
     setToDataMenu->addAction(&actionSetToDataEx);
-
-    auto switchAction = new QAction(this);
-    initAction(switchAction, "Switch Data", SLOT(on_actionSetToData_triggered()),
-               getSetToDataSequence());
 }
+
+void DisassemblyContextMenu::applySetToData(int dataSize) {
+    qDebug() << "Applying set to data with size:" << dataSize << "\n";
+    if (selectedLines.size() > 1) {
+        QVector<QPair<int, RVA>> offsets;
+        for (const auto &selection : selectedLines) {
+            int startPos = selection.cursor.selectionStart();
+            RVA lineOffset = DisassemblyPreview::readDisassemblyOffset(selection.cursor);
+            offsets.append(qMakePair(startPos, lineOffset));
+        }
+
+        // Sorting by start position in descending order
+        std::sort(offsets.begin(), offsets.end(), 
+            [](const QPair<int, RVA> &a, const QPair<int, RVA> &b) {
+                return a.first > b.first;
+            });
+
+        for (const auto &offset : offsets) {
+            qDebug() << "Offset:" << offset.second;
+            setToData(offset.second, dataSize);
+        }
+    } else if (selectedLines.size() <= 1) {
+        setToData(dataSize);
+    }
+    selectedLines.clear();
+}
+
 
 void DisassemblyContextMenu::addEditMenu()
 {
@@ -363,6 +414,27 @@ QVector<DisassemblyContextMenu::ThingUsedHere> DisassemblyContextMenu::getThingU
     }
     result.push_back(th);
     return result;
+}
+
+
+void DisassemblyContextMenu::prepareMenu(const QList<QTextEdit::ExtraSelection>& selectedLines) {
+    this->clear();
+    this->selectedLines = selectedLines;
+
+    qDebug() << "Number of selected lines:" << selectedLines.size();
+    for (const auto& selection : selectedLines) {
+        int cursorPosition = selection.cursor.position();
+        int anchorPosition = selection.cursor.anchor();
+        auto offset = DisassemblyPreview::readDisassemblyOffset(selection.cursor);
+
+        qDebug() << "Cursor position:" << cursorPosition << "Anchor position:" << anchorPosition << "Offset:" << offset << "\n";
+    }
+
+    addAction(&actionCopy);
+
+    if (selectedLines.size() > 1) {
+        addSetAsMenu();
+    }
 }
 
 void DisassemblyContextMenu::setOffset(RVA offset)
@@ -964,12 +1036,27 @@ void DisassemblyContextMenu::on_actionSetToCode_triggered()
     Core()->setToCode(offset);
 }
 
+void DisassemblyContextMenu::on_actionSetToCode_triggered(RVA offset)
+{
+    Core()->setToCode(offset);
+}
+
 void DisassemblyContextMenu::on_actionSetAsString_triggered()
 {
     Core()->setAsString(offset);
 }
 
+void DisassemblyContextMenu::on_actionSetAsString_triggered(RVA offset)
+{
+    Core()->setAsString(offset);
+}
+
 void DisassemblyContextMenu::on_actionSetAsStringRemove_triggered()
+{
+    Core()->removeString(offset);
+}
+
+void DisassemblyContextMenu::on_actionSetAsStringRemove_triggered(RVA offset)
 {
     Core()->removeString(offset);
 }
@@ -1112,6 +1199,11 @@ void DisassemblyContextMenu::setBits(int bits)
 }
 
 void DisassemblyContextMenu::setToData(int size, int repeat)
+{
+    Core()->setToData(offset, size, repeat);
+}
+
+void DisassemblyContextMenu::setToData(RVA offset, int size, int repeat)
 {
     Core()->setToData(offset, size, repeat);
 }

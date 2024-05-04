@@ -464,6 +464,12 @@ void DisassemblyWidget::highlightMultiLineSelections()
 
 void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
 {
+    qDebug() << "showDisasContextMenu()" << "\n";
+    auto selectedLines = mDisasTextEdit->getMultiLineSelections();
+    if (selectedLines.size() > 1) {
+        mCtxMenu->prepareMenu(selectedLines);
+    }
+
     mCtxMenu->exec(mDisasTextEdit->mapToGlobal(pt));
 }
 
@@ -843,7 +849,7 @@ void DisassemblyTextEdit::mousePressEvent(QMouseEvent *event)
 
         // Format selection
         QTextEdit::ExtraSelection selection;
-        selection.format.setBackground(QColor("green"));
+        selection.format.setBackground(QColor("darkBlue"));
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
 
         // Move cursor to start of the line
@@ -881,6 +887,9 @@ void DisassemblyTextEdit::mousePressEvent(QMouseEvent *event)
         for (const auto &selection : multilineSelections) {
             qDebug() << "Start:" << selection.cursor.selectionStart()
                      << "End:" << selection.cursor.selectionEnd();
+            qDebug() << selection.cursor.block().text();
+            auto offset = DisassemblyPreview::readDisassemblyOffset(selection.cursor);
+            qDebug() << "Offset:" << offset << "\n";
         }
     }
 
