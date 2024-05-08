@@ -21,33 +21,6 @@ Example:
 
    Core()->getOffset();
 
-Calling a Rizin Command
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-There are multiple ways to call a Rizin command: 
-
-- ``CutterCore::cmdj(<command>)`` - To be used with json commands like ``cmdj("agj")`` or ``cmdj("aflj")``. 
-  This is the command we used to fetch structured data from Rizin.
-  
-- ``CutterCore::cmdRaw(<command>)`` - Executes a single Rizin command 
-  without going through Rizin shell functionality like output redirects, grep, and multiple command parsing.
-
-The command then returns its output. This should be used when a command doesn't have output or the output should be handled as-is. If possible, using the JSON variation with ``cmdj`` is always preferred.
-  
-- ``CutterCore::cmdRawAt(<command>, <address>)`` - Executes a single Rizin command in a given address and returns the output. This helps avoiding weird strings concatenation like ``cmd("ph " + hash + " @ " + QString::num(address))``.
-  
-- ``CutterCore::cmd()`` - *(Discouraged)* Only use it when ``cmdj`` or ``cmdRaw`` cannot be used. This is used for complex commands using concatenation of several commands (``px 5; pd 7; afl;``), for grepping (``pd 5~call``). for commands inside commands (``?e `afn.```) and so on.
-  This is also used when the output is complex and is not parsed correctly in ``cmdRaw``.
-  Make sure to carefully sanitize user-controlled variables that are passed to the command, to avoid unexpected command injections. 
-
-Generally, if one needs to retrieve information from a Rizin command, it
-is preferred to use the JSON API.
-
-Example:
-
-.. code:: cpp
-
-   CutterJson array = Core()->cmdj("pdj 1 @ main");
 
 Seek the Current File
 ~~~~~~~~~~~~~~~~~~~~~
