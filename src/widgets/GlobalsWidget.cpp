@@ -128,7 +128,7 @@ void GlobalsWidget::editGlobal()
         return;
     }
 
-    RVA globalVariableAddress = globalsModel->address(index);
+    RVA globalVariableAddress = globalsProxyModel->address(index);
 
     GlobalVariableDialog dialog(globalVariableAddress, parentWidget());
     dialog.exec();
@@ -142,7 +142,7 @@ void GlobalsWidget::deleteGlobal()
         return;
     }
 
-    RVA globalVariableAddress = globalsModel->address(index);
+    RVA globalVariableAddress = globalsProxyModel->address(index);
     Core()->delGlobalVariable(globalVariableAddress);
 }
 
