@@ -31,7 +31,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="CutterTreeView" name="treeView">
+     <widget class="AddressableItemList&lt;&gt;" name="treeView">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -46,7 +46,7 @@
 }</string>
       </property>
       <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
+       <enum>QFrame::Shape::NoFrame</enum>
       </property>
       <property name="lineWidth">
        <number>0</number>
@@ -73,7 +73,7 @@
   </widget>
   <action name="actionEditGlobal">
    <property name="text">
-	<string>Edit Global Variable</string>
+    <string>Edit Global Variable</string>
    </property>
    <property name="toolTip">
     <string>Edit Global Variable</string>
@@ -90,15 +90,15 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CutterTreeView</class>
-   <extends>QTreeView</extends>
-   <header>widgets/CutterTreeView.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>ComboQuickFilterView</class>
    <extends>QWidget</extends>
    <header>widgets/ComboQuickFilterView.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AddressableItemList&lt;&gt;</class>
+   <extends>QTreeView</extends>
+   <header>widgets/AddressableItemList.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

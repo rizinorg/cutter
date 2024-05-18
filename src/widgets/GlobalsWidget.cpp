@@ -146,20 +146,6 @@ void GlobalsWidget::deleteGlobal()
     Core()->delGlobalVariable(globalVariableAddress);
 }
 
-void GlobalsWidget::showGlobalsContextMenu(const QPoint &pt)
-{
-    QModelIndex index = ui->treeView->indexAt(pt);
-
-    QMenu menu(ui->treeView);
-
-    if (index.isValid()) {
-        menu.addAction(actionEditGlobal);
-        menu.addAction(actionDeleteGlobal);
-    }
-
-    menu.exec(ui->treeView->mapToGlobal(pt));
-}
-
 GlobalsWidget::GlobalsWidget(MainWindow *main)
     : CutterDockWidget(main), ui(new Ui::GlobalsWidget), tree(new CutterTreeWidget(this))
 {
@@ -175,6 +161,8 @@ GlobalsWidget::GlobalsWidget(MainWindow *main)
     // Set single select mode
     ui->treeView->setSelectionMode(QAbstractItemView::SingleSelection);
 
+    ui->treeView->setMainWindow(mainWindow);
+
     // Setup up the model and the proxy model
     globalsModel = new GlobalsModel(&globals, this);
     globalsProxyModel = new GlobalsProxyModel(globalsModel, this);
@@ -182,9 +170,6 @@ GlobalsWidget::GlobalsWidget(MainWindow *main)
     ui->treeView->sortByColumn(GlobalsModel::AddressColumn, Qt::AscendingOrder);
 
     // Setup custom context menu
-    connect(ui->treeView, &QWidget::customContextMenuRequested, this,
-            &GlobalsWidget::showGlobalsContextMenu);
-
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, globalsProxyModel,
@@ -206,8 +191,12 @@ GlobalsWidget::GlobalsWidget(MainWindow *main)
     actionEditGlobal = new QAction(tr("Edit Global Variable"), this);
     actionDeleteGlobal = new QAction(tr("Delete Global Variable"), this);
 
-    connect(actionEditGlobal, &QAction::triggered, [this]() { editGlobal(); });
-    connect(actionDeleteGlobal, &QAction::triggered, [this]() { deleteGlobal(); });
+    auto menu = ui->treeView->getItemContextMenu();
+    menu->addAction(actionEditGlobal);
+    menu->addAction(actionDeleteGlobal);
+
+    connect(actionEditGlobal, &QAction::triggered, this, [this]() { editGlobal(); });
+    connect(actionDeleteGlobal, &QAction::triggered, this, [this]() { deleteGlobal(); });
 
     connect(Core(), &CutterCore::globalVarsChanged, this, &GlobalsWidget::refreshGlobals);
     connect(Core(), &CutterCore::codeRebased, this, &GlobalsWidget::refreshGlobals);

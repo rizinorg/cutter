@@ -69,8 +69,6 @@ public:
 private slots:
     void refreshGlobals();
 
-    void showGlobalsContextMenu(const QPoint &pt);
-
     void editGlobal();
     void deleteGlobal();
 
