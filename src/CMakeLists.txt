@@ -618,8 +618,9 @@ endforeach()
 
 if(UNIX AND NOT APPLE)
     install(FILES "img/cutter.svg"
-        DESTINATION "share/icons/hicolor/scalable/apps/")
+        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps")
     install(FILES "re.rizin.cutter.desktop"
-        DESTINATION "share/applications"
-        COMPONENT Devel)
+        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
+    install(FILES "re.rizin.cutter.appdata.xml"
+        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/metainfo")
 endif()
