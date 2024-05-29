@@ -93,10 +93,15 @@ endif()
 find_package(${QT_PREFIX} REQUIRED COMPONENTS ${QT_COMPONENTS})
 
 if(CUTTER_ENABLE_PYTHON)
-    find_package(PythonInterp REQUIRED)
-    find_package(PythonLibs ${CUTTER_PYTHON_MIN} REQUIRED)
+    if(CMAKE_VERSION VERSION_LESS "3.12.0") 
+        find_package(PythonInterp REQUIRED)
+        find_package(PythonLibs ${CUTTER_PYTHON_MIN} REQUIRED)
+        include_directories(${PYTHON_INCLUDE_DIRS})
+    else()
+        find_package (Python3 ${CUTTER_PYTHON_MIN} REQUIRED COMPONENTS Interpreter Development)
+        set (PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
+    endif()
 
-    include_directories(${PYTHON_INCLUDE_DIRS})
     add_definitions(-DCUTTER_ENABLE_PYTHON)
 
     if(CUTTER_ENABLE_PYTHON_BINDINGS)

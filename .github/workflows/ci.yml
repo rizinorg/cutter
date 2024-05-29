@@ -29,19 +29,24 @@ jobs:
       matrix:
         name: [
             linux-x86_64,
-            linux-x86_64-system-deps,
+            #linux-x86_64-qt5,
+            #linux-x86_64-system-deps,
             linux-x86_64-qt6-system-deps,
             tarball
         ]
         include:
-          - name: linux-x86_64-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 18.04 using sytem libraries
-            image: ubuntu:18.04
-            python-version: 3.6.x
-            system-deps: true
-            package: false
-            tarball: false
-            cc-override: '/usr/bin/gcc-7'
-            cxx-override: '/usr/bin/g++-7'
+          - qt-major: 6
+            cc-override: default
+            cxx-override: default
+          #- name: linux-x86_64-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 18.04 using sytem libraries
+          #  image: ubuntu:18.04
+          #  python-version: 3.6.x
+          #  system-deps: true
+          #  package: false
+          #  tarball: false
+          #  cc-override: '/usr/bin/gcc-7'
+          #  cxx-override: '/usr/bin/g++-7'
+          #  qt-major: 5
           - name: linux-x86_64-qt6-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 22.04 using sytem libraries
             image: ubuntu:22.04
             python-version: 3.10.x
@@ -50,14 +55,19 @@ jobs:
             tarball: false
             cc-override: '/usr/bin/gcc-12'
             cxx-override: '/usr/bin/g++-12'
-          - name: linux-x86_64
-            image: ubuntu:18.04
+          #- name: linux-x86_64-qt5 # qt5 Appimage build for increased compatibility with older distros
+          #  image: ubuntu:18.04
+          #  python-version: 3.6.x
+          #  system-deps: false
+          #  package: true
+          #  tarball: false
+          #  qt-major: 5
+          - name: linux-x86_64 # main Appimage build
+            image: ubuntu:20.04
             python-version: 3.6.x
             system-deps: false
             package: true
             tarball: false
-            cc-override: default
-            cxx-override: default
           - name: tarball
             python-version: 3.6.x
             image: ubuntu:20.04
@@ -129,18 +139,25 @@ jobs:
           apt-get -y install gcc-7 \
                              libglu1-mesa-dev \
                              freeglut3-dev \
-                             mesa-common-dev
-
+                             mesa-common-dev \
+                             libclang-8-dev \
+                             llvm-8
+          ln -s /usr/bin/llvm-config-8 /usr/bin/llvm-config
         fi
         if [ "${{ matrix.image }}" = "ubuntu:18.04" ] || [ "${{ matrix.image }}" = "ubuntu:20.04" ]; then
           # install additional packages needed for appimage
           apt-get -y install libxcb1-dev \
                              libxkbcommon-dev \
                              libxcb-*-dev \
-                             libegl1 \
-                             libclang-8-dev \
-                             llvm-8
-          ln -s /usr/bin/llvm-config-8 /usr/bin/llvm-config
+                             libegl1
+        fi
+        if [ "${{ matrix.image }}" = "ubuntu:20.04" ] && [ "${{ matrix.system-deps }}" = "false" ]; then
+          # install additional packages needed for appimage
+          apt-get -y install libclang-12-dev \
+                             llvm-12 \
+                             libsm6 \
+                             libwayland-dev  \
+                             libgl1-mesa-dev
         fi
         if [ "${{ matrix.image }}" = "ubuntu:18.04" ] && [ "${{ matrix.system-deps }}" = "true" ]; then
           apt-get -y install qt5-default \
@@ -184,9 +201,8 @@ jobs:
       run: |
         if [ "${{ matrix.system-deps }}" = "false" ]
         then
-          scripts/fetch_deps.sh
+          CUTTER_QT="${{ matrix.qt-major }}" scripts/fetch_deps.sh
           . cutter-deps/env.sh
-          export PKG_CONFIG_PATH="$CUTTER_DEPS_PYTHON_PREFIX/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
           export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
         fi
         set -e #TODO: move to top once cutter-deps doesn't fail
@@ -200,13 +216,15 @@ jobs:
         cd build
         if [ "${{ matrix.system-deps }}" = "false" ]
         then
+          locale
+          locale -a
+          export LANG="C.UTF-8"
+          export LC_ALL="C.UTF-8"
           cmake \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCUTTER_ENABLE_PYTHON=ON \
-            -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.9.so" \
-            -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.9" \
-            -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
+            -DPython3_ROOT_DIR="$CUTTER_DEPS_PYTHON_PREFIX" \
             -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
             -DCUTTER_ENABLE_GRAPHVIZ=ON \
             -DCUTTER_USE_BUNDLED_RIZIN=ON \
@@ -222,6 +240,7 @@ jobs:
             -DCUTTER_PACKAGE_RZ_SILHOUETTE=ON \
             -DCMAKE_INSTALL_PREFIX=appdir/usr \
             -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
+            -DCUTTER_QT6=${{ matrix.qt-major == '6' && 'ON' || 'OFF' }} \
             ..
         elif [ "${{ matrix.image }}" = "ubuntu:22.04" ]
         then
@@ -244,21 +263,35 @@ jobs:
           export CUTTER_VERSION=$(python ../scripts/get_version.py)
           export VERSION=$CUTTER_VERSION
           ninja install
-          "../scripts/appimage_embed_python.sh" appdir
+          "../scripts/appimage_embed_python.sh" appdir ${{ matrix.qt-major == '6' && '6' || '2' }}
           APP_PREFIX=`pwd`/appdir/usr
           export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$APP_PREFIX/lib/rizin/plugins"
           export PATH=$PATH:${APP_PREFIX}/bin
           wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x linuxdeployqt*.AppImage
           rm -fv "../cutter-deps/qt/plugins/imageformats/libqjp2.so"
-          ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop \
-            -executable=./appdir/usr/bin/python3 \
-            -appimage \
-            -no-strip -exclude-libs=libnss3.so,libnssutil3.so,libqjp2.so \
-            -ignore-glob=usr/lib/python3.9/**/* \
-            -verbose=2
-          find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
-          export APPIMAGE_FILE="Cutter-${PACKAGE_ID}-Linux-x86_64.AppImage"
+          if [ "${{ matrix.qt-major }}" == "5" ]; then
+            export APPIMAGE_FILE="Cutter-${PACKAGE_ID}-Linux-Qt5-x86_64.AppImage"
+            ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop \
+              -executable=./appdir/usr/bin/python3 \
+              -appimage \
+              -no-strip -exclude-libs=libnss3.so,libnssutil3.so,libqjp2.so \
+              -ignore-glob=usr/lib/python3.12/**/* \
+              -verbose=2
+          else
+            export APPIMAGE_FILE="Cutter-${PACKAGE_ID}-Linux-x86_64.AppImage"
+            ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop \
+              -executable=./appdir/usr/bin/python3 \
+              -appimage \
+              -no-strip -exclude-libs=libnss3.so,libnssutil3.so,libqjp2.so \
+              -exclude-libs="libwayland-client.so,libwayland-egl.so,libwayland-cursor.so" \
+              -ignore-glob=usr/lib/python3.12/**/* \
+              -extra-plugins="platforms/libqwayland-egl.so,platforms/libqwayland-generic.so,wayland-decoration-client,wayland-graphics-integration-client,wayland-shell-integration,wayland-graphics-integration-server" \
+              -verbose=2
+          fi
+          find ./appdir -executable -type f -exec ldd {} \; | cut -d " " -f 2-3 | sort | uniq
+          # find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
+          
           mv Cutter-*-x86_64.AppImage "$APPIMAGE_FILE"
           echo PACKAGE_NAME=$APPIMAGE_FILE >> $GITHUB_ENV
           echo PACKAGE_PATH=build/$APPIMAGE_FILE >> $GITHUB_ENV
@@ -293,6 +326,85 @@ jobs:
           asset_path: ${{ env.PACKAGE_PATH }}
           asset_name: ${{ env.PACKAGE_NAME }}
           asset_content_type: ${{ env.UPLOAD_ASSET_TYPE }}
+  build-linux-old:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        name: [
+            linux-x86_64-qt5,
+            linux-x86_64-system-deps,
+        ]
+        include:
+          - qt-major: 6
+            cc-override: default
+            cxx-override: default
+          - name: linux-x86_64-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 18.04 using sytem libraries
+            image: ubuntu:18.04
+            python-version: 3.6.x
+            system-deps: true
+            package: false
+            cc-override: '/usr/bin/gcc-7'
+            cxx-override: '/usr/bin/g++-7'
+            qt-major: 5
+          - name: linux-x86_64-qt5 # qt5 Appimage build for increased compatibility with older distros
+            image: ubuntu:18.04
+            python-version: 3.6.x
+            system-deps: false
+            package: true
+            qt-major: 5
+      # Prevent one job from pausing the rest
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+        persist-credentials: false
+    - name: Prepare package id
+      shell: bash
+      run: |
+        if [ "${{ startsWith(github.event.ref, 'refs/tags')}}" = "true" ]
+        then
+          PACKAGE_ID="${{ github.event.ref }}"
+        else
+          PACKAGE_ID="git-`date "+%Y-%m-%d"`-${{ format('{0}', github.sha) }}"
+        fi
+        PACKAGE_ID=${PACKAGE_ID##refs/tags/}
+        echo PACKAGE_ID=$PACKAGE_ID >> $GITHUB_ENV
+        ls -alh
+        who
+
+    - name: build linux
+      id: build
+      uses: ./.github/actions/build-linux-old
+      with:
+        system-deps: ${{ matrix.system-deps }}
+        image: ${{ matrix.image }}
+        qt-major: ${{ matrix.qt-major }}
+        package: ${{ matrix.package }}
+
+    - uses: actions/upload-artifact@v3
+      if: env.PACKAGE_NAME != null
+      with:
+        name: ${{ steps.build.outputs.PACKAGE_NAME }}
+        path: ${{ steps.build.outputs.PACKAGE_PATH }}
+    - name: Get release
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+      id: get_release
+      uses: rizinorg/gha-get-release@c8074dd5d13ddd0a194d8c9205a1466973c7dc0d
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload release assets
+      if: steps.get_release.outputs.upload_url != null && env.PACKAGE_NAME != null
+      uses: actions/upload-release-asset@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ${{ env.PACKAGE_PATH }}
+          asset_name: ${{ env.PACKAGE_NAME }}
+          asset_content_type: ${{ env.UPLOAD_ASSET_TYPE }}
+
 
   build:
     name: ${{ matrix.name }}
@@ -301,21 +413,24 @@ jobs:
       matrix:
         name: [
             macos-x86_64,
+            macos-arm64,
             windows-x86_64,
         ]
         include:
+          - python-version: 3.12.x
+          - system-deps: false
           - name: windows-x86_64
             os: windows-2019
             package: true
-            system-deps: false
-            python-version: 3.7.x
+            python-version: 3.12.x
           - name: macos-x86_64
-            os: macos-14-large
-            python-version: 3.7.x
-            system-deps: false
+            os: macos-12
+            arch: x86_64
             package: true
-            cc-override: default
-            cxx-override: default
+          - name: macos-arm64
+            os: macos-14
+            arch: arm64
+            package: true
       # Prevent one job from pausing the rest
       fail-fast: false
     steps:
@@ -334,8 +449,9 @@ jobs:
         brew bundle
     - name: py dependencies
       run: |
-        python3 -m pip install -U pip==21.3.1
-        pip install meson==0.61.5 # https://github.com/rizinorg/cutter/runs/7170222817?check_suite_focus=true
+        #python3 -m pip install -U pip==21.3.1
+        pip install meson # ==0.61.5 # https://github.com/rizinorg/cutter/runs/7170222817?check_suite_focus=true
+        pip install setuptools
     - name: Prepare package id
       shell: bash
       run: |
@@ -351,19 +467,18 @@ jobs:
       shell: bash
       if: contains(matrix.os, 'macos')
       run: |
-        export MACOSX_DEPLOYMENT_TARGET=10.14
+        export MACOSX_DEPLOYMENT_TARGET=10.15
         scripts/fetch_deps.sh
         source cutter-deps/env.sh
         set -euo pipefail
         export PATH=/usr/local/opt/llvm/bin:$PATH
         mkdir build
         cd build
-        PACKAGE_NAME=Cutter-${PACKAGE_ID}-macOS-x86_64
+        PACKAGE_NAME=Cutter-${PACKAGE_ID}-macOS-${{ matrix.arch }}
         cmake \
                 -DCMAKE_BUILD_TYPE=Release \
-                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.9.dylib" \
-                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.9" \
-                -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
+                -DPython3_ROOT_DIR="${CUTTER_DEPS_PYTHON_PREFIX}" \
+                -DPython_ROOT_DIR="${CUTTER_DEPS_PYTHON_PREFIX}" \
                 -DCUTTER_ENABLE_PYTHON=ON \
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
                 -DCUTTER_USE_BUNDLED_RIZIN=ON \
@@ -376,6 +491,7 @@ jobs:
                 -DCUTTER_PACKAGE_RZ_LIBSWIFT=ON \
                 -DCUTTER_PACKAGE_RZ_LIBYARA=ON \
                 -DCUTTER_PACKAGE_RZ_SILHOUETTE=ON \
+                -DCUTTER_QT6=ON \
                 -DCPACK_PACKAGE_FILE_NAME="$PACKAGE_NAME" \
                 -DCPACK_BUNDLE_APPLE_CERT_APP="-" \
                 .. && \
@@ -420,6 +536,7 @@ jobs:
           -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON ^
           -DCMAKE_PREFIX_PATH="%CUTTER_DEPS%\pyside" ^
           -DCPACK_PACKAGE_FILE_NAME=%PACKAGE_NAME% ^
+          -DCUTTER_QT6=ON ^
           -G Ninja ^
           ..
         cmake --build . --config Release

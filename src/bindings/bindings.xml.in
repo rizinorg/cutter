@@ -31,9 +31,19 @@
         PyErr_Print();
         return QString();
         }
-        PythonToCppFunc pythonToCpp = Shiboken::Conversions::isPythonToCppConvertible(Sbk${PYSIDE_NAME}_QtCoreTypeConverters[SBK_QSTRING_IDX], pyResult);
+        /*PythonToCppFunc pythonToCpp = Shiboken::Conversions::isPythonToCppConvertible(Sbk${PYSIDE_NAME}_QtCoreTypeConverters[SBK_QSTRING_IDX], pyResult);
         if (!pythonToCpp) {
-        Shiboken::warning(PyExc_RuntimeWarning, 2, "Invalid return value for plugin metadata VAR_NAME, expected %s, got %s.", "QString", Py_TYPE(pyResult)->tp_name);
+        Shiboken::warning(PyExc_RuntimeWarning, 2, "Invalid return value for plugin metadata VAR_NAME, expected str or %s, got %s.", "QString", Py_TYPE(pyResult)->tp_name);
+        return ::QString();
+        }*/
+        auto converter = Shiboken::Conversions::getConverter("str");
+        if (!converter) {
+            Shiboken::warning(PyExc_RuntimeWarning, 0, "Can't find converter for str.");
+            return ::QString();
+        }
+        PythonToCppFunc pythonToCpp = Shiboken::Conversions::isPythonToCppConvertible(converter, pyResult);
+        if (!pythonToCpp) {
+        Shiboken::warning(PyExc_RuntimeWarning, 1, "Invalid return value for plugin metadata VAR_NAME, expected str, got %s.", Py_TYPE(pyResult)->tp_name);
         return ::QString();
         }
         QString cppResult;
