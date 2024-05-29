@@ -1,6 +1,8 @@
 [Desktop Entry]
 Type=Application
 Name=Cutter
+GenericName=Reverse Engineering Platform
+Comment=Reverse Engineering Platform powered by rizin
 Exec=cutter
 Icon=cutter
 Categories=Development;
