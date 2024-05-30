@@ -331,3 +331,8 @@ void SearchWidget::enableSearch()
     ui->searchButton->setEnabled(true);
     ui->searchButton->setText(tr("Search"));
 }
+
+QString SearchWidget::getWindowTitle() const
+{
+    return tr("Search");
+}

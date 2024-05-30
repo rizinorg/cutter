@@ -45,17 +45,17 @@ void VersionInfoDialog::fillVersionInfo()
 
         // Left tree
         QTreeWidgetItem *addrItemL = new QTreeWidgetItem();
-        addrItemL->setText(0, "Address:");
+        addrItemL->setText(0, tr("Address:"));
         addrItemL->setText(1, RzAddressString(sdb_num_get(sdb, "addr", 0)));
         ui->leftTreeWidget->addTopLevelItem(addrItemL);
 
         QTreeWidgetItem *offItemL = new QTreeWidgetItem();
-        offItemL->setText(0, "Offset:");
+        offItemL->setText(0, tr("Offset:"));
         offItemL->setText(1, RzAddressString(sdb_num_get(sdb, "offset", 0)));
         ui->leftTreeWidget->addTopLevelItem(offItemL);
 
         QTreeWidgetItem *entriesItemL = new QTreeWidgetItem();
-        entriesItemL->setText(0, "Entries:");
+        entriesItemL->setText(0, tr("Entries:"));
         const ut64 num_entries = sdb_num_get(sdb, "num_entries", 0);
         for (size_t i = 0; i < num_entries; ++i) {
             auto key = QString("entry%0").arg(i);
@@ -76,17 +76,17 @@ void VersionInfoDialog::fillVersionInfo()
 
         // Right tree
         QTreeWidgetItem *addrItemR = new QTreeWidgetItem();
-        addrItemR->setText(0, "Address:");
+        addrItemR->setText(0, tr("Address:"));
         addrItemR->setText(1, RzAddressString(sdb_num_get(sdb, "addr", 0)));
         ui->rightTreeWidget->addTopLevelItem(addrItemR);
 
         QTreeWidgetItem *offItemR = new QTreeWidgetItem();
-        offItemR->setText(0, "Offset:");
+        offItemR->setText(0, tr("Offset:"));
         offItemR->setText(1, RzAddressString(sdb_num_get(sdb, "offset", 0)));
         ui->rightTreeWidget->addTopLevelItem(offItemR);
 
         QTreeWidgetItem *entriesItemR = new QTreeWidgetItem();
-        entriesItemR->setText(0, "Entries:");
+        entriesItemR->setText(0, tr("Entries:"));
         for (size_t num_version = 0;; num_version++) {
             auto path_version =
                     QString("bin/cur/info/versioninfo/verneed/version%0").arg(num_version);

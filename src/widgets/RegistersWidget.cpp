@@ -116,3 +116,9 @@ void RegistersWidget::openContextMenu(QPoint point, QString address)
     addressContextMenu.setTarget(address.toULongLong(nullptr, 16));
     addressContextMenu.exec(point);
 }
+
+
+QString RegistersWidget::getWindowTitle() const
+{
+    return tr("Registers");
+}

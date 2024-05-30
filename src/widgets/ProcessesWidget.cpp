@@ -191,3 +191,8 @@ bool ProcessesFilterModel::filterAcceptsRow(int row, const QModelIndex &parent) 
 
     return false;
 }
+
+QString ProcessesWidget::getWindowTitle() const
+{
+    return tr("Processes");
+}

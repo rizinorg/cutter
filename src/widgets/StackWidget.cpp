@@ -255,3 +255,8 @@ Qt::ItemFlags StackModel::flags(const QModelIndex &index) const
         return QAbstractTableModel::flags(index);
     }
 }
+
+QString StackWidget::getWindowTitle() const
+{
+    return tr("Stack");
+}

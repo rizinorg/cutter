@@ -35,6 +35,7 @@ private:
     void setPlainText(QLineEdit *textBox, const QString &text);
     void setRzBinInfo(const RzBinInfo *binInfo);
     const char *setBoolText(bool value);
+    QString getWindowTitle() const override;
 
     QWidget *hashesWidget = nullptr;
 };
