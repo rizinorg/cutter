@@ -8,6 +8,8 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QTreeWidget>
+#include <QContextMenuEvent>
+#include <QClipboard>
 
 VersionInfoDialog::VersionInfoDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::VersionInfoDialog), core(Core())
@@ -17,9 +19,86 @@ VersionInfoDialog::VersionInfoDialog(QWidget *parent)
 
     // Get version information
     fillVersionInfo();
+
+    // Setup context menu and actions
+    copyActionLeftTreewidget = new QAction(tr("Copy"), this);
+    copyActionLeftTreewidget->setIcon(QIcon(":/img/icons/copy.svg"));
+    copyActionLeftTreewidget->setShortcut(QKeySequence::StandardKey::Copy);
+    copyActionLeftTreewidget->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+
+    copyActionRightTreewidget = new QAction(tr("Copy"), this);
+    copyActionRightTreewidget->setIcon(QIcon(":/img/icons/copy.svg"));
+    copyActionRightTreewidget->setShortcut(QKeySequence::StandardKey::Copy);
+    copyActionRightTreewidget->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+
+    selAllActionLeftTreewidget = new QAction(tr("Select All"), this);
+    selAllActionLeftTreewidget->setShortcut(QKeySequence::StandardKey::SelectAll);
+    selAllActionLeftTreewidget->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+
+    selAllActionRightTreewidget = new QAction(tr("Select All"), this);
+    selAllActionRightTreewidget->setShortcut(QKeySequence::StandardKey::SelectAll);
+    selAllActionRightTreewidget->setShortcutContext(
+            Qt::ShortcutContext::WidgetWithChildrenShortcut);
+
+    // Connect Copy actions
+    connect(copyActionLeftTreewidget, &QAction::triggered, this,
+            [this]() { CopyTreeWidgetSelection(ui->leftTreeWidget); });
+
+    connect(copyActionRightTreewidget, &QAction::triggered, this,
+            [this]() { CopyTreeWidgetSelection(ui->rightTreeWidget); });
+
+    // Connect select sll actions
+    connect(selAllActionLeftTreewidget, &QAction::triggered, this,
+            [this]() { ui->leftTreeWidget->selectAll(); });
+
+    connect(selAllActionRightTreewidget, &QAction::triggered, this,
+            [this]() { ui->rightTreeWidget->selectAll(); });
+
+    // Connect selection handles
+    connect(ui->leftTreeWidget->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+            [this]() { ui->rightTreeWidget->clearSelection(); });
+    connect(ui->rightTreeWidget->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+            [this]() { ui->leftTreeWidget->clearSelection(); });
+    connect(this, &VersionInfoDialog::finished, this, &VersionInfoDialog::clearSelectionOnClose);
+
+    // Add actions to context menu
+    ui->leftTreeWidget->addAction(copyActionLeftTreewidget);
+    ui->leftTreeWidget->addAction(selAllActionLeftTreewidget);
+
+    ui->rightTreeWidget->addAction(copyActionRightTreewidget);
+    ui->rightTreeWidget->addAction(selAllActionRightTreewidget);
 }
 
 VersionInfoDialog::~VersionInfoDialog() {}
+
+void VersionInfoDialog::clearSelectionOnClose()
+{
+    ui->leftTreeWidget->clearSelection();
+    ui->rightTreeWidget->clearSelection();
+
+    // remove default "current" item selection after dialog close
+    QModelIndex defaultIndex;
+    ui->leftTreeWidget->setCurrentIndex(defaultIndex);
+    ui->rightTreeWidget->setCurrentIndex(defaultIndex);
+}
+
+void VersionInfoDialog::CopyTreeWidgetSelection(QTreeWidget *t)
+{
+    QString vinfo, row;
+
+    QTreeWidgetItemIterator it(t);
+
+    while (*it) {
+        if ((*it)->isSelected()) {
+            row = (*it)->text(KeyColumn) + " " + (*it)->text(ValueColumn) + "\n";
+            vinfo.append(row);
+        }
+        it++;
+    }
+
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(vinfo.trimmed());
+}
 
 void VersionInfoDialog::fillVersionInfo()
 {
@@ -45,17 +124,17 @@ void VersionInfoDialog::fillVersionInfo()
 
         // Left tree
         QTreeWidgetItem *addrItemL = new QTreeWidgetItem();
-        addrItemL->setText(0, "Address:");
-        addrItemL->setText(1, RzAddressString(sdb_num_get(sdb, "addr", 0)));
+        addrItemL->setText(KeyColumn, "Address:");
+        addrItemL->setText(ValueColumn, RzAddressString(sdb_num_get(sdb, "addr", 0)));
         ui->leftTreeWidget->addTopLevelItem(addrItemL);
 
         QTreeWidgetItem *offItemL = new QTreeWidgetItem();
-        offItemL->setText(0, "Offset:");
-        offItemL->setText(1, RzAddressString(sdb_num_get(sdb, "offset", 0)));
+        offItemL->setText(KeyColumn, "Offset:");
+        offItemL->setText(ValueColumn, RzAddressString(sdb_num_get(sdb, "offset", 0)));
         ui->leftTreeWidget->addTopLevelItem(offItemL);
 
         QTreeWidgetItem *entriesItemL = new QTreeWidgetItem();
-        entriesItemL->setText(0, "Entries:");
+        entriesItemL->setText(KeyColumn, "Entries:");
         const ut64 num_entries = sdb_num_get(sdb, "num_entries", 0);
         for (size_t i = 0; i < num_entries; ++i) {
             auto key = QString("entry%0").arg(i);
@@ -64,8 +143,8 @@ void VersionInfoDialog::fillVersionInfo()
                 continue;
             }
             auto item = new QTreeWidgetItem();
-            item->setText(0, RzAddressString(i));
-            item->setText(1, value);
+            item->setText(KeyColumn, RzAddressString(i));
+            item->setText(ValueColumn, value);
             entriesItemL->addChild(item);
         }
         ui->leftTreeWidget->addTopLevelItem(entriesItemL);
@@ -76,17 +155,17 @@ void VersionInfoDialog::fillVersionInfo()
 
         // Right tree
         QTreeWidgetItem *addrItemR = new QTreeWidgetItem();
-        addrItemR->setText(0, "Address:");
-        addrItemR->setText(1, RzAddressString(sdb_num_get(sdb, "addr", 0)));
+        addrItemR->setText(KeyColumn, "Address:");
+        addrItemR->setText(ValueColumn, RzAddressString(sdb_num_get(sdb, "addr", 0)));
         ui->rightTreeWidget->addTopLevelItem(addrItemR);
 
         QTreeWidgetItem *offItemR = new QTreeWidgetItem();
-        offItemR->setText(0, "Offset:");
-        offItemR->setText(1, RzAddressString(sdb_num_get(sdb, "offset", 0)));
+        offItemR->setText(KeyColumn, "Offset:");
+        offItemR->setText(ValueColumn, RzAddressString(sdb_num_get(sdb, "offset", 0)));
         ui->rightTreeWidget->addTopLevelItem(offItemR);
 
         QTreeWidgetItem *entriesItemR = new QTreeWidgetItem();
-        entriesItemR->setText(0, "Entries:");
+        entriesItemR->setText(KeyColumn, "Entries:");
         for (size_t num_version = 0;; num_version++) {
             auto path_version =
                     QString("bin/cur/info/versioninfo/verneed/version%0").arg(num_version);
@@ -96,8 +175,8 @@ void VersionInfoDialog::fillVersionInfo()
             }
             const char *filename = sdb_const_get(sdb, "file_name", 0);
             auto *parentItem = new QTreeWidgetItem();
-            parentItem->setText(0, RzAddressString(sdb_num_get(sdb, "idx", 0)));
-            parentItem->setText(1,
+            parentItem->setText(KeyColumn, RzAddressString(sdb_num_get(sdb, "idx", 0)));
+            parentItem->setText(ValueColumn,
                                 QString("Version: %0\t"
                                         "File: %1")
                                         .arg(QString::number(sdb_num_get(sdb, "vn_version", 0)),
@@ -113,14 +192,14 @@ void VersionInfoDialog::fillVersionInfo()
                 }
 
                 auto *childItem = new QTreeWidgetItem();
-                childItem->setText(0, RzAddressString(sdb_num_get(sdb, "idx", 0)));
+                childItem->setText(KeyColumn, RzAddressString(sdb_num_get(sdb, "idx", 0)));
                 QString childString =
                         QString("Name: %0\t"
                                 "Flags: %1\t"
                                 "Version: %2\t")
                                 .arg(sdb_const_get(sdb, "name", 0), sdb_const_get(sdb, "flags", 0),
                                      QString::number(sdb_num_get(sdb, "version", 0)));
-                childItem->setText(1, childString);
+                childItem->setText(ValueColumn, childString);
                 parentItem->addChild(childItem);
             }
             entriesItemR->addChild(parentItem);
@@ -160,48 +239,48 @@ void VersionInfoDialog::fillVersionInfo()
                                        .arg(product_version_ls & 0xFFFF);
 
         auto item = new QTreeWidgetItem();
-        item->setText(0, "Signature");
-        item->setText(1, RzHexString(sdb_num_get(sdb, "Signature", 0)));
+        item->setText(KeyColumn, "Signature");
+        item->setText(ValueColumn, RzHexString(sdb_num_get(sdb, "Signature", 0)));
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
-        item->setText(0, "StrucVersion");
-        item->setText(1, RzHexString(sdb_num_get(sdb, "StrucVersion", 0)));
+        item->setText(KeyColumn, "StrucVersion");
+        item->setText(ValueColumn, RzHexString(sdb_num_get(sdb, "StrucVersion", 0)));
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
-        item->setText(0, "FileVersion");
-        item->setText(1, file_version);
+        item->setText(KeyColumn, "FileVersion");
+        item->setText(ValueColumn, file_version);
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
-        item->setText(0, "ProductVersion");
-        item->setText(1, product_version);
+        item->setText(KeyColumn, "ProductVersion");
+        item->setText(ValueColumn, product_version);
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
-        item->setText(0, "FileFlagsMask");
-        item->setText(1, RzHexString(sdb_num_get(sdb, "FileFlagsMask", 0)));
+        item->setText(KeyColumn, "FileFlagsMask");
+        item->setText(ValueColumn, RzHexString(sdb_num_get(sdb, "FileFlagsMask", 0)));
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
-        item->setText(0, "FileFlags");
-        item->setText(1, RzHexString(sdb_num_get(sdb, "FileFlags", 0)));
+        item->setText(KeyColumn, "FileFlags");
+        item->setText(ValueColumn, RzHexString(sdb_num_get(sdb, "FileFlags", 0)));
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
-        item->setText(0, "FileOS");
-        item->setText(1, RzHexString(sdb_num_get(sdb, "FileOS", 0)));
+        item->setText(KeyColumn, "FileOS");
+        item->setText(ValueColumn, RzHexString(sdb_num_get(sdb, "FileOS", 0)));
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
-        item->setText(0, "FileType");
-        item->setText(1, RzHexString(sdb_num_get(sdb, "FileType", 0)));
+        item->setText(KeyColumn, "FileType");
+        item->setText(ValueColumn, RzHexString(sdb_num_get(sdb, "FileType", 0)));
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
-        item->setText(0, "FileSubType");
-        item->setText(1, RzHexString(sdb_num_get(sdb, "FileSubType", 0)));
+        item->setText(KeyColumn, "FileSubType");
+        item->setText(ValueColumn, RzHexString(sdb_num_get(sdb, "FileSubType", 0)));
         ui->leftTreeWidget->addTopLevelItem(item);
 
         // Adjust columns to content
@@ -227,8 +306,10 @@ void VersionInfoDialog::fillVersionInfo()
                 ut8 *key_utf16 = sdb_decode(sdb_const_get(sdb, "key", 0), &lenkey);
                 ut8 *val_utf16 = sdb_decode(sdb_const_get(sdb, "value", 0), &lenval);
                 item = new QTreeWidgetItem();
-                item->setText(0, QString::fromUtf16(reinterpret_cast<const ushort *>(key_utf16)));
-                item->setText(1, QString::fromUtf16(reinterpret_cast<const ushort *>(val_utf16)));
+                item->setText(KeyColumn,
+                              QString::fromUtf16(reinterpret_cast<const ushort *>(key_utf16)));
+                item->setText(ValueColumn,
+                              QString::fromUtf16(reinterpret_cast<const ushort *>(val_utf16)));
                 ui->rightTreeWidget->addTopLevelItem(item);
                 free(key_utf16);
                 free(val_utf16);
