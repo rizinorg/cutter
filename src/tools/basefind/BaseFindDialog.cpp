@@ -12,7 +12,7 @@ BaseFindDialog::BaseFindDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Ba
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
     // Fill in N-thread Combo
-    size_t n_cores = rz_th_physical_core_number();
+    RzThreadNCores n_cores = rz_th_physical_core_number();
     ui->nCoresCombo->clear();
     for (size_t i = n_cores; i > 0; i--) {
         if (n_cores == i) {
@@ -36,10 +36,10 @@ BaseFindDialog::BaseFindDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Ba
 
 BaseFindDialog::~BaseFindDialog() {}
 
-size_t BaseFindDialog::getNCores() const
+RzThreadNCores BaseFindDialog::getNCores() const
 {
-    size_t n_cores = rz_th_physical_core_number();
-    return n_cores - ui->nCoresCombo->currentIndex();
+    RzThreadNCores n_cores = rz_th_physical_core_number();
+    return static_cast<RzThreadNCores>(n_cores - ui->nCoresCombo->currentIndex());
 }
 
 ut32 BaseFindDialog::getPointerSize() const

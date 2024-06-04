@@ -46,20 +46,20 @@ void VersionInfoDialog::fillVersionInfo()
         // Left tree
         QTreeWidgetItem *addrItemL = new QTreeWidgetItem();
         addrItemL->setText(0, "Address:");
-        addrItemL->setText(1, RzAddressString(sdb_num_get(sdb, "addr", 0)));
+        addrItemL->setText(1, RzAddressString(sdb_num_get(sdb, "addr")));
         ui->leftTreeWidget->addTopLevelItem(addrItemL);
 
         QTreeWidgetItem *offItemL = new QTreeWidgetItem();
         offItemL->setText(0, "Offset:");
-        offItemL->setText(1, RzAddressString(sdb_num_get(sdb, "offset", 0)));
+        offItemL->setText(1, RzAddressString(sdb_num_get(sdb, "offset")));
         ui->leftTreeWidget->addTopLevelItem(offItemL);
 
         QTreeWidgetItem *entriesItemL = new QTreeWidgetItem();
         entriesItemL->setText(0, "Entries:");
-        const ut64 num_entries = sdb_num_get(sdb, "num_entries", 0);
+        const ut64 num_entries = sdb_num_get(sdb, "num_entries");
         for (size_t i = 0; i < num_entries; ++i) {
             auto key = QString("entry%0").arg(i);
-            const char *const value = sdb_const_get(sdb, key.toStdString().c_str(), 0);
+            const char *const value = sdb_const_get(sdb, key.toStdString().c_str());
             if (!value) {
                 continue;
             }
@@ -77,12 +77,12 @@ void VersionInfoDialog::fillVersionInfo()
         // Right tree
         QTreeWidgetItem *addrItemR = new QTreeWidgetItem();
         addrItemR->setText(0, "Address:");
-        addrItemR->setText(1, RzAddressString(sdb_num_get(sdb, "addr", 0)));
+        addrItemR->setText(1, RzAddressString(sdb_num_get(sdb, "addr")));
         ui->rightTreeWidget->addTopLevelItem(addrItemR);
 
         QTreeWidgetItem *offItemR = new QTreeWidgetItem();
         offItemR->setText(0, "Offset:");
-        offItemR->setText(1, RzAddressString(sdb_num_get(sdb, "offset", 0)));
+        offItemR->setText(1, RzAddressString(sdb_num_get(sdb, "offset")));
         ui->rightTreeWidget->addTopLevelItem(offItemR);
 
         QTreeWidgetItem *entriesItemR = new QTreeWidgetItem();
@@ -94,13 +94,13 @@ void VersionInfoDialog::fillVersionInfo()
             if (!sdb) {
                 break;
             }
-            const char *filename = sdb_const_get(sdb, "file_name", 0);
+            const char *filename = sdb_const_get(sdb, "file_name");
             auto *parentItem = new QTreeWidgetItem();
-            parentItem->setText(0, RzAddressString(sdb_num_get(sdb, "idx", 0)));
+            parentItem->setText(0, RzAddressString(sdb_num_get(sdb, "idx")));
             parentItem->setText(1,
                                 QString("Version: %0\t"
                                         "File: %1")
-                                        .arg(QString::number(sdb_num_get(sdb, "vn_version", 0)),
+                                        .arg(QString::number(sdb_num_get(sdb, "vn_version")),
                                              QString(filename)));
 
             int num_vernaux = 0;
@@ -113,13 +113,13 @@ void VersionInfoDialog::fillVersionInfo()
                 }
 
                 auto *childItem = new QTreeWidgetItem();
-                childItem->setText(0, RzAddressString(sdb_num_get(sdb, "idx", 0)));
+                childItem->setText(0, RzAddressString(sdb_num_get(sdb, "idx")));
                 QString childString =
                         QString("Name: %0\t"
                                 "Flags: %1\t"
                                 "Version: %2\t")
-                                .arg(sdb_const_get(sdb, "name", 0), sdb_const_get(sdb, "flags", 0),
-                                     QString::number(sdb_num_get(sdb, "version", 0)));
+                                .arg(sdb_const_get(sdb, "name"), sdb_const_get(sdb, "flags"),
+                                     QString::number(sdb_num_get(sdb, "version")));
                 childItem->setText(1, childString);
                 parentItem->addChild(childItem);
             }
@@ -144,15 +144,15 @@ void VersionInfoDialog::fillVersionInfo()
         if (!sdb) {
             return;
         }
-        ut32 file_version_ms = sdb_num_get(sdb, "FileVersionMS", 0);
-        ut32 file_version_ls = sdb_num_get(sdb, "FileVersionLS", 0);
+        ut32 file_version_ms = sdb_num_get(sdb, "FileVersionMS");
+        ut32 file_version_ls = sdb_num_get(sdb, "FileVersionLS");
         auto file_version = QString("%0.%1.%2.%3")
                                     .arg(file_version_ms >> 16)
                                     .arg(file_version_ms & 0xFFFF)
                                     .arg(file_version_ls >> 16)
                                     .arg(file_version_ls & 0xFFFF);
-        ut32 product_version_ms = sdb_num_get(sdb, "ProductVersionMS", 0);
-        ut32 product_version_ls = sdb_num_get(sdb, "ProductVersionLS", 0);
+        ut32 product_version_ms = sdb_num_get(sdb, "ProductVersionMS");
+        ut32 product_version_ls = sdb_num_get(sdb, "ProductVersionLS");
         auto product_version = QString("%0.%1.%2.%3")
                                        .arg(product_version_ms >> 16)
                                        .arg(product_version_ms & 0xFFFF)
@@ -161,12 +161,12 @@ void VersionInfoDialog::fillVersionInfo()
 
         auto item = new QTreeWidgetItem();
         item->setText(0, "Signature");
-        item->setText(1, RzHexString(sdb_num_get(sdb, "Signature", 0)));
+        item->setText(1, RzHexString(sdb_num_get(sdb, "Signature")));
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
         item->setText(0, "StrucVersion");
-        item->setText(1, RzHexString(sdb_num_get(sdb, "StrucVersion", 0)));
+        item->setText(1, RzHexString(sdb_num_get(sdb, "StrucVersion")));
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
@@ -181,27 +181,27 @@ void VersionInfoDialog::fillVersionInfo()
 
         item = new QTreeWidgetItem();
         item->setText(0, "FileFlagsMask");
-        item->setText(1, RzHexString(sdb_num_get(sdb, "FileFlagsMask", 0)));
+        item->setText(1, RzHexString(sdb_num_get(sdb, "FileFlagsMask")));
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
         item->setText(0, "FileFlags");
-        item->setText(1, RzHexString(sdb_num_get(sdb, "FileFlags", 0)));
+        item->setText(1, RzHexString(sdb_num_get(sdb, "FileFlags")));
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
         item->setText(0, "FileOS");
-        item->setText(1, RzHexString(sdb_num_get(sdb, "FileOS", 0)));
+        item->setText(1, RzHexString(sdb_num_get(sdb, "FileOS")));
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
         item->setText(0, "FileType");
-        item->setText(1, RzHexString(sdb_num_get(sdb, "FileType", 0)));
+        item->setText(1, RzHexString(sdb_num_get(sdb, "FileType")));
         ui->leftTreeWidget->addTopLevelItem(item);
 
         item = new QTreeWidgetItem();
         item->setText(0, "FileSubType");
-        item->setText(1, RzHexString(sdb_num_get(sdb, "FileSubType", 0)));
+        item->setText(1, RzHexString(sdb_num_get(sdb, "FileSubType")));
         ui->leftTreeWidget->addTopLevelItem(item);
 
         // Adjust columns to content
@@ -224,8 +224,8 @@ void VersionInfoDialog::fillVersionInfo()
                 }
                 int lenkey = 0;
                 int lenval = 0;
-                ut8 *key_utf16 = sdb_decode(sdb_const_get(sdb, "key", 0), &lenkey);
-                ut8 *val_utf16 = sdb_decode(sdb_const_get(sdb, "value", 0), &lenval);
+                ut8 *key_utf16 = sdb_decode(sdb_const_get(sdb, "key"), &lenkey);
+                ut8 *val_utf16 = sdb_decode(sdb_const_get(sdb, "value"), &lenval);
                 item = new QTreeWidgetItem();
                 item->setText(0, QString::fromUtf16(reinterpret_cast<const ushort *>(key_utf16)));
                 item->setText(1, QString::fromUtf16(reinterpret_cast<const ushort *>(val_utf16)));

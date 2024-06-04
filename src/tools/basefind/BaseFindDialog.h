@@ -19,7 +19,7 @@ public:
     explicit BaseFindDialog(QWidget *parent = nullptr);
     ~BaseFindDialog();
 
-    size_t getNCores() const;
+    RzThreadNCores getNCores() const;
     ut32 getPointerSize() const;
     RVA getStartAddress() const;
     RVA getEndAddress() const;
