@@ -317,6 +317,7 @@ void InitialOptionsDialog::setupAndStartAnalysis()
     options.os = getSelectedOS();
     options.writeEnabled = ui->writeCheckBox->isChecked();
     options.loadBinInfo = !ui->binCheckBox->isChecked();
+    options.useVA = ui->vaCheckBox->isChecked();
     QVariant forceBinPluginData = ui->formatComboBox->currentData();
     if (!forceBinPluginData.isNull()) {
         RzBinPluginDescription pluginDesc = forceBinPluginData.value<RzBinPluginDescription>();
