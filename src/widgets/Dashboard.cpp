@@ -40,7 +40,7 @@ void Dashboard::updateContents()
     if (bf) {
         setPlainText(this->ui->compilationDateEdit, rz_core_bin_get_compile_time(bf));
         if (bf->o) {
-            char *relco_buf = sdb_get(bf->o->kv, "elf.relro", 0);
+            char *relco_buf = sdb_get(bf->o->kv, "elf.relro");
             if (RZ_STR_ISNOTEMPTY(relco_buf)) {
                 QString relro = QString(relco_buf).section(QLatin1Char(' '), 0, 0);
                 relro[0] = relro[0].toUpper();

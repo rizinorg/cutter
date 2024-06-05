@@ -20,7 +20,7 @@ BaseFindSearchDialog::~BaseFindSearchDialog() {}
 
 void BaseFindSearchDialog::show(RzBaseFindOpt *opts)
 {
-    size_t n_cores = rz_th_physical_core_number();
+    RzThreadNCores n_cores = rz_th_physical_core_number();
     if (opts->max_threads > n_cores || opts->max_threads < 1) {
         opts->max_threads = n_cores;
     }

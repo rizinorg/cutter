@@ -295,22 +295,25 @@ QList<QString> CutterCore::sdbList(QString path)
     CORE_LOCK();
     QList<QString> list = QList<QString>();
     Sdb *root = sdb_ns_path(core->sdb, path.toUtf8().constData(), 0);
-    if (root) {
-        void *vsi;
-        ls_iter_t *iter;
-        ls_foreach(root->ns, iter, vsi)
-        {
-            SdbNs *nsi = (SdbNs *)vsi;
+    if (root && root->ns) {
+        for (const auto &nsi : CutterRzList<SdbNs>(root->ns)) {
             list << nsi->name;
         }
     }
     return list;
 }
 
-using SdbListPtr = std::unique_ptr<SdbList, decltype(&ls_free)>;
-static SdbListPtr makeSdbListPtr(SdbList *list)
+using PVectorPtr = std::unique_ptr<RzPVector, decltype(&rz_pvector_free)>;
+static PVectorPtr makePVectorPtr(RzPVector *vec)
 {
-    return { list, ls_free };
+    return { vec, rz_pvector_free };
+}
+
+static bool foreach_keys_cb(void *user, const SdbKv *kv)
+{
+    auto list = reinterpret_cast<QList<QString> *>(user);
+    *list << kv->base.key;
+    return true;
 }
 
 QList<QString> CutterCore::sdbListKeys(QString path)
@@ -319,14 +322,7 @@ QList<QString> CutterCore::sdbListKeys(QString path)
     QList<QString> list = QList<QString>();
     Sdb *root = sdb_ns_path(core->sdb, path.toUtf8().constData(), 0);
     if (root) {
-        void *vsi;
-        ls_iter_t *iter;
-        SdbListPtr l = makeSdbListPtr(sdb_foreach_list(root, false));
-        ls_foreach(l, iter, vsi)
-        {
-            SdbKv *nsi = (SdbKv *)vsi;
-            list << reinterpret_cast<char *>(nsi->base.key);
-        }
+        sdb_foreach(root, foreach_keys_cb, &list);
     }
     return list;
 }
@@ -336,7 +332,7 @@ QString CutterCore::sdbGet(QString path, QString key)
     CORE_LOCK();
     Sdb *db = sdb_ns_path(core->sdb, path.toUtf8().constData(), 0);
     if (db) {
-        const char *val = sdb_const_get(db, key.toUtf8().constData(), 0);
+        const char *val = sdb_const_get(db, key.toUtf8().constData());
         if (val && *val)
             return val;
     }
@@ -349,7 +345,7 @@ bool CutterCore::sdbSet(QString path, QString key, QString val)
     Sdb *db = sdb_ns_path(core->sdb, path.toUtf8().constData(), 1);
     if (!db)
         return false;
-    return sdb_set(db, key.toUtf8().constData(), val.toUtf8().constData(), 0);
+    return sdb_set(db, key.toUtf8().constData(), val.toUtf8().constData());
 }
 
 QString CutterCore::sanitizeStringForCommand(QString s)
@@ -3616,21 +3612,14 @@ QList<QString> CutterCore::getAllAnalysisClasses(bool sorted)
 {
     CORE_LOCK();
     QList<QString> ret;
-
-    SdbListPtr l = makeSdbListPtr(rz_analysis_class_get_all(core->analysis, sorted));
+    PVectorPtr l = makePVectorPtr(rz_analysis_class_get_all(core->analysis, sorted));
     if (!l) {
         return ret;
     }
-    ret.reserve(static_cast<int>(l->length));
-
-    SdbListIter *it;
-    void *entry;
-    ls_foreach(l, it, entry)
-    {
-        auto kv = reinterpret_cast<SdbKv *>(entry);
+    ret.reserve(static_cast<int>(rz_pvector_len(l.get())));
+    for (const auto &kv : CutterPVector<SdbKv>(l.get())) {
         ret.append(QString::fromUtf8(reinterpret_cast<const char *>(kv->base.key)));
     }
-
     return ret;
 }
 
@@ -4371,13 +4360,14 @@ QStringList CutterCore::getColorThemes()
 {
     QStringList r;
     CORE_LOCK();
-    RzList *themes_list = rz_core_theme_list(core);
-    RzListIter *it;
-    const char *th;
-    CutterRzListForeach (themes_list, it, const char, th) {
+    RzPVector *themes_list = rz_core_get_themes(core);
+    if (!themes_list) {
+        return r;
+    }
+    for (const auto &th : CutterPVector<char>(themes_list)) {
         r << fromOwnedCharPtr(rz_str_trim_dup(th));
     }
-    rz_list_free(themes_list);
+    rz_pvector_free(themes_list);
     return r;
 }
 
