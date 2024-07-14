@@ -29,8 +29,6 @@ jobs:
       matrix:
         name: [
             linux-x86_64,
-            #linux-x86_64-qt5,
-            #linux-x86_64-system-deps,
             linux-x86_64-qt6-system-deps,
             tarball
         ]
@@ -38,15 +36,6 @@ jobs:
           - qt-major: 6
             cc-override: default
             cxx-override: default
-          #- name: linux-x86_64-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 18.04 using sytem libraries
-          #  image: ubuntu:18.04
-          #  python-version: 3.6.x
-          #  system-deps: true
-          #  package: false
-          #  tarball: false
-          #  cc-override: '/usr/bin/gcc-7'
-          #  cxx-override: '/usr/bin/g++-7'
-          #  qt-major: 5
           - name: linux-x86_64-qt6-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 22.04 using sytem libraries
             image: ubuntu:22.04
             python-version: 3.10.x
@@ -55,13 +44,6 @@ jobs:
             tarball: false
             cc-override: '/usr/bin/gcc-12'
             cxx-override: '/usr/bin/g++-12'
-          #- name: linux-x86_64-qt5 # qt5 Appimage build for increased compatibility with older distros
-          #  image: ubuntu:18.04
-          #  python-version: 3.6.x
-          #  system-deps: false
-          #  package: true
-          #  tarball: false
-          #  qt-major: 5
           - name: linux-x86_64 # main Appimage build
             image: ubuntu:20.04
             python-version: 3.6.x

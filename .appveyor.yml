@@ -25,7 +25,6 @@ install:
   - cmd: python -m pip install meson ninja
   - ps: choco install winflexbison3
   # Artifacts
-  - cmd: set "ARTIFACT_NAME=%PACKAGE_NAME%.zip"
   - cmd: set "ARTIFACT_PATH=build\%ARTIFACT_NAME%"
 
 before_build:
@@ -40,6 +39,7 @@ build_script:
   - cmd: "cmake
        -DCMAKE_BUILD_TYPE=Release
        -DCUTTER_USE_BUNDLED_RIZIN=ON
+       -DCUTTER_QT6=ON
        -DCUTTER_ENABLE_PYTHON=ON
        -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
        -DCUTTER_ENABLE_PACKAGING=ON
