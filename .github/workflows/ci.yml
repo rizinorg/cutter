@@ -29,14 +29,14 @@ jobs:
       matrix:
         name: [
             linux-x86_64,
-            linux-x86_64-qt6-system-deps,
+            linux-x86_64-system-deps,
             tarball
         ]
         include:
           - qt-major: 6
             cc-override: default
             cxx-override: default
-          - name: linux-x86_64-qt6-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 22.04 using sytem libraries
+          - name: linux-x86_64-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 22.04 using sytem libraries
             image: ubuntu:22.04
             python-version: 3.10.x
             system-deps: true
@@ -315,13 +315,13 @@ jobs:
       matrix:
         name: [
             linux-x86_64-qt5,
-            linux-x86_64-system-deps,
+            linux-x86_64-qt5-system-deps,
         ]
         include:
           - qt-major: 6
             cc-override: default
             cxx-override: default
-          - name: linux-x86_64-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 18.04 using sytem libraries
+          - name: linux-x86_64-qt5-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 18.04 using sytem libraries
             image: ubuntu:18.04
             python-version: 3.6.x
             system-deps: true
