@@ -5,19 +5,27 @@ set -e
 cd $(dirname "${BASH_SOURCE[0]}")/..
 mkdir -p cutter-deps && cd cutter-deps
 
-DEPS_FILE_linux_x86_64=cutter-deps-linux-x86_64.tar.gz
-DEPS_SHA256_linux_x86_64=0721c85548bbcf31f6911cdb2227e5efb4a20c34262672d4cd2193db166b2f8c
+DEPS_BASE_URL=https://github.com/rizinorg/cutter-deps/releases/download/v16
+
+if [ "$CUTTER_QT" == "5" ]; then
+	DEPS_FILE_linux_x86_64=cutter-deps-linux-x86_64.tar.gz
+	DEPS_SHA256_linux_x86_64=0721c85548bbcf31f6911cdb2227e5efb4a20c34262672d4cd2193db166b2f8c
+	DEPS_BASE_URL=https://github.com/rizinorg/cutter-deps/releases/download/v15
+else
+	DEPS_FILE_linux_x86_64=cutter-deps-linux-x86_64.tar.gz
+	DEPS_SHA256_linux_x86_64=f63c5af2d9872bc6538a94c839d6ef6645c7630c42cff30f1d9da8eefd9eb040
+fi
+echo $DEPS_SHA256_linux_x86_64
 
 DEPS_FILE_macos_x86_64=cutter-deps-macos-x86_64.tar.gz
-DEPS_SHA256_macos_x86_64=0a23fdec3012a8af76675d6f3ff39cf9df9b08c13d1156fb7ffcc0e495c9407f
+DEPS_SHA256_macos_x86_64=bcdc214e34dc3fd720327ad42e03fe3ec996ca28a9987e99898f149a65299a8c
 
 DEPS_FILE_macos_arm64=cutter-deps-macos-arm64.tar.gz
-DEPS_SHA256_macos_arm64=f9b9a5569bd23c9b5e45836b82aba7576a5c53df4871380a55c370b9d7f88615
+DEPS_SHA256_macos_arm64=aa3f5ae91b93c5176d6bd4313af0888a2b6dcdaa2ef1750dd7e2f98156882e0f
 
 DEPS_FILE_win_x86_64=cutter-deps-win-x86_64.tar.gz
-DEPS_SHA256_win_x86_64=9ab4e89732a3df0859a26fd5de6d9f3cb80106cbe2539340af831ed298625076
+DEPS_SHA256_win_x86_64=710e40cf8329205d09535cc56a9fb155a56ff1a1ca112145864382fb3d4e8160
 
-DEPS_BASE_URL=https://github.com/rizinorg/cutter-deps/releases/download/v15
 
 ARCH=x86_64
 if [ "$OS" == "Windows_NT" ]; then

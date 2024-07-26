@@ -26,7 +26,7 @@ moc_*.cpp
 qrc_*.cpp
 moc_*.h
 ui_*.h
-build*/
+/build*/
 cmake-build-*/
 /src-build/
 

@@ -6,7 +6,7 @@ if ! [[ $# -eq 3 ]]; then
     exit 1
 fi
 
-python_version=python3.9
+python_version=python3.12
 
 py_framework=$1
 appbundle=$2
@@ -30,21 +30,21 @@ fi
 echo "Making executable $executable point to embedded Framework"
 install_name_tool -change `otool -L "$executable" | sed -n "s/^[[:blank:]]*\([^[:blank:]]*Python\) (.*$/\1/p"` @executable_path/../Frameworks/Python.framework/Versions/Current/Python "$executable" 
 
-echo "Checking if PySide2 is available"
+echo "Checking if PySide is available"
 
-pyside_prefix=$(pkg-config --variable=prefix pyside2)
+pyside_prefix=$(pkg-config --variable=prefix pyside6)
 if [ $? -ne 0 ]; then
-	echo "PySide2 is not available, ignoring."
+	echo "PySide is not available, ignoring."
 	exit 0
 fi
 
 echo "PySide is at $pyside_prefix"
 
-if [ ! -d "Versions/Current/lib/$python_version/site-packages/PySide2" ]
+if [ ! -d "Versions/Current/lib/$python_version/site-packages/PySide6" ]
 then
     cp -va "$pyside_prefix/lib/$python_version/" "Versions/Current/lib/$python_version"
     cd .. # $appbundle/Contents/Frameworks
     cp -va "$pyside_prefix/lib/"*.dylib .
 else
-    echo "site-packages/Pyside2 exists, skipping copying"
+    echo "site-packages/Pyside6 exists, skipping copying"
 fi

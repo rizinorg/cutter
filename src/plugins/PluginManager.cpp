@@ -215,7 +215,11 @@ CutterPlugin *PluginManager::loadPythonPlugin(const char *moduleName)
     }
 
     PythonToCppFunc pythonToCpp = Shiboken::Conversions::isPythonToCppPointerConvertible(
+#    if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
             reinterpret_cast<SbkObjectType *>(SbkCutterBindingsTypes[SBK_CUTTERPLUGIN_IDX]),
+#    else
+            reinterpret_cast<PyTypeObject **>(SbkCutterBindingsTypeStructs)[SBK_CUTTERPLUGIN_IDX],
+#    endif
             pluginObject);
     if (!pythonToCpp) {
         qWarning() << "Plugin's create_cutter_plugin() function did not return an instance of "

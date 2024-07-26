@@ -1,8 +1,8 @@
 
 import cutter
 
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QVBoxLayout, QLabel, QWidget, QSizePolicy, QPushButton
+from PySide2.QtCore import Qt
+from PySide2.QtWidgets import QVBoxLayout, QLabel, QWidget, QSizePolicy, QPushButton
 
 
 class FortuneWidget(cutter.CutterDockWidget):
@@ -19,6 +19,7 @@ class FortuneWidget(cutter.CutterDockWidget):
         content.setLayout(layout)
         self.text = QLabel(content)
         self.text.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.text.setFont(cutter.Configuration.instance().getFont())
         layout.addWidget(self.text)
 
         button = QPushButton(content)
