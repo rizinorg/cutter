@@ -182,7 +182,7 @@ Project setup
 - Check options that you want Cutter to be built with, or leave it as-is for the default options.
 - If you are using vcpkg, Visual Studio should detect it automatically. The list of CMake options in the configurator should have some referring to vcpkg. If they are not there, specify the path to vcpkg toolchain file in the :guilabel:`CMake toolchain file` field.
 - If you are not using vcpkg, configure the path to Qt as mentioned in :ref:`windows CMake instructions<building:Building on Windows>`. You can specify the CMake flag in :guilabel:`CMake command arguments:` field.
-- To Ensure that VS debugger can display Qt types in a readable way, it is recommended to install `Qt Visual Studio Tools <https://marketplace.visualstudio.com/items?itemName=TheQtCompany.QtVisualStudioTools2019>`_ plugin. It will create a :file:`Documents/Visual Studio 2019/Visualizers/qt5.natvis` file. Once :file:`qt5.natvis` has been created you can uninstall the plugin.
+- To Ensure that VS debugger can display Qt types in a readable way, it is recommended to install `Qt Visual Studio Tools <https://marketplace.visualstudio.com/items?itemName=TheQtCompany.QtVisualStudioTools2019>`_ plugin. It will create a :file:`Documents/Visual Studio 2019/Visualizers/qt6.natvis` file. Once :file:`qt6.natvis` has been created you can uninstall the plugin.
 
 Changing CMake configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -197,4 +197,4 @@ Editing Qt .ui files and Qt integration
 By default Visual Studio will open ``.ui`` files as XML text documents. You can configure to open it using Qt Designer by right-clicking and selecting :guilabel:`Open With...`.
 
 There is a  Qt plugin for Visual Studio from Qt. It isn't very useful for Cutter development since it is aimed more at helping with Qt integration into Visual Studio projects.
-It doesn't do much for CMake based projects. The biggest benefit is that it automatically installs :file:`qt5.natvis` file for more readable displaying of Qt types in the debugger.
+It doesn't do much for CMake based projects. The biggest benefit is that it automatically installs :file:`qt6.natvis` file for more readable displaying of Qt types in the debugger.

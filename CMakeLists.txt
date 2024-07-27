@@ -29,7 +29,7 @@ option(CUTTER_PACKAGE_RZ_LIBSWIFT "Compile and install rz-libswift demangler dur
 option(CUTTER_PACKAGE_RZ_LIBYARA "Compile and install rz-libyara during the install step." OFF)
 option(CUTTER_PACKAGE_RZ_SILHOUETTE "Compile and install rz-silhouette during the install step." OFF)
 option(CUTTER_PACKAGE_JSDEC "Compile and install jsdec during install step." OFF)
-set("CUTTER_QT" 6 CACHE STRING "Major QT version to use.")
+set("CUTTER_QT" 6 CACHE STRING "Major QT version to use 5|6")
 set_property(CACHE "CUTTER_QT" PROPERTY STRINGS 5 6)
 
 if(NOT CUTTER_ENABLE_PYTHON)
