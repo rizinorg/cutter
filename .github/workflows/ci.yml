@@ -222,23 +222,16 @@ jobs:
             -DCUTTER_PACKAGE_RZ_SILHOUETTE=ON \
             -DCMAKE_INSTALL_PREFIX=appdir/usr \
             -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
-            -DCUTTER_QT6=${{ matrix.qt-major == '6' && 'ON' || 'OFF' }} \
+            -DCUTTER_QT=${{ matrix.qt-major }} \
             ..
         elif [ "${{ matrix.image }}" = "ubuntu:22.04" ]
-        then
-          cmake \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCUTTER_QT6=ON \
-            -DCUTTER_USE_BUNDLED_RIZIN=ON \
-            ..
-        else
-          cmake \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCUTTER_USE_BUNDLED_RIZIN=ON \
-            ..
-        fi
+        
+        cmake \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCUTTER_QT=${{ matrix.qt-major }} \
+          -DCUTTER_USE_BUNDLED_RIZIN=ON \
+          ..
         ninja
         if [ "${{ matrix.package }}" = "true" ]
         then
@@ -473,7 +466,6 @@ jobs:
                 -DCUTTER_PACKAGE_RZ_LIBSWIFT=ON \
                 -DCUTTER_PACKAGE_RZ_LIBYARA=ON \
                 -DCUTTER_PACKAGE_RZ_SILHOUETTE=ON \
-                -DCUTTER_QT6=ON \
                 -DCPACK_PACKAGE_FILE_NAME="$PACKAGE_NAME" \
                 -DCPACK_BUNDLE_APPLE_CERT_APP="-" \
                 .. && \
@@ -518,7 +510,6 @@ jobs:
           -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON ^
           -DCMAKE_PREFIX_PATH="%CUTTER_DEPS%\pyside" ^
           -DCPACK_PACKAGE_FILE_NAME=%PACKAGE_NAME% ^
-          -DCUTTER_QT6=ON ^
           -G Ninja ^
           ..
         cmake --build . --config Release
