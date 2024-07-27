@@ -519,7 +519,7 @@ if(CUTTER_ENABLE_PYTHON)
     endif()
 
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
-        target_link_libraries(Cutter PRIVATE $CUTTER_PYSIDE_LIBS)
+        target_link_libraries(Cutter PRIVATE ${CUTTER_PYSIDE_LIBS})
 
         get_target_property(RAW_BINDINGS_INCLUDE_DIRS Cutter INCLUDE_DIRECTORIES)
         if(NOT CUTTER_USE_BUNDLED_RIZIN)
