@@ -52,6 +52,8 @@ On Linux, you will need:
 * python-setuptools*
 * KSyntaxHighlighter**
 * graphviz**
+* shiboken6**
+* pyside6**
 
  `*` Recommended while building with ``make``/``Cmake``.
 
@@ -61,7 +63,7 @@ On Debian-based Linux distributions, all of these essential packages can be inst
 
 ::
 
-   sudo apt install build-essential cmake meson libzip-dev zlib1g-dev qt6-base-dev qt6-tools-dev qt6-tools-dev-tools libqt6svg6-dev libqt6core5compat6-dev libqt6svgwidgets6 qt6-l10n-tools
+   sudo apt install build-essential cmake meson pkgconf libzip-dev zlib1g-dev qt6-base-dev qt6-tools-dev qt6-tools-dev-tools libqt6svg6-dev libqt6core5compat6-dev libqt6svgwidgets6 qt6-l10n-tools
 
 Depending on your configuration you'll might also need the following:
 
@@ -69,9 +71,6 @@ Depending on your configuration you'll might also need the following:
 
   # When building with CUTTER_ENABLE_GRAPHVIZ (Default)
   sudo apt install libgraphviz-dev
-  # when building with CUTTER_ENABLE_PYTHON_BINDINGS
-  sudo apt install libshiboken2-dev libpyside2-dev 
-  
 
 .. note::
  For Ubuntu 20.04 and lower (or in any case you get an error ``Meson version is x but project requires >=y``), ``meson`` should be installed with ``pip install --upgrade --user meson``.
@@ -80,19 +79,22 @@ On Arch-based Linux distributions:
 
 ::
 
+   sudo pacman -Syu --needed base-devel cmake meson qt6-base qt6-svg qt6-tools
+
    # When building with CUTTER_ENABLE_KSYNTAXHIGHLIGHTING (Default)
    sudo pacman -Syu --needed syntax-highlighting
    # When building with CUTTER_ENABLE_GRAPHVIZ (Default)
    sudo pacman -Syu --needed graphviz
-   
-   sudo pacman -Syu --needed base-devel cmake meson qt6-base qt6-svg qt6-tools
-
+   # When building with CUTTER_ENABLE_PYTHON and CUTTER_ENABLE_PYTHON_BINDINGS
+   sudo pacman -Syu --needed pyside6 shiboken6
 
 On dnf/yum based distributions:
 
 ::
 
-   sudo dnf install -y gcc gcc-c++ make cmake meson qt6-qtbase-devel qt6-qtsvg-devel qt6-qttools-devel
+   sudo dnf install -y gcc gcc-c++ make cmake meson qt6-qtbase-devel qt6-qtsvg-devel qt6-qttools-devel qt6-qt5compat-devel
+   # Optional packages
+   sudo dnf install -y graphviz-devel kf6-syntax-highlighting-devel python3-devel shiboken6 python3-pyside6-devel clang
 
 
 On older Linux systems not supported by QT6 you can use Qt 5.15. Use of Qt5 on operating systems other than Linux is untested.
@@ -250,11 +252,12 @@ CMake Building Options
 Note that there are some major building options available:
 
 * ``CUTTER_USE_BUNDLED_RIZIN`` automatically compile Rizin from submodule (Enabled by default).
-* ``CUTTER_ENABLE_PYTHON`` compile with Python support.
+* ``CUTTER_ENABLE_PYTHON`` compile with Python support, required for Python plugins.
 * ``CUTTER_ENABLE_PYTHON_BINDINGS`` automatically generate Python Bindings with Shiboken, required for Python plugins!
 * ``CUTTER_ENABLE_KSYNTAXHIGHLIGHTING`` use KSyntaxHighlighting for code highlighting.
 * ``CUTTER_ENABLE_GRAPHVIZ`` enable Graphviz for graph layouts.
 * ``CUTTER_EXTRA_PLUGIN_DIRS`` List of addition plugin locations. Useful when preparing package for Linux distros that have strict package layout rules.
+* ``CUTTER_QT`` Qt major version to use. Defaults to 6. Allowed values: 5, 6. 
 
 Cutter binary release options, not needed for most users and might not work easily outside CI environment: 
 
