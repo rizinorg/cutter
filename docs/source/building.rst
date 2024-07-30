@@ -67,7 +67,7 @@ On Debian-based Linux distributions, all of these essential packages can be inst
 
 Depending on your configuration you'll might also need the following:
 
-   ::
+::
 
   # When building with CUTTER_ENABLE_GRAPHVIZ (Default)
   sudo apt install libgraphviz-dev
@@ -168,7 +168,7 @@ To compile Cutter it is necessary to have the following installed:
 
 * A version of `Visual Studio <https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16>`_ (2019 or newer)
 * `CMake <https://cmake.org/download/>`_
-* `Qt 6 <https://www.qt.io/download-qt-installer>`_
+* `Qt 6 <https://www.qt.io/download-qt-installer>`_  See :doc:`development environment setup</contributing/code/ide-setup>` for alternative ways of obtaining Qt that don't require Qt account.
 * `Meson <https://mesonbuild.com/Getting-meson.html#installing-meson-with-pip>`_
 * `Ninja <https://github.com/ninja-build/ninja/releases/latest>`_
 
@@ -198,12 +198,9 @@ If they are not available, you can use PowerShell to add them to your PATH one b
 Note that the paths below may vary depending on your version of Qt and Visual Studio.
 
 .. code:: powershell
-   
-   # First, set CMAKE_PREFIX_PATH to Qt6 intallation prefix #TODO: test update this
-   $Env:CMAKE_PREFIX_PATH = "C:\Qt\5.15.2\msvc2019_64\lib\cmake\Qt5"
 
-   # Then, add the following directory to your PATH
-   $Env:Path += ";C:\Qt\5.15.2\msvc2019_64\bin"
+   # Add the following directory to your PATH
+   $Env:Path += ";C:\Qt\6.7.2\msvc2019_64\bin"
 
    # Build Cutter
    cmake -B build

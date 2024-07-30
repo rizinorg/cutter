@@ -158,8 +158,6 @@ if(CUTTER_ENABLE_KSYNTAXHIGHLIGHTING)
         find_package(KF${CUTTER_QT}SyntaxHighlighting REQUIRED)
         set(KSYNTAXHIGHLIGHTING_STATUS ON)
     endif()
-else()
-    set(KSYNTAXHIGHLIGHTING_STATUS OFF)
 endif()
 
 if (CUTTER_ENABLE_GRAPHVIZ)
