@@ -561,8 +561,8 @@ if(CUTTER_ENABLE_PYTHON)
     endif()
 endif()
 
-if(TARGET KF{CUTTER_QT}::SyntaxHighlighting)
-    target_link_libraries(Cutter PRIVATE KF{CUTTER_QT}::SyntaxHighlighting)
+if(TARGET KF${CUTTER_QT}::SyntaxHighlighting)
+    target_link_libraries(Cutter PRIVATE KF${CUTTER_QT}::SyntaxHighlighting)
     target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_KSYNTAXHIGHLIGHTING)
 endif()
 
