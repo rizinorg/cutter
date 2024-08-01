@@ -45,13 +45,15 @@ On Linux, you will need:
 * meson
 * libzip-dev
 * libzlib-dev
-* qt5
-* qt5-svg
+* qt6
+* qt6-svg
 * pkgconf
 * curl*
 * python-setuptools*
 * KSyntaxHighlighter**
 * graphviz**
+* shiboken6**
+* pyside6**
 
  `*` Recommended while building with ``make``/``Cmake``.
 
@@ -61,22 +63,14 @@ On Debian-based Linux distributions, all of these essential packages can be inst
 
 ::
 
-   sudo apt install build-essential cmake meson libzip-dev zlib1g-dev qt5-default libqt5svg5-dev qttools5-dev qttools5-dev-tools
-
-.. note::
- On Debian 11 (bullseye) and higher or Ubuntu 22.04 (Jammy) and higher, replace ``qt5-default`` above with ``qtbase5-dev``.
+   sudo apt install build-essential cmake meson pkgconf libzip-dev zlib1g-dev qt6-base-dev qt6-tools-dev qt6-tools-dev-tools libqt6svg6-dev libqt6core5compat6-dev libqt6svgwidgets6 qt6-l10n-tools
 
 Depending on your configuration you'll might also need the following:
 
 ::
 
-  # When building with CUTTER_ENABLE_KSYNTAXHIGHLIGHTING (Default)
-  sudo apt install libkf5syntaxhighlighting-dev 
   # When building with CUTTER_ENABLE_GRAPHVIZ (Default)
   sudo apt install libgraphviz-dev
-  # when building with CUTTER_ENABLE_PYTHON_BINDINGS
-  sudo apt install libshiboken2-dev libpyside2-dev  qtdeclarative5-dev
-  
 
 .. note::
  For Ubuntu 20.04 and lower (or in any case you get an error ``Meson version is x but project requires >=y``), ``meson`` should be installed with ``pip install --upgrade --user meson``.
@@ -85,19 +79,25 @@ On Arch-based Linux distributions:
 
 ::
 
+   sudo pacman -Syu --needed base-devel cmake meson qt6-base qt6-svg qt6-tools
+
    # When building with CUTTER_ENABLE_KSYNTAXHIGHLIGHTING (Default)
    sudo pacman -Syu --needed syntax-highlighting
    # When building with CUTTER_ENABLE_GRAPHVIZ (Default)
    sudo pacman -Syu --needed graphviz
-   
-   sudo pacman -Syu --needed base-devel cmake meson qt5-base qt5-svg qt5-tools
-
+   # When building with CUTTER_ENABLE_PYTHON and CUTTER_ENABLE_PYTHON_BINDINGS
+   sudo pacman -Syu --needed pyside6 shiboken6
 
 On dnf/yum based distributions:
 
 ::
 
-   sudo dnf install -y gcc gcc-c++ make cmake meson qt5-qtbase-devel qt5-qtsvg-devel qt5-qttools-devel
+   sudo dnf install -y gcc gcc-c++ make cmake meson qt6-qtbase-devel qt6-qtsvg-devel qt6-qttools-devel qt6-qt5compat-devel
+   # Optional packages
+   sudo dnf install -y graphviz-devel kf6-syntax-highlighting-devel python3-devel shiboken6 python3-pyside6-devel clang
+
+
+On older Linux systems not supported by QT6 you can use Qt 5.15. Use of Qt5 on operating systems other than Linux is untested.
 
 Building Steps
 ~~~~~~~~~~~~~~
@@ -163,12 +163,12 @@ Building on Windows
 Requirements
 ~~~~~~~~~~~~
 
-Cutter works on Windows 7 or newer.
+Cutter works on Windows 10 or newer.
 To compile Cutter it is necessary to have the following installed:
 
-* A version of `Visual Studio <https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16>`_ (2015, 2017 and 2019 are supported)
+* A version of `Visual Studio <https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16>`_ (2019 or newer)
 * `CMake <https://cmake.org/download/>`_
-* `Qt 5 <https://www.qt.io/download-qt-installer>`_
+* `Qt 6 <https://www.qt.io/download-qt-installer>`_  See :doc:`development environment setup</contributing/code/ide-setup>` for alternative ways of obtaining Qt that don't require Qt account.
 * `Meson <https://mesonbuild.com/Getting-meson.html#installing-meson-with-pip>`_
 * `Ninja <https://github.com/ninja-build/ninja/releases/latest>`_
 
@@ -198,12 +198,9 @@ If they are not available, you can use PowerShell to add them to your PATH one b
 Note that the paths below may vary depending on your version of Qt and Visual Studio.
 
 .. code:: powershell
-   
-   # First, set CMAKE_PREFIX_PATH to Qt5 intallation prefix
-   $Env:CMAKE_PREFIX_PATH = "C:\Qt\5.15.2\msvc2019_64\lib\cmake\Qt5"
 
-   # Then, add the following directory to your PATH
-   $Env:Path += ";C:\Qt\5.15.2\msvc2019_64\bin"
+   # Add the following directory to your PATH
+   $Env:Path += ";C:\Qt\6.7.2\msvc2019_64\bin"
 
    # Build Cutter
    cmake -B build
@@ -231,7 +228,7 @@ For basic build all dependencies except XCode can be installed using homebrew:
 
 ::
 
-   brew install cmake qt5 meson ninja
+   brew install cmake qt6 meson ninja
 
 
 Recommended Way for dev builds
@@ -241,7 +238,7 @@ Recommended Way for dev builds
 
    mkdir build
    cd build
-   cmake .. -DCMAKE_PREFIX_PATH=/usr/local/opt/qt5
+   cmake .. -DCMAKE_PREFIX_PATH=/opt/homebrew/opt/qt6
    make
 
 --------------
@@ -252,17 +249,19 @@ CMake Building Options
 Note that there are some major building options available:
 
 * ``CUTTER_USE_BUNDLED_RIZIN`` automatically compile Rizin from submodule (Enabled by default).
-* ``CUTTER_ENABLE_PYTHON`` compile with Python support.
+* ``CUTTER_ENABLE_PYTHON`` compile with Python support, required for Python plugins.
 * ``CUTTER_ENABLE_PYTHON_BINDINGS`` automatically generate Python Bindings with Shiboken, required for Python plugins!
 * ``CUTTER_ENABLE_KSYNTAXHIGHLIGHTING`` use KSyntaxHighlighting for code highlighting.
 * ``CUTTER_ENABLE_GRAPHVIZ`` enable Graphviz for graph layouts.
 * ``CUTTER_EXTRA_PLUGIN_DIRS`` List of addition plugin locations. Useful when preparing package for Linux distros that have strict package layout rules.
+* ``CUTTER_QT`` Qt major version to use. Defaults to 6. Allowed values: 5, 6. 
 
 Cutter binary release options, not needed for most users and might not work easily outside CI environment: 
 
 * ``CUTTER_ENABLE_DEPENDENCY_DOWNLOADS`` Enable downloading of dependencies. Setting to OFF doesn't affect any downloads done by Rizin build. This option is used for preparing Cutter binary release packges. Turned off by default.
-* ``CUTTER_PACKAGE_DEPENDENCIES`` During install step include the third party dependencies. This option is used for preparing Cutter binary release packges. 
+* ``CUTTER_PACKAGE_DEPENDENCIES`` During install step include the third party dependencies. This option is used for preparing Cutter binary release packages. 
 
+For full list of Cutter specific build options and their description see CMakeCache.txt after configuring the project or use a graphical CMake configurator if your IDE provides one.
 
 These options can be enabled or disabled from the command line arguments passed to CMake.
 For example, to build Cutter with support for Python plugins, you can run this command:
@@ -276,6 +275,8 @@ Or if one wants to explicitly disable an option:
 ::
 
    cmake -B build -DCUTTER_ENABLE_PYTHON=OFF
+
+
 
 
 --------------
@@ -345,11 +346,3 @@ You can also try:
 You can also install Rizin into ``/usr/lib/pkgconfig/`` and then
 add a variable ``PKG_CONFIG_PATH`` with the value ``/usr/lib/pkgconfig/``.
 
-* **macOS libjpeg error**
-
-On macOS, Qt5 apps fail to build on QtCreator if you have the ``libjpeg``
-installed with brew. Run this command to work around the issue:
-
-::
-
-   sudo mv /usr/local/lib/libjpeg.dylib /usr/local/lib/libjpeg.dylib.not-found

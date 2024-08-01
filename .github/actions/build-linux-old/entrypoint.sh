@@ -109,13 +109,6 @@ fi
 # otherwise git complains about dubious ownership, due to code being checked out outside the container with a different user
 git config --global --add safe.directory /github/workspace/rizin
 
-if [ $qt_major = 6] 
-then
-    CMAKE_QT_ARG='ON'
-else
-    CMAKE_QT_ARG='OFF'
-fi
-
 mkdir build
 cd build
 if [ "$system_deps" = "false" ]
@@ -144,14 +137,14 @@ then
     -DCUTTER_PACKAGE_RZ_SILHOUETTE=ON \
     -DCMAKE_INSTALL_PREFIX=appdir/usr \
     -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
-    -DCUTTER_QT6=$CMAKE_QT_ARG \
+    -DCUTTER_QT=$qt_major \
     ..
 else
     cmake \
     -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCUTTER_USE_BUNDLED_RIZIN=ON \
-    -DCUTTER_QT6=$CMAKE_QT_ARG \
+    -DCUTTER_QT=$qt_major \
     ..
 fi
 ninja
