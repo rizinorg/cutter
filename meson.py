@@ -65,29 +65,39 @@ def build(args):
             r2_meson_mod.msbuild(project, '/m')
 
 def main():
+    # Set global variables that might be used across the program
     set_global_vars()
-
+    
+    # Create an argument parser to handle command-line arguments
     parser = argparse.ArgumentParser(description='Meson script for Cutter')
     parser.add_argument('--backend', choices=r2_meson_mod.BACKENDS,
                         default='ninja', help='Choose build backend')
+    # Define the directory argument with a default value for the build directory
     parser.add_argument('--dir', default='build',
                         help='Destination build directory')
+    # Option to enable Python support
     parser.add_argument('--python', action='store_true',
                         help='Enable Python support')
+     # Option to enable Python bindings
     parser.add_argument('--python-bindings', action='store_true',
                         help='Enable Python Bindings')
+    # Option to set the build type to Release, which typically removes debug information
     parser.add_argument('--release', action='store_true',
                         help='Set the build as Release (remove debug info)')
+    # Option to only run Meson and skip the build step
     parser.add_argument('--nobuild', action='store_true',
                         help='Only run meson and do not build.')
+    # If running on Windows, add an additional argument for the distribution directory
     if os.name == 'nt':
         parser.add_argument('--dist', help='dist directory')
+    # Parse the command-line arguments
     args = parser.parse_args()
 
+     # Check if the 'dist' argument is set and if the directory already exists, log an error and exit
     if hasattr(args, 'dist') and args.dist and os.path.exists(args.dist):
         log.error('%s already exists', args.dist)
         sys.exit(1)
-
+     # Log the parsed arguments for debugging purposes
     log.debug('Arguments: %s', args)
 
     build(args)
