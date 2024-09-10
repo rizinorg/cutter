@@ -301,6 +301,13 @@ jobs:
           asset_path: ${{ env.PACKAGE_PATH }}
           asset_name: ${{ env.PACKAGE_NAME }}
           asset_content_type: ${{ env.UPLOAD_ASSET_TYPE }}
+    - name: Set output
+      id: output_setup
+      if: ${{ matrix.name == 'linux-x86_64' }}
+      run: |
+        echo "artifact_name=$PACKAGE_NAME" >> "$GITHUB_OUTPUT"
+    outputs:
+      artifact_linux: ${{ steps.output_setup.outputs.artifact_name }}
   build-linux-old:
     name: ${{ matrix.name }}
     runs-on: ubuntu-latest
@@ -394,10 +401,12 @@ jobs:
         include:
           - python-version: 3.12.x
           - system-deps: false
+          - output-id: ""
           - name: windows-x86_64
             os: windows-2019
             package: true
             python-version: 3.12.x
+            output-id: artifact_windows
           - name: macos-x86_64
             os: macos-12
             arch: x86_64
@@ -406,6 +415,7 @@ jobs:
             os: macos-14
             arch: arm64
             package: true
+            output-id: artifact_macos
       # Prevent one job from pausing the rest
       fail-fast: false
     steps:
@@ -538,3 +548,100 @@ jobs:
           asset_path: ${{ env.PACKAGE_PATH }}
           asset_name: ${{ env.PACKAGE_NAME }}
           asset_content_type: ${{ env.UPLOAD_ASSET_TYPE }}
+
+    - name: Set output
+      if: matrix.output-id != ''
+      id: output_setup
+      shell: bash
+      run: |
+        echo "${{ matrix.output-id }}=${PACKAGE_NAME}" >> "$GITHUB_OUTPUT"
+    outputs:
+      artifact_macos: ${{ steps.output_setup.outputs.artifact_macos }}
+      artifact_windows: ${{ steps.output_setup.outputs.artifact_windows }}
+
+  plugin-test:
+    name: plugin-test-${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    needs: [build-linux, build]
+    strategy:
+      matrix:
+        name: [
+            linux-x86_64,
+            macos-arm64,
+            windows,
+        ]
+        include:
+          - name: linux-x86_64 
+            os: ubuntu-20.04
+            artifact-job: build-linux
+            artifact-output: artifact_linux
+          - name: macos-arm64
+            os: macos-14
+            artifact-job: build
+            artifact-output: artifact_macos
+          - name: windows
+            os: windows-2019
+            artifact-job: build
+            artifact-output: artifact_windows
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        path: 'cutter-src-tmp'
+        persist-credentials: false
+     # Only needed for QT, in theory could use qt that's sourced in other way.
+     # But that introduces risk of problems caused by incompatibility between the two versions.
+    - name: Cutter deps 
+      shell: bash
+      run: |
+        echo "PACKAGE_NAME=${{needs[matrix.artifact-job].outputs[matrix.artifact-output] || 'bad_id'}}" >> $GITHUB_ENV
+        ls -alh
+        pwd
+        ./cutter-src-tmp/scripts/fetch_deps.sh
+        cp -r ./cutter-src-tmp/src/plugins/sample-cpp .
+        rm -r ./cutter-src-tmp/cutter-deps/python/ || true # copying python folder on macOs doesn't work well, it's not needed for plugin compilation
+        cp -r ./cutter-src-tmp/cutter-deps .
+        rm -r cutter-src-tmp
+        ls -alh
+        pwd
+
+    - name: Download cutter build
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ needs[matrix.artifact-job].outputs[matrix.artifact-output] || 'bad_id2' }}
+    - name: build-linux
+      if: contains(matrix.name, 'linux')
+      run: |
+        sudo apt-get -y install libxcb1-dev \
+                    libxkbcommon-dev \
+                    libxcb-*-dev \
+                    libegl1 \
+                    mesa-common-dev
+        ls
+        chmod +x ./$PACKAGE_NAME
+        ./$PACKAGE_NAME --appimage-extract
+
+        cd sample-cpp
+        mkdir build
+        cmake -B build -DCMAKE_PREFIX_PATH="$PWD/../squashfs-root/usr/;$PWD/../cutter-deps/qt" --debug-find-pkg=Qt6Widgets -DQT_DEBUG_FIND_PACKAGE=ON
+        cmake --build build
+    - name: build-macos
+      if: contains(matrix.name, 'macos')
+      run: |
+        hdiutil attach $PACKAGE_NAME
+        ls /Volumes/Cutter/
+        cd sample-cpp
+        mkdir build
+        cmake -B build -DCMAKE_PREFIX_PATH="/Volumes/Cutter/Cutter.app/Contents/Resources;../cutter-deps/qt"
+        cmake --build build
+    - name: Build windows
+      if: contains(matrix.name, 'windows')
+      shell: cmd
+      run: |
+        7z.exe x %PACKAGE_NAME%
+        ren %PACKAGE_NAME:~0,-4% cutter
+        dir
+        cd sample-cpp
+        mkdir build
+        cmake -B build -DCMAKE_PREFIX_PATH="%CD%/../cutter;%CD%/../cutter-deps/qt"
+        cmake --build build
