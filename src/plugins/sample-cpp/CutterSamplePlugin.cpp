@@ -8,7 +8,7 @@
 #include <common/TempConfig.h>
 #include <common/Configuration.h>
 #include <MainWindow.h>
-#include <librz/rz_core.h>
+#include <rz_core.h>
 
 void CutterSamplePlugin::setupPlugin() {}
 
