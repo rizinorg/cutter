@@ -34,6 +34,7 @@ public:
     Highlighter *highlighter;
 
     static QString getWidgetType();
+    QWidget *parentForDialog();
 
 public slots:
     void initParsing();
