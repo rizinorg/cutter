@@ -480,6 +480,8 @@ jobs:
                 -DCPACK_BUNDLE_APPLE_CERT_APP="-" \
                 .. && \
               make -j4;
+        # Reduce chance for random hdiutil "Resource busy" error when creating the dmg
+        # https://github.com/actions/runner-images/issues/7522#issuecomment-1556766641
         echo killing XProtectBehaviorService; sudo pkill -9 XProtect >/dev/null || true;
         echo waiting for XProtectBehaviorService kill; while pgrep XProtect; do sleep 3; done;
         brew install kadwanev/brew/retry
