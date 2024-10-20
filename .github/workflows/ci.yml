@@ -394,7 +394,6 @@ jobs:
     strategy:
       matrix:
         name: [
-            macos-x86_64,
             macos-arm64,
             windows-x86_64,
         ]
@@ -407,10 +406,6 @@ jobs:
             package: true
             python-version: 3.12.x
             output-id: artifact_windows
-          - name: macos-x86_64
-            os: macos-12
-            arch: x86_64
-            package: true
           - name: macos-arm64
             os: macos-14
             arch: arm64
