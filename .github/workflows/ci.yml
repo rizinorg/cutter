@@ -408,7 +408,7 @@ jobs:
             python-version: 3.12.x
             output-id: artifact_windows
           - name: macos-x86_64
-            os: macos-12
+            os: macos-14-large
             arch: x86_64
             package: true
           - name: macos-arm64
