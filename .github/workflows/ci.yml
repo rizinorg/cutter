@@ -482,7 +482,8 @@ jobs:
               make -j4;
         echo killing XProtectBehaviorService; sudo pkill -9 XProtect >/dev/null || true;
         echo waiting for XProtectBehaviorService kill; while pgrep XProtect; do sleep 3; done;
-        make package
+        brew install kadwanev/brew/retry
+        retry make package
         export CUTTER_VERSION=$(python3 ../scripts/get_version.py)
         echo PACKAGE_NAME=${PACKAGE_NAME}.dmg >> $GITHUB_ENV
         echo PACKAGE_PATH=build/${PACKAGE_NAME}.dmg >> $GITHUB_ENV
