@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 if(POLICY CMP0074)
     cmake_policy(SET CMP0074 NEW)
 endif()
-set(CPACK_COMMAND_HDIUTIL "/bin/bash /Users/runner/work/cutter/cutter/hdiutil-debug.sh")
+set(CPACK_COMMAND_HDIUTIL "/usr/bin/zsh /Users/runner/work/cutter/cutter/hdiutil-debug.sh")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(DisallowInSource)
