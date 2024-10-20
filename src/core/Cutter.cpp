@@ -2,6 +2,7 @@
 #include <QJsonObject>
 #include <QRegularExpression>
 #include <QDir>
+#include <QDebug>
 #include <QCoreApplication>
 #include <QVector>
 #include <QStringList>
@@ -768,6 +769,7 @@ void CutterCore::editBytesEndian(RVA addr, const QString &bytes)
 
 void CutterCore::setToCode(RVA addr)
 {
+    qDebug() << "setToCode" << addr << "\n";
     CORE_LOCK();
     rz_meta_del(core->analysis, RZ_META_TYPE_STRING, core->offset, 1);
     rz_meta_del(core->analysis, RZ_META_TYPE_DATA, core->offset, 1);
@@ -838,6 +840,7 @@ QString CutterCore::getMetaString(RVA addr)
 
 void CutterCore::setToData(RVA addr, int size, int repeat)
 {
+    qDebug() << "setToData" << addr << size << repeat << "\n";
     if (size <= 0 || repeat <= 0) {
         return;
     }

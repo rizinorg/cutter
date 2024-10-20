@@ -4,6 +4,8 @@
 #include "core/Cutter.h"
 #include "common/IOModesController.h"
 #include <QMenu>
+#include <QTextEdit>
+#include <QSet>
 #include <QKeySequence>
 
 class MainWindow;
@@ -22,6 +24,8 @@ signals:
 public slots:
     void setOffset(RVA offset);
     void setCanCopy(bool enabled);
+    void prepareMenu(const QList<QTextEdit::ExtraSelection>& selectedLines);
+
 
     /**
      * @brief Sets the value of curHighlightedWord
@@ -61,9 +65,13 @@ private slots:
     void on_actionContinueUntil_triggered();
     void on_actionSetPC_triggered();
 
+    void applySetToCode();
     void on_actionSetToCode_triggered();
+    void on_actionSetToCode_triggered(RVA offset);
     void on_actionSetAsString_triggered();
+    void on_actionSetAsString_triggered(RVA offset);
     void on_actionSetAsStringRemove_triggered();
+    void on_actionSetAsStringRemove_triggered(RVA offset);
     void on_actionSetAsStringAdvanced_triggered();
     void on_actionSetToData_triggered();
     void on_actionSetToDataEx_triggered();
@@ -100,6 +108,7 @@ private:
     bool canCopy;
     QString curHighlightedWord; // The current highlighted word
     MainWindow *mainWindow;
+    QList<QTextEdit::ExtraSelection> selectedLines;
     IOModesController ioModesController;
 
     QList<QAction *> anonymousActions;
@@ -189,12 +198,13 @@ private:
 
     void setBase(QString base);
     void setToData(int size, int repeat = 1);
+    void setToData(RVA offset, int size, int repeat = 1);
     void setBits(int bits);
-
     void addSetBaseMenu();
     void addSetBitsMenu();
     void addSetAsMenu();
     void addSetToDataMenu();
+    void applySetToData(int datasize);
     void addEditMenu();
     void addAddAtMenu();
     void addBreakpointMenu();

@@ -439,8 +439,37 @@ void DisassemblyWidget::highlightPCLine()
     mDisasTextEdit->setExtraSelections(currentSelections);
 }
 
+void DisassemblyWidget::highlightMultiLineSelections()
+{
+    QList<QTextEdit::ExtraSelection> extraSelections;
+    QTextEdit::ExtraSelection highlightSelection;
+    QColor highlightColor = ConfigColor("lineHighlight");
+
+    // Highlight each selection in the multilineSelections list
+    for (const QTextEdit::ExtraSelection &selection : mDisasTextEdit->getMultiLineSelections()) {
+        highlightSelection.format.setBackground(highlightColor);
+        highlightSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
+        highlightSelection.cursor = mDisasTextEdit->textCursor();
+        highlightSelection.cursor.setPosition(selection.cursor.selectionStart());
+        highlightSelection.cursor.setPosition(selection.cursor.selectionEnd(),
+                                              QTextCursor::KeepAnchor);
+        extraSelections.append(highlightSelection);
+    }
+
+    // Don't override any extraSelections already set
+    QList<QTextEdit::ExtraSelection> currentSelections = mDisasTextEdit->extraSelections();
+    currentSelections.append(extraSelections);
+    mDisasTextEdit->setExtraSelections(currentSelections);
+}
+
 void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
 {
+    qDebug() << "showDisasContextMenu()" << "\n";
+    auto selectedLines = mDisasTextEdit->getMultiLineSelections();
+    if (selectedLines.size() > 1) {
+        mCtxMenu->prepareMenu(selectedLines);
+    }
+
     mCtxMenu->exec(mDisasTextEdit->mapToGlobal(pt));
 }
 
@@ -511,7 +540,7 @@ void DisassemblyWidget::updateCursorPosition()
     }
 
     highlightPCLine();
-
+    highlightMultiLineSelections();
     connectCursorPositionChanged(false);
 }
 
@@ -546,6 +575,7 @@ void DisassemblyWidget::cursorPositionChanged()
     seekFromCursor = false;
     highlightCurrentLine();
     highlightPCLine();
+    highlightMultiLineSelections();
     mCtxMenu->setCanCopy(mDisasTextEdit->textCursor().hasSelection());
     if (mDisasTextEdit->textCursor().hasSelection()) {
         // A word is selected so use it
@@ -615,6 +645,7 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
             seekable->seek(offset);
             highlightCurrentLine();
             highlightPCLine();
+            highlightMultiLineSelections();
         }
     }
 }
@@ -661,12 +692,25 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 
 void DisassemblyWidget::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Return) {
+    if (event->key() == Qt::Key_Shift) {
+        qDebug() << "shift key pressed";
+        mDisasTextEdit->setMultiLineSelection(true);
+    } else if (event->key() == Qt::Key_Return) {
         const QTextCursor cursor = mDisasTextEdit->textCursor();
         jumpToOffsetUnderCursor(cursor);
     }
 
     MemoryDockWidget::keyPressEvent(event);
+}
+
+void DisassemblyWidget::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Shift) {
+        qDebug() << "shift key released";
+        mDisasTextEdit->setMultiLineSelection(false);
+    }
+
+    MemoryDockWidget::keyReleaseEvent(event);
 }
 
 QString DisassemblyWidget::getWindowTitle() const
@@ -788,9 +832,67 @@ void DisassemblyTextEdit::keyPressEvent(QKeyEvent *event)
     Q_UNUSED(event)
     // QPlainTextEdit::keyPressEvent(event);
 }
-
 void DisassemblyTextEdit::mousePressEvent(QMouseEvent *event)
 {
+    if (event->button() == Qt::LeftButton && !multiLineSelection) {
+        multilineSelections.clear();
+    }
+
+    // Check for left button click and multiline individual selection mode (shift key pressed)
+    if (event->button() == Qt::LeftButton && multiLineSelection) {
+        // Use cursorForPosition to set the cursor to the exact click position
+        QTextCursor cursor = cursorForPosition(event->pos());
+        setTextCursor(cursor); // Update the text cursor to this position
+
+        int startPos = cursor.selectionStart();
+        int endPos = cursor.selectionEnd();
+
+        // Format selection
+        QTextEdit::ExtraSelection selection;
+        selection.format.setBackground(QColor("darkBlue"));
+        selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+
+        // Move cursor to start of the line
+        cursor.movePosition(QTextCursor::StartOfLine);
+        startPos = cursor.position();
+
+        // Extend cursor to the end of the line
+        cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+        endPos = cursor.position();
+
+        // Debug log
+        qDebug() << "Offset of line added: " << startPos << "-" << endPos;
+
+        // Check if line is already selected
+        auto it = std::find_if(multilineSelections.begin(), multilineSelections.end(),
+                               [startPos, endPos](const QTextEdit::ExtraSelection &s) {
+                                   return s.cursor.selectionStart() == startPos
+                                           && s.cursor.selectionEnd() == endPos;
+                               });
+
+        if (it != multilineSelections.end()) {
+            // Deselect if already selected
+            multilineSelections.erase(it);
+        } else {
+            // Add this line to the selections if not already selected
+            selection.cursor = cursor;
+            multilineSelections.append(selection);
+        }
+
+        // Apply the selections
+        setExtraSelections(multilineSelections);
+
+        // Debug log
+        qDebug() << "Multiline selections:";
+        for (const auto &selection : multilineSelections) {
+            qDebug() << "Start:" << selection.cursor.selectionStart()
+                     << "End:" << selection.cursor.selectionEnd();
+            qDebug() << selection.cursor.block().text();
+            auto offset = DisassemblyPreview::readDisassemblyOffset(selection.cursor);
+            qDebug() << "Offset:" << offset << "\n";
+        }
+    }
+
     QPlainTextEdit::mousePressEvent(event);
 
     if (event->button() == Qt::RightButton && !textCursor().hasSelection()) {
