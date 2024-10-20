@@ -452,6 +452,7 @@ jobs:
       shell: bash
       if: contains(matrix.os, 'macos')
       run: |
+        brew uninstall python@3.13
         export MACOSX_DEPLOYMENT_TARGET=10.15
         scripts/fetch_deps.sh
         source cutter-deps/env.sh
