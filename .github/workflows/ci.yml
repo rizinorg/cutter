@@ -435,10 +435,6 @@ jobs:
         brew install kadwanev/brew/retry
     - name: py dependencies
       run: |
-        if [ "$RUNNER_OS" == "macOS" ]; then
-          python3.12 -m venv .venv
-          source .venv/bin/activate
-        fi
         #python3 -m pip install -U pip==21.3.1
         pip install meson # ==0.61.5 # https://github.com/rizinorg/cutter/runs/7170222817?check_suite_focus=true
         pip install setuptools
@@ -457,7 +453,6 @@ jobs:
       shell: bash
       if: contains(matrix.os, 'macos')
       run: |
-        source .venv/bin/activate
         export MACOSX_DEPLOYMENT_TARGET=10.15
         scripts/fetch_deps.sh
         source cutter-deps/env.sh
