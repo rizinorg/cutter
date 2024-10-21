@@ -473,6 +473,7 @@ jobs:
                 -DCMAKE_BUILD_TYPE=Release \
                 -DPython3_ROOT_DIR="${CUTTER_DEPS_PYTHON_PREFIX}" \
                 -DPython_ROOT_DIR="${CUTTER_DEPS_PYTHON_PREFIX}" \
+                -DPython_FIND_VIRTUALENV=ONLY \
                 -DCUTTER_ENABLE_PYTHON=ON \
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
                 -DCUTTER_USE_BUNDLED_RIZIN=ON \
