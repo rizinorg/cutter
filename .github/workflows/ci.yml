@@ -433,15 +433,12 @@ jobs:
         rm /usr/local/bin/2to3* # symlink to some kind of existing python2.7 installation conflicts with brew python3 which gets installed as indirect dependency
         brew bundle
         brew install kadwanev/brew/retry
-    - name: py dependencies (macos)
-      if: contains(matrix.os, 'macos')
-      run: |
-        python3.12 -m venv .venv
-        source .venv/bin/activate
-        pip install meson setuptools
     - name: py dependencies
-      if: contains(matrix.os, 'macos') != true
       run: |
+        if [ "$RUNNER_OS" == "macOS" ]; then
+          python3.12 -m venv .venv
+          source .venv/bin/activate
+        fi
         #python3 -m pip install -U pip==21.3.1
         pip install meson # ==0.61.5 # https://github.com/rizinorg/cutter/runs/7170222817?check_suite_focus=true
         pip install setuptools
