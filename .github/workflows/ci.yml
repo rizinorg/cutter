@@ -408,7 +408,7 @@ jobs:
             python-version: 3.12.x
             output-id: artifact_windows
           - name: macos-x86_64
-            os: macos-12
+            os: macos-13
             arch: x86_64
             package: true
           - name: macos-arm64
@@ -432,6 +432,7 @@ jobs:
         cd scripts
         rm /usr/local/bin/2to3* # symlink to some kind of existing python2.7 installation conflicts with brew python3 which gets installed as indirect dependency
         brew bundle
+        brew install kadwanev/brew/retry
     - name: py dependencies
       run: |
         #python3 -m pip install -U pip==21.3.1
@@ -464,6 +465,8 @@ jobs:
                 -DCMAKE_BUILD_TYPE=Release \
                 -DPython3_ROOT_DIR="${CUTTER_DEPS_PYTHON_PREFIX}" \
                 -DPython_ROOT_DIR="${CUTTER_DEPS_PYTHON_PREFIX}" \
+                -DPython3_FIND_STRATEGY="LOCATION" \
+                -DPython_FIND_STRATEGY="LOCATION" \
                 -DCUTTER_ENABLE_PYTHON=ON \
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
                 -DCUTTER_USE_BUNDLED_RIZIN=ON \
@@ -480,7 +483,12 @@ jobs:
                 -DCPACK_BUNDLE_APPLE_CERT_APP="-" \
                 .. && \
               make -j4;
-        make package
+        # Reduce chance for random hdiutil "Resource busy" error when creating the dmg
+        # https://github.com/actions/runner-images/issues/7522#issuecomment-1556766641
+        echo killing XProtectBehaviorService; sudo pkill -9 XProtect >/dev/null || true;
+        echo waiting for XProtectBehaviorService kill; while pgrep XProtect; do sleep 3; done;
+        # Rimraf plugins built by `make package` because jsdec cannot be built twice
+        retry 'rm -rf ../jsdec ../libswift ../rz_libyara ../rz-silhouette; make package'
         export CUTTER_VERSION=$(python3 ../scripts/get_version.py)
         echo PACKAGE_NAME=${PACKAGE_NAME}.dmg >> $GITHUB_ENV
         echo PACKAGE_PATH=build/${PACKAGE_NAME}.dmg >> $GITHUB_ENV
