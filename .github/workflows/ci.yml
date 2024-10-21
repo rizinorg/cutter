@@ -485,6 +485,7 @@ jobs:
         # https://github.com/actions/runner-images/issues/7522#issuecomment-1556766641
         echo killing XProtectBehaviorService; sudo pkill -9 XProtect >/dev/null || true;
         echo waiting for XProtectBehaviorService kill; while pgrep XProtect; do sleep 3; done;
+        # Rimraf plugins built by `make package` because jsdec cannot be built twice
         retry 'rm -rf ../jsdec ../libswift ../rz_libyara ../rz-silhouette; make package'
         export CUTTER_VERSION=$(python3 ../scripts/get_version.py)
         echo PACKAGE_NAME=${PACKAGE_NAME}.dmg >> $GITHUB_ENV
