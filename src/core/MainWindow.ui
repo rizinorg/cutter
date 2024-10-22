@@ -51,10 +51,10 @@
    <widget class="QMenu" name="menuFile">
     <property name="geometry">
      <rect>
-      <x>2024</x>
-      <y>127</y>
-      <width>151</width>
-      <height>312</height>
+      <x>339</x>
+      <y>101</y>
+      <width>187</width>
+      <height>399</height>
      </rect>
     </property>
     <property name="title">
@@ -201,7 +201,7 @@
     </sizepolicy>
    </property>
    <property name="contextMenuPolicy">
-    <enum>Qt::DefaultContextMenu</enum>
+    <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
    </property>
    <property name="windowTitle">
     <string notr="true">Main toolbar</string>
@@ -216,7 +216,7 @@
     </size>
    </property>
    <property name="toolButtonStyle">
-    <enum>Qt::ToolButtonIconOnly</enum>
+    <enum>Qt::ToolButtonStyle::ToolButtonIconOnly</enum>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -257,7 +257,7 @@
   </action>
   <action name="actionNew">
    <property name="text">
-    <string>New Window</string>
+    <string>New window</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
@@ -283,7 +283,7 @@
   </action>
   <action name="actionMap">
    <property name="text">
-    <string>Map File</string>
+    <string>Map file</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+M</string>
@@ -291,7 +291,7 @@
   </action>
   <action name="actionSave">
    <property name="text">
-    <string>Save Project</string>
+    <string>Save project</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -348,11 +348,11 @@
   </action>
   <action name="actionBackward">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources.qrc">
      <normaloff>:/img/icons/arrow_left.svg</normaloff>:/img/icons/arrow_left.svg</iconset>
    </property>
    <property name="text">
-    <string>Undo Seek</string>
+    <string>Undo seek</string>
    </property>
    <property name="toolTip">
     <string>Go back</string>
@@ -360,11 +360,11 @@
   </action>
   <action name="actionForward">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources.qrc">
      <normaloff>:/img/icons/arrow_right.svg</normaloff>:/img/icons/arrow_right.svg</iconset>
    </property>
    <property name="text">
-    <string>Redo Seek</string>
+    <string>Redo seek</string>
    </property>
   </action>
   <action name="actionUnlock">
@@ -374,15 +374,16 @@
    <property name="checked">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/lock</normaloff>
+     <normalon>:/unlock</normalon>:/lock</iconset>
+   </property>
    <property name="text">
-    <string>Unlock Panels</string>
+    <string>Unlock panels</string>
    </property>
    <property name="toolTip">
     <string>Toggle panel locks</string>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>:/lock</normaloff><normalon>:/unlock</normalon>:/unlock</iconset>
    </property>
    <property name="iconVisibleInMenu">
     <bool>false</bool>
@@ -393,7 +394,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources.qrc">
      <normaloff>:/img/icons/themes.svg</normaloff>:/img/icons/themes.svg</iconset>
    </property>
    <property name="text">
@@ -403,12 +404,12 @@
     <bool>false</bool>
    </property>
    <property name="menuRole">
-    <enum>QAction::PreferencesRole</enum>
+    <enum>QAction::MenuRole::PreferencesRole</enum>
    </property>
   </action>
   <action name="actionTabs">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources.qrc">
      <normaloff>:/img/icons/tabs.svg</normaloff>:/img/icons/tabs.svg</iconset>
    </property>
    <property name="text">
@@ -420,7 +421,7 @@
   </action>
   <action name="actionRefresh_Panels">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources.qrc">
      <normaloff>:/img/icons/spin.svg</normaloff>:/img/icons/spin.svg</iconset>
    </property>
    <property name="text">
@@ -432,7 +433,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show Tabs at the Top</string>
+    <string>Show tabs at the top</string>
    </property>
    <property name="toolTip">
     <string>Toggle tab position</string>
@@ -565,7 +566,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources.qrc">
      <normaloff>:/img/icons/cloud.svg</normaloff>:/img/icons/cloud.svg</iconset>
    </property>
    <property name="text">
@@ -645,7 +646,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources.qrc">
      <normaloff>:/img/icons/down.svg</normaloff>:/img/icons/down.svg</iconset>
    </property>
    <property name="text">
@@ -662,7 +663,7 @@
   </action>
   <action name="actionReset_settings">
    <property name="text">
-    <string>Reset Settings</string>
+    <string>Reset settings</string>
    </property>
    <property name="toolTip">
     <string>Reset settings</string>
@@ -689,7 +690,7 @@
   </action>
   <action name="actionRefresh_contents">
    <property name="text">
-    <string>Refresh Contents</string>
+    <string>Refresh contents</string>
    </property>
    <property name="toolTip">
     <string>Refresh contents</string>
@@ -729,7 +730,7 @@
   </action>
   <action name="actionSaveAs">
    <property name="text">
-    <string>Save Project As...</string>
+    <string>Save project as...</string>
    </property>
   </action>
   <action name="actionGraph">
@@ -747,7 +748,7 @@
   </action>
   <action name="actionAnalyze">
    <property name="text">
-    <string>Analyze Program</string>
+    <string>Analyze program</string>
    </property>
   </action>
   <action name="actionExport_as_code">
@@ -757,32 +758,32 @@
   </action>
   <action name="actionApplySigFromFile">
    <property name="text">
-    <string>Apply Signature From File</string>
+    <string>Apply signature from file</string>
    </property>
   </action>
   <action name="actionCreateNewSig">
    <property name="text">
-    <string>Create New Signature File</string>
+    <string>Create new signature file</string>
    </property>
   </action>
   <action name="actionExtraHexdump">
    <property name="text">
-    <string>Add Hexdump</string>
+    <string>Add hexdump</string>
    </property>
   </action>
   <action name="actionExtraDecompiler">
    <property name="text">
-    <string>Add Decompiler</string>
+    <string>Add decompiler</string>
    </property>
   </action>
   <action name="actionExtraDisassembly">
    <property name="text">
-    <string>Add Disassembly</string>
+    <string>Add disassembly</string>
    </property>
   </action>
   <action name="actionExtraGraph">
    <property name="text">
-    <string>Add Graph</string>
+    <string>Add graph</string>
    </property>
   </action>
   <action name="actionGrouped_dock_dragging">
@@ -798,24 +799,24 @@
   </action>
   <action name="actionZoomIn">
    <property name="text">
-    <string>Zoom In</string>
+    <string>Zoom in</string>
    </property>
    <property name="shortcut">
     <string>Ctrl++</string>
    </property>
    <property name="shortcutContext">
-    <enum>Qt::ApplicationShortcut</enum>
+    <enum>Qt::ShortcutContext::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="actionZoomOut">
    <property name="text">
-    <string>Zoom Out</string>
+    <string>Zoom out</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+-</string>
    </property>
    <property name="shortcutContext">
-    <enum>Qt::ApplicationShortcut</enum>
+    <enum>Qt::ShortcutContext::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="actionZoomReset">
@@ -826,7 +827,7 @@
     <string>Ctrl+=</string>
    </property>
    <property name="shortcutContext">
-    <enum>Qt::ApplicationShortcut</enum>
+    <enum>Qt::ShortcutContext::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="actionCommitChanges">
@@ -880,7 +881,7 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="resources.qrc"/>
+  <include location="../resources.qrc"/>
  </resources>
  <connections/>
 </ui>

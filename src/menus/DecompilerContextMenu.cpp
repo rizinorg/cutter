@@ -27,7 +27,7 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
       actionCopyInstructionAddress(tr("Copy instruction address (<address>)"), this),
       actionCopyReferenceAddress(tr("Copy address of [flag] (<address>)"), this),
       actionShowInSubmenu(tr("Show in"), this),
-      actionAddComment(tr("Add Comment"), this),
+      actionAddComment(tr("Add comment"), this),
       actionDeleteComment(tr("Delete comment"), this),
       actionRenameThingHere(tr("Rename function at cursor"), this),
       actionDeleteName(tr("Delete <name>"), this),
@@ -163,10 +163,10 @@ void DecompilerContextMenu::aboutToShowSlot()
         actionAddComment.setVisible(true);
         if (comment.isEmpty()) {
             actionDeleteComment.setVisible(false);
-            actionAddComment.setText(tr("Add Comment"));
+            actionAddComment.setText(tr("Add comment"));
         } else {
             actionDeleteComment.setVisible(true);
-            actionAddComment.setText(tr("Edit Comment"));
+            actionAddComment.setText(tr("Edit comment"));
         }
     } else {
         actionShowInSubmenu.setVisible(false);

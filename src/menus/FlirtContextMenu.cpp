@@ -11,8 +11,8 @@
 FlirtContextMenu::FlirtContextMenu(QWidget *parent, MainWindow *mainWindow)
     : QMenu(parent), mainWindow(mainWindow)
 {
-    actionCopyLine = new QAction(tr("Copy Line"), this);
-    actionApplySignature = new QAction(tr("Apply Signature File"), this);
+    actionCopyLine = new QAction(tr("Copy line"), this);
+    actionApplySignature = new QAction(tr("Apply signature file"), this);
 
     connect(actionCopyLine, &QAction::triggered, this, &FlirtContextMenu::onActionCopyLine);
     connect(actionApplySignature, &QAction::triggered, this,
