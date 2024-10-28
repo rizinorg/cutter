@@ -533,7 +533,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     itemConextMenu->addAction(&actionUndefine);
     itemConextMenu->setWholeFunction(true);
 
-    addActions(itemConextMenu->actions());
+    ui->treeView->addActions(itemConextMenu->actions());
 
     // Use a custom context menu on the dock title bar
     if (Config()->getFunctionsWidgetLayout() == "horizontal") {
