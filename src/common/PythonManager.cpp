@@ -133,7 +133,9 @@ void PythonManager::shutdown()
     Core()->setProperty("_PySideInvalidatePtr", QVariant());
 
     // see PySide::destroyQCoreApplication()
+#    if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
     PySide::SignalManager::instance().clear();
+#    endif
     Shiboken::BindingManager &bm = Shiboken::BindingManager::instance();
     SbkObject *pyQApp = bm.retrieveWrapper(QCoreApplication::instance());
     PyTypeObject *pyQObjectType = Shiboken::Conversions::getPythonTypeObject("QObject*");
