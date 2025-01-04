@@ -52,7 +52,7 @@ Coding Style
 ------------
 
 In general, we follow a slightly customized version of `the official Qt guidelines <https://wiki.qt.io/Qt_Coding_Style>`__ 
-to format the code. Before sending a pull request, you will need to use `clang-format`<https://clang.llvm.org/docs/ClangFormat.html>`__ (version 8 or newer)
+to format the code. Before sending a pull request, you will need to use `clang-format <https://clang.llvm.org/docs/ClangFormat.html>`__ (version 8 or newer)
 to format the code. The command line for formatting the code according
 to the style is:
 
