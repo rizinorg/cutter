@@ -4293,10 +4293,7 @@ QByteArray CutterCore::hexStringToBytes(const QString &hex)
 
 QString CutterCore::bytesToHexString(const QByteArray &bytes)
 {
-    QByteArray hex;
-    hex.resize(bytes.length() * 2);
-    rz_hex_bin2str(reinterpret_cast<const ut8 *>(bytes.constData()), bytes.size(), hex.data());
-    return QString::fromUtf8(hex);
+    return QString::fromUtf8(bytes.toHex());
 }
 
 void CutterCore::loadScript(const QString &scriptname)
