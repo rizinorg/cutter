@@ -161,10 +161,13 @@ jobs:
                              g++-12
         fi
     - uses: actions/setup-python@v5
+      if: matrix.system-deps == false
       with:
         python-version: ${{ matrix.python-version }}
     - name: py dependencies
       run: |
+        python3 --version
+        which python3
         # https://github.com/rizinorg/cutter/runs/7170222817?check_suite_focus=true
         python3 -m pip install meson==0.61.5
     - name: Prepare package id
