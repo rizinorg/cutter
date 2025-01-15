@@ -38,7 +38,7 @@ jobs:
             cxx-override: default
           - name: linux-x86_64-system-deps # ensure that Cutter can be built at least in basic config on Ubuntu 22.04 using sytem libraries
             image: ubuntu:22.04
-            python-version: 3.10.x
+            python-version: 3.11.x
             system-deps: true
             package: false
             tarball: false
@@ -310,7 +310,7 @@ jobs:
       artifact_linux: ${{ steps.output_setup.outputs.artifact_name }}
   build-linux-old:
     name: ${{ matrix.name }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # only a host environement, actual building happens in a docker image
     strategy:
       matrix:
         name: [
