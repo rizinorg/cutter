@@ -15,13 +15,20 @@
   <launchable type="desktop-id">re.rizin.cutter.desktop</launchable>
 
   <screenshots>
-    <screenshot>
+    <screenshot type="default">
       <image>https://raw.githubusercontent.com/rizinorg/cutter/stable/docs/source/images/screenshot.png</image>
       <caption>Main UI</caption>
     </screenshot>
   </screenshots>
 
-  <url type="homepage">https://cutter.re/docs/</url>
+  <url type="homepage">https://cutter.re/</url>
+  <url type="bugtracker">https://github.com/rizinorg/cutter/issues</url>
+  <url type="contact">https://cutter.re/#Join-our-communities</url>
+  <url type="contribute">https://cutter.re/docs/contributing.html</url>
+  <url type="help">https://cutter.re/docs</url>
+  <url type="translate">https://cutter.re/docs/contributing/translations/getting-started.html</url>
+  <url type="vcs-browser">https://github.com/rizinorg/cutter</url>
+
   <update_contact>xarkes</update_contact>
 
   <releases>
