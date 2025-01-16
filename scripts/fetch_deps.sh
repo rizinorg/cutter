@@ -8,9 +8,9 @@ mkdir -p cutter-deps && cd cutter-deps
 DEPS_BASE_URL=https://github.com/rizinorg/cutter-deps/releases/download/v16
 
 if [ "$CUTTER_QT" == "5" ]; then
-	DEPS_FILE_linux_x86_64=cutter-deps-linux-x86_64.tar.gz
-	DEPS_SHA256_linux_x86_64=0721c85548bbcf31f6911cdb2227e5efb4a20c34262672d4cd2193db166b2f8c
-	DEPS_BASE_URL=https://github.com/rizinorg/cutter-deps/releases/download/v15
+	DEPS_FILE_linux_x86_64=cutter-deps-q5-linux-x86_64.tar.gz
+	DEPS_SHA256_linux_x86_64=93636941493a19db8857c89f1f29c588b83ecebf283cc4489642ac50f46fef20
+	DEPS_BASE_URL=https://github.com/karliss/cutter-deps/releases/download/qt6-test
 else
 	DEPS_FILE_linux_x86_64=cutter-deps-linux-x86_64.tar.gz
 	DEPS_SHA256_linux_x86_64=f63c5af2d9872bc6538a94c839d6ef6645c7630c42cff30f1d9da8eefd9eb040
