@@ -60,6 +60,11 @@ echo "$DEPS_SHA256  $DEPS_FILE" | ${SHA256SUM} -c - || exit 1
 tar -xf "$DEPS_FILE" || exit 1
 
 if [ -f relocate.sh ]; then
+	echo " before relocate"
+	cat relocate.sh
+	cat ./python/lib/pkgconfig/*
 	./relocate.sh || exit 1
+	echo " after relocate"
+	cat ./python/lib/pkgconfig/*
 fi
 
