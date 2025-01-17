@@ -7,8 +7,13 @@ if ! [[ $# -eq 2 ]]; then
     exit 1
 fi
 
+pwd
+ls
 python_prefix=$(pkg-config --variable=prefix python3)
 
+echo "pprefix $python_prefix"
+ls "$python_prefix"
+ls "$python_prefix/bin"
 python_version=`$python_prefix/bin/python3 --version`
 python_version=${python_version##* }
 python_version=python${python_version%.*}
