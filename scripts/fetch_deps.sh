@@ -9,7 +9,7 @@ DEPS_BASE_URL=https://github.com/rizinorg/cutter-deps/releases/download/v16
 
 if [ "$CUTTER_QT" == "5" ]; then
 	DEPS_FILE_linux_x86_64=cutter-deps-q5-linux-x86_64.tar.gz
-	DEPS_SHA256_linux_x86_64=3e86eb1c13b30b8f3908c6c8f38ca49287ccc110380b0810b534e6ebd7659bec
+	DEPS_SHA256_linux_x86_64=77ca64ed9565aacb182d7464452eaa8a6e13fdb32f9e852b54c86ba06ba01158
 	DEPS_BASE_URL=https://github.com/karliss/cutter-deps/releases/download/qt6-test
 else
 	DEPS_FILE_linux_x86_64=cutter-deps-linux-x86_64.tar.gz
@@ -60,11 +60,6 @@ echo "$DEPS_SHA256  $DEPS_FILE" | ${SHA256SUM} -c - || exit 1
 tar -xf "$DEPS_FILE" || exit 1
 
 if [ -f relocate.sh ]; then
-	echo " before relocate"
-	cat relocate.sh
-	cat ./python/lib/pkgconfig/*
 	./relocate.sh || exit 1
-	echo " after relocate"
-	cat ./python/lib/pkgconfig/*
 fi
 
