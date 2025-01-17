@@ -49,9 +49,9 @@ if [ "$image" = "ubuntu:18.04" ]; then
                         libglu1-mesa-dev \
                         freeglut3-dev \
                         mesa-common-dev \
-                        libclang-8-dev \
-                        llvm-8
-    ln -s /usr/bin/llvm-config-8 /usr/bin/llvm-config
+                        libclang-10-dev \
+                        llvm-10
+    ln -s /usr/bin/llvm-config-10 /usr/bin/llvm-config
 fi
 if [ "$image" = "ubuntu:18.04" ] || [ "$image" = "ubuntu:20.04" ]; then
     # install additional packages needed for appimage
