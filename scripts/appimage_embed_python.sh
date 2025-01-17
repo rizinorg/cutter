@@ -12,6 +12,7 @@ ls
 python_prefix=$(pkg-config --variable=prefix python3)
 
 echo "pprefix $python_prefix"
+ls /github/workspace/cutter-deps/
 ls "$python_prefix"
 ls "$python_prefix/bin"
 python_version=`$python_prefix/bin/python3 --version`
