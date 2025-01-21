@@ -1097,7 +1097,7 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
                 fcn->cc = rz_str_constpool_get(&core->analysis->constpool, newCC.constData());
             }
 
-            emit Core() -> functionsChanged();
+            emit Core()->functionsChanged();
         }
     }
 }
