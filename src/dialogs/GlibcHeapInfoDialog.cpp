@@ -62,7 +62,7 @@ void GlibcHeapInfoDialog::updateFields()
 
 void GlibcHeapInfoDialog::saveChunkInfo()
 {
-    QMessageBox msgBox;
+    QMessageBox msgBox(this);
     msgBox.setText("Do you want to overwrite chunk metadata?");
     msgBox.setInformativeText(
             "Any field which cannot be converted to a valid integer will be saved as zero");

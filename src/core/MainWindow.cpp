@@ -129,7 +129,8 @@ T *getNewInstance(MainWindow *m)
 
 using namespace Cutter;
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), core(Core()), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent), core(Core()), ui(new Ui::MainWindow), ioModesController(this)
 {
     tabsOnTop = false;
     configuration = Config();
@@ -538,7 +539,7 @@ void MainWindow::openNewFile(InitialOptions &options, bool skipOptionsDialog)
     if (options.script.isEmpty()) {
         QString script = QString("%1.rz").arg(this->filename);
         if (rz_file_exists(script.toStdString().data())) {
-            QMessageBox mb;
+            QMessageBox mb(this);
             mb.setWindowTitle(tr("Script loading"));
             mb.setText(tr("Do you want to load the '%1' script?").arg(script));
             mb.setStandardButtons(QMessageBox::Yes | QMessageBox::No);

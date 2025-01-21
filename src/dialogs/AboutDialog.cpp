@@ -95,7 +95,9 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
 #if CUTTER_UPDATE_WORKER_AVAILABLE
     UpdateWorker updateWorker;
 
-    QProgressDialog waitDialog;
+    auto parentWindow = this;
+
+    QProgressDialog waitDialog(parentWindow);
     QProgressBar *bar = new QProgressBar(&waitDialog);
     bar->setMaximum(0);
 
@@ -104,12 +106,12 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
 
     connect(&updateWorker, &UpdateWorker::checkComplete, &waitDialog, &QProgressDialog::cancel);
     connect(&updateWorker, &UpdateWorker::checkComplete,
-            [&updateWorker](const QVersionNumber &version, const QString &error) {
+            [&updateWorker, parentWindow](const QVersionNumber &version, const QString &error) {
                 if (!error.isEmpty()) {
-                    QMessageBox::critical(nullptr, tr("Error!"), error);
+                    QMessageBox::critical(parentWindow, tr("Error!"), error);
                 } else {
                     if (version <= UpdateWorker::currentVersionNumber()) {
-                        QMessageBox::information(nullptr, tr("Version control"),
+                        QMessageBox::information(parentWindow, tr("Version control"),
                                                  tr("Cutter is up to date!"));
                     } else {
                         updateWorker.showUpdateDialog(false);

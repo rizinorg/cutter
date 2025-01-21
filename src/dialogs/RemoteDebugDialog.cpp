@@ -53,7 +53,7 @@ bool RemoteDebugDialog::validate()
     } else if (debugger == WINDBG) {
         return validatePath();
     }
-    QMessageBox msgBox;
+    QMessageBox msgBox(this);
     msgBox.setText(tr("Invalid debugger"));
     msgBox.exec();
     return false;
@@ -61,7 +61,7 @@ bool RemoteDebugDialog::validate()
 
 bool RemoteDebugDialog::validateIp()
 {
-    QMessageBox msgBox;
+    QMessageBox msgBox(this);
 
     QString ip = getIpOrPath();
     if (QHostAddress(ip).isNull()) {
@@ -74,7 +74,7 @@ bool RemoteDebugDialog::validateIp()
 
 bool RemoteDebugDialog::validatePath()
 {
-    QMessageBox msgBox;
+    QMessageBox msgBox(this);
 
     QString path = getIpOrPath();
     if (!QFileInfo(path).exists()) {
@@ -87,7 +87,7 @@ bool RemoteDebugDialog::validatePath()
 
 bool RemoteDebugDialog::validatePort()
 {
-    QMessageBox msgBox;
+    QMessageBox msgBox(this);
 
     int port = getPort();
     if (port < 1 || port > 65535) {

@@ -44,6 +44,7 @@ HexWidget::HexWidget(QWidget *parent)
       showAscii(true),
       showExHex(true),
       showExAddr(true),
+      ioModesController(parent),
       warningTimer(this)
 {
     setMouseTracking(true);

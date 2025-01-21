@@ -157,7 +157,7 @@ void ProcessesWidget::onActivated(const QModelIndex &index)
     // attach to any given id. If it isn't found simply update the UI.
     for (const auto &value : Core()->getAllProcesses()) {
         if (pid == value.pid) {
-            QMessageBox msgBox;
+            QMessageBox msgBox(this);
             switch (value.status) {
             case RZ_DBG_PROC_ZOMBIE:
             case RZ_DBG_PROC_DEAD:

@@ -143,7 +143,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main),
     reverseActions = { actionStepBack, actionContinueBack };
 
     connect(Core(), &CutterCore::debugProcessFinished, this, [=](int pid) {
-        QMessageBox msgBox;
+        QMessageBox msgBox(main);
         msgBox.setText(tr("Debugged process exited (") + QString::number(pid) + ")");
         msgBox.exec();
     });
@@ -262,7 +262,7 @@ void DebugActions::showDebugWarning()
 {
     if (!acceptedDebugWarning) {
         acceptedDebugWarning = true;
-        QMessageBox msgBox;
+        QMessageBox msgBox(main);
         msgBox.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
         msgBox.setText(tr("Debug is currently in beta.\n")
                        + tr("If you encounter any problems or have suggestions, please submit an "
@@ -302,7 +302,7 @@ void DebugActions::onAttachedRemoteDebugger(bool successfully)
         return;
 
     if (!successfully) {
-        QMessageBox msgBox;
+        QMessageBox msgBox(main);
         msgBox.setText(tr("Error connecting."));
         msgBox.exec();
         attachRemoteDialog();
@@ -326,7 +326,7 @@ void DebugActions::attachRemoteDialog()
     if (!remoteDialog) {
         remoteDialog = new RemoteDebugDialog(main);
     }
-    QMessageBox msgBox;
+    QMessageBox msgBox(main);
     bool success = false;
     while (!success) {
         success = true;
@@ -355,7 +355,7 @@ void DebugActions::attachProcessDialog()
                 attachProcess(pid);
             } else {
                 success = false;
-                QMessageBox msgBox;
+                QMessageBox msgBox(main);
                 msgBox.setText(tr("Error attaching. No process selected!"));
                 msgBox.exec();
             }
@@ -384,7 +384,7 @@ void DebugActions::startDebug()
 
     QFileInfo info(filename);
     if (!Core()->currentlyDebugging && !info.isExecutable()) {
-        QMessageBox msgBox;
+        QMessageBox msgBox(main);
         msgBox.setText(tr("File '%1' does not have executable permissions.").arg(filename));
         msgBox.exec();
         return;

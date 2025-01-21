@@ -25,6 +25,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
       offset(0),
       canCopy(false),
       mainWindow(mainWindow),
+      ioModesController(mainWindow),
       actionEditInstruction(this),
       actionNopInstruction(this),
       actionJmpReverse(this),
@@ -1096,7 +1097,7 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
                 fcn->cc = rz_str_constpool_get(&core->analysis->constpool, newCC.constData());
             }
 
-            emit Core()->functionsChanged();
+            emit Core() -> functionsChanged();
         }
     }
 }

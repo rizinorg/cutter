@@ -156,16 +156,16 @@ void AppearanceOptionsWidget::on_deleteButton_clicked()
 {
     QString currTheme = ui->colorComboBox->currentText();
     if (!ThemeWorker().isCustomTheme(currTheme)) {
-        QMessageBox::critical(nullptr, tr("Error"), ThemeWorker().deleteTheme(currTheme));
+        QMessageBox::critical(this, tr("Error"), ThemeWorker().deleteTheme(currTheme));
         return;
     }
     int ret = QMessageBox::question(
-            nullptr, tr("Delete"), tr("Are you sure you want to delete <b>%1</b>?").arg(currTheme));
+            this, tr("Delete"), tr("Are you sure you want to delete <b>%1</b>?").arg(currTheme));
     if (ret == QMessageBox::Yes) {
         QString err = ThemeWorker().deleteTheme(currTheme);
         updateThemeFromConfig(false);
         if (!err.isEmpty()) {
-            QMessageBox::critical(nullptr, tr("Error"), err);
+            QMessageBox::critical(this, tr("Error"), err);
         }
     }
 }

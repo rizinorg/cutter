@@ -66,7 +66,7 @@ void WelcomeDialog::onLanguageComboBox_currentIndexChanged(int index)
     QString language = ui->languageComboBox->itemText(index);
     Config()->setLocaleByName(language);
 
-    QMessageBox mb;
+    QMessageBox mb(this);
     mb.setWindowTitle(tr("Language settings"));
     mb.setText(tr("Language will be changed after next application start."));
     mb.setIcon(QMessageBox::Information);

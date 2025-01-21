@@ -6,6 +6,12 @@
 #include <QObject>
 #include <QMessageBox>
 #include <QJsonObject>
+#include <qwidget.h>
+
+IOModesController::IOModesController(QWidget *parentWindow)
+    : QObject(parentWindow), parentWindow(parentWindow)
+{
+}
 
 bool IOModesController::canWrite()
 {
@@ -48,7 +54,7 @@ bool IOModesController::prepareForWriting()
         return true;
     }
 
-    QMessageBox msgBox;
+    QMessageBox msgBox(parentWindow);
     msgBox.setIcon(QMessageBox::Icon::Critical);
     msgBox.setWindowTitle(QObject::tr("Write error"));
     msgBox.setText(QObject::tr(
@@ -91,7 +97,7 @@ bool IOModesController::askCommitUnsavedChanges()
     // Check if there are uncommitted changes
     if (!allChangesComitted()) {
         QMessageBox::StandardButton ret = QMessageBox::question(
-                NULL, QObject::tr("Uncommitted changes"),
+                parentWindow, QObject::tr("Uncommitted changes"),
                 QObject::tr("It seems that you have changes or patches that are not committed to "
                             "the file.\n"
                             "Do you want to commit them now?"),
