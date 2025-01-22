@@ -192,8 +192,7 @@ void MainWindow::initUI()
     connect(seek_to_func_start_shortcut, &QShortcut::activated, this,
             &MainWindow::seekToFunctionStart);
 
-    QShortcut *refresh_shortcut = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
-    connect(refresh_shortcut, &QShortcut::activated, this, &MainWindow::refreshAll);
+    ui->actionRefresh_contents->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
 
     connect(ui->actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomIn);
     connect(ui->actionZoomOut, &QAction::triggered, this, &MainWindow::onZoomOut);
@@ -298,6 +297,7 @@ void MainWindow::initToolBar()
     ui->menuDebug->addAction(debugActions->actionStartEmul);
     ui->menuDebug->addAction(debugActions->actionAttach);
     ui->menuDebug->addAction(debugActions->actionStartRemote);
+    ui->menuDebug->addAction(debugActions->actionStop);
     ui->menuDebug->addSeparator();
     ui->menuDebug->addAction(debugActions->actionStep);
     ui->menuDebug->addAction(debugActions->actionStepOver);
