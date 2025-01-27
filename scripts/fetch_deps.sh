@@ -9,8 +9,8 @@ DEPS_BASE_URL=https://github.com/rizinorg/cutter-deps/releases/download/v16
 
 if [ "$CUTTER_QT" == "5" ]; then
 	DEPS_FILE_linux_x86_64=cutter-deps-q5-linux-x86_64.tar.gz
-	DEPS_SHA256_linux_x86_64=77ca64ed9565aacb182d7464452eaa8a6e13fdb32f9e852b54c86ba06ba01158
-	DEPS_BASE_URL=https://github.com/karliss/cutter-deps/releases/download/qt6-test
+	DEPS_SHA256_linux_x86_64=ab3099fe699db100f2d00e1b70cdf77dec6b8fdd9cd1709c96e123a15fb62571
+	DEPS_BASE_URL=https://github.com/rizinorg/cutter-deps/releases/download/qt5-v17
 else
 	DEPS_FILE_linux_x86_64=cutter-deps-linux-x86_64.tar.gz
 	DEPS_SHA256_linux_x86_64=f63c5af2d9872bc6538a94c839d6ef6645c7630c42cff30f1d9da8eefd9eb040
