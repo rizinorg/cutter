@@ -8,6 +8,7 @@ if ! [[ $# -eq 2 ]]; then
 fi
 
 python_prefix=$(pkg-config --variable=prefix python3)
+
 python_version=`$python_prefix/bin/python3 --version`
 python_version=${python_version##* }
 python_version=python${python_version%.*}
