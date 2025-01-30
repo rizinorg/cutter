@@ -2422,17 +2422,13 @@ void CutterCore::stepOverDebug()
             return;
         }
     } else {
-        bool ret;
         asyncTask(
-                [&](RzCore *core) {
-                    ret = rz_core_debug_step_over(core, 1);
+                [](RzCore *core) {
+                    rz_core_debug_step_over(core, 1);
                     rz_core_dbg_follow_seek_register(core);
                     return nullptr;
                 },
                 debugTask);
-        if (!ret) {
-            return;
-        }
     }
 
     emit debugTaskStateChanged();
@@ -2453,17 +2449,13 @@ void CutterCore::stepOutDebug()
     }
 
     emit debugTaskStateChanged();
-    bool ret;
     asyncTask(
-            [&](RzCore *core) {
-                ret = rz_core_debug_step_until_frame(core);
+            [](RzCore *core) {
+                rz_core_debug_step_until_frame(core);
                 rz_core_dbg_follow_seek_register(core);
                 return nullptr;
             },
             debugTask);
-    if (!ret) {
-        return;
-    }
 
     connect(debugTask.data(), &RizinTask::finished, this, [this]() {
         debugTask.clear();
@@ -2492,17 +2484,13 @@ void CutterCore::stepBackDebug()
             return;
         }
     } else {
-        bool ret;
         asyncTask(
-                [&](RzCore *core) {
-                    ret = rz_core_debug_step_back(core, 1);
+                [](RzCore *core) {
+                    rz_core_debug_step_back(core, 1);
                     rz_core_dbg_follow_seek_register(core);
                     return nullptr;
                 },
                 debugTask);
-        if (!ret) {
-            return;
-        }
     }
     emit debugTaskStateChanged();
 
