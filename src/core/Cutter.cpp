@@ -23,6 +23,7 @@
 
 #include <rz_asm.h>
 #include <rz_cmd.h>
+#include <rz_socket.h>
 #include <sdb.h>
 
 static CutterCore *uniqueInstance;
@@ -200,6 +201,8 @@ void CutterCore::initialize(bool loadPlugins)
 
     rz_cons_new(); // initialize console
     core_ = rz_core_new();
+    char **env = rz_sys_get_environ();
+    core_->io->envprofile = rz_run_get_environ_profile(env);
     rz_core_task_sync_begin(&core_->tasks);
     coreBed = rz_cons_sleep_begin();
     CORE_LOCK();
