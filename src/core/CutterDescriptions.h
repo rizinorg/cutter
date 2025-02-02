@@ -346,6 +346,18 @@ struct ProcessDescription
     QString path;
 };
 
+struct ThreadDescription
+{
+    bool current;
+    int pid;
+    int uid;
+    int ppid;
+    RzDebugPidState status;
+    QString path;
+    ut64 pc;
+    ut64 tls;
+};
+
 struct RefDescription
 {
     QString ref;

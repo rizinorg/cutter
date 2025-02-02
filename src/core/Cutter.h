@@ -443,7 +443,7 @@ public:
      * @param pid The pid of the process, -1 for the currently debugged process
      * @return List of ProcessDescription
      */
-    QList<ProcessDescription> getProcessThreads(int pid);
+    QList<ThreadDescription> getProcessThreads(int pid = -1);
     /**
      * @brief Get a list of heap chunks
      * Uses RZ_API rz_heap_chunks_list to get vector of chunks
@@ -652,7 +652,13 @@ public:
     QList<MemoryMapDescription> getMemoryMap();
     QList<SearchDescription> getAllSearch(QString searchFor, QString space, QString in);
     QList<BreakpointDescription> getBreakpoints();
-    QList<ProcessDescription> getAllProcesses();
+    /**
+     * @brief Get list of processes attachable by debugger
+     *
+     * @param pid 0 - all processes, -1 - currently debugged process
+     * @return QList<ProcessDescription>
+     */
+    QList<ProcessDescription> getProcesses(int pid = 0);
     /**
      * @brief Get the right RzReg object based on the cutter state (debugging vs emulating)
      */

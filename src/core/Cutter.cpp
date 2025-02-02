@@ -10,6 +10,7 @@
 #include <cassert>
 #include <memory>
 
+#include "CutterDescriptions.h"
 #include "common/TempConfig.h"
 #include "common/BasicInstructionHighlighter.h"
 #include "common/Configuration.h"
@@ -2801,10 +2802,44 @@ bool CutterCore::isBreakpoint(const QList<RVA> &breakpoints, RVA addr)
     return breakpoints.contains(addr);
 }
 
-QList<ProcessDescription> CutterCore::getProcessThreads(int pid = -1)
+QList<ThreadDescription> CutterCore::getProcessThreads(int pid)
 {
     CORE_LOCK();
-    RzList *list = rz_debug_pids(core->dbg, pid != -1 ? pid : core->dbg->pid);
+    auto dbg = core_->dbg;
+    if (!dbg || !dbg->cur || !dbg->cur->threads) {
+        return {};
+    }
+    RzList *list = core_->dbg->cur->threads(dbg, pid != -1 ? pid : dbg->pid);
+    RzListIter *iter;
+    RzDebugPid *p;
+    QList<ThreadDescription> ret;
+
+    CutterRzListForeach (list, iter, RzDebugPid, p) {
+        ThreadDescription proc;
+
+        proc.current = dbg->tid == p->pid;
+        proc.ppid = p->ppid;
+        proc.pid = p->pid;
+        proc.uid = p->uid;
+        proc.status = static_cast<RzDebugPidState>(p->status);
+        proc.path = p->path;
+        proc.pc = p->pc;
+        proc.tls = p->tls;
+
+        ret << proc;
+    }
+    rz_list_free(list);
+    return ret;
+}
+
+QList<ProcessDescription> CutterCore::getProcesses(int pid)
+{
+    CORE_LOCK();
+    auto dbg = core_->dbg;
+    if (!dbg || !dbg->cur || !dbg->cur->threads) {
+        return {};
+    }
+    RzList *list = core_->dbg->cur->pids(dbg, pid >= 0 ? pid : dbg->pid);
     RzListIter *iter;
     RzDebugPid *p;
     QList<ProcessDescription> ret;
@@ -2823,11 +2858,6 @@ QList<ProcessDescription> CutterCore::getProcessThreads(int pid = -1)
     }
     rz_list_free(list);
     return ret;
-}
-
-QList<ProcessDescription> CutterCore::getAllProcesses()
-{
-    return getProcessThreads(0);
 }
 
 QList<MemoryMapDescription> CutterCore::getMemoryMap()

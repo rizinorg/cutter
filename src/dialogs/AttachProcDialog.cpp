@@ -19,7 +19,7 @@ void ProcessModel::updateData()
 {
     beginResetModel();
 
-    processes = Core()->getAllProcesses();
+    processes = Core()->getProcesses();
 
     endResetModel();
 }

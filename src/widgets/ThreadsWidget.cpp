@@ -1,31 +1,127 @@
 #include <QShortcut>
 #include "ThreadsWidget.h"
+#include "CutterCommon.h"
+#include "Helpers.h"
 #include "ui_ThreadsWidget.h"
-#include "common/JsonModel.h"
 #include "QuickFilterView.h"
 #include <rz_debug.h>
 
 #include "core/MainWindow.h"
 
-#define DEBUGGED_PID (-1)
+ThreadModel::ThreadModel(QObject *parent) : QAbstractListModel(parent) {}
 
-ThreadsWidget::ThreadsWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::ThreadsWidget)
+void ThreadModel::setList(QList<ThreadDescription> data)
+{
+    beginResetModel();
+    this->threads = data;
+    endResetModel();
+}
+
+int ThreadModel::rowCount(const QModelIndex &) const
+{
+    return threads.count();
+}
+
+int ThreadModel::columnCount(const QModelIndex &) const
+{
+    return ThreadModel::ColumnIndex::COLUMN_COUNT;
+}
+
+QVariant ThreadModel::data(const QModelIndex &index, int role) const
+{
+    if (index.row() >= threads.count())
+        return QVariant();
+
+    const ThreadDescription &thread = threads.at(index.row());
+
+    switch (role) {
+    case Qt::DisplayRole:
+        switch (index.column()) {
+        case ColumnIndex::COLUMN_PID:
+            return thread.current ? QString("*%0").arg(thread.pid) : QString("%0").arg(thread.pid);
+        case ColumnIndex::COLUMN_STATUS:
+            return translateStatus(thread.status);
+        case ColumnIndex::COLUMN_PATH:
+            return thread.path;
+        case ColumnIndex::COLUMN_PC:
+            return RzAddressString(thread.pc);
+        case ColumnIndex::COLUMN_TLS:
+            return RzAddressString(thread.tls);
+        default:
+            return QVariant();
+        }
+    case Qt::FontRole: {
+        if (thread.current) {
+            QFont font;
+            font.setBold(true);
+            return font;
+        }
+        return QVariant();
+    }
+    case Qt::EditRole:
+        switch (index.column()) {
+        case ColumnIndex::COLUMN_PID:
+            return thread.pid;
+        case ColumnIndex::COLUMN_PC:
+            return thread.pc;
+        case ColumnIndex::COLUMN_TLS:
+            return thread.tls;
+        default:
+            return data(index, Qt::DisplayRole);
+        }
+        break;
+    default:
+        return QVariant();
+    }
+}
+
+QVariant ThreadModel::headerData(int section, Qt::Orientation, int role) const
+{
+    switch (role) {
+    case Qt::DisplayRole:
+        switch (section) {
+        case ColumnIndex::COLUMN_PID:
+            return tr("TID");
+        case ColumnIndex::COLUMN_STATUS:
+            return tr("Status");
+        case ColumnIndex::COLUMN_PATH:
+            return tr("Path");
+        case ColumnIndex::COLUMN_PC:
+            return tr("PC");
+        case ColumnIndex::COLUMN_TLS:
+            return tr("TLS");
+        default:
+            return QVariant();
+        }
+    default:
+        return QVariant();
+    }
+}
+
+ThreadsWidget::ThreadsWidget(MainWindow *main)
+    : CutterDockWidget(main),
+      ui(new Ui::ThreadsWidget),
+      menuText(this),
+      addressableItemContextMenu(this, main)
 {
     ui->setupUi(this);
 
     // Setup threads model
-    modelThreads = new QStandardItemModel(1, 3, this);
-    modelThreads->setHorizontalHeaderItem(ThreadsWidget::COLUMN_PID, new QStandardItem(tr("PID")));
-    modelThreads->setHorizontalHeaderItem(ThreadsWidget::COLUMN_STATUS,
-                                          new QStandardItem(tr("Status")));
-    modelThreads->setHorizontalHeaderItem(ThreadsWidget::COLUMN_PATH,
-                                          new QStandardItem(tr("Path")));
+    modelThreads = new ThreadModel(this);
+
     ui->viewThreads->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     ui->viewThreads->verticalHeader()->setVisible(false);
-    ui->viewThreads->setFont(Config()->getFont());
+    fontsUpdatedSlot();
 
-    modelFilter = new ThreadsFilterModel(this);
+    modelFilter = new QSortFilterProxyModel(this);
     modelFilter->setSourceModel(modelThreads);
+
+    modelFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    modelFilter->setSortCaseSensitivity(Qt::CaseInsensitive);
+    modelFilter->setFilterKeyColumn(-1);
+    modelFilter->setFilterRole(Qt::DisplayRole);
+    modelFilter->setSortRole(Qt::EditRole);
+
     ui->viewThreads->setModel(modelFilter);
 
     // CTRL+F switches to the filter view and opens it in case it's hidden
@@ -44,8 +140,11 @@ ThreadsWidget::ThreadsWidget(MainWindow *main) : CutterDockWidget(main), ui(new 
 
     refreshDeferrer = createRefreshDeferrer([this]() { updateContents(); });
 
+    menuText.setSeparator(true);
+    qhelpers::prependQAction(&menuText, &addressableItemContextMenu);
+
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, modelFilter,
-            &ThreadsFilterModel::setFilterWildcard);
+            &QSortFilterProxyModel::setFilterWildcard);
     connect(Core(), &CutterCore::refreshAll, this, &ThreadsWidget::updateContents);
     connect(Core(), &CutterCore::registersChanged, this, &ThreadsWidget::updateContents);
     connect(Core(), &CutterCore::debugTaskStateChanged, this, &ThreadsWidget::updateContents);
@@ -54,6 +153,11 @@ ThreadsWidget::ThreadsWidget(MainWindow *main) : CutterDockWidget(main), ui(new 
     connect(Core(), &CutterCore::switchedProcess, this, &ThreadsWidget::updateContents);
     connect(Config(), &Configuration::fontsUpdated, this, &ThreadsWidget::fontsUpdatedSlot);
     connect(ui->viewThreads, &QTableView::activated, this, &ThreadsWidget::onActivated);
+    connect(ui->viewThreads, &QWidget::customContextMenuRequested, this,
+            &ThreadsWidget::tableCustomContextMenu);
+    connect(ui->viewThreads->selectionModel(), &QItemSelectionModel::currentChanged, this,
+            &ThreadsWidget::onCurrentChanged);
+    ui->viewThreads->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 }
 
 ThreadsWidget::~ThreadsWidget() {}
@@ -66,7 +170,7 @@ void ThreadsWidget::updateContents()
 
     if (!Core()->currentlyDebugging) {
         // Remove rows from the previous debugging session
-        modelThreads->removeRows(0, modelThreads->rowCount());
+        modelThreads->setList(QList<ThreadDescription>());
         return;
     }
 
@@ -78,7 +182,7 @@ void ThreadsWidget::updateContents()
     }
 }
 
-QString ThreadsWidget::translateStatus(const char status)
+QString ThreadModel::translateStatus(const char status) const
 {
     switch (status) {
     case RZ_DBG_PROC_STOP:
@@ -100,36 +204,8 @@ QString ThreadsWidget::translateStatus(const char status)
 
 void ThreadsWidget::setThreadsGrid()
 {
-    int i = 0;
-    QFont font;
-
-    for (const auto &threadsItem : Core()->getProcessThreads(DEBUGGED_PID)) {
-        st64 pid = threadsItem.pid;
-        QString status = translateStatus(threadsItem.status);
-        QString path = threadsItem.path;
-        bool current = threadsItem.current;
-        // Use bold font to highlight active thread
-        font.setBold(current);
-        QStandardItem *rowPid = new QStandardItem(QString::number(pid));
-        rowPid->setFont(font);
-        QStandardItem *rowStatus = new QStandardItem(status);
-        rowStatus->setFont(font);
-        QStandardItem *rowPath = new QStandardItem(path);
-        rowPath->setFont(font);
-        modelThreads->setItem(i, ThreadsWidget::COLUMN_PID, rowPid);
-        modelThreads->setItem(i, ThreadsWidget::COLUMN_STATUS, rowStatus);
-        modelThreads->setItem(i, ThreadsWidget::COLUMN_PATH, rowPath);
-        i++;
-    }
-
-    // Remove irrelevant old rows
-    if (modelThreads->rowCount() > i) {
-        modelThreads->removeRows(i, modelThreads->rowCount() - i);
-    }
-
-    modelFilter->setSourceModel(modelThreads);
+    modelThreads->setList(Core()->getProcessThreads());
     ui->viewThreads->resizeColumnsToContents();
-    ;
 }
 
 void ThreadsWidget::fontsUpdatedSlot()
@@ -142,11 +218,12 @@ void ThreadsWidget::onActivated(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    int tid = modelFilter->data(index.sibling(index.row(), ThreadsWidget::COLUMN_PID)).toInt();
+    int tid = modelFilter->data(index.sibling(index.row(), ThreadModel::COLUMN_PID), Qt::EditRole)
+                      .toInt();
 
     // Verify that the selected tid is still in the threads list since dpt= will
     // attach to any given id. If it isn't found simply update the UI.
-    for (const auto &value : Core()->getProcessThreads(DEBUGGED_PID)) {
+    for (const auto &value : Core()->getProcessThreads()) {
         if (tid == value.pid) {
             Core()->setCurrentDebugThread(tid);
             break;
@@ -156,21 +233,25 @@ void ThreadsWidget::onActivated(const QModelIndex &index)
     updateContents();
 }
 
-ThreadsFilterModel::ThreadsFilterModel(QObject *parent) : QSortFilterProxyModel(parent)
+void ThreadsWidget::onCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    setFilterCaseSensitivity(Qt::CaseInsensitive);
-    setSortCaseSensitivity(Qt::CaseInsensitive);
-}
+    Q_UNUSED(previous)
 
-bool ThreadsFilterModel::filterAcceptsRow(int row, const QModelIndex &parent) const
-{
-    // All columns are checked for a match
-    for (int i = ThreadsWidget::COLUMN_PID; i <= ThreadsWidget::COLUMN_PATH; ++i) {
-        QModelIndex index = sourceModel()->index(row, i, parent);
-        if (qhelpers::filterStringContains(sourceModel()->data(index).toString(), this)) {
-            return true;
-        }
+    RVA offset = 0;
+    if (current.column() == ThreadModel::ColumnIndex::COLUMN_TLS) {
+        offset = current.data(Qt::EditRole).toULongLong();
+        menuText.setText(tr("TLS (%0)").arg(RzAddressString(offset)));
+    } else {
+        offset = current.sibling(current.row(), ThreadModel::ColumnIndex::COLUMN_PC)
+                         .data(Qt::EditRole)
+                         .toULongLong();
+        menuText.setText(tr("PC (%0)").arg(RzAddressString(offset)));
     }
 
-    return false;
+    addressableItemContextMenu.setTarget(offset);
+}
+
+void ThreadsWidget::tableCustomContextMenu(const QPoint &pos)
+{
+    addressableItemContextMenu.exec(this->ui->viewThreads->viewport()->mapToGlobal(pos));
 }

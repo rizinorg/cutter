@@ -106,7 +106,7 @@ void ProcessesWidget::setProcessesGrid()
     int i = 0;
     QFont font;
 
-    for (const auto &processesItem : Core()->getProcessThreads(DEBUGGED_PID)) {
+    for (const auto &processesItem : Core()->getProcesses(DEBUGGED_PID)) {
         st64 pid = processesItem.pid;
         st64 uid = processesItem.uid;
         QString status = translateStatus(processesItem.status);
@@ -155,7 +155,7 @@ void ProcessesWidget::onActivated(const QModelIndex &index)
     int pid = modelFilter->data(index.sibling(index.row(), ProcessesWidget::COLUMN_PID)).toInt();
     // Verify that the selected pid is still in the processes list since dp= will
     // attach to any given id. If it isn't found simply update the UI.
-    for (const auto &value : Core()->getAllProcesses()) {
+    for (const auto &value : Core()->getProcesses(DEBUGGED_PID)) {
         if (pid == value.pid) {
             QMessageBox msgBox(this);
             switch (value.status) {
