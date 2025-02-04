@@ -32,8 +32,7 @@
 #    define STDIN_PIPE_NAME "%1/cutter-stdin-%2"
 #endif
 
-#define CONSOLE_RIZIN_INPUT ("Rizin Console")
-#define CONSOLE_DEBUGEE_INPUT ("Debugee Input")
+enum InputTarget { RizinConsole = 0, Debugee = 1 };
 
 static const int invalidHistoryPos = -1;
 
@@ -141,7 +140,7 @@ ConsoleWidget::ConsoleWidget(MainWindow *main)
         } else {
             ui->inputCombo->setVisible(false);
             // Return to the rizin console
-            ui->inputCombo->setCurrentIndex(ui->inputCombo->findText(CONSOLE_RIZIN_INPUT));
+            ui->inputCombo->setCurrentIndex(InputTarget::RizinConsole);
         }
     });
 
@@ -263,11 +262,11 @@ void ConsoleWidget::sendToStdin(const QString &input)
 
 void ConsoleWidget::onIndexChange()
 {
-    QString console = ui->inputCombo->currentText();
-    if (console == CONSOLE_DEBUGEE_INPUT) {
+    int target = ui->inputCombo->currentIndex();
+    if (target == InputTarget::Debugee) {
         ui->rzInputLineEdit->setVisible(false);
         ui->debugeeInputLineEdit->setVisible(true);
-    } else if (console == CONSOLE_RIZIN_INPUT) {
+    } else if (target == InputTarget::RizinConsole) {
         ui->rzInputLineEdit->setVisible(true);
         ui->debugeeInputLineEdit->setVisible(false);
     }
