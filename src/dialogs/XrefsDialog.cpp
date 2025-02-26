@@ -277,6 +277,14 @@ QVariant XrefModel::data(const QModelIndex &index, int role) const
             } else {
                 return QString();
             }
+        case CALLER:
+            RzAnalysisFunction *fcn;
+            fcn = Core()->functionIn(to ? xref.from : xref.to);
+            if (fcn) {
+                return QString(fcn->name);
+            } else {
+                return QString();
+            }
         case COMMENT:
             return to ? Core()->getCommentAt(xref.from) : Core()->getCommentAt(xref.to);
         }
@@ -302,6 +310,8 @@ QVariant XrefModel::headerData(int section, Qt::Orientation orientation, int rol
             return tr("Type");
         case CODE:
             return tr("Code");
+        case CALLER:
+            return tr("Caller");
         case COMMENT:
             return tr("Comment");
         default:
