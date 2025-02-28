@@ -252,12 +252,12 @@ void SearchWidget::refreshSearchspaces()
         cur_idx = 0;
 
     ui->searchspaceCombo->clear();
-    ui->searchspaceCombo->addItem(tr("asm code"), QVariant("/acj"));
-    ui->searchspaceCombo->addItem(tr("string"), QVariant("/j"));
-    ui->searchspaceCombo->addItem(tr("string (case insensitive)"), QVariant("/ij"));
-    ui->searchspaceCombo->addItem(tr("hex string"), QVariant("/xj"));
-    ui->searchspaceCombo->addItem(tr("ROP gadgets"), QVariant("/Rj"));
-    ui->searchspaceCombo->addItem(tr("32bit value"), QVariant("/vj"));
+    ui->searchspaceCombo->addItem(tr("asm code"), static_cast<int>(SearchSpace::AsmCode));
+    ui->searchspaceCombo->addItem(tr("string"), static_cast<int>(SearchSpace::String));
+    ui->searchspaceCombo->addItem(tr("string (case insensitive)"), static_cast<int>(SearchSpace::StringCaseInsensitive));
+    ui->searchspaceCombo->addItem(tr("hex string"), static_cast<int>(SearchSpace::HexString));
+    ui->searchspaceCombo->addItem(tr("ROP gadgets"), static_cast<int>(SearchSpace::ROPGadgets));
+    ui->searchspaceCombo->addItem(tr("32bit value"), static_cast<int>(SearchSpace::Value32Bit));
 
     if (cur_idx > 0)
         ui->searchspaceCombo->setCurrentIndex(cur_idx);
@@ -268,7 +268,7 @@ void SearchWidget::refreshSearchspaces()
 void SearchWidget::refreshSearch()
 {
     QString searchFor = ui->filterLineEdit->text();
-    QString searchSpace = ui->searchspaceCombo->currentData().toString();
+    auto searchSpace = static_cast<SearchSpace>(ui->searchspaceCombo->currentData().toInt());
     QString searchIn = ui->searchInCombo->currentData().toString();
 
     search_model->beginResetModel();

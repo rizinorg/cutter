@@ -32,6 +32,7 @@ static CutterCore *uniqueInstance;
 
 namespace RJsonKey {
 RZ_JSON_KEY(addr);
+RZ_JSON_KEY(address);
 RZ_JSON_KEY(addrs);
 RZ_JSON_KEY(addr_end);
 RZ_JSON_KEY(arrow);
@@ -2275,7 +2276,7 @@ void CutterCore::continueUntilDebug(ut64 offset)
     } else {
         if (!asyncTask(
                     [=](RzCore *core) {
-                        rz_core_debug_continue_until(core, offset, offset);
+                        rz_core_debug_continue_until(core, offset);
                         return nullptr;
                     },
                     debugTask)) {
@@ -2512,11 +2513,11 @@ QStringList CutterCore::getDebugPlugins()
 {
     QStringList plugins;
     RzListIter *iter;
-    RzDebugPlugin *plugin;
     CORE_LOCK();
-    CutterRzListForeach (core->dbg->plugins, iter, RzDebugPlugin, plugin) {
+    CutterHtSP<RzDebugPlugin>(core->dbg->plugins).ForEach([&plugins] (const char *k, const RzDebugPlugin *plugin) {
         plugins << plugin->name;
-    }
+        return true;
+    });
     return plugins;
 }
 
@@ -2950,12 +2951,10 @@ QStringList CutterCore::getAsmPluginNames()
     CORE_LOCK();
     RzListIter *it;
     QStringList ret;
-
-    RzAsmPlugin *ap;
-    CutterRzListForeach (core->rasm->plugins, it, RzAsmPlugin, ap) {
+    CutterHtSP<RzAsmPlugin>(core->rasm->plugins).ForEach([&ret] (const char *k, const RzAsmPlugin *ap) {
         ret << ap->name;
-    }
-
+        return true;
+    });
     return ret;
 }
 
@@ -2964,12 +2963,10 @@ QStringList CutterCore::getAnalysisPluginNames()
     CORE_LOCK();
     RzListIter *it;
     QStringList ret;
-
-    RzAnalysisPlugin *ap;
-    CutterRzListForeach (core->analysis->plugins, it, RzAnalysisPlugin, ap) {
+    CutterHtSP<RzAnalysisPlugin>(core->analysis->plugins).ForEach([&ret] (const char *k, const RzAnalysisPlugin *ap) {
         ret << ap->name;
-    }
-
+        return true;
+    });
     return ret;
 }
 
@@ -2979,26 +2976,26 @@ QList<RzBinPluginDescription> CutterCore::getBinPluginDescriptions(bool bin, boo
     QList<RzBinPluginDescription> ret;
     RzListIter *it;
     if (bin) {
-        RzBinPlugin *bp;
-        CutterRzListForeach (core->bin->plugins, it, RzBinPlugin, bp) {
+        CutterHtSP<RzBinPlugin>(core->bin->plugins).ForEach([&ret] (const char *k, const RzBinPlugin *bp) {
             RzBinPluginDescription desc;
             desc.name = bp->name ? bp->name : "";
             desc.description = bp->desc ? bp->desc : "";
             desc.license = bp->license ? bp->license : "";
             desc.type = "bin";
             ret.append(desc);
-        }
+            return true;
+        });
     }
     if (xtr) {
-        RzBinXtrPlugin *bx;
-        CutterRzListForeach (core->bin->binxtrs, it, RzBinXtrPlugin, bx) {
+        CutterHtSP<RzBinXtrPlugin>(core->bin->binxtrs).ForEach([&ret] (const char *k, const RzBinXtrPlugin *bx) {
             RzBinPluginDescription desc;
             desc.name = bx->name ? bx->name : "";
             desc.description = bx->desc ? bx->desc : "";
             desc.license = bx->license ? bx->license : "";
             desc.type = "xtr";
             ret.append(desc);
-        }
+           return true;
+        });
     }
     return ret;
 }
@@ -3008,8 +3005,7 @@ QList<RzIOPluginDescription> CutterCore::getRIOPluginDescriptions()
     CORE_LOCK();
     QList<RzIOPluginDescription> ret;
     RzListIter *it;
-    RzIOPlugin *p;
-    CutterRzListForeach (core->io->plugins, it, RzIOPlugin, p) {
+    CutterHtSP<RzIOPlugin>(core->io->plugins).ForEach([&ret] (const char *k, const RzIOPlugin *p) {
         RzIOPluginDescription desc;
         desc.name = p->name ? p->name : "";
         desc.description = p->desc ? p->desc : "";
@@ -3019,7 +3015,8 @@ QList<RzIOPluginDescription> CutterCore::getRIOPluginDescriptions()
             desc.uris = QString::fromUtf8(p->uris).split(",");
         }
         ret.append(desc);
-    }
+        return true;
+    });
     return ret;
 }
 
@@ -3028,14 +3025,14 @@ QList<RzCorePluginDescription> CutterCore::getRCorePluginDescriptions()
     CORE_LOCK();
     QList<RzCorePluginDescription> ret;
     RzListIter *it;
-    RzCorePlugin *p;
-    CutterRzListForeach (core->plugins, it, RzCorePlugin, p) {
+    CutterHtSP<RzCorePlugin>(core->plugins).ForEach([&ret] (const char *k, const RzCorePlugin *p) {
         RzCorePluginDescription desc;
         desc.name = p->name ? p->name : "";
         desc.description = p->desc ? p->desc : "";
         desc.license = p->license ? p->license : "";
         ret.append(desc);
-    }
+        return true;
+    });
     return ret;
 }
 
@@ -3045,8 +3042,7 @@ QList<RzAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
     RzListIter *it;
     QList<RzAsmPluginDescription> ret;
 
-    RzAsmPlugin *ap;
-    CutterRzListForeach (core->rasm->plugins, it, RzAsmPlugin, ap) {
+    CutterHtSP<RzAsmPlugin>(core->rasm->plugins).ForEach([&ret] (const char *k, const RzAsmPlugin *ap) {
         RzAsmPluginDescription plugin;
 
         plugin.name = ap->name;
@@ -3058,7 +3054,8 @@ QList<RzAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
         plugin.license = ap->license;
 
         ret << plugin;
-    }
+        return true;
+    });
 
     return ret;
 }
@@ -3349,13 +3346,14 @@ QList<StringDescription> CutterCore::getAllStrings()
     opt.show_asciidot = false;
     opt.esc_bslash = true;
     opt.esc_double_quotes = true;
+    opt.keep_printable = true;
 
     QList<StringDescription> ret;
     for (const auto &str : CutterPVector<RzBinString>(strings)) {
         auto section = obj ? rz_bin_get_section_at(obj, str->paddr, 0) : NULL;
 
         StringDescription string;
-        string.string = rz_str_escape_utf8_keep_printable(str->string, &opt);
+        string.string = rz_str_escape_utf8(str->string, &opt);
         string.vaddr = obj ? rva(obj, str->paddr, str->vaddr, va) : str->paddr;
         string.type = rz_str_enc_as_string(str->type);
         string.size = str->size;
@@ -3915,19 +3913,51 @@ bool CutterCore::isAddressMapped(RVA addr)
     return rz_io_map_get(core->io, addr);
 }
 
-QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, QString space, QString in)
+QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchSpace space, QString in)
 {
     CORE_LOCK();
     QList<SearchDescription> searchRef;
+
+    if (searchFor.isEmpty()) {
+        return {};
+    }
 
     CutterJson searchArray;
     {
         TempConfig cfg;
         cfg.set("search.in", in);
-        searchArray = cmdj(QString("%1 %2").arg(space, searchFor));
+        char *arg = rz_cmd_escape_arg(searchFor.toUtf8().constData(), RZ_CMD_ESCAPE_ONE_ARG);
+        if (!arg) {
+            return {};
+        }
+        QString cmd, suffix;
+        switch (space) {
+        case SearchSpace::AsmCode:
+            cmd = "/acj";
+            break;
+        case SearchSpace::String:
+            cmd = "/zj";
+            break;
+        case SearchSpace::StringCaseInsensitive:
+            cmd = "/zj";
+            suffix = " li";
+            break;
+        case SearchSpace::HexString:
+            cmd = "/xj";
+            break;
+        case SearchSpace::ROPGadgets:
+            cmd = "/Rj";
+            break;
+        case SearchSpace::Value32Bit:
+            cmd = "/vj";
+            break;
+        }
+        auto cstr = QString("%1 %2%3").arg(cmd, arg, suffix);
+        eprintf("%s\n", cstr.toUtf8().constData());
+        searchArray = cmdj(cstr);
     }
 
-    if (space == "/Rj") {
+    if (space == SearchSpace::ROPGadgets) {
         for (CutterJson searchObject : searchArray) {
             SearchDescription exp;
 
@@ -3945,7 +3975,7 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, QString spa
         for (CutterJson searchObject : searchArray) {
             SearchDescription exp;
 
-            exp.offset = searchObject[RJsonKey::offset].toRVA();
+            exp.offset = searchObject[space == SearchSpace::String ? RJsonKey::address : RJsonKey::offset].toRVA();
             exp.size = searchObject[RJsonKey::len].toUt64();
             exp.code = searchObject[RJsonKey::code].toString();
             exp.data = searchObject[RJsonKey::data].toString();
