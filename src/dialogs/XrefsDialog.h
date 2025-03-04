@@ -16,7 +16,7 @@ private:
     bool to;
 
 public:
-    enum Columns { OFFSET = 0, TYPE, CODE, CALLER, COMMENT, COUNT };
+    enum Columns { OFFSET = 0, TYPE, CODE, COMMENT, COUNT };
     static const int FlagDescriptionRole = Qt::UserRole;
 
     XrefModel(QObject *parent = nullptr);
