@@ -4021,7 +4021,23 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
             continue;
         }
 
-        xd.from_str = RzAddressString(xd.from);
+        if (to) {
+            RzFlagItem *f = rz_flag_get_at(Core()->core()->flags, xd.from, true);
+            if (f) {
+                int delta = xd.from - f->offset;
+                if (delta > 0) {
+                    xd.from_str = rz_str_newf("%s+%d", f->name, delta);
+                } else if (delta < 0) {
+                    xd.from_str = rz_str_newf("%s%d", f->name, delta);
+                } else {
+                    xd.from_str = rz_str_newf("%s", f->name);
+                }
+            } else {
+                xd.from_str = RzAddressString(xd.from);
+            }
+        } else {
+            xd.from_str = RzAddressString(xd.from);
+        }
         xd.to_str = Core()->flagAt(xd.to);
 
         xrefList << xd;
