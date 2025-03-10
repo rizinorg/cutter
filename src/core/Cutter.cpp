@@ -4389,13 +4389,12 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
     QList<XrefDescription> xrefList = QList<XrefDescription>();
 
     RzList *xrefs = nullptr;
-    {
-        CORE_LOCK();
-        if (to) {
-            xrefs = rz_analysis_xrefs_get_to(core->analysis, addr);
-        } else {
-            xrefs = rz_analysis_xrefs_get_from(core->analysis, addr);
-        }
+    CORE_LOCK();
+
+    if (to) {
+        xrefs = rz_analysis_xrefs_get_to(core->analysis, addr);
+    } else {
+        xrefs = rz_analysis_xrefs_get_from(core->analysis, addr);
     }
 
     RzListIter *it;
@@ -4413,15 +4412,15 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
         }
 
         if (to) {
-            RzFlagItem *f = rz_flag_get_at(Core()->core()->flags, xd.from, true);
+            RzFlagItem *f = rz_flag_get_at(core->flags, xd.from, true);
             if (f) {
                 int delta = xd.from - f->offset;
                 if (delta > 0) {
-                    xd.from_str = rz_str_newf("%s+%d", f->name, delta);
+                    xd.from_str = QString("%1+%2").arg(f->name).arg(delta);
                 } else if (delta < 0) {
-                    xd.from_str = rz_str_newf("%s%d", f->name, delta);
+                    xd.from_str = QString("%1%2").arg(f->name).arg(delta);
                 } else {
-                    xd.from_str = rz_str_newf("%s", f->name);
+                    xd.from_str = QString("%1").arg(f->name);
                 }
             } else {
                 xd.from_str = RzAddressString(xd.from);
