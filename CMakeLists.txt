@@ -46,7 +46,7 @@ set(CUTTER_VERSION "${CUTTER_VERSION_MAJOR}.${CUTTER_VERSION_MINOR}.${CUTTER_VER
 
 
 if (CUTTER_INCLUDE_GIT_HASH)
-    execute_process(COMMAND git  -C "${CMAKE_CURRENT_SOURCE_DIR}" log --pretty=format:'%h' -n 1
+    execute_process(COMMAND git  -C "${CMAKE_CURRENT_SOURCE_DIR}" --git-dir=.git log --pretty=format:'%h' -n 1
                     OUTPUT_VARIABLE GIT_REV
                     ERROR_QUIET)
 endif()
@@ -57,7 +57,7 @@ if (NOT CUTTER_INCLUDE_GIT_HASH OR "${GIT_REV}" STREQUAL "")
     set(CUTTER_VERSION_FULL "${CUTTER_VERSION}${CUTTER_VERSION_SUFFIX}")
 else()
     execute_process(
-        COMMAND git -C "${CMAKE_CURRENT_SOURCE_DIR}" rev-parse --abbrev-ref HEAD
+        COMMAND git -C "${CMAKE_CURRENT_SOURCE_DIR}" --git-dir=.git rev-parse --abbrev-ref HEAD
         OUTPUT_VARIABLE GIT_BRANCH)
     string(STRIP "${GIT_REV}" GIT_REV)
     string(SUBSTRING "${GIT_REV}" 1 7 GIT_REV)
