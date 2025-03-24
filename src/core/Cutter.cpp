@@ -4021,15 +4021,24 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
         }
 
         if (to) {
-            RzFlagItem *f = rz_flag_get_at(core->flags, xd.from, true);
-            if (f) {
-                int delta = xd.from - f->offset;
-                if (delta > 0) {
-                    xd.from_str = QString("%1+%2").arg(f->name).arg(delta);
-                } else if (delta < 0) {
-                    xd.from_str = QString("%1%2").arg(f->name).arg(delta);
-                } else {
-                    xd.from_str = QString("%1").arg(f->name);
+            RzAnalysisFunction *fcn = functionIn(to ? xd.from : xd.to);
+            if (fcn) {
+                QTextStream s(&xd.from_str);
+                int delta = xd.from - fcn->addr;
+                bool show_offdec = Core()->getConfigb("asm.decoff");
+
+                s << fcn->name;
+
+                if (delta != 0) {
+                    if (delta > 0) {
+                        s << "+";
+                    }
+
+                    if (show_offdec) {
+                        s << delta;
+                    } else {
+                        s << Qt::hex << Qt::showbase << delta;
+                    }
                 }
             } else {
                 xd.from_str = RzAddressString(xd.from);
