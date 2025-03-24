@@ -3998,12 +3998,14 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
     QList<XrefDescription> xrefList = QList<XrefDescription>();
 
     RzList *xrefs = nullptr;
-    CORE_LOCK();
+    {
+        CORE_LOCK();
 
-    if (to) {
-        xrefs = rz_analysis_xrefs_get_to(core->analysis, addr);
-    } else {
-        xrefs = rz_analysis_xrefs_get_from(core->analysis, addr);
+        if (to) {
+            xrefs = rz_analysis_xrefs_get_to(core->analysis, addr);
+        } else {
+            xrefs = rz_analysis_xrefs_get_from(core->analysis, addr);
+        }
     }
 
     RzListIter *it;
