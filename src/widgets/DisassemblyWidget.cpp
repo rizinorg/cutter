@@ -310,7 +310,7 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
     mDisasTextEdit->setLockScroll(false);
     mDisasTextEdit->horizontalScrollBar()->setValue(horizontalScrollValue);
     mDisasScrollArea->verticalScrollBar()->blockSignals(true);
-    mDisasScrollArea->verticalScrollBar()->setValue(offset / mDisasScrollArea->getStepSizeV());
+    mDisasScrollArea->verticalScrollBar()->setValue(topOffset / mDisasScrollArea->getStepSizeV());
     mDisasScrollArea->verticalScrollBar()->blockSignals(false);
 
     // Refresh the left panel (trigger paintEvent)
@@ -744,10 +744,8 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
     auto stats = Core()->fetchStats();
     from = stats->from;
     to = stats->to - stats->from + 1;
-    verticalScrollBar()->blockSignals(true);
-    verticalScrollBar()->setRange(0, 100);
-    verticalScrollBar()->blockSignals(false);
     QScrollBar *scrollBar = verticalScrollBar();
+    scrollBar->setRange(0, 100);
     connect(scrollBar, &QScrollBar::valueChanged, this, &DisassemblyScrollArea::seekStepsV);
 }
 
