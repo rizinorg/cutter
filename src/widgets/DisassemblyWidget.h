@@ -111,6 +111,7 @@ class DisassemblyScrollArea : public QAbstractScrollArea
 
 public:
     explicit DisassemblyScrollArea(QWidget *parent = nullptr);
+    RVA getStepSizeV();
 
 signals:
     void scrollLines(int lines);
@@ -118,9 +119,12 @@ signals:
 
 protected:
     bool viewportEvent(QEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
 private:
-    void resetScrollBars();
+    void seekStepsV(int offset);
+
+    RVA from, to;
 };
 
 class DisassemblyTextEdit : public QPlainTextEdit

@@ -50,7 +50,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     layout->setContentsMargins(0, 0, 0, 0);
     mDisasScrollArea->viewport()->setLayout(layout);
     splitter->addWidget(mDisasScrollArea);
-    mDisasScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+    mDisasScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAsNeeded);
     // Use stylesheet instead of QWidget::setFrameShape(QFrame::NoShape) to avoid
     // issues with dark and light interface themes
     mDisasScrollArea->setStyleSheet("QAbstractScrollArea { border: 0px transparent black; }");
@@ -309,6 +309,9 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
 
     mDisasTextEdit->setLockScroll(false);
     mDisasTextEdit->horizontalScrollBar()->setValue(horizontalScrollValue);
+    mDisasScrollArea->verticalScrollBar()->blockSignals(true);
+    mDisasScrollArea->verticalScrollBar()->setValue(offset / mDisasScrollArea->getStepSizeV());
+    mDisasScrollArea->verticalScrollBar()->blockSignals(false);
 
     // Refresh the left panel (trigger paintEvent)
     leftPanel->update();
@@ -736,29 +739,77 @@ void DisassemblyWidget::setupColors()
     setStyleSheet(DisassemblyPreview::getToolTipStyleSheet());
 }
 
-DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollArea(parent) {}
+DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollArea(parent)
+{
+    UniquePtrC<RzCoreAnalysisStats, &rz_core_analysis_stats_free> stats;
+    {
+        static const ut64 blocksCount = 2048;
+
+        RzCoreLocked core(Core());
+        stats.reset(nullptr);
+        auto list = fromOwned(rz_core_get_boundaries_prot(core, -1, NULL, "search"));
+        if (!list) {
+            return;
+        }
+        RzListIter *iter;
+        RzIOMap *map;
+        ut64 from = UT64_MAX;
+        ut64 to = 0;
+        CutterRzListForeach (list.get(), iter, RzIOMap, map) {
+            ut64 f = rz_itv_begin(map->itv);
+            ut64 t = rz_itv_end(map->itv);
+            if (f < from) {
+                from = f;
+            }
+            if (t > to) {
+                to = t;
+            }
+        }
+        to--; // rz_core_analysis_get_stats takes inclusive ranges
+        if (to < from) {
+            return;
+        }
+        stats.reset(
+                rz_core_analysis_get_stats(core, from, to, RZ_MAX(1, (to + 1 - from) / blocksCount)));
+    }
+    from = stats->from;
+    to = stats->to - stats->from + 1;
+    verticalScrollBar()->blockSignals(true);
+    verticalScrollBar()->setRange(0, 100);
+    verticalScrollBar()->blockSignals(false);
+    QScrollBar* scrollBar = verticalScrollBar();
+    connect(scrollBar, &QScrollBar::valueChanged, this, &DisassemblyScrollArea::seekStepsV);
+}
+
+RVA DisassemblyScrollArea::getStepSizeV()
+{
+    return (to - from) / 100;
+}
 
 bool DisassemblyScrollArea::viewportEvent(QEvent *event)
 {
-    int dy = verticalScrollBar()->value() - 5;
-    if (dy != 0) {
-        emit scrollLines(dy);
-    }
-
     if (event->type() == QEvent::Resize) {
         emit disassemblyResized();
     }
 
-    resetScrollBars();
     return QAbstractScrollArea::viewportEvent(event);
 }
 
-void DisassemblyScrollArea::resetScrollBars()
+void DisassemblyScrollArea::wheelEvent(QWheelEvent *event)
 {
-    verticalScrollBar()->blockSignals(true);
-    verticalScrollBar()->setRange(0, 10);
-    verticalScrollBar()->setValue(5);
-    verticalScrollBar()->blockSignals(false);
+    if (event->angleDelta().y() > 0) {
+        emit scrollLines(-5);
+        return;
+    } else if (event->angleDelta().y() < 0) {
+        emit scrollLines(5);
+        return;
+    }
+    QAbstractScrollArea::wheelEvent(event);
+}
+
+void DisassemblyScrollArea::seekStepsV(int offset)
+{
+    Core()->seek(offset * getStepSizeV());
 }
 
 qreal DisassemblyTextEdit::textOffset() const
