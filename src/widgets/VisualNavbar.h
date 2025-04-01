@@ -34,7 +34,6 @@ public slots:
 
 private slots:
     void fetchAndPaintData();
-    void fetchStats();
     void drawSeekCursor();
     void drawPCCursor();
     void drawCursor(RVA addr, QColor color, QGraphicsRectItem *&graphicsItem);

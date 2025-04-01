@@ -4262,6 +4262,41 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
     return r;
 }
 
+UniquePtrC<RzCoreAnalysisStats, &rz_core_analysis_stats_free> CutterCore::fetchStats()
+{
+    UniquePtrC<RzCoreAnalysisStats, &rz_core_analysis_stats_free> stats;
+    static const ut64 blocksCount = 2048;
+
+    RzCoreLocked core(Core());
+    stats.reset(nullptr);
+    auto list = fromOwned(rz_core_get_boundaries_prot(core, -1, NULL, "search"));
+    if (!list) {
+        return stats;
+    }
+    RzListIter *iter;
+    RzIOMap *map;
+    ut64 from = UT64_MAX;
+    ut64 to = 0;
+    CutterRzListForeach (list.get(), iter, RzIOMap, map) {
+        ut64 f = rz_itv_begin(map->itv);
+        ut64 t = rz_itv_end(map->itv);
+        if (f < from) {
+            from = f;
+        }
+        if (t > to) {
+            to = t;
+        }
+    }
+    to--; // rz_core_analysis_get_stats takes inclusive ranges
+    if (to < from) {
+        return stats;
+    }
+    stats.reset(
+            rz_core_analysis_get_stats(core, from, to, RZ_MAX(1, (to + 1 - from) / blocksCount)));
+    return stats;
+}
+
+
 /**
  * @brief return hexdump of <size> from an <offset> by a given formats
  * @param address - the address from which to print the hexdump

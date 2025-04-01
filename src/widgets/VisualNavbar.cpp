@@ -109,40 +109,8 @@ void VisualNavbar::paintEvent(QPaintEvent *event)
 
 void VisualNavbar::fetchAndPaintData()
 {
-    fetchStats();
+    stats = Core()->fetchStats();
     updateGraphicsScene();
-}
-
-void VisualNavbar::fetchStats()
-{
-    static const ut64 blocksCount = 2048;
-
-    RzCoreLocked core(Core());
-    stats.reset(nullptr);
-    auto list = fromOwned(rz_core_get_boundaries_prot(core, -1, NULL, "search"));
-    if (!list) {
-        return;
-    }
-    RzListIter *iter;
-    RzIOMap *map;
-    ut64 from = UT64_MAX;
-    ut64 to = 0;
-    CutterRzListForeach (list.get(), iter, RzIOMap, map) {
-        ut64 f = rz_itv_begin(map->itv);
-        ut64 t = rz_itv_end(map->itv);
-        if (f < from) {
-            from = f;
-        }
-        if (t > to) {
-            to = t;
-        }
-    }
-    to--; // rz_core_analysis_get_stats takes inclusive ranges
-    if (to < from) {
-        return;
-    }
-    stats.reset(
-            rz_core_analysis_get_stats(core, from, to, RZ_MAX(1, (to + 1 - from) / blocksCount)));
 }
 
 enum class DataType : int { Empty, Code, String, Symbol, Count };

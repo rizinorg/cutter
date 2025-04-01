@@ -395,6 +395,7 @@ public:
     QString disassemble(const QByteArray &data);
     QString disassembleSingleInstruction(RVA addr);
     QList<DisassemblyLine> disassembleLines(RVA offset, int lines);
+    UniquePtrC<RzCoreAnalysisStats, &rz_core_analysis_stats_free> fetchStats();
 
     static QByteArray hexStringToBytes(const QString &hex);
     static QString bytesToHexString(const QByteArray &bytes);

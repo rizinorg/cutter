@@ -741,43 +741,13 @@ void DisassemblyWidget::setupColors()
 
 DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollArea(parent)
 {
-    UniquePtrC<RzCoreAnalysisStats, &rz_core_analysis_stats_free> stats;
-    {
-        static const ut64 blocksCount = 2048;
-
-        RzCoreLocked core(Core());
-        stats.reset(nullptr);
-        auto list = fromOwned(rz_core_get_boundaries_prot(core, -1, NULL, "search"));
-        if (!list) {
-            return;
-        }
-        RzListIter *iter;
-        RzIOMap *map;
-        ut64 from = UT64_MAX;
-        ut64 to = 0;
-        CutterRzListForeach (list.get(), iter, RzIOMap, map) {
-            ut64 f = rz_itv_begin(map->itv);
-            ut64 t = rz_itv_end(map->itv);
-            if (f < from) {
-                from = f;
-            }
-            if (t > to) {
-                to = t;
-            }
-        }
-        to--; // rz_core_analysis_get_stats takes inclusive ranges
-        if (to < from) {
-            return;
-        }
-        stats.reset(
-                rz_core_analysis_get_stats(core, from, to, RZ_MAX(1, (to + 1 - from) / blocksCount)));
-    }
+    auto stats = Core()->fetchStats();
     from = stats->from;
     to = stats->to - stats->from + 1;
     verticalScrollBar()->blockSignals(true);
     verticalScrollBar()->setRange(0, 100);
     verticalScrollBar()->blockSignals(false);
-    QScrollBar* scrollBar = verticalScrollBar();
+    QScrollBar *scrollBar = verticalScrollBar();
     connect(scrollBar, &QScrollBar::valueChanged, this, &DisassemblyScrollArea::seekStepsV);
 }
 
