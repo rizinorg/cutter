@@ -50,10 +50,9 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     layout->setContentsMargins(0, 0, 0, 0);
     mDisasScrollArea->viewport()->setLayout(layout);
     splitter->addWidget(mDisasScrollArea);
-    mDisasScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAsNeeded);
     QScrollBar *vScrollBar = mDisasScrollArea->verticalScrollBar();
-    connect(vScrollBar, &QScrollBar::valueChanged,
-            [this](int value) { refreshDisasm(value * mDisasScrollArea->getStepSizeV()); });
+    connect(vScrollBar, &QScrollBar::valueChanged, this,
+            [this](int) { refreshDisasm(mDisasScrollArea->currentVScrollAddr()); });
     // Use stylesheet instead of QWidget::setFrameShape(QFrame::NoShape) to avoid
     // issues with dark and light interface themes
     mDisasScrollArea->setStyleSheet("QAbstractScrollArea { border: 0px transparent black; }");
@@ -312,9 +311,7 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
 
     mDisasTextEdit->setLockScroll(false);
     mDisasTextEdit->horizontalScrollBar()->setValue(horizontalScrollValue);
-    mDisasScrollArea->verticalScrollBar()->blockSignals(true);
-    mDisasScrollArea->verticalScrollBar()->setValue(topOffset / mDisasScrollArea->getStepSizeV());
-    mDisasScrollArea->verticalScrollBar()->blockSignals(false);
+    mDisasScrollArea->setVScrollPos(topOffset);
 
     // Refresh the left panel (trigger paintEvent)
     leftPanel->update();
@@ -744,16 +741,73 @@ void DisassemblyWidget::setupColors()
 
 DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollArea(parent)
 {
-    auto stats = Core()->fetchStats();
-    from = stats->from;
-    to = stats->to - stats->from + 1;
-    QScrollBar *scrollBar = verticalScrollBar();
-    scrollBar->setRange(0, 100);
+    beginOffset = RVA_INVALID;
+    endOffset = RVA_INVALID;
+    fetchStats();
+    connect(Core(), &CutterCore::refreshAll, this, &DisassemblyScrollArea::fetchStats);
+    connect(Core(), &CutterCore::functionsChanged, this, &DisassemblyScrollArea::fetchStats);
+    connect(Core(), &CutterCore::flagsChanged, this, &DisassemblyScrollArea::fetchStats);
+    connect(Core(), &CutterCore::globalVarsChanged, this, &DisassemblyScrollArea::fetchStats);
 }
 
-RVA DisassemblyScrollArea::getStepSizeV()
+RVA DisassemblyScrollArea::getVStepSize()
 {
-    return (to - from) / 100;
+    return (endOffset - beginOffset) / 100;
+}
+
+RVA DisassemblyScrollArea::currentVScrollAddr()
+{
+    return verticalScrollBar()->value() * getVStepSize();
+}
+
+void DisassemblyScrollArea::setVScrollPos(RVA address)
+{
+    const QSignalBlocker blocker(verticalScrollBar());
+    if (RVA stepSize = getVStepSize()) {
+        verticalScrollBar()->setValue(address / stepSize);
+    } else {
+        setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+    }
+}
+
+void DisassemblyScrollArea::fetchStats()
+{
+    static RVA lastBeginOffset = RVA_INVALID;
+    static RVA lastEndOffset = RVA_INVALID;
+    // RVA prevFrom = from;
+    // RVA prevTo = to;
+    // RVA prevStepSize = getVStepSize();
+    if (Core()->currentlyDebugging || Core()->currentlyEmulating) {
+        if (lastEndOffset != RVA_INVALID) {
+            beginOffset = lastBeginOffset;
+            endOffset = lastEndOffset;
+        } else {
+            setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+            return;
+        }
+    } else {
+        auto stats = Core()->fetchStats();
+        if (!stats) {
+            setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+            return;
+        }
+        beginOffset = stats->from;
+        endOffset = stats->to - stats->from + 1;
+    }
+    lastBeginOffset = beginOffset;
+    lastEndOffset = endOffset;
+    if (getVStepSize() <= 0) {
+        setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+        return;
+    }
+    setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAsNeeded);
+    QScrollBar *scrollBar = verticalScrollBar();
+    scrollBar->setMinimum(0);
+    if ((endOffset - beginOffset) > 100) {
+        scrollBar->setMaximum(100);
+    } else {
+        scrollBar->setMaximum(endOffset - beginOffset);
+    }
 }
 
 bool DisassemblyScrollArea::viewportEvent(QEvent *event)
