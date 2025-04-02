@@ -122,8 +122,6 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
 
 private:
-    void seekStepsV(int offset);
-
     RVA from, to;
 };
 

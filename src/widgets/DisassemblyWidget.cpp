@@ -51,6 +51,9 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     mDisasScrollArea->viewport()->setLayout(layout);
     splitter->addWidget(mDisasScrollArea);
     mDisasScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAsNeeded);
+    QScrollBar *vScrollBar = mDisasScrollArea->verticalScrollBar();
+    connect(vScrollBar, &QScrollBar::valueChanged,
+            [this](int value) { refreshDisasm(value * mDisasScrollArea->getStepSizeV()); });
     // Use stylesheet instead of QWidget::setFrameShape(QFrame::NoShape) to avoid
     // issues with dark and light interface themes
     mDisasScrollArea->setStyleSheet("QAbstractScrollArea { border: 0px transparent black; }");
@@ -746,7 +749,6 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
     to = stats->to - stats->from + 1;
     QScrollBar *scrollBar = verticalScrollBar();
     scrollBar->setRange(0, 100);
-    connect(scrollBar, &QScrollBar::valueChanged, this, &DisassemblyScrollArea::seekStepsV);
 }
 
 RVA DisassemblyScrollArea::getStepSizeV()
@@ -773,11 +775,6 @@ void DisassemblyScrollArea::wheelEvent(QWheelEvent *event)
         return;
     }
     QAbstractScrollArea::wheelEvent(event);
-}
-
-void DisassemblyScrollArea::seekStepsV(int offset)
-{
-    Core()->seek(offset * getStepSizeV());
 }
 
 qreal DisassemblyTextEdit::textOffset() const
