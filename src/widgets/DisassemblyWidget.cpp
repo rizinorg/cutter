@@ -776,11 +776,11 @@ void DisassemblyScrollArea::setVScrollPos(RVA address)
 
 void DisassemblyScrollArea::fetchStats()
 {
+    beginOffset = RVA_MAX;
+    endOffset = 0;
     if (!Core()->currentlyEmulating && Core()->currentlyDebugging) {
         QString fileName = Core()->getConfig("file.path");
         QList<MemoryMapDescription> memoryMaps = Core()->getMemoryMap();
-        beginOffset = RVA_MAX;
-        endOffset = 0;
         for (const MemoryMapDescription &map : memoryMaps) {
             if (map.fileName == fileName) {
                 if (map.addrStart < beginOffset) {
@@ -793,17 +793,13 @@ void DisassemblyScrollArea::fetchStats()
         }
     } else {
         RzCoreLocked core(Core());
-        RzPVector *maps = rz_io_maps(core->io);
-        if (!maps) {
+        RzPVector *mapsPtr = rz_io_maps(core->io);
+        if (!mapsPtr) {
             setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
             return;
         }
-        void **it;
-        beginOffset = RVA_MAX;
-        endOffset = 0;
-        rz_pvector_foreach(maps, it)
-        {
-            RzIOMap *map = static_cast<RzIOMap *>(*it);
+        CutterPVector<RzIOMap> maps { mapsPtr };
+        for (const RzIOMap *const map : maps) {
             if (Core()->currentlyEmulating && std::strncmp(rz_str_get(map->name), "mem.", 4) == 0) {
                 continue;
             }
