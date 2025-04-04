@@ -752,19 +752,23 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
 
 RVA DisassemblyScrollArea::getVStepSize()
 {
-    return (endOffset - beginOffset) / 100;
+    if (int maximum = verticalScrollBar()->maximum()) {
+        return (endOffset - beginOffset) / maximum;
+    } else {
+        return 0;
+    }
 }
 
 RVA DisassemblyScrollArea::currentVScrollAddr()
 {
-    return verticalScrollBar()->value() * getVStepSize();
+    return verticalScrollBar()->value() * getVStepSize() + beginOffset;
 }
 
 void DisassemblyScrollArea::setVScrollPos(RVA address)
 {
     const QSignalBlocker blocker(verticalScrollBar());
     if (RVA stepSize = getVStepSize()) {
-        verticalScrollBar()->setValue(address / stepSize);
+        verticalScrollBar()->setValue((address - beginOffset) / stepSize);
     } else {
         setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
     }
@@ -774,16 +778,32 @@ void DisassemblyScrollArea::fetchStats()
 {
     static RVA lastBeginOffset = RVA_INVALID;
     static RVA lastEndOffset = RVA_INVALID;
-    // RVA prevFrom = from;
-    // RVA prevTo = to;
-    // RVA prevStepSize = getVStepSize();
-    if (Core()->currentlyDebugging || Core()->currentlyEmulating) {
+    if (Core()->currentlyEmulating) {
+        [[maybe_unused]] auto stats = Core()->fetchStats();
         if (lastEndOffset != RVA_INVALID) {
             beginOffset = lastBeginOffset;
             endOffset = lastEndOffset;
         } else {
             setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
             return;
+        }
+    } else if (Core()->currentlyDebugging) {
+        QString fileName = Core()->getConfig("file.path");
+        QList<MemoryMapDescription> memoryMaps = Core()->getMemoryMap();
+        beginOffset = RVA_MAX;
+        endOffset = 0;
+        for (const MemoryMapDescription& map : memoryMaps) {
+            if (map.fileName == fileName) {
+                if (map.addrStart < beginOffset) {
+                    beginOffset = map.addrStart;
+                }
+                if (map.addrEnd > endOffset) {
+                    endOffset = map.addrEnd;
+                }
+            }
+        }
+        if (endOffset == 0) {
+            beginOffset = 0;
         }
     } else {
         auto stats = Core()->fetchStats();
@@ -794,20 +814,19 @@ void DisassemblyScrollArea::fetchStats()
         beginOffset = stats->from;
         endOffset = stats->to - stats->from + 1;
     }
-    lastBeginOffset = beginOffset;
-    lastEndOffset = endOffset;
+    verticalScrollBar()->setMinimum(0);
+    if ((endOffset - beginOffset) > 100) {
+        verticalScrollBar()->setMaximum(100);
+    } else {
+        verticalScrollBar()->setMaximum(endOffset - beginOffset);
+    }
     if (getVStepSize() <= 0) {
         setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
         return;
     }
     setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAsNeeded);
-    QScrollBar *scrollBar = verticalScrollBar();
-    scrollBar->setMinimum(0);
-    if ((endOffset - beginOffset) > 100) {
-        scrollBar->setMaximum(100);
-    } else {
-        scrollBar->setMaximum(endOffset - beginOffset);
-    }
+    lastBeginOffset = beginOffset;
+    lastEndOffset = endOffset;
 }
 
 bool DisassemblyScrollArea::viewportEvent(QEvent *event)
