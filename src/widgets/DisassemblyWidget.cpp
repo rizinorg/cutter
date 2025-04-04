@@ -791,17 +791,34 @@ void DisassemblyScrollArea::fetchStats()
                 }
             }
         }
-        if (endOffset == 0) {
-            beginOffset = 0;
-        }
     } else {
-        auto stats = Core()->fetchStats();
-        if (!stats) {
+        RzCoreLocked core(Core());
+        RzPVector *maps = rz_io_maps(core->io);
+        if (!maps) {
             setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
             return;
         }
-        beginOffset = stats->from;
-        endOffset = stats->to - stats->from + 1;
+        void **it;
+        beginOffset = RVA_MAX;
+        endOffset = 0;
+        rz_pvector_foreach(maps, it)
+        {
+            RzIOMap *map = static_cast<RzIOMap *>(*it);
+            if (Core()->currentlyEmulating && std::strncmp(rz_str_get(map->name), "mem.", 4) == 0) {
+                continue;
+            }
+            ut64 b = rz_itv_begin(map->itv);
+            ut64 e = rz_itv_end(map->itv);
+            if (b < beginOffset) {
+                beginOffset = b;
+            }
+            if (e > endOffset) {
+                endOffset = e;
+            }
+        }
+    }
+    if (endOffset == 0) {
+        beginOffset = 0;
     }
     verticalScrollBar()->setMinimum(0);
     if ((endOffset - beginOffset) > 100) {

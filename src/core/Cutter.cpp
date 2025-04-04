@@ -4279,9 +4279,6 @@ UniquePtrC<RzCoreAnalysisStats, &rz_core_analysis_stats_free> CutterCore::fetchS
     CutterRzListForeach (list.get(), iter, RzIOMap, map) {
         ut64 f = rz_itv_begin(map->itv);
         ut64 t = rz_itv_end(map->itv);
-        if (currentlyEmulating && f == 0x100000 && t == 0x1f0000) {
-            continue;
-        }
         if (f < from) {
             from = f;
         }
