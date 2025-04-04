@@ -776,18 +776,7 @@ void DisassemblyScrollArea::setVScrollPos(RVA address)
 
 void DisassemblyScrollArea::fetchStats()
 {
-    static RVA lastBeginOffset = RVA_INVALID;
-    static RVA lastEndOffset = RVA_INVALID;
-    if (Core()->currentlyEmulating) {
-        [[maybe_unused]] auto stats = Core()->fetchStats();
-        if (lastEndOffset != RVA_INVALID) {
-            beginOffset = lastBeginOffset;
-            endOffset = lastEndOffset;
-        } else {
-            setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
-            return;
-        }
-    } else if (Core()->currentlyDebugging) {
+    if (!Core()->currentlyEmulating && Core()->currentlyDebugging) {
         QString fileName = Core()->getConfig("file.path");
         QList<MemoryMapDescription> memoryMaps = Core()->getMemoryMap();
         beginOffset = RVA_MAX;
@@ -825,8 +814,6 @@ void DisassemblyScrollArea::fetchStats()
         return;
     }
     setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAsNeeded);
-    lastBeginOffset = beginOffset;
-    lastEndOffset = endOffset;
 }
 
 bool DisassemblyScrollArea::viewportEvent(QEvent *event)
