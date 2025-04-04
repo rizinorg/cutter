@@ -779,10 +779,10 @@ void DisassemblyScrollArea::fetchStats()
     beginOffset = RVA_MAX;
     endOffset = 0;
     if (!Core()->currentlyEmulating && Core()->currentlyDebugging) {
-        QString fileName = Core()->getConfig("file.path");
+        QString currentlyOpenFile = Core()->getConfig("file.path");
         QList<MemoryMapDescription> memoryMaps = Core()->getMemoryMap();
         for (const MemoryMapDescription &map : memoryMaps) {
-            if (map.fileName == fileName) {
+            if (map.fileName == currentlyOpenFile) {
                 if (map.addrStart < beginOffset) {
                     beginOffset = map.addrStart;
                 }
