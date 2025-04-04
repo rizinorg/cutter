@@ -781,7 +781,7 @@ void DisassemblyScrollArea::fetchStats()
         QList<MemoryMapDescription> memoryMaps = Core()->getMemoryMap();
         beginOffset = RVA_MAX;
         endOffset = 0;
-        for (const MemoryMapDescription& map : memoryMaps) {
+        for (const MemoryMapDescription &map : memoryMaps) {
             if (map.fileName == fileName) {
                 if (map.addrStart < beginOffset) {
                     beginOffset = map.addrStart;

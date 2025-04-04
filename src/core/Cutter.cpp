@@ -4265,7 +4265,7 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
 UniquePtrC<RzCoreAnalysisStats, &rz_core_analysis_stats_free> CutterCore::fetchStats()
 {
     CORE_LOCK();
-    UniquePtrC<RzCoreAnalysisStats, &rz_core_analysis_stats_free> stats{nullptr};
+    UniquePtrC<RzCoreAnalysisStats, &rz_core_analysis_stats_free> stats { nullptr };
     static const ut64 blocksCount = 2048;
 
     auto list = fromOwned(rz_core_get_boundaries_prot(core, -1, NULL, "search"));
