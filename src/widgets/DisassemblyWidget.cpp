@@ -798,11 +798,12 @@ void DisassemblyScrollArea::fetchStats()
             setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
             return;
         }
-        RzIOMap *map;
+        void **it;
         beginOffset = RVA_MAX;
         endOffset = 0;
-        CutterRzVectorForeach(&maps->v, map, RzIOMap)
+        rz_pvector_foreach(maps, it)
         {
+            RzIOMap *map = static_cast<RzIOMap *>(*it);
             if (Core()->currentlyEmulating && std::strncmp(rz_str_get(map->name), "mem.", 4) == 0) {
                 continue;
             }
