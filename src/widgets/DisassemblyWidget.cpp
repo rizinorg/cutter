@@ -839,7 +839,7 @@ void DisassemblyScrollArea::fetchStats()
         setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
         return;
     }
-    setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAsNeeded);
+    setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOn);
 }
 
 bool DisassemblyScrollArea::viewportEvent(QEvent *event)
