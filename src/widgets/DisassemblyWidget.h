@@ -111,7 +111,6 @@ class DisassemblyScrollArea : public QAbstractScrollArea
 
 public:
     explicit DisassemblyScrollArea(QWidget *parent = nullptr);
-    RVA getVStepSize();
     RVA currentVScrollAddr();
     void setVScrollPos(RVA address);
 
@@ -125,6 +124,7 @@ protected:
 
 private:
     void fetchStats();
+    RVA getVStepSize();
     RVA beginOffset, endOffset;
 };
 
