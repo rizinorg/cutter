@@ -111,7 +111,7 @@ class DisassemblyScrollArea : public QAbstractScrollArea
 
 public:
     explicit DisassemblyScrollArea(QWidget *parent = nullptr);
-    RVA currentVScrollAddr();
+    RVA currentVScrollAddr(int disasmMaxLines);
     void setVScrollPos(RVA address);
 
 signals:

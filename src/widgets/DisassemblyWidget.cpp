@@ -52,7 +52,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     splitter->addWidget(mDisasScrollArea);
     QScrollBar *vScrollBar = mDisasScrollArea->verticalScrollBar();
     connect(vScrollBar, &QScrollBar::valueChanged, this,
-            [this](int) { refreshDisasm(mDisasScrollArea->currentVScrollAddr()); });
+            [this](int) { refreshDisasm(mDisasScrollArea->currentVScrollAddr(maxLines)); });
     // Use stylesheet instead of QWidget::setFrameShape(QFrame::NoShape) to avoid
     // issues with dark and light interface themes
     mDisasScrollArea->setStyleSheet("QAbstractScrollArea { border: 0px transparent black; }");
@@ -759,9 +759,22 @@ RVA DisassemblyScrollArea::getVStepSize()
     }
 }
 
-RVA DisassemblyScrollArea::currentVScrollAddr()
+RVA DisassemblyScrollArea::currentVScrollAddr(int disasmMaxLines)
 {
-    return verticalScrollBar()->value() * getVStepSize() + beginOffset;
+    if (verticalScrollBar()->value() == verticalScrollBar()->maximum()) {
+        if (endOffset > static_cast<RVA>(disasmMaxLines)) {
+            return endOffset - disasmMaxLines * 2;
+        }
+    }
+    int maximum = verticalScrollBar()->maximum();
+    if (!maximum) {
+        return beginOffset;
+    }
+    // Viewing a really large binary? Fall back to the a less accurate formula to prevent overflow
+    if ((RVA_MAX / 100) > endOffset - beginOffset) {
+        return verticalScrollBar()->value() * ((endOffset - beginOffset) / maximum) + beginOffset;
+    }
+    return (verticalScrollBar()->value() * (endOffset - beginOffset)) / maximum + beginOffset;
 }
 
 void DisassemblyScrollArea::setVScrollPos(RVA address)
