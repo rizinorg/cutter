@@ -745,9 +745,6 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
     endOffset = RVA_INVALID;
     fetchStats();
     connect(Core(), &CutterCore::refreshAll, this, &DisassemblyScrollArea::fetchStats);
-    connect(Core(), &CutterCore::functionsChanged, this, &DisassemblyScrollArea::fetchStats);
-    connect(Core(), &CutterCore::flagsChanged, this, &DisassemblyScrollArea::fetchStats);
-    connect(Core(), &CutterCore::globalVarsChanged, this, &DisassemblyScrollArea::fetchStats);
 }
 
 RVA DisassemblyScrollArea::getVStepSize()
