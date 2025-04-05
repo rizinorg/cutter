@@ -745,8 +745,8 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
     beginOffset = RVA_INVALID;
     endOffset = RVA_INVALID;
     disasmMaxLines = 0;
-    fetchStats();
-    connect(Core(), &CutterCore::refreshAll, this, &DisassemblyScrollArea::fetchStats);
+    refreshVScrollbarRange();
+    connect(Core(), &CutterCore::refreshAll, this, &DisassemblyScrollArea::refreshVScrollbarRange);
 }
 
 RVA DisassemblyScrollArea::binSize()
@@ -801,7 +801,7 @@ void DisassemblyScrollArea::setDisasmMaxLines(int maxLines)
     disasmMaxLines = maxLines;
 }
 
-void DisassemblyScrollArea::fetchStats()
+void DisassemblyScrollArea::refreshVScrollbarRange()
 {
     beginOffset = RVA_MAX;
     endOffset = 0;

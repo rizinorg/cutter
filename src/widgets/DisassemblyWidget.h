@@ -124,7 +124,7 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
 
 private:
-    void fetchStats();
+    void refreshVScrollbarRange();
     RVA binSize();
     RVA beginOffset, endOffset;
     int disasmMaxLines;
