@@ -52,7 +52,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     splitter->addWidget(mDisasScrollArea);
     QScrollBar *vScrollBar = mDisasScrollArea->verticalScrollBar();
     connect(vScrollBar, &QScrollBar::valueChanged, this,
-            [this](int) { refreshDisasm(mDisasScrollArea->currentVScrollAddr(maxLines)); });
+            [this](int) { refreshDisasm(mDisasScrollArea->currentVScrollAddr()); });
     // Use stylesheet instead of QWidget::setFrameShape(QFrame::NoShape) to avoid
     // issues with dark and light interface themes
     mDisasScrollArea->setStyleSheet("QAbstractScrollArea { border: 0px transparent black; }");
@@ -346,6 +346,7 @@ bool DisassemblyWidget::updateMaxLines()
 
     if (currentMaxLines != maxLines) {
         maxLines = currentMaxLines;
+        mDisasScrollArea->setDisasmMaxLines(maxLines);
         refreshDisasm();
         return true;
     }
@@ -743,20 +744,17 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
 {
     beginOffset = RVA_INVALID;
     endOffset = RVA_INVALID;
+    disasmMaxLines = 0;
     fetchStats();
     connect(Core(), &CutterCore::refreshAll, this, &DisassemblyScrollArea::fetchStats);
 }
 
-RVA DisassemblyScrollArea::getVStepSize()
+RVA DisassemblyScrollArea::binSize()
 {
-    if (int maximum = verticalScrollBar()->maximum()) {
-        return (endOffset - beginOffset) / maximum;
-    } else {
-        return 0;
-    }
+    return endOffset - beginOffset;
 }
 
-RVA DisassemblyScrollArea::currentVScrollAddr(int disasmMaxLines)
+RVA DisassemblyScrollArea::currentVScrollAddr()
 {
     if (verticalScrollBar()->value() == verticalScrollBar()->maximum()) {
         if (endOffset > static_cast<RVA>(disasmMaxLines)) {
@@ -764,24 +762,43 @@ RVA DisassemblyScrollArea::currentVScrollAddr(int disasmMaxLines)
         }
     }
     int maximum = verticalScrollBar()->maximum();
-    if (!maximum) {
+    if (!maximum || !binSize()) {
         return beginOffset;
     }
-    // Viewing a really large binary? Fall back to the a less accurate formula to prevent overflow
-    if ((RVA_MAX / 100) > endOffset - beginOffset) {
-        return verticalScrollBar()->value() * ((endOffset - beginOffset) / maximum) + beginOffset;
+    // Fallback formula for large files
+    if ((RVA_MAX / maximum) > binSize()) {
+        return verticalScrollBar()->value() * (binSize() / maximum) + beginOffset;
     }
-    return (verticalScrollBar()->value() * (endOffset - beginOffset)) / maximum + beginOffset;
+    return (verticalScrollBar()->value() * binSize()) / maximum + beginOffset;
 }
 
 void DisassemblyScrollArea::setVScrollPos(RVA address)
 {
     const QSignalBlocker blocker(verticalScrollBar());
-    if (RVA stepSize = getVStepSize()) {
-        verticalScrollBar()->setValue((address - beginOffset) / stepSize);
-    } else {
-        setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+    if (address >= (endOffset - disasmMaxLines * 2)) {
+        verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+        return;
     }
+    int maximum = verticalScrollBar()->maximum();
+    if (!maximum || !binSize()) {
+        setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+        return;
+    }
+    // Fallback formula for large files
+    if ((RVA_MAX / maximum) > binSize()) {
+        if (RVA stepSize = binSize() / maximum) {
+            verticalScrollBar()->setValue((address - beginOffset) / stepSize);
+        } else {
+            setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+        }
+        return;
+    }
+    verticalScrollBar()->setValue((maximum * (address - beginOffset)) / binSize());
+}
+
+void DisassemblyScrollArea::setDisasmMaxLines(int maxLines)
+{
+    disasmMaxLines = maxLines;
 }
 
 void DisassemblyScrollArea::fetchStats()
@@ -832,7 +849,7 @@ void DisassemblyScrollArea::fetchStats()
     } else {
         verticalScrollBar()->setMaximum(endOffset - beginOffset);
     }
-    if (getVStepSize() <= 0) {
+    if (!verticalScrollBar()->maximum() || !binSize()) {
         setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
         return;
     }

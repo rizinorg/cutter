@@ -111,8 +111,9 @@ class DisassemblyScrollArea : public QAbstractScrollArea
 
 public:
     explicit DisassemblyScrollArea(QWidget *parent = nullptr);
-    RVA currentVScrollAddr(int disasmMaxLines);
+    RVA currentVScrollAddr();
     void setVScrollPos(RVA address);
+    void setDisasmMaxLines(int maxLines);
 
 signals:
     void scrollLines(int lines);
@@ -124,8 +125,9 @@ protected:
 
 private:
     void fetchStats();
-    RVA getVStepSize();
+    RVA binSize();
     RVA beginOffset, endOffset;
+    int disasmMaxLines;
 };
 
 class DisassemblyTextEdit : public QPlainTextEdit
