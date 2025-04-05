@@ -127,7 +127,7 @@ private:
     void refreshVScrollbarRange();
     RVA binSize();
     RVA beginOffset, endOffset;
-    int disasmMaxLines;
+    int accumScrollWheelDeltaY, disasmMaxLines;
 };
 
 class DisassemblyTextEdit : public QPlainTextEdit
