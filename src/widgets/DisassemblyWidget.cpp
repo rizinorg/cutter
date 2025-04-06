@@ -876,10 +876,7 @@ void DisassemblyScrollArea::wheelEvent(QWheelEvent *event)
         return;
     }
     // Handle scroll direction changes
-    if (accumScrollWheelDeltaY > 0 && event->angleDelta().y() < 0) {
-        accumScrollWheelDeltaY = 0;
-    }
-    if (accumScrollWheelDeltaY < 0 && event->angleDelta().y() > 0) {
+    if ((accumScrollWheelDeltaY > 0) != (event->angleDelta().y() > 0)) {
         accumScrollWheelDeltaY = 0;
     }
     accumScrollWheelDeltaY += event->angleDelta().y();
