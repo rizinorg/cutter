@@ -113,7 +113,6 @@ public:
     explicit DisassemblyScrollArea(QWidget *parent = nullptr);
     RVA currentVScrollAddr();
     void setVScrollPos(RVA address);
-    void setDisasmMaxLines(int maxLines);
 
 signals:
     void scrollLines(int lines);
@@ -127,7 +126,7 @@ private:
     void refreshVScrollbarRange();
     RVA binSize();
     RVA beginOffset, endOffset;
-    int accumScrollWheelDeltaY, disasmMaxLines;
+    int accumScrollWheelDeltaY;
 };
 
 class DisassemblyTextEdit : public QPlainTextEdit

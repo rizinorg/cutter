@@ -347,7 +347,6 @@ bool DisassemblyWidget::updateMaxLines()
 
     if (currentMaxLines != maxLines) {
         maxLines = currentMaxLines;
-        mDisasScrollArea->setDisasmMaxLines(maxLines);
         refreshDisasm();
         return true;
     }
@@ -745,7 +744,6 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
 {
     beginOffset = RVA_INVALID;
     endOffset = RVA_INVALID;
-    disasmMaxLines = 0;
     refreshVScrollbarRange();
     connect(Core(), &CutterCore::refreshAll, this, &DisassemblyScrollArea::refreshVScrollbarRange);
 }
@@ -757,11 +755,6 @@ RVA DisassemblyScrollArea::binSize()
 
 RVA DisassemblyScrollArea::currentVScrollAddr()
 {
-    if (verticalScrollBar()->value() == verticalScrollBar()->maximum()) {
-        if (endOffset > static_cast<RVA>(disasmMaxLines)) {
-            return endOffset - disasmMaxLines;
-        }
-    }
     int maximum = verticalScrollBar()->maximum();
     if (!maximum || !binSize()) {
         return beginOffset;
@@ -776,18 +769,16 @@ RVA DisassemblyScrollArea::currentVScrollAddr()
 void DisassemblyScrollArea::setVScrollPos(RVA address)
 {
     const QSignalBlocker blocker(verticalScrollBar());
-    if (endOffset > static_cast<RVA>(disasmMaxLines)) {
-        if (address >= (endOffset - disasmMaxLines)) {
-            verticalScrollBar()->setValue(verticalScrollBar()->maximum());
-            return;
-        }
-    }
     int maximum = verticalScrollBar()->maximum();
     if (!maximum || !binSize()) {
         setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
         return;
     }
     int scrollBarPos = 0;
+    if (address < beginOffset) {
+        verticalScrollBar()->setValue(scrollBarPos);
+        return;
+    }
     if ((RVA_MAX / maximum) < binSize()) {
         // Fallback formula for large files
         if (RVA stepSize = binSize() / maximum) {
@@ -801,15 +792,8 @@ void DisassemblyScrollArea::setVScrollPos(RVA address)
     }
     if (address != 0 && scrollBarPos == 0) {
         scrollBarPos = 1;
-    } else if (scrollBarPos >= maximum && endOffset > static_cast<RVA>(disasmMaxLines)) {
-        scrollBarPos = maximum - 1;
     }
     verticalScrollBar()->setValue(scrollBarPos);
-}
-
-void DisassemblyScrollArea::setDisasmMaxLines(int maxLines)
-{
-    disasmMaxLines = maxLines;
 }
 
 void DisassemblyScrollArea::refreshVScrollbarRange()
@@ -852,6 +836,9 @@ void DisassemblyScrollArea::refreshVScrollbarRange()
             }
         }
     }
+    if (endOffset) {
+        --endOffset;
+    }
     if (endOffset == 0) {
         beginOffset = 0;
     }
@@ -861,16 +848,16 @@ void DisassemblyScrollArea::refreshVScrollbarRange()
     // The greater this value, the smaller a file must be for the scroll bar to stay accurate
     // A rangeMax of 100000 lets the scroll bar handle files up to ~167.8TB in size without issue
     const int rangeMax = 100000;
-    if ((endOffset - beginOffset) > rangeMax) {
+    if (binSize() > rangeMax) {
         verticalScrollBar()->setMaximum(rangeMax);
-    } else if (int maximum = endOffset - beginOffset) {
-        verticalScrollBar()->setMaximum(maximum - 1);
+    } else {
+        verticalScrollBar()->setMaximum(binSize());
     }
-    if (!verticalScrollBar()->maximum() || !binSize()) {
+    if (binSize()) {
+        setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOn);
+    } else {
         setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
-        return;
     }
-    setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOn);
 }
 
 bool DisassemblyScrollArea::viewportEvent(QEvent *event)
