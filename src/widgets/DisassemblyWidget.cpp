@@ -856,8 +856,13 @@ void DisassemblyScrollArea::refreshVScrollbarRange()
         beginOffset = 0;
     }
     verticalScrollBar()->setMinimum(0);
-    if ((endOffset - beginOffset) > 100000) {
-        verticalScrollBar()->setMaximum(100000);
+    // Maximum value recommended by Qt
+    // see https://doc.qt.io/qt-6/qscrollbar.html
+    // The greater this value, the smaller a file must be for the scroll bar to stay accurate
+    // A rangeMax of 100000 lets the scroll bar handle files up to ~167.8TB in size without issue
+    const int rangeMax = 100000;
+    if ((endOffset - beginOffset) > rangeMax) {
+        verticalScrollBar()->setMaximum(rangeMax);
     } else if (int maximum = endOffset - beginOffset) {
         verticalScrollBar()->setMaximum(maximum - 1);
     }
