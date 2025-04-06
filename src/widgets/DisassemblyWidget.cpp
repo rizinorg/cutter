@@ -827,6 +827,7 @@ void DisassemblyScrollArea::refreshVScrollbarRange()
         }
         CutterPVector<RzIOMap> maps { mapsPtr };
         for (const RzIOMap *const map : maps) {
+            // Skip the ESIL memory stack region
             if (Core()->currentlyEmulating && std::strncmp(rz_str_get(map->name), "mem.", 4) == 0) {
                 continue;
             }
