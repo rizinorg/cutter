@@ -883,9 +883,13 @@ void DisassemblyScrollArea::wheelEvent(QWheelEvent *event)
         accumScrollWheelDeltaY = 0;
     }
     accumScrollWheelDeltaY += event->angleDelta().y();
-    if (accumScrollWheelDeltaY >= 40 || accumScrollWheelDeltaY <= -40) {
-        int lineCount = accumScrollWheelDeltaY / 40;
-        accumScrollWheelDeltaY -= 40 * lineCount;
+    // Delta is reported in 1/8 of a degree
+    // eg. 120 units * 1/8 = 15 degrees
+    // Typical scroll speed is 1 line per 5 degrees
+    const int lineDelta = 5 * 8;
+    if (accumScrollWheelDeltaY >= lineDelta || accumScrollWheelDeltaY <= -lineDelta) {
+        int lineCount = accumScrollWheelDeltaY / lineDelta;
+        accumScrollWheelDeltaY -= lineDelta * lineCount;
         emit scrollLines(-lineCount);
     }
 }
