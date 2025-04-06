@@ -844,8 +844,8 @@ void DisassemblyScrollArea::refreshVScrollbarRange()
         beginOffset = 0;
     }
     verticalScrollBar()->setMinimum(0);
-    if ((endOffset - beginOffset) > 100) {
-        verticalScrollBar()->setMaximum(100);
+    if ((endOffset - beginOffset) > 100000) {
+        verticalScrollBar()->setMaximum(100000);
     } else {
         verticalScrollBar()->setMaximum(endOffset - beginOffset);
     }
