@@ -766,7 +766,7 @@ RVA DisassemblyScrollArea::currentVScrollAddr()
         return beginOffset;
     }
     // Fallback formula for large files
-    if ((RVA_MAX / maximum) > binSize()) {
+    if ((RVA_MAX / maximum) < binSize()) {
         return verticalScrollBar()->value() * (binSize() / maximum) + beginOffset;
     }
     return (verticalScrollBar()->value() * binSize()) / maximum + beginOffset;
@@ -775,9 +775,11 @@ RVA DisassemblyScrollArea::currentVScrollAddr()
 void DisassemblyScrollArea::setVScrollPos(RVA address)
 {
     const QSignalBlocker blocker(verticalScrollBar());
-    if (address >= (endOffset - disasmMaxLines)) {
-        verticalScrollBar()->setValue(verticalScrollBar()->maximum());
-        return;
+    if (endOffset > static_cast<RVA>(disasmMaxLines)) {
+        if (address >= (endOffset - disasmMaxLines)) {
+            verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+            return;
+        }
     }
     int maximum = verticalScrollBar()->maximum();
     if (!maximum || !binSize()) {
@@ -785,7 +787,7 @@ void DisassemblyScrollArea::setVScrollPos(RVA address)
         return;
     }
     int scrollBarPos = 0;
-    if ((RVA_MAX / maximum) > binSize()) {
+    if ((RVA_MAX / maximum) < binSize()) {
         // Fallback formula for large files
         if (RVA stepSize = binSize() / maximum) {
             scrollBarPos = (address - beginOffset) / stepSize;
@@ -798,6 +800,8 @@ void DisassemblyScrollArea::setVScrollPos(RVA address)
     }
     if (address != 0 && scrollBarPos == 0) {
         scrollBarPos = 1;
+    } else if (scrollBarPos >= maximum) {
+        scrollBarPos = maximum - 1;
     }
     verticalScrollBar()->setValue(scrollBarPos);
 }
