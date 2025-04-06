@@ -744,6 +744,7 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
 {
     beginOffset = RVA_INVALID;
     endOffset = RVA_INVALID;
+    accumScrollWheelDeltaY = 0;
     refreshVScrollbarRange();
     connect(Core(), &CutterCore::refreshAll, this, &DisassemblyScrollArea::refreshVScrollbarRange);
 }
@@ -874,10 +875,6 @@ void DisassemblyScrollArea::wheelEvent(QWheelEvent *event)
     if (event->angleDelta().isNull() || !event->angleDelta().y()) {
         QAbstractScrollArea::wheelEvent(event);
         return;
-    }
-    // Handle scroll direction changes
-    if ((accumScrollWheelDeltaY > 0) != (event->angleDelta().y() > 0)) {
-        accumScrollWheelDeltaY = 0;
     }
     accumScrollWheelDeltaY += event->angleDelta().y();
     // Delta is reported in 1/8 of a degree
