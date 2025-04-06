@@ -884,6 +884,10 @@ bool DisassemblyScrollArea::viewportEvent(QEvent *event)
 
 void DisassemblyScrollArea::wheelEvent(QWheelEvent *event)
 {
+    if (event->angleDelta().isNull() || !event->angleDelta().y()) {
+        QAbstractScrollArea::wheelEvent(event);
+        return;
+    }
     // Handle scroll direction changes
     if (accumScrollWheelDeltaY > 0 && event->angleDelta().y() < 0) {
         accumScrollWheelDeltaY = 0;
@@ -892,18 +896,11 @@ void DisassemblyScrollArea::wheelEvent(QWheelEvent *event)
         accumScrollWheelDeltaY = 0;
     }
     accumScrollWheelDeltaY += event->angleDelta().y();
-    int lineCount = 0;
     if (accumScrollWheelDeltaY >= 40 || accumScrollWheelDeltaY <= -40) {
-        lineCount = accumScrollWheelDeltaY / 40;
+        int lineCount = accumScrollWheelDeltaY / 40;
         accumScrollWheelDeltaY -= 40 * lineCount;
-    }
-    if (lineCount) {
         emit scrollLines(-lineCount);
     }
-    if (event->angleDelta().y()) {
-        return;
-    }
-    QAbstractScrollArea::wheelEvent(event);
 }
 
 qreal DisassemblyTextEdit::textOffset() const
