@@ -800,7 +800,7 @@ void DisassemblyScrollArea::setVScrollPos(RVA address)
     }
     if (address != 0 && scrollBarPos == 0) {
         scrollBarPos = 1;
-    } else if (scrollBarPos >= maximum) {
+    } else if (scrollBarPos >= maximum && endOffset > static_cast<RVA>(disasmMaxLines)) {
         scrollBarPos = maximum - 1;
     }
     verticalScrollBar()->setValue(scrollBarPos);
