@@ -792,9 +792,10 @@ RVA DisassemblyScrollArea::currentVScrollAddr()
         return beginOffset;
     }
     // Fallback formula for large files
-    if ((RVA_MAX / maximum) < binSize()) {
+    if ((RVA_MAX / maximum) > binSize()) {
         return verticalScrollBar()->value() * (binSize() / maximum)
-                + std::min(static_cast<RVA>(verticalScrollBar()->value()), binSize() % maximum);
+                + std::min(static_cast<RVA>(verticalScrollBar()->value()), binSize() % maximum)
+                + beginOffset;
     }
     return (verticalScrollBar()->value() * binSize()) / maximum + beginOffset;
 }
@@ -812,9 +813,15 @@ void DisassemblyScrollArea::setVScrollPos(RVA address)
         verticalScrollBar()->setValue(scrollBarPos);
         return;
     }
-    if ((RVA_MAX / maximum) < binSize()) {
-        // Fallback formula for large files
-        scrollBarPos = ((address - (binSize() % maximum)) * maximum) / binSize();
+    if ((RVA_MAX / maximum) > binSize()) {
+        if (address > endOffset) {
+            // Fallback formula can handle numbers within the binary's range
+            // but not numbers far above it
+            scrollBarPos = verticalScrollBar()->maximum();
+        } else {
+            // Fallback formula for large files
+            scrollBarPos = ((address - (binSize() % maximum) - beginOffset) * maximum) / binSize();
+        }
     } else {
         scrollBarPos = maximum * (address - beginOffset) / binSize();
     }
