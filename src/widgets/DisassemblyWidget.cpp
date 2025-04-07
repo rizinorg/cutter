@@ -51,8 +51,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     layout->setContentsMargins(0, 0, 0, 0);
     mDisasScrollArea->viewport()->setLayout(layout);
     splitter->addWidget(mDisasScrollArea);
-    QScrollBar *vScrollBar = mDisasScrollArea->verticalScrollBar();
-    connect(vScrollBar, &QScrollBar::valueChanged, this,
+    connect(mDisasScrollArea->verticalScrollBar(), &QScrollBar::valueChanged, this,
             [this](int) { refreshDisasm(mDisasScrollArea->currentVScrollAddr()); });
     // Use stylesheet instead of QWidget::setFrameShape(QFrame::NoShape) to avoid
     // issues with dark and light interface themes
@@ -745,6 +744,39 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
     beginOffset = RVA_INVALID;
     endOffset = RVA_INVALID;
     accumScrollWheelDeltaY = 0;
+    verticalScrollBar()->setPageStep(40);
+    // Override scroll bar button behavior
+    // Setting the scroll bar's single step to 0 prevents it from scrolling
+    // while hovering over it, so we use this workaround
+    connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, [this](int action) {
+        QScrollBar *vScrollBar = verticalScrollBar();
+        int val = vScrollBar->value();
+        // Check if val is vScrollBar->minimum() or vScrollBar->maximum()
+        // to prevent buttons from scrolling when the scroll bar when is either at
+        // the top or the botttom
+        if (val != std::clamp(val, vScrollBar->minimum() + 1, vScrollBar->maximum() - 1)) {
+            return;
+        }
+        switch (action) {
+        case QAbstractSlider::SliderSingleStepAdd:
+            // Due to the way this signal works,
+            // setting the slider pos to its current value here
+            // prevents it from moving, allowing us to basically
+            // override the scroll bar buttons' behavior
+            // See https://doc.qt.io/qt-6/qabstractslider.html#actionTriggered
+            // for more info.
+            vScrollBar->setSliderPosition(val);
+            emit scrollLines(1);
+            return;
+        case QAbstractSlider::SliderSingleStepSub:
+            // Same as above
+            vScrollBar->setSliderPosition(val);
+            emit scrollLines(-1);
+            return;
+        default:
+            break;
+        }
+    });
     refreshVScrollbarRange();
     connect(Core(), &CutterCore::refreshAll, this, &DisassemblyScrollArea::refreshVScrollbarRange);
 }
@@ -844,11 +876,11 @@ void DisassemblyScrollArea::refreshVScrollbarRange()
         beginOffset = 0;
     }
     verticalScrollBar()->setMinimum(0);
-    // Maximum value recommended by Qt
-    // see https://doc.qt.io/qt-6/qscrollbar.html
-    // The greater this value, the smaller a file must be for the scroll bar to stay accurate
-    // A rangeMax of 100000 lets the scroll bar handle files up to ~167.8TB in size without issue
-    const int rangeMax = 100000;
+    // Increasing this value increases scroll bar accuracy for small files but
+    // decreases it for large files
+    // A rangeMax of 512x1024x1024 lets the scroll bar handle files up to
+    // 32 GB in size without issue
+    const int rangeMax = 512 * 1024 * 1024;
     if (binSize() > rangeMax) {
         verticalScrollBar()->setMaximum(rangeMax);
     } else {
