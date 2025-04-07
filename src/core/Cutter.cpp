@@ -58,6 +58,7 @@ RZ_JSON_KEY(fcn_addr);
 RZ_JSON_KEY(fcn_name);
 RZ_JSON_KEY(fields);
 RZ_JSON_KEY(file);
+RZ_JSON_KEY(flag);
 RZ_JSON_KEY(flags);
 RZ_JSON_KEY(flagname);
 RZ_JSON_KEY(format);
@@ -3913,7 +3914,7 @@ bool CutterCore::isAddressMapped(RVA addr)
     return rz_io_map_get(core->io, addr);
 }
 
-QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchSpace space, QString in)
+QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind kind, QString in)
 {
     CORE_LOCK();
     QList<SearchDescription> searchRef;
@@ -3921,68 +3922,134 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchSpace
     if (searchFor.isEmpty()) {
         return {};
     }
-
+    TempConfig cfg;
+    eprintf("%s\n", in.toUtf8().constData());
+    cfg.set("search.in", in);
     CutterJson searchArray;
-    {
-        TempConfig cfg;
-        cfg.set("search.in", in);
-        char *arg = rz_cmd_escape_arg(searchFor.toUtf8().constData(), RZ_CMD_ESCAPE_ONE_ARG);
-        if (!arg) {
-            return {};
-        }
-        QString cmd, suffix;
-        switch (space) {
-        case SearchSpace::AsmCode:
+
+    QString cmd, suffix;
+    if (kind == SearchKind::AsmCode || kind == SearchKind::ROPGadgets || kind == SearchKind::ROPGadgetsRegex) {
+        // Those are the searches which don't follow the search hit standardization of the new
+        // search yet.
+        switch (kind) {
+        default:
+            assert(0 && "Very invalid state.");
+        case SearchKind::AsmCode:
             cmd = "/acj";
             break;
-        case SearchSpace::String:
-            cmd = "/zj";
-            break;
-        case SearchSpace::StringCaseInsensitive:
-            cmd = "/zj";
-            suffix = " li";
-            break;
-        case SearchSpace::HexString:
-            cmd = "/xj";
-            break;
-        case SearchSpace::ROPGadgets:
+        case SearchKind::ROPGadgets:
             cmd = "/Rj";
             break;
-        case SearchSpace::Value32Bit:
-            cmd = "/vj";
+        case SearchKind::ROPGadgetsRegex:
+            cmd = "/R/j";
             break;
         }
-        auto cstr = QString("%1 %2%3").arg(cmd, arg, suffix);
+        auto cstr = QString("%1 \"%2\"").arg(cmd, searchFor);
         eprintf("%s\n", cstr.toUtf8().constData());
         searchArray = cmdj(cstr);
-    }
+        if (kind == SearchKind::ROPGadgets || kind == SearchKind::ROPGadgetsRegex) {
+            for (CutterJson searchObject : searchArray) {
+                SearchDescription exp;
 
-    if (space == SearchSpace::ROPGadgets) {
-        for (CutterJson searchObject : searchArray) {
-            SearchDescription exp;
+                exp.code.clear();
+                for (CutterJson gadget : searchObject[RJsonKey::opcodes]) {
+                    exp.code += gadget[RJsonKey::opcode].toString() + ";  ";
+                }
 
-            exp.code.clear();
-            for (CutterJson gadget : searchObject[RJsonKey::opcodes]) {
-                exp.code += gadget[RJsonKey::opcode].toString() + ";  ";
+                exp.offset = searchObject[RJsonKey::opcodes].first()[RJsonKey::offset].toRVA();
+                exp.size = searchObject[RJsonKey::size].toUt64();
+
+                searchRef << exp;
             }
-
-            exp.offset = searchObject[RJsonKey::opcodes].first()[RJsonKey::offset].toRVA();
-            exp.size = searchObject[RJsonKey::size].toUt64();
-
-            searchRef << exp;
+            return searchRef;
         }
-    } else {
         for (CutterJson searchObject : searchArray) {
             SearchDescription exp;
 
-            exp.offset = searchObject[space == SearchSpace::String ? RJsonKey::address : RJsonKey::offset].toRVA();
+            exp.offset = searchObject[RJsonKey::offset].toRVA();
             exp.size = searchObject[RJsonKey::len].toUt64();
             exp.code = searchObject[RJsonKey::code].toString();
             exp.data = searchObject[RJsonKey::data].toString();
 
             searchRef << exp;
         }
+        return searchRef;
     }
+    // These are the earches with the unified API.
+    switch (kind) {
+    default:
+        assert(0 && "Very invalid state.");
+    case SearchKind::HexString:
+        cmd = "/xj";
+        break;
+    case SearchKind::String:
+        cmd = "/zj";
+        break;
+    case SearchKind::StringCaseInsensitive:
+        cmd = "/zj";
+        suffix = "li";
+        break;
+    case SearchKind::StringRegexExtended:
+        cmd = "/zj";
+        suffix = "e";
+        break;
+    case SearchKind::Value32BE:
+        cmd = "/vj 4be";
+        break;
+    case SearchKind::Value32LE:
+        cmd = "/vj 4le";
+        break;
+    case SearchKind::Value64BE:
+        cmd = "/vj 8be";
+        break;
+    case SearchKind::Value64LE:
+        cmd = "/vj 8le";
+        break;
+    }
+    QString cstr;
+    if (kind == SearchKind::StringRegexExtended || kind == SearchKind::StringCaseInsensitive || kind == SearchKind::String) {
+        // Quote the string since it might contain spaces.
+        cstr = QString("%1 \"%2\" %3").arg(cmd, searchFor, suffix);
+    } else {
+        cstr = QString("%1 %2").arg(cmd, searchFor);
+    }
+    eprintf("%s\n", cstr.toUtf8().constData());
+    searchArray = cmdj(cstr);
+    for (CutterJson searchObject : searchArray) {
+        SearchDescription exp;
+
+        exp.offset = searchObject[RJsonKey::address].toRVA();
+        exp.size = searchObject[RJsonKey::size].toUt64();
+        switch (kind) {
+        default:
+            assert(0 && "Very invalid state.");
+        case SearchKind::String:
+        case SearchKind::StringCaseInsensitive:
+        case SearchKind::StringRegexExtended: {
+            QString enc = searchObject[RJsonKey::flag].toString().section(".", 2, 2);
+            if (enc.isEmpty()) {
+                enc = "guess";
+            }
+            QString get_str_cmd = QString("ps %1 @ 0x%2 @!0x%3").arg(enc,
+             QString::number(searchObject[RJsonKey::address].toRVA(), 16),
+             QString::number(searchObject[RJsonKey::size].toRVA() * RZ_UNICODE_MAX_BYTES_PER_CHAR, 16));
+            eprintf("%s\n", get_str_cmd.toUtf8().constData());
+            auto result = cmdRaw(get_str_cmd);
+            exp.data = result;
+            break;
+        }
+        case SearchKind::HexString:
+        case SearchKind::Value32BE:
+        case SearchKind::Value32LE:
+        case SearchKind::Value64BE:
+        case SearchKind::Value64LE: {
+            exp.data = hexdump(exp.offset, exp.size, HexdumpFormats::Normal);
+            break;
+        }
+        }
+        searchRef << exp;
+    }
+
     return searchRef;
 }
 

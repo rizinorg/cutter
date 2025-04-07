@@ -62,14 +62,19 @@ struct CUTTER_EXPORT RegisterRef
     QString name;
 };
 
-enum class SearchSpace
+enum class SearchKind
 {
     AsmCode,
-    String,
-    StringCaseInsensitive,
     HexString,
     ROPGadgets,
-    Value32Bit
+    ROPGadgetsRegex,
+    String,
+    StringCaseInsensitive,
+    StringRegexExtended,
+    Value32BE,
+    Value32LE,
+    Value64BE,
+    Value64LE,
 };
 
 class CUTTER_EXPORT CutterCore : public QObject
@@ -660,7 +665,7 @@ public:
     bool isAddressMapped(RVA addr);
 
     QList<MemoryMapDescription> getMemoryMap();
-    QList<SearchDescription> getAllSearch(QString searchFor, SearchSpace space, QString in);
+    QList<SearchDescription> getAllSearch(QString searchFor, SearchKind kind, QString in);
     QList<BreakpointDescription> getBreakpoints();
     /**
      * @brief Get list of processes attachable by debugger
