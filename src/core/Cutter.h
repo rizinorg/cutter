@@ -579,8 +579,6 @@ public:
     void setGraphEmpty(bool empty);
     bool isGraphEmpty();
 
-    bool rebaseBin(RVA base_address);
-
     void getRegs();
     QList<QString> regs;
     void setSettings();
