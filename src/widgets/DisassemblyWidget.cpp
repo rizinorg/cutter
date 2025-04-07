@@ -745,9 +745,6 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
     endOffset = RVA_INVALID;
     accumScrollWheelDeltaY = 0;
     verticalScrollBar()->setPageStep(40);
-    // Override scroll bar button behavior
-    // Setting the scroll bar's single step to 0 prevents it from scrolling
-    // while hovering over it, so we use this workaround
     connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, [this](int action) {
         QScrollBar *vScrollBar = verticalScrollBar();
         int val = vScrollBar->value();
@@ -765,6 +762,8 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
             // override the scroll bar buttons' behavior
             // See https://doc.qt.io/qt-6/qabstractslider.html#actionTriggered
             // for more info.
+            // Setting the scroll bar's single step to 0 prevents it from scrolling
+            // while hovering over it, so we have to use this workaround
             vScrollBar->setSliderPosition(val);
             emit scrollLines(1);
             return;
