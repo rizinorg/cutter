@@ -751,7 +751,7 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
         // Check if val is vScrollBar->minimum() or vScrollBar->maximum()
         // to prevent buttons from scrolling when the scroll bar when is either at
         // the top or the botttom
-        if (val != std::clamp(val, vScrollBar->minimum() + 1, vScrollBar->maximum() - 1)) {
+        if (val == vScrollBar->minimum() || val == vScrollBar->maximum()) {
             return;
         }
         switch (action) {
