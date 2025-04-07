@@ -793,7 +793,8 @@ RVA DisassemblyScrollArea::currentVScrollAddr()
     }
     // Fallback formula for large files
     if ((RVA_MAX / maximum) < binSize()) {
-        return verticalScrollBar()->value() * (binSize() / maximum) + beginOffset;
+        return verticalScrollBar()->value() * (binSize() / maximum)
+                + std::min(static_cast<RVA>(verticalScrollBar()->value()), binSize() % maximum);
     }
     return (verticalScrollBar()->value() * binSize()) / maximum + beginOffset;
 }
@@ -813,12 +814,7 @@ void DisassemblyScrollArea::setVScrollPos(RVA address)
     }
     if ((RVA_MAX / maximum) < binSize()) {
         // Fallback formula for large files
-        if (RVA stepSize = binSize() / maximum) {
-            scrollBarPos = (address - beginOffset) / stepSize;
-        } else {
-            setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
-            return;
-        }
+        scrollBarPos = ((address - (binSize() % maximum)) * maximum) / binSize();
     } else {
         scrollBarPos = maximum * (address - beginOffset) / binSize();
     }
