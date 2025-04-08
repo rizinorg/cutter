@@ -3917,7 +3917,6 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
         return {};
     }
     TempConfig cfg;
-    eprintf("%s\n", in.toUtf8().constData());
     cfg.set("search.in", in);
     CutterJson searchArray;
 
@@ -3939,7 +3938,6 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
             break;
         }
         auto cstr = QString("%1 \"%2\"").arg(cmd, searchFor);
-        eprintf("%s\n", cstr.toUtf8().constData());
         searchArray = cmdj(cstr);
         if (kind == SearchKind::ROPGadgets || kind == SearchKind::ROPGadgetsRegex) {
             for (CutterJson searchObject : searchArray) {
@@ -4007,7 +4005,6 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
     } else {
         cstr = QString("%1 %2").arg(cmd, searchFor);
     }
-    eprintf("%s\n", cstr.toUtf8().constData());
     searchArray = cmdj(cstr);
     for (CutterJson searchObject : searchArray) {
         SearchDescription exp;
@@ -4027,7 +4024,6 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
             QString get_str_cmd = QString("ps %1 @ 0x%2 @!0x%3").arg(enc,
              QString::number(searchObject[RJsonKey::address].toRVA(), 16),
              QString::number(searchObject[RJsonKey::size].toRVA() * RZ_UNICODE_MAX_BYTES_PER_CHAR, 16));
-            eprintf("%s\n", get_str_cmd.toUtf8().constData());
             auto result = cmdRaw(get_str_cmd);
             exp.data = result;
             break;
