@@ -2513,7 +2513,6 @@ void CutterCore::stepBackDebug()
 QStringList CutterCore::getDebugPlugins()
 {
     QStringList plugins;
-    RzListIter *iter;
     CORE_LOCK();
     CutterHtSP<RzDebugPlugin>(core->dbg->plugins).ForEach([&plugins] (const char *k, const RzDebugPlugin *plugin) {
         plugins << plugin->name;
@@ -2950,7 +2949,6 @@ QList<RVA> CutterCore::getSeekHistory()
 QStringList CutterCore::getAsmPluginNames()
 {
     CORE_LOCK();
-    RzListIter *it;
     QStringList ret;
     CutterHtSP<RzAsmPlugin>(core->rasm->plugins).ForEach([&ret] (const char *k, const RzAsmPlugin *ap) {
         ret << ap->name;
@@ -2975,7 +2973,6 @@ QList<RzBinPluginDescription> CutterCore::getBinPluginDescriptions(bool bin, boo
 {
     CORE_LOCK();
     QList<RzBinPluginDescription> ret;
-    RzListIter *it;
     if (bin) {
         CutterHtSP<RzBinPlugin>(core->bin->plugins).ForEach([&ret] (const char *k, const RzBinPlugin *bp) {
             RzBinPluginDescription desc;
@@ -3005,7 +3002,6 @@ QList<RzIOPluginDescription> CutterCore::getRIOPluginDescriptions()
 {
     CORE_LOCK();
     QList<RzIOPluginDescription> ret;
-    RzListIter *it;
     CutterHtSP<RzIOPlugin>(core->io->plugins).ForEach([&ret] (const char *k, const RzIOPlugin *p) {
         RzIOPluginDescription desc;
         desc.name = p->name ? p->name : "";
@@ -3025,7 +3021,6 @@ QList<RzCorePluginDescription> CutterCore::getRCorePluginDescriptions()
 {
     CORE_LOCK();
     QList<RzCorePluginDescription> ret;
-    RzListIter *it;
     CutterHtSP<RzCorePlugin>(core->plugins).ForEach([&ret] (const char *k, const RzCorePlugin *p) {
         RzCorePluginDescription desc;
         desc.name = p->name ? p->name : "";
@@ -3040,7 +3035,6 @@ QList<RzCorePluginDescription> CutterCore::getRCorePluginDescriptions()
 QList<RzAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
 {
     CORE_LOCK();
-    RzListIter *it;
     QList<RzAsmPluginDescription> ret;
 
     CutterHtSP<RzAsmPlugin>(core->rasm->plugins).ForEach([&ret] (const char *k, const RzAsmPlugin *ap) {
