@@ -821,7 +821,7 @@ void DisassemblyScrollArea::setVScrollPos(RVA address)
     } else {
         scrollBarPos = maximum * (address - beginOffset) / binSize();
     }
-    if (address != 0 && scrollBarPos == 0) {
+    if (address != beginOffset && scrollBarPos == 0) {
         scrollBarPos = 1;
     }
     verticalScrollBar()->setValue(scrollBarPos);
