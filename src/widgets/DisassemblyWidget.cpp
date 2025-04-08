@@ -817,7 +817,11 @@ void DisassemblyScrollArea::setVScrollPos(RVA address)
     }
     if ((RVA_MAX / maximum) < binSize()) {
         // Fallback formula for large files
-        scrollBarPos = ((address - (binSize() % maximum) - beginOffset) * maximum) / binSize();
+        if (address < (binSize() % maximum + beginOffset)) {
+            scrollBarPos = 0;
+        } else {
+            scrollBarPos = ((address - beginOffset - (binSize() % maximum))) / (binSize() / maximum);
+        }
     } else {
         scrollBarPos = maximum * (address - beginOffset) / binSize();
     }
