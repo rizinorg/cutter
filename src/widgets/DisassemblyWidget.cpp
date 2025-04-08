@@ -748,29 +748,28 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
     connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, [this](int action) {
         QScrollBar *vScrollBar = verticalScrollBar();
         int val = vScrollBar->value();
-        // Check if val is vScrollBar->minimum() or vScrollBar->maximum()
-        // to prevent buttons from scrolling when the scroll bar when is either at
-        // the top or the botttom
-        if (val == vScrollBar->minimum() || val == vScrollBar->maximum()) {
-            return;
-        }
         switch (action) {
         case QAbstractSlider::SliderSingleStepAdd:
-            // Due to the way this signal works,
+            // Due to the way the QScrollBar::actionTriggered signal works,
             // setting the slider pos to its current value here
             // prevents it from moving, allowing us to basically
             // override the scroll bar buttons' behavior
             // See https://doc.qt.io/qt-6/qabstractslider.html#actionTriggered
             // for more info.
-            // Setting the scroll bar's single step to 0 prevents it from scrolling
-            // while hovering over it, so we have to use this workaround
+            // Setting the scroll bar's single step to 0 would allow us to
+            // override scroll bar button behavior too, but it prevents
+            // scrolling while hovering over the scroll bar, so it's not an option.
             vScrollBar->setSliderPosition(val);
-            emit scrollLines(1);
+            if (val != vScrollBar->maximum()) {
+                emit scrollLines(1);
+            }
             return;
         case QAbstractSlider::SliderSingleStepSub:
             // Same as above
             vScrollBar->setSliderPosition(val);
-            emit scrollLines(-1);
+            if (val != vScrollBar->minimum()) {
+                emit scrollLines(-1);
+            }
             return;
         default:
             break;
@@ -794,8 +793,7 @@ RVA DisassemblyScrollArea::currentVScrollAddr()
     // Fallback formula for large files
     if ((RVA_MAX / maximum) < binSize()) {
         return verticalScrollBar()->value() * (binSize() / maximum)
-                + std::min<RVA>(verticalScrollBar()->value(), binSize() % maximum)
-                + beginOffset;
+                + std::min<RVA>(verticalScrollBar()->value(), binSize() % maximum) + beginOffset;
     }
     return (verticalScrollBar()->value() * binSize()) / maximum + beginOffset;
 }
@@ -813,15 +811,13 @@ void DisassemblyScrollArea::setVScrollPos(RVA address)
         verticalScrollBar()->setValue(scrollBarPos);
         return;
     }
+    if (address > endOffset) {
+        verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+        return;
+    }
     if ((RVA_MAX / maximum) < binSize()) {
-        if (address > endOffset) {
-            // Fallback formula can handle numbers within the binary's range
-            // but not numbers far above it
-            scrollBarPos = verticalScrollBar()->maximum();
-        } else {
-            // Fallback formula for large files
-            scrollBarPos = ((address - (binSize() % maximum) - beginOffset) * maximum) / binSize();
-        }
+        // Fallback formula for large files
+        scrollBarPos = ((address - (binSize() % maximum) - beginOffset) * maximum) / binSize();
     } else {
         scrollBarPos = maximum * (address - beginOffset) / binSize();
     }
