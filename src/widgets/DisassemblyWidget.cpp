@@ -820,7 +820,8 @@ void DisassemblyScrollArea::setVScrollPos(RVA address)
         if (address < (binSize() % maximum + beginOffset)) {
             scrollBarPos = 0;
         } else {
-            scrollBarPos = ((address - beginOffset - (binSize() % maximum))) / (binSize() / maximum);
+            scrollBarPos =
+                    ((address - beginOffset - (binSize() % maximum))) / (binSize() / maximum);
         }
     } else {
         scrollBarPos = maximum * (address - beginOffset) / binSize();
