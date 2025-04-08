@@ -255,14 +255,21 @@ void SearchWidget::refreshSearchspaces()
     ui->searchspaceCombo->addItem(tr("asm code"), static_cast<int>(SearchKind::AsmCode));
     ui->searchspaceCombo->addItem(tr("hex string"), static_cast<int>(SearchKind::HexString));
     ui->searchspaceCombo->addItem(tr("ROP gadgets"), static_cast<int>(SearchKind::ROPGadgets));
-    ui->searchspaceCombo->addItem(tr("ROP gadgets (regex)"), static_cast<int>(SearchKind::ROPGadgetsRegex));
+    ui->searchspaceCombo->addItem(tr("ROP gadgets (regex)"),
+                                  static_cast<int>(SearchKind::ROPGadgetsRegex));
     ui->searchspaceCombo->addItem(tr("string (literal)"), static_cast<int>(SearchKind::String));
-    ui->searchspaceCombo->addItem(tr("string (case insensitive)"), static_cast<int>(SearchKind::StringCaseInsensitive));
-    ui->searchspaceCombo->addItem(tr("string (extended regex)"), static_cast<int>(SearchKind::StringRegexExtended));
-    ui->searchspaceCombo->addItem(tr("32bit big endian value"), static_cast<int>(SearchKind::Value32BE));
-    ui->searchspaceCombo->addItem(tr("32bit little endian value"), static_cast<int>(SearchKind::Value32LE));
-    ui->searchspaceCombo->addItem(tr("64bit big endian value"), static_cast<int>(SearchKind::Value64BE));
-    ui->searchspaceCombo->addItem(tr("64bit little endian value"), static_cast<int>(SearchKind::Value64LE));
+    ui->searchspaceCombo->addItem(tr("string (case insensitive)"),
+                                  static_cast<int>(SearchKind::StringCaseInsensitive));
+    ui->searchspaceCombo->addItem(tr("string (extended regex)"),
+                                  static_cast<int>(SearchKind::StringRegexExtended));
+    ui->searchspaceCombo->addItem(tr("32bit big endian value"),
+                                  static_cast<int>(SearchKind::Value32BE));
+    ui->searchspaceCombo->addItem(tr("32bit little endian value"),
+                                  static_cast<int>(SearchKind::Value32LE));
+    ui->searchspaceCombo->addItem(tr("64bit big endian value"),
+                                  static_cast<int>(SearchKind::Value64BE));
+    ui->searchspaceCombo->addItem(tr("64bit little endian value"),
+                                  static_cast<int>(SearchKind::Value64LE));
 
     if (cur_idx > 0)
         ui->searchspaceCombo->setCurrentIndex(cur_idx);

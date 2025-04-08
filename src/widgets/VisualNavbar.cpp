@@ -119,7 +119,8 @@ void VisualNavbar::fetchStats()
 
     RzCoreLocked core(Core());
     stats.reset(nullptr);
-    auto list = fromOwned(rz_core_get_boundaries_select(core, "search.from", "search.to", "search.in"));
+    auto list =
+            fromOwned(rz_core_get_boundaries_select(core, "search.from", "search.to", "search.in"));
     if (!list) {
         return;
     }

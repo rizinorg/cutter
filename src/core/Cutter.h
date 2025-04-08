@@ -62,8 +62,7 @@ struct CUTTER_EXPORT RegisterRef
     QString name;
 };
 
-enum class SearchKind
-{
+enum class SearchKind {
     AsmCode,
     HexString,
     ROPGadgets,

@@ -2514,10 +2514,11 @@ QStringList CutterCore::getDebugPlugins()
 {
     QStringList plugins;
     CORE_LOCK();
-    CutterHtSP<RzDebugPlugin>(core->dbg->plugins).ForEach([&plugins] (const char *k, const RzDebugPlugin *plugin) {
-        plugins << plugin->name;
-        return true;
-    });
+    CutterHtSP<RzDebugPlugin>(core->dbg->plugins)
+            .ForEach([&plugins](const char *k, const RzDebugPlugin *plugin) {
+                plugins << plugin->name;
+                return true;
+            });
     return plugins;
 }
 
@@ -2950,10 +2951,11 @@ QStringList CutterCore::getAsmPluginNames()
 {
     CORE_LOCK();
     QStringList ret;
-    CutterHtSP<RzAsmPlugin>(core->rasm->plugins).ForEach([&ret] (const char *k, const RzAsmPlugin *ap) {
-        ret << ap->name;
-        return true;
-    });
+    CutterHtSP<RzAsmPlugin>(core->rasm->plugins)
+            .ForEach([&ret](const char *k, const RzAsmPlugin *ap) {
+                ret << ap->name;
+                return true;
+            });
     return ret;
 }
 
@@ -2962,10 +2964,11 @@ QStringList CutterCore::getAnalysisPluginNames()
     CORE_LOCK();
     RzListIter *it;
     QStringList ret;
-    CutterHtSP<RzAnalysisPlugin>(core->analysis->plugins).ForEach([&ret] (const char *k, const RzAnalysisPlugin *ap) {
-        ret << ap->name;
-        return true;
-    });
+    CutterHtSP<RzAnalysisPlugin>(core->analysis->plugins)
+            .ForEach([&ret](const char *k, const RzAnalysisPlugin *ap) {
+                ret << ap->name;
+                return true;
+            });
     return ret;
 }
 
@@ -2974,26 +2977,28 @@ QList<RzBinPluginDescription> CutterCore::getBinPluginDescriptions(bool bin, boo
     CORE_LOCK();
     QList<RzBinPluginDescription> ret;
     if (bin) {
-        CutterHtSP<RzBinPlugin>(core->bin->plugins).ForEach([&ret] (const char *k, const RzBinPlugin *bp) {
-            RzBinPluginDescription desc;
-            desc.name = bp->name ? bp->name : "";
-            desc.description = bp->desc ? bp->desc : "";
-            desc.license = bp->license ? bp->license : "";
-            desc.type = "bin";
-            ret.append(desc);
-            return true;
-        });
+        CutterHtSP<RzBinPlugin>(core->bin->plugins)
+                .ForEach([&ret](const char *k, const RzBinPlugin *bp) {
+                    RzBinPluginDescription desc;
+                    desc.name = bp->name ? bp->name : "";
+                    desc.description = bp->desc ? bp->desc : "";
+                    desc.license = bp->license ? bp->license : "";
+                    desc.type = "bin";
+                    ret.append(desc);
+                    return true;
+                });
     }
     if (xtr) {
-        CutterHtSP<RzBinXtrPlugin>(core->bin->binxtrs).ForEach([&ret] (const char *k, const RzBinXtrPlugin *bx) {
-            RzBinPluginDescription desc;
-            desc.name = bx->name ? bx->name : "";
-            desc.description = bx->desc ? bx->desc : "";
-            desc.license = bx->license ? bx->license : "";
-            desc.type = "xtr";
-            ret.append(desc);
-           return true;
-        });
+        CutterHtSP<RzBinXtrPlugin>(core->bin->binxtrs)
+                .ForEach([&ret](const char *k, const RzBinXtrPlugin *bx) {
+                    RzBinPluginDescription desc;
+                    desc.name = bx->name ? bx->name : "";
+                    desc.description = bx->desc ? bx->desc : "";
+                    desc.license = bx->license ? bx->license : "";
+                    desc.type = "xtr";
+                    ret.append(desc);
+                    return true;
+                });
     }
     return ret;
 }
@@ -3002,7 +3007,7 @@ QList<RzIOPluginDescription> CutterCore::getRIOPluginDescriptions()
 {
     CORE_LOCK();
     QList<RzIOPluginDescription> ret;
-    CutterHtSP<RzIOPlugin>(core->io->plugins).ForEach([&ret] (const char *k, const RzIOPlugin *p) {
+    CutterHtSP<RzIOPlugin>(core->io->plugins).ForEach([&ret](const char *k, const RzIOPlugin *p) {
         RzIOPluginDescription desc;
         desc.name = p->name ? p->name : "";
         desc.description = p->desc ? p->desc : "";
@@ -3021,7 +3026,7 @@ QList<RzCorePluginDescription> CutterCore::getRCorePluginDescriptions()
 {
     CORE_LOCK();
     QList<RzCorePluginDescription> ret;
-    CutterHtSP<RzCorePlugin>(core->plugins).ForEach([&ret] (const char *k, const RzCorePlugin *p) {
+    CutterHtSP<RzCorePlugin>(core->plugins).ForEach([&ret](const char *k, const RzCorePlugin *p) {
         RzCorePluginDescription desc;
         desc.name = p->name ? p->name : "";
         desc.description = p->desc ? p->desc : "";
@@ -3037,20 +3042,21 @@ QList<RzAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
     CORE_LOCK();
     QList<RzAsmPluginDescription> ret;
 
-    CutterHtSP<RzAsmPlugin>(core->rasm->plugins).ForEach([&ret] (const char *k, const RzAsmPlugin *ap) {
-        RzAsmPluginDescription plugin;
+    CutterHtSP<RzAsmPlugin>(core->rasm->plugins)
+            .ForEach([&ret](const char *k, const RzAsmPlugin *ap) {
+                RzAsmPluginDescription plugin;
 
-        plugin.name = ap->name;
-        plugin.architecture = ap->arch;
-        plugin.author = ap->author;
-        plugin.version = ap->version;
-        plugin.cpus = ap->cpus;
-        plugin.description = ap->desc;
-        plugin.license = ap->license;
+                plugin.name = ap->name;
+                plugin.architecture = ap->arch;
+                plugin.author = ap->author;
+                plugin.version = ap->version;
+                plugin.cpus = ap->cpus;
+                plugin.description = ap->desc;
+                plugin.license = ap->license;
 
-        ret << plugin;
-        return true;
-    });
+                ret << plugin;
+                return true;
+            });
 
     return ret;
 }
@@ -3921,7 +3927,8 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
     CutterJson searchArray;
 
     QString cmd, suffix;
-    if (kind == SearchKind::AsmCode || kind == SearchKind::ROPGadgets || kind == SearchKind::ROPGadgetsRegex) {
+    if (kind == SearchKind::AsmCode || kind == SearchKind::ROPGadgets
+        || kind == SearchKind::ROPGadgetsRegex) {
         // Those are the searches which don't follow the search hit standardization of the new
         // search yet.
         switch (kind) {
@@ -3999,7 +4006,8 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
         break;
     }
     QString cstr;
-    if (kind == SearchKind::StringRegexExtended || kind == SearchKind::StringCaseInsensitive || kind == SearchKind::String) {
+    if (kind == SearchKind::StringRegexExtended || kind == SearchKind::StringCaseInsensitive
+        || kind == SearchKind::String) {
         // Quote the string since it might contain spaces.
         cstr = QString("%1 \"%2\" %3").arg(cmd, searchFor, suffix);
     } else {
@@ -4021,9 +4029,12 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
             if (enc.isEmpty()) {
                 enc = "guess";
             }
-            QString get_str_cmd = QString("ps %1 @ 0x%2 @!0x%3").arg(enc,
-             QString::number(searchObject[RJsonKey::address].toRVA(), 16),
-             QString::number(searchObject[RJsonKey::size].toRVA() * RZ_UNICODE_MAX_BYTES_PER_CHAR, 16));
+            QString get_str_cmd =
+                    QString("ps %1 @ 0x%2 @!0x%3")
+                            .arg(enc, QString::number(searchObject[RJsonKey::address].toRVA(), 16),
+                                 QString::number(searchObject[RJsonKey::size].toRVA()
+                                                         * RZ_UNICODE_MAX_BYTES_PER_CHAR,
+                                                 16));
             auto result = cmdRaw(get_str_cmd);
             exp.data = result;
             break;
