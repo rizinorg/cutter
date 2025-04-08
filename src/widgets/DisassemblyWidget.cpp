@@ -756,9 +756,6 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
             // override the scroll bar buttons' behavior
             // See https://doc.qt.io/qt-6/qabstractslider.html#actionTriggered
             // for more info.
-            // Setting the scroll bar's single step to 0 would allow us to
-            // override scroll bar button behavior too, but it prevents
-            // scrolling while hovering over the scroll bar, so it's not an option.
             vScrollBar->setSliderPosition(val);
             if (val != vScrollBar->maximum()) {
                 emit scrollLines(1);
