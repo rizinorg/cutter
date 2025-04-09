@@ -3933,7 +3933,8 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
         // search yet.
         switch (kind) {
         default:
-            assert(0 && "Very invalid state.");
+            qWarning() << tr("Error invalid search kind\n");
+            return searchRef;
         case SearchKind::AsmCode:
             cmd = "/acj";
             break;
@@ -3977,7 +3978,8 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
     // These are the earches with the unified API.
     switch (kind) {
     default:
-        assert(0 && "Very invalid state.");
+        qWarning() << tr("Error invalid search kind\n");
+        return searchRef;
     case SearchKind::HexString:
         cmd = "/xj";
         break;
@@ -4021,7 +4023,8 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
         exp.size = searchObject[RJsonKey::size].toUt64();
         switch (kind) {
         default:
-            assert(0 && "Very invalid state.");
+            qWarning() << tr("Error invalid search kind\n");
+            return searchRef;
         case SearchKind::String:
         case SearchKind::StringCaseInsensitive:
         case SearchKind::StringRegexExtended: {
