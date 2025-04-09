@@ -4051,10 +4051,10 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
         case SearchKind::Value32BE:
         case SearchKind::Value32LE:
         case SearchKind::Value64BE:
-        case SearchKind::Value64LE: {
-            exp.data = hexdump(exp.offset, exp.size, HexdumpFormats::Normal);
+        case SearchKind::Value64LE:
+            // Don't add any data for them.
+            // For now they are just reported as length + offset.
             break;
-        }
         }
         searchRef << exp;
     }
