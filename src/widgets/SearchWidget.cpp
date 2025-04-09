@@ -253,15 +253,15 @@ void SearchWidget::refreshSearchspaces()
 
     ui->searchspaceCombo->clear();
     ui->searchspaceCombo->addItem(tr("asm code"), static_cast<int>(SearchKind::AsmCode));
-    ui->searchspaceCombo->addItem(tr("hex string"), static_cast<int>(SearchKind::HexString));
-    ui->searchspaceCombo->addItem(tr("ROP gadgets"), static_cast<int>(SearchKind::ROPGadgets));
-    ui->searchspaceCombo->addItem(tr("ROP gadgets (regex)"),
-                                  static_cast<int>(SearchKind::ROPGadgetsRegex));
     ui->searchspaceCombo->addItem(tr("string (literal)"), static_cast<int>(SearchKind::String));
     ui->searchspaceCombo->addItem(tr("string (case insensitive)"),
                                   static_cast<int>(SearchKind::StringCaseInsensitive));
     ui->searchspaceCombo->addItem(tr("string (extended regex)"),
                                   static_cast<int>(SearchKind::StringRegexExtended));
+    ui->searchspaceCombo->addItem(tr("hex string"), static_cast<int>(SearchKind::HexString));
+    ui->searchspaceCombo->addItem(tr("ROP gadgets"), static_cast<int>(SearchKind::ROPGadgets));
+    ui->searchspaceCombo->addItem(tr("ROP gadgets (regex)"),
+                                  static_cast<int>(SearchKind::ROPGadgetsRegex));
     ui->searchspaceCombo->addItem(tr("32bit big endian value"),
                                   static_cast<int>(SearchKind::Value32BE));
     ui->searchspaceCombo->addItem(tr("32bit little endian value"),
@@ -311,23 +311,41 @@ void SearchWidget::setScrollMode()
 void SearchWidget::updatePlaceholderText(int index)
 {
     switch (index) {
+    case 0: // string
+        ui->filterLineEdit->setPlaceholderText("jmp rax");
+        break;
     case 1: // string
         ui->filterLineEdit->setPlaceholderText("foobar");
         break;
     case 2: // string (case insensitive)
         ui->filterLineEdit->setPlaceholderText("FooBar");
         break;
-    case 3: // hex string
+    case 3: // string (extended regex)
+        ui->filterLineEdit->setPlaceholderText("(foo){,4}[Bb]ar");
+        break;
+    case 4: // hex string
         ui->filterLineEdit->setPlaceholderText("deadbeef");
         break;
-    case 4: // ROP gadgets
+    case 5: // ROP gadgets
         ui->filterLineEdit->setPlaceholderText("pop,,pop");
         break;
-    case 5: // 32bit value
+    case 6: // ROP gadgets (regex)
+        ui->filterLineEdit->setPlaceholderText("mov e[abc]x");
+        break;
+    case 7: // 32bit value be
         ui->filterLineEdit->setPlaceholderText("0xdeadbeef");
         break;
+    case 8: // 32bit value le
+        ui->filterLineEdit->setPlaceholderText("0xdeadbeef");
+        break;
+    case 9: // 64bit value be
+        ui->filterLineEdit->setPlaceholderText("0xfedcba9876543210");
+        break;
+    case 10: // 64bit value le
+        ui->filterLineEdit->setPlaceholderText("0xfedcba9876543210");
+        break;
     default:
-        ui->filterLineEdit->setPlaceholderText("jmp rax");
+        ui->filterLineEdit->setPlaceholderText("<No preview defined>");
     }
 }
 
