@@ -4016,7 +4016,7 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
     if (kind == SearchKind::StringRegexExtended || kind == SearchKind::StringCaseInsensitive
         || kind == SearchKind::String) {
         // Quote the string since it might contain spaces.
-        cstr = QString("%1 %2 %3").arg(cmd, arg, suffix);
+        cstr = QString("%1 \"%2\" %3").arg(cmd, arg, suffix);
     } else {
         cstr = QString("%1 %2").arg(cmd, arg);
     }
