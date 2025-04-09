@@ -3925,6 +3925,10 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
     TempConfig cfg;
     cfg.set("search.in", in);
     CutterJson searchArray;
+    char *arg = rz_cmd_escape_arg(searchFor.toUtf8().constData(), RZ_CMD_ESCAPE_ONE_ARG);
+    if (!arg) {
+        return {};
+    }
 
     QString cmd, suffix;
     if (kind == SearchKind::AsmCode || kind == SearchKind::ROPGadgets
@@ -3945,7 +3949,8 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
             cmd = "/R/j";
             break;
         }
-        auto cstr = QString("%1 \"%2\"").arg(cmd, searchFor);
+        // Legacy commands don't get escaped arguments.
+        auto cstr = QString("%1 %2").arg(cmd, kind == SearchKind::AsmCode ? searchFor : arg);
         searchArray = cmdj(cstr);
         if (kind == SearchKind::ROPGadgets || kind == SearchKind::ROPGadgetsRegex) {
             for (CutterJson searchObject : searchArray) {
@@ -4011,9 +4016,9 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
     if (kind == SearchKind::StringRegexExtended || kind == SearchKind::StringCaseInsensitive
         || kind == SearchKind::String) {
         // Quote the string since it might contain spaces.
-        cstr = QString("%1 \"%2\" %3").arg(cmd, searchFor, suffix);
+        cstr = QString("%1 %2 %3").arg(cmd, arg, suffix);
     } else {
-        cstr = QString("%1 %2").arg(cmd, searchFor);
+        cstr = QString("%1 %2").arg(cmd, arg);
     }
     searchArray = cmdj(cstr);
     for (CutterJson searchObject : searchArray) {
