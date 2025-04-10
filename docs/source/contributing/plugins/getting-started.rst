@@ -35,7 +35,7 @@ Normally, you shouldn't have to do anything else in this function.
 
 .. note::
    The Cutter API is exposed through the ``cutter`` module.
-   This consists mostly of direct bindings of the original C++ classes, generated with Shiboken2.
+   This consists mostly of direct bindings of the original C++ classes, generated with Shiboken6.
    For more detail about this API, see the Cutter C++ code or :ref:`api`.
 
 The ``CutterPlugin`` subclass contains some meta-info and two callback methods:
@@ -69,7 +69,7 @@ Next, we are going to add a simple dock widget. Extend the code as follows:
 
    import cutter
 
-   from PySide2.QtWidgets import QAction, QLabel
+   from PySide6.QtWidgets import QAction, QLabel
 
    class MyDockWidget(cutter.CutterDockWidget):
        def __init__(self, parent, action):
@@ -96,8 +96,12 @@ We are subclassing ``cutter.CutterDockWidget``, which is the base class for all 
 and adding a label to it.
 
 .. note::
-   You can access the whole Qt5 API from Python, which is exposed by PySide2. For more information about this, refer to the
-   Documentation of `Qt <https://doc.qt.io/qt-5/reference-overview.html>`_ and `PySide2 <https://wiki.qt.io/Qt_for_Python>`_.
+   You can access the whole Qt6 API from Python, which is exposed by PySide6. For more information about this, refer to the
+   Documentation of `Qt <https://doc.qt.io/qt-6/reference-overview.html>`_ and `PySide6 <https://wiki.qt.io/Qt_for_Python>`_.
+
+.. note::
+   Main cutter packages are now using QT6, but Qt5 builds are still provided for compatibilty with older OS versions. If you
+   want your plugin to support both, Qt usage process is a bit more complicated.
 
 In our ``setupInterface()`` method, we create an instance of our dock widget and an action to be
 added to the menu for showing and hiding the widget.
@@ -177,7 +181,7 @@ This can be done like the following:
 
    # ...
 
-   from PySide2.QtCore import QObject, SIGNAL
+   from PySide6.QtCore import QObject, SIGNAL
 
    # ...
 
@@ -207,7 +211,7 @@ We can simply connect this signal to our method and our widget will update as we
 
 .. image:: disasm-dynamic.png
 
-For more information about Qt signals and slots, refer to `<https://doc.qt.io/qt-5/signalsandslots.html>`_.
+For more information about Qt signals and slots, refer to `<https://doc.qt.io/qt-6/signalsandslots.html>`_.
 
 Full Code
 ---------
@@ -216,8 +220,8 @@ Full Code
 
    import cutter
 
-   from PySide2.QtCore import QObject, SIGNAL
-   from PySide2.QtWidgets import QAction, QLabel
+   from PySide6.QtCore import QObject, SIGNAL
+   from PySide6.QtWidgets import QAction, QLabel
 
    class MyDockWidget(cutter.CutterDockWidget):
        def __init__(self, parent, action):

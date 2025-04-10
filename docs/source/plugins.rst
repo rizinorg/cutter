@@ -3,10 +3,10 @@ Plugins
 
 Cutter supports writing plugins in both C++ and Python.
 If you are unsure of which language to choose, starting with Python is strongly suggested as
-it provides a faster and simpler workflow.
+it provides a faster and simpler workflow. You can find example plugins `here <https://github.com/rizinorg/cutter/tree/dev/src/plugins>`__.
 
 If you plan to implement support for a new file format or architecture, Cutter plugins are not the correct approach.
-Instead, you will want to implement a Rizin plugin, which is documented `here <https://book.rizin.re/plugins/intro.html>`_.
+Instead, you will want to implement a Rizin plugin, which is documented `here <https://book.rizin.re/src/plugins/intro.html>`__.
 
 
 Loading and Overview
