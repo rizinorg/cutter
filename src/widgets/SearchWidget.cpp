@@ -193,21 +193,8 @@ SearchWidget::SearchWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui
     connect(Core(), &CutterCore::commentsChanged, this,
             [this]() { qhelpers::emitColumnChanged(search_model, SearchModel::COMMENT); });
 
-    QShortcut *enter_press = new QShortcut(QKeySequence(Qt::Key_Return), this);
-    connect(enter_press, &QShortcut::activated, this, [this]() {
-        disableSearch();
-        refreshSearch();
-        checkSearchResultEmpty();
-        enableSearch();
-    });
-    enter_press->setContext(Qt::WidgetWithChildrenShortcut);
-
-    connect(ui->searchButton, &QAbstractButton::clicked, this, [this]() {
-        disableSearch();
-        refreshSearch();
-        checkSearchResultEmpty();
-        enableSearch();
-    });
+    connect(ui->filterLineEdit, &QLineEdit::returnPressed, this, &SearchWidget::runSearch);
+    connect(ui->searchButton, &QAbstractButton::clicked, this, &SearchWidget::runSearch);
 
     connect(ui->searchspaceCombo,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
@@ -275,6 +262,14 @@ void SearchWidget::refreshSearchspaces()
         ui->searchspaceCombo->setCurrentIndex(cur_idx);
 
     refreshSearch();
+}
+
+void SearchWidget::runSearch()
+{
+    disableSearch();
+    refreshSearch();
+    checkSearchResultEmpty();
+    enableSearch();
 }
 
 void SearchWidget::refreshSearch()

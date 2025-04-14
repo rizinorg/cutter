@@ -67,6 +67,7 @@ private slots:
     void searchChanged();
     void updateSearchBoundaries();
     void refreshSearchspaces();
+    void runSearch();
 
 private:
     std::unique_ptr<Ui::SearchWidget> ui;

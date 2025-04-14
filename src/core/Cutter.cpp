@@ -4043,7 +4043,7 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
                                  QString::number(searchObject[RJsonKey::size].toRVA()
                                                          * RZ_UNICODE_MAX_BYTES_PER_CHAR,
                                                  16));
-            auto result = cmdRaw(get_str_cmd);
+            auto result = cmdRaw(get_str_cmd).trimmed();
             exp.data = result;
             break;
         }
