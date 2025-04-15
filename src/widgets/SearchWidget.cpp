@@ -17,19 +17,28 @@ static const int kMaxTooltipHexdumpBytes = 64;
 }
 
 static const QMap<QString, QString> searchBoundaries {
-    { "io.maps", "All maps" },
-    { "io.map", "Current map" },
-    { "raw", "Raw" },
-    { "block", "Current block" },
-    { "bin.section", "Current mapped section" },
-    { "bin.sections", "All mapped sections" },
+    { "io.maps", QT_TR_NOOP("All maps") },
+    { "io.map", QT_TR_NOOP("Current map") },
+    { "raw", QT_TR_NOOP("Whole file") },
+    { "block", QT_TR_NOOP("Current block") },
+    { "bin.section", QT_TR_NOOP("Current mapped section") },
+    { "bin.sections", QT_TR_NOOP("All mapped sections") },
+    { "bin.segment", QT_TR_NOOP("Current mapped segment") },
+    { "bin.segments", QT_TR_NOOP("All mapped segments") },
+    { "code", QT_TR_NOOP("All exec sections") },
+    { "io.sky", QT_TR_NOOP("All io.skyline") },
+    { "analysis.fcn", QT_TR_NOOP("Current function") },
+    { "analysis.bb", QT_TR_NOOP("Current basic block") },
 };
 
-static const QMap<QString, QString> searchBoundariesDebug { { "dbg.maps", "All memory maps" },
-                                                            { "dbg.map", "Memory map" },
-                                                            { "block", "Current block" },
-                                                            { "dbg.stack", "Stack" },
-                                                            { "dbg.heap", "Heap" } };
+static const QMap<QString, QString> searchBoundariesDebug {
+    { "dbg.maps", QT_TR_NOOP("All memory maps") },
+    { "dbg.map", QT_TR_NOOP("Memory map") },
+    { "block", QT_TR_NOOP("Current block") },
+    { "dbg.program", QT_TR_NOOP("All exec sections") },
+    { "dbg.stack", QT_TR_NOOP("Stack") },
+    { "dbg.heap", QT_TR_NOOP("Heap") }
+};
 
 SearchModel::SearchModel(QList<SearchDescription> *search, QObject *parent)
     : AddressableItemModel<QAbstractListModel>(parent), search(search)
@@ -54,6 +63,16 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
     const SearchDescription &exp = search->at(index.row());
 
     switch (role) {
+    case Qt::FontRole: {
+        switch (index.column()) {
+        case CODE:
+            return QFont("Inconsolata");
+        case DATA:
+            return QFont("Inconsolata");
+        default:
+            return QVariant();
+        }
+    }
     case Qt::DisplayRole:
         switch (index.column()) {
         case OFFSET:
@@ -64,8 +83,9 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
             return exp.code;
         case DATA:
             return exp.data;
-        case COMMENT:
-            return Core()->getCommentAt(exp.offset);
+        case COMMENT: {
+            return exp.detail;
+        }
         default:
             return QVariant();
         }
@@ -165,7 +185,7 @@ bool SearchSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelI
     case SearchModel::DATA:
         return left_search.data < right_search.data;
     case SearchModel::COMMENT:
-        return Core()->getCommentAt(left_search.offset) < Core()->getCommentAt(right_search.offset);
+        return left_search.detail < right_search.detail;
     default:
         break;
     }
@@ -257,6 +277,10 @@ void SearchWidget::refreshSearchspaces()
                                   static_cast<int>(SearchKind::Value64BE));
     ui->searchspaceCombo->addItem(tr("64bit little endian value"),
                                   static_cast<int>(SearchKind::Value64LE));
+    ui->searchspaceCombo->addItem(tr("Cryptographic material"),
+                                  static_cast<int>(SearchKind::CryptographicMaterial));
+    ui->searchspaceCombo->addItem(tr("Magic signature"),
+                                  static_cast<int>(SearchKind::MagicSignature));
 
     if (cur_idx > 0)
         ui->searchspaceCombo->setCurrentIndex(cur_idx);
@@ -289,13 +313,20 @@ void SearchWidget::refreshSearch()
 // Called by &QShortcut::activated and &QAbstractButton::clicked signals
 void SearchWidget::checkSearchResultEmpty()
 {
-    if (search.isEmpty()) {
-        QString noResultsMessage = "<b>";
-        noResultsMessage.append(tr("No results found for:"));
-        noResultsMessage.append("</b><br>");
+    if (!search.isEmpty())
+        return;
+
+    QString searchFor = ui->filterLineEdit->text();
+    QString noResultsMessage = "<b>";
+    noResultsMessage.append(tr("No results found for:"));
+    noResultsMessage.append("</b><br>");
+    if (searchFor.isEmpty()) {
+        noResultsMessage.append(ui->searchspaceCombo->currentText().toHtmlEscaped());
+    } else {
         noResultsMessage.append(ui->filterLineEdit->text().toHtmlEscaped());
-        QMessageBox::information(this, tr("No Results Found"), noResultsMessage);
     }
+
+    QMessageBox::information(this, tr("No Results Found"), noResultsMessage);
 }
 
 void SearchWidget::setScrollMode()
@@ -303,44 +334,59 @@ void SearchWidget::setScrollMode()
     qhelpers::setVerticalScrollMode(ui->searchTreeView);
 }
 
-void SearchWidget::updatePlaceholderText(int index)
+void SearchWidget::updatePlaceholderText(int)
 {
-    switch (index) {
-    case 0: // string
+    ui->filterLineEdit->setEnabled(true);
+
+    // ensure we grab the correct kind.
+    auto kind = static_cast<SearchKind>(ui->searchspaceCombo->currentData().toInt());
+    switch (kind) {
+    case SearchKind::AsmCode:
         ui->filterLineEdit->setPlaceholderText("jmp rax");
         break;
-    case 1: // string
+    case SearchKind::HexString:
         ui->filterLineEdit->setPlaceholderText("foobar");
         break;
-    case 2: // string (case insensitive)
+    case SearchKind::ROPGadgets:
         ui->filterLineEdit->setPlaceholderText("FooBar");
         break;
-    case 3: // string (extended regex)
+    case SearchKind::ROPGadgetsRegex:
         ui->filterLineEdit->setPlaceholderText("(foo){,4}[Bb]ar");
         break;
-    case 4: // hex string
-        ui->filterLineEdit->setPlaceholderText("deadbeef");
+    case SearchKind::String:
+        ui->filterLineEdit->setPlaceholderText("dead....beef");
         break;
-    case 5: // ROP gadgets
+    case SearchKind::StringCaseInsensitive:
         ui->filterLineEdit->setPlaceholderText("pop,,pop");
         break;
-    case 6: // ROP gadgets (regex)
+    case SearchKind::StringRegexExtended:
         ui->filterLineEdit->setPlaceholderText("mov e[abc]x");
         break;
-    case 7: // 32bit value be
-        ui->filterLineEdit->setPlaceholderText("0xdeadbeef");
+    case SearchKind::Value32BE:
+        ui->filterLineEdit->setPlaceholderText("0xdeadbeef (big endian)");
         break;
-    case 8: // 32bit value le
-        ui->filterLineEdit->setPlaceholderText("0xdeadbeef");
+    case SearchKind::Value32LE:
+        ui->filterLineEdit->setPlaceholderText("0xdeadbeef (little endian)");
         break;
-    case 9: // 64bit value be
-        ui->filterLineEdit->setPlaceholderText("0xfedcba9876543210");
+    case SearchKind::Value64BE:
+        ui->filterLineEdit->setPlaceholderText("0xfedcba9876543210 (big endian)");
         break;
-    case 10: // 64bit value le
-        ui->filterLineEdit->setPlaceholderText("0xfedcba9876543210");
+    case SearchKind::Value64LE:
+        ui->filterLineEdit->setPlaceholderText("0xfedcba9876543210 (little endian)");
+        break;
+    case SearchKind::CryptographicMaterial:
+        // this search kind does not take any input.
+        ui->filterLineEdit->setPlaceholderText("");
+        ui->filterLineEdit->setEnabled(false);
+        break;
+    case SearchKind::MagicSignature:
+        // this search kind does not take any input.
+        ui->filterLineEdit->setPlaceholderText("");
+        ui->filterLineEdit->setEnabled(false);
         break;
     default:
         ui->filterLineEdit->setPlaceholderText("<No preview defined>");
+        break;
     }
 }
 

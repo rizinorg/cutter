@@ -83,9 +83,10 @@ struct TypeDescription
 struct SearchDescription
 {
     RVA offset;
-    int size;
+    size_t size;
     QString code;
     QString data;
+    QString detail;
 };
 
 struct SymbolDescription

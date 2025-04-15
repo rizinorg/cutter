@@ -74,6 +74,8 @@ enum class SearchKind {
     Value32LE,
     Value64BE,
     Value64LE,
+    CryptographicMaterial,
+    MagicSignature,
 };
 
 class CUTTER_EXPORT CutterCore : public QObject
@@ -867,6 +869,7 @@ private:
 
     QVector<QString> getCutterRCFilePaths() const;
     QList<TypeDescription> getBaseType(RzBaseTypeKind kind, const char *category);
+    QList<SearchDescription> getAllSearchCommand(QString searchFor, SearchKind kind, QString in);
 };
 
 class CUTTER_EXPORT RzCoreLocked

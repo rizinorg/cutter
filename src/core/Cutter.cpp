@@ -3914,14 +3914,12 @@ bool CutterCore::isAddressMapped(RVA addr)
     return rz_io_map_get(core->io, addr);
 }
 
-QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind kind, QString in)
+QList<SearchDescription> CutterCore::getAllSearchCommand(QString searchFor, SearchKind kind,
+                                                         QString in)
 {
     CORE_LOCK();
     QList<SearchDescription> searchRef;
 
-    if (searchFor.isEmpty()) {
-        return {};
-    }
     TempConfig cfg;
     cfg.set("search.in", in);
     CutterJson searchArray;
@@ -4059,6 +4057,292 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
         searchRef << exp;
     }
 
+    return searchRef;
+}
+
+static bool cutterSearchProgressCancel(void *user, size_t n_hits,
+                                       RzSearchCancelReason invoke_reason)
+{
+    return rz_cons_is_breaked();
+}
+
+static RzSearchOpt *cutterSetupSearchOptions(RzCore *core)
+{
+    RzSearchOpt *search_opts = rz_search_opt_new();
+    RzThreadNCores max_threads =
+            (RzThreadNCores)rz_config_get_i(core->config, "search.max_threads");
+    max_threads = rz_th_max_threads(max_threads);
+    ut32 max_hits = rz_config_get_i(core->config, "search.maxhits");
+    const char *show_progress = rz_config_get(core->config, "search.show_progress");
+    if (!(rz_search_opt_set_max_threads(search_opts, max_threads)
+          && rz_search_opt_set_max_hits(search_opts, max_hits)
+          && rz_search_opt_set_show_progress_from_str(search_opts, show_progress))) {
+        RZ_LOG_ERROR("Failed setup find options.\n");
+        return nullptr;
+    }
+
+    RzSearchFindOpt *fopts = rz_core_setup_default_search_find_opts(core);
+    if (!fopts) {
+        RZ_LOG_ERROR("Failed init find options.\n");
+        return nullptr;
+    }
+    if (!rz_search_opt_set_find_options(search_opts, fopts)) {
+        RZ_LOG_ERROR("Failed add find options to the search optoins.\n");
+        return nullptr;
+    }
+    if (!rz_search_opt_set_cancel_cb(search_opts, cutterSearchProgressCancel, nullptr)) {
+        RZ_LOG_ERROR("code: Failed to setup default search options.\n");
+        return nullptr;
+    }
+    return search_opts;
+}
+
+class CutterSearchLock
+{
+public:
+    CutterSearchLock(RzCore *core)
+        : core_(core)
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+          ,
+          searchMutex(QMutex::Recursive)
+#endif
+    {
+        searchMutex.lock();
+        rz_cons_break_push(NULL, NULL);
+        core_->in_search = true;
+    }
+    ~CutterSearchLock()
+    {
+        rz_cons_break_pop();
+        core_->in_search = false;
+        searchMutex.unlock();
+    }
+
+private:
+    RzCore *core_ = nullptr;
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+    QMutex searchMutex;
+#else
+    QRecursiveMutex searchMutex;
+#endif
+};
+
+static QString cutterGetSearchHitData(RzCore *core, SearchKind kind, RzSearchHit *hit)
+{
+    QString data = "";
+    size_t data_size = RZ_MAX(hit->size, 16);
+    ut8 *buffer = new ut8[data_size];
+
+    if (!buffer || !rz_io_read_at(core->io, hit->address, buffer, data_size)) {
+        // when fail, just return nothing.
+        delete[] buffer;
+        return "";
+    }
+
+    switch (kind) {
+    default:
+        // for some kinds, we don't do anything.
+        break;
+    case SearchKind::Value32BE:
+        /* fall-thru */
+    case SearchKind::Value32LE:
+        /* fall-thru */
+    case SearchKind::Value64BE:
+        /* fall-thru */
+    case SearchKind::Value64LE:
+        /* fall-thru */
+    case SearchKind::HexString:
+        /* fall-thru */
+    case SearchKind::CryptographicMaterial:
+        /* fall-thru */
+    case SearchKind::MagicSignature: {
+        data = fromOwnedCharPtr(rz_hex_bin2strdup(buffer, data_size));
+        break;
+    }
+    case SearchKind::String:
+        /* fall-thru */
+    case SearchKind::StringCaseInsensitive:
+        /* fall-thru */
+    case SearchKind::StringRegexExtended: {
+        RzStrStringifyOpt sopt;
+        RzStrEnc encoding = RZ_STRING_ENC_GUESS;
+        QString enc = hit->hit_desc;
+        enc = enc.section(".", 1, 1);
+        if (!enc.isEmpty()) {
+            encoding = rz_str_enc_string_as_type(enc.toUtf8().constData());
+        }
+
+        if (encoding == RZ_STRING_ENC_GUESS) {
+            encoding = rz_str_guess_encoding_from_buffer(buffer, data_size);
+        }
+
+        sopt.buffer = buffer;
+        sopt.length = data_size;
+        sopt.encoding = encoding;
+        sopt.wrap_at = 0;
+        sopt.escape_nl = false;
+        sopt.json = false;
+        sopt.stop_at_nil = true;
+        sopt.stop_at_unprintable = false;
+        sopt.urlencode = false;
+
+        data = fromOwnedCharPtr(rz_str_stringify_raw_buffer(&sopt, nullptr));
+        break;
+    }
+    }
+
+    delete[] buffer;
+    return data;
+}
+
+static QString cutterValueAsHex(QString strVal, bool bigEndian, size_t size)
+{
+    ut64 value = rz_num_math(nullptr, strVal.toUtf8().constData());
+    ut8 buffer[sizeof(ut64)] = { 0 };
+    char output[64] = { 0 };
+    rz_write_ble(buffer, value, bigEndian, size);
+    rz_hex_bin2str(buffer, size == 32 ? 4 : 8, output);
+    return output;
+}
+
+QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind kind, QString in)
+{
+    if (searchFor.isEmpty() && kind != SearchKind::CryptographicMaterial
+        && kind != SearchKind::MagicSignature) {
+        return {};
+    }
+
+    // call the oldsyle command for this search.
+    // this must be done before CORE_LOCK() to avoid deadlocks.
+    switch (kind) {
+    case SearchKind::AsmCode:
+        /* fall-thru */
+    case SearchKind::ROPGadgets:
+        /* fall-thru */
+    case SearchKind::ROPGadgetsRegex:
+        // old style search
+        return getAllSearchCommand(searchFor, kind, in);
+    default:
+        // use C API
+        break;
+    }
+
+    CORE_LOCK();
+
+    if (core->in_search) {
+        // this is impossible to happen, unless the user runs
+        // search via terminal before calling the Qt UI
+        RZ_LOG_ERROR("cutter: recursive search detected, search aborted.\n");
+        return {};
+    }
+
+    // this takes ownership of the search lock
+    CutterSearchLock searchLock(core);
+
+    TempConfig cfg;
+    cfg.set("search.in", in);
+
+    QList<SearchDescription> searchRef;
+    RzList /*<RzSearchHit *>*/ *hits = nullptr;
+    auto user_opts = fromOwned(cutterSetupSearchOptions(core), rz_search_opt_free);
+    if (!user_opts) {
+        return searchRef;
+    }
+
+    switch (kind) {
+    default:
+        qWarning() << tr("Error invalid search kind\n");
+        return searchRef;
+    case SearchKind::HexString: {
+        RzSearchBytesPattern *pattern =
+                rz_search_parse_byte_pattern(searchFor.toUtf8().constData(), "bytes");
+        if (!pattern) {
+            return searchRef;
+        }
+        hits = rz_core_search_bytes(core, user_opts.get(), pattern);
+        break;
+    }
+    case SearchKind::Value32BE: {
+        searchFor = cutterValueAsHex(searchFor, true, 32);
+        RzSearchBytesPattern *pattern =
+                rz_search_parse_byte_pattern(searchFor.toUtf8().constData(), "value32.be");
+        if (!pattern) {
+            return searchRef;
+        }
+        hits = rz_core_search_bytes(core, user_opts.get(), pattern);
+        break;
+    }
+    case SearchKind::Value32LE: {
+        searchFor = cutterValueAsHex(searchFor, false, 32);
+        RzSearchBytesPattern *pattern =
+                rz_search_parse_byte_pattern(searchFor.toUtf8().constData(), "value32.le");
+        if (!pattern) {
+            return searchRef;
+        }
+        hits = rz_core_search_bytes(core, user_opts.get(), pattern);
+        break;
+    }
+    case SearchKind::Value64BE: {
+        searchFor = cutterValueAsHex(searchFor, true, 64);
+        RzSearchBytesPattern *pattern =
+                rz_search_parse_byte_pattern(searchFor.toUtf8().constData(), "value64.be");
+        if (!pattern) {
+            return searchRef;
+        }
+        hits = rz_core_search_bytes(core, user_opts.get(), pattern);
+        break;
+    }
+    case SearchKind::Value64LE: {
+        searchFor = cutterValueAsHex(searchFor, false, 64);
+        RzSearchBytesPattern *pattern =
+                rz_search_parse_byte_pattern(searchFor.toUtf8().constData(), "value64.le");
+        if (!pattern) {
+            return searchRef;
+        }
+        hits = rz_core_search_bytes(core, user_opts.get(), pattern);
+        break;
+    }
+    case SearchKind::String:
+        hits = rz_core_search_string(core, user_opts.get(), searchFor.toUtf8().constData(),
+                                     RZ_REGEX_DEFAULT, RZ_STRING_ENC_GUESS);
+        break;
+    case SearchKind::StringCaseInsensitive:
+        hits = rz_core_search_string(core, user_opts.get(), searchFor.toUtf8().constData(),
+                                     RZ_REGEX_CASELESS | RZ_REGEX_LITERAL, RZ_STRING_ENC_GUESS);
+        break;
+    case SearchKind::StringRegexExtended:
+        hits = rz_core_search_string(core, user_opts.get(), searchFor.toUtf8().constData(),
+                                     RZ_REGEX_EXTENDED, RZ_STRING_ENC_GUESS);
+        break;
+    case SearchKind::CryptographicMaterial:
+        hits = rz_core_search_cryptographic_material(core, user_opts.get(),
+                                                     RZ_SEARCH_COLLECTION_CRYPTOGRAPHIC_ALL);
+        break;
+    case SearchKind::MagicSignature:
+        hits = rz_core_search_magic(core, user_opts.get(), nullptr);
+        break;
+    }
+
+    RzListIter *it;
+    RzSearchHit *hit;
+    CutterRzListForeach (hits, it, RzSearchHit, hit) {
+        SearchDescription exp;
+        QString detail = fromOwnedCharPtr(rz_search_hit_detail_as_string(hit));
+
+        exp.offset = hit->address;
+        exp.size = hit->size;
+        exp.data = cutterGetSearchHitData(core, kind, hit).trimmed();
+        exp.detail = hit->hit_desc;
+        if (!detail.isEmpty()) {
+            exp.detail += " (" + detail + ")";
+        }
+        exp.detail += " " + Core()->getCommentAt(exp.offset);
+        exp.detail = exp.detail.trimmed();
+
+        searchRef << exp;
+    }
+
+    rz_list_free(hits);
     return searchRef;
 }
 
