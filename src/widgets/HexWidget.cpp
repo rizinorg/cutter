@@ -1232,6 +1232,7 @@ void HexWidget::onActionAddCommentTriggered()
 {
     uint64_t addr = cursor.address;
     CommentsDialog::addOrEditComment(addr, this);
+    refresh();
 }
 
 // slot for deleting comment action
