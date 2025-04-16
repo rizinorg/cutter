@@ -1181,7 +1181,13 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
     RzFlagItem *flag = rz_flag_get_i(Core()->core()->flags, cursor.address);
 
     if (flag) {
-        actionAddFlag->setText(tr("Rename flag \"%1\" (used here)").arg(flag->name));
+        QString flagName;
+        if (Config()->getConfigBool("asm.flags.real") && flag->realname) {
+            flagName = flag->realname;
+        } else {
+            flagName = flag->name;
+        };
+        actionAddFlag->setText(tr("Rename flag \"%1\" (used here)").arg(flagName));
     } else {
         actionAddFlag->setText(
                 tr("Add flag at %1 (used here)").arg(RzAddressString(cursor.address)));
