@@ -3,6 +3,7 @@
 #include "Configuration.h"
 #include "dialogs/WriteCommandsDialogs.h"
 #include "dialogs/CommentsDialog.h"
+#include "dialogs/FlagDialog.h"
 
 #include <QPainter>
 #include <QPaintEvent>
@@ -130,6 +131,14 @@ HexWidget::HexWidget(QWidget *parent)
     actionComment->setShortcut(Qt::Key_Semicolon);
     connect(actionComment, &QAction::triggered, this, &HexWidget::onActionAddCommentTriggered);
     addAction(actionComment);
+
+    // Add flag option
+    actionAddFlag = new QAction(
+            tr("Add flag at %1 (used here)").arg(RzAddressString(getLocationAddress())), this);
+    actionAddFlag->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    actionAddFlag->setShortcut(Qt::Key_N);
+    connect(actionAddFlag, &QAction::triggered, this, &HexWidget::onActionAddFlagTriggered);
+    addAction(actionAddFlag);
 
     // delete comment option
     actionDeleteComment = new QAction(tr("Delete Comment"), this);
@@ -1161,6 +1170,15 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
         actionComment->setText(tr("Edit Comment"));
     }
 
+    RzFlagItem *flag = rz_flag_get_i(Core()->core()->flags, cursor.address);
+
+    if (flag) {
+        actionAddFlag->setText(tr("Rename flag \"%1\" (used here)").arg(flag->name));
+    } else {
+        actionAddFlag->setText(
+                tr("Add flag at %1 (used here)").arg(RzAddressString(cursor.address)));
+    }
+
     if (!ioModesController.canWrite()) {
         actionKeyboardEdit->setChecked(false);
     }
@@ -1240,6 +1258,16 @@ void HexWidget::onActionDeleteCommentTriggered()
 {
     uint64_t addr = cursor.address;
     Core()->delComment(addr);
+}
+
+void HexWidget::onActionAddFlagTriggered()
+{
+    FlagDialog dialog(cursor.address, this);
+    bool ok = false;
+    ok = dialog.exec();
+    if (ok) {
+        refresh();
+    }
 }
 
 void HexWidget::onRangeDialogAccepted()

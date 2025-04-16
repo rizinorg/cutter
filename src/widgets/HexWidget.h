@@ -383,6 +383,7 @@ private slots:
     void onRangeDialogAccepted();
     void onActionAddCommentTriggered();
     void onActionDeleteCommentTriggered();
+    void onActionAddFlagTriggered();
 
     // Write command slots
     void w_writeString();
@@ -577,6 +578,7 @@ private:
     QAction *actionCopyAddress;
     QAction *actionComment;
     QAction *actionDeleteComment;
+    QAction *actionAddFlag;
     QAction *actionSelectRange;
     QAction *actionKeyboardEdit;
     QList<QAction *> actionsWriteString;
