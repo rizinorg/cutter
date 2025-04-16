@@ -138,6 +138,14 @@ HexWidget::HexWidget(QWidget *parent)
     actionAddFlag->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
     actionAddFlag->setShortcut(Qt::Key_N);
     connect(actionAddFlag, &QAction::triggered, this, &HexWidget::onActionAddFlagTriggered);
+    connect(this, &HexWidget::positionChanged, this, [this](RVA pos) {
+        RzAnalysisFunction *fcn = Core()->functionAt(pos);
+        if (fcn) {
+            actionAddFlag->setVisible(false);
+        } else {
+            actionAddFlag->setVisible(true);
+        }
+    });
     addAction(actionAddFlag);
 
     // delete comment option
