@@ -16,7 +16,7 @@ static const int kMaxTooltipHexdumpBytes = 64;
 
 }
 
-static const QMap<QString, QString> searchBoundaries {
+static const QVector<std::pair<QString, const char *>> searchBoundaries {
     { "io.maps", QT_TR_NOOP("All maps") },
     { "io.map", QT_TR_NOOP("Current map") },
     { "raw", QT_TR_NOOP("Whole file") },
@@ -31,7 +31,7 @@ static const QMap<QString, QString> searchBoundaries {
     { "analysis.bb", QT_TR_NOOP("Current basic block") },
 };
 
-static const QMap<QString, QString> searchBoundariesDebug {
+static const QVector<std::pair<QString, const char *>> searchBoundariesDebug {
     { "dbg.maps", QT_TR_NOOP("All memory maps") },
     { "dbg.map", QT_TR_NOOP("Memory map") },
     { "block", QT_TR_NOOP("Current block") },
@@ -39,6 +39,46 @@ static const QMap<QString, QString> searchBoundariesDebug {
     { "dbg.stack", QT_TR_NOOP("Stack") },
     { "dbg.heap", QT_TR_NOOP("Heap") }
 };
+
+struct SearchKindInfo
+{
+    SearchKind kind;
+    const char *name;
+    const char *textHint;
+    bool noInput = false;
+};
+
+static const SearchKindInfo searchKinds[] = {
+    { SearchKind::AsmCode, QT_TR_NOOP("asm code"), QT_TR_NOOP("jmp rax") },
+    { SearchKind::String, QT_TR_NOOP("string (literal)"), QT_TR_NOOP("foobar") },
+    { SearchKind::StringCaseInsensitive, QT_TR_NOOP("string (case insensitive)"),
+      QT_TR_NOOP("fOobaR") },
+    { SearchKind::StringRegexExtended, QT_TR_NOOP("string (extended regex)"),
+      QT_TR_NOOP("(foo){,4}[Bb]ar") },
+    { SearchKind::HexString, QT_TR_NOOP("hex string"), QT_TR_NOOP("ab01..23...1234ef") },
+    { SearchKind::ROPGadgets, QT_TR_NOOP("ROP gadgets"), QT_TR_NOOP("pop,,pop") },
+    { SearchKind::ROPGadgetsRegex, QT_TR_NOOP("ROP gadgets (regex)"), QT_TR_NOOP("mov e[abc]x") },
+    { SearchKind::Value32BE, QT_TR_NOOP("32bit big endian value"),
+      QT_TR_NOOP("0xdeadbeef (big endian)") },
+    { SearchKind::Value32LE, QT_TR_NOOP("32bit little endian value"),
+      QT_TR_NOOP("0xdeadbeef (little endian)") },
+    { SearchKind::Value64BE, QT_TR_NOOP("64bit big endian value"),
+      QT_TR_NOOP("0xfedcba9876543210 (big endian)") },
+    { SearchKind::Value64BE, QT_TR_NOOP("64bit little endian value"),
+      QT_TR_NOOP("0xfedcba9876543210 (little endian)") },
+    { SearchKind::CryptographicMaterial, QT_TR_NOOP("Cryptographic material"), nullptr, true },
+    { SearchKind::MagicSignature, QT_TR_NOOP("Magic signature"), nullptr, true },
+};
+
+static const SearchKindInfo &searchKindInfo(SearchKind kind)
+{
+    auto res = std::find_if(std::begin(searchKinds), std::end(searchKinds),
+                            [kind](const SearchKindInfo &info) { return info.kind == kind; });
+    if (res != std::end(searchKinds)) {
+        return *res;
+    }
+    return searchKinds[1];
+}
 
 SearchModel::SearchModel(QList<SearchDescription> *search, QObject *parent)
     : AddressableItemModel<QAbstractListModel>(parent), search(search)
@@ -225,8 +265,7 @@ SearchWidget::~SearchWidget() {}
 
 void SearchWidget::updateSearchBoundaries()
 {
-    QMap<QString, QString>::const_iterator mapIter;
-    QMap<QString, QString> boundaries;
+    QVector<std::pair<QString, const char *>> boundaries;
 
     if (Core()->currentlyDebugging && !Core()->currentlyEmulating) {
         boundaries = searchBoundariesDebug;
@@ -234,13 +273,12 @@ void SearchWidget::updateSearchBoundaries()
         boundaries = searchBoundaries;
     }
 
-    mapIter = boundaries.cbegin();
-    ui->searchInCombo->setCurrentIndex(ui->searchInCombo->findData(mapIter.key()));
+    ui->searchInCombo->setCurrentIndex(ui->searchInCombo->findData(boundaries[0].first));
 
     ui->searchInCombo->blockSignals(true);
     ui->searchInCombo->clear();
-    for (; mapIter != boundaries.cend(); ++mapIter) {
-        ui->searchInCombo->addItem(mapIter.value(), mapIter.key());
+    for (auto item : boundaries) {
+        ui->searchInCombo->addItem(tr(item.second), item.first);
     }
     ui->searchInCombo->blockSignals(false);
 
@@ -259,28 +297,9 @@ void SearchWidget::refreshSearchspaces()
         cur_idx = 0;
 
     ui->searchspaceCombo->clear();
-    ui->searchspaceCombo->addItem(tr("asm code"), static_cast<int>(SearchKind::AsmCode));
-    ui->searchspaceCombo->addItem(tr("string (literal)"), static_cast<int>(SearchKind::String));
-    ui->searchspaceCombo->addItem(tr("string (case insensitive)"),
-                                  static_cast<int>(SearchKind::StringCaseInsensitive));
-    ui->searchspaceCombo->addItem(tr("string (extended regex)"),
-                                  static_cast<int>(SearchKind::StringRegexExtended));
-    ui->searchspaceCombo->addItem(tr("hex string"), static_cast<int>(SearchKind::HexString));
-    ui->searchspaceCombo->addItem(tr("ROP gadgets"), static_cast<int>(SearchKind::ROPGadgets));
-    ui->searchspaceCombo->addItem(tr("ROP gadgets (regex)"),
-                                  static_cast<int>(SearchKind::ROPGadgetsRegex));
-    ui->searchspaceCombo->addItem(tr("32bit big endian value"),
-                                  static_cast<int>(SearchKind::Value32BE));
-    ui->searchspaceCombo->addItem(tr("32bit little endian value"),
-                                  static_cast<int>(SearchKind::Value32LE));
-    ui->searchspaceCombo->addItem(tr("64bit big endian value"),
-                                  static_cast<int>(SearchKind::Value64BE));
-    ui->searchspaceCombo->addItem(tr("64bit little endian value"),
-                                  static_cast<int>(SearchKind::Value64LE));
-    ui->searchspaceCombo->addItem(tr("Cryptographic material"),
-                                  static_cast<int>(SearchKind::CryptographicMaterial));
-    ui->searchspaceCombo->addItem(tr("Magic signature"),
-                                  static_cast<int>(SearchKind::MagicSignature));
+    for (auto &kind : searchKinds) {
+        ui->searchspaceCombo->addItem(tr(kind.name), static_cast<int>(kind.kind));
+    }
 
     if (cur_idx > 0)
         ui->searchspaceCombo->setCurrentIndex(cur_idx);
@@ -317,6 +336,10 @@ void SearchWidget::checkSearchResultEmpty()
         return;
 
     QString searchFor = ui->filterLineEdit->text();
+    auto searchSpace = static_cast<SearchKind>(ui->searchspaceCombo->currentData().toInt());
+    if (searchFor.isEmpty() && !searchKindInfo(searchSpace).noInput) {
+        return;
+    }
     QString noResultsMessage = "<b>";
     noResultsMessage.append(tr("No results found for:"));
     noResultsMessage.append("</b><br>");
@@ -336,57 +359,17 @@ void SearchWidget::setScrollMode()
 
 void SearchWidget::updatePlaceholderText(int)
 {
-    ui->filterLineEdit->setEnabled(true);
-
     // ensure we grab the correct kind.
     auto kind = static_cast<SearchKind>(ui->searchspaceCombo->currentData().toInt());
-    switch (kind) {
-    case SearchKind::AsmCode:
-        ui->filterLineEdit->setPlaceholderText("jmp rax");
-        break;
-    case SearchKind::HexString:
-        ui->filterLineEdit->setPlaceholderText("foobar");
-        break;
-    case SearchKind::ROPGadgets:
-        ui->filterLineEdit->setPlaceholderText("FooBar");
-        break;
-    case SearchKind::ROPGadgetsRegex:
-        ui->filterLineEdit->setPlaceholderText("(foo){,4}[Bb]ar");
-        break;
-    case SearchKind::String:
-        ui->filterLineEdit->setPlaceholderText("dead....beef");
-        break;
-    case SearchKind::StringCaseInsensitive:
-        ui->filterLineEdit->setPlaceholderText("pop,,pop");
-        break;
-    case SearchKind::StringRegexExtended:
-        ui->filterLineEdit->setPlaceholderText("mov e[abc]x");
-        break;
-    case SearchKind::Value32BE:
-        ui->filterLineEdit->setPlaceholderText("0xdeadbeef (big endian)");
-        break;
-    case SearchKind::Value32LE:
-        ui->filterLineEdit->setPlaceholderText("0xdeadbeef (little endian)");
-        break;
-    case SearchKind::Value64BE:
-        ui->filterLineEdit->setPlaceholderText("0xfedcba9876543210 (big endian)");
-        break;
-    case SearchKind::Value64LE:
-        ui->filterLineEdit->setPlaceholderText("0xfedcba9876543210 (little endian)");
-        break;
-    case SearchKind::CryptographicMaterial:
-        // this search kind does not take any input.
+    auto info = searchKindInfo(kind);
+    if (info.textHint) {
+        ui->filterLineEdit->setPlaceholderText(tr(info.textHint));
+    } else {
         ui->filterLineEdit->setPlaceholderText("");
-        ui->filterLineEdit->setEnabled(false);
-        break;
-    case SearchKind::MagicSignature:
-        // this search kind does not take any input.
-        ui->filterLineEdit->setPlaceholderText("");
-        ui->filterLineEdit->setEnabled(false);
-        break;
-    default:
-        ui->filterLineEdit->setPlaceholderText("<No preview defined>");
-        break;
+    }
+    ui->filterLineEdit->setDisabled(info.noInput);
+    if (info.noInput) {
+        ui->filterLineEdit->clear();
     }
 }
 
