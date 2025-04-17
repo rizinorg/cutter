@@ -1272,6 +1272,7 @@ void HexWidget::onActionDeleteCommentTriggered()
 {
     uint64_t addr = cursor.address;
     Core()->delComment(addr);
+    refresh();
 }
 
 void HexWidget::onActionAddFlagTriggered()
