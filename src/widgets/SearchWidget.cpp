@@ -45,7 +45,7 @@ struct SearchKindInfo
     SearchKind kind;
     const char *name;
     const char *textHint;
-    bool noInput = false;
+    bool noInput;
 };
 
 static const SearchKindInfo searchKinds[] = {
