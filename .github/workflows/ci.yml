@@ -587,7 +587,7 @@ jobs:
         ]
         include:
           - name: linux-x86_64 
-            os: ubuntu-20.04
+            os: ubuntu-22.04
             artifact-job: build-linux
             artifact-output: artifact_linux
           - name: macos-arm64
