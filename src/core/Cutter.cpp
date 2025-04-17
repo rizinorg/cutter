@@ -4095,12 +4095,7 @@ class CutterSearchLock
 public:
     CutterSearchLock(RzCore *core)
         : core_(core)
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-          ,
-          searchMutex(QMutex::Recursive)
-#endif
     {
-        searchMutex.lock();
         rz_cons_break_push(NULL, NULL);
         core_->in_search = true;
     }
@@ -4108,16 +4103,10 @@ public:
     {
         rz_cons_break_pop();
         core_->in_search = false;
-        searchMutex.unlock();
     }
 
 private:
     RzCore *core_ = nullptr;
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-    QMutex searchMutex;
-#else
-    QRecursiveMutex searchMutex;
-#endif
 };
 
 static QString cutterGetSearchHitData(RzCore *core, SearchKind kind, RzSearchHit *hit)
