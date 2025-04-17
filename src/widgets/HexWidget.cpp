@@ -1186,7 +1186,7 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
             flagName = flag->realname;
         } else {
             flagName = flag->name;
-        };
+        }
         actionAddFlag->setText(tr("Rename flag \"%1\" (used here)").arg(flagName));
     } else {
         actionAddFlag->setText(
