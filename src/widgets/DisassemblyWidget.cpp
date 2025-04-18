@@ -881,7 +881,7 @@ void DisassemblyScrollArea::refreshVScrollbarRange()
     verticalScrollBar()->setMinimum(0);
     // Increasing this value increases scroll bar accuracy for small files but
     // decreases it for large files
-    // Sufficiently bellow 2^32 to avoid causing problems in calculations done by QScrollbar,
+    // Sufficiently below 2^32 to avoid causing problems in calculations done by QScrollbar,
     // otherwise as high as possible to maximize range in which address map 1:1 to scrollbar pos.
     const int rangeMax = 512 * 1024 * 1024;
     if (binSize() > rangeMax) {
@@ -1108,7 +1108,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
             int bottom = offsetToLine(arrow.max) - minLine + 1;
             auto minMax = maxLevelTree.rangeMinMax(top, bottom);
             if (minMax.first > 1) {
-                arrow.level = 1; // place bellow existing lines
+                arrow.level = 1; // place below existing lines
             } else {
                 arrow.level = minMax.second + 1; // place on top of existing lines
                 maxLevel = std::max(maxLevel, arrow.level);
