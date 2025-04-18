@@ -2,6 +2,7 @@
 #include "ui_SearchWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
+#include "DisassemblyPreview.h"
 
 #include <QDockWidget>
 #include <QTreeWidget>
@@ -49,23 +50,24 @@ struct SearchKindInfo
 };
 
 static const SearchKindInfo searchKinds[] = {
-    { SearchKind::AsmCode, QT_TR_NOOP("asm code"), QT_TR_NOOP("jmp rax") },
-    { SearchKind::String, QT_TR_NOOP("string (literal)"), QT_TR_NOOP("foobar") },
+    { SearchKind::AsmCode, QT_TR_NOOP("asm code"), QT_TR_NOOP("jmp rax"), false },
+    { SearchKind::String, QT_TR_NOOP("string (literal)"), QT_TR_NOOP("foobar"), false },
     { SearchKind::StringCaseInsensitive, QT_TR_NOOP("string (case insensitive)"),
-      QT_TR_NOOP("fOobaR") },
+      QT_TR_NOOP("fOobaR"), false },
     { SearchKind::StringRegexExtended, QT_TR_NOOP("string (extended regex)"),
-      QT_TR_NOOP("(foo){,4}[Bb]ar") },
-    { SearchKind::HexString, QT_TR_NOOP("hex string"), QT_TR_NOOP("ab01..23...1234ef") },
-    { SearchKind::ROPGadgets, QT_TR_NOOP("ROP gadgets"), QT_TR_NOOP("pop,,pop") },
-    { SearchKind::ROPGadgetsRegex, QT_TR_NOOP("ROP gadgets (regex)"), QT_TR_NOOP("mov e[abc]x") },
+      QT_TR_NOOP("(foo){,4}[Bb]ar"), false },
+    { SearchKind::HexString, QT_TR_NOOP("hex string"), QT_TR_NOOP("ab01..23...1234ef"), false },
+    { SearchKind::ROPGadgets, QT_TR_NOOP("ROP gadgets"), QT_TR_NOOP("pop,,pop"), false },
+    { SearchKind::ROPGadgetsRegex, QT_TR_NOOP("ROP gadgets (regex)"), QT_TR_NOOP("mov e[abc]x"),
+      false },
     { SearchKind::Value32BE, QT_TR_NOOP("32bit big endian value"),
-      QT_TR_NOOP("0xdeadbeef (big endian)") },
+      QT_TR_NOOP("0xdeadbeef (big endian)"), false },
     { SearchKind::Value32LE, QT_TR_NOOP("32bit little endian value"),
-      QT_TR_NOOP("0xdeadbeef (little endian)") },
+      QT_TR_NOOP("0xdeadbeef (little endian)"), false },
     { SearchKind::Value64BE, QT_TR_NOOP("64bit big endian value"),
-      QT_TR_NOOP("0xfedcba9876543210 (big endian)") },
+      QT_TR_NOOP("0xfedcba9876543210 (big endian)"), false },
     { SearchKind::Value64BE, QT_TR_NOOP("64bit little endian value"),
-      QT_TR_NOOP("0xfedcba9876543210 (little endian)") },
+      QT_TR_NOOP("0xfedcba9876543210 (little endian)"), false },
     { SearchKind::CryptographicMaterial, QT_TR_NOOP("Cryptographic material"), nullptr, true },
     { SearchKind::MagicSignature, QT_TR_NOOP("Magic signature"), nullptr, true },
 };
@@ -259,6 +261,9 @@ SearchWidget::SearchWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui
     connect(ui->searchspaceCombo,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
             [this](int index) { updatePlaceholderText(index); });
+
+    updateColors();
+    connect(Config(), &Configuration::colorsUpdated, this, &SearchWidget::updateColors);
 }
 
 SearchWidget::~SearchWidget() {}
@@ -384,4 +389,9 @@ void SearchWidget::enableSearch()
 {
     ui->searchButton->setEnabled(true);
     ui->searchButton->setText(tr("Search"));
+}
+
+void SearchWidget::updateColors()
+{
+    ui->searchTreeView->setStyleSheet(DisassemblyPreview::getToolTipStyleSheet());
 }
