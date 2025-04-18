@@ -812,16 +812,19 @@ void DisassemblyScrollArea::setVScrollPos(RVA address)
         verticalScrollBar()->setValue(verticalScrollBar()->maximum());
         return;
     }
+    auto offset = address - beginOffset;
     if ((RVA_MAX / maximum) < binSize()) {
         // Fallback formula for large files
-        if (address < (binSize() % maximum + beginOffset)) {
-            scrollBarPos = 0;
+        uint64_t smallBox = binSize() / maximum;
+        uint64_t extra = binSize() % maximum;
+        auto bigBoxRange = (smallBox + 1) * extra;
+        if (offset < bigBoxRange) {
+            scrollBarPos = offset / (smallBox + 1);
         } else {
-            scrollBarPos =
-                    ((address - beginOffset - (binSize() % maximum))) / (binSize() / maximum);
+            scrollBarPos = extra + (offset - bigBoxRange) / smallBox;
         }
     } else {
-        scrollBarPos = maximum * (address - beginOffset) / binSize();
+        scrollBarPos = (maximum * offset) / binSize();
     }
     if (address != beginOffset && scrollBarPos == 0) {
         scrollBarPos = 1;
@@ -878,8 +881,8 @@ void DisassemblyScrollArea::refreshVScrollbarRange()
     verticalScrollBar()->setMinimum(0);
     // Increasing this value increases scroll bar accuracy for small files but
     // decreases it for large files
-    // A rangeMax of 512x1024x1024 lets the scroll bar handle files up to
-    // 32 GB in size without issue
+    // Sufficiently bellow 2^32 to avoid causing problems in calculations done by QScrollbar,
+    // otherwise as high as possible to maximize range in which address map 1:1 to scrollbar pos.
     const int rangeMax = 512 * 1024 * 1024;
     if (binSize() > rangeMax) {
         verticalScrollBar()->setMaximum(rangeMax);
