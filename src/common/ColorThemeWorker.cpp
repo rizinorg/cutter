@@ -131,6 +131,9 @@ ColorThemeWorker::Theme ColorThemeWorker::getTheme(const QString &themeName) con
     if (Configuration::relevantThemes.contains(themeName)) {
         colorFlags = Configuration::relevantThemes[themeName];
     }
+    if (colorFlags == DualColor) {
+        colorFlags = Config()->windowColorIsDark() ? DarkFlag : LightFlag;
+    }
 
     for (auto &it : cutterSpecificOptions) {
         theme.insert(it, QColor(Configuration::cutterOptionColors[it][colorFlags]));

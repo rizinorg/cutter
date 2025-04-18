@@ -21,16 +21,20 @@
  * and for light - only light ones.
  */
 const QHash<QString, ColorFlags> Configuration::relevantThemes = {
-    { "ayu", DarkFlag },       { "basic", DarkFlag },     { "behelit", DarkFlag },
-    { "bold", DarkFlag },      { "bright", DarkFlag },    { "consonance", DarkFlag },
-    { "darkda", DarkFlag },    { "defragger", DarkFlag }, { "focus", DarkFlag },
-    { "gentoo", DarkFlag },    { "lima", DarkFlag },      { "monokai", DarkFlag },
-    { "ogray", DarkFlag },     { "onedark", DarkFlag },   { "pink", DarkFlag },
-    { "rasta", DarkFlag },     { "sepia", DarkFlag },     { "smyck", DarkFlag },
-    { "solarized", DarkFlag }, { "twilight", DarkFlag },  { "white2", DarkFlag },
-    { "xvilka", DarkFlag },    { "zenburn", DarkFlag },   { "cga", LightFlag },
-    { "cutter", LightFlag },   { "dark", LightFlag },     { "gb", LightFlag },
-    { "matrix", LightFlag },   { "tango", LightFlag },    { "white", LightFlag }
+    { "ayu", DarkFlag },        { "basic", DarkFlag },   { "behelit", DarkFlag },
+    { "bold", DarkFlag },       { "bright", DarkFlag },  { "cga", DarkFlag },
+    { "consonance", DarkFlag }, { "darkda", DarkFlag },  { "default", DarkFlag },
+    { "defragger", DarkFlag },  { "focus", DarkFlag },   { "gb", DarkFlag },
+    { "gentoo", DarkFlag },     { "lima", DarkFlag },    { "mars", DarkFlag },
+    { "monokai", DarkFlag },    { "nord", DarkFlag },    { "ogray", DarkFlag },
+    { "onedark", DarkFlag },    { "pink", DarkFlag },    { "rasta", DarkFlag },
+    { "sepia", DarkFlag },      { "smyck", DarkFlag },   { "solarized", DarkFlag },
+    { "twilight", DarkFlag },   { "xvilka", DarkFlag },  { "zenburn", DarkFlag },
+
+    { "dark", DualColor },      { "durian", DualColor }, { "tango", DualColor },
+    { "white2", DualColor },
+
+    { "cutter", LightFlag },    { "matrix", LightFlag }, { "white", LightFlag },
 };
 static const QString DEFAULT_LIGHT_COLOR_THEME = "cutter";
 static const QString DEFAULT_DARK_COLOR_THEME = "ayu";

@@ -21,6 +21,7 @@ class QTextDocument;
 enum ColorFlags {
     LightFlag = 1,
     DarkFlag = 2,
+    DualColor = LightFlag | DarkFlag,
 };
 
 struct CutterInterfaceTheme
