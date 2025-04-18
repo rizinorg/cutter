@@ -1311,6 +1311,16 @@ QString CutterCore::flagAt(RVA addr)
     return core->flags->realnames && f->realname ? f->realname : f->name;
 }
 
+QString CutterCore::flagAtI(RVA addr)
+{
+    CORE_LOCK();
+    RzFlagItem *f = rz_flag_get_i(core->flags, addr);
+    if (!f) {
+        return {};
+    }
+    return core->flags->realnames && f->realname ? f->realname : f->name;
+}
+
 void CutterCore::createFunctionAt(RVA addr)
 {
     createFunctionAt(addr, "");
