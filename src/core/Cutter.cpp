@@ -1301,11 +1301,14 @@ RVA CutterCore::getLastFunctionInstruction(RVA addr)
     return lastBB ? rz_analysis_block_get_op_addr(lastBB, lastBB->ninstr - 1) : RVA_INVALID;
 }
 
-QString CutterCore::flagAt(RVA addr, bool exactAddrOnly)
+QString CutterCore::flagAt(RVA addr, bool getClosestFlag)
 {
     CORE_LOCK();
-    RzFlagItem *f = exactAddrOnly ? rz_flag_get_i(core->flags, addr)
-                                  : rz_flag_get_at(core->flags, addr, true);
+    // rz_flag_get_at and rz_flag_get_i can return different
+    // flags for the same address, so we must use rz_flag_get_i here
+    // instead of setting rz_flag_get_at's "closest" argument to false
+    RzFlagItem *f = getClosestFlag ? rz_flag_get_at(core->flags, addr, true)
+                                   : rz_flag_get_i(core->flags, addr);
     if (!f) {
         return {};
     }

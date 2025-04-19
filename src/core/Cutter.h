@@ -234,7 +234,7 @@ public:
     RVA getFunctionStart(RVA addr);
     RVA getFunctionEnd(RVA addr);
     RVA getLastFunctionInstruction(RVA addr);
-    QString flagAt(RVA addr, bool exactAddrOnly = false);
+    QString flagAt(RVA addr, bool getClosestFlag = true);
     void createFunctionAt(RVA addr);
     void createFunctionAt(RVA addr, QString name);
     QStringList getDisassemblyPreview(RVA address, int num_of_lines);
