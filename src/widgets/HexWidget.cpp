@@ -1178,7 +1178,7 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
         actionComment->setText(tr("Edit Comment"));
     }
 
-    QString flag = Core()->flagAtI(cursor.address);
+    QString flag = Core()->flagAt(cursor.address, true);
 
     if (flag.isEmpty() || flag.isNull()) {
         actionAddFlag->setText(

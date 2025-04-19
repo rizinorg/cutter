@@ -1301,20 +1301,11 @@ RVA CutterCore::getLastFunctionInstruction(RVA addr)
     return lastBB ? rz_analysis_block_get_op_addr(lastBB, lastBB->ninstr - 1) : RVA_INVALID;
 }
 
-QString CutterCore::flagAt(RVA addr)
+QString CutterCore::flagAt(RVA addr, bool exactAddrOnly)
 {
     CORE_LOCK();
-    RzFlagItem *f = rz_flag_get_at(core->flags, addr, true);
-    if (!f) {
-        return {};
-    }
-    return core->flags->realnames && f->realname ? f->realname : f->name;
-}
-
-QString CutterCore::flagAtI(RVA addr)
-{
-    CORE_LOCK();
-    RzFlagItem *f = rz_flag_get_i(core->flags, addr);
+    RzFlagItem *f = exactAddrOnly ? rz_flag_get_i(core->flags, addr)
+                                  : rz_flag_get_at(core->flags, addr, true);
     if (!f) {
         return {};
     }
