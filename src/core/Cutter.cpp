@@ -1305,7 +1305,7 @@ QString CutterCore::flagAt(RVA addr, bool getClosestFlag)
 {
     CORE_LOCK();
     // rz_flag_get_at and rz_flag_get_i can return different
-    // flags for the same address, so we must use rz_flag_get_i here
+    // flags for addresses containing multiple flags, so we must use rz_flag_get_i here
     // instead of setting rz_flag_get_at's "closest" argument to false
     RzFlagItem *f = getClosestFlag ? rz_flag_get_at(core->flags, addr, true)
                                    : rz_flag_get_i(core->flags, addr);
