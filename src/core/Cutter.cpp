@@ -4199,15 +4199,17 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
         break;
     }
     case SearchKind::String:
-        hits = rz_core_search_string(core, userOpts.get(), searchFor.toUtf8().constData(),
-                                     RZ_REGEX_DEFAULT, RZ_STRING_ENC_GUESS);
+    case SearchKind::StringCaseInsensitive: {
+        const auto str = searchFor.toUtf8();
+        hits = rz_core_search_string(core, userOpts.get(), str.constData(), str.size(),
+                                     kind == SearchKind::StringCaseInsensitive
+                                             ? RZ_REGEX_CASELESS | RZ_REGEX_LITERAL
+                                             : RZ_REGEX_LITERAL,
+                                     RZ_STRING_ENC_GUESS);
         break;
-    case SearchKind::StringCaseInsensitive:
-        hits = rz_core_search_string(core, userOpts.get(), searchFor.toUtf8().constData(),
-                                     RZ_REGEX_CASELESS | RZ_REGEX_LITERAL, RZ_STRING_ENC_GUESS);
-        break;
+    }
     case SearchKind::StringRegexExtended:
-        hits = rz_core_search_string(core, userOpts.get(), searchFor.toUtf8().constData(),
+        hits = rz_core_search_string(core, userOpts.get(), searchFor.toUtf8().constData(), 0,
                                      RZ_REGEX_EXTENDED, RZ_STRING_ENC_GUESS);
         break;
     case SearchKind::CryptographicMaterial:
