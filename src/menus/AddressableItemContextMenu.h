@@ -46,7 +46,7 @@ protected:
     QAction *actionShowInMenu;
     QAction *actionCopyAddress;
     QAction *actionShowXrefs;
-    QAction *actionAddcomment;
+    QAction *actionAddComment;
 
     QString name;
     bool wholeFunction = false;

@@ -16,7 +16,7 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
     actionShowInMenu = new QAction(tr("Show in"), this);
     actionCopyAddress = new QAction(tr("Copy address"), this);
     actionShowXrefs = new QAction(tr("Show X-Refs"), this);
-    actionAddcomment = new QAction(tr("Add comment"), this);
+    actionAddComment = new QAction(tr("Add Comment"), this);
 
     connect(actionCopyAddress, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionCopyAddress);
@@ -28,16 +28,16 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
     actionShowXrefs->setShortcut({ Qt::Key_X });
     actionShowXrefs->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
-    connect(actionAddcomment, &QAction::triggered, this,
+    connect(actionAddComment, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionAddComment);
-    actionAddcomment->setShortcut({ Qt::Key_Semicolon });
-    actionAddcomment->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    actionAddComment->setShortcut({ Qt::Key_Semicolon });
+    actionAddComment->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     addAction(actionShowInMenu);
     addAction(actionCopyAddress);
     addAction(actionShowXrefs);
     addSeparator();
-    addAction(actionAddcomment);
+    addAction(actionAddComment);
 
     addSeparator();
     pluginMenu = mainWindow->getContextMenuExtensions(MainWindow::ContextMenuType::Addressable);
@@ -98,6 +98,11 @@ void AddressableItemContextMenu::onActionAddComment()
 
 void AddressableItemContextMenu::aboutToShowSlot()
 {
+    if (QString comment = Core()->getCommentAt(offset); comment.isEmpty() || comment.isNull()) {
+        actionAddComment->setText(tr("Add Comment"));
+    } else {
+        actionAddComment->setText(tr("Edit Comment"));
+    }
     if (actionShowInMenu->menu()) {
         actionShowInMenu->menu()->deleteLater();
     }
@@ -115,5 +120,5 @@ void AddressableItemContextMenu::setHasTarget(bool hasTarget)
     actionShowInMenu->setEnabled(hasTarget);
     actionCopyAddress->setEnabled(hasTarget);
     actionShowXrefs->setEnabled(hasTarget);
-    actionAddcomment->setEnabled(hasTarget);
+    actionAddComment->setEnabled(hasTarget);
 }
