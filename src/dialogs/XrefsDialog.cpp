@@ -56,6 +56,37 @@ XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom)
         qhelpers::emitColumnChanged(&fromModel, XrefModel::COMMENT);
     });
 
+    auto makeBreakpointAction = [this](AddressableItemList<> *list, const XrefModel &model) {
+        QAction *actionToggleBreakpoint = new QAction(tr("Add Breakpoint"), this);
+        actionToggleBreakpoint->setShortcut({ Qt::Key_F2 });
+        actionToggleBreakpoint->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+        auto *contextMenu = list->getItemContextMenu();
+        contextMenu->addAction(actionToggleBreakpoint);
+        list->addAction(actionToggleBreakpoint);
+        connect(actionToggleBreakpoint, &QAction::triggered, this, [list, &model]() {
+            auto index = list->currentIndex();
+            if (!index.isValid()) {
+                return;
+            }
+            Core()->toggleBreakpoint(model.address(index));
+        });
+        connect(contextMenu, &AddressableItemContextMenu::aboutToShow, this,
+                [list, &model, actionToggleBreakpoint]() {
+                    auto index = list->currentIndex();
+                    if (!index.isValid()) {
+                        return;
+                    }
+                    if (Core()->breakpointIndexAt(model.address(index)) < 0) {
+                        actionToggleBreakpoint->setText(tr("Add Breakpoint"));
+                    } else {
+                        actionToggleBreakpoint->setText(tr("Remove Breakpoint"));
+                    }
+                });
+    };
+
+    makeBreakpointAction(ui->toTreeWidget, toModel);
+    makeBreakpointAction(ui->fromTreeWidget, fromModel);
+
     if (hideXrefFrom) {
         hideXrefFromSection();
     }
