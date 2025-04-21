@@ -31,6 +31,7 @@ private:
     void onActionCopyAddress();
     void onActionShowXrefs();
     void onActionAddComment();
+    void onActionToggleBreakpoint();
 
     virtual void aboutToShowSlot();
 
@@ -47,6 +48,7 @@ protected:
     QAction *actionCopyAddress;
     QAction *actionShowXrefs;
     QAction *actionAddComment;
+    QAction *actionToggleBreakpoint;
 
     QString name;
     bool wholeFunction = false;

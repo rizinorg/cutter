@@ -17,6 +17,7 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
     actionCopyAddress = new QAction(tr("Copy address"), this);
     actionShowXrefs = new QAction(tr("Show X-Refs"), this);
     actionAddComment = new QAction(tr("Add Comment"), this);
+    actionToggleBreakpoint = new QAction(tr("Add Breakpoint"), this);
 
     connect(actionCopyAddress, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionCopyAddress);
@@ -33,11 +34,17 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
     actionAddComment->setShortcut({ Qt::Key_Semicolon });
     actionAddComment->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
+    connect(actionToggleBreakpoint, &QAction::triggered, this,
+            &AddressableItemContextMenu::onActionToggleBreakpoint);
+    actionToggleBreakpoint->setShortcut({ Qt::Key_F2 });
+    actionToggleBreakpoint->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+
     addAction(actionShowInMenu);
     addAction(actionCopyAddress);
     addAction(actionShowXrefs);
     addSeparator();
     addAction(actionAddComment);
+    addAction(actionToggleBreakpoint);
 
     addSeparator();
     pluginMenu = mainWindow->getContextMenuExtensions(MainWindow::ContextMenuType::Addressable);
@@ -96,6 +103,11 @@ void AddressableItemContextMenu::onActionAddComment()
     CommentsDialog::addOrEditComment(offset, this);
 }
 
+void AddressableItemContextMenu::onActionToggleBreakpoint()
+{
+    Core()->toggleBreakpoint(offset);
+}
+
 void AddressableItemContextMenu::aboutToShowSlot()
 {
     if (QString comment = Core()->getCommentAt(offset); comment.isEmpty() || comment.isNull()) {
@@ -103,6 +115,13 @@ void AddressableItemContextMenu::aboutToShowSlot()
     } else {
         actionAddComment->setText(tr("Edit Comment"));
     }
+
+    if (Core()->breakpointIndexAt(offset) < 0) {
+        actionToggleBreakpoint->setText(tr("Add Breakpoint"));
+    } else {
+        actionToggleBreakpoint->setText(tr("Remove Breakpoint"));
+    }
+
     if (actionShowInMenu->menu()) {
         actionShowInMenu->menu()->deleteLater();
     }
@@ -121,4 +140,5 @@ void AddressableItemContextMenu::setHasTarget(bool hasTarget)
     actionCopyAddress->setEnabled(hasTarget);
     actionShowXrefs->setEnabled(hasTarget);
     actionAddComment->setEnabled(hasTarget);
+    actionToggleBreakpoint->setEnabled(hasTarget);
 }
