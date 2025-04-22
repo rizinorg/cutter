@@ -528,13 +528,14 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     connect(&actionUndefine, &QAction::triggered, this,
             &FunctionsWidget::onActionFunctionsUndefineTriggered);
 
-    auto itemConextMenu = ui->treeView->getItemContextMenu();
-    itemConextMenu->addSeparator();
-    itemConextMenu->addAction(&actionRename);
-    itemConextMenu->addAction(&actionUndefine);
-    itemConextMenu->setWholeFunction(true);
+    auto itemContextMenu = ui->treeView->getItemContextMenu();
+    itemContextMenu->toggleBreakpointAction(true);
+    itemContextMenu->addSeparator();
+    itemContextMenu->addAction(&actionRename);
+    itemContextMenu->addAction(&actionUndefine);
+    itemContextMenu->setWholeFunction(true);
 
-    ui->treeView->addActions(itemConextMenu->actions());
+    ui->treeView->addActions(itemContextMenu->actions());
 
     // Use a custom context menu on the dock title bar
     if (Config()->getFunctionsWidgetLayout() == "horizontal") {

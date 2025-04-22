@@ -20,6 +20,9 @@ XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom)
     ui->toTreeWidget->setModel(&toModel);
     ui->fromTreeWidget->setModel(&fromModel);
 
+    ui->toTreeWidget->getItemContextMenu()->toggleBreakpointAction(true);
+    ui->fromTreeWidget->getItemContextMenu()->toggleBreakpointAction(true);
+
     // Modify the splitter's location to show more Disassembly instead of empty space. Not possible
     // via Designer
     ui->splitter->setSizes(QList<int>() << 300 << 400);

@@ -41,6 +41,7 @@ CallGraphView::CallGraphView(CutterDockWidget *parent, MainWindow *main, bool gl
     : SimpleTextGraphView(parent, main), global(global), refreshDeferrer(nullptr, this)
 {
     enableAddresses(true);
+    addressableItemContextMenu.toggleBreakpointAction(true);
     refreshDeferrer.registerFor(parent);
     connect(&refreshDeferrer, &RefreshDeferrer::refreshNow, this, &CallGraphView::refreshView);
     connect(Core(), &CutterCore::refreshAll, this, &SimpleTextGraphView::refreshView);
