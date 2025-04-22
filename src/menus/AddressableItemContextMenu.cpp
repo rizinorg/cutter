@@ -83,6 +83,8 @@ void AddressableItemContextMenu::clearTarget()
 void AddressableItemContextMenu::toggleBreakpointAction(bool enabled)
 {
     breakpointActionEnabled = enabled;
+    // Update actionToggleBreakpoint visibility
+    setHasTarget(hasTarget);
 }
 
 void AddressableItemContextMenu::onActionCopyAddress()
