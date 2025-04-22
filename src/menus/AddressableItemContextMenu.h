@@ -24,6 +24,7 @@ public slots:
     void setOffset(RVA offset);
     void setTarget(RVA offset, QString name = QString());
     void clearTarget();
+    void toggleBreakpointAction(bool enabled);
 signals:
     void xrefsTriggered();
 
@@ -52,5 +53,6 @@ protected:
 
     QString name;
     bool wholeFunction = false;
+    bool breakpointActionEnabled = false;
 };
 #endif // ADDRESSABLEITEMCONTEXTMENU_H

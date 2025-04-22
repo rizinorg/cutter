@@ -80,6 +80,11 @@ void AddressableItemContextMenu::clearTarget()
     setHasTarget(false);
 }
 
+void AddressableItemContextMenu::toggleBreakpointAction(bool enabled)
+{
+    breakpointActionEnabled = enabled;
+}
+
 void AddressableItemContextMenu::onActionCopyAddress()
 {
     auto clipboard = QApplication::clipboard();
@@ -140,5 +145,6 @@ void AddressableItemContextMenu::setHasTarget(bool hasTarget)
     actionCopyAddress->setEnabled(hasTarget);
     actionShowXrefs->setEnabled(hasTarget);
     actionAddComment->setEnabled(hasTarget);
-    actionToggleBreakpoint->setEnabled(hasTarget);
+    actionToggleBreakpoint->setEnabled(hasTarget && breakpointActionEnabled);
+    actionToggleBreakpoint->setVisible(hasTarget && breakpointActionEnabled);
 }
