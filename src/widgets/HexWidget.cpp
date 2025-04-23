@@ -1272,7 +1272,7 @@ void HexWidget::onActionDeleteCommentTriggered()
 
 void HexWidget::onActionAddFlagTriggered(QString flagNameHint)
 {
-    if (FlagDialog(cursor.address, this).exec()) {
+    if (FlagDialog(cursor.address, this, flagNameHint).exec()) {
         refresh();
     }
 }
