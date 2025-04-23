@@ -494,7 +494,7 @@ const QMap<QString, OptionInfo> optionInfoMap__ = {
     { "lineHighlight",
       { QObject::tr("Selected line background color"), QObject::tr("Line highlight") } },
     { "wordHighlight",
-      { QObject::tr("Background color of selected word"), QObject::tr("Word higlight") } },
+      { QObject::tr("Background color of selected word"), QObject::tr("Word highlight") } },
     { "gui.main", { QObject::tr("Main function color"), QObject::tr("Main") } },
     { "gui.imports", { "", "gui.imports" } },
     { "highlightPC", { "", "highlightPC" } },

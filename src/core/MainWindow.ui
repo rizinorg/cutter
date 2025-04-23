@@ -649,10 +649,10 @@
      <normaloff>:/img/icons/down.svg</normaloff>:/img/icons/down.svg</iconset>
    </property>
    <property name="text">
-    <string>Show/Hide bottom pannel</string>
+    <string>Show/Hide bottom panel</string>
    </property>
    <property name="toolTip">
-    <string>Show/Hide bottom pannel</string>
+    <string>Show/Hide bottom panel</string>
    </property>
   </action>
   <action name="actionRun_Script">

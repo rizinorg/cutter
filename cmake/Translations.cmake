@@ -5,21 +5,23 @@ set(TS_FILES
     translations/de/cutter_de.ts
     translations/es-ES/cutter_es.ts
     translations/fa/cutter_fa.ts
+    translations/fi/cutter_fi.ts
     translations/fr/cutter_fr.ts
     translations/he/cutter_he.ts
     translations/hi/cutter_hi.ts
     translations/it/cutter_it.ts
-    translations/ko/cutter_ko.ts
     translations/ja/cutter_ja.ts
+    translations/ko/cutter_ko.ts
     translations/nl/cutter_nl.ts
+    translations/pl/cutter_pl.ts
     translations/pt-PT/cutter_pt.ts
     translations/ro/cutter_ro.ts
     translations/ru/cutter_ru.ts
     translations/tr/cutter_tr.ts
     translations/uk/cutter_uk.ts
     translations/ur-PK/cutter_ur.ts
-    translations/zh-CN/cutter_zh.ts
     translations/vi/cutter_vi.ts
+    translations/zh-CN/cutter_zh.ts
 )
 # translations/pt-BR/cutter_pt.ts #2321 handling multiple versions of a language
 
