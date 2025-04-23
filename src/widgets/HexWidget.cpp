@@ -133,8 +133,8 @@ HexWidget::HexWidget(QWidget *parent)
     addAction(actionComment);
 
     // Add flag option
-    actionAddFlag = new QAction(
-            tr("Add flag at %1").arg(RzAddressString(getLocationAddress())), this);
+    actionAddFlag =
+            new QAction(tr("Add flag at %1").arg(RzAddressString(getLocationAddress())), this);
     actionAddFlag->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
     actionAddFlag->setShortcut(Qt::Key_N);
     connect(actionAddFlag, &QAction::triggered, this, &HexWidget::onActionAddFlagTriggered);
@@ -1170,7 +1170,7 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
 
     QString comment = Core()->getCommentAt(cursor.address);
 
-    if (comment.isNull() || comment.isEmpty()) {
+    if (comment.isEmpty()) {
         actionDeleteComment->setVisible(false);
         actionComment->setText(tr("Add Comment"));
     } else {
@@ -1180,9 +1180,8 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
 
     QString flag = Core()->flagAt(cursor.address, false);
 
-    if (flag.isEmpty() || flag.isNull()) {
-        actionAddFlag->setText(
-                tr("Add flag at %1").arg(RzAddressString(cursor.address)));
+    if (flag.isEmpty()) {
+        actionAddFlag->setText(tr("Add flag at %1").arg(RzAddressString(cursor.address)));
     } else {
         actionAddFlag->setText(tr("Rename flag \"%1\"").arg(flag));
     }
