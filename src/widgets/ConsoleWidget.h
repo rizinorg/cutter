@@ -100,6 +100,7 @@ private:
     FILE *origStdout = nullptr;
     FILE *origStdin = nullptr;
     QLocalSocket *pipeSocket = nullptr;
+    bool hasOutputRedirection = false;
 #ifdef Q_OS_WIN
     HANDLE hRead;
     HANDLE hWrite;

@@ -154,8 +154,21 @@ ConsoleWidget::ConsoleWidget(MainWindow *main)
 ConsoleWidget::~ConsoleWidget()
 {
 #ifndef Q_OS_WIN
-    ::close(stdinFile);
-    remove(stdinFifoPath.toStdString().c_str());
+    if (hasOutputRedirection) {
+        ::close(stdinFile);
+        remove(stdinFifoPath.toStdString().c_str());
+        if (origStdin) {
+            dup2(fileno(origStdin), fileno(stdin));
+        }
+        if (origStderr) {
+            dup2(fileno(origStderr), fileno(stderr));
+        }
+        if (origStdout) {
+            dup2(fileno(origStdout), fileno(stdout));
+        }
+    }
+#else
+
 #endif
 }
 
@@ -489,5 +502,6 @@ void ConsoleWidget::redirectOutput()
     pipeSocket->connectToServer(QIODevice::ReadOnly);
 #endif
 
+    hasOutputRedirection = true;
     connect(pipeSocket, &QIODevice::readyRead, this, &ConsoleWidget::processQueuedOutput);
 }
