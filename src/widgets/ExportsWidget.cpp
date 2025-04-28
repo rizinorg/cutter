@@ -142,12 +142,10 @@ ExportsWidget::ExportsWidget(MainWindow *main) : ListDockWidget(main)
     exportsProxyModel = new ExportsProxyModel(exportsModel, this);
     setModels(exportsProxyModel);
 
-    AddressableItemList<> *treeView = ui->treeView;
-    treeView->sortByColumn(ExportsModel::OffsetColumn, Qt::AscendingOrder);
-    connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, [this]() {
-        AddressableItemList<> *treeView = ui->treeView;
-        AddressableItemContextMenu *contextMenu = treeView->getItemContextMenu();
-        QModelIndex index = treeView->selectionModel()->currentIndex();
+    ui->treeView->sortByColumn(ExportsModel::OffsetColumn, Qt::AscendingOrder);
+    connect(ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, [this]() {
+        AddressableItemContextMenu *contextMenu = ui->treeView->getItemContextMenu();
+        QModelIndex index = ui->treeView->selectionModel()->currentIndex();
         if (index.isValid()) {
             QVariant variant = exportsProxyModel->data(index, ExportsModel::ExportDescriptionRole);
             if (variant.canConvert<ExportDescription>()) {
