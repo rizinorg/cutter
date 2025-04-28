@@ -24,6 +24,7 @@ class ClassesWidget;
  */
 class ClassesModel : public AddressableItemModel<>
 {
+    Q_OBJECT
 public:
     enum Columns { NAME = 0, REAL_NAME, TYPE, OFFSET, VTABLE, COUNT };
 

@@ -10,6 +10,7 @@
 
 class XrefModel : public AddressableItemModel<QAbstractListModel>
 {
+    Q_OBJECT
 private:
     QList<XrefDescription> xrefs;
     bool to;

@@ -19,6 +19,7 @@ class FlagsWidget;
 
 class FlagsModel : public AddressableItemModel<QAbstractListModel>
 {
+    Q_OBJECT
     friend FlagsWidget;
 
 private:
