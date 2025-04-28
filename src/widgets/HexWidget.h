@@ -383,7 +383,7 @@ private slots:
     void onRangeDialogAccepted();
     void onActionAddCommentTriggered();
     void onActionDeleteCommentTriggered();
-    void onActionAddFlagTriggered(QString flagNameHint);
+    void onActionAddFlagTriggered();
 
     // Write command slots
     void w_writeString();

@@ -137,8 +137,7 @@ HexWidget::HexWidget(QWidget *parent)
             new QAction(tr("Add flag at %1").arg(RzAddressString(getLocationAddress())), this);
     actionAddFlag->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
     actionAddFlag->setShortcut(Qt::Key_N);
-    connect(actionAddFlag, &QAction::triggered, this,
-            [this]() { onActionAddFlagTriggered(actionAddFlag->data().toString()); });
+    connect(actionAddFlag, &QAction::triggered, this, &HexWidget::onActionAddFlagTriggered);
     connect(this, &HexWidget::positionChanged, this, [this](RVA pos) {
         RzAnalysisFunction *fcn = Core()->functionAt(pos);
         if (fcn) {
@@ -1270,8 +1269,9 @@ void HexWidget::onActionDeleteCommentTriggered()
     refresh();
 }
 
-void HexWidget::onActionAddFlagTriggered(QString flagNameHint)
+void HexWidget::onActionAddFlagTriggered()
 {
+    QString flagNameHint = actionAddFlag->data().toString();
     if (FlagDialog(cursor.address, this, flagNameHint).exec()) {
         refresh();
     }
