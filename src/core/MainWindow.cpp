@@ -119,8 +119,6 @@
 // Tools
 #include "tools/basefind/BaseFindDialog.h"
 
-#define PROJECT_FILE_FILTER tr("Rizin Project (*.rzdb)")
-
 template<class T>
 T *getNewInstance(MainWindow *m)
 {
@@ -725,8 +723,8 @@ RzProjectErr MainWindow::saveProjectAs(bool *canceled)
     QFileDialog fileDialog(this);
     // Append 'rzdb' suffix if it does not exist
     fileDialog.setDefaultSuffix("rzdb");
-    QString file =
-            fileDialog.getSaveFileName(this, tr("Save Project"), projectFile, PROJECT_FILE_FILTER);
+    QString file = fileDialog.getSaveFileName(this, tr("Save Project"), projectFile,
+                                              tr("Rizin Project (*.rzdb)"));
     if (file.isEmpty()) {
         if (canceled) {
             *canceled = true;
@@ -1711,8 +1709,6 @@ void MainWindow::on_actionImportPDB_triggered()
     }
 }
 
-#define TYPE_BIG_ENDIAN(type, big_endian) big_endian ? type##_BE : type##_LE
-
 void MainWindow::on_actionExport_as_code_triggered()
 {
     QStringList filters;
@@ -1721,12 +1717,17 @@ void MainWindow::on_actionExport_as_code_triggered()
 
     filters << tr("C uin8_t array (*.c)");
     typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_C_CPP_BYTES;
+
+#define TYPE_BIG_ENDIAN(type, big_endian) big_endian ? type##_BE : type##_LE
+
     filters << tr("C uin16_t array (*.c)");
     typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_HALFWORDS, big_endian);
     filters << tr("C uin32_t array (*.c)");
     typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_WORDS, big_endian);
     filters << tr("C uin64_t array (*.c)");
     typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_DOUBLEWORDS, big_endian);
+
+#undef TYPE_BIG_ENDIAN
 
     filters << tr("Go array (*.go)");
     typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_GOLANG;
