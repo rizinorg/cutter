@@ -112,8 +112,9 @@ void CallGraphView::loadCurrentGraph()
         addBlock(std::move(block), name, fcn->addr);
     };
 
+    auto core = Core()->lock();
     if (global) {
-        for (const auto &fcn : CutterRzList<RzAnalysisFunction>(Core()->core()->analysis->fcns)) {
+        for (const auto &fcn : CutterRzList<RzAnalysisFunction>(core->analysis->fcns)) {
             if (!isBetween(from, fcn->addr, to)) {
                 continue;
             }

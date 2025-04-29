@@ -33,8 +33,9 @@ void RizinTask::taskFinished()
 
 RizinCmdTask::RizinCmdTask(const QString &cmd, bool transient)
 {
+    auto core = Core()->lock();
     task = rz_core_cmd_task_new(
-            Core()->core(), cmd.toLocal8Bit().constData(),
+            core, cmd.toLocal8Bit().constData(),
             static_cast<RzCoreCmdTaskFinished>(&RizinCmdTask::taskFinishedCallback), this);
     task->transient = transient;
     rz_core_task_incref(task);
@@ -75,8 +76,9 @@ const char *RizinCmdTask::getResultRaw()
 RizinFunctionTask::RizinFunctionTask(std::function<void *(RzCore *)> fcn, bool transient)
     : fcn(fcn), res(nullptr)
 {
+    auto core = Core()->lock();
     task = rz_core_function_task_new(
-            Core()->core(), static_cast<RzCoreTaskFunction>(&RizinFunctionTask::runner), this);
+            core, static_cast<RzCoreTaskFunction>(&RizinFunctionTask::runner), this);
     task->transient = transient;
     rz_core_task_incref(task);
 }

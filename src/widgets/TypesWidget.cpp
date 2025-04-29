@@ -272,7 +272,8 @@ void TypesWidget::showTypesContextMenu(const QPoint &pt)
 
 void TypesWidget::on_actionExport_Types_triggered()
 {
-    char *str = rz_core_types_as_c_all(Core()->core(), true);
+    auto core = Core()->lock();
+    char *str = rz_core_types_as_c_all(core, true);
     if (!str) {
         return;
     }

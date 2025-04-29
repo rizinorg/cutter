@@ -154,12 +154,12 @@ RzCoreLocked::~RzCoreLocked()
     core->coreMutex.unlock();
 }
 
-RzCoreLocked::operator RzCore *() const
+RzCoreLocked::operator RzCore *() &
 {
     return core->core_;
 }
 
-RzCore *RzCoreLocked::operator->() const
+RzCore *RzCoreLocked::operator->() &
 {
     return core->core_;
 }
@@ -245,7 +245,7 @@ CutterCore::~CutterCore()
     uniqueInstance = nullptr;
 }
 
-RzCoreLocked CutterCore::core()
+RzCoreLocked CutterCore::lock()
 {
     return RzCoreLocked(this);
 }
@@ -528,7 +528,8 @@ QStringList CutterCore::autocomplete(const QString &cmd, RzLinePromptType prompt
     }
     buf.index = buf.length = std::min((int)(sizeof(buf.data) - 1), c);
 
-    RzLineNSCompletionResult *compr = rz_core_autocomplete_rzshell(core(), &buf, promptType);
+    CORE_LOCK();
+    RzLineNSCompletionResult *compr = rz_core_autocomplete_rzshell(core, &buf, promptType);
 
     QStringList r;
     auto optslen = rz_pvector_len(&compr->options);

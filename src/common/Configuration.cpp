@@ -531,11 +531,12 @@ const QColor Configuration::getColor(const QString &name) const
 
 void Configuration::setColorTheme(const QString &theme)
 {
+    RzCoreLocked core = Core()->lock();
     if (theme == "default") {
-        rz_cons_pal_init(Core()->core()->cons->context);
+        rz_cons_pal_init(core->cons->context);
         s.setValue("theme", "default");
     } else {
-        rz_core_theme_load(Core()->core(), theme.toUtf8().constData());
+        rz_core_theme_load(core, theme.toUtf8().constData());
         s.setValue("theme", theme);
     }
 

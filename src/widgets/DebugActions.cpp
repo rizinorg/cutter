@@ -249,10 +249,10 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main),
 
 void DebugActions::setButtonVisibleIfMainExists()
 {
-    RzCoreLocked core(Core()->core());
+    RzCoreLocked core = Core()->lock();
     // if main is not a flag we hide the continue until main button
-    if (!rz_flag_get(Core()->core()->flags, "sym.main")
-        && !rz_flag_get(Core()->core()->flags, "main")) {
+    if (!rz_flag_get(core->flags, "sym.main")
+        && !rz_flag_get(core->flags, "main")) {
         actionContinueUntilMain->setVisible(false);
         continueUntilButton->setDefaultAction(actionContinueUntilCall);
     }
@@ -273,10 +273,10 @@ void DebugActions::showDebugWarning()
 
 void DebugActions::continueUntilMain()
 {
-    RzCoreLocked core(Core()->core());
-    RzFlagItem *main_flag = rz_flag_get(Core()->core()->flags, "sym.main");
+    RzCoreLocked core(Core()->lock());
+    RzFlagItem *main_flag = rz_flag_get(core->flags, "sym.main");
     if (!main_flag) {
-        main_flag = rz_flag_get(Core()->core()->flags, "main");
+        main_flag = rz_flag_get(core->flags, "main");
         if (!main_flag) {
             return;
         }

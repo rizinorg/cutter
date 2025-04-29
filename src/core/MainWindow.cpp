@@ -645,10 +645,13 @@ void MainWindow::finalizeOpen()
     core->updateSeek();
     refreshAll();
     // Add fortune message
-    char *fortune = rz_core_fortune_get_random(core->core());
-    if (fortune) {
-        core->message("\n" + QString(fortune));
-        free(fortune);
+    {
+        auto rizin = Core()->lock();
+        char *fortune = rz_core_fortune_get_random(rizin);
+        if (fortune) {
+            core->message("\n" + QString(fortune));
+            free(fortune);
+        }
     }
 
     // hide all docks before showing window to avoid false positive for refreshDeferrer
@@ -705,7 +708,8 @@ RzProjectErr MainWindow::saveProject(bool *canceled)
     if (canceled) {
         *canceled = false;
     }
-    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData(), false);
+    auto rizin = core->lock();
+    RzProjectErr err = rz_project_save_file(rizin, file.toUtf8().constData(), false);
     if (err == RZ_PROJECT_ERR_SUCCESS) {
         Config()->addRecentProject(file);
     }
@@ -734,7 +738,8 @@ RzProjectErr MainWindow::saveProjectAs(bool *canceled)
     if (canceled) {
         *canceled = false;
     }
-    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData(), false);
+    auto rizin = core->lock();
+    RzProjectErr err = rz_project_save_file(rizin, file.toUtf8().constData(), false);
     if (err == RZ_PROJECT_ERR_SUCCESS) {
         Config()->addRecentProject(file);
     }
@@ -1781,10 +1786,10 @@ void MainWindow::on_actionExport_as_code_triggered()
     tempConfig.set("io.va", false);
     QTextStream fileOut(&file);
     auto ps = core->seekTemp(0);
-    auto rc = core->core();
+    auto rc = core->lock();
     const auto size = static_cast<int>(rz_io_fd_size(rc->io, rc->file->fd));
     auto buffer = std::vector<ut8>(size);
-    if (!rz_io_read_at(Core()->core()->io, 0, buffer.data(), size)) {
+    if (!rz_io_read_at(rc->io, 0, buffer.data(), size)) {
         return;
     }
 

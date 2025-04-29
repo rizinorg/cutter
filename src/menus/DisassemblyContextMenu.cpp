@@ -387,8 +387,9 @@ void DisassemblyContextMenu::setCurHighlightedWord(const QString &text)
 DisassemblyContextMenu::ThingUsedHere DisassemblyContextMenu::getThingAt(ut64 address)
 {
     ThingUsedHere tuh;
+    auto core = Core()->lock();
     RzAnalysisFunction *fcn = Core()->functionAt(address);
-    RzFlagItem *flag = rz_flag_get_i(Core()->core()->flags, address);
+    RzFlagItem *flag = rz_flag_get_i(core->flags, address);
 
     // We will lookup through existing rizin types to find something relevant
 
@@ -1056,7 +1057,7 @@ void DisassemblyContextMenu::on_actionDeleteFunction_triggered()
 
 void DisassemblyContextMenu::on_actionEditFunction_triggered()
 {
-    RzCore *core = Core()->core();
+    auto core = Core()->lock();
     EditFunctionDialog dialog(parentForDialog());
     RzAnalysisFunction *fcn = rz_analysis_get_fcn_in(core->analysis, offset, 0);
 

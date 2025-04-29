@@ -233,9 +233,10 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 Core()->getDisassemblyPreview(function.offset, kMaxTooltipDisasmPreviewLines);
         QStringList summary {};
         {
+            auto core = Core()->lock();
             auto seeker = Core()->seekTemp(function.offset);
             auto strings = fromOwnedCharPtr(rz_core_print_disasm_strings(
-                    Core()->core(), RZ_CORE_DISASM_STRINGS_MODE_FUNCTION, 0, NULL));
+                    core, RZ_CORE_DISASM_STRINGS_MODE_FUNCTION, 0, NULL));
             summary = strings.split('\n', CUTTER_QT_SKIP_EMPTY_PARTS);
         }
 

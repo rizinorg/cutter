@@ -44,7 +44,8 @@ void BacktraceWidget::updateContents()
 
 void BacktraceWidget::setBacktraceGrid()
 {
-    RzList *list = rz_core_debug_backtraces(Core()->core());
+    auto core = Core()->lock();
+    RzList *list = rz_core_debug_backtraces(core);
     int i = 0;
     RzListIter *iter;
     RzBacktrace *bt;
