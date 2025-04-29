@@ -251,8 +251,7 @@ void DebugActions::setButtonVisibleIfMainExists()
 {
     RzCoreLocked core = Core()->lock();
     // if main is not a flag we hide the continue until main button
-    if (!rz_flag_get(core->flags, "sym.main")
-        && !rz_flag_get(core->flags, "main")) {
+    if (!rz_flag_get(core->flags, "sym.main") && !rz_flag_get(core->flags, "main")) {
         actionContinueUntilMain->setVisible(false);
         continueUntilButton->setDefaultAction(actionContinueUntilCall);
     }
