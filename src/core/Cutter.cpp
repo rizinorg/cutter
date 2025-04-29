@@ -250,6 +250,11 @@ RzCoreLocked CutterCore::lock()
     return RzCoreLocked(this);
 }
 
+RzCoreLocked CutterCore::core()
+{
+    return lock();
+}
+
 QDir CutterCore::getCutterRCDefaultDirectory() const
 {
     return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);

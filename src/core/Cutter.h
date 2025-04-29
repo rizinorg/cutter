@@ -713,6 +713,8 @@ public:
     QStringList getSectionList();
 
     RzCoreLocked lock();
+    CUTTER_DEPRECATED("Use CutterCore::lock instead")
+    RzCoreLocked core();
 
     static QString ansiEscapeToHtml(const QString &text);
     BasicBlockHighlighter *getBBHighlighter();
