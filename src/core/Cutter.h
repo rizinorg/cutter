@@ -884,7 +884,7 @@ public:
     ~RzCoreLocked();
     operator RzCore *() &;
     RzCore *operator->() &;
-    // Reduce chance of following misuse of Core()->lock() 
+    // Reduce chance of following misuse of Core()->lock()
     // rizinStruct* foo = rizin_func(Core()->lock()->something, arg);
     operator RzCore *() && = delete;
     RzCore *operator->() && = delete;
