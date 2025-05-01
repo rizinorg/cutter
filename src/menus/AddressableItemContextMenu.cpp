@@ -117,7 +117,7 @@ void AddressableItemContextMenu::onActionToggleBreakpoint()
 
 void AddressableItemContextMenu::aboutToShowSlot()
 {
-    if (QString comment = Core()->getCommentAt(offset); comment.isEmpty() || comment.isNull()) {
+    if (Core()->getCommentAt(offset).isEmpty()) {
         actionAddComment->setText(tr("Add Comment"));
     } else {
         actionAddComment->setText(tr("Edit Comment"));
