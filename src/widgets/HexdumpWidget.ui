@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string notr="true">Hexdump</string>
+   <string>Hexdump</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -286,7 +286,7 @@
          </sizepolicy>
         </property>
         <attribute name="title">
-         <string notr="true">Information</string>
+         <string>Information</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
@@ -367,7 +367,7 @@
            <item row="2" column="2">
             <widget class="QToolButton" name="copySHA1">
              <property name="toolTip">
-              <string notr="true">Copy SHA1</string>
+              <string>Copy SHA1</string>
              </property>
              <property name="layoutDirection">
               <enum>Qt::RightToLeft</enum>
@@ -483,7 +483,7 @@
            <item row="1" column="2">
             <widget class="QToolButton" name="copyMD5">
              <property name="toolTip">
-              <string notr="true">Copy MD5</string>
+              <string>Copy MD5</string>
              </property>
              <property name="layoutDirection">
               <enum>Qt::RightToLeft</enum>

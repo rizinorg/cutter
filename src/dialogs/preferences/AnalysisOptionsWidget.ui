@@ -246,7 +246,7 @@
              </sizepolicy>
             </property>
             <property name="placeholderText">
-             <string notr="true">e.g.: 0x554889e5</string>
+             <string>e.g.: 0x554889e5</string>
             </property>
            </widget>
           </item>

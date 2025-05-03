@@ -204,7 +204,7 @@
     <enum>Qt::DefaultContextMenu</enum>
    </property>
    <property name="windowTitle">
-    <string notr="true">Main toolbar</string>
+    <string>Main toolbar</string>
    </property>
    <property name="movable">
     <bool>false</bool>

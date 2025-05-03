@@ -5,7 +5,7 @@
 
 OverviewWidget::OverviewWidget(MainWindow *main) : CutterDockWidget(main)
 {
-    setWindowTitle("Graph Overview");
+    setWindowTitle(tr("Graph Overview"));
     setObjectName("Graph Overview");
     setAllowedAreas(Qt::AllDockWidgetAreas);
     graphView = new OverviewView(this);

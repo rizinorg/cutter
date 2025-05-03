@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string notr="true">XRefs for </string>
+   <string>XRefs for </string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="spacing">
@@ -45,7 +45,7 @@
        <item>
         <widget class="QLabel" name="label_xTo">
          <property name="text">
-          <string notr="true">X-Refs to: </string>
+          <string>X-Refs to: </string>
          </property>
         </widget>
        </item>
@@ -68,7 +68,7 @@
        <item>
         <widget class="QLabel" name="label_xFrom">
          <property name="text">
-          <string notr="true">X-Refs from: </string>
+          <string>X-Refs from: </string>
          </property>
         </widget>
        </item>
@@ -95,7 +95,7 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string notr="true">Code preview</string>
+          <string>Code preview</string>
          </property>
         </widget>
        </item>

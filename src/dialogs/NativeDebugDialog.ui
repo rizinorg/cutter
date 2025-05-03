@@ -26,7 +26,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string notr="true">Native debugging configuration</string>
+   <string>Native debugging configuration</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

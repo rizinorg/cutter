@@ -35,8 +35,8 @@ void VersionInfoDialog::fillVersionInfo()
     // Case ELF
     if (strncmp("elf", info->rclass, 3) == 0) {
         // Set labels
-        ui->leftLabel->setText("Version symbols");
-        ui->rightLabel->setText("Version need");
+        ui->leftLabel->setText(tr("Version symbols"));
+        ui->rightLabel->setText(tr("Version need"));
 
         Sdb *sdb = sdb_ns_path(core->sdb, "bin/cur/info/versioninfo/versym", 0);
         if (!sdb) {
@@ -45,17 +45,17 @@ void VersionInfoDialog::fillVersionInfo()
 
         // Left tree
         QTreeWidgetItem *addrItemL = new QTreeWidgetItem();
-        addrItemL->setText(0, "Address:");
+        addrItemL->setText(0, tr("Address:"));
         addrItemL->setText(1, RzAddressString(sdb_num_get(sdb, "addr")));
         ui->leftTreeWidget->addTopLevelItem(addrItemL);
 
         QTreeWidgetItem *offItemL = new QTreeWidgetItem();
-        offItemL->setText(0, "Offset:");
+        offItemL->setText(0, tr("Offset:"));
         offItemL->setText(1, RzAddressString(sdb_num_get(sdb, "offset")));
         ui->leftTreeWidget->addTopLevelItem(offItemL);
 
         QTreeWidgetItem *entriesItemL = new QTreeWidgetItem();
-        entriesItemL->setText(0, "Entries:");
+        entriesItemL->setText(0, tr("Entries:"));
         const ut64 num_entries = sdb_num_get(sdb, "num_entries");
         for (size_t i = 0; i < num_entries; ++i) {
             auto key = QString("entry%0").arg(i);
@@ -76,17 +76,17 @@ void VersionInfoDialog::fillVersionInfo()
 
         // Right tree
         QTreeWidgetItem *addrItemR = new QTreeWidgetItem();
-        addrItemR->setText(0, "Address:");
+        addrItemR->setText(0, tr("Address:"));
         addrItemR->setText(1, RzAddressString(sdb_num_get(sdb, "addr")));
         ui->rightTreeWidget->addTopLevelItem(addrItemR);
 
         QTreeWidgetItem *offItemR = new QTreeWidgetItem();
-        offItemR->setText(0, "Offset:");
+        offItemR->setText(0, tr("Offset:"));
         offItemR->setText(1, RzAddressString(sdb_num_get(sdb, "offset")));
         ui->rightTreeWidget->addTopLevelItem(offItemR);
 
         QTreeWidgetItem *entriesItemR = new QTreeWidgetItem();
-        entriesItemR->setText(0, "Entries:");
+        entriesItemR->setText(0, tr("Entries:"));
         for (size_t num_version = 0;; num_version++) {
             auto path_version =
                     QString("bin/cur/info/versioninfo/verneed/version%0").arg(num_version);
@@ -98,8 +98,8 @@ void VersionInfoDialog::fillVersionInfo()
             auto *parentItem = new QTreeWidgetItem();
             parentItem->setText(0, RzAddressString(sdb_num_get(sdb, "idx")));
             parentItem->setText(1,
-                                QString("Version: %0\t"
-                                        "File: %1")
+                                tr("Version: %0\t"
+                                   "File: %1")
                                         .arg(QString::number(sdb_num_get(sdb, "vn_version")),
                                              QString(filename)));
 
@@ -115,9 +115,9 @@ void VersionInfoDialog::fillVersionInfo()
                 auto *childItem = new QTreeWidgetItem();
                 childItem->setText(0, RzAddressString(sdb_num_get(sdb, "idx")));
                 QString childString =
-                        QString("Name: %0\t"
-                                "Flags: %1\t"
-                                "Version: %2\t")
+                        tr("Name: %0\t"
+                           "Flags: %1\t"
+                           "Version: %2\t")
                                 .arg(sdb_const_get(sdb, "name"), sdb_const_get(sdb, "flags"),
                                      QString::number(sdb_num_get(sdb, "version")));
                 childItem->setText(1, childString);
@@ -133,8 +133,8 @@ void VersionInfoDialog::fillVersionInfo()
     // Case PE
     else if (strncmp("pe", info->rclass, 2) == 0) {
         // Set labels
-        ui->leftLabel->setText("VS Fixed file info");
-        ui->rightLabel->setText("String table");
+        ui->leftLabel->setText(tr("VS Fixed file info"));
+        ui->rightLabel->setText(tr("String table"));
         Sdb *sdb = NULL;
 
         // Left tree

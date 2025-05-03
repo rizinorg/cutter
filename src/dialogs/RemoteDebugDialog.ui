@@ -20,7 +20,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string notr="true">Remote debugging configuration</string>
+   <string>Remote debugging configuration</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="sizeConstraint">
@@ -62,7 +62,7 @@
         <bool>false</bool>
        </property>
        <property name="placeholderText">
-        <string notr="true">127.0.0.1 or /tmp/win.sock</string>
+        <string>127.0.0.1 or /tmp/win.sock</string>
        </property>
       </widget>
      </item>
@@ -101,7 +101,7 @@
         <bool>false</bool>
        </property>
        <property name="placeholderText">
-        <string notr="true">Enter Port</string>
+        <string>Enter Port</string>
        </property>
       </widget>
      </item>
