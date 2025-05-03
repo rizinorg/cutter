@@ -40,17 +40,18 @@ void AsyncTaskDialog::updateProgressTimer()
     int minutesElapsed = secondsElapsed / 60;
     int hoursElapsed = minutesElapsed / 60;
 
-    QString label = tr("Running for") + " ";
+    QString label;
     if (hoursElapsed) {
-        label += tr("%n hour", "%n hours", hoursElapsed);
+        label += tr("%n hours", nullptr, hoursElapsed);
         label += " ";
     }
     if (minutesElapsed) {
-        label += tr("%n minute", "%n minutes", minutesElapsed % 60);
+        label += tr("%n minutes", nullptr, minutesElapsed % 60);
         label += " ";
     }
-    label += tr("%n seconds", "%n second", secondsElapsed % 60);
-    ui->timeLabel->setText(label);
+    label += tr("%n seconds", nullptr, secondsElapsed % 60);
+
+    ui->timeLabel->setText(tr("Running for %1", "time").arg(label));
 }
 
 void AsyncTaskDialog::closeEvent(QCloseEvent *event)

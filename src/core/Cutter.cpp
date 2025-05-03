@@ -3835,7 +3835,7 @@ QList<VTableDescription> CutterCore::getAllVTables()
             RzAnalysisFunction *fcn = rz_analysis_get_fcn_in(core->analysis, method->addr, 0);
             const char *fname = fcn ? fcn->name : nullptr;
             methodDesc.addr = method->addr;
-            methodDesc.name = fname ? fname : "No Name found";
+            methodDesc.name = fname;
             tableDesc.methods << methodDesc;
         }
         vtableDescs << tableDesc;

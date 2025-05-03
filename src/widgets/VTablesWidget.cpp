@@ -45,7 +45,7 @@ QVariant VTableModel::data(const QModelIndex &index, int role) const
         case Qt::DisplayRole:
             switch (index.column()) {
             case NAME:
-                return res.name;
+                return res.name.isEmpty() ? tr("No Name found") : res.name;
             case ADDRESS:
                 return RzAddressString(res.addr);
             }

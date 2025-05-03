@@ -29,7 +29,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
           new AsmOptionsWidget(this),
           QIcon(":/img/icons/disas.svg"),
           {
-                  { "Graph", new GraphOptionsWidget(this), QIcon(":/img/icons/graph.svg") },
+                  { tr("Graph"), new GraphOptionsWidget(this), QIcon(":/img/icons/graph.svg") },
           } },
         { tr("Debug"), new DebugOptionsWidget(this), QIcon(":/img/icons/bug.svg") },
         { tr("Appearance"), new AppearanceOptionsWidget(this), QIcon(":/img/icons/polar.svg") },

@@ -339,7 +339,7 @@ QList<QString> VisualNavbar::sectionsForAddress(RVA address)
 
 QString VisualNavbar::toolTipForAddress(RVA address)
 {
-    QString ret = "Address: " + RzAddressString(address);
+    QString ret = tr("Address: %1").arg(RzAddressString(address));
 
     // Don't append sections when a debug task is in progress to avoid freezing the interface
     if (Core()->isDebugTaskInProgress()) {
@@ -348,7 +348,7 @@ QString VisualNavbar::toolTipForAddress(RVA address)
 
     auto sections = sectionsForAddress(address);
     if (sections.count()) {
-        ret += "\nSections: \n";
+        ret += "\n" + tr("Sections: \n");
         bool first = true;
         for (const QString &section : sections) {
             if (!first) {

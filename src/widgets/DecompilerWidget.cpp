@@ -482,11 +482,11 @@ void DecompilerWidget::updateSelection()
 QString DecompilerWidget::getWindowTitle() const
 {
     RzAnalysisFunction *fcn = Core()->functionAt(decompiledFunctionAddr);
-    QString windowTitle = tr("Decompiler");
+    QString windowTitle;
     if (fcn != NULL) {
-        windowTitle += " (" + QString(fcn->name) + ")";
+        windowTitle = tr("Decompiler (%1)").arg(fcn->name);
     } else {
-        windowTitle += " (Empty)";
+        windowTitle = tr("Decompiler (Empty)");
     }
     return windowTitle;
 }

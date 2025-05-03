@@ -199,7 +199,7 @@ void DisassemblerGraphView::loadCurrentGraph()
         auto fcnName = fromOwned(rz_str_escape_utf8_for_json(fcn->name, -1));
         windowTitle += QString("(%0)").arg(fcnName.get());
     } else {
-        windowTitle += "(Empty)";
+        windowTitle += tr("(Empty)");
     }
     emit nameChanged(windowTitle);
 

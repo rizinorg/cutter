@@ -140,7 +140,7 @@ bool SegmentsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
 SegmentsWidget::SegmentsWidget(MainWindow *main) : ListDockWidget(main)
 {
     setObjectName("SegmentsWidget");
-    setWindowTitle(QStringLiteral("Segments"));
+    setWindowTitle(tr("Segments"));
 
     segmentsModel = new SegmentsModel(&segments, this);
     auto proxyModel = new SegmentsProxyModel(segmentsModel, this);
