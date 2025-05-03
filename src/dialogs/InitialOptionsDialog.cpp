@@ -16,6 +16,11 @@
 #include "common/AnalysisTask.h"
 #include "CutterApplication.h"
 
+QString CommandDescription::translatedDescription() const
+{
+    return QCoreApplication::translate("InitialOptionsDialog", description);
+}
+
 InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
     : QDialog(nullptr), // parent must not be main
       ui(new Ui::InitialOptionsDialog),
@@ -53,23 +58,58 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
     }
 
     analysisCommands = {
-        { { "aa", tr("Analyze all symbols") }, new QCheckBox(), true },
-        { { "aar", tr("Analyze instructions for references") }, new QCheckBox(), true },
-        { { "aac", tr("Analyze function calls") }, new QCheckBox(), true },
-        { { "aab", tr("Analyze all basic blocks") }, new QCheckBox(), false },
-        { { "aao", tr("Analyze all objc references") }, new QCheckBox(), false },
-        { { "avrr", tr("Recover class information from RTTI") }, new QCheckBox(), false },
-        { { "aan", tr("Autoname functions based on context") }, new QCheckBox(), false },
-        { { "aae", tr("Emulate code to find computed references") }, new QCheckBox(), false },
-        { { "aafr", tr("Analyze all consecutive functions") }, new QCheckBox(), false },
-        { { "aaft", tr("Type and Argument matching analysis") }, new QCheckBox(), false },
-        { { "aaT", tr("Analyze code after trap-sleds") }, new QCheckBox(), false },
-        { { "aap", tr("Analyze function preludes") }, new QCheckBox(), false },
-        { { "e! analysis.jmp.tbl", tr("Analyze jump tables in switch statements") },
+        { { "aa", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Analyze all symbols") },
+          new QCheckBox(),
+          true },
+        { { "aar",
+            QT_TRANSLATE_NOOP("InitialOptionsDialog", "Analyze instructions for references") },
+          new QCheckBox(),
+          true },
+        { { "aac", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Analyze function calls") },
+          new QCheckBox(),
+          true },
+        { { "aab", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Analyze all basic blocks") },
           new QCheckBox(),
           false },
-        { { "e! analysis.pushret", tr("Analyze PUSH+RET as JMP") }, new QCheckBox(), false },
-        { { "e! analysis.hasnext", tr("Continue analysis after each function") },
+        { { "aao", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Analyze all objc references") },
+          new QCheckBox(),
+          false },
+        { { "avrr",
+            QT_TRANSLATE_NOOP("InitialOptionsDialog", "Recover class information from RTTI") },
+          new QCheckBox(),
+          false },
+        { { "aan",
+            QT_TRANSLATE_NOOP("InitialOptionsDialog", "Autoname functions based on context") },
+          new QCheckBox(),
+          false },
+        { { "aae",
+            QT_TRANSLATE_NOOP("InitialOptionsDialog", "Emulate code to find computed references") },
+          new QCheckBox(),
+          false },
+        { { "aafr",
+            QT_TRANSLATE_NOOP("InitialOptionsDialog", "Analyze all consecutive functions") },
+          new QCheckBox(),
+          false },
+        { { "aaft",
+            QT_TRANSLATE_NOOP("InitialOptionsDialog", "Type and Argument matching analysis") },
+          new QCheckBox(),
+          false },
+        { { "aaT", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Analyze code after trap-sleds") },
+          new QCheckBox(),
+          false },
+        { { "aap", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Analyze function preludes") },
+          new QCheckBox(),
+          false },
+        { { "e! analysis.jmp.tbl",
+            QT_TRANSLATE_NOOP("InitialOptionsDialog", "Analyze jump tables in switch statements") },
+          new QCheckBox(),
+          false },
+        { { "e! analysis.pushret",
+            QT_TRANSLATE_NOOP("InitialOptionsDialog", "Analyze PUSH+RET as JMP") },
+          new QCheckBox(),
+          false },
+        { { "e! analysis.hasnext",
+            QT_TRANSLATE_NOOP("InitialOptionsDialog", "Continue analysis after each function") },
           new QCheckBox(),
           false }
     };
@@ -77,7 +117,7 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
     // Per each checkbox, set a tooltip desccribing it
     AnalysisCommands item;
     foreach (item, analysisCommands) {
-        item.checkbox->setText(item.commandDesc.description);
+        item.checkbox->setText(item.commandDesc.translatedDescription());
         item.checkbox->setToolTip(item.commandDesc.command);
         item.checkbox->setChecked(item.checked);
         ui->verticalLayout_7->addWidget(item.checkbox);
@@ -255,7 +295,7 @@ QString InitialOptionsDialog::getSelectedCPU() const
 int InitialOptionsDialog::getSelectedBits() const
 {
     QString sel_bits = ui->bitsComboBox->currentText();
-    if (sel_bits != "Auto") {
+    if (sel_bits != "Auto") { // TODO: #3187 using potentially trtanslated text for logic
         return sel_bits.toInt();
     }
 
@@ -336,10 +376,13 @@ void InitialOptionsDialog::setupAndStartAnalysis()
     int level = ui->analysisSlider->value();
     switch (level) {
     case 1:
-        options.analysisCmd = { { "aaa", "Auto analysis" } };
+        options.analysisCmd = { { "aaa",
+                                  QT_TRANSLATE_NOOP("InitialOptionsDialog", "Auto analysis") } };
         break;
     case 2:
-        options.analysisCmd = { { "aaaa", "Auto analysis (experimental)" } };
+        options.analysisCmd = {
+            { "aaaa", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Auto analysis (experimental)") }
+        };
         break;
     case 3:
         options.analysisCmd = getSelectedAdvancedAnalCmds();

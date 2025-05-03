@@ -1682,7 +1682,7 @@ void MainWindow::on_actionAnalyze_triggered()
 {
     auto *analysisTask = new AnalysisTask();
     InitialOptions options;
-    options.analysisCmd = { { "aaa", "Auto analysis" } };
+    options.analysisCmd = { { "aaa", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Auto analysis") } };
     analysisTask->setOptions(options);
     AsyncTask::Ptr analysisTaskPtr(analysisTask);
 
