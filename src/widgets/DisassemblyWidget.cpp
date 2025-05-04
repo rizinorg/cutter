@@ -14,7 +14,7 @@
 #include <QJsonObject>
 #include <QVBoxLayout>
 #include <QRegularExpression>
-#include <QToolTip>
+#include <QtMath>
 #include <QTextBlockUserData>
 #include <QPainter>
 #include <QPainterPath>
