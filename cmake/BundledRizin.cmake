@@ -8,10 +8,10 @@ if(WIN32)
         set(RIZIN_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
     endif()
     set(RIZIN_INSTALL_BINPATH ".")
-    set(MESON_OPTIONS "--prefix=${RIZIN_INSTALL_DIR}" "--bindir=${RIZIN_INSTALL_BINPATH}")
+    set(MESON_OPTIONS "--prefix=${CMAKE_INSTALL_PREFIX}" "--bindir=${RIZIN_INSTALL_BINPATH}")
 else()
     set(RIZIN_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/Rizin-prefix")
-    set(MESON_OPTIONS "--prefix=${RIZIN_INSTALL_DIR}" --libdir=lib)
+    set(MESON_OPTIONS "--prefix=${CMAKE_INSTALL_PREFIX}" --libdir=lib)
 endif()
 
 if (CUTTER_ENABLE_PACKAGING)
@@ -39,20 +39,20 @@ endif()
 ExternalProject_Add(Rizin-Bundled
         SOURCE_DIR "${RIZIN_SOURCE_DIR}"
         CONFIGURE_COMMAND "${MESON}" "<SOURCE_DIR>" ${MESON_OPTIONS} && "${MESON}" configure ${MESON_OPTIONS} --buildtype "$<$<CONFIG:Debug>:debug>$<$<NOT:$<CONFIG:Debug>>:release>"
-        BUILD_COMMAND "${NINJA}"
+        BUILD_COMMAND "${NINJA}" && "DESTDIR=${RIZIN_INSTALL_DIR}" "${NINJA}" install
         BUILD_ALWAYS TRUE
-        INSTALL_COMMAND "${NINJA}" install)
+        INSTALL_COMMAND cmake -E echo "Skipping install step for Rizin-Bundled")
 
-set(Rizin_INCLUDE_DIRS "${RIZIN_INSTALL_DIR}/include/librz" "${RIZIN_INSTALL_DIR}/include/librz/sdb")
+set(Rizin_INCLUDE_DIRS "${RIZIN_INSTALL_DIR}/${CMAKE_INSTALL_PREFIX}/include/librz" "${RIZIN_INSTALL_DIR}/${CMAKE_INSTALL_PREFIX}/include/librz/sdb")
 
 add_library(Rizin INTERFACE)
 add_dependencies(Rizin Rizin-Bundled)
 if(NOT (${CMAKE_VERSION} VERSION_LESS "3.13.0"))
     target_link_directories(Rizin INTERFACE
-        $<BUILD_INTERFACE:${RIZIN_INSTALL_DIR}/lib>
+        $<BUILD_INTERFACE:${RIZIN_INSTALL_DIR}/${CMAKE_INSTALL_PREFIX}/lib>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_LIBDIR}>)
 else()
-    link_directories("${RIZIN_INSTALL_DIR}/lib")
+    link_directories("${RIZIN_INSTALL_DIR}/${CMAKE_INSTALL_PREFIX}/lib")
 endif()
 
 # TODO: This version number should be fetched automatically
@@ -75,17 +75,17 @@ target_include_directories(Rizin INTERFACE
 install(TARGETS Rizin EXPORT CutterTargets)
 if (WIN32)
     foreach(_lib ${RZ_LIBS} ${RZ_EXTRA_LIBS})
-        install(FILES "${RIZIN_INSTALL_DIR}/${_lib}-${Rizin_VERSION}.dll" DESTINATION "${CMAKE_INSTALL_BINDIR}")
+        install(FILES "${RIZIN_INSTALL_DIR}/${CMAKE_INSTALL_PREFIX}/${_lib}-${Rizin_VERSION}.dll" DESTINATION "${CMAKE_INSTALL_BINDIR}")
     endforeach()
     foreach(_exe ${RZ_BIN})
-        install(FILES "${RIZIN_INSTALL_DIR}/${_exe}.exe" DESTINATION "${CMAKE_INSTALL_BINDIR}")
+        install(FILES "${RIZIN_INSTALL_DIR}/${CMAKE_INSTALL_PREFIX}/${_exe}.exe" DESTINATION "${CMAKE_INSTALL_BINDIR}")
     endforeach()
-    install(DIRECTORY "${RIZIN_INSTALL_DIR}/share" DESTINATION ".")
-    install(DIRECTORY "${RIZIN_INSTALL_DIR}/include" DESTINATION "."
+    install(DIRECTORY "${RIZIN_INSTALL_DIR}/${CMAKE_INSTALL_PREFIX}/share" DESTINATION ".")
+    install(DIRECTORY "${RIZIN_INSTALL_DIR}/${CMAKE_INSTALL_PREFIX}/include" DESTINATION "."
         COMPONENT Devel)
-    install(DIRECTORY "${RIZIN_INSTALL_DIR}/lib" DESTINATION "."
+    install(DIRECTORY "${RIZIN_INSTALL_DIR}/${CMAKE_INSTALL_PREFIX}/lib" DESTINATION "."
         COMPONENT Devel
         PATTERN "*.pdb" EXCLUDE)
 else ()
-    install(DIRECTORY "${RIZIN_INSTALL_DIR}/" DESTINATION "." USE_SOURCE_PERMISSIONS)
+    install(DIRECTORY "${RIZIN_INSTALL_DIR}/${CMAKE_INSTALL_PREFIX}/" DESTINATION "." USE_SOURCE_PERMISSIONS)
 endif()
