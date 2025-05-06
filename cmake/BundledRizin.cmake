@@ -63,7 +63,7 @@ set (RZ_LIBS rz_core rz_config rz_cons rz_io rz_util rz_flag rz_arch rz_debug
         rz_hash rz_bin rz_lang rz_il rz_bp rz_egg rz_reg rz_search rz_syscall
         rz_socket rz_magic rz_crypto rz_type rz_diff rz_sign rz_demangler)
 set (RZ_EXTRA_LIBS rz_main)
-set (RZ_BIN rz-bin rizin rz-diff rz-find rz-gg rz-hash rz-run rz-asm rz-ax)
+set (RZ_BIN rz-bin rizin rz-diff rz-find rz-gg rz-hash rz-run rz-asm rz-ax rz-sign)
 
 target_link_libraries(Rizin INTERFACE
         ${RZ_LIBS})
@@ -87,5 +87,6 @@ if (WIN32)
         COMPONENT Devel
         PATTERN "*.pdb" EXCLUDE)
 else ()
-    install(DIRECTORY "${RIZIN_INSTALL_DIR}/" DESTINATION "." USE_SOURCE_PERMISSIONS)
+    install(DIRECTORY "${RIZIN_INSTALL_DIR}/" DESTINATION "." USE_SOURCE_PERMISSIONS
+            PATTERN "rz-test" EXCLUDE)
 endif()

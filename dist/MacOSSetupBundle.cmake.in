@@ -5,6 +5,8 @@ set(INFO_PLIST_PATH "@CPACK_BUNDLE_PLIST@")
 set(ADJUST_RIZIN_LIBS "@ADJUST_RIZIN_LIBS@")
 set(CUTTER_PACKAGE_DEPENDENCIES "@CUTTER_PACKAGE_DEPENDENCIES@")
 set(CUTTER_ENABLE_PYTHON "@CUTTER_ENABLE_PYTHON@")
+set(RZ_BIN "@RZ_BIN@")
+
 
 macro(run_or_die)
 	execute_process(${ARGV} RESULT_VARIABLE PROC_RESULT)
@@ -48,6 +50,18 @@ foreach(_lib ${ADJUST_RIZIN_LIBS})
 		run_or_die(COMMAND install_name_tool
 			-change "${_lib2}" "@rpath/${_name2}"
 			"${CMAKE_INSTALL_PREFIX}/lib/${_name}")
+	endforeach()
+endforeach()
+foreach(_lib ${RZ_BIN})
+	get_filename_component(_lib "${_lib}" REALPATH)
+	get_filename_component(_name "${_lib}" NAME)
+	# Fix every lib for every lib too
+	foreach(_lib2 ${ADJUST_RIZIN_LIBS})
+	get_filename_component(_lib2 "${_lib2}" REALPATH)
+		get_filename_component(_name2 "${_lib2}" NAME)
+		run_or_die(COMMAND install_name_tool
+			-change "${_lib2}" "@rpath/${_name2}"
+			"${CMAKE_INSTALL_PREFIX}/bin/${_name}")
 	endforeach()
 endforeach()
 

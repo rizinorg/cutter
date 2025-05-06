@@ -459,6 +459,7 @@ jobs:
       run: |
         export MACOSX_DEPLOYMENT_TARGET=10.15
         scripts/fetch_deps.sh
+        install_name_tool -delete_rpath /Users/runner/work/cutter-deps/cutter-deps/qt/lib ./cutter-deps/pyside/lib/libpyside6.cpython-312-darwin.6.7.2.dylib #TODO: do this in cutter-deps
         source cutter-deps/env.sh
         set -euo pipefail
         export PATH=/usr/local/opt/llvm/bin:$PATH
