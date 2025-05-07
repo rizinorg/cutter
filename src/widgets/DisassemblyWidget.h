@@ -47,7 +47,7 @@ public slots:
     void scrollInstructions(int count);
     void seekPrev();
     void setPreviewMode(bool previewMode);
-    QFontMetrics getFontMetrics();
+    QFontMetricsF getFontMetrics();
     QList<DisassemblyLine> getLines();
 
 protected slots:

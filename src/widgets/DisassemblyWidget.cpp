@@ -14,7 +14,7 @@
 #include <QJsonObject>
 #include <QVBoxLayout>
 #include <QRegularExpression>
-#include <QToolTip>
+#include <QtMath>
 #include <QTextBlockUserData>
 #include <QPainter>
 #include <QPainterPath>
@@ -212,9 +212,9 @@ QString DisassemblyWidget::getWidgetType()
     return "Disassembly";
 }
 
-QFontMetrics DisassemblyWidget::getFontMetrics()
+QFontMetricsF DisassemblyWidget::getFontMetrics()
 {
-    return QFontMetrics(mDisasTextEdit->font());
+    return QFontMetricsF(mDisasTextEdit->font());
 }
 
 QList<DisassemblyLine> DisassemblyWidget::getLines()
@@ -992,8 +992,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     constexpr int arrowWidth = 5;
     int rightOffset = size().rwidth();
     auto tEdit = qobject_cast<DisassemblyTextEdit *>(disas->getTextWidget());
-    int topOffset = int(tEdit->contentsMargins().top() + tEdit->textOffset());
-    int lineHeight = disas->getFontMetrics().height();
+    int lineHeight = qCeil(disas->getFontMetrics().lineSpacing());
     QColor arrowColorDown = ConfigColor("flow");
     QColor arrowColorUp = ConfigColor("cflow");
     QPainter p(this);
@@ -1006,6 +1005,14 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     if (lines.size() == 0) {
         // No line to print, abort early
         return;
+    }
+
+    std::vector<int> lineY(tEdit->document()->lineCount());
+    QTextCursor cursor(tEdit->document());
+    for (auto &line : lineY) {
+        auto rect = tEdit->cursorRect(cursor);
+        line = rect.top();
+        cursor.movePosition(QTextCursor::Down);
     }
 
     using LineInfo = std::pair<RVA, int>;
@@ -1137,7 +1144,12 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
 
         auto lineToPixels = [&](int i) {
             int offset = int(arrow.up ? std::floor(pixelRatio) : -std::floor(pixelRatio));
-            return i * lineHeight + lineHeight / 2 + topOffset + offset;
+            int clampedLine = std::max(0, std::min(i, ((int)lineY.size()) - 1));
+            int pos0 = 0;
+            if (lineY.size() > 0) {
+                pos0 = lineY[clampedLine];
+            }
+            return pos0 + (i - clampedLine) * lineHeight + lineHeight / 2 + offset;
         };
 
         int lineStartNumber = offsetToLine(arrow.jmpFromOffset());
