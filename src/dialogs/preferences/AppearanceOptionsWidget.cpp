@@ -245,7 +245,7 @@ void AppearanceOptionsWidget::on_renameButton_clicked()
     }
 }
 
-void AppearanceOptionsWidget::onLanguageComboBoxCurrentIndexChanged(int index)
+void AppearanceOptionsWidget::onLanguageComboBoxCurrentIndexChanged(int)
 {
     QVariant language = ui->languageComboBox->currentData();
     if (language.canConvert<QLocale>()) {

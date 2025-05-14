@@ -5,6 +5,7 @@
 #include <QFontDatabase>
 #include <QFile>
 #include <QApplication>
+#include <qhash.h>
 
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
 #    include <KSyntaxHighlighting/Repository>
@@ -664,7 +665,7 @@ std::vector<Configuration::LangInfo> Configuration::getAvailableTranslations()
     std::sort(fileNames.begin(), fileNames.end());
     QString currLanguageName;
     std::vector<Configuration::LangInfo> result;
-    std::unordered_map<QString, int> langCount;
+    QHash<QString, int> langCount;
     for (const auto &translationFile : fileNames) {
         auto name = QFileInfo(translationFile).baseName();
         auto parts = name.split("_");
