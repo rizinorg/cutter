@@ -86,7 +86,12 @@ public:
     QLocale getCurrLocale() const;
     void setLocale(const QLocale &l);
     bool setLocaleByName(const QString &language);
-    QStringList getAvailableTranslations();
+    struct LangInfo
+    {
+        QString name;
+        QLocale locale;
+    };
+    std::vector<LangInfo> getAvailableTranslations();
 
     // Fonts
 

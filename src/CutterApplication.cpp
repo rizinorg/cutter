@@ -235,59 +235,57 @@ bool CutterApplication::event(QEvent *e)
 
 bool CutterApplication::loadTranslations()
 {
-    const QString &language = Config()->getCurrLocale().bcp47Name();
-    if (language == QStringLiteral("en") || language.startsWith(QStringLiteral("en-"))) {
-        return true;
-    }
-    const auto &allLocales =
-            QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript, QLocale::AnyCountry);
+    auto locale = Config()->getCurrLocale();
 
     bool cutterTrLoaded = false;
 
-    for (const QLocale &it : allLocales) {
-        const QString &langPrefix = it.bcp47Name();
-        if (langPrefix == language) {
-            QApplication::setLayoutDirection(it.textDirection());
-            QLocale::setDefault(it);
+    auto availableTranslations = Config()->getAvailableTranslations();
+    if (std::find_if(availableTranslations.begin(), availableTranslations.end(),
+                     [&](const Configuration::LangInfo &item) { return locale == item.locale; })
+        != availableTranslations.end()) {
+        QApplication::setLayoutDirection(locale.textDirection());
+        QLocale::setDefault(locale);
 
-            QTranslator *trCutter = new QTranslator;
-            QTranslator *trQtBase = new QTranslator;
-            QTranslator *trQt = new QTranslator;
+        QTranslator *trCutter = new QTranslator;
+        QTranslator *trQtBase = new QTranslator;
+        QTranslator *trQt = new QTranslator;
 
-            const QStringList &cutterTrPaths = Cutter::getTranslationsDirectories();
+        const QStringList &cutterTrPaths = Cutter::getTranslationsDirectories();
 
-            for (const auto &trPath : cutterTrPaths) {
-                if (trCutter
-                    && trCutter->load(it, QLatin1String("cutter"), QLatin1String("_"), trPath)) {
-                    installTranslator(trCutter);
-                    cutterTrLoaded = true;
-                    trCutter = nullptr;
-                }
-                if (trQt && trQt->load(it, "qt", "_", trPath)) {
-                    installTranslator(trQt);
-                    trQt = nullptr;
-                }
-
-                if (trQtBase && trQtBase->load(it, "qtbase", "_", trPath)) {
-                    installTranslator(trQtBase);
-                    trQtBase = nullptr;
-                }
+        for (const auto &trPath : cutterTrPaths) {
+            if (trCutter
+                && trCutter->load(locale, QLatin1String("cutter"), QLatin1String("_"), trPath)) {
+                installTranslator(trCutter);
+                cutterTrLoaded = true;
+                trCutter = nullptr;
+            }
+            if (trQt && trQt->load(locale, "qt", "_", trPath)) {
+                installTranslator(trQt);
+                trQt = nullptr;
             }
 
-            if (trCutter) {
-                delete trCutter;
+            if (trQtBase && trQtBase->load(locale, "qtbase", "_", trPath)) {
+                installTranslator(trQtBase);
+                trQtBase = nullptr;
             }
-            if (trQt) {
-                delete trQt;
-            }
-            if (trQtBase) {
-                delete trQtBase;
-            }
-            return true;
         }
+
+        if (trCutter) {
+            delete trCutter;
+        }
+        if (trQt) {
+            delete trQt;
+        }
+        if (trQtBase) {
+            delete trQtBase;
+        }
+        return true;
+    }
+    if (locale.language() == QLocale::English) {
+        return true;
     }
     if (!cutterTrLoaded) {
-        qWarning() << "Cannot load Cutter's translation for " << language;
+        qWarning() << "Cannot load Cutter's translation for " << locale.name();
     }
     return false;
 }
