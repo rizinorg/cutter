@@ -312,7 +312,9 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
 
     mDisasTextEdit->setLockScroll(false);
     mDisasTextEdit->horizontalScrollBar()->setValue(horizontalScrollValue);
-    if (!mDisasScrollArea->verticalScrollBar()->setPosition(topOffset)) {
+    if (mDisasScrollArea->verticalScrollBar()->setPosition(topOffset)) {
+        mDisasScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOn);
+    } else {
         mDisasScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
     }
 
@@ -777,68 +779,18 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
             break;
         }
     });
-    refreshVScrollbarRange();
-    connect(Core(), &CutterCore::refreshAll, this, &DisassemblyScrollArea::refreshVScrollbarRange);
+    connect(vScrollBar, &AddressRangeScrollbar::hideScrollbar, this, [this]() {
+        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    });
+    connect(vScrollBar, &AddressRangeScrollbar::showScrollbar, this, [this]() {
+        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    });
+    vScrollBar->refreshRange();
 }
 
 AddressRangeScrollbar *DisassemblyScrollArea::verticalScrollBar()
 {
     return vScrollBar;
-}
-
-void DisassemblyScrollArea::refreshVScrollbarRange()
-{
-    RVA beginOffset = RVA_MAX;
-    RVA endOffset = 0;
-    if (!Core()->currentlyEmulating && Core()->currentlyDebugging) {
-        QString currentlyOpenFile = Core()->getConfig("file.path");
-        QList<MemoryMapDescription> memoryMaps = Core()->getMemoryMap();
-        for (const MemoryMapDescription &map : memoryMaps) {
-            if (map.fileName == currentlyOpenFile) {
-                if (map.addrStart < beginOffset) {
-                    beginOffset = map.addrStart;
-                }
-                if (map.addrEnd > endOffset) {
-                    endOffset = map.addrEnd;
-                }
-            }
-        }
-    } else {
-        RzCoreLocked core(Core());
-        RzPVector *mapsPtr = rz_io_maps(core->io);
-        if (!mapsPtr) {
-            setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
-            return;
-        }
-        CutterPVector<RzIOMap> maps { mapsPtr };
-        for (const RzIOMap *const map : maps) {
-            // Skip the ESIL memory stack region
-            if (Core()->currentlyEmulating && std::strncmp(rz_str_get(map->name), "mem.", 4) == 0) {
-                continue;
-            }
-            ut64 b = rz_itv_begin(map->itv);
-            ut64 e = rz_itv_end(map->itv);
-            if (b < beginOffset) {
-                beginOffset = b;
-            }
-            if (e > endOffset) {
-                endOffset = e;
-            }
-        }
-    }
-    if (endOffset) {
-        --endOffset;
-    }
-    if (endOffset == 0) {
-        beginOffset = 0;
-    }
-    verticalScrollBar()->setMinimum(0);
-    vScrollBar->setRange(beginOffset, endOffset);
-    if (vScrollBar->rangeSize()) {
-        setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOn);
-    } else {
-        setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
-    }
 }
 
 bool DisassemblyScrollArea::viewportEvent(QEvent *event)

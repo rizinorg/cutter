@@ -123,7 +123,6 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
 
 private:
-    void refreshVScrollbarRange();
     AddressRangeScrollbar *vScrollBar;
     int accumScrollWheelDeltaY;
 };

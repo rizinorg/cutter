@@ -8,11 +8,15 @@ class AddressRangeScrollbar : public QScrollBar
 {
     Q_OBJECT
 public:
-    using QScrollBar::QScrollBar;
-    void setRange(RVA newBeginOffset, RVA newEndOffset);
+    AddressRangeScrollbar(QWidget *parent = nullptr);
+    void refreshRange();
     bool setPosition(RVA address);
     RVA address();
     RVA rangeSize();
+
+signals:
+    void hideScrollbar();
+    void showScrollbar();
 
 private:
     RVA beginOffset = 0, endOffset = RVA_INVALID;
