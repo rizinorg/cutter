@@ -7,6 +7,7 @@
 #include "common/SelectionHighlight.h"
 #include "common/BinaryTrees.h"
 #include "core/MainWindow.h"
+#include "widgets/AddressRangeScrollbar.h"
 
 #include <QApplication>
 #include <QScrollBar>
@@ -52,7 +53,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     mDisasScrollArea->viewport()->setLayout(layout);
     splitter->addWidget(mDisasScrollArea);
     connect(mDisasScrollArea->verticalScrollBar(), &QScrollBar::valueChanged, this,
-            [this](int) { refreshDisasm(mDisasScrollArea->currentVScrollAddr()); });
+            [this](int) { refreshDisasm(mDisasScrollArea->verticalScrollBar()->address()); });
     // Use stylesheet instead of QWidget::setFrameShape(QFrame::NoShape) to avoid
     // issues with dark and light interface themes
     mDisasScrollArea->setStyleSheet("QAbstractScrollArea { border: 0px transparent black; }");
@@ -311,7 +312,9 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
 
     mDisasTextEdit->setLockScroll(false);
     mDisasTextEdit->horizontalScrollBar()->setValue(horizontalScrollValue);
-    mDisasScrollArea->setVScrollPos(topOffset);
+    if (!mDisasScrollArea->verticalScrollBar()->setPosition(topOffset)) {
+        mDisasScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+    }
 
     // Refresh the left panel (trigger paintEvent)
     leftPanel->update();
@@ -741,8 +744,10 @@ void DisassemblyWidget::setupColors()
 
 DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollArea(parent)
 {
-    beginOffset = RVA_INVALID;
-    endOffset = RVA_INVALID;
+    vScrollBar = new AddressRangeScrollbar(this);
+    setVerticalScrollBar(vScrollBar);
+    // RVA beginOffset = RVA_INVALID;
+    // RVA endOffset = RVA_INVALID;
     accumScrollWheelDeltaY = 0;
     verticalScrollBar()->setPageStep(40);
     connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, [this](int action) {
@@ -776,66 +781,15 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
     connect(Core(), &CutterCore::refreshAll, this, &DisassemblyScrollArea::refreshVScrollbarRange);
 }
 
-RVA DisassemblyScrollArea::binSize()
+AddressRangeScrollbar *DisassemblyScrollArea::verticalScrollBar()
 {
-    return endOffset - beginOffset;
-}
-
-RVA DisassemblyScrollArea::currentVScrollAddr()
-{
-    int maximum = verticalScrollBar()->maximum();
-    if (!maximum || !binSize()) {
-        return beginOffset;
-    }
-    // Fallback formula for large files
-    if ((RVA_MAX / maximum) < binSize()) {
-        return verticalScrollBar()->value() * (binSize() / maximum)
-                + std::min<RVA>(verticalScrollBar()->value(), binSize() % maximum) + beginOffset;
-    }
-    return (verticalScrollBar()->value() * binSize()) / maximum + beginOffset;
-}
-
-void DisassemblyScrollArea::setVScrollPos(RVA address)
-{
-    const QSignalBlocker blocker(verticalScrollBar());
-    int maximum = verticalScrollBar()->maximum();
-    if (!maximum || !binSize()) {
-        setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
-        return;
-    }
-    int scrollBarPos = 0;
-    if (address < beginOffset) {
-        verticalScrollBar()->setValue(scrollBarPos);
-        return;
-    }
-    if (address > endOffset) {
-        verticalScrollBar()->setValue(verticalScrollBar()->maximum());
-        return;
-    }
-    auto offset = address - beginOffset;
-    if ((RVA_MAX / maximum) < binSize()) {
-        // Fallback formula for large files
-        uint64_t smallBox = binSize() / maximum;
-        uint64_t extra = binSize() % maximum;
-        auto bigBoxRange = (smallBox + 1) * extra;
-        if (offset < bigBoxRange) {
-            scrollBarPos = offset / (smallBox + 1);
-        } else {
-            scrollBarPos = extra + (offset - bigBoxRange) / smallBox;
-        }
-    } else {
-        scrollBarPos = (maximum * offset) / binSize();
-    }
-    if (address != beginOffset && scrollBarPos == 0) {
-        scrollBarPos = 1;
-    }
-    verticalScrollBar()->setValue(scrollBarPos);
+    return vScrollBar;
 }
 
 void DisassemblyScrollArea::refreshVScrollbarRange()
 {
-    beginOffset = RVA_MAX;
-    endOffset = 0;
+    RVA beginOffset = RVA_MAX;
+    RVA endOffset = 0;
     if (!Core()->currentlyEmulating && Core()->currentlyDebugging) {
         QString currentlyOpenFile = Core()->getConfig("file.path");
         QList<MemoryMapDescription> memoryMaps = Core()->getMemoryMap();
@@ -879,17 +833,8 @@ void DisassemblyScrollArea::refreshVScrollbarRange()
         beginOffset = 0;
     }
     verticalScrollBar()->setMinimum(0);
-    // Increasing this value increases scroll bar accuracy for small files but
-    // decreases it for large files
-    // Sufficiently below 2^32 to avoid causing problems in calculations done by QScrollbar,
-    // otherwise as high as possible to maximize range in which address map 1:1 to scrollbar pos.
-    const int rangeMax = 512 * 1024 * 1024;
-    if (binSize() > rangeMax) {
-        verticalScrollBar()->setMaximum(rangeMax);
-    } else {
-        verticalScrollBar()->setMaximum(binSize());
-    }
-    if (binSize()) {
+    vScrollBar->setRange(beginOffset, endOffset);
+    if (vScrollBar->rangeSize()) {
         setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOn);
     } else {
         setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);

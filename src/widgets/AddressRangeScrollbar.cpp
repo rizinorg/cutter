@@ -4,6 +4,16 @@ void AddressRangeScrollbar::setRange(RVA newBeginOffset, RVA newEndOffset)
 {
     beginOffset = newBeginOffset;
     endOffset = newEndOffset;
+    // Increasing this value increases scroll bar accuracy for small files but
+    // decreases it for large files
+    // Sufficiently below 2^32 to avoid causing problems in calculations done by QScrollbar,
+    // otherwise as high as possible to maximize range in which address map 1:1 to scrollbar pos.
+    const int rangeMax = 512 * 1024 * 1024;
+    if (rangeSize() > rangeMax) {
+        setMaximum(rangeMax);
+    } else {
+        setMaximum(rangeSize());
+    }
 }
 
 bool AddressRangeScrollbar::setPosition(RVA address)

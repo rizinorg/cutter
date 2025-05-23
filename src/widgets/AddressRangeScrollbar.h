@@ -12,10 +12,10 @@ public:
     void setRange(RVA newBeginOffset, RVA newEndOffset);
     bool setPosition(RVA address);
     RVA address();
+    RVA rangeSize();
 
 private:
-    RVA rangeSize();
-    RVA beginOffset = RVA_INVALID, endOffset = RVA_INVALID;
+    RVA beginOffset = 0, endOffset = RVA_INVALID;
 };
 
 #endif // ADDRESS_RANGE_SCROLLBAR_H
