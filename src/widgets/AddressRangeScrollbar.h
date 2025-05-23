@@ -10,7 +10,7 @@ class AddressRangeScrollbar : public QScrollBar
 public:
     AddressRangeScrollbar(QWidget *parent = nullptr);
     void refreshRange();
-    bool setPosition(RVA address);
+    void setPosition(RVA address);
     RVA address();
     RVA rangeSize();
 

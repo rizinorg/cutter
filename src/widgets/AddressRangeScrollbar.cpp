@@ -71,20 +71,23 @@ void AddressRangeScrollbar::refreshRange()
     return;
 }
 
-bool AddressRangeScrollbar::setPosition(RVA address)
+void AddressRangeScrollbar::setPosition(RVA address)
 {
     const QSignalBlocker blocker(this);
     if (!maximum() || !rangeSize()) {
-        return false;
+        hideScrollbar();
+        return;
     }
     int scrollBarPos = 0;
     if (address < beginOffset) {
         setValue(scrollBarPos);
-        return true;
+        emit showScrollbar();
+        return;
     }
     if (address > endOffset) {
         setValue(maximum());
-        return true;
+        emit showScrollbar();
+        return;
     }
     auto offset = address - beginOffset;
     if ((RVA_MAX / maximum()) < rangeSize()) {
@@ -104,7 +107,8 @@ bool AddressRangeScrollbar::setPosition(RVA address)
         scrollBarPos = 1;
     }
     setValue(scrollBarPos);
-    return true;
+    emit showScrollbar();
+    return;
 }
 
 RVA AddressRangeScrollbar::address()

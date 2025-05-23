@@ -312,11 +312,7 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
 
     mDisasTextEdit->setLockScroll(false);
     mDisasTextEdit->horizontalScrollBar()->setValue(horizontalScrollValue);
-    if (mDisasScrollArea->verticalScrollBar()->setPosition(topOffset)) {
-        mDisasScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOn);
-    } else {
-        mDisasScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
-    }
+    mDisasScrollArea->verticalScrollBar()->setPosition(topOffset);
 
     // Refresh the left panel (trigger paintEvent)
     leftPanel->update();
