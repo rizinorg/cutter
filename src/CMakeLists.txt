@@ -155,6 +155,7 @@ set(SOURCES
     tools/basefind/BaseFindDialog.cpp
     tools/basefind/BaseFindSearchDialog.cpp
     tools/basefind/BaseFindResultsDialog.cpp
+    widgets/AddressRangeScrollbar.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -319,6 +320,7 @@ set(HEADER_FILES
     tools/basefind/BaseFindDialog.h
     tools/basefind/BaseFindSearchDialog.h
     tools/basefind/BaseFindResultsDialog.h
+    widgets/AddressRangeScrollbar.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -500,7 +502,7 @@ endif()
 
 target_link_libraries(Cutter PUBLIC ${RIZIN_TARGET})
 if(CUTTER_ENABLE_PYTHON)
-    if(CMAKE_VERSION VERSION_LESS "3.12.0") 
+    if(CMAKE_VERSION VERSION_LESS "3.12.0")
         # On windows some of the Python STABLE API functions are in seperate library
         # which isn't added by CMake.
         if (WIN32)
