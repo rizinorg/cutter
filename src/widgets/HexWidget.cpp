@@ -4,6 +4,7 @@
 #include "dialogs/WriteCommandsDialogs.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/FlagDialog.h"
+#include "widgets/AddressRangeScrollbar.h"
 
 #include <QPainter>
 #include <QPaintEvent>
@@ -56,6 +57,19 @@ HexWidget::HexWidget(QWidget *parent)
     connect(Config(), &Configuration::colorsUpdated, this, &HexWidget::updateColors);
     connect(Config(), &Configuration::fontsUpdated, this,
             [this]() { setMonospaceFont(Config()->getFont()); });
+
+    vScrollBar = new AddressRangeScrollbar(this);
+    setVerticalScrollBar(vScrollBar);
+    connect(vScrollBar, &QScrollBar::valueChanged, this,
+            [this](int) { seek(vScrollBar->address()); });
+    connect(vScrollBar, &AddressRangeScrollbar::hideScrollbar, this, [this]() {
+        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    });
+    connect(vScrollBar, &AddressRangeScrollbar::showScrollbar, this, [this]() {
+        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    });
+    vScrollBar->refreshRange();
+    connect(this, &HexWidget::positionChanged, vScrollBar, &AddressRangeScrollbar::setPosition);
 
     auto sizeActionGroup = new QActionGroup(this);
     for (int i = 1; i <= 8; i *= 2) {
