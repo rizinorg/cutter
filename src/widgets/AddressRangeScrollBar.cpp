@@ -1,12 +1,12 @@
-#include "AddressRangeScrollbar.h"
+#include "AddressRangeScrollBar.h"
 #include "Cutter.h"
 
-AddressRangeScrollbar::AddressRangeScrollbar(QWidget *parent) : QScrollBar(parent)
+AddressRangeScrollBar::AddressRangeScrollBar(QWidget *parent) : QScrollBar(parent)
 {
-    connect(Core(), &CutterCore::refreshAll, this, &AddressRangeScrollbar::refreshRange);
+    connect(Core(), &CutterCore::refreshAll, this, &AddressRangeScrollBar::refreshRange);
 }
 
-void AddressRangeScrollbar::refreshRange()
+void AddressRangeScrollBar::refreshRange()
 {
     beginOffset = RVA_MAX;
     endOffset = 0;
@@ -27,7 +27,7 @@ void AddressRangeScrollbar::refreshRange()
         RzCoreLocked core(Core());
         RzPVector *mapsPtr = rz_io_maps(core->io);
         if (!mapsPtr) {
-            emit hideScrollbar();
+            emit hideScrollBar();
             return;
         }
         CutterPVector<RzIOMap> maps { mapsPtr };
@@ -64,29 +64,29 @@ void AddressRangeScrollbar::refreshRange()
         setMaximum(rangeSize());
     }
     if (rangeSize()) {
-        emit showScrollbar();
+        emit showScrollBar();
         return;
     }
-    emit hideScrollbar();
+    emit hideScrollBar();
     return;
 }
 
-void AddressRangeScrollbar::setPosition(RVA address)
+void AddressRangeScrollBar::setPosition(RVA address)
 {
     const QSignalBlocker blocker(this);
     if (!maximum() || !rangeSize()) {
-        hideScrollbar();
+        hideScrollBar();
         return;
     }
     int scrollBarPos = 0;
     if (address < beginOffset) {
         setValue(scrollBarPos);
-        emit showScrollbar();
+        emit showScrollBar();
         return;
     }
     if (address > endOffset) {
         setValue(maximum());
-        emit showScrollbar();
+        emit showScrollBar();
         return;
     }
     auto offset = address - beginOffset;
@@ -107,11 +107,11 @@ void AddressRangeScrollbar::setPosition(RVA address)
         scrollBarPos = 1;
     }
     setValue(scrollBarPos);
-    emit showScrollbar();
+    emit showScrollBar();
     return;
 }
 
-RVA AddressRangeScrollbar::address()
+RVA AddressRangeScrollBar::address()
 {
     if (!maximum() || !rangeSize()) {
         return beginOffset;
@@ -124,7 +124,7 @@ RVA AddressRangeScrollbar::address()
     return (value() * rangeSize()) / maximum() + beginOffset;
 }
 
-RVA AddressRangeScrollbar::rangeSize()
+RVA AddressRangeScrollBar::rangeSize()
 {
     return endOffset - beginOffset;
 }

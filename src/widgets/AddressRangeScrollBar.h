@@ -4,19 +4,19 @@
 #include <QScrollBar>
 #include "CutterCommon.h"
 
-class AddressRangeScrollbar : public QScrollBar
+class AddressRangeScrollBar : public QScrollBar
 {
     Q_OBJECT
 public:
-    AddressRangeScrollbar(QWidget *parent = nullptr);
+    AddressRangeScrollBar(QWidget *parent = nullptr);
     void refreshRange();
     void setPosition(RVA address);
     RVA address();
     RVA rangeSize();
 
 signals:
-    void hideScrollbar();
-    void showScrollbar();
+    void hideScrollBar();
+    void showScrollBar();
 
 private:
     RVA beginOffset = 0, endOffset = RVA_INVALID;

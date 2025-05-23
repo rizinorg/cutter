@@ -155,7 +155,7 @@ set(SOURCES
     tools/basefind/BaseFindDialog.cpp
     tools/basefind/BaseFindSearchDialog.cpp
     tools/basefind/BaseFindResultsDialog.cpp
-    widgets/AddressRangeScrollbar.cpp
+    widgets/AddressRangeScrollBar.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -320,7 +320,7 @@ set(HEADER_FILES
     tools/basefind/BaseFindDialog.h
     tools/basefind/BaseFindSearchDialog.h
     tools/basefind/BaseFindResultsDialog.h
-    widgets/AddressRangeScrollbar.h
+    widgets/AddressRangeScrollBar.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui

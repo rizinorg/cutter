@@ -304,7 +304,7 @@ private:
     bool m_empty;
 };
 
-class AddressRangeScrollbar;
+class AddressRangeScrollBar;
 
 class HexWidget : public QScrollArea
 {
@@ -606,7 +606,7 @@ private:
     QRectF warningRect;
     QTimer warningTimer;
 
-    AddressRangeScrollbar* vScrollBar;
+    AddressRangeScrollBar* vScrollBar;
 };
 
 #endif // HEXWIDGET_H

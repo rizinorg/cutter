@@ -7,7 +7,7 @@
 #include "common/SelectionHighlight.h"
 #include "common/BinaryTrees.h"
 #include "core/MainWindow.h"
-#include "widgets/AddressRangeScrollbar.h"
+#include "widgets/AddressRangeScrollBar.h"
 
 #include <QApplication>
 #include <QScrollBar>
@@ -742,14 +742,11 @@ void DisassemblyWidget::setupColors()
 
 DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollArea(parent)
 {
-    vScrollBar = new AddressRangeScrollbar(this);
+    vScrollBar = new AddressRangeScrollBar(this);
     setVerticalScrollBar(vScrollBar);
-    // RVA beginOffset = RVA_INVALID;
-    // RVA endOffset = RVA_INVALID;
     accumScrollWheelDeltaY = 0;
-    verticalScrollBar()->setPageStep(40);
+    vScrollBar->setPageStep(40);
     connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, [this](int action) {
-        QScrollBar *vScrollBar = verticalScrollBar();
         int val = vScrollBar->value();
         switch (action) {
         case QAbstractSlider::SliderSingleStepAdd:
@@ -775,16 +772,14 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
             break;
         }
     });
-    connect(vScrollBar, &AddressRangeScrollbar::hideScrollbar, this, [this]() {
-        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    });
-    connect(vScrollBar, &AddressRangeScrollbar::showScrollbar, this, [this]() {
-        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    });
+    connect(vScrollBar, &AddressRangeScrollBar::hideScrollBar, this,
+            [this]() { setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff); });
+    connect(vScrollBar, &AddressRangeScrollBar::showScrollBar, this,
+            [this]() { setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn); });
     vScrollBar->refreshRange();
 }
 
-AddressRangeScrollbar *DisassemblyScrollArea::verticalScrollBar()
+AddressRangeScrollBar *DisassemblyScrollArea::verticalScrollBar()
 {
     return vScrollBar;
 }

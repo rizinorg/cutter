@@ -18,7 +18,7 @@ class DisassemblyTextEdit;
 class DisassemblyScrollArea;
 class DisassemblyContextMenu;
 class DisassemblyLeftPanel;
-class AddressRangeScrollbar;
+class AddressRangeScrollBar;
 
 class DisassemblyWidget : public MemoryDockWidget
 {
@@ -112,7 +112,7 @@ class DisassemblyScrollArea : public QAbstractScrollArea
 
 public:
     explicit DisassemblyScrollArea(QWidget *parent = nullptr);
-    AddressRangeScrollbar *verticalScrollBar();
+    AddressRangeScrollBar *verticalScrollBar();
 
 signals:
     void scrollLines(int lines);
@@ -123,7 +123,7 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
 
 private:
-    AddressRangeScrollbar *vScrollBar;
+    AddressRangeScrollBar *vScrollBar;
     int accumScrollWheelDeltaY;
 };
 
