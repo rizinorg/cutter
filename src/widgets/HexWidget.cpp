@@ -549,6 +549,8 @@ void HexWidget::resizeEvent(QResizeEvent *event)
     fetchData(); // rowCount was changed
     updateCursorMeta();
 
+    vScrollBar->setPageStep(bytesPerScreen());
+    vScrollBar->setSingleStep(bytesPerScreen());
     viewport()->update();
 }
 
