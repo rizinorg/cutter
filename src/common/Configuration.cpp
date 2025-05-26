@@ -5,7 +5,7 @@
 #include <QFontDatabase>
 #include <QFile>
 #include <QApplication>
-#include <qhash.h>
+#include <QHash>
 
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
 #    include <KSyntaxHighlighting/Repository>

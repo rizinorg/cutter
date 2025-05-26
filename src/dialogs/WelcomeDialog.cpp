@@ -27,7 +27,6 @@ WelcomeDialog::WelcomeDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Welc
     for (auto &lang : langs) {
         ui->languageComboBox->addItem(lang.name, lang.locale);
     }
-    // ui->languageComboBox->addItems(langs);
 
     auto matchingLang =
             std::find_if(langs.begin(), langs.end(), [](const Configuration::LangInfo &v) {
