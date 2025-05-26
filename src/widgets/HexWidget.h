@@ -222,7 +222,7 @@ public:
         RzCoreLocked core(Core());
         rz_core_write_at(core, adr, in, len);
         writeToCache(in, adr, len);
-        emit Core()->instructionChanged(adr);
+        emit Core() -> instructionChanged(adr);
         return true;
     }
 
@@ -606,7 +606,7 @@ private:
     QRectF warningRect;
     QTimer warningTimer;
 
-    AddressRangeScrollBar* vScrollBar;
+    AddressRangeScrollBar *vScrollBar;
 };
 
 #endif // HEXWIDGET_H
