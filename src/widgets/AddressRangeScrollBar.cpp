@@ -1,6 +1,9 @@
 #include "AddressRangeScrollBar.h"
 #include "Cutter.h"
 
+#include <algorithm>
+#include <cstring>
+
 AddressRangeScrollBar::AddressRangeScrollBar(QWidget *parent) : QScrollBar(parent)
 {
     connect(Core(), &CutterCore::refreshAll, this, &AddressRangeScrollBar::refreshRange);
