@@ -62,9 +62,8 @@ HexWidget::HexWidget(QWidget *parent)
     setVerticalScrollBar(vScrollBar);
     connect(vScrollBar, &AddressRangeScrollBar::scrolled, this,
             [this](int lines) { scrollLines(lines); });
-    connect(vScrollBar, &QScrollBar::valueChanged, this, [this](int) {
-        setCursorAddr(BasicCursor(vScrollBar->address()), false, false);
-    });
+    connect(vScrollBar, &QScrollBar::valueChanged, this,
+            [this](int) { setCursorAddr(BasicCursor(vScrollBar->address()), false, false); });
     connect(vScrollBar, &AddressRangeScrollBar::hideScrollBar, this,
             [this]() { setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff); });
     connect(vScrollBar, &AddressRangeScrollBar::showScrollBar, this,
