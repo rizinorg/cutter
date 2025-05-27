@@ -20,10 +20,12 @@ AddressRangeScrollBar::AddressRangeScrollBar(QWidget *parent) : QScrollBar(paren
         // for more info.
         case QAbstractSlider::SliderSingleStepAdd:
             setSliderPosition(value());
+            if (value() == maximum()) return;
             emit scrolled(-3);
             return;
         case QAbstractSlider::SliderSingleStepSub:
             setSliderPosition(value());
+            if (value() == minimum()) return;
             emit scrolled(3);
             return;
         default:
@@ -165,6 +167,9 @@ void AddressRangeScrollBar::wheelEvent(QWheelEvent *event)
     if (accumScrollWheelDeltaY >= lineDelta || accumScrollWheelDeltaY <= -lineDelta) {
         int lineCount = accumScrollWheelDeltaY / lineDelta;
         accumScrollWheelDeltaY -= lineDelta * lineCount;
+        if ((lineCount < 0 && value() == maximum()) || (lineCount > 0 && value() == minimum())) {
+            return;
+        }
         emit scrolled(lineCount);
     }
 }
