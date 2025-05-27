@@ -60,8 +60,14 @@ HexWidget::HexWidget(QWidget *parent)
 
     vScrollBar = new AddressRangeScrollBar(this);
     setVerticalScrollBar(vScrollBar);
-    connect(vScrollBar, &QScrollBar::valueChanged, this,
-            [this](int) { seek(vScrollBar->address()); });
+    connect(vScrollBar, &AddressRangeScrollBar::scrolled, this,
+            [this](int lines) { scrollLines(lines); });
+    connect(vScrollBar, &QScrollBar::valueChanged, this, [this](int) {
+        startAddress = vScrollBar->address();
+        updateCursorMeta();
+        fetchData();
+        viewport()->update();
+    });
     connect(vScrollBar, &AddressRangeScrollBar::hideScrollBar, this,
             [this]() { setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff); });
     connect(vScrollBar, &AddressRangeScrollBar::showScrollBar, this,
@@ -549,8 +555,6 @@ void HexWidget::resizeEvent(QResizeEvent *event)
     fetchData(); // rowCount was changed
     updateCursorMeta();
 
-    vScrollBar->setPageStep(bytesPerScreen());
-    vScrollBar->setSingleStep(bytesPerScreen());
     viewport()->update();
 }
 
@@ -699,31 +703,7 @@ void HexWidget::wheelEvent(QWheelEvent *event)
 {
     // according to Qt doc 1 row per 5 degrees, angle measured in 1/8 of degree
     int dy = event->angleDelta().y() / (8 * 5);
-    int64_t delta = -dy * itemRowByteLen();
-
-    if (dy == 0)
-        return;
-
-    if (delta < 0 && startAddress < static_cast<uint64_t>(-delta)) {
-        startAddress = 0;
-    } else if (delta > 0 && data->maxIndex() < static_cast<uint64_t>(bytesPerScreen())) {
-        startAddress = 0;
-    } else if ((data->maxIndex() - startAddress)
-               <= static_cast<uint64_t>(bytesPerScreen() + delta - 1)) {
-        startAddress = (data->maxIndex() - bytesPerScreen()) + 1;
-    } else {
-        startAddress += delta;
-    }
-
-    fetchData();
-    if (cursor.address >= startAddress && cursor.address <= lastVisibleAddr()) {
-        /* Don't enable cursor blinking if selection isn't empty */
-        cursorEnabled = selection.isEmpty();
-        updateCursorMeta();
-    } else {
-        cursorEnabled = false;
-    }
-    viewport()->update();
+    scrollLines(dy);
 }
 
 bool HexWidget::validCharForEdit(QChar digit)
@@ -2600,5 +2580,34 @@ void HexWidget::showWarningRect(QRectF rect)
     warningRect = rect;
     warningRectVisible = true;
     warningTimer.start(WARNING_TIME_MS);
+    viewport()->update();
+}
+
+void HexWidget::scrollLines(int lines)
+{
+    int64_t delta = -lines * itemRowByteLen();
+
+    if (lines == 0)
+        return;
+
+    if (delta < 0 && startAddress < static_cast<uint64_t>(-delta)) {
+        startAddress = 0;
+    } else if (delta > 0 && data->maxIndex() < static_cast<uint64_t>(bytesPerScreen())) {
+        startAddress = 0;
+    } else if ((data->maxIndex() - startAddress)
+               <= static_cast<uint64_t>(bytesPerScreen() + delta - 1)) {
+        startAddress = (data->maxIndex() - bytesPerScreen()) + 1;
+    } else {
+        startAddress += delta;
+    }
+
+    fetchData();
+    if (cursor.address >= startAddress && cursor.address <= lastVisibleAddr()) {
+        /* Don't enable cursor blinking if selection isn't empty */
+        cursorEnabled = selection.isEmpty();
+        updateCursorMeta();
+    } else {
+        cursorEnabled = false;
+    }
     viewport()->update();
 }

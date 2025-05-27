@@ -514,6 +514,8 @@ private:
     void hideWarningRect();
     void showWarningRect(QRectF rect);
 
+    void scrollLines(int lines);
+
     bool cursorEnabled;
     bool cursorOnAscii;
     HexCursor cursor;

@@ -1,6 +1,8 @@
 #include "AddressRangeScrollBar.h"
 #include "Cutter.h"
 
+#include <QWheelEvent>
+
 #include <algorithm>
 #include <cstring>
 
@@ -130,4 +132,19 @@ RVA AddressRangeScrollBar::address()
 RVA AddressRangeScrollBar::rangeSize()
 {
     return endOffset - beginOffset;
+}
+
+void AddressRangeScrollBar::wheelEvent(QWheelEvent *event)
+{
+    accumScrollWheelDeltaY += event->angleDelta().y();
+    // Delta is reported in 1/8 of a degree
+    // eg. 120 units * 1/8 = 15 degrees
+    // Typical scroll speed is 1 line per 5 degrees
+    const int lineDelta = 5 * 8;
+    if (accumScrollWheelDeltaY >= lineDelta || accumScrollWheelDeltaY <= -lineDelta) {
+        int lineCount = accumScrollWheelDeltaY / lineDelta;
+        accumScrollWheelDeltaY -= lineDelta * lineCount;
+        emit scrolled(lineCount);
+    }
+    QScrollBar::wheelEvent(event);
 }
