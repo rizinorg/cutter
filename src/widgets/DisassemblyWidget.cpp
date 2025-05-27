@@ -123,11 +123,6 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
             &DisassemblyWidget::updateMaxLines);
 
     connectCursorPositionChanged(false);
-    connect(mDisasTextEdit->verticalScrollBar(), &QScrollBar::valueChanged, this, [=](int value) {
-        if (value != 0) {
-            mDisasTextEdit->verticalScrollBar()->setValue(0);
-        }
-    });
 
     connect(Core(), &CutterCore::commentsChanged, this, [this]() { refreshDisasm(); });
     connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshDisasm()));
@@ -746,7 +741,7 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
     setVerticalScrollBar(vScrollBar);
     accumScrollWheelDeltaY = 0;
     vScrollBar->setPageStep(40);
-    connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, [this](int action) {
+    connect(vScrollBar, &QScrollBar::actionTriggered, this, [this](int action) {
         int val = vScrollBar->value();
         switch (action) {
         case QAbstractSlider::SliderSingleStepAdd:
