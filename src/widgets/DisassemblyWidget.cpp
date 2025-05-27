@@ -741,30 +741,14 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
     setVerticalScrollBar(vScrollBar);
     accumScrollWheelDeltaY = 0;
     vScrollBar->setPageStep(40);
-    connect(vScrollBar, &QScrollBar::actionTriggered, this, [this](int action) {
-        int val = vScrollBar->value();
-        switch (action) {
-        case QAbstractSlider::SliderSingleStepAdd:
-            // Due to the way the QScrollBar::actionTriggered signal works,
-            // setting the slider pos to its current value here
-            // prevents it from moving, allowing us to basically
-            // override the scroll bar buttons' behavior
-            // See https://doc.qt.io/qt-6/qabstractslider.html#actionTriggered
-            // for more info.
-            vScrollBar->setSliderPosition(val);
-            if (val != vScrollBar->maximum()) {
-                emit scrollLines(1);
-            }
+    connect(vScrollBar, &AddressRangeScrollBar::scrolled, this, [this](int lines) {
+        if (lines == 0)
             return;
-        case QAbstractSlider::SliderSingleStepSub:
-            // Same as above
-            vScrollBar->setSliderPosition(val);
-            if (val != vScrollBar->minimum()) {
-                emit scrollLines(-1);
-            }
-            return;
-        default:
-            break;
+        if (lines < 0 && (vScrollBar->value() != vScrollBar->maximum())) {
+            emit scrollLines(1);
+        }
+        if (lines > 0 && (vScrollBar->value() != vScrollBar->minimum())) {
+            emit scrollLines(-1);
         }
     });
     connect(vScrollBar, &AddressRangeScrollBar::hideScrollBar, this,

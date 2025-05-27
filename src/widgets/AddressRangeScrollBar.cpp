@@ -8,7 +8,28 @@
 
 AddressRangeScrollBar::AddressRangeScrollBar(QWidget *parent) : QScrollBar(parent)
 {
+    setSingleStep(0);
     connect(Core(), &CutterCore::refreshAll, this, &AddressRangeScrollBar::refreshRange);
+    connect(this, &AddressRangeScrollBar::actionTriggered, this, [this](int action) {
+        switch (action) {
+        // Due to the way the QScrollBar::actionTriggered signal works,
+        // setting the slider pos to its current value here
+        // prevents it from moving, allowing us to basically
+        // override behavior for specific actions
+        // See https://doc.qt.io/qt-6/qabstractslider.html#actionTriggered
+        // for more info.
+        case QAbstractSlider::SliderSingleStepAdd:
+            setSliderPosition(value());
+            emit scrolled(-3);
+            return;
+        case QAbstractSlider::SliderSingleStepSub:
+            setSliderPosition(value());
+            emit scrolled(3);
+            return;
+        default:
+            return;
+        }
+    });
 }
 
 void AddressRangeScrollBar::refreshRange()
@@ -146,5 +167,4 @@ void AddressRangeScrollBar::wheelEvent(QWheelEvent *event)
         accumScrollWheelDeltaY -= lineDelta * lineCount;
         emit scrolled(lineCount);
     }
-    QScrollBar::wheelEvent(event);
 }
