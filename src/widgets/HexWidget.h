@@ -418,7 +418,7 @@ private:
     bool moveCursor(int offset, bool select = false,
                     OverflowMove overflowMove = OverflowMove::Clamp);
     void moveCursorKeepEditOffset(int byteOffset, bool select, OverflowMove overflowMove);
-    void setCursorAddr(BasicCursor addr, bool select = false);
+    void setCursorAddr(BasicCursor addr, bool select = false, bool seek = true);
     void updateCursorMeta();
     void setCursorOnAscii(bool ascii);
     bool isItemDifferentAt(uint64_t address);

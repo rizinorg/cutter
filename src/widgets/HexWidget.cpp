@@ -63,10 +63,7 @@ HexWidget::HexWidget(QWidget *parent)
     connect(vScrollBar, &AddressRangeScrollBar::scrolled, this,
             [this](int lines) { scrollLines(lines); });
     connect(vScrollBar, &QScrollBar::valueChanged, this, [this](int) {
-        startAddress = vScrollBar->address();
-        updateCursorMeta();
-        fetchData();
-        viewport()->update();
+        setCursorAddr(BasicCursor(vScrollBar->address()), false, false);
     });
     connect(vScrollBar, &AddressRangeScrollBar::hideScrollBar, this,
             [this]() { setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff); });
@@ -2023,7 +2020,7 @@ void HexWidget::moveCursorKeepEditOffset(int byteOffset, bool select, OverflowMo
     }
 }
 
-void HexWidget::setCursorAddr(BasicCursor addr, bool select)
+void HexWidget::setCursorAddr(BasicCursor addr, bool select, bool seek)
 {
     finishEditingWord();
     if (!select) {
@@ -2032,11 +2029,13 @@ void HexWidget::setCursorAddr(BasicCursor addr, bool select)
         if (clearingSelection)
             emit selectionChanged(getSelection());
     }
-    emit positionChanged(addr.address);
 
-    cursor.address = addr.address;
-    if (!cursorOnAscii) {
-        cursor.address -= cursor.address % itemByteLen;
+    if (seek) {
+        emit positionChanged(addr.address);
+        cursor.address = addr.address;
+        if (!cursorOnAscii) {
+            cursor.address -= cursor.address % itemByteLen;
+        }
     }
 
     /* Pause cursor repainting */
@@ -2047,7 +2046,7 @@ void HexWidget::setCursorAddr(BasicCursor addr, bool select)
         emit selectionChanged(getSelection());
     }
 
-    uint64_t addressValue = cursor.address;
+    uint64_t addressValue = seek ? cursor.address : addr.address;
     /* Update data cache if necessary */
     if (!(addressValue >= startAddress && addressValue <= lastVisibleAddr())) {
         /* Align start address */
