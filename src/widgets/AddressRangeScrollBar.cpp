@@ -105,7 +105,7 @@ void AddressRangeScrollBar::setPosition(RVA address)
 {
     const QSignalBlocker blocker(this);
     if (!maximum() || !rangeSize()) {
-        hideScrollBar();
+        emit hideScrollBar();
         return;
     }
     int scrollBarPos = 0;
