@@ -62,7 +62,12 @@ void EditInstructionDialog::updatePreview(const QString &input)
         QByteArray data = CutterCore::hexStringToBytes(input);
         result = Core()->disassemble(data).replace('\n', "; ");
     } else if (editMode == EDIT_TEXT) {
-        QByteArray data = Core()->assemble(input);
+        QByteArray data;
+        try {
+            data = Core()->assemble(input);
+        } catch (const std::exception &e) {
+            data = QByteArray();
+        }
         result = CutterCore::bytesToHexString(data).trimmed();
     }
 
