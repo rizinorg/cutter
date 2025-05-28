@@ -87,11 +87,11 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 
     copySeparator = addSeparator();
 
-    initAction(&actionAddComment, tr("Add Comment"), SLOT(on_actionAddComment_triggered()),
+    initAction(&actionAddComment, tr("Add comment"), SLOT(on_actionAddComment_triggered()),
                getCommentSequence());
     addAction(&actionAddComment);
 
-    initAction(&actionSetFunctionVarTypes, tr("Re-type Local Variables"),
+    initAction(&actionSetFunctionVarTypes, tr("Re-type local variables"),
                SLOT(on_actionSetFunctionVarTypes_triggered()), getRetypeSequence());
     addAction(&actionSetFunctionVarTypes);
 
@@ -138,7 +138,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
                SLOT(on_actionXRefsForVariables_triggered()), QKeySequence(Qt::SHIFT | Qt::Key_X));
     addAction(&actionXRefsForVariables);
 
-    initAction(&actionDisplayOptions, tr("Show Options"), SLOT(on_actionDisplayOptions_triggered()),
+    initAction(&actionDisplayOptions, tr("Show options"), SLOT(on_actionDisplayOptions_triggered()),
                getDisplayOptionsSequence());
 
     addSeparator();
@@ -205,11 +205,11 @@ void DisassemblyContextMenu::addSetBaseMenu()
     setBaseMenu->addAction(&actionSetBaseHexadecimal);
     connect(&actionSetBaseHexadecimal, &QAction::triggered, this, [this] { setBase("h"); });
 
-    initAction(&actionSetBasePort, tr("Network Port"));
+    initAction(&actionSetBasePort, tr("Network port"));
     setBaseMenu->addAction(&actionSetBasePort);
     connect(&actionSetBasePort, &QAction::triggered, this, [this] { setBase("p"); });
 
-    initAction(&actionSetBaseIPAddr, tr("IP Address"));
+    initAction(&actionSetBaseIPAddr, tr("IP address"));
     setBaseMenu->addAction(&actionSetBaseIPAddr);
     connect(&actionSetBaseIPAddr, &QAction::triggered, this, [this] { setBase("i"); });
 
@@ -288,7 +288,7 @@ void DisassemblyContextMenu::addSetToDataMenu()
     setToDataMenu->addAction(&actionSetToDataEx);
 
     auto switchAction = new QAction(this);
-    initAction(switchAction, "Switch Data", SLOT(on_actionSetToData_triggered()),
+    initAction(switchAction, "Switch data", SLOT(on_actionSetToData_triggered()),
                getSetToDataSequence());
 }
 
@@ -300,14 +300,14 @@ void DisassemblyContextMenu::addEditMenu()
                SLOT(on_actionEditInstruction_triggered()));
     editMenu->addAction(&actionEditInstruction);
 
-    initAction(&actionNopInstruction, tr("Nop Instruction"),
+    initAction(&actionNopInstruction, tr("Nop instruction"),
                SLOT(on_actionNopInstruction_triggered()));
     editMenu->addAction(&actionNopInstruction);
 
     initAction(&actionEditBytes, tr("Bytes"), SLOT(on_actionEditBytes_triggered()));
     editMenu->addAction(&actionEditBytes);
 
-    initAction(&actionJmpReverse, tr("Reverse Jump"), SLOT(on_actionJmpReverse_triggered()));
+    initAction(&actionJmpReverse, tr("Reverse jump"), SLOT(on_actionJmpReverse_triggered()));
     editMenu->addAction(&actionJmpReverse);
 }
 
@@ -574,10 +574,10 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
     if (comment.isNull() || comment.isEmpty()) {
         actionDeleteComment.setVisible(false);
-        actionAddComment.setText(tr("Add Comment"));
+        actionAddComment.setText(tr("Add comment"));
     } else {
         actionDeleteComment.setVisible(true);
-        actionAddComment.setText(tr("Edit Comment"));
+        actionAddComment.setText(tr("Edit comment"));
     }
 
     actionCopy.setVisible(canCopy);
@@ -731,7 +731,7 @@ void DisassemblyContextMenu::on_actionEditInstruction_triggered()
         return;
     }
     EditInstructionDialog e(EDIT_TEXT, parentForDialog());
-    e.setWindowTitle(tr("Edit Instruction at %1").arg(RzAddressString(offset)));
+    e.setWindowTitle(tr("Edit instruction at %1").arg(RzAddressString(offset)));
 
     QString oldInstructionOpcode = Core()->getInstructionOpcode(offset);
     QString oldInstructionBytes = Core()->getInstructionBytes(offset);
@@ -781,7 +781,7 @@ void DisassemblyContextMenu::on_actionEditBytes_triggered()
         return;
     }
     EditInstructionDialog e(EDIT_BYTES, parentForDialog());
-    e.setWindowTitle(tr("Edit Bytes at %1").arg(RzAddressString(offset)));
+    e.setWindowTitle(tr("Edit bytes at %1").arg(RzAddressString(offset)));
 
     QString oldBytes = Core()->getInstructionBytes(offset);
     e.setInstruction(oldBytes);
