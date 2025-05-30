@@ -406,7 +406,7 @@ jobs:
           - system-deps: false
           - output-id: ""
           - name: windows-x86_64
-            os: windows-2019
+            os: windows-2022
             package: true
             python-version: 3.12.x
             output-id: artifact_windows
@@ -596,7 +596,7 @@ jobs:
             artifact-job: build
             artifact-output: artifact_macos
           - name: windows
-            os: windows-2019
+            os: windows-2022
             artifact-job: build
             artifact-output: artifact_windows
       fail-fast: false
