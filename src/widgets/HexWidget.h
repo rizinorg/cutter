@@ -418,7 +418,7 @@ private:
     bool moveCursor(int offset, bool select = false,
                     OverflowMove overflowMove = OverflowMove::Clamp);
     void moveCursorKeepEditOffset(int byteOffset, bool select, OverflowMove overflowMove);
-    void setCursorAddr(BasicCursor addr, bool select = false, bool seek = true);
+    void setCursorAddr(BasicCursor addr, bool select = false);
     void updateCursorMeta();
     void setCursorOnAscii(bool ascii);
     bool isItemDifferentAt(uint64_t address);
@@ -515,6 +515,7 @@ private:
     void showWarningRect(QRectF rect);
 
     void scrollLines(int lines);
+    void showPosition(RVA address, bool select = false);
 
     bool cursorEnabled;
     bool cursorOnAscii;
