@@ -60,6 +60,8 @@ HexWidget::HexWidget(QWidget *parent)
 
     vScrollBar = new AddressRangeScrollBar(this);
     setVerticalScrollBar(vScrollBar);
+    vScrollBar->setPageStep(40);
+    vScrollBar->setSingleStep(1);
     connect(vScrollBar, &AddressRangeScrollBar::scrolled, this,
             [this](int lines) { scrollLines(lines); });
     connect(vScrollBar, &QScrollBar::valueChanged, this,
