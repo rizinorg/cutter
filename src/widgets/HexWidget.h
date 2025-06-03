@@ -514,6 +514,7 @@ private:
     void hideWarningRect();
     void showWarningRect(QRectF rect);
 
+    void updateViewport();
     void scrollLines(int lines);
     void showPosition(RVA address, bool select = false);
 
