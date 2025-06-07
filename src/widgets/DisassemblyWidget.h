@@ -45,7 +45,7 @@ public slots:
     void showDisasContextMenu(const QPoint &pt);
     void fontsUpdatedSlot();
     void colorsUpdatedSlot();
-    void scrollInstructions(int count);
+    void scrollInstructions(int count, bool clampToScrollBarRange = false);
     void seekPrev();
     void setPreviewMode(bool previewMode);
     QFontMetricsF getFontMetrics();
@@ -115,7 +115,7 @@ public:
     AddressRangeScrollBar *verticalScrollBar();
 
 signals:
-    void scrollLines(int lines);
+    void scrollLines(int lines, bool clampToScrollBarRange = false);
     void disassemblyResized();
 
 protected:
