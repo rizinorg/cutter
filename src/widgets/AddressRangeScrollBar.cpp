@@ -165,6 +165,17 @@ RVA AddressRangeScrollBar::address()
     return (value() * rangeSize()) / maximum() + beginOffset;
 }
 
+RVA AddressRangeScrollBar::clampAddressToRange(RVA address)
+{
+    if (address > endOffset) {
+        return endOffset;
+    }
+    if (address < beginOffset) {
+        return beginOffset;
+    }
+    return address;
+}
+
 RVA AddressRangeScrollBar::rangeSize()
 {
     return endOffset - beginOffset;

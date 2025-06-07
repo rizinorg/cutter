@@ -515,7 +515,7 @@ private:
     void showWarningRect(QRectF rect);
 
     void updateViewport();
-    void scrollLines(int lines);
+    void scrollLines(int lines, bool clampToScrollBarRange = false);
     void showPosition(RVA address, bool select = false);
 
     bool cursorEnabled;

@@ -12,6 +12,8 @@ public:
     void refreshRange();
     void setPosition(RVA address);
     RVA address();
+
+    RVA clampAddressToRange(RVA address);
     RVA rangeSize();
 
 signals:

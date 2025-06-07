@@ -62,7 +62,7 @@ HexWidget::HexWidget(QWidget *parent)
     vScrollBar->setPageStep(10);
     vScrollBar->setSingleStep(1);
     connect(vScrollBar, &AddressRangeScrollBar::scrolled, this,
-            [this](int lines) { scrollLines(lines); });
+            [this](int lines) { scrollLines(lines, true); });
     connect(vScrollBar, &QScrollBar::valueChanged, this,
             [this](int) { showPosition(vScrollBar->address()); });
     connect(vScrollBar, &AddressRangeScrollBar::hideScrollBar, this,
@@ -2553,12 +2553,13 @@ void HexWidget::updateViewport()
     viewport()->update();
 }
 
-void HexWidget::scrollLines(int lines)
+void HexWidget::scrollLines(int lines, bool clampToScrollBarRange)
 {
     int64_t delta = -lines * itemRowByteLen();
 
-    if (lines == 0)
+    if (lines == 0) {
         return;
+    }
 
     if (delta < 0 && startAddress < static_cast<uint64_t>(-delta)) {
         startAddress = 0;
@@ -2569,6 +2570,10 @@ void HexWidget::scrollLines(int lines)
         startAddress = (data->maxIndex() - bytesPerScreen()) + 1;
     } else {
         startAddress += delta;
+    }
+
+    if (clampToScrollBarRange) {
+        startAddress = vScrollBar->clampAddressToRange(startAddress);
     }
 
     fetchData();
