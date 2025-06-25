@@ -11,6 +11,7 @@
 #include "common/BasicBlockHighlighter.h"
 #include "common/BasicInstructionHighlighter.h"
 #include "common/Helpers.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QColorDialog>
 #include <QPainter>
@@ -63,23 +64,27 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     connectSeekChanged(false);
 
     // ESC for previous
-    QShortcut *shortcut_escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    QShortcut *shortcut_escape = new QShortcut(Shortcuts()->getKeySequence("Graph.seekPrev"), this);
     shortcut_escape->setContext(Qt::WidgetShortcut);
     connect(shortcut_escape, &QShortcut::activated, seekable, &CutterSeekable::seekPrev);
 
     // Branch shortcuts
-    QShortcut *shortcut_take_true = new QShortcut(QKeySequence(Qt::Key_T), this);
+    QShortcut *shortcut_take_true =
+            new QShortcut(Shortcuts()->getKeySequence("Graph.takeTrue"), this);
     shortcut_take_true->setContext(Qt::WidgetShortcut);
     connect(shortcut_take_true, &QShortcut::activated, this, &DisassemblerGraphView::takeTrue);
-    QShortcut *shortcut_take_false = new QShortcut(QKeySequence(Qt::Key_F), this);
+    QShortcut *shortcut_take_false =
+            new QShortcut(Shortcuts()->getKeySequence("Graph.takeFalse"), this);
     shortcut_take_false->setContext(Qt::WidgetShortcut);
     connect(shortcut_take_false, &QShortcut::activated, this, &DisassemblerGraphView::takeFalse);
 
     // Navigation shortcuts
-    QShortcut *shortcut_next_instr = new QShortcut(QKeySequence(Qt::Key_J), this);
+    QShortcut *shortcut_next_instr =
+            new QShortcut(Shortcuts()->getKeySequence("Graph.nextInstr"), this);
     shortcut_next_instr->setContext(Qt::WidgetShortcut);
     connect(shortcut_next_instr, &QShortcut::activated, this, &DisassemblerGraphView::nextInstr);
-    QShortcut *shortcut_prev_instr = new QShortcut(QKeySequence(Qt::Key_K), this);
+    QShortcut *shortcut_prev_instr =
+            new QShortcut(Shortcuts()->getKeySequence("Graph.prevInstr"), this);
     shortcut_prev_instr->setContext(Qt::WidgetShortcut);
     connect(shortcut_prev_instr, &QShortcut::activated, this, &DisassemblerGraphView::prevInstr);
     shortcuts.append(shortcut_escape);

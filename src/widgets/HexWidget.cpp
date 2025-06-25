@@ -4,6 +4,7 @@
 #include "dialogs/WriteCommandsDialogs.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/FlagDialog.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QPainter>
 #include <QPaintEvent>
@@ -113,22 +114,25 @@ HexWidget::HexWidget(QWidget *parent)
     actionHexPairs->setCheckable(true);
     connect(actionHexPairs, &QAction::triggered, this, &HexWidget::onHexPairsModeEnabled);
 
-    actionCopy = new QAction(tr("Copy"), this);
+    Shortcut shortcutCopy = Shortcuts()->getShortcut("Hex.copy");
+    actionCopy = new QAction(shortcutCopy.text, this);
     addAction(actionCopy);
     actionCopy->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    actionCopy->setShortcut(QKeySequence::Copy);
+    actionCopy->setShortcuts(shortcutCopy.keySequences);
     connect(actionCopy, &QAction::triggered, this, &HexWidget::copy);
 
-    actionCopyAddress = new QAction(tr("Copy address"), this);
+    Shortcut shortcutCopyAddress = Shortcuts()->getShortcut("Hex.copyAddress");
+    actionCopyAddress = new QAction(shortcutCopyAddress.text, this);
     actionCopyAddress->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    actionCopyAddress->setShortcut(Qt::CTRL | Qt::SHIFT | Qt::Key_C);
+    actionCopyAddress->setShortcuts(shortcutCopyAddress.keySequences);
     connect(actionCopyAddress, &QAction::triggered, this, &HexWidget::copyAddress);
     addAction(actionCopyAddress);
 
     // Add comment option
-    actionComment = new QAction(tr("Add Comment"), this);
+    Shortcut shortcutComment = Shortcuts()->getShortcut("Hex.addComment");
+    actionComment = new QAction(shortcutComment.text, this);
     actionComment->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    actionComment->setShortcut(Qt::Key_Semicolon);
+    actionComment->setShortcuts(shortcutComment.keySequences);
     connect(actionComment, &QAction::triggered, this, &HexWidget::onActionAddCommentTriggered);
     addAction(actionComment);
 
@@ -136,7 +140,7 @@ HexWidget::HexWidget(QWidget *parent)
     actionAddFlag =
             new QAction(tr("Add flag at %1").arg(RzAddressString(getLocationAddress())), this);
     actionAddFlag->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    actionAddFlag->setShortcut(Qt::Key_N);
+    actionAddFlag->setShortcuts(Shortcuts()->getKeySequences("Hex.addFlag"));
     connect(actionAddFlag, &QAction::triggered, this, &HexWidget::onActionAddFlagTriggered);
     connect(this, &HexWidget::positionChanged, this, [this](RVA pos) {
         RzAnalysisFunction *fcn = Core()->functionAt(pos);

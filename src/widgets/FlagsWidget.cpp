@@ -2,6 +2,7 @@
 #include "ui_FlagsWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QComboBox>
 #include <QMenu>
@@ -159,13 +160,15 @@ FlagsWidget::FlagsWidget(MainWindow *main)
     ui->flagsTreeView->sortByColumn(FlagsModel::OFFSET, Qt::AscendingOrder);
 
     // Ctrl-F to move the focus to the Filter search box
-    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
+    QShortcut *searchShortcut =
+            new QShortcut(Shortcuts()->getKeySequence("Flags.showFilter"), this);
     connect(searchShortcut, &QShortcut::activated, ui->filterLineEdit,
             [this]() { ui->filterLineEdit->setFocus(); });
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     // Esc to clear the filter entry
-    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    QShortcut *clearShortcut =
+            new QShortcut(Shortcuts()->getKeySequence("Flags.clearFilter"), this);
     connect(clearShortcut, &QShortcut::activated, [this] {
         if (ui->filterLineEdit->text().isEmpty()) {
             ui->flagsTreeView->setFocus();

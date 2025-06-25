@@ -2,6 +2,7 @@
 #include "dialogs/XrefsDialog.h"
 #include "MainWindow.h"
 #include "dialogs/CommentsDialog.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QtCore>
 #include <QShortcut>
@@ -13,30 +14,36 @@
 AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWindow *mainWindow)
     : QMenu(parent), mainWindow(mainWindow)
 {
+    Shortcut shortcutCopyAddress = Shortcuts()->getShortcut("AddressableItem.copyAddress");
+    Shortcut shortcutShowXRefs = Shortcuts()->getShortcut("AddressableItem.showXRefs");
+    Shortcut shortcutAddComment = Shortcuts()->getShortcut("AddressableItem.addComment");
+    Shortcut shortcutToggleBreakpoint =
+            Shortcuts()->getShortcut("AddressableItem.toggleBreakpoint");
+
     actionShowInMenu = new QAction(tr("Show in"), this);
-    actionCopyAddress = new QAction(tr("Copy address"), this);
-    actionShowXrefs = new QAction(tr("Show X-Refs"), this);
-    actionAddComment = new QAction(tr("Add Comment"), this);
-    actionToggleBreakpoint = new QAction(tr("Add Breakpoint"), this);
+    actionCopyAddress = new QAction(shortcutCopyAddress.text, this);
+    actionShowXrefs = new QAction(shortcutShowXRefs.text, this);
+    actionAddComment = new QAction(shortcutAddComment.text, this);
+    actionToggleBreakpoint = new QAction(shortcutToggleBreakpoint.text, this);
 
     connect(actionCopyAddress, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionCopyAddress);
-    actionCopyAddress->setShortcuts({ Qt::CTRL | Qt::SHIFT | Qt::Key_C });
+    actionCopyAddress->setShortcuts(shortcutCopyAddress.keySequences);
     actionCopyAddress->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     connect(actionShowXrefs, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionShowXrefs);
-    actionShowXrefs->setShortcut({ Qt::Key_X });
+    actionShowXrefs->setShortcuts(shortcutShowXRefs.keySequences);
     actionShowXrefs->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     connect(actionAddComment, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionAddComment);
-    actionAddComment->setShortcut({ Qt::Key_Semicolon });
+    actionAddComment->setShortcuts(shortcutAddComment.keySequences);
     actionAddComment->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     connect(actionToggleBreakpoint, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionToggleBreakpoint);
-    actionToggleBreakpoint->setShortcut({ Qt::Key_F2 });
+    actionToggleBreakpoint->setShortcuts(shortcutToggleBreakpoint.keySequences);
     actionToggleBreakpoint->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     addAction(actionShowInMenu);

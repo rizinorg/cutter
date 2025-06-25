@@ -3,6 +3,7 @@
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include "dialogs/TypesInteractionDialog.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QMenu>
 #include <QFileDialog>
@@ -178,12 +179,14 @@ TypesWidget::TypesWidget(MainWindow *main)
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
             [this] { tree->showItemsNumber(types_proxy_model->rowCount()); });
 
-    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
+    QShortcut *searchShortcut =
+            new QShortcut(Shortcuts()->getKeySequence("Types.showFilter"), this);
     connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
             &ComboQuickFilterView::showFilter);
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    QShortcut *clearShortcut =
+            new QShortcut(Shortcuts()->getKeySequence("Types.clearFilter"), this);
     connect(clearShortcut, &QShortcut::activated, ui->quickFilterView,
             &ComboQuickFilterView::clearFilter);
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);

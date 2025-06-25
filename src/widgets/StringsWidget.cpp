@@ -2,7 +2,7 @@
 #include "ui_StringsWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
-#include "WidgetShortcuts.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QClipboard>
 #include <QMenu>
@@ -166,7 +166,7 @@ StringsWidget::StringsWidget(MainWindow *main)
     qhelpers::setVerticalScrollMode(ui->stringsTreeView);
 
     // Shift-F12 to toggle strings window
-    QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["StringsWidget"], main);
+    QShortcut *toggle_shortcut = new QShortcut(Shortcuts()->getKeySequence("Strings.toggle"), main);
     connect(toggle_shortcut, &QShortcut::activated, this, [=]() { toggleDockWidget(true); });
 
     connect(ui->actionCopy_String, &QAction::triggered, this, &StringsWidget::on_actionCopy);
@@ -191,12 +191,14 @@ StringsWidget::StringsWidget(MainWindow *main)
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
             [this] { tree->showItemsNumber(proxyModel->rowCount()); });
 
-    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
+    QShortcut *searchShortcut =
+            new QShortcut(Shortcuts()->getKeySequence("Strings.showFilter"), this);
     connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
             &ComboQuickFilterView::showFilter);
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    QShortcut *clearShortcut =
+            new QShortcut(Shortcuts()->getKeySequence("Strings.clearFilter"), this);
     connect(clearShortcut, &QShortcut::activated, this, [this]() {
         ui->quickFilterView->clearFilter();
         ui->stringsTreeView->setFocus();

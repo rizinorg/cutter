@@ -4,6 +4,7 @@
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include "widgets/BoolToggleDelegate.h"
+#include "shortcuts/ShortcutManager.h"
 #include <QMenu>
 #include <QStyledItemDelegate>
 #include <QCheckBox>
@@ -193,14 +194,16 @@ BreakpointWidget::BreakpointWidget(MainWindow *main)
 
     setScrollMode();
 
-    actionDelBreakpoint = new QAction(tr("Delete breakpoint"), this);
-    actionDelBreakpoint->setShortcut(Qt::Key_Delete);
+    Shortcut shortcutDelBreakpoint = Shortcuts()->getShortcut("Breakpoint.delBreakpoint");
+    actionDelBreakpoint = new QAction(shortcutDelBreakpoint.text, this);
+    actionDelBreakpoint->setShortcuts(shortcutDelBreakpoint.keySequences);
     actionDelBreakpoint->setShortcutContext(Qt::WidgetShortcut);
     connect(actionDelBreakpoint, &QAction::triggered, this, &BreakpointWidget::delBreakpoint);
     ui->breakpointTreeView->addAction(actionDelBreakpoint);
 
-    actionToggleBreakpoint = new QAction(tr("Toggle breakpoint"), this);
-    actionToggleBreakpoint->setShortcut(Qt::Key_Space);
+    Shortcut shortcutToggleBreakpoint = Shortcuts()->getShortcut("Breakpoint.toggleBreakpoint");
+    actionToggleBreakpoint = new QAction(shortcutToggleBreakpoint.text, this);
+    actionToggleBreakpoint->setShortcuts(shortcutToggleBreakpoint.keySequences);
     actionToggleBreakpoint->setShortcutContext(Qt::WidgetShortcut);
     connect(actionToggleBreakpoint, &QAction::triggered, this, &BreakpointWidget::toggleBreakpoint);
     ui->breakpointTreeView->addAction(actionToggleBreakpoint);

@@ -10,6 +10,7 @@
 #include "common/CutterSeekable.h"
 #include "core/MainWindow.h"
 #include "common/DecompilerHighlighter.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QTextEdit>
 #include <QPlainTextEdit>
@@ -97,7 +98,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main)
 
     // Esc to seek backward
     QAction *seekPrevAction = new QAction(this);
-    seekPrevAction->setShortcut(Qt::Key_Escape);
+    seekPrevAction->setShortcuts(Shortcuts()->getKeySequences("Decompiler.seekPrev"));
     seekPrevAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     addAction(seekPrevAction);
     connect(seekPrevAction, &QAction::triggered, seekable, &CutterSeekable::seekPrev);

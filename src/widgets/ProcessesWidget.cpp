@@ -6,6 +6,7 @@
 #include <rz_debug.h>
 
 #include "core/MainWindow.h"
+#include "shortcuts/ShortcutManager.h"
 
 #define DEBUGGED_PID (-1)
 
@@ -33,13 +34,15 @@ ProcessesWidget::ProcessesWidget(MainWindow *main)
     ui->viewProcesses->setModel(modelFilter);
 
     // CTRL+F switches to the filter view and opens it in case it's hidden
-    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
+    QShortcut *searchShortcut =
+            new QShortcut(Shortcuts()->getKeySequence("Processes.showFilter"), this);
     connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
             &QuickFilterView::showFilter);
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     // ESC switches back to the processes table and clears the buffer
-    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    QShortcut *clearShortcut =
+            new QShortcut(Shortcuts()->getKeySequence("Processes.clearFilter"), this);
     connect(clearShortcut, &QShortcut::activated, this, [this]() {
         ui->quickFilterView->clearFilter();
         ui->viewProcesses->setFocus();

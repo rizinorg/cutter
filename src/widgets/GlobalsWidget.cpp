@@ -3,6 +3,7 @@
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include "dialogs/GlobalVariableDialog.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QMenu>
 #include <QShortcut>
@@ -178,12 +179,14 @@ GlobalsWidget::GlobalsWidget(MainWindow *main)
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
             [this] { tree->showItemsNumber(globalsProxyModel->rowCount()); });
 
-    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
+    QShortcut *searchShortcut =
+            new QShortcut(Shortcuts()->getKeySequence("Globals.showFilter"), this);
     connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
             &ComboQuickFilterView::showFilter);
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    QShortcut *clearShortcut =
+            new QShortcut(Shortcuts()->getKeySequence("Globals.clearFilter"), this);
     connect(clearShortcut, &QShortcut::activated, ui->quickFilterView,
             &ComboQuickFilterView::clearFilter);
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
