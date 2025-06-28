@@ -180,13 +180,13 @@ TypesWidget::TypesWidget(MainWindow *main)
             [this] { tree->showItemsNumber(types_proxy_model->rowCount()); });
 
     QShortcut *searchShortcut =
-            new QShortcut(Shortcuts()->getKeySequence("Types.showFilter"), this);
+            new QShortcut(Shortcuts()->getKeySequence("General.showFilter"), this);
     connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
             &ComboQuickFilterView::showFilter);
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     QShortcut *clearShortcut =
-            new QShortcut(Shortcuts()->getKeySequence("Types.clearFilter"), this);
+            new QShortcut(Shortcuts()->getKeySequence("General.clearFilter"), this);
     connect(clearShortcut, &QShortcut::activated, ui->quickFilterView,
             &ComboQuickFilterView::clearFilter);
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);

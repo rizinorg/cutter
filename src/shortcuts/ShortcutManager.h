@@ -13,11 +13,15 @@ class ShortcutManager : public QObject
 public:
     static ShortcutManager *getInstance();
 
-    Shortcut getShortcut(const QString &name);
-    QKeySequence getKeySequence(const QString &name);
-    QList<QKeySequence> getKeySequences(const QString &name);
-    QString getText(const QString &name);
+    Shortcut getShortcut(const QString &id);
+    QKeySequence getKeySequence(const QString &id);
+    QList<QKeySequence> getKeySequences(const QString &id);
+    const char *getContext(const QString &id);
+    const char *getText(const QString &id);
     QHash<QString, Shortcut> getAllShortcuts();
+
+    QAction *makeAction(const QString &id, QWidget *parent);
+    void setupAction(QAction &action, const QString &id);
 
     ShortcutManager();
 

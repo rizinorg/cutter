@@ -24,27 +24,35 @@ void ShortcutOptionsWidget::setupUiElements()
 
 void ShortcutOptionsWidget::populateShortcutTree()
 {
-    const QStringList categoryKeys = {
-        "Disassembly", "Decompiler", "AddressableItem", "Strings",   "Graph",   "Breakpoint",
-        "Console",     "Hex",        "Debug",           "Functions", "Types",   "RegisterRefs",
-        "Threads",     "Omnibar",    "Globals",         "Flags",     "VTables", "ListDock",
-        "Processes",   "Exports",    "Imports"
+    const QHash<QString, QString> categories = {
+        { "General", tr("General") },
+        { "Disassembly", tr("Disassembly") },
+        { "Decompiler", tr("Decompiler") },
+        { "AddressableItem", tr("AddressableItem") },
+        { "Strings", tr("Strings") },
+        { "Graph", tr("Graph") },
+        { "Breakpoint", tr("Breakpoint") },
+        { "Console", tr("Console") },
+        { "Hex", tr("Hex") },
+        { "Debug", tr("Debug") },
+        { "Functions", tr("Functions") },
+        { "Omnibar", tr("Omnibar") },
+        { "Exports", tr("Exports") },
+        { "Imports", tr("Imports") },
     };
 
-    QTreeWidgetItem *globalItem = createCategoryItem(tr("General"));
-
     QHash<QString, QTreeWidgetItem *> prefixToItem;
-    for (const QString &key : categoryKeys) {
-        prefixToItem[key] = createCategoryItem(tr(qPrintable(key)));
+    for (auto it = categories.cbegin(); it != categories.cend(); ++it) {
+        prefixToItem[it.key()] = createCategoryItem(it.value());
     }
 
     const auto shortcuts = Shortcuts()->getAllShortcuts();
     for (auto it = shortcuts.cbegin(); it != shortcuts.cend(); ++it) {
         QString name = it.key();
         Shortcut s = it.value();
-        QTreeWidgetItem *parent = globalItem;
+        QTreeWidgetItem *parent = prefixToItem["General"];
 
-        for (auto it = prefixToItem.constBegin(); it != prefixToItem.constEnd(); ++it) {
+        for (auto it = prefixToItem.cbegin(); it != prefixToItem.cend(); ++it) {
             const QString &prefix = it.key() + ".";
             if (name.startsWith(prefix)) {
                 name = name.mid(prefix.length());
@@ -61,9 +69,9 @@ void ShortcutOptionsWidget::populateShortcutTree()
         for (const QKeySequence &seq : sequences) {
             shortcutTexts << seq.toString(QKeySequence::NativeText);
         }
-        item->setText(1, shortcutTexts.join(",  "));
+        item->setText(1, shortcutTexts.join(", "));
 
-        item->setText(2, s.text);
+        item->setText(2, QCoreApplication::translate(s.context, s.text));
     }
 }
 

@@ -192,13 +192,13 @@ StringsWidget::StringsWidget(MainWindow *main)
             [this] { tree->showItemsNumber(proxyModel->rowCount()); });
 
     QShortcut *searchShortcut =
-            new QShortcut(Shortcuts()->getKeySequence("Strings.showFilter"), this);
+            new QShortcut(Shortcuts()->getKeySequence("General.showFilter"), this);
     connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
             &ComboQuickFilterView::showFilter);
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     QShortcut *clearShortcut =
-            new QShortcut(Shortcuts()->getKeySequence("Strings.clearFilter"), this);
+            new QShortcut(Shortcuts()->getKeySequence("General.clearFilter"), this);
     connect(clearShortcut, &QShortcut::activated, this, [this]() {
         ui->quickFilterView->clearFilter();
         ui->stringsTreeView->setFocus();

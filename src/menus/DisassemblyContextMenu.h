@@ -7,6 +7,7 @@
 #include <QKeySequence>
 
 class MainWindow;
+struct Shortcut;
 
 class CUTTER_EXPORT DisassemblyContextMenu : public QMenu
 {
@@ -77,25 +78,6 @@ private slots:
     void on_actionStructureOffsetMenu_triggered(QAction *action);
 
 private:
-    QKeySequence getCopySequence() const;
-    QKeySequence getCommentSequence() const;
-    QKeySequence getCopyAddressSequence() const;
-    QKeySequence getCopyInstrBytesSequence() const;
-    QKeySequence getGlobalVarSequence() const;
-    QKeySequence getSetToCodeSequence() const;
-    QKeySequence getSetAsStringSequence() const;
-    QKeySequence getSetAsStringAdvanced() const;
-    QKeySequence getSetToDataSequence() const;
-    QKeySequence getSetToDataExSequence() const;
-    QKeySequence getRenameSequence() const;
-    QKeySequence getRetypeSequence() const;
-    QKeySequence getXRefSequence() const;
-    QKeySequence getDisplayOptionsSequence() const;
-    QKeySequence getDefineNewFunctionSequence() const;
-    QKeySequence getUndefineFunctionSequence() const;
-    QKeySequence getEditFunctionSequence() const;
-    QList<QKeySequence> getAddBPSequence() const;
-
     RVA offset;
     bool canCopy;
     QString curHighlightedWord; // The current highlighted word
@@ -184,8 +166,7 @@ private:
 
     void initAction(QAction *action, QString name, const char *slot = nullptr);
     void initAction(QAction *action, QString name, const char *slot, QKeySequence keySequence);
-    void initAction(QAction *action, QString name, const char *slot,
-                    QList<QKeySequence> keySequence);
+    void initAction(QAction *action, const Shortcut &shortcut, const char *slot);
 
     void setBase(QString base);
     void setToData(int size, int repeat = 1);

@@ -69,13 +69,11 @@ ConsoleWidget::ConsoleWidget(MainWindow *main)
         }
     });
 
-    Shortcut shortcutClear = Shortcuts()->getShortcut("Console.clear");
-    QAction *actionClear = new QAction(shortcutClear.text, this);
+    QAction *actionClear = Shortcuts()->makeAction("Console.clear", this);
     connect(actionClear, &QAction::triggered, ui->outputTextEdit, &QPlainTextEdit::clear);
     addAction(actionClear);
 
     // Ctrl+l to clear the output
-    actionClear->setShortcuts(shortcutClear.keySequences);
     actionClear->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     actions.append(actionClear);
 

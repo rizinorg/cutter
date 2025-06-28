@@ -174,26 +174,28 @@ void MainWindow::initUI()
      */
 
     // Period goes to command entry
-    QShortcut *cmd_shortcut = new QShortcut(Shortcuts()->getKeySequence("focusConsole"), this);
+    QShortcut *cmd_shortcut =
+            new QShortcut(Shortcuts()->getKeySequence("General.focusConsole"), this);
     connect(cmd_shortcut, &QShortcut::activated, consoleDock, &ConsoleWidget::focusInputLineEdit);
 
     // G and S goes to goto entry
-    QShortcut *goto_shortcut = new QShortcut(Shortcuts()->getKeySequence("gotoEntry"), this);
+    QShortcut *goto_shortcut =
+            new QShortcut(Shortcuts()->getKeySequence("General.gotoEntry"), this);
     connect(goto_shortcut, &QShortcut::activated, this->omnibar,
             [this]() { this->omnibar->setFocus(); });
-    QShortcut *seek_shortcut = new QShortcut(Shortcuts()->getKeySequence("seek"), this);
+    QShortcut *seek_shortcut = new QShortcut(Shortcuts()->getKeySequence("General.seek"), this);
     connect(seek_shortcut, &QShortcut::activated, this->omnibar,
             [this]() { this->omnibar->setFocus(); });
     QShortcut *seek_to_func_end_shortcut =
-            new QShortcut(Shortcuts()->getKeySequence("seekToFunctionEnd"), this);
+            new QShortcut(Shortcuts()->getKeySequence("General.seekToFunctionEnd"), this);
     connect(seek_to_func_end_shortcut, &QShortcut::activated, this,
             &MainWindow::seekToFunctionLastInstruction);
     QShortcut *seek_to_func_start_shortcut =
-            new QShortcut(Shortcuts()->getKeySequence("seekToFunctionStart"), this);
+            new QShortcut(Shortcuts()->getKeySequence("General.seekToFunctionStart"), this);
     connect(seek_to_func_start_shortcut, &QShortcut::activated, this,
             &MainWindow::seekToFunctionStart);
 
-    ui->actionRefresh_contents->setShortcut(Shortcuts()->getKeySequence("refreshContents"));
+    ui->actionRefresh_contents->setShortcut(Shortcuts()->getKeySequence("General.refreshContents"));
 
     connect(ui->actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomIn);
     connect(ui->actionZoomOut, &QAction::triggered, this, &MainWindow::onZoomOut);
@@ -212,8 +214,8 @@ void MainWindow::initUI()
             &MainWindow::updateTasksIndicator);
 
     // Undo and redo seek
-    ui->actionBackward->setShortcut(Shortcuts()->getKeySequence("back"));
-    ui->actionForward->setShortcut(Shortcuts()->getKeySequence("forward"));
+    ui->actionBackward->setShortcut(Shortcuts()->getKeySequence("General.back"));
+    ui->actionForward->setShortcut(Shortcuts()->getKeySequence("General.forward"));
 
     initBackForwardMenu();
 

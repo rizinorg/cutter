@@ -161,14 +161,14 @@ FlagsWidget::FlagsWidget(MainWindow *main)
 
     // Ctrl-F to move the focus to the Filter search box
     QShortcut *searchShortcut =
-            new QShortcut(Shortcuts()->getKeySequence("Flags.showFilter"), this);
+            new QShortcut(Shortcuts()->getKeySequence("General.showFilter"), this);
     connect(searchShortcut, &QShortcut::activated, ui->filterLineEdit,
             [this]() { ui->filterLineEdit->setFocus(); });
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     // Esc to clear the filter entry
     QShortcut *clearShortcut =
-            new QShortcut(Shortcuts()->getKeySequence("Flags.clearFilter"), this);
+            new QShortcut(Shortcuts()->getKeySequence("General.clearFilter"), this);
     connect(clearShortcut, &QShortcut::activated, [this] {
         if (ui->filterLineEdit->text().isEmpty()) {
             ui->flagsTreeView->setFocus();

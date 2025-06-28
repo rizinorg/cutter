@@ -180,13 +180,13 @@ GlobalsWidget::GlobalsWidget(MainWindow *main)
             [this] { tree->showItemsNumber(globalsProxyModel->rowCount()); });
 
     QShortcut *searchShortcut =
-            new QShortcut(Shortcuts()->getKeySequence("Globals.showFilter"), this);
+            new QShortcut(Shortcuts()->getKeySequence("General.showFilter"), this);
     connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
             &ComboQuickFilterView::showFilter);
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     QShortcut *clearShortcut =
-            new QShortcut(Shortcuts()->getKeySequence("Globals.clearFilter"), this);
+            new QShortcut(Shortcuts()->getKeySequence("General.clearFilter"), this);
     connect(clearShortcut, &QShortcut::activated, ui->quickFilterView,
             &ComboQuickFilterView::clearFilter);
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);

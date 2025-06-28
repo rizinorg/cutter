@@ -149,7 +149,7 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main)
 
     // Ctrl-F to show/hide the filter entry
     QShortcut *search_shortcut =
-            new QShortcut(Shortcuts()->getKeySequence("RegisterRefs.showFilter"), this);
+            new QShortcut(Shortcuts()->getKeySequence("General.showFilter"), this);
     connect(search_shortcut, &QShortcut::activated, ui->quickFilterView,
             &QuickFilterView::showFilter);
     search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);

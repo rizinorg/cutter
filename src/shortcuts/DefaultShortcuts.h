@@ -9,7 +9,8 @@
 struct Shortcut
 {
     QList<QKeySequence> keySequences;
-    QString text;
+    const char *text; // untranslated description
+    const char *context;
 };
 
 const QHash<QString, Shortcut> &getDefaultShortcuts();

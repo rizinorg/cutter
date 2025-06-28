@@ -18,10 +18,12 @@ OverviewWidget::OverviewWidget(MainWindow *main) : CutterDockWidget(main)
     graphDataRefreshDeferrer = createRefreshDeferrer([this]() { updateGraphData(); });
 
     // Zoom shortcuts
-    QShortcut *shortcut_zoom_in = new QShortcut(Shortcuts()->getKeySequence("zoomIn"), this);
+    QShortcut *shortcut_zoom_in =
+            new QShortcut(Shortcuts()->getKeySequence("General.zoomIn"), this);
     shortcut_zoom_in->setContext(Qt::WidgetWithChildrenShortcut);
     connect(shortcut_zoom_in, &QShortcut::activated, this, [this]() { zoomTarget(1); });
-    QShortcut *shortcut_zoom_out = new QShortcut(Shortcuts()->getKeySequence("zoomOut"), this);
+    QShortcut *shortcut_zoom_out =
+            new QShortcut(Shortcuts()->getKeySequence("General.zoomOut"), this);
     shortcut_zoom_out->setContext(Qt::WidgetWithChildrenShortcut);
     connect(shortcut_zoom_out, &QShortcut::activated, this, [this]() { zoomTarget(-1); });
 }

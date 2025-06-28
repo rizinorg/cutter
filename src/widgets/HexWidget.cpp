@@ -114,25 +114,19 @@ HexWidget::HexWidget(QWidget *parent)
     actionHexPairs->setCheckable(true);
     connect(actionHexPairs, &QAction::triggered, this, &HexWidget::onHexPairsModeEnabled);
 
-    Shortcut shortcutCopy = Shortcuts()->getShortcut("Hex.copy");
-    actionCopy = new QAction(shortcutCopy.text, this);
+    actionCopy = Shortcuts()->makeAction("Hex.copy", this);
     addAction(actionCopy);
     actionCopy->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    actionCopy->setShortcuts(shortcutCopy.keySequences);
     connect(actionCopy, &QAction::triggered, this, &HexWidget::copy);
 
-    Shortcut shortcutCopyAddress = Shortcuts()->getShortcut("Hex.copyAddress");
-    actionCopyAddress = new QAction(shortcutCopyAddress.text, this);
+    actionCopyAddress = Shortcuts()->makeAction("Hex.copyAddress", this);
     actionCopyAddress->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    actionCopyAddress->setShortcuts(shortcutCopyAddress.keySequences);
     connect(actionCopyAddress, &QAction::triggered, this, &HexWidget::copyAddress);
     addAction(actionCopyAddress);
 
     // Add comment option
-    Shortcut shortcutComment = Shortcuts()->getShortcut("Hex.addComment");
-    actionComment = new QAction(shortcutComment.text, this);
+    actionComment = Shortcuts()->makeAction("Hex.addComment", this);
     actionComment->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
-    actionComment->setShortcuts(shortcutComment.keySequences);
     connect(actionComment, &QAction::triggered, this, &HexWidget::onActionAddCommentTriggered);
     addAction(actionComment);
 
