@@ -325,7 +325,7 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
         { "Hex.addComment",
           { { Qt::Key_Semicolon }, QT_TRANSLATE_NOOP("HexWidget", "Add Comment"), "HexWidget" } },
         { "Hex.addFlag",
-          { { Qt::Key_N }, QT_TRANSLATE_NOOP("HexWidget", "Add flag at <addr>"), "HexWidget" } },
+          { { Qt::Key_N }, QT_TRANSLATE_NOOP("HexWidget", "Add flag at address"), "HexWidget" } },
 
         // Imports
         { "Imports.toggle",
