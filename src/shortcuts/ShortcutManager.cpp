@@ -27,25 +27,16 @@ QKeySequence ShortcutManager::getKeySequence(const QString &id)
     return sequences.isEmpty() ? QKeySequence() : sequences.first();
 }
 
-const char *ShortcutManager::getText(const QString &id)
-{
-    const auto &defaultShortcuts = getDefaultShortcuts();
-    return defaultShortcuts.value(id).text;
-}
-
-const char *ShortcutManager::getContext(const QString &id)
-{
-    const auto &defaultShortcuts = getDefaultShortcuts();
-    return defaultShortcuts.value(id).context;
-}
-
 Shortcut ShortcutManager::getShortcut(const QString &id)
 {
-    Shortcut s;
-    s.keySequences = getKeySequences(id);
-    s.text = getText(id);
-    s.context = getContext(id);
-    return s;
+    const auto &defaultShortcuts = getDefaultShortcuts();
+    Shortcut result = defaultShortcuts.value(id);
+
+    QList<QKeySequence> customKeySequences = getKeySequences(id);
+    if (!customKeySequences.isEmpty()) {
+        result.keySequences = customKeySequences;
+    }
+    return result;
 }
 
 QHash<QString, Shortcut> ShortcutManager::getAllShortcuts()

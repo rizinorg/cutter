@@ -16,8 +16,6 @@ public:
     Shortcut getShortcut(const QString &id);
     QKeySequence getKeySequence(const QString &id);
     QList<QKeySequence> getKeySequences(const QString &id);
-    const char *getContext(const QString &id);
-    const char *getText(const QString &id);
     QHash<QString, Shortcut> getAllShortcuts();
 
     QAction *makeAction(const QString &id, QWidget *parent);
