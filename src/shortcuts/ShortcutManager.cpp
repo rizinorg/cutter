@@ -70,9 +70,9 @@ void ShortcutManager::setupAction(QAction &action, const QString &id)
 QShortcut *ShortcutManager::makeQShortcut(const QString &id, QObject *parent)
 {
     QShortcut *shortcut = new QShortcut(parent);
-    QList<QKeySequence> keySequences = getKeySequences(id);
-    if (!keySequences.isEmpty()) {
-        shortcut->setKeys(keySequences);
+    QKeySequence keySequence = getKeySequence(id);
+    if (!keySequence.isEmpty()) {
+        shortcut->setKey(keySequence);
     }
     return shortcut;
 }
