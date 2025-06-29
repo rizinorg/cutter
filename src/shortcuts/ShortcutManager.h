@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QKeySequence>
+#include <QAction>
 #include <QShortcut>
 #include "DefaultShortcuts.h"
 
