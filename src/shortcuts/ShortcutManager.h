@@ -23,7 +23,7 @@ public:
     QAction *makeAction(const QString &id, QObject *parent);
     void setupAction(QAction &action, const QString &id);
 
-    QShortcut *makeQShortcut(const QString &id, QObject *parent);
+    QShortcut *makeQShortcut(const QString &id, QWidget *parent);
 
     /**
      * @brief placeholder for getting custom shortcuts set by the user.

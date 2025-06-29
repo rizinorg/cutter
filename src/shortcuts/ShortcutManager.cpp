@@ -67,7 +67,7 @@ void ShortcutManager::setupAction(QAction &action, const QString &id)
     action.setText(QCoreApplication::translate(s.context, s.text));
 }
 
-QShortcut *ShortcutManager::makeQShortcut(const QString &id, QObject *parent)
+QShortcut *ShortcutManager::makeQShortcut(const QString &id, QWidget *parent)
 {
     QShortcut *shortcut = new QShortcut(parent);
     QKeySequence keySequence = getKeySequence(id);
