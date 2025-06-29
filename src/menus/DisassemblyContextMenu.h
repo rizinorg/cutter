@@ -166,7 +166,7 @@ private:
 
     void initAction(QAction *action, QString name, const char *slot = nullptr);
     void initAction(QAction *action, QString name, const char *slot, QKeySequence keySequence);
-    void initAction(QAction *action, const Shortcut &shortcut, const char *slot);
+    void initShortcutAction(QAction *action, const QString &id, const char *slot);
 
     void setBase(QString base);
     void setToData(int size, int repeat = 1);

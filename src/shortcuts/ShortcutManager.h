@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QKeySequence>
+#include <QShortcut>
 #include "DefaultShortcuts.h"
 
 class ShortcutManager : public QObject
@@ -18,8 +19,15 @@ public:
     QList<QKeySequence> getKeySequences(const QString &id);
     QHash<QString, Shortcut> getAllShortcuts();
 
-    QAction *makeAction(const QString &id, QWidget *parent);
+    QAction *makeAction(const QString &id, QObject *parent);
     void setupAction(QAction &action, const QString &id);
+
+    QShortcut *makeQShortcut(const QString &id, QObject *parent);
+
+    /**
+     * @brief placeholder for getting custom shortcuts set by the user.
+     */
+    QList<QKeySequence> getCustomKeySequences(const QString &id);
 
     ShortcutManager();
 

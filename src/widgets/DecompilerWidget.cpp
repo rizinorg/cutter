@@ -97,8 +97,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main)
     connect(Core(), &CutterCore::refreshCodeViews, this, &DecompilerWidget::doRefresh);
 
     // Esc to seek backward
-    QAction *seekPrevAction = new QAction(this);
-    seekPrevAction->setShortcuts(Shortcuts()->getKeySequences("Decompiler.seekPrev"));
+    QAction *seekPrevAction = Shortcuts()->makeAction("Decompiler.seekPrev", this);
     seekPrevAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     addAction(seekPrevAction);
     connect(seekPrevAction, &QAction::triggered, seekable, &CutterSeekable::seekPrev);

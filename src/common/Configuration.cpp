@@ -1,4 +1,3 @@
-
 #include "Configuration.h"
 #include <QJsonObject>
 #include <QJsonArray>
@@ -886,25 +885,6 @@ void Configuration::addRecentProject(QString file)
     files.removeAll(project);
     files.prepend(project);
     setRecentProjects(files);
-}
-
-QList<QKeySequence> Configuration::getKeySequences(const QString &name)
-{
-    const QStringList stringList = s.value("shortcut." + name).toStringList();
-    QList<QKeySequence> sequences;
-    for (const QString &str : stringList) {
-        sequences.append(QKeySequence(str));
-    }
-    return sequences;
-}
-
-void Configuration::setKeySequences(const QString &name, const QList<QKeySequence> &keySequences)
-{
-    QStringList stringList;
-    for (const QKeySequence &seq : keySequences) {
-        stringList.append(seq.toString(QKeySequence::PortableText));
-    }
-    s.setValue("shortcut." + name, stringList);
 }
 
 QString Configuration::getFunctionsWidgetLayout()

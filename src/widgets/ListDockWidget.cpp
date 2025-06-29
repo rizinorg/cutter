@@ -21,15 +21,13 @@ ListDockWidget::ListDockWidget(MainWindow *main, SearchBarPolicy searchBarPolicy
 
     if (searchBarPolicy != SearchBarPolicy::Hide) {
         // Ctrl-F to show/hide the filter entry
-        QShortcut *searchShortcut =
-                new QShortcut(Shortcuts()->getKeySequence("General.showFilter"), this);
+        QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
         connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
                 &QuickFilterView::showFilter);
         searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
         // Esc to clear the filter entry
-        QShortcut *clearShortcut =
-                new QShortcut(Shortcuts()->getKeySequence("General.clearFilter"), this);
+        QShortcut *clearShortcut = Shortcuts()->makeQShortcut("General.clearFilter", this);
         connect(clearShortcut, &QShortcut::activated, [this]() {
             ui->quickFilterView->clearFilter();
             ui->treeView->setFocus();

@@ -251,12 +251,6 @@ public:
     void setRecentProjects(const QList<RecentFileEntry> &list);
     void addRecentProject(QString file);
 
-    /**
-     * @brief Custom key bindings for actions.
-     */
-    QList<QKeySequence> getKeySequences(const QString &name);
-    void setKeySequences(const QString &name, const QList<QKeySequence> &keySequences);
-
     // Functions Widget Layout
 
     /**

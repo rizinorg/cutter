@@ -24,18 +24,18 @@ DecompilerContextMenu::DecompilerContextMenu(QWidget *parent, MainWindow *mainWi
       decompiledFunctionAddress(RVA_INVALID),
       isTogglingBreakpoints(false),
       annotationHere(nullptr),
-      actionCopy(tr("Copy"), this),
+      actionCopy(this),
       actionCopyInstructionAddress(tr("Copy instruction address (<address>)"), this),
-      actionCopyReferenceAddress(tr("Copy address of [flag] (<address>)"), this),
+      actionCopyReferenceAddress(this),
       actionShowInSubmenu(tr("Show in"), this),
-      actionAddComment(tr("Add Comment"), this),
+      actionAddComment(this),
       actionDeleteComment(tr("Delete comment"), this),
-      actionRenameThingHere(tr("Rename function at cursor"), this),
+      actionRenameThingHere(this),
       actionDeleteName(tr("Delete <name>"), this),
-      actionEditFunctionVariables(tr("Edit variable <name of variable>"), this),
-      actionXRefs(tr("Show X-Refs"), this),
-      actionToggleBreakpoint(tr("Add/remove breakpoint"), this),
-      actionAdvancedBreakpoint(tr("Advanced breakpoint"), this),
+      actionEditFunctionVariables(this),
+      actionXRefs(this),
+      actionToggleBreakpoint(this),
+      actionAdvancedBreakpoint(this),
       breakpointsInLineMenu(new QMenu(this)),
       actionContinueUntil(tr("Continue until line"), this),
       actionSetPC(tr("Set PC"), this)
@@ -271,19 +271,17 @@ void DecompilerContextMenu::aboutToShowSlot()
 
 void DecompilerContextMenu::setActionCopy() // Set all three copy actions
 {
+    Shortcuts()->setupAction(actionCopy, "Decompiler.copy");
     connect(&actionCopy, &QAction::triggered, this, &DecompilerContextMenu::actionCopyTriggered);
     addAction(&actionCopy);
-    actionCopy.setShortcuts(Shortcuts()->getKeySequences("Decompiler.copy"));
-
     connect(&actionCopyInstructionAddress, &QAction::triggered, this,
             &DecompilerContextMenu::actionCopyInstructionAddressTriggered);
     addAction(&actionCopyInstructionAddress);
 
+    Shortcuts()->setupAction(actionCopyReferenceAddress, "Decompiler.copyReferenceAddress");
     connect(&actionCopyReferenceAddress, &QAction::triggered, this,
             &DecompilerContextMenu::actionCopyReferenceAddressTriggered);
     addAction(&actionCopyReferenceAddress);
-    actionCopyReferenceAddress.setShortcuts(
-            Shortcuts()->getKeySequences("Decompiler.copyReferenceAddress"));
 }
 
 void DecompilerContextMenu::setActionShowInSubmenu()
@@ -293,10 +291,10 @@ void DecompilerContextMenu::setActionShowInSubmenu()
 
 void DecompilerContextMenu::setActionAddComment()
 {
+    Shortcuts()->setupAction(actionAddComment, "Decompiler.addComment");
     connect(&actionAddComment, &QAction::triggered, this,
             &DecompilerContextMenu::actionAddCommentTriggered);
     addAction(&actionAddComment);
-    actionAddComment.setShortcuts(Shortcuts()->getKeySequences("Decompiler.addComment"));
 }
 
 void DecompilerContextMenu::setActionDeleteComment()
@@ -308,14 +306,14 @@ void DecompilerContextMenu::setActionDeleteComment()
 
 void DecompilerContextMenu::setActionXRefs()
 {
+    Shortcuts()->setupAction(actionXRefs, "Decompiler.showXRefs");
     connect(&actionXRefs, &QAction::triggered, this, &DecompilerContextMenu::actionXRefsTriggered);
     addAction(&actionXRefs);
-    actionXRefs.setShortcuts(Shortcuts()->getKeySequences("Decompiler.showXRefs"));
 }
 
 void DecompilerContextMenu::setActionRenameThingHere()
 {
-    actionRenameThingHere.setShortcuts(Shortcuts()->getKeySequences("Decompiler.renameThingHere"));
+    Shortcuts()->setupAction(actionRenameThingHere, "Decompiler.renameThingHere");
     connect(&actionRenameThingHere, &QAction::triggered, this,
             &DecompilerContextMenu::actionRenameThingHereTriggered);
     addAction(&actionRenameThingHere);
@@ -334,11 +332,10 @@ void DecompilerContextMenu::setActionDeleteName()
 
 void DecompilerContextMenu::setActionEditFunctionVariables()
 {
+    Shortcuts()->setupAction(actionEditFunctionVariables, "Decompiler.editFunctionVariables");
     connect(&actionEditFunctionVariables, &QAction::triggered, this,
             &DecompilerContextMenu::actionEditFunctionVariablesTriggered);
     addAction(&actionEditFunctionVariables);
-    actionEditFunctionVariables.setShortcuts(
-            Shortcuts()->getKeySequences("Decompiler.editFunctionVariables"));
     actionEditFunctionVariables.setToolTip(
             tr("Can't edit this variable.<br>"
                "Only local variables defined in disassembly can be edited."));
@@ -346,18 +343,16 @@ void DecompilerContextMenu::setActionEditFunctionVariables()
 
 void DecompilerContextMenu::setActionToggleBreakpoint()
 {
+    Shortcuts()->setupAction(actionToggleBreakpoint, "Decompiler.toggleBreakpoint");
     connect(&actionToggleBreakpoint, &QAction::triggered, this,
             &DecompilerContextMenu::actionToggleBreakpointTriggered);
-    actionToggleBreakpoint.setShortcuts(
-            Shortcuts()->getKeySequences("Decompiler.toggleBreakpoint"));
 }
 
 void DecompilerContextMenu::setActionAdvancedBreakpoint()
 {
+    Shortcuts()->setupAction(actionAdvancedBreakpoint, "Decompiler.advancedBreakpoint");
     connect(&actionAdvancedBreakpoint, &QAction::triggered, this,
             &DecompilerContextMenu::actionAdvancedBreakpointTriggered);
-    actionAdvancedBreakpoint.setShortcuts(
-            Shortcuts()->getKeySequences("Decompiler.advancedBreakpoint"));
 }
 
 void DecompilerContextMenu::setActionContinueUntil()

@@ -126,15 +126,13 @@ ThreadsWidget::ThreadsWidget(MainWindow *main)
     ui->viewThreads->setModel(modelFilter);
 
     // CTRL+F switches to the filter view and opens it in case it's hidden
-    QShortcut *searchShortcut =
-            new QShortcut(Shortcuts()->getKeySequence("General.showFilter"), this);
+    QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
     connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
             &QuickFilterView::showFilter);
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     // ESC switches back to the thread table and clears the buffer
-    QShortcut *clearShortcut =
-            new QShortcut(Shortcuts()->getKeySequence("General.clearFilter"), this);
+    QShortcut *clearShortcut = Shortcuts()->makeQShortcut("General.clearFilter", this);
     connect(clearShortcut, &QShortcut::activated, this, [this]() {
         ui->quickFilterView->clearFilter();
         ui->viewThreads->setFocus();

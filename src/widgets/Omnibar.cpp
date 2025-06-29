@@ -21,7 +21,7 @@ Omnibar::Omnibar(MainWindow *main, QWidget *parent) : QLineEdit(parent), main(ma
     connect(this, &QLineEdit::returnPressed, this, &Omnibar::on_gotoEntry_returnPressed);
 
     // Esc clears omnibar
-    QShortcut *clear_shortcut = new QShortcut(Shortcuts()->getKeySequence("Omnibar.clear"), this);
+    QShortcut *clear_shortcut = Shortcuts()->makeQShortcut("Omnibar.clear", this);
     connect(clear_shortcut, &QShortcut::activated, this, &Omnibar::clear);
     clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
 }

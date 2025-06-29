@@ -522,7 +522,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     connect(&actionVertical, &QAction::toggled, this, &FunctionsWidget::onActionVerticalToggled);
     titleContextMenu->addActions(viewTypeGroup->actions());
 
-    actionRename.setShortcuts(Shortcuts()->getKeySequences("Functions.rename"));
+    Shortcuts()->setupAction(actionRename, "Functions.rename");
     actionRename.setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
     connect(&actionRename, &QAction::triggered, this,
             &FunctionsWidget::onActionFunctionsRenameTriggered);

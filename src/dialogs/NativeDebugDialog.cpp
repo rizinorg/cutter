@@ -10,8 +10,8 @@ NativeDebugDialog::NativeDebugDialog(QWidget *parent)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
-    auto shortcut = new QShortcut(Shortcuts()->getKeySequence("Debug.accept"), ui->argEdit, nullptr,
-                                  nullptr, Qt::ShortcutContext::WidgetShortcut);
+    auto shortcut = Shortcuts()->makeQShortcut("Debug.accept", ui->argEdit);
+    shortcut->setContext(Qt::ShortcutContext::WidgetShortcut);
     connect(shortcut, &QShortcut::activated, this, &QDialog::accept);
 }
 

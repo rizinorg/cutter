@@ -29,7 +29,7 @@ GraphWidget::GraphWidget(MainWindow *main) : MemoryDockWidget(MemoryWidgetType::
     // getting the name of the class is implementation defined, and cannot be
     // used reliably across different compilers.
     // QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts[typeid(this).name()], main);
-    QShortcut *toggle_shortcut = new QShortcut(Shortcuts()->getKeySequence("Graph.toggle"), main);
+    QShortcut *toggle_shortcut = Shortcuts()->makeQShortcut("Graph.toggle", main);
     connect(toggle_shortcut, &QShortcut::activated, this, [=]() { toggleDockWidget(true); });
 
     connect(graphView, &DisassemblerGraphView::nameChanged, this,
@@ -42,8 +42,7 @@ GraphWidget::GraphWidget(MainWindow *main) : MemoryDockWidget(MemoryWidgetType::
         }
     });
 
-    QAction *switchAction = new QAction(this);
-    switchAction->setShortcuts(Shortcuts()->getKeySequences("Graph.switchToDisassembly"));
+    QAction *switchAction = Shortcuts()->makeAction("Graph.switchToDisassembly", this);
     switchAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     addAction(switchAction);
     connect(switchAction, &QAction::triggered, this,

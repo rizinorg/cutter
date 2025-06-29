@@ -160,15 +160,13 @@ FlagsWidget::FlagsWidget(MainWindow *main)
     ui->flagsTreeView->sortByColumn(FlagsModel::OFFSET, Qt::AscendingOrder);
 
     // Ctrl-F to move the focus to the Filter search box
-    QShortcut *searchShortcut =
-            new QShortcut(Shortcuts()->getKeySequence("General.showFilter"), this);
+    QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
     connect(searchShortcut, &QShortcut::activated, ui->filterLineEdit,
             [this]() { ui->filterLineEdit->setFocus(); });
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     // Esc to clear the filter entry
-    QShortcut *clearShortcut =
-            new QShortcut(Shortcuts()->getKeySequence("General.clearFilter"), this);
+    QShortcut *clearShortcut = Shortcuts()->makeQShortcut("General.clearFilter", this);
     connect(clearShortcut, &QShortcut::activated, [this] {
         if (ui->filterLineEdit->text().isEmpty()) {
             ui->flagsTreeView->setFocus();

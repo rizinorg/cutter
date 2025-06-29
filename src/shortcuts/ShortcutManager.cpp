@@ -1,5 +1,4 @@
 #include "ShortcutManager.h"
-#include "Configuration.h"
 #include <QCoreApplication>
 
 Q_GLOBAL_STATIC(ShortcutManager, uniqueInstance)
@@ -14,7 +13,7 @@ ShortcutManager::ShortcutManager() {}
 QList<QKeySequence> ShortcutManager::getKeySequences(const QString &id)
 {
     const auto &defaultShortcuts = getDefaultShortcuts();
-    QList<QKeySequence> ksq = Config()->getKeySequences(id);
+    QList<QKeySequence> ksq = getCustomKeySequences(id);
     if (ksq.isEmpty()) { // No custom keySequence set, return default
         ksq = defaultShortcuts.value(id).keySequences;
     }
@@ -53,7 +52,7 @@ QHash<QString, Shortcut> ShortcutManager::getAllShortcuts()
     return shortcuts;
 }
 
-QAction *ShortcutManager::makeAction(const QString &id, QWidget *parent)
+QAction *ShortcutManager::makeAction(const QString &id, QObject *parent)
 {
 
     QAction *action = new QAction(parent);
@@ -63,7 +62,22 @@ QAction *ShortcutManager::makeAction(const QString &id, QWidget *parent)
 
 void ShortcutManager::setupAction(QAction &action, const QString &id)
 {
-    Shortcut shortcut = getShortcut(id);
-    action.setShortcuts(shortcut.keySequences);
-    action.setText(QCoreApplication::translate(shortcut.context, shortcut.text));
+    Shortcut s = getShortcut(id);
+    action.setShortcuts(s.keySequences);
+    action.setText(QCoreApplication::translate(s.context, s.text));
+}
+
+QShortcut *ShortcutManager::makeQShortcut(const QString &id, QObject *parent)
+{
+    QShortcut *shortcut = new QShortcut(parent);
+    QList<QKeySequence> keySequences = getKeySequences(id);
+    if (!keySequences.isEmpty()) {
+        shortcut->setKeys(keySequences);
+    }
+    return shortcut;
+}
+
+QList<QKeySequence> ShortcutManager::getCustomKeySequences(const QString &id)
+{
+    return {}; // Custom shortcut support is not implemented yet
 }
