@@ -17,7 +17,7 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
     actionShowInMenu = new QAction(tr("Show in"), this);
     actionCopyAddress = Shortcuts()->makeAction("AddressableItem.copyAddress", this);
     actionShowXrefs = Shortcuts()->makeAction("AddressableItem.showXRefs", this);
-    actionAddComment = Shortcuts()->makeAction("addComment", this);
+    actionAddComment = Shortcuts()->makeAction("AddressableItem.addComment", this);
     actionToggleBreakpoint = Shortcuts()->makeAction("AddressableItem.toggleBreakpoint", this);
 
     connect(actionCopyAddress, &QAction::triggered, this,
