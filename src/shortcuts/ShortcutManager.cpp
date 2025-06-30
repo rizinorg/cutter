@@ -70,9 +70,13 @@ void ShortcutManager::setupAction(QAction &action, const QString &id)
 QShortcut *ShortcutManager::makeQShortcut(const QString &id, QWidget *parent)
 {
     QShortcut *shortcut = new QShortcut(parent);
-    QKeySequence keySequence = getKeySequence(id);
-    if (!keySequence.isEmpty()) {
-        shortcut->setKey(keySequence);
+    QList<QKeySequence> keySequences = getKeySequences(id);
+    if (!keySequences.isEmpty()) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        shortcut->setKeys(keySequences);
+#else
+        shortcut->setKey(keySequences.first());
+#endif
     }
     return shortcut;
 }
