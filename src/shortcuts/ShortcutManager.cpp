@@ -1,5 +1,6 @@
 #include "ShortcutManager.h"
 #include <QCoreApplication>
+#include <QDebug>
 
 Q_GLOBAL_STATIC(ShortcutManager, uniqueInstance)
 
