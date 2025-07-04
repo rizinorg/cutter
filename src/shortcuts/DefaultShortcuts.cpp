@@ -129,9 +129,8 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
 
         // Decompiler
         { "Decompiler.copy",
-          { { QKeySequence::Copy },
-            QT_TRANSLATE_NOOP("DecompilerContextMenu", "Copy"),
-            "DecompilerContextMenu" } },
+          { QKeySequence::keyBindings(QKeySequence::Copy),
+            QT_TRANSLATE_NOOP("DecompilerContextMenu", "Copy"), "DecompilerContextMenu" } },
         { "Decompiler.copyReferenceAddress",
           { { Qt::KeyboardModifier::ControlModifier | Qt::KeyboardModifier::ShiftModifier
               | Qt::Key_C },
@@ -168,9 +167,8 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
 
         // Disassembly
         { "Disassembly.copy",
-          { { QKeySequence::Copy },
-            QT_TRANSLATE_NOOP("DisassemblyContextMenu", "Copy"),
-            "DisassemblyContextMenu" } },
+          { QKeySequence::keyBindings(QKeySequence::Copy),
+            QT_TRANSLATE_NOOP("DisassemblyContextMenu", "Copy"), "DisassemblyContextMenu" } },
         { "Disassembly.copyAddress",
           { { Qt::CTRL | Qt::SHIFT | Qt::Key_C },
             QT_TRANSLATE_NOOP("DisassemblyContextMenu", "Copy address"),
@@ -317,7 +315,8 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
 
         // Hex
         { "Hex.copy",
-          { { QKeySequence::Copy }, QT_TRANSLATE_NOOP("HexWidget", "Copy"), "HexWidget" } },
+          { QKeySequence::keyBindings(QKeySequence::Copy), QT_TRANSLATE_NOOP("HexWidget", "Copy"),
+            "HexWidget" } },
         { "Hex.copyAddress",
           { { Qt::CTRL | Qt::SHIFT | Qt::Key_C },
             QT_TRANSLATE_NOOP("HexWidget", "Copy address"),
