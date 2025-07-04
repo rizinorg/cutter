@@ -18,7 +18,17 @@
     <widget class="QTreeWidget" name="shortcutTree">
      <column>
       <property name="text">
-       <string notr="true">1</string>
+       <string notr="true">Command</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Shortcut</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Description</string>
       </property>
      </column>
     </widget>
