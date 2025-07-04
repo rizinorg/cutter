@@ -131,9 +131,8 @@ HexWidget::HexWidget(QWidget *parent)
     addAction(actionComment);
 
     // Add flag option
-    actionAddFlag =
-            new QAction(tr("Add flag at %1").arg(RzAddressString(getLocationAddress())), this);
-    Shortcuts()->setupAction(*actionAddFlag, "Hex.addFlag");
+    actionAddFlag = Shortcuts()->makeAction("Hex.addFlag", this);
+    actionAddFlag->setText(tr("Add flag at %1").arg(RzAddressString(getLocationAddress())));
     actionAddFlag->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
     connect(actionAddFlag, &QAction::triggered, this, &HexWidget::onActionAddFlagTriggered);
     connect(this, &HexWidget::positionChanged, this, [this](RVA pos) {
