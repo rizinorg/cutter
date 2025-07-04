@@ -7,7 +7,6 @@
 #include <QKeySequence>
 
 class MainWindow;
-struct Shortcut;
 
 class CUTTER_EXPORT DisassemblyContextMenu : public QMenu
 {
