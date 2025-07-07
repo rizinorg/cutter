@@ -25,20 +25,13 @@ void ShortcutOptionsWidget::setupUiElements()
 void ShortcutOptionsWidget::populateShortcutTree()
 {
     const QHash<QString, QString> categories = {
-        { "General", tr("General") },
-        { "Disassembly", tr("Disassembly") },
-        { "Decompiler", tr("Decompiler") },
-        { "Strings", tr("Strings") },
-        { "Graph", tr("Graph") },
-        { "Breakpoint", tr("Breakpoint") },
-        { "Console", tr("Console") },
-        { "Hex", tr("Hex") },
-        { "Debug", tr("Debug") },
-        { "Functions", tr("Functions") },
-        { "Omnibar", tr("Omnibar") },
-        { "Exports", tr("Exports") },
-        { "Imports", tr("Imports") },
-        { "Overview", tr("Graph Overview") },
+        { "General", tr("General") },       { "Disassembly", tr("Disassembly") },
+        { "Decompiler", tr("Decompiler") }, { "Strings", tr("Strings") },
+        { "Graph", tr("Graph") },           { "Breakpoint", tr("Breakpoint") },
+        { "Console", tr("Console") },       { "Hex", tr("Hex") },
+        { "Debug", tr("Debug") },           { "Functions", tr("Functions") },
+        { "Omnibar", tr("Omnibar") },       { "Exports", tr("Exports") },
+        { "Imports", tr("Imports") },       { "Overview", tr("Graph Overview") },
     };
 
     QHash<QString, QTreeWidgetItem *> prefixToItem;
