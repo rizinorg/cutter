@@ -64,7 +64,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     connectSeekChanged(false);
 
     // ESC for previous
-    QShortcut *shortcut_escape = Shortcuts()->makeQShortcut("Graph.seekPrev", this);
+    QShortcut *shortcut_escape = Shortcuts()->makeQShortcut("General.seekPrev", this);
     shortcut_escape->setContext(Qt::WidgetShortcut);
     connect(shortcut_escape, &QShortcut::activated, seekable, &CutterSeekable::seekPrev);
 

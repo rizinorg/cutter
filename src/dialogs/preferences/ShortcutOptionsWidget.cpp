@@ -28,7 +28,6 @@ void ShortcutOptionsWidget::populateShortcutTree()
         { "General", tr("General") },
         { "Disassembly", tr("Disassembly") },
         { "Decompiler", tr("Decompiler") },
-        { "AddressableItem", tr("AddressableItem") },
         { "Strings", tr("Strings") },
         { "Graph", tr("Graph") },
         { "Breakpoint", tr("Breakpoint") },
@@ -39,6 +38,7 @@ void ShortcutOptionsWidget::populateShortcutTree()
         { "Omnibar", tr("Omnibar") },
         { "Exports", tr("Exports") },
         { "Imports", tr("Imports") },
+        { "Overview", tr("Graph Overview") },
     };
 
     QHash<QString, QTreeWidgetItem *> prefixToItem;

@@ -50,7 +50,6 @@ private slots:
     void on_actionSetFunctionVarTypes_triggered();
     void on_actionXRefs_triggered();
     void on_actionXRefsForVariables_triggered();
-    void on_actionDisplayOptions_triggered();
 
     void on_actionDeleteComment_triggered();
     void on_actionDeleteFlag_triggered();
@@ -104,7 +103,6 @@ private:
     QAction actionSetFunctionVarTypes;
     QAction actionXRefs;
     QAction actionXRefsForVariables;
-    QAction actionDisplayOptions;
 
     QAction actionDeleteComment;
     QAction actionDeleteFlag;

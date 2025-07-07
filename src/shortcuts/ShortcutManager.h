@@ -26,6 +26,12 @@ public:
     QShortcut *makeQShortcut(const QString &id, QWidget *parent);
 
     /**
+     * @brief Returns whether the given key sequence matches any key sequence assigned to the
+     * specified shortcut ID.
+     */
+    bool matchesKeySequence(const QString &id, const QKeySequence &keySeq);
+
+    /**
      * @brief placeholder for getting custom shortcuts set by the user.
      */
     QList<QKeySequence> getCustomKeySequences(const QString &id);

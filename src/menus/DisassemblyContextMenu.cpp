@@ -42,7 +42,6 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
       actionSetFunctionVarTypes(this),
       actionXRefs(this),
       actionXRefsForVariables(this),
-      actionDisplayOptions(this),
       actionDeleteComment(this),
       actionDeleteFlag(this),
       actionDeleteFunction(this),
@@ -72,11 +71,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
       actionSetToDataQword(this),
       showInSubmenu(this)
 {
-    initShortcutAction(&actionCopy, "Disassembly.copy", SLOT(on_actionCopy_triggered()));
+    initShortcutAction(&actionCopy, "General.copy", SLOT(on_actionCopy_triggered()));
     addAction(&actionCopy);
 
-    initShortcutAction(&actionCopyAddr, "Disassembly.copyAddress",
-                       SLOT(on_actionCopyAddr_triggered()));
+    initShortcutAction(&actionCopyAddr, "General.copyAddress", SLOT(on_actionCopyAddr_triggered()));
     addAction(&actionCopyAddr);
 
     initShortcutAction(&actionCopyInstrBytes, "Disassembly.copyInstructionBytes",
@@ -88,7 +86,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 
     copySeparator = addSeparator();
 
-    initShortcutAction(&actionAddComment, "Disassembly.addComment",
+    initShortcutAction(&actionAddComment, "General.addComment",
                        SLOT(on_actionAddComment_triggered()));
     addAction(&actionAddComment);
 
@@ -131,15 +129,12 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 
     addSeparator();
 
-    initShortcutAction(&actionXRefs, "Disassembly.showXRefs", SLOT(on_actionXRefs_triggered()));
+    initShortcutAction(&actionXRefs, "General.showXRefs", SLOT(on_actionXRefs_triggered()));
     addAction(&actionXRefs);
 
     initShortcutAction(&actionXRefsForVariables, "Disassembly.XRefsForVariables",
                        SLOT(on_actionXRefsForVariables_triggered()));
     addAction(&actionXRefsForVariables);
-
-    initShortcutAction(&actionDisplayOptions, "Disassembly.showOptions",
-                       SLOT(on_actionDisplayOptions_triggered()));
 
     addSeparator();
 
@@ -284,6 +279,7 @@ void DisassemblyContextMenu::addSetToDataMenu()
 
     initShortcutAction(&actionSetToDataEx, "Disassembly.setToDataEx",
                        SLOT(on_actionSetToDataEx_triggered()));
+    actionSetToDataEx.setText(tr("Advanced"));
     setToDataMenu->addAction(&actionSetToDataEx);
 
     auto switchAction = new QAction(this);
@@ -313,10 +309,10 @@ void DisassemblyContextMenu::addBreakpointMenu()
 {
     breakpointMenu = addMenu(tr("Breakpoint"));
 
-    initShortcutAction(&actionAddBreakpoint, "Disassembly.toggleBreakpoint",
+    initShortcutAction(&actionAddBreakpoint, "Debug.toggleBreakpoint",
                        SLOT(on_actionAddBreakpoint_triggered()));
     breakpointMenu->addAction(&actionAddBreakpoint);
-    initShortcutAction(&actionAdvancedBreakpoint, "Disassembly.advancedBreakpoint",
+    initShortcutAction(&actionAdvancedBreakpoint, "Debug.advancedBreakpoint",
                        SLOT(on_actionAdvancedBreakpoint_triggered()));
     breakpointMenu->addAction(&actionAdvancedBreakpoint);
 }
@@ -860,13 +856,6 @@ void DisassemblyContextMenu::on_actionXRefsForVariables_triggered()
         dialog.fillRefsForVariable(curHighlightedWord, offset);
         dialog.exec();
     }
-}
-
-void DisassemblyContextMenu::on_actionDisplayOptions_triggered()
-{
-    PreferencesDialog dialog(parentForDialog());
-    dialog.showSection(PreferencesDialog::Section::Disassembly);
-    dialog.exec();
 }
 
 void DisassemblyContextMenu::on_actionSetToCode_triggered()

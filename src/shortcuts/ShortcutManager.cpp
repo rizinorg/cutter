@@ -87,6 +87,17 @@ QShortcut *ShortcutManager::makeQShortcut(const QString &id, QWidget *parent)
     return shortcut;
 }
 
+bool ShortcutManager::matchesKeySequence(const QString &id, const QKeySequence &keySeq)
+{
+    const auto sequences = getKeySequences(id);
+    for (const QKeySequence &seq : sequences) {
+        if (seq == keySeq) {
+            return true;
+        }
+    }
+    return false;
+}
+
 QList<QKeySequence> ShortcutManager::getCustomKeySequences(const QString &id)
 {
     return {}; // Custom shortcut support is not implemented yet

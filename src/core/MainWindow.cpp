@@ -177,10 +177,7 @@ void MainWindow::initUI()
     QShortcut *cmd_shortcut = Shortcuts()->makeQShortcut("General.focusConsole", this);
     connect(cmd_shortcut, &QShortcut::activated, consoleDock, &ConsoleWidget::focusInputLineEdit);
 
-    // G and S goes to goto entry
-    QShortcut *goto_shortcut = Shortcuts()->makeQShortcut("General.gotoEntry", this);
-    connect(goto_shortcut, &QShortcut::activated, this->omnibar,
-            [this]() { this->omnibar->setFocus(); });
+    // S goes to goto entry
     QShortcut *seek_shortcut = Shortcuts()->makeQShortcut("General.seek", this);
     connect(seek_shortcut, &QShortcut::activated, this->omnibar,
             [this]() { this->omnibar->setFocus(); });

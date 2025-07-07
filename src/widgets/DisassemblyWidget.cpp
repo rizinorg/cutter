@@ -168,14 +168,10 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     ADD_ACTION("Disassembly.switchToGraph", Qt::WidgetWithChildrenShortcut,
                [this] { mainWindow->showMemoryWidget(MemoryWidgetType::Graph); })
 
-    ADD_ACTION("Disassembly.seekPrev", Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::seekPrev)
+    ADD_ACTION("General.seekPrev", Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::seekPrev)
 
-    ADD_ACTION("Disassembly.moveDownJ", Qt::WidgetWithChildrenShortcut,
-               [this]() { moveCursorRelative(false, false); })
     ADD_ACTION("Disassembly.moveDown", Qt::WidgetWithChildrenShortcut,
                [this]() { moveCursorRelative(false, false); })
-    ADD_ACTION("Disassembly.moveUpK", Qt::WidgetWithChildrenShortcut,
-               [this]() { moveCursorRelative(true, false); })
     ADD_ACTION("Disassembly.moveUp", Qt::WidgetWithChildrenShortcut,
                [this]() { moveCursorRelative(true, false); })
     ADD_ACTION("Disassembly.pageDown", Qt::WidgetWithChildrenShortcut,

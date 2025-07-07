@@ -271,7 +271,7 @@ void DecompilerContextMenu::aboutToShowSlot()
 
 void DecompilerContextMenu::setActionCopy() // Set all three copy actions
 {
-    Shortcuts()->setupAction(actionCopy, "Decompiler.copy");
+    Shortcuts()->setupAction(actionCopy, "General.copy");
     connect(&actionCopy, &QAction::triggered, this, &DecompilerContextMenu::actionCopyTriggered);
     addAction(&actionCopy);
     connect(&actionCopyInstructionAddress, &QAction::triggered, this,
@@ -291,7 +291,7 @@ void DecompilerContextMenu::setActionShowInSubmenu()
 
 void DecompilerContextMenu::setActionAddComment()
 {
-    Shortcuts()->setupAction(actionAddComment, "Decompiler.addComment");
+    Shortcuts()->setupAction(actionAddComment, "General.addComment");
     connect(&actionAddComment, &QAction::triggered, this,
             &DecompilerContextMenu::actionAddCommentTriggered);
     addAction(&actionAddComment);
@@ -306,7 +306,7 @@ void DecompilerContextMenu::setActionDeleteComment()
 
 void DecompilerContextMenu::setActionXRefs()
 {
-    Shortcuts()->setupAction(actionXRefs, "Decompiler.showXRefs");
+    Shortcuts()->setupAction(actionXRefs, "General.showXRefs");
     connect(&actionXRefs, &QAction::triggered, this, &DecompilerContextMenu::actionXRefsTriggered);
     addAction(&actionXRefs);
 }
@@ -343,14 +343,14 @@ void DecompilerContextMenu::setActionEditFunctionVariables()
 
 void DecompilerContextMenu::setActionToggleBreakpoint()
 {
-    Shortcuts()->setupAction(actionToggleBreakpoint, "Decompiler.toggleBreakpoint");
+    Shortcuts()->setupAction(actionToggleBreakpoint, "Debug.toggleBreakpoint");
     connect(&actionToggleBreakpoint, &QAction::triggered, this,
             &DecompilerContextMenu::actionToggleBreakpointTriggered);
 }
 
 void DecompilerContextMenu::setActionAdvancedBreakpoint()
 {
-    Shortcuts()->setupAction(actionAdvancedBreakpoint, "Decompiler.advancedBreakpoint");
+    Shortcuts()->setupAction(actionAdvancedBreakpoint, "Debug.advancedBreakpoint");
     connect(&actionAdvancedBreakpoint, &QAction::triggered, this,
             &DecompilerContextMenu::actionAdvancedBreakpointTriggered);
 }
