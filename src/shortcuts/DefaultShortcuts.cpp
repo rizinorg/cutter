@@ -5,10 +5,6 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
     static const QHash<QString, Shortcut> defaultShortcuts = {
 
         // General
-        { "General.focusConsole",
-          { { Qt::Key_Period },
-            QT_TRANSLATE_NOOP("MainWindow", "Focus Console Input"),
-            "MainWindow" } },
         { "General.seek",
           { { Qt::Key_S }, QT_TRANSLATE_NOOP("MainWindow", "Seek"), "MainWindow" } },
         { "General.seekToFunctionEnd",
@@ -58,9 +54,6 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
           { { Qt::CTRL | Qt::SHIFT | Qt::Key_C },
             QT_TRANSLATE_NOOP("AddressableItemContextMenu", "Copy address"),
             "AddressableItemContextMenu" } },
-        { "General.copy",
-          { QKeySequence::keyBindings(QKeySequence::Copy),
-            QT_TRANSLATE_NOOP("DecompilerContextMenu", "Copy"), "DecompilerContextMenu" } },
         { "General.seekPrev",
           { { Qt::Key_Escape },
             QT_TRANSLATE_NOOP("DecompilerWidget", "Seek to Previous Address"),
@@ -77,6 +70,10 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
             "BreakpointWidget" } },
 
         // Console
+        { "Console.focusConsole",
+          { { Qt::Key_Period },
+            QT_TRANSLATE_NOOP("MainWindow", "Focus Console Input"),
+            "MainWindow" } },
         { "Console.toggle",
           { { Qt::CTRL | Qt::Key_QuoteLeft, Qt::Key_Colon },
             QT_TRANSLATE_NOOP("ConsoleWidget", "Toggle Console Window"),
@@ -141,6 +138,9 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
             "DecompilerContextMenu" } },
 
         // Decompiler
+        { "Decompiler.copy",
+          { QKeySequence::keyBindings(QKeySequence::Copy),
+            QT_TRANSLATE_NOOP("DecompilerContextMenu", "Copy"), "DecompilerContextMenu" } },
         { "Decompiler.copyReferenceAddress",
           { { Qt::KeyboardModifier::ControlModifier | Qt::KeyboardModifier::ShiftModifier
               | Qt::Key_C },
@@ -156,6 +156,9 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
             "DecompilerContextMenu" } },
 
         // Disassembly
+        { "Disassembly.copy",
+          { QKeySequence::keyBindings(QKeySequence::Copy),
+            QT_TRANSLATE_NOOP("DisassemblyContextMenu", "Copy"), "DisassemblyContextMenu" } },
         { "Disassembly.copyInstructionBytes",
           { { Qt::CTRL | Qt::ALT | Qt::Key_C },
             QT_TRANSLATE_NOOP("DisassemblyContextMenu", "Copy instruction bytes"),
@@ -266,6 +269,9 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
             "GraphWidget" } },
 
         // Hex
+        { "Hex.copy",
+          { QKeySequence::keyBindings(QKeySequence::Copy), QT_TRANSLATE_NOOP("HexWidget", "Copy"),
+            "HexWidget" } },
         { "Hex.addFlag",
           { { Qt::Key_N }, QT_TRANSLATE_NOOP("HexWidget", "Add flag at address"), "HexWidget" } },
 

@@ -271,7 +271,7 @@ void DecompilerContextMenu::aboutToShowSlot()
 
 void DecompilerContextMenu::setActionCopy() // Set all three copy actions
 {
-    Shortcuts()->setupAction(actionCopy, "General.copy");
+    Shortcuts()->setupAction(actionCopy, "Decompiler.copy");
     connect(&actionCopy, &QAction::triggered, this, &DecompilerContextMenu::actionCopyTriggered);
     addAction(&actionCopy);
     connect(&actionCopyInstructionAddress, &QAction::triggered, this,

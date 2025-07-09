@@ -174,7 +174,7 @@ void MainWindow::initUI()
      */
 
     // Period goes to command entry
-    QShortcut *cmd_shortcut = Shortcuts()->makeQShortcut("General.focusConsole", this);
+    QShortcut *cmd_shortcut = Shortcuts()->makeQShortcut("Console.focusConsole", this);
     connect(cmd_shortcut, &QShortcut::activated, consoleDock, &ConsoleWidget::focusInputLineEdit);
 
     // S goes to goto entry

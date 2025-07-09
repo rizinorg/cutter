@@ -14,6 +14,12 @@ ShortcutManager::ShortcutManager() {}
 QList<QKeySequence> ShortcutManager::getKeySequences(const QString &id)
 {
     const auto &defaultShortcuts = getDefaultShortcuts();
+
+    if (!defaultShortcuts.contains(id)) {
+        qWarning() << "Can't find shortcut for" << id;
+        return {};
+    }
+
     QList<QKeySequence> ksq = getCustomKeySequences(id);
     if (ksq.isEmpty()) { // No custom keySequence set, return default
         ksq = defaultShortcuts.value(id).keySequences;
