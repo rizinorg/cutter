@@ -274,6 +274,8 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
             "HexWidget" } },
         { "Hex.addFlag",
           { { Qt::Key_N }, QT_TRANSLATE_NOOP("HexWidget", "Add flag at address"), "HexWidget" } },
+        { "Hex.addMark",
+          { { Qt::Key_M }, QT_TRANSLATE_NOOP("HexWidget", "Add mark"), "HexWidget" } },
 
         // Imports
         { "Imports.toggle",

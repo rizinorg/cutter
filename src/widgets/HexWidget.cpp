@@ -1,6 +1,7 @@
 #include "HexWidget.h"
 #include "Cutter.h"
 #include "Configuration.h"
+#include "dialogs/MarkDialog.h"
 #include "dialogs/WriteCommandsDialogs.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/FlagDialog.h"
@@ -207,6 +208,10 @@ HexWidget::HexWidget(QWidget *parent)
 
     connect(this, &HexWidget::selectionChanged, this,
             [this](Selection newSelection) { actionCopy->setEnabled(!newSelection.empty); });
+
+    actionAddMark = Shortcuts()->makeAction("Hex.addMark", this);
+    connect(actionAddMark, &QAction::triggered, this, &HexWidget::onActionAddMarkTriggered);
+    addAction(actionAddMark);
 
     updateMetrics();
     updateItemLength();
@@ -544,9 +549,38 @@ void HexWidget::mouseMoveEvent(QMouseEvent *event)
 
     auto mouseAddr = mousePosToAddr(pos).address;
 
-    QString metaData = getFlagsAndComment(mouseAddr);
-    if (!metaData.isEmpty() && itemArea.contains(pos)) {
-        QToolTip::showText(mapToGlobal(event->pos()), metaData.replace(",", ", "), this);
+    QString infoText;
+    if (!updatingSelection && (itemArea.contains(pos) || asciiArea.contains(pos))) {
+        QString metaData = getFlagsAndComment(mouseAddr);
+        if (!metaData.isEmpty() && itemArea.contains(pos)) {
+            infoText = metaData.replace(",", ", ");
+        }
+
+        const auto marks = Core()->getMarksAt(mouseAddr);
+        for (const auto &mark : marks) {
+            if (mark.realname.isEmpty()) {
+                continue;
+            }
+            if (!infoText.isEmpty()) {
+                infoText += "<br>";
+            }
+            QColor c = mark.color;
+            infoText += QString("<span style='white-space:nowrap; color: rgba(%1, %2, %3, %4);'>● "
+                                "</span> %5")
+                                .arg(c.red())
+                                .arg(c.green())
+                                .arg(c.blue())
+                                .arg(MARK_ALPHA_F)
+                                .arg(mark.realname.toHtmlEscaped());
+        }
+        if (!infoText.isEmpty()) {
+            // forces tooltip to follow cursor movement
+            QToolTip::showText(mapToGlobal(event->pos()), infoText + " ", this);
+
+            QToolTip::showText(mapToGlobal(event->pos()), infoText, this);
+        } else {
+            QToolTip::hideText();
+        }
     } else {
         QToolTip::hideText();
     }
@@ -1207,6 +1241,38 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
     disableOutsideSelectionActions(mouseOutsideSelection);
     menu->addAction(actionCopyAddress);
     menu->addActions(this->actions());
+
+    /* Marks */
+    menu->addSeparator();
+    menu->addAction(actionAddMark);
+    auto marks = Core()->getMarksAt(cursor.address);
+    if (!marks.empty()) {
+        if (marks.size() == 1) {
+            // Add direct actions if only one mark contains this address
+            const auto &mark = marks.front();
+            QAction *editAction = menu->addAction(tr("Edit Mark"));
+            QAction *removeAction = menu->addAction(tr("Remove Mark"));
+            QString markName = mark.name;
+            connect(removeAction, &QAction::triggered, this,
+                    [this, markName]() { onActionDeleteMarkTriggered(markName); });
+            connect(editAction, &QAction::triggered, this,
+                    [this, markName]() { onActionEditMarkTriggered(markName); });
+        } else {
+            // Add submenus if multiple marks contain this address
+            QMenu *editMarkMenu = menu->addMenu(tr("Edit Mark"));
+            QMenu *removeMarkMenu = menu->addMenu(tr("Remove Mark"));
+            for (const auto &mark : marks) {
+                QAction *subActionRename = removeMarkMenu->addAction(mark.realname);
+                QAction *subActionEdit = editMarkMenu->addAction(mark.realname);
+                QString markName = mark.name;
+                connect(subActionRename, &QAction::triggered, this,
+                        [this, markName]() { onActionDeleteMarkTriggered(markName); });
+                connect(subActionEdit, &QAction::triggered, this,
+                        [this, markName]() { onActionEditMarkTriggered(markName); });
+            }
+        }
+    }
+
     menu->exec(mapToGlobal(pt));
     disableOutsideSelectionActions(false);
     menu->deleteLater();
@@ -1281,6 +1347,33 @@ void HexWidget::onRangeDialogAccepted()
         return;
     }
     selectRange(rangeDialog.getStartAddress(), rangeDialog.getEndAddress());
+}
+
+void HexWidget::onActionAddMarkTriggered()
+{
+    RVA from = cursor.address;
+    RVA to = cursor.address;
+    if (!selection.isEmpty()) {
+        from = selection.start();
+        to = selection.end();
+    }
+    if (MarkDialog(from, to, this).exec()) {
+        refresh();
+    }
+}
+
+void HexWidget::onActionDeleteMarkTriggered(const QString &name)
+{
+    Core()->delMark(name);
+    refresh();
+}
+
+void HexWidget::onActionEditMarkTriggered(const QString &name)
+{
+    RVA addr = cursor.address;
+    if (MarkDialog(addr, addr, this, name).exec()) {
+        refresh();
+    }
 }
 
 void HexWidget::writeZeros(uint64_t address, uint64_t length)
@@ -1661,6 +1754,10 @@ void HexWidget::drawCursor(QPainter &painter, bool shadow)
     QRectF charRect(cursor.screenPos);
     charRect.setWidth(charWidth);
     painter.fillRect(charRect, backgroundColor);
+    QColor markColor = Core()->getBlendedMarksColorAt(cursor.address);
+    if (markColor.isValid()) {
+        painter.fillRect(charRect, markColor);
+    }
     painter.drawText(charRect, Qt::AlignVCenter, cursor.cachedChar);
     if (cursor.isVisible) {
         painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
@@ -1690,6 +1787,36 @@ void HexWidget::drawAddrArea(QPainter &painter)
     painter.drawLine(QLineF(vLineOffset, 0, vLineOffset, viewport()->height()));
 }
 
+void HexWidget::fillMarks(QPainter &painter, bool ascii)
+{
+    uint64_t endAddress = startAddress + visibleLines * itemColumns * itemGroupSize * itemByteLen;
+    endAddress = std::min(endAddress, data->maxIndex());
+    const auto marks = Core()->getMarks();
+    for (const auto &mark : marks) {
+        ut64 from = mark.from;
+        ut64 to = mark.to;
+
+        // Skip marks not visible in current viewport
+        if (to < startAddress || from > endAddress) {
+            continue;
+        }
+
+        const auto shapes = rangePolygons(from, to, ascii);
+
+        QColor color(mark.color);
+        if (!color.isValid()) {
+            continue;
+        }
+        color.setAlphaF(MARK_ALPHA_F);
+        painter.setBrush(color);
+        painter.setPen(Qt::NoPen);
+
+        for (const auto &shape : shapes) {
+            painter.drawPolygon(shape);
+        }
+    }
+}
+
 void HexWidget::drawItemArea(QPainter &painter)
 {
     QRectF itemRect(itemArea.topLeft(), QSizeF(itemWidth(), lineHeight));
@@ -1697,6 +1824,7 @@ void HexWidget::drawItemArea(QPainter &painter)
     QString itemString;
 
     fillSelectionBackground(painter);
+    fillMarks(painter, false);
 
     bool haveEditWord = false;
     QRectF editWordRect;
@@ -1784,6 +1912,8 @@ void HexWidget::drawAsciiArea(QPainter &painter)
     QRectF charRect(asciiArea.topLeft(), QSizeF(charWidth, lineHeight));
 
     fillSelectionBackground(painter, true);
+    fillMarks(painter, true);
+    painter.setBrush(Qt::NoBrush);
 
     uint64_t address = startAddress;
     QChar ascii;

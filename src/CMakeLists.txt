@@ -158,6 +158,7 @@ set(SOURCES
     dialogs/preferences/ShortcutOptionsWidget.cpp
     shortcuts/ShortcutManager.cpp
     shortcuts/DefaultShortcuts.cpp
+    dialogs/MarkDialog.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -325,6 +326,7 @@ set(HEADER_FILES
     dialogs/preferences/ShortcutOptionsWidget.h
     shortcuts/ShortcutManager.h
     shortcuts/DefaultShortcuts.h
+    dialogs/MarkDialog.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -400,6 +402,7 @@ set(UI_FILES
     tools/basefind/BaseFindSearchDialog.ui
     tools/basefind/BaseFindResultsDialog.ui
     dialogs/preferences/ShortcutOptionsWidget.ui
+    dialogs/MarkDialog.ui
 )
 set(QRC_FILES
     resources.qrc

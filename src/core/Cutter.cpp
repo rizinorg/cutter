@@ -16,6 +16,7 @@
 #include "common/Configuration.h"
 #include "common/AsyncTask.h"
 #include "common/RizinTask.h"
+#include "dialogs/MarkDialog.h"
 #include "dialogs/RizinTaskDialog.h"
 #include "common/Json.h"
 #include "core/Cutter.h"
@@ -4455,6 +4456,88 @@ QString CutterCore::nearestFlag(RVA offset, RVA *flagOffsetOut)
         *flagOffsetOut = r->offset;
     }
     return r->name;
+}
+
+void CutterCore::addMark(RVA from, RVA to, QString name, QString comment, QColor color)
+{
+    CORE_LOCK();
+    auto m = rz_mark_set(core->marks, name.toStdString().c_str(), from, to);
+    if (m) {
+        rz_mark_item_set_comment(m, comment.toStdString().c_str());
+        rz_mark_item_set_color(m, color.name().toStdString().c_str());
+    }
+    emit marksChanged();
+}
+
+void CutterCore::delMark(const QString &name)
+{
+    CORE_LOCK();
+    auto m = rz_mark_get(core->marks, name.toStdString().c_str());
+    if (m) {
+        rz_mark_unset(core->marks, m);
+    }
+    emit marksChanged();
+}
+
+QList<MarkDescription> CutterCore::convertMarks(RzList *marks)
+{
+    QList<MarkDescription> markList;
+
+    RzListIter *it;
+    RzMarkItem *mark;
+    CutterRzListForeach (marks, it, RzMarkItem, mark) {
+        MarkDescription desc;
+        desc.from = mark->from;
+        desc.to = mark->to;
+        desc.name = mark->name;
+        desc.realname = mark->realname;
+        desc.comment = mark->comment;
+        desc.color = mark->color ? QColor(mark->color) : QColor(Qt::black);
+
+        markList.append(desc);
+    }
+    rz_list_free(marks);
+    return markList;
+}
+
+QList<MarkDescription> CutterCore::getMarks()
+{
+    CORE_LOCK();
+    return convertMarks(rz_mark_all_list(core->marks));
+}
+
+QList<MarkDescription> CutterCore::getMarksAt(RVA addr)
+{
+    CORE_LOCK();
+    return convertMarks(rz_mark_get_all_off(core->marks, addr));
+}
+
+QColor CutterCore::getBlendedMarksColorAt(RVA addr)
+{
+    const auto &marks = getMarksAt(addr);
+    double r = 0, g = 0, b = 0, a = 0;
+    bool first = true;
+
+    // Iterate in reverse because the oldest/first mark is at the end
+    for (auto it = marks.crbegin(); it != marks.crend(); ++it) {
+        QColor c = it->color;
+        if (!c.isValid()) {
+            continue;
+        }
+
+        double cr = c.redF(), cg = c.greenF(), cb = c.blueF();
+        if (first) {
+            r = cr, g = cg, b = cb, a = MARK_ALPHA_F;
+            first = false;
+        } else {
+            double a_out = MARK_ALPHA_F + a * (1.0 - MARK_ALPHA_F);
+            r = (cr * MARK_ALPHA_F + r * a * (1.0 - MARK_ALPHA_F)) / a_out;
+            g = (cg * MARK_ALPHA_F + g * a * (1.0 - MARK_ALPHA_F)) / a_out;
+            b = (cb * MARK_ALPHA_F + b * a * (1.0 - MARK_ALPHA_F)) / a_out;
+            a = a_out;
+        }
+    }
+    return first ? QColor() : QColor::fromRgbF(r, g, b, a);
 }
 
 void CutterCore::handleREvent(int type, void *data)
