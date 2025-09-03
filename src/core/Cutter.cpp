@@ -4628,10 +4628,10 @@ void CutterCore::loadScript(const QString &scriptname)
 
 QString CutterCore::getRizinVersionReadable(const char *program)
 {
-  RzPath *sys_path = rz_path_new();
-  auto result = fromOwnedCharPtr(rz_version_str(sys_path, program));
-  rz_path_free(sys_path);
-  return result;
+    RzPath *sys_path = rz_path_new();
+    auto result = fromOwnedCharPtr(rz_version_str(sys_path, program));
+    rz_path_free(sys_path);
+    return result;
 }
 
 QString CutterCore::getVersionInformation()
