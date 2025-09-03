@@ -38,8 +38,7 @@ ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject(parent)
     }
 
     RzPath *sys_path = rz_path_new();
-    rz_path_set_prefix(sys_path, RZ_THEMES);
-    const char *theme_dir = rz_path_prefix(sys_path);
+    const char *theme_dir = rz_path_system(sys_path, RZ_THEMES);
     QDir currDir { theme_dir };
     if (currDir.exists()) {
         standardRzThemesLocationPath = currDir.absolutePath();

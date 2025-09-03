@@ -192,17 +192,18 @@ CutterCore *CutterCore::instance()
 
 void CutterCore::initialize(bool loadPlugins)
 {
+    rz_cons_new(); // initialize console
+    core_ = rz_core_new();
+
 #if defined(MACOS_RZ_BUNDLED)
     auto app_path = QDir(QCoreApplication::applicationDirPath());
     app_path.cdUp();
     app_path.cd("Resources");
     qInfo() << "Setting Rizin prefix =" << app_path.absolutePath()
             << " for macOS Application Bundle.";
-    rz_path_set_prefix(app_path.absolutePath().toUtf8().constData());
+    rz_path_set_prefix(core_->sys_path, app_path.absolutePath().toUtf8().constData());
 #endif
 
-    rz_cons_new(); // initialize console
-    core_ = rz_core_new();
     char **env = rz_sys_get_environ();
     core_->io->envprofile = rz_run_get_environ_profile(env);
     rz_core_task_sync_begin(&core_->tasks);
@@ -4628,10 +4629,7 @@ void CutterCore::loadScript(const QString &scriptname)
 
 QString CutterCore::getRizinVersionReadable(const char *program)
 {
-    RzPath *sys_path = rz_path_new();
-    auto result = fromOwnedCharPtr(rz_version_str(sys_path, program));
-    rz_path_free(sys_path);
-    return result;
+    return fromOwnedCharPtr(rz_version_str(core_->sys_path, program));
 }
 
 QString CutterCore::getVersionInformation()
