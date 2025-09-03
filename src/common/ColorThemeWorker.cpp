@@ -37,7 +37,9 @@ ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject(parent)
         QDir().mkpath(customRzThemesLocationPath);
     }
 
-    char *theme_dir = rz_path_prefix(RZ_THEMES);
+    RzPath *sys_path = rz_path_new();
+    rz_path_set_prefix(sys_path, RZ_THEMES);
+    const char *theme_dir = rz_path_prefix(sys_path);
     QDir currDir { theme_dir };
     if (currDir.exists()) {
         standardRzThemesLocationPath = currDir.absolutePath();
@@ -47,7 +49,7 @@ ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject(parent)
                                  "Most likely, Rizin is not properly installed.")
                                       .arg(currDir.path()));
     }
-    free(theme_dir);
+    rz_path_free(sys_path);
 }
 
 QColor ColorThemeWorker::mergeColors(const QColor &upper, const QColor &lower) const

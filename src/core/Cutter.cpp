@@ -4628,7 +4628,10 @@ void CutterCore::loadScript(const QString &scriptname)
 
 QString CutterCore::getRizinVersionReadable(const char *program)
 {
-    return fromOwnedCharPtr(rz_version_str(program));
+  RzPath *sys_path = rz_path_new();
+  auto result = fromOwnedCharPtr(rz_version_str(sys_path, program));
+  rz_path_free(sys_path);
+  return result;
 }
 
 QString CutterCore::getVersionInformation()
@@ -4648,7 +4651,6 @@ QString CutterCore::getVersionInformation()
         { "rz_flag", &rz_flag_version },
         { "rz_core", &rz_core_version },
         { "rz_crypto", &rz_crypto_version },
-        { "rz_bp", &rz_bp_version },
         { "rz_debug", &rz_debug_version },
         { "rz_hash", &rz_hash_version },
         { "rz_io", &rz_io_version },
