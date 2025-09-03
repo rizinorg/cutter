@@ -22,10 +22,6 @@ if (CUTTER_ENABLE_SIGDB)
     list(APPEND MESON_OPTIONS "-Dinstall_sigdb=true")
 endif()
 
-if (CUTTER_PACKAGE_RZ_LIBSWIFT AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
-    list(APPEND MESON_OPTIONS "-Duse_swift_demangler=false")
-endif()
-
 find_program(MESON meson)
 if(NOT MESON)
     message(FATAL_ERROR "Failed to find meson, which is required to build bundled rizin")
