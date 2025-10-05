@@ -6,6 +6,33 @@ These files provide an easy way to deploy *Cutter* in a Docker container. After 
 - Mount directives to mount a shared folder and rizin configuration files.
 - The UID and GID of the user executing `make run` will also be used for the internal container user to avoid permission problems when sharing files.
 
+## Security Features
+
+This repository includes **secure sandboxed container configurations** for both Linux and Windows:
+
+- **Secure Dockerfiles**: Hardened containers with minimal attack surface
+- **Security Auditing**: Automated vulnerability scanning with `make security-audit`
+- **Automated Patching**: Keep containers updated with `make security-patch`
+- **Enhanced Security**: Run with additional protections using `make run-secure`
+
+For detailed security documentation, see [SECURITY.md](SECURITY.md).
+
+### Quick Security Commands
+
+```bash
+# Build secure container
+make build-secure-linux
+
+# Run with enhanced security
+make run-secure
+
+# Audit container security
+make security-audit
+
+# Apply security patches
+make security-patch
+```
+
 ## Mounting and Using a Specific Binary
 
 The `Makefile` allows mounting a single binary file as read-only, which will also be used as an input for *Cutter*. To use this feature, execute `make run BINARY=/absolute/path/to/binary`.

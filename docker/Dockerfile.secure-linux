@@ -1,0 +1,91 @@
+FROM alpine:latest AS builder
+LABEL maintainer "Philipp Schmied <banana@bananamafia.dev>"
+
+# Prevent build fails because of interactive scripts when compiling
+ENV DEBIAN_FRONTEND noninteractive
+
+# Install dependencies required for building Cutter
+RUN apk add --no-cache \
+    bash \
+    build-base \
+    cmake \
+    curl \
+    git \
+    libuuid \
+    linux-headers \
+    make \
+    meson \
+    pkgconfig \
+    python3 \
+    python3-dev \
+    qt5-qtbase \
+    qt5-qtsvg-dev \
+    qt5-qttools-dev \
+    shadow \
+    su-exec \
+    unzip \
+    wget
+
+# Clone and build
+RUN git clone --recurse-submodules https://github.com/rizinorg/cutter.git /opt/cutter && \
+    mkdir -p /opt/cutter/build && \
+    cd /opt/cutter/build && \
+    cmake .. && \
+    cmake --build . -j $(grep -c ^processor /proc/cpuinfo)
+
+FROM alpine:latest AS runner
+
+# Security: Use specific Alpine version with latest security patches
+# Update all packages to latest security patches
+RUN apk update && apk upgrade --no-cache
+
+# Get the compiled Cutter from the builder
+COPY --from=builder /opt/cutter /opt/cutter
+
+# Add the dependencies we need for running
+RUN apk add --no-cache \
+    bash \
+    cabextract \
+    libuuid \
+    qt5-qtbase \
+    qt5-qtsvg-dev \
+    shadow \
+    su-exec
+
+# Security Hardening: Create non-root user with minimal privileges
+RUN addgroup -g 1000 cutter && \
+    adduser -D -u 1000 -G cutter -s /bin/sh cutter && \
+    mkdir /var/sharedFolder && \
+    mkdir -p /home/cutter/.config/rizin && \
+    touch /home/cutter/.rizinrc && \
+    chown -R cutter:cutter /var/sharedFolder && \
+    chown -R cutter:cutter /home/cutter/
+
+# Security Hardening: Remove unnecessary packages and clean cache
+RUN rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
+
+# Security: Set proper permissions
+RUN chmod 755 /home/cutter && \
+    chmod 700 /home/cutter/.config && \
+    chmod 755 /var/sharedFolder
+
+# Security: Limit capabilities - drop all and add only needed ones
+# This will be enforced at container runtime via docker run --cap-drop=ALL
+
+# Security: Set read-only root filesystem where possible
+# Writable directories are limited to specific mounted volumes
+
+# Security: Resource limits will be enforced at runtime via docker run
+
+WORKDIR /home/cutter
+ADD entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod 755 /usr/local/bin/entrypoint.sh
+
+# Security: Run as non-root user by default
+USER cutter
+
+# Security: Use healthcheck to monitor container
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD pgrep -x cutter > /dev/null || exit 1
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

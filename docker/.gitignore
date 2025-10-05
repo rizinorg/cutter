@@ -1,0 +1,11 @@
+# Docker security audit and patch logs
+audit-reports/
+patch-logs/
+
+# Temporary files
+*.log
+*.tmp
+*.temp
+
+# Generated reports
+security-report-*.txt

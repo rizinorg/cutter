@@ -1,0 +1,54 @@
+# Windows Secure Container for Cutter
+# Note: Windows containers require Windows Server 2019 or later as host
+FROM mcr.microsoft.com/windows/servercore:ltsc2022 AS builder
+
+# Set working directory
+WORKDIR C:\\build
+
+# Install Chocolatey package manager
+RUN powershell -Command \
+    Set-ExecutionPolicy Bypass -Scope Process -Force; \
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; \
+    iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+
+# Install build dependencies with security patches
+RUN choco install -y git cmake python3 visualstudio2019buildtools --version=16.11.32 \
+    visualstudio2019-workload-vctools --version=1.0.1 && \
+    choco upgrade all -y
+
+# Clone and build Cutter
+RUN git clone --recurse-submodules https://github.com/rizinorg/cutter.git C:\\build\\cutter && \
+    cd C:\\build\\cutter && \
+    mkdir build && cd build && \
+    cmake -G "Visual Studio 16 2019" -A x64 .. && \
+    cmake --build . --config Release
+
+# Runtime stage with security hardening
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
+
+# Security: Apply latest Windows updates
+RUN powershell -Command \
+    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force; \
+    Install-Module PSWindowsUpdate -Force; \
+    Get-WindowsUpdate -Install -AcceptAll -IgnoreReboot
+
+# Copy built Cutter from builder
+COPY --from=builder C:\\build\\cutter\\build\\Release C:\\cutter
+
+# Security: Create non-administrator user
+RUN net user cutteruser /add && \
+    net localgroup Users cutteruser /add
+
+# Security: Set directory permissions
+RUN icacls C:\\cutter /grant cutteruser:(OI)(CI)RX /T
+
+# Security: Remove unnecessary components
+RUN powershell -Command "Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH*' | Remove-WindowsCapability -Online"
+
+WORKDIR C:\\cutter
+
+# Security: Run as non-privileged user
+USER cutteruser
+
+# Set entry point
+ENTRYPOINT ["C:\\cutter\\cutter.exe"]
