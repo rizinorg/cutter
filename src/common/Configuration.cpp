@@ -5,6 +5,7 @@
 #include <QFontDatabase>
 #include <QFile>
 #include <QApplication>
+#include <QHash>
 
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
 #    include <KSyntaxHighlighting/Repository>
@@ -641,9 +642,9 @@ void Configuration::setConfig(const QString &key, const QVariant &value)
 
 /**
  * @brief this function will gather and return available translation for Cutter
- * @return a list of all available translations
+ * @return a list of locales and their names
  */
-QStringList Configuration::getAvailableTranslations()
+std::vector<Configuration::LangInfo> Configuration::getAvailableTranslations()
 {
     const auto &trDirs = Cutter::getTranslationsDirectories();
 
@@ -662,28 +663,49 @@ QStringList Configuration::getAvailableTranslations()
 
     QStringList fileNames = fileNamesSet.values();
     std::sort(fileNames.begin(), fileNames.end());
-    QStringList languages;
     QString currLanguageName;
-    auto allLocales =
-            QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript, QLocale::AnyCountry);
+    std::vector<Configuration::LangInfo> result;
+    QHash<QString, int> langCount;
+    for (const auto &translationFile : fileNames) {
+        auto name = QFileInfo(translationFile).baseName();
+        auto parts = name.split("_");
+        if (parts.length() < 2) {
+            continue;
+        }
+        auto langCode = parts[1];
+        ++langCount[langCode];
+    }
 
-    for (auto i : fileNames) {
-        QString localeName = i.mid(sizeof("cutter_") - 1, 2); // TODO:#2321 don't asume 2 characters
-        // language code is sometimes 3 characters, and there could also be language_COUNTRY. Qt
-        // supports that.
+    for (auto &i : fileNames) {
+        auto name = QFileInfo(i).baseName();
+        QString localeName = name.mid(sizeof("cutter_") - 1);
         QLocale locale(localeName);
-        if (locale.language() != QLocale::C) {
-            currLanguageName = locale.nativeLanguageName();
-            if (currLanguageName
-                        .isEmpty()) { // Qt doesn't have native language name for some languages
-                currLanguageName = QLocale::languageToString(locale.language());
-            }
-            if (!currLanguageName.isEmpty()) {
-                languages << currLanguageName;
+        if (locale.language() == QLocale::C) {
+            continue;
+        }
+        auto langCode = locale.name().split("_").first();
+        currLanguageName = locale.nativeLanguageName();
+        if (currLanguageName.isEmpty()) { // Qt doesn't have native language name for some languages
+            currLanguageName = QLocale::languageToString(locale.language());
+        }
+        // When there is single translation try to use generic language name without region name
+        if (langCount[langCode] <= 1
+            && locale.language() != QLocale::Chinese) { // Always distinguish Chinese Traditional,
+                                                        // Chinese simplified
+            QLocale localSimple(locale.language());
+            auto simpleName = localSimple.nativeLanguageName();
+            if (!simpleName.isEmpty()) {
+                currLanguageName = simpleName;
             }
         }
+        if (!currLanguageName.isEmpty()) {
+            result.push_back({ currLanguageName, locale });
+        }
     }
-    return languages << QLatin1String("English");
+    if (langCount["en"] == 0) {
+        result.push_back({ "English", QLocale("en") });
+    }
+    return result;
 }
 
 /**

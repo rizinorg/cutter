@@ -7,6 +7,7 @@
 #include "common/FunctionsTask.h"
 #include "common/TempConfig.h"
 #include "menus/AddressableItemContextMenu.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <algorithm>
 #include <QMenu>
@@ -521,7 +522,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     connect(&actionVertical, &QAction::toggled, this, &FunctionsWidget::onActionVerticalToggled);
     titleContextMenu->addActions(viewTypeGroup->actions());
 
-    actionRename.setShortcut({ Qt::Key_N });
+    Shortcuts()->setupAction(actionRename, "Functions.rename");
     actionRename.setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
     connect(&actionRename, &QAction::triggered, this,
             &FunctionsWidget::onActionFunctionsRenameTriggered);

@@ -418,6 +418,16 @@ struct BasefindResultDescription
     ut32 score;
 };
 
+struct MarkDescription
+{
+    RVA from;
+    RVA to;
+    QString name;
+    QString realname;
+    QString comment;
+    QColor color;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -459,5 +469,6 @@ Q_DECLARE_METATYPE(RefDescription)
 Q_DECLARE_METATYPE(VariableDescription)
 Q_DECLARE_METATYPE(BasefindCoreStatusDescription)
 Q_DECLARE_METATYPE(BasefindResultDescription)
+Q_DECLARE_METATYPE(MarkDescription)
 
 #endif // DESCRIPTIONS_H

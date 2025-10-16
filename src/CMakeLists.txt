@@ -156,6 +156,10 @@ set(SOURCES
     tools/basefind/BaseFindSearchDialog.cpp
     tools/basefind/BaseFindResultsDialog.cpp
     widgets/AddressRangeScrollBar.cpp
+    dialogs/preferences/ShortcutOptionsWidget.cpp
+    shortcuts/ShortcutManager.cpp
+    shortcuts/DefaultShortcuts.cpp
+    dialogs/MarkDialog.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -321,6 +325,10 @@ set(HEADER_FILES
     tools/basefind/BaseFindSearchDialog.h
     tools/basefind/BaseFindResultsDialog.h
     widgets/AddressRangeScrollBar.h
+    dialogs/preferences/ShortcutOptionsWidget.h
+    shortcuts/ShortcutManager.h
+    shortcuts/DefaultShortcuts.h
+    dialogs/MarkDialog.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -395,6 +403,8 @@ set(UI_FILES
     tools/basefind/BaseFindDialog.ui
     tools/basefind/BaseFindSearchDialog.ui
     tools/basefind/BaseFindResultsDialog.ui
+    dialogs/preferences/ShortcutOptionsWidget.ui
+    dialogs/MarkDialog.ui
 )
 set(QRC_FILES
     resources.qrc

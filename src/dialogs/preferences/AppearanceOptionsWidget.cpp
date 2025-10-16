@@ -29,14 +29,26 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
     ui->setupUi(this);
     updateFromConfig();
 
-    QStringList langs = Config()->getAvailableTranslations();
-    ui->languageComboBox->addItems(langs);
-
-    QString curr = Config()->getCurrLocale().nativeLanguageName();
-    if (!langs.contains(curr)) {
-        curr = "English";
+    auto langs = Config()->getAvailableTranslations();
+    for (auto &lang : langs) {
+        ui->languageComboBox->addItem(lang.name, lang.locale);
     }
-    ui->languageComboBox->setCurrentText(curr);
+
+    auto matchingLang =
+            std::find_if(langs.begin(), langs.end(), [](const Configuration::LangInfo &v) {
+                return v.locale == Config()->getCurrLocale();
+            });
+    if (matchingLang == langs.end()) {
+        matchingLang =
+                std::find_if(langs.begin(), langs.end(), [](const Configuration::LangInfo &v) {
+                    return v.locale.language() == QLocale::English;
+                });
+    }
+    if (matchingLang != langs.end()) {
+        ui->languageComboBox->setCurrentIndex(matchingLang - langs.begin());
+    } else {
+        ui->languageComboBox->setCurrentText("English");
+    }
 
     auto setIcons = [this]() {
         QColor textColor = palette().text().color();
@@ -233,16 +245,16 @@ void AppearanceOptionsWidget::on_renameButton_clicked()
     }
 }
 
-void AppearanceOptionsWidget::onLanguageComboBoxCurrentIndexChanged(int index)
+void AppearanceOptionsWidget::onLanguageComboBoxCurrentIndexChanged(int)
 {
-    QString language = ui->languageComboBox->itemText(index).toLower();
-    if (Config()->setLocaleByName(language)) {
+    QVariant language = ui->languageComboBox->currentData();
+    if (language.canConvert<QLocale>()) {
+        Config()->setLocale(language.toLocale());
         QMessageBox::information(this, tr("Language settings"),
                                  tr("Language will be changed after next application start."));
-        return;
+    } else {
+        qWarning() << tr("Cannot set language, not found in available ones");
     }
-
-    qWarning() << tr("Cannot set language, not found in available ones");
 }
 
 void AppearanceOptionsWidget::updateModificationButtons(const QString &theme)

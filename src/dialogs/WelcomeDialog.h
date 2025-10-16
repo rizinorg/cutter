@@ -27,7 +27,7 @@ public:
 
 private slots:
     void on_themeComboBox_currentIndexChanged(int index);
-    void onLanguageComboBox_currentIndexChanged(int index);
+    void onLanguageCurrentIndexChanged(int index);
     void on_checkUpdateButton_clicked();
     void on_continueButton_clicked();
     void on_updatesCheckBox_stateChanged(int state);

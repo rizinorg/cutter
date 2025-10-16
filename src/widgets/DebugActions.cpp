@@ -4,6 +4,7 @@
 #include "dialogs/NativeDebugDialog.h"
 #include "common/Configuration.h"
 #include "common/Helpers.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QPainter>
 #include <QMenu>
@@ -43,11 +44,6 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main),
     QString continueUMLabel = tr("Continue until main");
     QString continueUCLabel = tr("Continue until call");
     QString continueUSLabel = tr("Continue until syscall");
-    QString continueBackLabel = tr("Continue backwards");
-    QString stepLabel = tr("Step");
-    QString stepOverLabel = tr("Step over");
-    QString stepOutLabel = tr("Step out");
-    QString stepBackLabel = tr("Step backwards");
     startTraceLabel = tr("Start trace session");
     stopTraceLabel = tr("Stop trace session");
     suspendLabel = tr("Suspend the process");
@@ -56,27 +52,25 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main),
     startDebugLabel = tr("Start debug");
 
     // define actions
-    actionStart = new QAction(startDebugIcon, startDebugLabel, this);
-    actionStart->setShortcut(QKeySequence(Qt::Key_F9));
+    actionStart = Shortcuts()->makeAction("Debug.start", this);
+    actionContinue = Shortcuts()->makeAction("Debug.continue", this);
+    actionContinueBack = Shortcuts()->makeAction("Debug.continueBack", this);
+    actionStep = Shortcuts()->makeAction("Debug.step", this);
+    actionStepOver = Shortcuts()->makeAction("Debug.stepOver", this);
+    actionStepOut = Shortcuts()->makeAction("Debug.stepOut", this);
+    actionStepBack = Shortcuts()->makeAction("Debug.stepBack", this);
+    actionStart->setIcon(startDebugIcon);
+    actionContinue->setIcon(continueIcon);
+    actionContinueBack->setIcon(continueBackIcon);
+    actionStepBack->setIcon(stepBackIcon);
+
     actionStartEmul = new QAction(startEmulIcon, startEmulLabel, this);
     actionAttach = new QAction(startAttachIcon, startAttachLabel, this);
     actionStartRemote = new QAction(startRemoteIcon, startRemoteLabel, this);
     actionStop = new QAction(stopIcon, stopDebugLabel, this);
-    actionContinue = new QAction(continueIcon, continueLabel, this);
-    actionContinue->setShortcut(QKeySequence(Qt::Key_F5));
     actionContinueUntilMain = new QAction(continueUMLabel, this);
     actionContinueUntilCall = new QAction(continueUCLabel, this);
     actionContinueUntilSyscall = new QAction(continueUSLabel, this);
-    actionContinueBack = new QAction(continueBackIcon, continueBackLabel, this);
-    actionContinueBack->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F5));
-    actionStep = new QAction(stepLabel, this);
-    actionStep->setShortcut(QKeySequence(Qt::Key_F7));
-    actionStepOver = new QAction(stepOverLabel, this);
-    actionStepOver->setShortcut(QKeySequence(Qt::Key_F8));
-    actionStepOut = new QAction(stepOutLabel, this);
-    actionStepOut->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F8));
-    actionStepBack = new QAction(stepBackIcon, stepBackLabel, this);
-    actionStepBack->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F7));
     actionTrace = new QAction(startTraceIcon, startTraceLabel, this);
 
     QToolButton *startButton = new QToolButton;

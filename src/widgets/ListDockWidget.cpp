@@ -2,6 +2,7 @@
 #include "ui_ListDockWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QMenu>
 #include <QResizeEvent>
@@ -20,13 +21,13 @@ ListDockWidget::ListDockWidget(MainWindow *main, SearchBarPolicy searchBarPolicy
 
     if (searchBarPolicy != SearchBarPolicy::Hide) {
         // Ctrl-F to show/hide the filter entry
-        QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
+        QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
         connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
                 &QuickFilterView::showFilter);
         searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
         // Esc to clear the filter entry
-        QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+        QShortcut *clearShortcut = Shortcuts()->makeQShortcut("General.clearFilter", this);
         connect(clearShortcut, &QShortcut::activated, [this]() {
             ui->quickFilterView->clearFilter();
             ui->treeView->setFocus();

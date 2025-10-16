@@ -16,6 +16,7 @@
 #include "common/Configuration.h"
 #include "common/AsyncTask.h"
 #include "common/RizinTask.h"
+#include "dialogs/MarkDialog.h"
 #include "dialogs/RizinTaskDialog.h"
 #include "common/Json.h"
 #include "core/Cutter.h"
@@ -192,17 +193,18 @@ CutterCore *CutterCore::instance()
 
 void CutterCore::initialize(bool loadPlugins)
 {
+    rz_cons_new(); // initialize console
+    core_ = rz_core_new();
+
 #if defined(MACOS_RZ_BUNDLED)
     auto app_path = QDir(QCoreApplication::applicationDirPath());
     app_path.cdUp();
     app_path.cd("Resources");
     qInfo() << "Setting Rizin prefix =" << app_path.absolutePath()
             << " for macOS Application Bundle.";
-    rz_path_set_prefix(app_path.absolutePath().toUtf8().constData());
+    rz_path_set_prefix(core_->sys_path, app_path.absolutePath().toUtf8().constData());
 #endif
 
-    rz_cons_new(); // initialize console
-    core_ = rz_core_new();
     char **env = rz_sys_get_environ();
     core_->io->envprofile = rz_run_get_environ_profile(env);
     rz_core_task_sync_begin(&core_->tasks);
@@ -4456,6 +4458,88 @@ QString CutterCore::nearestFlag(RVA offset, RVA *flagOffsetOut)
     return r->name;
 }
 
+void CutterCore::addMark(RVA from, RVA to, QString name, QString comment, QColor color)
+{
+    CORE_LOCK();
+    auto m = rz_mark_set(core->marks, name.toStdString().c_str(), from, to);
+    if (m) {
+        rz_mark_item_set_comment(m, comment.toStdString().c_str());
+        rz_mark_item_set_color(m, color.name().toStdString().c_str());
+    }
+    emit marksChanged();
+}
+
+void CutterCore::delMark(const QString &name)
+{
+    CORE_LOCK();
+    auto m = rz_mark_get(core->marks, name.toStdString().c_str());
+    if (m) {
+        rz_mark_unset(core->marks, m);
+    }
+    emit marksChanged();
+}
+
+QList<MarkDescription> CutterCore::convertMarks(RzList *marks)
+{
+    QList<MarkDescription> markList;
+
+    RzListIter *it;
+    RzMarkItem *mark;
+    CutterRzListForeach (marks, it, RzMarkItem, mark) {
+        MarkDescription desc;
+        desc.from = mark->from;
+        desc.to = mark->to;
+        desc.name = mark->name;
+        desc.realname = mark->realname;
+        desc.comment = mark->comment;
+        desc.color = mark->color ? QColor(mark->color) : QColor(Qt::black);
+
+        markList.append(desc);
+    }
+    rz_list_free(marks);
+    return markList;
+}
+
+QList<MarkDescription> CutterCore::getMarks()
+{
+    CORE_LOCK();
+    return convertMarks(rz_mark_all_list(core->marks));
+}
+
+QList<MarkDescription> CutterCore::getMarksAt(RVA addr)
+{
+    CORE_LOCK();
+    return convertMarks(rz_mark_get_all_off(core->marks, addr));
+}
+
+QColor CutterCore::getBlendedMarksColorAt(RVA addr)
+{
+    const auto &marks = getMarksAt(addr);
+    double r = 0, g = 0, b = 0, a = 0;
+    bool first = true;
+
+    // Iterate in reverse because the oldest/first mark is at the end
+    for (auto it = marks.crbegin(); it != marks.crend(); ++it) {
+        QColor c = it->color;
+        if (!c.isValid()) {
+            continue;
+        }
+
+        double cr = c.redF(), cg = c.greenF(), cb = c.blueF();
+        if (first) {
+            r = cr, g = cg, b = cb, a = MARK_ALPHA_F;
+            first = false;
+        } else {
+            double a_out = MARK_ALPHA_F + a * (1.0 - MARK_ALPHA_F);
+            r = (cr * MARK_ALPHA_F + r * a * (1.0 - MARK_ALPHA_F)) / a_out;
+            g = (cg * MARK_ALPHA_F + g * a * (1.0 - MARK_ALPHA_F)) / a_out;
+            b = (cb * MARK_ALPHA_F + b * a * (1.0 - MARK_ALPHA_F)) / a_out;
+            a = a_out;
+        }
+    }
+    return first ? QColor() : QColor::fromRgbF(r, g, b, a);
+}
+
 void CutterCore::handleREvent(int type, void *data)
 {
     switch (type) {
@@ -4628,7 +4712,7 @@ void CutterCore::loadScript(const QString &scriptname)
 
 QString CutterCore::getRizinVersionReadable(const char *program)
 {
-    return fromOwnedCharPtr(rz_version_str(program));
+    return fromOwnedCharPtr(rz_version_str(core_->sys_path, program));
 }
 
 QString CutterCore::getVersionInformation()
@@ -4648,7 +4732,6 @@ QString CutterCore::getVersionInformation()
         { "rz_flag", &rz_flag_version },
         { "rz_core", &rz_core_version },
         { "rz_crypto", &rz_crypto_version },
-        { "rz_bp", &rz_bp_version },
         { "rz_debug", &rz_debug_version },
         { "rz_hash", &rz_hash_version },
         { "rz_io", &rz_io_version },

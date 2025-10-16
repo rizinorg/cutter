@@ -1,5 +1,6 @@
 #include "NativeDebugDialog.h"
 #include "ui_NativeDebugDialog.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QMessageBox>
 #include <QShortcut>
@@ -9,8 +10,8 @@ NativeDebugDialog::NativeDebugDialog(QWidget *parent)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
-    auto shortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return), ui->argEdit, nullptr,
-                                  nullptr, Qt::ShortcutContext::WidgetShortcut);
+    auto shortcut = Shortcuts()->makeQShortcut("Debug.accept", ui->argEdit);
+    shortcut->setContext(Qt::ShortcutContext::WidgetShortcut);
     connect(shortcut, &QShortcut::activated, this, &QDialog::accept);
 }
 

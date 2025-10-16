@@ -253,6 +253,19 @@ public:
     QString nearestFlag(RVA offset, RVA *flagOffsetOut);
     void triggerFlagsChanged();
 
+    /* Marks */
+    void addMark(RVA from, RVA to, QString name, QString comment = {}, QColor color = {});
+    void delMark(const QString &name);
+    QList<MarkDescription> getMarks();
+    QList<MarkDescription> getMarksAt(RVA addr);
+    /**
+     * @brief Compute the blended color of all marks containing a specific address.
+     * @param addr address to query
+     * @return resulting blended color, or invalid QColor if no marks are present at
+     * the specified address
+     */
+    QColor getBlendedMarksColorAt(RVA addr);
+
     /* Global Variables */
     void addGlobalVariable(RVA offset, QString name, QString typ);
     void delGlobalVariable(QString name);
@@ -788,6 +801,7 @@ signals:
     void breakpointsChanged(RVA offset);
     void refreshCodeViews();
     void stackChanged();
+    void marksChanged();
     /**
      * @brief update all the widgets that are affected by rebasing in debug mode
      */
@@ -872,6 +886,7 @@ private:
     QVector<QString> getCutterRCFilePaths() const;
     QList<TypeDescription> getBaseType(RzBaseTypeKind kind, const char *category);
     QList<SearchDescription> getAllSearchCommand(QString searchFor, SearchKind kind, QString in);
+    QList<MarkDescription> convertMarks(RzList *marks);
 };
 
 class CUTTER_EXPORT RzCoreLocked

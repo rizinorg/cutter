@@ -10,6 +10,7 @@
 #include "dialogs/EditFunctionDialog.h"
 #include "dialogs/EditStringDialog.h"
 #include "dialogs/BreakpointsDialog.h"
+#include "shortcuts/ShortcutManager.h"
 #include "MainWindow.h"
 
 #include <QtCore>
@@ -41,7 +42,6 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
       actionSetFunctionVarTypes(this),
       actionXRefs(this),
       actionXRefsForVariables(this),
-      actionDisplayOptions(this),
       actionDeleteComment(this),
       actionDeleteFlag(this),
       actionDeleteFunction(this),
@@ -71,15 +71,14 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
       actionSetToDataQword(this),
       showInSubmenu(this)
 {
-    initAction(&actionCopy, tr("Copy"), SLOT(on_actionCopy_triggered()), getCopySequence());
+    initShortcutAction(&actionCopy, "Disassembly.copy", SLOT(on_actionCopy_triggered()));
     addAction(&actionCopy);
 
-    initAction(&actionCopyAddr, tr("Copy address"), SLOT(on_actionCopyAddr_triggered()),
-               getCopyAddressSequence());
+    initShortcutAction(&actionCopyAddr, "General.copyAddress", SLOT(on_actionCopyAddr_triggered()));
     addAction(&actionCopyAddr);
 
-    initAction(&actionCopyInstrBytes, tr("Copy instruction bytes"),
-               SLOT(on_actionCopyInstrBytes_triggered()), getCopyInstrBytesSequence());
+    initShortcutAction(&actionCopyInstrBytes, "Disassembly.copyInstructionBytes",
+                       SLOT(on_actionCopyInstrBytes_triggered()));
     addAction(&actionCopyInstrBytes);
 
     initAction(&showInSubmenu, tr("Show in"), nullptr);
@@ -87,16 +86,16 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 
     copySeparator = addSeparator();
 
-    initAction(&actionAddComment, tr("Add Comment"), SLOT(on_actionAddComment_triggered()),
-               getCommentSequence());
+    initShortcutAction(&actionAddComment, "General.addComment",
+                       SLOT(on_actionAddComment_triggered()));
     addAction(&actionAddComment);
 
-    initAction(&actionSetFunctionVarTypes, tr("Re-type Local Variables"),
-               SLOT(on_actionSetFunctionVarTypes_triggered()), getRetypeSequence());
+    initShortcutAction(&actionSetFunctionVarTypes, "Disassembly.retypeLocals",
+                       SLOT(on_actionSetFunctionVarTypes_triggered()));
     addAction(&actionSetFunctionVarTypes);
 
-    initAction(&actionEditFunction, tr("Edit function"), SLOT(on_actionEditFunction_triggered()),
-               getEditFunctionSequence());
+    initShortcutAction(&actionEditFunction, "Disassembly.editFunction",
+                       SLOT(on_actionEditFunction_triggered()));
     addAction(&actionEditFunction);
 
     initAction(&actionDeleteComment, tr("Delete comment"),
@@ -106,12 +105,12 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     initAction(&actionDeleteFlag, tr("Delete flag"), SLOT(on_actionDeleteFlag_triggered()));
     addAction(&actionDeleteFlag);
 
-    initAction(&actionDeleteFunction, tr("Undefine function"),
-               SLOT(on_actionDeleteFunction_triggered()), getUndefineFunctionSequence());
+    initShortcutAction(&actionDeleteFunction, "Disassembly.undefineFunction",
+                       SLOT(on_actionDeleteFunction_triggered()));
     addAction(&actionDeleteFunction);
 
-    initAction(&actionAnalyzeFunction, tr("Define function here"),
-               SLOT(on_actionAnalyzeFunction_triggered()), getDefineNewFunctionSequence());
+    initShortcutAction(&actionAnalyzeFunction, "Disassembly.defineFunction",
+                       SLOT(on_actionAnalyzeFunction_triggered()));
     addAction(&actionAnalyzeFunction);
 
     addSeparator();
@@ -130,16 +129,12 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 
     addSeparator();
 
-    initAction(&actionXRefs, tr("Show X-Refs"), SLOT(on_actionXRefs_triggered()),
-               getXRefSequence());
+    initShortcutAction(&actionXRefs, "General.showXRefs", SLOT(on_actionXRefs_triggered()));
     addAction(&actionXRefs);
 
-    initAction(&actionXRefsForVariables, tr("X-Refs for local variables"),
-               SLOT(on_actionXRefsForVariables_triggered()), QKeySequence(Qt::SHIFT | Qt::Key_X));
+    initShortcutAction(&actionXRefsForVariables, "Disassembly.XRefsForVariables",
+                       SLOT(on_actionXRefsForVariables_triggered()));
     addAction(&actionXRefsForVariables);
-
-    initAction(&actionDisplayOptions, tr("Show Options"), SLOT(on_actionDisplayOptions_triggered()),
-               getDisplayOptionsSequence());
 
     addSeparator();
 
@@ -176,12 +171,11 @@ void DisassemblyContextMenu::addAddAtMenu()
 {
     setAsMenu = addMenu(tr("Add at..."));
 
-    initAction(&actionRename, tr("Rename or add flag"), SLOT(on_actionRename_triggered()),
-               getRenameSequence());
+    initShortcutAction(&actionRename, "Disassembly.rename", SLOT(on_actionRename_triggered()));
     setAsMenu->addAction(&actionRename);
 
-    initAction(&actionGlobalVar, tr("Modify or add global variable"),
-               SLOT(on_actionGlobalVar_triggered()), getGlobalVarSequence());
+    initShortcutAction(&actionGlobalVar, "Disassembly.globalVariable",
+                       SLOT(on_actionGlobalVar_triggered()));
     setAsMenu->addAction(&actionGlobalVar);
 }
 
@@ -243,18 +237,18 @@ void DisassemblyContextMenu::addSetAsMenu()
 {
     setAsMenu = addMenu(tr("Set as..."));
 
-    initAction(&actionSetToCode, tr("Code"), SLOT(on_actionSetToCode_triggered()),
-               getSetToCodeSequence());
+    initShortcutAction(&actionSetToCode, "Disassembly.setToCode",
+                       SLOT(on_actionSetToCode_triggered()));
     setAsMenu->addAction(&actionSetToCode);
 
     setAsString = setAsMenu->addMenu(tr("String..."));
 
-    initAction(&actionSetAsStringAuto, tr("Auto-detect"), SLOT(on_actionSetAsString_triggered()),
-               getSetAsStringSequence());
+    initShortcutAction(&actionSetAsStringAuto, "Disassembly.setAsString",
+                       SLOT(on_actionSetAsString_triggered()));
     initAction(&actionSetAsStringRemove, tr("Remove"),
                SLOT(on_actionSetAsStringRemove_triggered()));
-    initAction(&actionSetAsStringAdvanced, tr("Advanced"),
-               SLOT(on_actionSetAsStringAdvanced_triggered()), getSetAsStringAdvanced());
+    initShortcutAction(&actionSetAsStringAdvanced, "Disassembly.setAsStringAdvanced",
+                       SLOT(on_actionSetAsStringAdvanced_triggered()));
 
     setAsString->addAction(&actionSetAsStringAuto);
     setAsString->addAction(&actionSetAsStringRemove);
@@ -283,13 +277,13 @@ void DisassemblyContextMenu::addSetToDataMenu()
     setToDataMenu->addAction(&actionSetToDataQword);
     connect(&actionSetToDataQword, &QAction::triggered, this, [this] { setToData(8); });
 
-    initAction(&actionSetToDataEx, "...", SLOT(on_actionSetToDataEx_triggered()),
-               getSetToDataExSequence());
+    initShortcutAction(&actionSetToDataEx, "Disassembly.setToDataEx",
+                       SLOT(on_actionSetToDataEx_triggered()));
+    actionSetToDataEx.setText(tr("Advanced"));
     setToDataMenu->addAction(&actionSetToDataEx);
 
     auto switchAction = new QAction(this);
-    initAction(switchAction, "Switch Data", SLOT(on_actionSetToData_triggered()),
-               getSetToDataSequence());
+    initShortcutAction(switchAction, "Disassembly.setToData", SLOT(on_actionSetToData_triggered()));
 }
 
 void DisassemblyContextMenu::addEditMenu()
@@ -315,11 +309,11 @@ void DisassemblyContextMenu::addBreakpointMenu()
 {
     breakpointMenu = addMenu(tr("Breakpoint"));
 
-    initAction(&actionAddBreakpoint, tr("Add/remove breakpoint"),
-               SLOT(on_actionAddBreakpoint_triggered()), getAddBPSequence());
+    initShortcutAction(&actionAddBreakpoint, "Debug.toggleBreakpoint",
+                       SLOT(on_actionAddBreakpoint_triggered()));
     breakpointMenu->addAction(&actionAddBreakpoint);
-    initAction(&actionAdvancedBreakpoint, tr("Advanced breakpoint"),
-               SLOT(on_actionAdvancedBreakpoint_triggered()), QKeySequence(Qt::CTRL | Qt::Key_F2));
+    initShortcutAction(&actionAdvancedBreakpoint, "Debug.advancedBreakpoint",
+                       SLOT(on_actionAdvancedBreakpoint_triggered()));
     breakpointMenu->addAction(&actionAdvancedBreakpoint);
 }
 
@@ -635,96 +629,6 @@ void DisassemblyContextMenu::aboutToHideSlot()
     actionXRefsForVariables.setVisible(true);
 }
 
-QKeySequence DisassemblyContextMenu::getCopySequence() const
-{
-    return QKeySequence::Copy;
-}
-
-QKeySequence DisassemblyContextMenu::getCommentSequence() const
-{
-    return { Qt::Key_Semicolon };
-}
-
-QKeySequence DisassemblyContextMenu::getCopyAddressSequence() const
-{
-    return { Qt::CTRL | Qt::SHIFT | Qt::Key_C };
-}
-
-QKeySequence DisassemblyContextMenu::getCopyInstrBytesSequence() const
-{
-    return { Qt::CTRL | Qt::ALT | Qt::Key_C };
-}
-
-QKeySequence DisassemblyContextMenu::getSetToCodeSequence() const
-{
-    return { Qt::Key_C };
-}
-
-QKeySequence DisassemblyContextMenu::getSetAsStringSequence() const
-{
-    return { Qt::Key_A };
-}
-
-QKeySequence DisassemblyContextMenu::getSetAsStringAdvanced() const
-{
-    return { Qt::SHIFT | Qt::Key_A };
-}
-
-QKeySequence DisassemblyContextMenu::getSetToDataSequence() const
-{
-    return { Qt::Key_D };
-}
-
-QKeySequence DisassemblyContextMenu::getSetToDataExSequence() const
-{
-    return { Qt::Key_Asterisk };
-}
-
-QKeySequence DisassemblyContextMenu::getRenameSequence() const
-{
-    return { Qt::Key_N };
-}
-
-QKeySequence DisassemblyContextMenu::getGlobalVarSequence() const
-{
-    return { Qt::Key_G };
-}
-
-QKeySequence DisassemblyContextMenu::getRetypeSequence() const
-{
-    return { Qt::Key_Y };
-}
-
-QKeySequence DisassemblyContextMenu::getXRefSequence() const
-{
-    return { Qt::Key_X };
-}
-
-QKeySequence DisassemblyContextMenu::getDisplayOptionsSequence() const
-{
-    return {}; // TODO insert correct sequence
-}
-
-QList<QKeySequence> DisassemblyContextMenu::getAddBPSequence() const
-{
-    return { Qt::Key_F2, Qt::CTRL | Qt::Key_B };
-}
-
-QKeySequence DisassemblyContextMenu::getDefineNewFunctionSequence() const
-{
-    return { Qt::Key_P };
-}
-
-QKeySequence DisassemblyContextMenu::getEditFunctionSequence() const
-{
-    return { Qt::SHIFT | Qt::Key_P };
-}
-
-QKeySequence DisassemblyContextMenu::getUndefineFunctionSequence() const
-{
-    return { Qt::Key_U };
-}
-
 void DisassemblyContextMenu::on_actionEditInstruction_triggered()
 {
     if (!ioModesController.prepareForWriting()) {
@@ -954,13 +858,6 @@ void DisassemblyContextMenu::on_actionXRefsForVariables_triggered()
     }
 }
 
-void DisassemblyContextMenu::on_actionDisplayOptions_triggered()
-{
-    PreferencesDialog dialog(parentForDialog());
-    dialog.showSection(PreferencesDialog::Section::Disassembly);
-    dialog.exec();
-}
-
 void DisassemblyContextMenu::on_actionSetToCode_triggered()
 {
     Core()->setToCode(offset);
@@ -1149,15 +1046,14 @@ void DisassemblyContextMenu::initAction(QAction *action, QString name, const cha
     action->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 }
 
-void DisassemblyContextMenu::initAction(QAction *action, QString name, const char *slot,
-                                        QList<QKeySequence> keySequenceList)
+void DisassemblyContextMenu::initShortcutAction(QAction *action, const QString &id,
+                                                const char *slot)
 {
-    initAction(action, name, slot);
-    if (keySequenceList.empty()) {
-        return;
-    }
-    action->setShortcuts(keySequenceList);
+    Shortcuts()->setupAction(*action, id);
     action->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    if (slot) {
+        connect(action, SIGNAL(triggered(bool)), this, slot);
+    }
 }
 
 bool DisassemblyContextMenu::isHighlightedWordLocalVar()

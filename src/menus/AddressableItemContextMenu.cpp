@@ -2,6 +2,7 @@
 #include "dialogs/XrefsDialog.h"
 #include "MainWindow.h"
 #include "dialogs/CommentsDialog.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QtCore>
 #include <QShortcut>
@@ -14,29 +15,25 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
     : QMenu(parent), mainWindow(mainWindow)
 {
     actionShowInMenu = new QAction(tr("Show in"), this);
-    actionCopyAddress = new QAction(tr("Copy address"), this);
-    actionShowXrefs = new QAction(tr("Show X-Refs"), this);
-    actionAddComment = new QAction(tr("Add Comment"), this);
-    actionToggleBreakpoint = new QAction(tr("Add Breakpoint"), this);
+    actionCopyAddress = Shortcuts()->makeAction("General.copyAddress", this);
+    actionShowXrefs = Shortcuts()->makeAction("General.showXRefs", this);
+    actionAddComment = Shortcuts()->makeAction("General.addComment", this);
+    actionToggleBreakpoint = Shortcuts()->makeAction("Debug.toggleBreakpoint", this);
 
     connect(actionCopyAddress, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionCopyAddress);
-    actionCopyAddress->setShortcuts({ Qt::CTRL | Qt::SHIFT | Qt::Key_C });
     actionCopyAddress->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     connect(actionShowXrefs, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionShowXrefs);
-    actionShowXrefs->setShortcut({ Qt::Key_X });
     actionShowXrefs->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     connect(actionAddComment, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionAddComment);
-    actionAddComment->setShortcut({ Qt::Key_Semicolon });
     actionAddComment->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     connect(actionToggleBreakpoint, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionToggleBreakpoint);
-    actionToggleBreakpoint->setShortcut({ Qt::Key_F2 });
     actionToggleBreakpoint->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     addAction(actionShowInMenu);

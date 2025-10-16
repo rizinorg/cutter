@@ -8,6 +8,7 @@
 #include "common/BinaryTrees.h"
 #include "core/MainWindow.h"
 #include "widgets/AddressRangeScrollBar.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QApplication>
 #include <QScrollBar>
@@ -151,32 +152,27 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
 
     addActions(mCtxMenu->actions());
 
-#define ADD_ACTION(ksq, ctx, slot)                                                                 \
+#define ADD_ACTION(id, ctx, slot)                                                                  \
     {                                                                                              \
-        QAction *a = new QAction(this);                                                            \
-        a->setShortcut(ksq);                                                                       \
+        QAction *a = Shortcuts()->makeAction(id, this);                                            \
         a->setShortcutContext(ctx);                                                                \
         addAction(a);                                                                              \
         connect(a, &QAction::triggered, this, (slot));                                             \
     }
 
     // Space to switch to graph
-    ADD_ACTION(Qt::Key_Space, Qt::WidgetWithChildrenShortcut,
+    ADD_ACTION("Disassembly.switchToGraph", Qt::WidgetWithChildrenShortcut,
                [this] { mainWindow->showMemoryWidget(MemoryWidgetType::Graph); })
 
-    ADD_ACTION(Qt::Key_Escape, Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::seekPrev)
+    ADD_ACTION("General.seekPrev", Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::seekPrev)
 
-    ADD_ACTION(Qt::Key_J, Qt::WidgetWithChildrenShortcut,
+    ADD_ACTION("Disassembly.moveDown", Qt::WidgetWithChildrenShortcut,
                [this]() { moveCursorRelative(false, false); })
-    ADD_ACTION(QKeySequence::MoveToNextLine, Qt::WidgetWithChildrenShortcut,
-               [this]() { moveCursorRelative(false, false); })
-    ADD_ACTION(Qt::Key_K, Qt::WidgetWithChildrenShortcut,
+    ADD_ACTION("Disassembly.moveUp", Qt::WidgetWithChildrenShortcut,
                [this]() { moveCursorRelative(true, false); })
-    ADD_ACTION(QKeySequence::MoveToPreviousLine, Qt::WidgetWithChildrenShortcut,
-               [this]() { moveCursorRelative(true, false); })
-    ADD_ACTION(QKeySequence::MoveToNextPage, Qt::WidgetWithChildrenShortcut,
+    ADD_ACTION("Disassembly.pageDown", Qt::WidgetWithChildrenShortcut,
                [this]() { moveCursorRelative(false, true); })
-    ADD_ACTION(QKeySequence::MoveToPreviousPage, Qt::WidgetWithChildrenShortcut,
+    ADD_ACTION("Disassembly.pageUp", Qt::WidgetWithChildrenShortcut,
                [this]() { moveCursorRelative(true, true); })
 #undef ADD_ACTION
 }

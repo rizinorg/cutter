@@ -406,7 +406,7 @@ jobs:
           - system-deps: false
           - output-id: ""
           - name: windows-x86_64
-            os: windows-2019
+            os: windows-2022
             package: true
             python-version: 3.12.x
             output-id: artifact_windows
@@ -511,7 +511,7 @@ jobs:
         set ARCH=x64
         set CUTTER_DEPS=%CD%\cutter-deps
         set PATH=%CD%\cutter-deps\qt\bin;%PATH%
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
         cd
         mkdir build
         cd build
@@ -596,7 +596,7 @@ jobs:
             artifact-job: build
             artifact-output: artifact_macos
           - name: windows
-            os: windows-2019
+            os: windows-2022
             artifact-job: build
             artifact-output: artifact_windows
       fail-fast: false

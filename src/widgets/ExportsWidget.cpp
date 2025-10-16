@@ -2,7 +2,7 @@
 #include "ui_ListDockWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
-#include "WidgetShortcuts.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QShortcut>
 
@@ -157,7 +157,7 @@ ExportsWidget::ExportsWidget(MainWindow *main) : ListDockWidget(main)
         contextMenu->toggleBreakpointAction(false);
     });
 
-    QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ExportsWidget"], main);
+    QShortcut *toggle_shortcut = Shortcuts()->makeQShortcut("Exports.toggle", main);
     connect(toggle_shortcut, &QShortcut::activated, this, [=]() { toggleDockWidget(true); });
 
     connect(Core(), &CutterCore::codeRebased, this, &ExportsWidget::refreshExports);

@@ -1,8 +1,8 @@
 #include "ImportsWidget.h"
 #include "ui_ListDockWidget.h"
-#include "WidgetShortcuts.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QPainter>
 #include <QPen>
@@ -175,7 +175,7 @@ ImportsWidget::ImportsWidget(MainWindow *main)
     setModels(importsProxyModel);
     // Sort by library name by default to create a solid context per each group of imports
     ui->treeView->sortByColumn(ImportsModel::LibraryColumn, Qt::AscendingOrder);
-    QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ImportsWidget"], main);
+    QShortcut *toggle_shortcut = Shortcuts()->makeQShortcut("Imports.toggle", main);
     connect(toggle_shortcut, &QShortcut::activated, this, [=]() { toggleDockWidget(true); });
 
     connect(Core(), &CutterCore::codeRebased, this, &ImportsWidget::refreshImports);

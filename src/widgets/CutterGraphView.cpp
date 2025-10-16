@@ -4,17 +4,12 @@
 #include "common/Configuration.h"
 #include "dialogs/MultitypeFileSaveDialog.h"
 #include "TempConfig.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <cmath>
 
 #include <QStandardPaths>
 #include <QActionGroup>
-
-static const qhelpers::KeyComb KEY_ZOOM_IN = Qt::Key_Plus | Qt::ControlModifier;
-static const qhelpers::KeyComb KEY_ZOOM_IN2 =
-        Qt::Key_Plus | (Qt::ControlModifier | Qt::ShiftModifier);
-static const qhelpers::KeyComb KEY_ZOOM_OUT = Qt::Key_Minus | Qt::ControlModifier;
-static const qhelpers::KeyComb KEY_ZOOM_RESET = Qt::Key_Equal | Qt::ControlModifier;
 
 static const uint64_t BITMPA_EXPORT_WARNING_SIZE = 32 * 1024 * 1024;
 
@@ -212,8 +207,9 @@ bool CutterGraphView::event(QEvent *event)
     case QEvent::ShortcutOverride: {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         qhelpers::KeyComb key = Qt::Key(keyEvent->key()) | keyEvent->modifiers();
-        if (key == KEY_ZOOM_OUT || key == KEY_ZOOM_RESET || key == KEY_ZOOM_IN
-            || key == KEY_ZOOM_IN2) {
+        if (Shortcuts()->matchesKeySequence("General.zoomOut", key)
+            || Shortcuts()->matchesKeySequence("General.zoomReset", key)
+            || Shortcuts()->matchesKeySequence("General.zoomIn", key)) {
             event->accept();
             return true;
         }
@@ -222,13 +218,13 @@ bool CutterGraphView::event(QEvent *event)
     case QEvent::KeyPress: {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         qhelpers::KeyComb key = Qt::Key(keyEvent->key()) | keyEvent->modifiers();
-        if (key == KEY_ZOOM_IN || key == KEY_ZOOM_IN2) {
+        if (Shortcuts()->matchesKeySequence("General.zoomIn", key)) {
             zoomIn();
             return true;
-        } else if (key == KEY_ZOOM_OUT) {
+        } else if (Shortcuts()->matchesKeySequence("General.zoomOut", key)) {
             zoomOut();
             return true;
-        } else if (key == KEY_ZOOM_RESET) {
+        } else if (Shortcuts()->matchesKeySequence("General.zoomReset", key)) {
             zoomReset();
             return true;
         }
