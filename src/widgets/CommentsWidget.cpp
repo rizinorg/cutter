@@ -294,12 +294,14 @@ void CommentsWidget::refreshTree()
     nestedComments.clear();
     QMap<QString, size_t> nestedCommentMapping;
     for (const CommentDescription &comment : comments) {
-        RVA offset = RVA_INVALID;
-        QString fcnName = Core()->nearestFlag(comment.offset, &offset);
-        auto nestedCommentIt = nestedCommentMapping.find(fcnName);
+        auto fcn = Core()->nearestFlag(comment.offset);
+        if (!fcn) {
+            continue;
+        }
+        auto nestedCommentIt = nestedCommentMapping.find(fcn->name);
         if (nestedCommentIt == nestedCommentMapping.end()) {
-            nestedCommentMapping.insert(fcnName, nestedComments.size());
-            nestedComments.push_back({ fcnName, offset, { comment } });
+            nestedCommentMapping.insert(fcn->name, nestedComments.size());
+            nestedComments.push_back({ fcn->name, fcn->offset, { comment } });
         } else {
             auto &commentGroup = nestedComments[nestedCommentIt.value()];
             commentGroup.comments.append(comment);

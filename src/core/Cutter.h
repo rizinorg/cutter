@@ -247,10 +247,9 @@ public:
     /**
      * @brief Get nearest flag at or before offset.
      * @param offset search position
-     * @param flagOffsetOut address of returned flag
-     * @return flag name
+     * @return flag item or nullptr if no flag found
      */
-    QString nearestFlag(RVA offset, RVA *flagOffsetOut);
+    const RzFlagItem *nearestFlag(RVA offset);
     void triggerFlagsChanged();
 
     /* Marks */

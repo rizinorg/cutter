@@ -748,15 +748,17 @@ void DisassemblyContextMenu::on_actionAddComment_triggered()
 
 void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
 {
-    RVA flagOffset;
-    QString name = Core()->nearestFlag(offset, &flagOffset);
-    if (name.isEmpty() || flagOffset != offset) {
+    const RzFlagItem *flag = Core()->nearestFlag(offset);
+    QString name {};
+    if (!flag || flag->offset != offset) {
         // Create a default name for the function
         QString pfx = Config()->getConfigString("analysis.fcnprefix");
         if (pfx.isEmpty()) {
             pfx = QString("fcn");
         }
         name = pfx + QString::asprintf(".%llx", offset);
+    } else {
+        name = flag->name;
     }
 
     // Create dialog
@@ -995,7 +997,7 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
                 fcn->cc = rz_str_constpool_get(&core->analysis->constpool, newCC.constData());
             }
 
-            emit Core()->functionsChanged();
+            emit Core() -> functionsChanged();
         }
     }
 }
