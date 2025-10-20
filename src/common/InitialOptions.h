@@ -10,7 +10,9 @@
 struct CommandDescription
 {
     QString command;
-    QString description;
+    /// untranslated description, make sure to correctly use QT_TRANSLATE_NOOP
+    const char *description;
+    QString translatedDescription() const;
 };
 
 struct InitialOptions
@@ -40,7 +42,9 @@ struct InitialOptions
     QString pdbFile;
     QString script;
 
-    QList<CommandDescription> analysisCmd = { { "aaa", "Auto analysis" } };
+    QList<CommandDescription> analysisCmd = {
+        { "aaa", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Auto analysis") }
+    };
 
     QString shellcode;
 };

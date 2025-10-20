@@ -41,6 +41,7 @@ CallGraphView::CallGraphView(CutterDockWidget *parent, MainWindow *main, bool gl
     : SimpleTextGraphView(parent, main), global(global), refreshDeferrer(nullptr, this)
 {
     enableAddresses(true);
+    addressableItemContextMenu.toggleBreakpointAction(true);
     refreshDeferrer.registerFor(parent);
     connect(&refreshDeferrer, &RefreshDeferrer::refreshNow, this, &CallGraphView::refreshView);
     connect(Core(), &CutterCore::refreshAll, this, &SimpleTextGraphView::refreshView);
@@ -112,8 +113,9 @@ void CallGraphView::loadCurrentGraph()
         addBlock(std::move(block), name, fcn->addr);
     };
 
+    auto core = Core()->lock();
     if (global) {
-        for (const auto &fcn : CutterRzList<RzAnalysisFunction>(Core()->core()->analysis->fcns)) {
+        for (const auto &fcn : CutterRzList<RzAnalysisFunction>(core->analysis->fcns)) {
             if (!isBetween(from, fcn->addr, to)) {
                 continue;
             }

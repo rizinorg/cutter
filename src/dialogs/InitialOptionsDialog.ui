@@ -704,7 +704,7 @@
                      </sizepolicy>
                     </property>
                     <property name="text">
-                     <string notr="true">Bits: </string>
+                     <string>Bits: </string>
                     </property>
                    </widget>
                   </item>

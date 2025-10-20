@@ -383,6 +383,10 @@ private slots:
     void onRangeDialogAccepted();
     void onActionAddCommentTriggered();
     void onActionDeleteCommentTriggered();
+    void onActionAddFlagTriggered();
+    void onActionAddMarkTriggered();
+    void onActionDeleteMarkTriggered(const QString &name);
+    void onActionEditMarkTriggered(const QString &name);
 
     // Write command slots
     void w_writeString();
@@ -408,6 +412,7 @@ private:
     void drawItemArea(QPainter &painter);
     void drawAsciiArea(QPainter &painter);
     void fillSelectionBackground(QPainter &painter, bool ascii = false);
+    void fillMarks(QPainter &painter, bool ascii);
     void updateMetrics();
     void updateAreasPosition();
     void updateAreasHeight();
@@ -577,6 +582,8 @@ private:
     QAction *actionCopyAddress;
     QAction *actionComment;
     QAction *actionDeleteComment;
+    QAction *actionAddFlag;
+    QAction *actionAddMark;
     QAction *actionSelectRange;
     QAction *actionKeyboardEdit;
     QList<QAction *> actionsWriteString;

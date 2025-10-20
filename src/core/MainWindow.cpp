@@ -15,6 +15,7 @@
 #include "plugins/PluginManager.h"
 #include "CutterConfig.h"
 #include "CutterApplication.h"
+#include "shortcuts/ShortcutManager.h"
 
 // Dialogs
 #include "dialogs/WelcomeDialog.h"
@@ -119,8 +120,6 @@
 // Tools
 #include "tools/basefind/BaseFindDialog.h"
 
-#define PROJECT_FILE_FILTER tr("Rizin Project (*.rzdb)")
-
 template<class T>
 T *getNewInstance(MainWindow *m)
 {
@@ -175,24 +174,23 @@ void MainWindow::initUI()
      */
 
     // Period goes to command entry
-    QShortcut *cmd_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
+    QShortcut *cmd_shortcut = Shortcuts()->makeQShortcut("Console.focusConsole", this);
     connect(cmd_shortcut, &QShortcut::activated, consoleDock, &ConsoleWidget::focusInputLineEdit);
 
-    // G and S goes to goto entry
-    QShortcut *goto_shortcut = new QShortcut(QKeySequence(Qt::Key_G), this);
-    connect(goto_shortcut, &QShortcut::activated, this->omnibar,
-            [this]() { this->omnibar->setFocus(); });
-    QShortcut *seek_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this);
+    // S goes to goto entry
+    QShortcut *seek_shortcut = Shortcuts()->makeQShortcut("General.seek", this);
     connect(seek_shortcut, &QShortcut::activated, this->omnibar,
             [this]() { this->omnibar->setFocus(); });
-    QShortcut *seek_to_func_end_shortcut = new QShortcut(QKeySequence(Qt::Key_Dollar), this);
+    QShortcut *seek_to_func_end_shortcut =
+            Shortcuts()->makeQShortcut("General.seekToFunctionEnd", this);
     connect(seek_to_func_end_shortcut, &QShortcut::activated, this,
             &MainWindow::seekToFunctionLastInstruction);
-    QShortcut *seek_to_func_start_shortcut = new QShortcut(QKeySequence(Qt::Key_AsciiCircum), this);
+    QShortcut *seek_to_func_start_shortcut =
+            Shortcuts()->makeQShortcut("General.seekToFunctionStart", this);
     connect(seek_to_func_start_shortcut, &QShortcut::activated, this,
             &MainWindow::seekToFunctionStart);
 
-    ui->actionRefresh_contents->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
+    Shortcuts()->setupAction(*ui->actionRefresh_contents, "General.refreshContents");
 
     connect(ui->actionZoomIn, &QAction::triggered, this, &MainWindow::onZoomIn);
     connect(ui->actionZoomOut, &QAction::triggered, this, &MainWindow::onZoomOut);
@@ -211,8 +209,8 @@ void MainWindow::initUI()
             &MainWindow::updateTasksIndicator);
 
     // Undo and redo seek
-    ui->actionBackward->setShortcut(QKeySequence::Back);
-    ui->actionForward->setShortcut(QKeySequence::Forward);
+    Shortcuts()->setupAction(*ui->actionBackward, "General.back");
+    Shortcuts()->setupAction(*ui->actionForward, "General.forward");
 
     initBackForwardMenu();
 
@@ -647,10 +645,13 @@ void MainWindow::finalizeOpen()
     core->updateSeek();
     refreshAll();
     // Add fortune message
-    char *fortune = rz_core_fortune_get_random(core->core());
-    if (fortune) {
-        core->message("\n" + QString(fortune));
-        free(fortune);
+    {
+        auto rizin = Core()->lock();
+        char *fortune = rz_core_fortune_get_random(rizin);
+        if (fortune) {
+            core->message("\n" + QString(fortune));
+            free(fortune);
+        }
     }
 
     // hide all docks before showing window to avoid false positive for refreshDeferrer
@@ -707,7 +708,8 @@ RzProjectErr MainWindow::saveProject(bool *canceled)
     if (canceled) {
         *canceled = false;
     }
-    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData(), false);
+    auto rizin = core->lock();
+    RzProjectErr err = rz_project_save_file(rizin, file.toUtf8().constData(), false);
     if (err == RZ_PROJECT_ERR_SUCCESS) {
         Config()->addRecentProject(file);
     }
@@ -725,8 +727,8 @@ RzProjectErr MainWindow::saveProjectAs(bool *canceled)
     QFileDialog fileDialog(this);
     // Append 'rzdb' suffix if it does not exist
     fileDialog.setDefaultSuffix("rzdb");
-    QString file =
-            fileDialog.getSaveFileName(this, tr("Save Project"), projectFile, PROJECT_FILE_FILTER);
+    QString file = fileDialog.getSaveFileName(this, tr("Save Project"), projectFile,
+                                              tr("Rizin Project (*.rzdb)"));
     if (file.isEmpty()) {
         if (canceled) {
             *canceled = true;
@@ -736,7 +738,8 @@ RzProjectErr MainWindow::saveProjectAs(bool *canceled)
     if (canceled) {
         *canceled = false;
     }
-    RzProjectErr err = rz_project_save_file(RzCoreLocked(core), file.toUtf8().constData(), false);
+    auto rizin = core->lock();
+    RzProjectErr err = rz_project_save_file(rizin, file.toUtf8().constData(), false);
     if (err == RZ_PROJECT_ERR_SUCCESS) {
         Config()->addRecentProject(file);
     }
@@ -1178,7 +1181,7 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
             name.truncate(MAX_NAME_LENGTH); // TODO:#1904 use common name shortening function
             QString label = QString("%1 (%2)").arg(name, addressString);
             if (current) {
-                label = QString("current position (%1)").arg(addressString);
+                label = tr("current position (%1)").arg(addressString);
             }
             QAction *action = new QAction(label, menu);
             action->setToolTip(toolTip);
@@ -1679,7 +1682,7 @@ void MainWindow::on_actionAnalyze_triggered()
 {
     auto *analysisTask = new AnalysisTask();
     InitialOptions options;
-    options.analysisCmd = { { "aaa", "Auto analysis" } };
+    options.analysisCmd = { { "aaa", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Auto analysis") } };
     analysisTask->setOptions(options);
     AsyncTask::Ptr analysisTaskPtr(analysisTask);
 
@@ -1711,8 +1714,6 @@ void MainWindow::on_actionImportPDB_triggered()
     }
 }
 
-#define TYPE_BIG_ENDIAN(type, big_endian) big_endian ? type##_BE : type##_LE
-
 void MainWindow::on_actionExport_as_code_triggered()
 {
     QStringList filters;
@@ -1721,12 +1722,17 @@ void MainWindow::on_actionExport_as_code_triggered()
 
     filters << tr("C uin8_t array (*.c)");
     typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_C_CPP_BYTES;
+
+#define TYPE_BIG_ENDIAN(type, big_endian) big_endian ? type##_BE : type##_LE
+
     filters << tr("C uin16_t array (*.c)");
     typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_HALFWORDS, big_endian);
     filters << tr("C uin32_t array (*.c)");
     typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_WORDS, big_endian);
     filters << tr("C uin64_t array (*.c)");
     typMap[filters.last()] = TYPE_BIG_ENDIAN(RZ_LANG_BYTE_ARRAY_C_CPP_DOUBLEWORDS, big_endian);
+
+#undef TYPE_BIG_ENDIAN
 
     filters << tr("Go array (*.go)");
     typMap[filters.last()] = RZ_LANG_BYTE_ARRAY_GOLANG;
@@ -1780,10 +1786,10 @@ void MainWindow::on_actionExport_as_code_triggered()
     tempConfig.set("io.va", false);
     QTextStream fileOut(&file);
     auto ps = core->seekTemp(0);
-    auto rc = core->core();
+    auto rc = core->lock();
     const auto size = static_cast<int>(rz_io_fd_size(rc->io, rc->file->fd));
     auto buffer = std::vector<ut8>(size);
-    if (!rz_io_read_at(Core()->core()->io, 0, buffer.data(), size)) {
+    if (!rz_io_read_at(rc->io, 0, buffer.data(), size)) {
         return;
     }
 

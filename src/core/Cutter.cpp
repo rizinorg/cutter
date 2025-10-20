@@ -16,6 +16,7 @@
 #include "common/Configuration.h"
 #include "common/AsyncTask.h"
 #include "common/RizinTask.h"
+#include "dialogs/MarkDialog.h"
 #include "dialogs/RizinTaskDialog.h"
 #include "common/Json.h"
 #include "core/Cutter.h"
@@ -32,6 +33,7 @@ static CutterCore *uniqueInstance;
 
 namespace RJsonKey {
 RZ_JSON_KEY(addr);
+RZ_JSON_KEY(address);
 RZ_JSON_KEY(addrs);
 RZ_JSON_KEY(addr_end);
 RZ_JSON_KEY(arrow);
@@ -57,6 +59,7 @@ RZ_JSON_KEY(fcn_addr);
 RZ_JSON_KEY(fcn_name);
 RZ_JSON_KEY(fields);
 RZ_JSON_KEY(file);
+RZ_JSON_KEY(flag);
 RZ_JSON_KEY(flags);
 RZ_JSON_KEY(flagname);
 RZ_JSON_KEY(format);
@@ -152,12 +155,12 @@ RzCoreLocked::~RzCoreLocked()
     core->coreMutex.unlock();
 }
 
-RzCoreLocked::operator RzCore *() const
+RzCoreLocked::operator RzCore *() &
 {
     return core->core_;
 }
 
-RzCore *RzCoreLocked::operator->() const
+RzCore *RzCoreLocked::operator->() &
 {
     return core->core_;
 }
@@ -190,17 +193,18 @@ CutterCore *CutterCore::instance()
 
 void CutterCore::initialize(bool loadPlugins)
 {
+    rz_cons_new(); // initialize console
+    core_ = rz_core_new();
+
 #if defined(MACOS_RZ_BUNDLED)
     auto app_path = QDir(QCoreApplication::applicationDirPath());
     app_path.cdUp();
     app_path.cd("Resources");
     qInfo() << "Setting Rizin prefix =" << app_path.absolutePath()
             << " for macOS Application Bundle.";
-    rz_path_set_prefix(app_path.absolutePath().toUtf8().constData());
+    rz_path_set_prefix(core_->sys_path, app_path.absolutePath().toUtf8().constData());
 #endif
 
-    rz_cons_new(); // initialize console
-    core_ = rz_core_new();
     char **env = rz_sys_get_environ();
     core_->io->envprofile = rz_run_get_environ_profile(env);
     rz_core_task_sync_begin(&core_->tasks);
@@ -243,9 +247,14 @@ CutterCore::~CutterCore()
     uniqueInstance = nullptr;
 }
 
-RzCoreLocked CutterCore::core()
+RzCoreLocked CutterCore::lock()
 {
     return RzCoreLocked(this);
+}
+
+RzCoreLocked CutterCore::core()
+{
+    return lock();
 }
 
 QDir CutterCore::getCutterRCDefaultDirectory() const
@@ -526,7 +535,8 @@ QStringList CutterCore::autocomplete(const QString &cmd, RzLinePromptType prompt
     }
     buf.index = buf.length = std::min((int)(sizeof(buf.data) - 1), c);
 
-    RzLineNSCompletionResult *compr = rz_core_autocomplete_rzshell(core(), &buf, promptType);
+    CORE_LOCK();
+    RzLineNSCompletionResult *compr = rz_core_autocomplete_rzshell(core, &buf, promptType);
 
     QStringList r;
     auto optslen = rz_pvector_len(&compr->options);
@@ -1299,10 +1309,14 @@ RVA CutterCore::getLastFunctionInstruction(RVA addr)
     return lastBB ? rz_analysis_block_get_op_addr(lastBB, lastBB->ninstr - 1) : RVA_INVALID;
 }
 
-QString CutterCore::flagAt(RVA addr)
+QString CutterCore::flagAt(RVA addr, bool getClosestFlag)
 {
     CORE_LOCK();
-    RzFlagItem *f = rz_flag_get_at(core->flags, addr, true);
+    // rz_flag_get_at and rz_flag_get_i can return different
+    // flags for addresses containing multiple flags, so we must use rz_flag_get_i here
+    // instead of setting rz_flag_get_at's "closest" argument to false
+    RzFlagItem *f = getClosestFlag ? rz_flag_get_at(core->flags, addr, true)
+                                   : rz_flag_get_i(core->flags, addr);
     if (!f) {
         return {};
     }
@@ -2275,7 +2289,7 @@ void CutterCore::continueUntilDebug(ut64 offset)
     } else {
         if (!asyncTask(
                     [=](RzCore *core) {
-                        rz_core_debug_continue_until(core, offset, offset);
+                        rz_core_debug_continue_until(core, offset);
                         return nullptr;
                     },
                     debugTask)) {
@@ -2511,12 +2525,12 @@ void CutterCore::stepBackDebug()
 QStringList CutterCore::getDebugPlugins()
 {
     QStringList plugins;
-    RzListIter *iter;
-    RzDebugPlugin *plugin;
     CORE_LOCK();
-    CutterRzListForeach (core->dbg->plugins, iter, RzDebugPlugin, plugin) {
-        plugins << plugin->name;
-    }
+    CutterHtSP<RzDebugPlugin>(core->dbg->plugins)
+            .ForEach([&plugins](const char *k, const RzDebugPlugin *plugin) {
+                plugins << plugin->name;
+                return true;
+            });
     return plugins;
 }
 
@@ -2948,14 +2962,12 @@ QList<RVA> CutterCore::getSeekHistory()
 QStringList CutterCore::getAsmPluginNames()
 {
     CORE_LOCK();
-    RzListIter *it;
     QStringList ret;
-
-    RzAsmPlugin *ap;
-    CutterRzListForeach (core->rasm->plugins, it, RzAsmPlugin, ap) {
-        ret << ap->name;
-    }
-
+    CutterHtSP<RzAsmPlugin>(core->rasm->plugins)
+            .ForEach([&ret](const char *k, const RzAsmPlugin *ap) {
+                ret << ap->name;
+                return true;
+            });
     return ret;
 }
 
@@ -2964,12 +2976,11 @@ QStringList CutterCore::getAnalysisPluginNames()
     CORE_LOCK();
     RzListIter *it;
     QStringList ret;
-
-    RzAnalysisPlugin *ap;
-    CutterRzListForeach (core->analysis->plugins, it, RzAnalysisPlugin, ap) {
-        ret << ap->name;
-    }
-
+    CutterHtSP<RzAnalysisPlugin>(core->analysis->plugins)
+            .ForEach([&ret](const char *k, const RzAnalysisPlugin *ap) {
+                ret << ap->name;
+                return true;
+            });
     return ret;
 }
 
@@ -2977,28 +2988,29 @@ QList<RzBinPluginDescription> CutterCore::getBinPluginDescriptions(bool bin, boo
 {
     CORE_LOCK();
     QList<RzBinPluginDescription> ret;
-    RzListIter *it;
     if (bin) {
-        RzBinPlugin *bp;
-        CutterRzListForeach (core->bin->plugins, it, RzBinPlugin, bp) {
-            RzBinPluginDescription desc;
-            desc.name = bp->name ? bp->name : "";
-            desc.description = bp->desc ? bp->desc : "";
-            desc.license = bp->license ? bp->license : "";
-            desc.type = "bin";
-            ret.append(desc);
-        }
+        CutterHtSP<RzBinPlugin>(core->bin->plugins)
+                .ForEach([&ret](const char *k, const RzBinPlugin *bp) {
+                    RzBinPluginDescription desc;
+                    desc.name = bp->name ? bp->name : "";
+                    desc.description = bp->desc ? bp->desc : "";
+                    desc.license = bp->license ? bp->license : "";
+                    desc.type = "bin";
+                    ret.append(desc);
+                    return true;
+                });
     }
     if (xtr) {
-        RzBinXtrPlugin *bx;
-        CutterRzListForeach (core->bin->binxtrs, it, RzBinXtrPlugin, bx) {
-            RzBinPluginDescription desc;
-            desc.name = bx->name ? bx->name : "";
-            desc.description = bx->desc ? bx->desc : "";
-            desc.license = bx->license ? bx->license : "";
-            desc.type = "xtr";
-            ret.append(desc);
-        }
+        CutterHtSP<RzBinXtrPlugin>(core->bin->binxtrs)
+                .ForEach([&ret](const char *k, const RzBinXtrPlugin *bx) {
+                    RzBinPluginDescription desc;
+                    desc.name = bx->name ? bx->name : "";
+                    desc.description = bx->desc ? bx->desc : "";
+                    desc.license = bx->license ? bx->license : "";
+                    desc.type = "xtr";
+                    ret.append(desc);
+                    return true;
+                });
     }
     return ret;
 }
@@ -3007,9 +3019,7 @@ QList<RzIOPluginDescription> CutterCore::getRIOPluginDescriptions()
 {
     CORE_LOCK();
     QList<RzIOPluginDescription> ret;
-    RzListIter *it;
-    RzIOPlugin *p;
-    CutterRzListForeach (core->io->plugins, it, RzIOPlugin, p) {
+    CutterHtSP<RzIOPlugin>(core->io->plugins).ForEach([&ret](const char *k, const RzIOPlugin *p) {
         RzIOPluginDescription desc;
         desc.name = p->name ? p->name : "";
         desc.description = p->desc ? p->desc : "";
@@ -3019,7 +3029,8 @@ QList<RzIOPluginDescription> CutterCore::getRIOPluginDescriptions()
             desc.uris = QString::fromUtf8(p->uris).split(",");
         }
         ret.append(desc);
-    }
+        return true;
+    });
     return ret;
 }
 
@@ -3027,38 +3038,37 @@ QList<RzCorePluginDescription> CutterCore::getRCorePluginDescriptions()
 {
     CORE_LOCK();
     QList<RzCorePluginDescription> ret;
-    RzListIter *it;
-    RzCorePlugin *p;
-    CutterRzListForeach (core->plugins, it, RzCorePlugin, p) {
+    CutterHtSP<RzCorePlugin>(core->plugins).ForEach([&ret](const char *k, const RzCorePlugin *p) {
         RzCorePluginDescription desc;
         desc.name = p->name ? p->name : "";
         desc.description = p->desc ? p->desc : "";
         desc.license = p->license ? p->license : "";
         ret.append(desc);
-    }
+        return true;
+    });
     return ret;
 }
 
 QList<RzAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
 {
     CORE_LOCK();
-    RzListIter *it;
     QList<RzAsmPluginDescription> ret;
 
-    RzAsmPlugin *ap;
-    CutterRzListForeach (core->rasm->plugins, it, RzAsmPlugin, ap) {
-        RzAsmPluginDescription plugin;
+    CutterHtSP<RzAsmPlugin>(core->rasm->plugins)
+            .ForEach([&ret](const char *k, const RzAsmPlugin *ap) {
+                RzAsmPluginDescription plugin;
 
-        plugin.name = ap->name;
-        plugin.architecture = ap->arch;
-        plugin.author = ap->author;
-        plugin.version = ap->version;
-        plugin.cpus = ap->cpus;
-        plugin.description = ap->desc;
-        plugin.license = ap->license;
+                plugin.name = ap->name;
+                plugin.architecture = ap->arch;
+                plugin.author = ap->author;
+                plugin.version = ap->version;
+                plugin.cpus = ap->cpus;
+                plugin.description = ap->desc;
+                plugin.license = ap->license;
 
-        ret << plugin;
-    }
+                ret << plugin;
+                return true;
+            });
 
     return ret;
 }
@@ -3349,13 +3359,14 @@ QList<StringDescription> CutterCore::getAllStrings()
     opt.show_asciidot = false;
     opt.esc_bslash = true;
     opt.esc_double_quotes = true;
+    opt.keep_printable = true;
 
     QList<StringDescription> ret;
     for (const auto &str : CutterPVector<RzBinString>(strings)) {
         auto section = obj ? rz_bin_get_section_at(obj, str->paddr, 0) : NULL;
 
         StringDescription string;
-        string.string = rz_str_escape_utf8_keep_printable(str->string, &opt);
+        string.string = rz_str_escape_utf8(str->string, &opt);
         string.vaddr = obj ? rva(obj, str->paddr, str->vaddr, va) : str->paddr;
         string.type = rz_str_enc_as_string(str->type);
         string.size = str->size;
@@ -3826,7 +3837,7 @@ QList<VTableDescription> CutterCore::getAllVTables()
             RzAnalysisFunction *fcn = rz_analysis_get_fcn_in(core->analysis, method->addr, 0);
             const char *fname = fcn ? fcn->name : nullptr;
             methodDesc.addr = method->addr;
-            methodDesc.name = fname ? fname : "No Name found";
+            methodDesc.name = fname;
             tableDesc.methods << methodDesc;
         }
         vtableDescs << tableDesc;
@@ -3915,19 +3926,41 @@ bool CutterCore::isAddressMapped(RVA addr)
     return rz_io_map_get(core->io, addr);
 }
 
-QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, QString space, QString in)
+QList<SearchDescription> CutterCore::getAllSearchCommand(QString searchFor, SearchKind kind,
+                                                         QString in)
 {
     CORE_LOCK();
     QList<SearchDescription> searchRef;
 
+    TempConfig cfg;
+    cfg.set("search.in", in);
     CutterJson searchArray;
-    {
-        TempConfig cfg;
-        cfg.set("search.in", in);
-        searchArray = cmdj(QString("%1 %2").arg(space, searchFor));
+    char *arg = rz_cmd_escape_arg(searchFor.toUtf8().constData(), RZ_CMD_ESCAPE_ONE_ARG);
+    if (!arg) {
+        return {};
     }
 
-    if (space == "/Rj") {
+    QString cmd, suffix;
+    // Those are the searches which don't follow the search hit standardization of the new
+    // search yet.
+    switch (kind) {
+    default:
+        qWarning() << tr("Error invalid search kind\n");
+        return searchRef;
+    case SearchKind::AsmCode:
+        cmd = "/acj";
+        break;
+    case SearchKind::ROPGadgets:
+        cmd = "/Rj";
+        break;
+    case SearchKind::ROPGadgetsRegex:
+        cmd = "/R/j";
+        break;
+    }
+    // Legacy commands don't get escaped arguments.
+    auto cstr = QString("%1 %2").arg(cmd, kind == SearchKind::AsmCode ? searchFor : arg);
+    searchArray = cmdj(cstr);
+    if (kind == SearchKind::ROPGadgets || kind == SearchKind::ROPGadgetsRegex) {
         for (CutterJson searchObject : searchArray) {
             SearchDescription exp;
 
@@ -3941,18 +3974,286 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, QString spa
 
             searchRef << exp;
         }
-    } else {
-        for (CutterJson searchObject : searchArray) {
-            SearchDescription exp;
-
-            exp.offset = searchObject[RJsonKey::offset].toRVA();
-            exp.size = searchObject[RJsonKey::len].toUt64();
-            exp.code = searchObject[RJsonKey::code].toString();
-            exp.data = searchObject[RJsonKey::data].toString();
-
-            searchRef << exp;
-        }
+        return searchRef;
     }
+    for (CutterJson searchObject : searchArray) {
+        SearchDescription exp;
+
+        exp.offset = searchObject[RJsonKey::offset].toRVA();
+        exp.size = searchObject[RJsonKey::len].toUt64();
+        exp.code = searchObject[RJsonKey::code].toString();
+        exp.data = searchObject[RJsonKey::data].toString();
+        exp.detail = rz_meta_get_string(core->analysis, RZ_META_TYPE_COMMENT, exp.offset);
+
+        searchRef << exp;
+    }
+    return searchRef;
+}
+
+static UniquePtrC<RzSearchOpt, &rz_search_opt_free> cutterSetupSearchOptions(RzCore *core)
+{
+    auto searchOpts = UniquePtrC<RzSearchOpt, &rz_search_opt_free>(rz_search_opt_new());
+    if (!searchOpts) {
+        return {};
+    }
+    RzThreadNCores max_threads =
+            (RzThreadNCores)rz_config_get_i(core->config, "search.max_threads");
+    max_threads = rz_th_max_threads(max_threads);
+    ut32 max_hits = rz_config_get_i(core->config, "search.maxhits");
+    const char *show_progress = rz_config_get(core->config, "search.show_progress");
+    if (!(rz_search_opt_set_max_threads(searchOpts.get(), max_threads)
+          && rz_search_opt_set_max_hits(searchOpts.get(), max_hits)
+          && rz_search_opt_set_show_progress_from_str(searchOpts.get(), show_progress))) {
+        RZ_LOG_ERROR("Failed setup find options.\n");
+        return {};
+    }
+
+    RzSearchFindOpt *fopts = rz_core_setup_default_search_find_opts(core);
+    if (!fopts) {
+        RZ_LOG_ERROR("Failed init find options.\n");
+        return {};
+    }
+    if (!rz_search_opt_set_find_options(searchOpts.get(), fopts)) {
+        RZ_LOG_ERROR("Failed add find options to the search options.\n");
+        return {};
+    }
+    return searchOpts;
+}
+
+class CutterSearchLock
+{
+public:
+    CutterSearchLock(RzCore *core) : core_(core)
+    {
+        rz_cons_break_push(NULL, NULL);
+        core_->in_search = true;
+    }
+    ~CutterSearchLock()
+    {
+        rz_cons_break_pop();
+        core_->in_search = false;
+    }
+
+private:
+    RzCore *core_ = nullptr;
+};
+
+static QString cutterGetSearchHitData(RzCore *core, SearchKind kind, RzSearchHit *hit)
+{
+    QString data = "";
+    size_t dataSize = RZ_MAX(hit->size, 16);
+    std::vector<ut8> buffer(dataSize);
+
+    if (!rz_io_read_at(core->io, hit->address, buffer.data(), dataSize)) {
+        return "";
+    }
+
+    switch (kind) {
+    default:
+        // for some kinds, we don't do anything.
+        break;
+    case SearchKind::Value32BE:
+        /* fall-thru */
+    case SearchKind::Value32LE:
+        /* fall-thru */
+    case SearchKind::Value64BE:
+        /* fall-thru */
+    case SearchKind::Value64LE:
+        /* fall-thru */
+    case SearchKind::HexString:
+        /* fall-thru */
+    case SearchKind::CryptographicMaterial:
+        /* fall-thru */
+    case SearchKind::MagicSignature: {
+        data = fromOwnedCharPtr(rz_hex_bin2strdup(buffer.data(), dataSize));
+        break;
+    }
+    case SearchKind::String:
+        /* fall-thru */
+    case SearchKind::StringCaseInsensitive:
+        /* fall-thru */
+    case SearchKind::StringRegexExtended: {
+        RzStrStringifyOpt sopt;
+        RzStrEnc encoding = RZ_STRING_ENC_GUESS;
+        QString enc = hit->hit_desc;
+        enc = enc.section(".", 1, 1);
+        if (!enc.isEmpty()) {
+            encoding = rz_str_enc_string_as_type(enc.toUtf8().constData());
+        }
+
+        if (encoding == RZ_STRING_ENC_GUESS) {
+            encoding = rz_str_guess_encoding_from_buffer(buffer.data(), dataSize);
+        }
+
+        sopt.buffer = buffer.data();
+        sopt.length = dataSize;
+        sopt.encoding = encoding;
+        sopt.wrap_at = 0;
+        sopt.escape_nl = false;
+        sopt.json = false;
+        sopt.stop_at_nil = true;
+        sopt.stop_at_unprintable = false;
+        sopt.urlencode = false;
+
+        data = fromOwnedCharPtr(rz_str_stringify_raw_buffer(&sopt, nullptr));
+        break;
+    }
+    }
+
+    return data;
+}
+
+static QString cutterValueAsHex(QString strVal, bool bigEndian, size_t size)
+{
+    ut64 value = rz_num_math(nullptr, strVal.toUtf8().constData());
+    ut8 buffer[sizeof(ut64)] = { 0 };
+    char output[64] = { 0 };
+    rz_write_ble(buffer, value, bigEndian, size);
+    rz_hex_bin2str(buffer, size == 32 ? 4 : 8, output);
+    return output;
+}
+
+QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind kind, QString in)
+{
+    if (searchFor.isEmpty() && kind != SearchKind::CryptographicMaterial
+        && kind != SearchKind::MagicSignature) {
+        return {};
+    }
+
+    // call the oldsyle command for this search.
+    // this must be done before CORE_LOCK() to avoid deadlocks.
+    switch (kind) {
+    case SearchKind::AsmCode:
+        /* fall-thru */
+    case SearchKind::ROPGadgets:
+        /* fall-thru */
+    case SearchKind::ROPGadgetsRegex:
+        // old style search
+        return getAllSearchCommand(searchFor, kind, in);
+    default:
+        // use C API
+        break;
+    }
+
+    CORE_LOCK();
+
+    if (core->in_search) {
+        // this is impossible to happen, unless the user runs
+        // search via terminal before calling the Qt UI
+        RZ_LOG_ERROR("cutter: recursive search detected, search aborted.\n");
+        return {};
+    }
+
+    // this takes ownership of the search lock
+    CutterSearchLock searchLock(core);
+
+    TempConfig cfg;
+    cfg.set("search.in", in);
+
+    QList<SearchDescription> searchRef;
+    RzList /*<RzSearchHit *>*/ *hits = nullptr;
+    auto userOpts = cutterSetupSearchOptions(core);
+    if (!userOpts) {
+        return searchRef;
+    }
+
+    switch (kind) {
+    default:
+        qWarning() << tr("Error invalid search kind\n");
+        return searchRef;
+    case SearchKind::HexString: {
+        RzSearchBytesPattern *pattern =
+                rz_search_parse_byte_pattern(searchFor.toUtf8().constData(), "bytes");
+        if (!pattern) {
+            return searchRef;
+        }
+        hits = rz_core_search_bytes(core, userOpts.get(), pattern);
+        break;
+    }
+    case SearchKind::Value32BE: {
+        searchFor = cutterValueAsHex(searchFor, true, 32);
+        RzSearchBytesPattern *pattern =
+                rz_search_parse_byte_pattern(searchFor.toUtf8().constData(), "value32.be");
+        if (!pattern) {
+            return searchRef;
+        }
+        hits = rz_core_search_bytes(core, userOpts.get(), pattern);
+        break;
+    }
+    case SearchKind::Value32LE: {
+        searchFor = cutterValueAsHex(searchFor, false, 32);
+        RzSearchBytesPattern *pattern =
+                rz_search_parse_byte_pattern(searchFor.toUtf8().constData(), "value32.le");
+        if (!pattern) {
+            return searchRef;
+        }
+        hits = rz_core_search_bytes(core, userOpts.get(), pattern);
+        break;
+    }
+    case SearchKind::Value64BE: {
+        searchFor = cutterValueAsHex(searchFor, true, 64);
+        RzSearchBytesPattern *pattern =
+                rz_search_parse_byte_pattern(searchFor.toUtf8().constData(), "value64.be");
+        if (!pattern) {
+            return searchRef;
+        }
+        hits = rz_core_search_bytes(core, userOpts.get(), pattern);
+        break;
+    }
+    case SearchKind::Value64LE: {
+        searchFor = cutterValueAsHex(searchFor, false, 64);
+        RzSearchBytesPattern *pattern =
+                rz_search_parse_byte_pattern(searchFor.toUtf8().constData(), "value64.le");
+        if (!pattern) {
+            return searchRef;
+        }
+        hits = rz_core_search_bytes(core, userOpts.get(), pattern);
+        break;
+    }
+    case SearchKind::String:
+    case SearchKind::StringCaseInsensitive: {
+        const auto str = searchFor.toUtf8();
+        hits = rz_core_search_string(core, userOpts.get(), str.constData(), str.size(),
+                                     kind == SearchKind::StringCaseInsensitive
+                                             ? RZ_REGEX_CASELESS | RZ_REGEX_LITERAL
+                                             : RZ_REGEX_LITERAL,
+                                     RZ_STRING_ENC_GUESS);
+        break;
+    }
+    case SearchKind::StringRegexExtended:
+        hits = rz_core_search_string(core, userOpts.get(), searchFor.toUtf8().constData(), 0,
+                                     RZ_REGEX_EXTENDED, RZ_STRING_ENC_GUESS);
+        break;
+    case SearchKind::CryptographicMaterial:
+        hits = rz_core_search_cryptographic_material(core, userOpts.get(),
+                                                     RZ_SEARCH_COLLECTION_CRYPTOGRAPHIC_ALL);
+        break;
+    case SearchKind::MagicSignature:
+        hits = rz_core_search_magic(core, userOpts.get(), nullptr);
+        break;
+    }
+
+    RzListIter *it;
+    RzSearchHit *hit;
+    CutterRzListForeach (hits, it, RzSearchHit, hit) {
+        SearchDescription exp;
+        QString detail = fromOwnedCharPtr(rz_search_hit_detail_as_string(hit));
+
+        exp.offset = hit->address;
+        exp.size = hit->size;
+        exp.data = cutterGetSearchHitData(core, kind, hit).trimmed();
+        exp.detail = hit->hit_desc;
+        if (!detail.isEmpty()) {
+            exp.detail += " (" + detail + ")";
+        }
+        exp.detail += " ";
+        exp.detail += rz_meta_get_string(core->analysis, RZ_META_TYPE_COMMENT, exp.offset);
+        exp.detail = exp.detail.trimmed();
+
+        searchRef << exp;
+    }
+
+    rz_list_free(hits);
     return searchRef;
 }
 
@@ -4157,6 +4458,88 @@ QString CutterCore::nearestFlag(RVA offset, RVA *flagOffsetOut)
     return r->name;
 }
 
+void CutterCore::addMark(RVA from, RVA to, QString name, QString comment, QColor color)
+{
+    CORE_LOCK();
+    auto m = rz_mark_set(core->marks, name.toStdString().c_str(), from, to);
+    if (m) {
+        rz_mark_item_set_comment(m, comment.toStdString().c_str());
+        rz_mark_item_set_color(m, color.name().toStdString().c_str());
+    }
+    emit marksChanged();
+}
+
+void CutterCore::delMark(const QString &name)
+{
+    CORE_LOCK();
+    auto m = rz_mark_get(core->marks, name.toStdString().c_str());
+    if (m) {
+        rz_mark_unset(core->marks, m);
+    }
+    emit marksChanged();
+}
+
+QList<MarkDescription> CutterCore::convertMarks(RzList *marks)
+{
+    QList<MarkDescription> markList;
+
+    RzListIter *it;
+    RzMarkItem *mark;
+    CutterRzListForeach (marks, it, RzMarkItem, mark) {
+        MarkDescription desc;
+        desc.from = mark->from;
+        desc.to = mark->to;
+        desc.name = mark->name;
+        desc.realname = mark->realname;
+        desc.comment = mark->comment;
+        desc.color = mark->color ? QColor(mark->color) : QColor(Qt::black);
+
+        markList.append(desc);
+    }
+    rz_list_free(marks);
+    return markList;
+}
+
+QList<MarkDescription> CutterCore::getMarks()
+{
+    CORE_LOCK();
+    return convertMarks(rz_mark_all_list(core->marks));
+}
+
+QList<MarkDescription> CutterCore::getMarksAt(RVA addr)
+{
+    CORE_LOCK();
+    return convertMarks(rz_mark_get_all_off(core->marks, addr));
+}
+
+QColor CutterCore::getBlendedMarksColorAt(RVA addr)
+{
+    const auto &marks = getMarksAt(addr);
+    double r = 0, g = 0, b = 0, a = 0;
+    bool first = true;
+
+    // Iterate in reverse because the oldest/first mark is at the end
+    for (auto it = marks.crbegin(); it != marks.crend(); ++it) {
+        QColor c = it->color;
+        if (!c.isValid()) {
+            continue;
+        }
+
+        double cr = c.redF(), cg = c.greenF(), cb = c.blueF();
+        if (first) {
+            r = cr, g = cg, b = cb, a = MARK_ALPHA_F;
+            first = false;
+        } else {
+            double a_out = MARK_ALPHA_F + a * (1.0 - MARK_ALPHA_F);
+            r = (cr * MARK_ALPHA_F + r * a * (1.0 - MARK_ALPHA_F)) / a_out;
+            g = (cg * MARK_ALPHA_F + g * a * (1.0 - MARK_ALPHA_F)) / a_out;
+            b = (cb * MARK_ALPHA_F + b * a * (1.0 - MARK_ALPHA_F)) / a_out;
+            a = a_out;
+        }
+    }
+    return first ? QColor() : QColor::fromRgbF(r, g, b, a);
+}
+
 void CutterCore::handleREvent(int type, void *data)
 {
     switch (type) {
@@ -4329,7 +4712,7 @@ void CutterCore::loadScript(const QString &scriptname)
 
 QString CutterCore::getRizinVersionReadable(const char *program)
 {
-    return fromOwnedCharPtr(rz_version_str(program));
+    return fromOwnedCharPtr(rz_version_str(core_->sys_path, program));
 }
 
 QString CutterCore::getVersionInformation()
@@ -4349,7 +4732,6 @@ QString CutterCore::getVersionInformation()
         { "rz_flag", &rz_flag_version },
         { "rz_core", &rz_core_version },
         { "rz_crypto", &rz_crypto_version },
-        { "rz_bp", &rz_bp_version },
         { "rz_debug", &rz_debug_version },
         { "rz_hash", &rz_hash_version },
         { "rz_io", &rz_io_version },
@@ -4692,10 +5074,4 @@ void CutterCore::writeGraphvizGraphToFile(QString path, QString format, RzCoreGr
             qWarning() << tr("Cannot get graph at ") << RzAddressString(address);
         }
     }
-}
-
-bool CutterCore::rebaseBin(RVA base_address)
-{
-    CORE_LOCK();
-    return rz_core_bin_rebase(core, base_address);
 }

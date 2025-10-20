@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ShortcutOptionsWidget</class>
+ <widget class="QWidget" name="ShortcutOptionsWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>671</width>
+    <height>371</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Appearance</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTreeWidget" name="shortcutTree">
+     <column>
+      <property name="text">
+       <string notr="true">Command</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Shortcut</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Description</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="filterEdit">
+     <property name="placeholderText">
+      <string>Filter</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionSaveAsDefault">
+   <property name="text">
+    <string>Save as Default</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

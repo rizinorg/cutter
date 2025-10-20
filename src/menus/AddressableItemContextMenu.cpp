@@ -2,6 +2,7 @@
 #include "dialogs/XrefsDialog.h"
 #include "MainWindow.h"
 #include "dialogs/CommentsDialog.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QtCore>
 #include <QShortcut>
@@ -14,30 +15,33 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
     : QMenu(parent), mainWindow(mainWindow)
 {
     actionShowInMenu = new QAction(tr("Show in"), this);
-    actionCopyAddress = new QAction(tr("Copy address"), this);
-    actionShowXrefs = new QAction(tr("Show X-Refs"), this);
-    actionAddcomment = new QAction(tr("Add comment"), this);
+    actionCopyAddress = Shortcuts()->makeAction("General.copyAddress", this);
+    actionShowXrefs = Shortcuts()->makeAction("General.showXRefs", this);
+    actionAddComment = Shortcuts()->makeAction("General.addComment", this);
+    actionToggleBreakpoint = Shortcuts()->makeAction("Debug.toggleBreakpoint", this);
 
     connect(actionCopyAddress, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionCopyAddress);
-    actionCopyAddress->setShortcuts({ Qt::CTRL | Qt::SHIFT | Qt::Key_C });
     actionCopyAddress->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     connect(actionShowXrefs, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionShowXrefs);
-    actionShowXrefs->setShortcut({ Qt::Key_X });
     actionShowXrefs->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
-    connect(actionAddcomment, &QAction::triggered, this,
+    connect(actionAddComment, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionAddComment);
-    actionAddcomment->setShortcut({ Qt::Key_Semicolon });
-    actionAddcomment->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    actionAddComment->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+
+    connect(actionToggleBreakpoint, &QAction::triggered, this,
+            &AddressableItemContextMenu::onActionToggleBreakpoint);
+    actionToggleBreakpoint->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     addAction(actionShowInMenu);
     addAction(actionCopyAddress);
     addAction(actionShowXrefs);
     addSeparator();
-    addAction(actionAddcomment);
+    addAction(actionAddComment);
+    addAction(actionToggleBreakpoint);
 
     addSeparator();
     pluginMenu = mainWindow->getContextMenuExtensions(MainWindow::ContextMenuType::Addressable);
@@ -73,6 +77,13 @@ void AddressableItemContextMenu::clearTarget()
     setHasTarget(false);
 }
 
+void AddressableItemContextMenu::toggleBreakpointAction(bool enabled)
+{
+    breakpointActionEnabled = enabled;
+    // Update actionToggleBreakpoint visibility
+    setHasTarget(hasTarget);
+}
+
 void AddressableItemContextMenu::onActionCopyAddress()
 {
     auto clipboard = QApplication::clipboard();
@@ -96,8 +107,25 @@ void AddressableItemContextMenu::onActionAddComment()
     CommentsDialog::addOrEditComment(offset, this);
 }
 
+void AddressableItemContextMenu::onActionToggleBreakpoint()
+{
+    Core()->toggleBreakpoint(offset);
+}
+
 void AddressableItemContextMenu::aboutToShowSlot()
 {
+    if (Core()->getCommentAt(offset).isEmpty()) {
+        actionAddComment->setText(tr("Add Comment"));
+    } else {
+        actionAddComment->setText(tr("Edit Comment"));
+    }
+
+    if (Core()->breakpointIndexAt(offset) < 0) {
+        actionToggleBreakpoint->setText(tr("Add Breakpoint"));
+    } else {
+        actionToggleBreakpoint->setText(tr("Remove Breakpoint"));
+    }
+
     if (actionShowInMenu->menu()) {
         actionShowInMenu->menu()->deleteLater();
     }
@@ -115,5 +143,7 @@ void AddressableItemContextMenu::setHasTarget(bool hasTarget)
     actionShowInMenu->setEnabled(hasTarget);
     actionCopyAddress->setEnabled(hasTarget);
     actionShowXrefs->setEnabled(hasTarget);
-    actionAddcomment->setEnabled(hasTarget);
+    actionAddComment->setEnabled(hasTarget);
+    actionToggleBreakpoint->setEnabled(hasTarget && breakpointActionEnabled);
+    actionToggleBreakpoint->setVisible(hasTarget && breakpointActionEnabled);
 }

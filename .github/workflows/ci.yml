@@ -406,7 +406,7 @@ jobs:
           - system-deps: false
           - output-id: ""
           - name: windows-x86_64
-            os: windows-2019
+            os: windows-2022
             package: true
             python-version: 3.12.x
             output-id: artifact_windows
@@ -459,6 +459,7 @@ jobs:
       run: |
         export MACOSX_DEPLOYMENT_TARGET=10.15
         scripts/fetch_deps.sh
+        install_name_tool -delete_rpath /Users/runner/work/cutter-deps/cutter-deps/qt/lib ./cutter-deps/pyside/lib/libpyside6.cpython-312-darwin.6.7.2.dylib #TODO: do this in cutter-deps
         source cutter-deps/env.sh
         set -euo pipefail
         export PATH=/usr/local/opt/llvm/bin:$PATH
@@ -510,7 +511,7 @@ jobs:
         set ARCH=x64
         set CUTTER_DEPS=%CD%\cutter-deps
         set PATH=%CD%\cutter-deps\qt\bin;%PATH%
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
         cd
         mkdir build
         cd build
@@ -521,6 +522,10 @@ jobs:
           -DCUTTER_ENABLE_PYTHON=ON ^
           -DCUTTER_ENABLE_PYTHON_BINDINGS=ON ^
           -DCUTTER_ENABLE_PACKAGING=ON ^
+          -DPython3_FIND_REGISTRY=NEVER ^
+          -DPython3_FIND_STRATEGY=LOCATION ^
+          -DPython_FIND_REGISTRY=NEVER ^
+          -DPython_FIND_STRATEGY=LOCATION ^
           -DCUTTER_ENABLE_SIGDB=ON ^
           -DCUTTER_PACKAGE_DEPENDENCIES=ON ^
           -DCUTTER_PACKAGE_RZ_GHIDRA=ON ^
@@ -583,7 +588,7 @@ jobs:
         ]
         include:
           - name: linux-x86_64 
-            os: ubuntu-20.04
+            os: ubuntu-22.04
             artifact-job: build-linux
             artifact-output: artifact_linux
           - name: macos-arm64
@@ -591,7 +596,7 @@ jobs:
             artifact-job: build
             artifact-output: artifact_macos
           - name: windows
-            os: windows-2019
+            os: windows-2022
             artifact-job: build
             artifact-output: artifact_windows
       fail-fast: false

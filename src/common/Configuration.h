@@ -21,12 +21,24 @@ class QTextDocument;
 enum ColorFlags {
     LightFlag = 1,
     DarkFlag = 2,
+    DualColor = LightFlag | DarkFlag,
 };
 
 struct CutterInterfaceTheme
 {
     QString name;
     ColorFlags flag;
+};
+
+struct RecentFileEntry
+{
+    QString ioMode;
+    QString path;
+
+    bool operator==(const RecentFileEntry &other) const
+    {
+        return ioMode == other.ioMode && path == other.path;
+    }
 };
 
 class CUTTER_EXPORT Configuration : public QObject
@@ -74,7 +86,12 @@ public:
     QLocale getCurrLocale() const;
     void setLocale(const QLocale &l);
     bool setLocaleByName(const QString &language);
-    QStringList getAvailableTranslations();
+    struct LangInfo
+    {
+        QString name;
+        QLocale locale;
+    };
+    std::vector<LangInfo> getAvailableTranslations();
 
     // Fonts
 
@@ -224,14 +241,14 @@ public:
     /**
      * @brief Recently opened binaries, as shown in NewFileDialog.
      */
-    QStringList getRecentFiles() const;
-    void setRecentFiles(const QStringList &list);
+    QList<RecentFileEntry> getRecentFiles() const;
+    void setRecentFiles(const QList<RecentFileEntry> &list);
 
     /**
      * @brief Recently opened projects, as shown in NewFileDialog.
      */
-    QStringList getRecentProjects() const;
-    void setRecentProjects(const QStringList &list);
+    QList<RecentFileEntry> getRecentProjects() const;
+    void setRecentProjects(const QList<RecentFileEntry> &list);
     void addRecentProject(QString file);
 
     // Functions Widget Layout

@@ -14,7 +14,7 @@ class FlagDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit FlagDialog(RVA offset, QWidget *parent = nullptr);
+    explicit FlagDialog(RVA offset, QWidget *parent = nullptr, QString flagNameHint = {});
     ~FlagDialog();
 
 private slots:

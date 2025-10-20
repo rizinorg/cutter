@@ -4,23 +4,32 @@
 #include <QIntValidator>
 #include "core/Cutter.h"
 
-FlagDialog::FlagDialog(RVA offset, QWidget *parent)
-    : QDialog(parent), ui(new Ui::FlagDialog), offset(offset), flagName(""), flagOffset(RVA_INVALID)
+FlagDialog::FlagDialog(RVA offset, QWidget *parent, QString flagNameHint)
+    : QDialog(parent),
+      ui(new Ui::FlagDialog),
+      offset(offset),
+      flagName(flagNameHint),
+      flagOffset(RVA_INVALID)
 {
     // Setup UI
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
-    RzFlagItem *flag = rz_flag_get_i(Core()->core()->flags, offset);
-    if (flag) {
-        flagName = QString(flag->name);
-        flagOffset = flag->offset;
+    if (!flagName.isEmpty()) {
+        flagOffset = offset;
+    } else {
+        RzCoreLocked core(Core());
+        RzFlagItem *flag = rz_flag_get_i(core->flags, offset);
+        if (flag) {
+            flagName = QString(flag->name);
+            flagOffset = flag->offset;
+        }
     }
 
     auto size_validator = new QIntValidator(ui->sizeEdit);
     size_validator->setBottom(1);
     ui->sizeEdit->setValidator(size_validator);
-    if (flag) {
-        ui->nameEdit->setText(flag->name);
+    if (!flagName.isEmpty()) {
+        ui->nameEdit->setText(flagName);
         ui->labelAction->setText(tr("Edit flag at %1").arg(RzAddressString(offset)));
     } else {
         ui->labelAction->setText(tr("Add flag at %1").arg(RzAddressString(offset)));
@@ -41,7 +50,7 @@ void FlagDialog::buttonBoxAccepted()
     if (name.isEmpty()) {
         if (flagOffset != RVA_INVALID) {
             // Empty name and flag exists -> delete the flag
-            Core()->delFlag(flagOffset);
+            Core()->delFlag(flagName);
         } else {
             // Flag was not existing and we gave an empty name, do nothing
         }

@@ -24,6 +24,7 @@ public slots:
     void setOffset(RVA offset);
     void setTarget(RVA offset, QString name = QString());
     void clearTarget();
+    void toggleBreakpointAction(bool enabled);
 signals:
     void xrefsTriggered();
 
@@ -31,6 +32,7 @@ private:
     void onActionCopyAddress();
     void onActionShowXrefs();
     void onActionAddComment();
+    void onActionToggleBreakpoint();
 
     virtual void aboutToShowSlot();
 
@@ -46,9 +48,11 @@ protected:
     QAction *actionShowInMenu;
     QAction *actionCopyAddress;
     QAction *actionShowXrefs;
-    QAction *actionAddcomment;
+    QAction *actionAddComment;
+    QAction *actionToggleBreakpoint;
 
     QString name;
     bool wholeFunction = false;
+    bool breakpointActionEnabled = false;
 };
 #endif // ADDRESSABLEITEMCONTEXTMENU_H

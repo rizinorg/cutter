@@ -119,7 +119,8 @@ void VisualNavbar::fetchStats()
 
     RzCoreLocked core(Core());
     stats.reset(nullptr);
-    auto list = fromOwned(rz_core_get_boundaries_prot(core, -1, NULL, "search"));
+    auto list =
+            fromOwned(rz_core_get_boundaries_select(core, "search.from", "search.to", "search.in"));
     if (!list) {
         return;
     }
@@ -338,7 +339,7 @@ QList<QString> VisualNavbar::sectionsForAddress(RVA address)
 
 QString VisualNavbar::toolTipForAddress(RVA address)
 {
-    QString ret = "Address: " + RzAddressString(address);
+    QString ret = tr("Address: %1").arg(RzAddressString(address));
 
     // Don't append sections when a debug task is in progress to avoid freezing the interface
     if (Core()->isDebugTaskInProgress()) {
@@ -347,7 +348,7 @@ QString VisualNavbar::toolTipForAddress(RVA address)
 
     auto sections = sectionsForAddress(address);
     if (sections.count()) {
-        ret += "\nSections: \n";
+        ret += "\n" + tr("Sections: \n");
         bool first = true;
         for (const QString &section : sections) {
             if (!first) {

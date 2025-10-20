@@ -190,4 +190,27 @@ public:
     T *operator->() { return reinterpret_cast<RzAnalysisBytes *>(rzIter->cur); }
 };
 
+#define CutterHtDef(xx, XX, K, VB)                                                                 \
+    template<typename V>                                                                           \
+    class CutterHt##XX                                                                             \
+    {                                                                                              \
+    private:                                                                                       \
+        Ht##XX *const ht;                                                                          \
+        template<typename F>                                                                       \
+        static bool ForEachCb(void *user, K k, const VB v)                                         \
+        {                                                                                          \
+            return (*reinterpret_cast<F *>(user))(k, reinterpret_cast<const V *>(v));              \
+        }                                                                                          \
+                                                                                                   \
+    public:                                                                                        \
+        CutterHt##XX(Ht##XX *ht) : ht(ht) {};                                                      \
+        template<typename F>                                                                       \
+        void ForEach(F f)                                                                          \
+        {                                                                                          \
+            ht_##xx##_foreach(ht, ForEachCb<F>, &f);                                               \
+        }                                                                                          \
+    }
+
+CutterHtDef(sp, SP, const char *, void *);
+
 #endif // RIZINCPP_H

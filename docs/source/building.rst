@@ -156,6 +156,8 @@ If the names "Cutter" or "cutter" conflict with other packages or their content,
 * ``CUTTER_ENABLE_PYTHON`` and  ``CUTTER_ENABLE_PYTHON_BINDINGS`` it is recommended to turn on for complete user experience. May require manual path specification on distros with multiple python versions.
 * ``CUTTER_ENABLE_GRAPHVIZ`` and ``CUTTER_ENABLE_KSYNTAXHIGHLIGHTING`` optional but nice to have since they are available on most distros.
 * ``CUTTER_EXTRA_PLUGIN_DIRS`` use it to specify additional plugin search locations if distro packaging guidelines require you placing them in locations Cutter doesn't use by default.
+* ``CUTTER_VERSION_SUFFIX`` can be used to differentiate multiple builds based on same upstream Cutter version, distro specific package build number and similar.
+* ``CUTTER_INCLUDE_GIT_HASH=OFF`` By default cutter includes git commit hash in the full version string. If you are building from source tarrball or other source which isn't original git repository you might want to disable this.
 
 Building on Windows
 -------------------

@@ -8,13 +8,13 @@
 
 #include "core/MainWindow.h"
 
-static const QHash<QString, QString> analysisBoundaries {
-    { "io.maps.x", "All executable maps" },
-    { "io.maps", "All maps" },
-    { "io.map", "Current map" },
-    { "raw", "Raw" },
-    { "bin.section", "Current mapped section" },
-    { "bin.sections", "All mapped sections" },
+static const QHash<QString, const char *> analysisBoundaries {
+    { "io.maps.x", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "All executable maps") },
+    { "io.maps", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "All maps") },
+    { "io.map", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Current map") },
+    { "raw", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Raw") },
+    { "bin.section", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Current mapped section") },
+    { "bin.sections", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "All mapped sections") },
 };
 
 AnalysisOptionsWidget::AnalysisOptionsWidget(PreferencesDialog *dialog)
@@ -41,7 +41,7 @@ AnalysisOptionsWidget::AnalysisOptionsWidget(PreferencesDialog *dialog)
                 [val, &cb]() { checkboxEnabler(&cb, val); });
     }
 
-    ui->analyzePushButton->setToolTip("Analyze the program using Rizin's \"aaa\" command");
+    ui->analyzePushButton->setToolTip(tr("Analyze the program using Rizin's \"aaa\" command"));
     auto *mainWindow = new MainWindow(this);
     connect(ui->analyzePushButton, &QPushButton::clicked, mainWindow,
             &MainWindow::on_actionAnalyze_triggered);
@@ -92,13 +92,11 @@ void AnalysisOptionsWidget::updateAnalysisPrelude(const QString &prelude)
 
 void AnalysisOptionsWidget::createAnalysisInOptionsList()
 {
-    QHash<QString, QString>::const_iterator mapIter;
-
-    mapIter = analysisBoundaries.cbegin();
+    auto mapIter = analysisBoundaries.cbegin();
     ui->analysisInComboBox->blockSignals(true);
     ui->analysisInComboBox->clear();
     for (; mapIter != analysisBoundaries.cend(); ++mapIter) {
-        ui->analysisInComboBox->addItem(mapIter.value(), mapIter.key());
+        ui->analysisInComboBox->addItem(tr(mapIter.value()), mapIter.key());
     }
     ui->analysisInComboBox->blockSignals(false);
 }

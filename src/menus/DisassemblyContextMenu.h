@@ -50,7 +50,6 @@ private slots:
     void on_actionSetFunctionVarTypes_triggered();
     void on_actionXRefs_triggered();
     void on_actionXRefsForVariables_triggered();
-    void on_actionDisplayOptions_triggered();
 
     void on_actionDeleteComment_triggered();
     void on_actionDeleteFlag_triggered();
@@ -77,25 +76,6 @@ private slots:
     void on_actionStructureOffsetMenu_triggered(QAction *action);
 
 private:
-    QKeySequence getCopySequence() const;
-    QKeySequence getCommentSequence() const;
-    QKeySequence getCopyAddressSequence() const;
-    QKeySequence getCopyInstrBytesSequence() const;
-    QKeySequence getGlobalVarSequence() const;
-    QKeySequence getSetToCodeSequence() const;
-    QKeySequence getSetAsStringSequence() const;
-    QKeySequence getSetAsStringAdvanced() const;
-    QKeySequence getSetToDataSequence() const;
-    QKeySequence getSetToDataExSequence() const;
-    QKeySequence getRenameSequence() const;
-    QKeySequence getRetypeSequence() const;
-    QKeySequence getXRefSequence() const;
-    QKeySequence getDisplayOptionsSequence() const;
-    QKeySequence getDefineNewFunctionSequence() const;
-    QKeySequence getUndefineFunctionSequence() const;
-    QKeySequence getEditFunctionSequence() const;
-    QList<QKeySequence> getAddBPSequence() const;
-
     RVA offset;
     bool canCopy;
     QString curHighlightedWord; // The current highlighted word
@@ -123,7 +103,6 @@ private:
     QAction actionSetFunctionVarTypes;
     QAction actionXRefs;
     QAction actionXRefsForVariables;
-    QAction actionDisplayOptions;
 
     QAction actionDeleteComment;
     QAction actionDeleteFlag;
@@ -184,8 +163,7 @@ private:
 
     void initAction(QAction *action, QString name, const char *slot = nullptr);
     void initAction(QAction *action, QString name, const char *slot, QKeySequence keySequence);
-    void initAction(QAction *action, QString name, const char *slot,
-                    QList<QKeySequence> keySequence);
+    void initShortcutAction(QAction *action, const QString &id, const char *slot);
 
     void setBase(QString base);
     void setToData(int size, int repeat = 1);

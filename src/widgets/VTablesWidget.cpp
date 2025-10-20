@@ -3,6 +3,7 @@
 
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include "VTablesWidget.h"
 #include "ui_VTablesWidget.h"
@@ -45,7 +46,7 @@ QVariant VTableModel::data(const QModelIndex &index, int role) const
         case Qt::DisplayRole:
             switch (index.column()) {
             case NAME:
-                return res.name;
+                return res.name.isEmpty() ? tr("No Name found") : res.name;
             case ADDRESS:
                 return RzAddressString(res.addr);
             }
@@ -141,13 +142,13 @@ VTablesWidget::VTablesWidget(MainWindow *main)
     ui->vTableTreeView->sortByColumn(VTableModel::ADDRESS, Qt::AscendingOrder);
 
     // Esc to clear the filter entry
-    QShortcut *clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    QShortcut *clear_shortcut = Shortcuts()->makeQShortcut("General.clearFilter", this);
     connect(clear_shortcut, &QShortcut::activated, ui->quickFilterView,
             &QuickFilterView::clearFilter);
     clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     // Ctrl-F to show/hide the filter entry
-    QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);
+    QShortcut *search_shortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
     connect(search_shortcut, &QShortcut::activated, ui->quickFilterView,
             &QuickFilterView::showFilter);
     search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);

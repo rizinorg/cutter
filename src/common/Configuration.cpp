@@ -5,6 +5,7 @@
 #include <QFontDatabase>
 #include <QFile>
 #include <QApplication>
+#include <QHash>
 
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
 #    include <KSyntaxHighlighting/Repository>
@@ -21,16 +22,20 @@
  * and for light - only light ones.
  */
 const QHash<QString, ColorFlags> Configuration::relevantThemes = {
-    { "ayu", DarkFlag },       { "basic", DarkFlag },     { "behelit", DarkFlag },
-    { "bold", DarkFlag },      { "bright", DarkFlag },    { "consonance", DarkFlag },
-    { "darkda", DarkFlag },    { "defragger", DarkFlag }, { "focus", DarkFlag },
-    { "gentoo", DarkFlag },    { "lima", DarkFlag },      { "monokai", DarkFlag },
-    { "ogray", DarkFlag },     { "onedark", DarkFlag },   { "pink", DarkFlag },
-    { "rasta", DarkFlag },     { "sepia", DarkFlag },     { "smyck", DarkFlag },
-    { "solarized", DarkFlag }, { "twilight", DarkFlag },  { "white2", DarkFlag },
-    { "xvilka", DarkFlag },    { "zenburn", DarkFlag },   { "cga", LightFlag },
-    { "cutter", LightFlag },   { "dark", LightFlag },     { "gb", LightFlag },
-    { "matrix", LightFlag },   { "tango", LightFlag },    { "white", LightFlag }
+    { "ayu", DarkFlag },        { "basic", DarkFlag },   { "behelit", DarkFlag },
+    { "bold", DarkFlag },       { "bright", DarkFlag },  { "cga", DarkFlag },
+    { "consonance", DarkFlag }, { "darkda", DarkFlag },  { "default", DarkFlag },
+    { "defragger", DarkFlag },  { "focus", DarkFlag },   { "gb", DarkFlag },
+    { "gentoo", DarkFlag },     { "lima", DarkFlag },    { "mars", DarkFlag },
+    { "monokai", DarkFlag },    { "nord", DarkFlag },    { "ogray", DarkFlag },
+    { "onedark", DarkFlag },    { "pink", DarkFlag },    { "rasta", DarkFlag },
+    { "sepia", DarkFlag },      { "smyck", DarkFlag },   { "solarized", DarkFlag },
+    { "twilight", DarkFlag },   { "xvilka", DarkFlag },  { "zenburn", DarkFlag },
+
+    { "dark", DualColor },      { "durian", DualColor }, { "tango", DualColor },
+    { "white2", DualColor },
+
+    { "cutter", LightFlag },    { "matrix", LightFlag }, { "white", LightFlag },
 };
 static const QString DEFAULT_LIGHT_COLOR_THEME = "cutter";
 static const QString DEFAULT_DARK_COLOR_THEME = "ayu";
@@ -527,11 +532,12 @@ const QColor Configuration::getColor(const QString &name) const
 
 void Configuration::setColorTheme(const QString &theme)
 {
+    RzCoreLocked core = Core()->lock();
     if (theme == "default") {
-        rz_cons_pal_init(Core()->core()->cons->context);
+        rz_cons_pal_init(core->cons->context);
         s.setValue("theme", "default");
     } else {
-        rz_core_theme_load(Core()->core(), theme.toUtf8().constData());
+        rz_core_theme_load(core, theme.toUtf8().constData());
         s.setValue("theme", theme);
     }
 
@@ -636,9 +642,9 @@ void Configuration::setConfig(const QString &key, const QVariant &value)
 
 /**
  * @brief this function will gather and return available translation for Cutter
- * @return a list of all available translations
+ * @return a list of locales and their names
  */
-QStringList Configuration::getAvailableTranslations()
+std::vector<Configuration::LangInfo> Configuration::getAvailableTranslations()
 {
     const auto &trDirs = Cutter::getTranslationsDirectories();
 
@@ -657,28 +663,49 @@ QStringList Configuration::getAvailableTranslations()
 
     QStringList fileNames = fileNamesSet.values();
     std::sort(fileNames.begin(), fileNames.end());
-    QStringList languages;
     QString currLanguageName;
-    auto allLocales =
-            QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript, QLocale::AnyCountry);
+    std::vector<Configuration::LangInfo> result;
+    QHash<QString, int> langCount;
+    for (const auto &translationFile : fileNames) {
+        auto name = QFileInfo(translationFile).baseName();
+        auto parts = name.split("_");
+        if (parts.length() < 2) {
+            continue;
+        }
+        auto langCode = parts[1];
+        ++langCount[langCode];
+    }
 
-    for (auto i : fileNames) {
-        QString localeName = i.mid(sizeof("cutter_") - 1, 2); // TODO:#2321 don't asume 2 characters
-        // language code is sometimes 3 characters, and there could also be language_COUNTRY. Qt
-        // supports that.
+    for (auto &i : fileNames) {
+        auto name = QFileInfo(i).baseName();
+        QString localeName = name.mid(sizeof("cutter_") - 1);
         QLocale locale(localeName);
-        if (locale.language() != QLocale::C) {
-            currLanguageName = locale.nativeLanguageName();
-            if (currLanguageName
-                        .isEmpty()) { // Qt doesn't have native language name for some languages
-                currLanguageName = QLocale::languageToString(locale.language());
-            }
-            if (!currLanguageName.isEmpty()) {
-                languages << currLanguageName;
+        if (locale.language() == QLocale::C) {
+            continue;
+        }
+        auto langCode = locale.name().split("_").first();
+        currLanguageName = locale.nativeLanguageName();
+        if (currLanguageName.isEmpty()) { // Qt doesn't have native language name for some languages
+            currLanguageName = QLocale::languageToString(locale.language());
+        }
+        // When there is single translation try to use generic language name without region name
+        if (langCount[langCode] <= 1
+            && locale.language() != QLocale::Chinese) { // Always distinguish Chinese Traditional,
+                                                        // Chinese simplified
+            QLocale localSimple(locale.language());
+            auto simpleName = localSimple.nativeLanguageName();
+            if (!simpleName.isEmpty()) {
+                currLanguageName = simpleName;
             }
         }
+        if (!currLanguageName.isEmpty()) {
+            result.push_back({ currLanguageName, locale });
+        }
     }
-    return languages << QLatin1String("English");
+    if (langCount["en"] == 0) {
+        result.push_back({ "English", QLocale("en") });
+    }
+    return result;
 }
 
 /**
@@ -803,31 +830,60 @@ void Configuration::setGraphBlockEntryOffset(bool enabled)
     s.setValue("graphBlockEntryOffset", enabled);
 }
 
-QStringList Configuration::getRecentFiles() const
+QList<RecentFileEntry> Configuration::getRecentFiles() const
 {
-    return s.value("recentFileList").toStringList();
+    QList<RecentFileEntry> recentFiles;
+
+    const QStringList list = s.value("recentFileList").toStringList();
+    for (const QString &file : list) {
+        int sep = file.indexOf("://");
+        if (sep != -1) {
+            QString ioMode = file.left(sep + 3);
+            QString path = file.mid(sep + 3);
+            recentFiles.append({ ioMode, path });
+        } else {
+            recentFiles.append({ "file://", file });
+        }
+    }
+
+    return recentFiles;
 }
 
-void Configuration::setRecentFiles(const QStringList &list)
+void Configuration::setRecentFiles(const QList<RecentFileEntry> &list)
 {
-    s.setValue("recentFileList", list);
+    QStringList recentFiles;
+    for (const RecentFileEntry &file : list) {
+        recentFiles.append(file.ioMode + file.path);
+    }
+    s.setValue("recentFileList", recentFiles);
 }
 
-QStringList Configuration::getRecentProjects() const
+QList<RecentFileEntry> Configuration::getRecentProjects() const
 {
-    return s.value("recentProjectsList").toStringList();
+    QList<RecentFileEntry> recentProjects;
+    const QStringList list = s.value("recentProjectsList").toStringList();
+    for (const QString &project : list) {
+        recentProjects.append(
+                { "", project }); // recent projects don’t include ioMode, so just leave it empty
+    }
+    return recentProjects;
 }
 
-void Configuration::setRecentProjects(const QStringList &list)
+void Configuration::setRecentProjects(const QList<RecentFileEntry> &list)
 {
-    s.setValue("recentProjectsList", list);
+    QStringList recentProjects;
+    for (const RecentFileEntry &project : list) {
+        recentProjects.append(project.path);
+    }
+    s.setValue("recentProjectsList", recentProjects);
 }
 
 void Configuration::addRecentProject(QString file)
 {
-    QStringList files = getRecentProjects();
-    files.removeAll(file);
-    files.prepend(file);
+    RecentFileEntry project = { "", file };
+    QList<RecentFileEntry> files = getRecentProjects();
+    files.removeAll(project);
+    files.prepend(project);
     setRecentProjects(files);
 }
 

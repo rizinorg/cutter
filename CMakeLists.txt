@@ -31,6 +31,8 @@ option(CUTTER_PACKAGE_RZ_SILHOUETTE "Compile and install rz-silhouette during th
 option(CUTTER_PACKAGE_JSDEC "Compile and install jsdec during install step." OFF)
 set("CUTTER_QT" 6 CACHE STRING "Major QT version to use 5|6")
 set_property(CACHE "CUTTER_QT" PROPERTY STRINGS 5 6)
+option(CUTTER_INCLUDE_GIT_HASH "Include git hash in full version" ON)
+set(CUTTER_VERSION_SUFFIX "" CACHE STRING "Can be used by packagers to differentiate multiple packages using same source, for example build number or presence of additional patches.")
 
 if(NOT CUTTER_ENABLE_PYTHON)
     set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
@@ -42,22 +44,25 @@ set(CUTTER_VERSION_PATCH 0)
 
 set(CUTTER_VERSION "${CUTTER_VERSION_MAJOR}.${CUTTER_VERSION_MINOR}.${CUTTER_VERSION_PATCH}")
 
-execute_process(COMMAND git log --pretty=format:'%h' -n 1
-                OUTPUT_VARIABLE GIT_REV
-                ERROR_QUIET)
+
+if (CUTTER_INCLUDE_GIT_HASH)
+    execute_process(COMMAND git  -C "${CMAKE_CURRENT_SOURCE_DIR}" --git-dir=.git log --pretty=format:'%h' -n 1
+                    OUTPUT_VARIABLE GIT_REV
+                    ERROR_QUIET)
+endif()
 
 # Check whether we got any revision (which isn't
 # always the case, e.g. when someone downloaded a zip file
-if ("${GIT_REV}" STREQUAL "")
-    set(CUTTER_VERSION_FULL "${CUTTER_VERSION}")
+if (NOT CUTTER_INCLUDE_GIT_HASH OR "${GIT_REV}" STREQUAL "")
+    set(CUTTER_VERSION_FULL "${CUTTER_VERSION}${CUTTER_VERSION_SUFFIX}")
 else()
     execute_process(
-        COMMAND git rev-parse --abbrev-ref HEAD
+        COMMAND git -C "${CMAKE_CURRENT_SOURCE_DIR}" --git-dir=.git rev-parse --abbrev-ref HEAD
         OUTPUT_VARIABLE GIT_BRANCH)
     string(STRIP "${GIT_REV}" GIT_REV)
     string(SUBSTRING "${GIT_REV}" 1 7 GIT_REV)
     string(STRIP "${GIT_BRANCH}" GIT_BRANCH)
-    set(CUTTER_VERSION_FULL "${CUTTER_VERSION}-${GIT_BRANCH}-${GIT_REV}")
+    set(CUTTER_VERSION_FULL "${CUTTER_VERSION}${CUTTER_VERSION_SUFFIX}-${GIT_BRANCH}-${GIT_REV}")
 endif()
 
 project(Cutter VERSION "${CUTTER_VERSION}")

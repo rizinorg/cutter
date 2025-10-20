@@ -37,7 +37,8 @@ ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject(parent)
         QDir().mkpath(customRzThemesLocationPath);
     }
 
-    char *theme_dir = rz_path_prefix(RZ_THEMES);
+    RzPath *sys_path = rz_path_new();
+    const char *theme_dir = rz_path_system(sys_path, RZ_THEMES);
     QDir currDir { theme_dir };
     if (currDir.exists()) {
         standardRzThemesLocationPath = currDir.absolutePath();
@@ -47,7 +48,7 @@ ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject(parent)
                                  "Most likely, Rizin is not properly installed.")
                                       .arg(currDir.path()));
     }
-    free(theme_dir);
+    rz_path_free(sys_path);
 }
 
 QColor ColorThemeWorker::mergeColors(const QColor &upper, const QColor &lower) const
@@ -130,6 +131,9 @@ ColorThemeWorker::Theme ColorThemeWorker::getTheme(const QString &themeName) con
     ColorFlags colorFlags = ColorFlags::DarkFlag;
     if (Configuration::relevantThemes.contains(themeName)) {
         colorFlags = Configuration::relevantThemes[themeName];
+    }
+    if (colorFlags == DualColor) {
+        colorFlags = Config()->windowColorIsDark() ? DarkFlag : LightFlag;
     }
 
     for (auto &it : cutterSpecificOptions) {

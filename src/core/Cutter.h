@@ -62,6 +62,22 @@ struct CUTTER_EXPORT RegisterRef
     QString name;
 };
 
+enum class SearchKind {
+    AsmCode,
+    HexString,
+    ROPGadgets,
+    ROPGadgetsRegex,
+    String,
+    StringCaseInsensitive,
+    StringRegexExtended,
+    Value32BE,
+    Value32LE,
+    Value64BE,
+    Value64LE,
+    CryptographicMaterial,
+    MagicSignature,
+};
+
 class CUTTER_EXPORT CutterCore : public QObject
 {
     Q_OBJECT
@@ -218,7 +234,7 @@ public:
     RVA getFunctionStart(RVA addr);
     RVA getFunctionEnd(RVA addr);
     RVA getLastFunctionInstruction(RVA addr);
-    QString flagAt(RVA addr);
+    QString flagAt(RVA addr, bool getClosestFlag = true);
     void createFunctionAt(RVA addr);
     void createFunctionAt(RVA addr, QString name);
     QStringList getDisassemblyPreview(RVA address, int num_of_lines);
@@ -236,6 +252,19 @@ public:
      */
     QString nearestFlag(RVA offset, RVA *flagOffsetOut);
     void triggerFlagsChanged();
+
+    /* Marks */
+    void addMark(RVA from, RVA to, QString name, QString comment = {}, QColor color = {});
+    void delMark(const QString &name);
+    QList<MarkDescription> getMarks();
+    QList<MarkDescription> getMarksAt(RVA addr);
+    /**
+     * @brief Compute the blended color of all marks containing a specific address.
+     * @param addr address to query
+     * @return resulting blended color, or invalid QColor if no marks are present at
+     * the specified address
+     */
+    QColor getBlendedMarksColorAt(RVA addr);
 
     /* Global Variables */
     void addGlobalVariable(RVA offset, QString name, QString typ);
@@ -564,8 +593,6 @@ public:
     void setGraphEmpty(bool empty);
     bool isGraphEmpty();
 
-    bool rebaseBin(RVA base_address);
-
     void getRegs();
     QList<QString> regs;
     void setSettings();
@@ -650,7 +677,7 @@ public:
     bool isAddressMapped(RVA addr);
 
     QList<MemoryMapDescription> getMemoryMap();
-    QList<SearchDescription> getAllSearch(QString searchFor, QString space, QString in);
+    QList<SearchDescription> getAllSearch(QString searchFor, SearchKind kind, QString in);
     QList<BreakpointDescription> getBreakpoints();
     /**
      * @brief Get list of processes attachable by debugger
@@ -698,6 +725,8 @@ public:
 
     QStringList getSectionList();
 
+    RzCoreLocked lock();
+    CUTTER_DEPRECATED("Use CutterCore::lock instead")
     RzCoreLocked core();
 
     static QString ansiEscapeToHtml(const QString &text);
@@ -772,6 +801,7 @@ signals:
     void breakpointsChanged(RVA offset);
     void refreshCodeViews();
     void stackChanged();
+    void marksChanged();
     /**
      * @brief update all the widgets that are affected by rebasing in debug mode
      */
@@ -855,6 +885,8 @@ private:
 
     QVector<QString> getCutterRCFilePaths() const;
     QList<TypeDescription> getBaseType(RzBaseTypeKind kind, const char *category);
+    QList<SearchDescription> getAllSearchCommand(QString searchFor, SearchKind kind, QString in);
+    QList<MarkDescription> convertMarks(RzList *marks);
 };
 
 class CUTTER_EXPORT RzCoreLocked
@@ -867,8 +899,12 @@ public:
     RzCoreLocked &operator=(const RzCoreLocked &) = delete;
     RzCoreLocked(RzCoreLocked &&);
     ~RzCoreLocked();
-    operator RzCore *() const;
-    RzCore *operator->() const;
+    operator RzCore *() &;
+    RzCore *operator->() &;
+    // Reduce chance of following misuse of Core()->lock()
+    // rizinStruct* foo = rizin_func(Core()->lock()->something, arg);
+    operator RzCore *() && = delete;
+    RzCore *operator->() && = delete;
 };
 
 #endif // CUTTER_H

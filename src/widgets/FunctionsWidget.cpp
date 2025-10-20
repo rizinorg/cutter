@@ -7,6 +7,7 @@
 #include "common/FunctionsTask.h"
 #include "common/TempConfig.h"
 #include "menus/AddressableItemContextMenu.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <algorithm>
 #include <QMenu>
@@ -233,9 +234,10 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 Core()->getDisassemblyPreview(function.offset, kMaxTooltipDisasmPreviewLines);
         QStringList summary {};
         {
+            auto core = Core()->lock();
             auto seeker = Core()->seekTemp(function.offset);
             auto strings = fromOwnedCharPtr(rz_core_print_disasm_strings(
-                    Core()->core(), RZ_CORE_DISASM_STRINGS_MODE_FUNCTION, 0, NULL));
+                    core, RZ_CORE_DISASM_STRINGS_MODE_FUNCTION, 0, NULL));
             summary = strings.split('\n', CUTTER_QT_SKIP_EMPTY_PARTS);
         }
 
@@ -520,20 +522,21 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     connect(&actionVertical, &QAction::toggled, this, &FunctionsWidget::onActionVerticalToggled);
     titleContextMenu->addActions(viewTypeGroup->actions());
 
-    actionRename.setShortcut({ Qt::Key_N });
+    Shortcuts()->setupAction(actionRename, "Functions.rename");
     actionRename.setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
     connect(&actionRename, &QAction::triggered, this,
             &FunctionsWidget::onActionFunctionsRenameTriggered);
     connect(&actionUndefine, &QAction::triggered, this,
             &FunctionsWidget::onActionFunctionsUndefineTriggered);
 
-    auto itemConextMenu = ui->treeView->getItemContextMenu();
-    itemConextMenu->addSeparator();
-    itemConextMenu->addAction(&actionRename);
-    itemConextMenu->addAction(&actionUndefine);
-    itemConextMenu->setWholeFunction(true);
+    auto itemContextMenu = ui->treeView->getItemContextMenu();
+    itemContextMenu->toggleBreakpointAction(true);
+    itemContextMenu->addSeparator();
+    itemContextMenu->addAction(&actionRename);
+    itemContextMenu->addAction(&actionUndefine);
+    itemContextMenu->setWholeFunction(true);
 
-    ui->treeView->addActions(itemConextMenu->actions());
+    ui->treeView->addActions(itemContextMenu->actions());
 
     // Use a custom context menu on the dock title bar
     if (Config()->getFunctionsWidgetLayout() == "horizontal") {

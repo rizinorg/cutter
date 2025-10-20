@@ -14,7 +14,7 @@
    <string notr="true"/>
   </property>
   <property name="windowTitle">
-   <string notr="true">Dashboard</string>
+   <string>Dashboard</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0">

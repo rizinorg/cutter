@@ -23,16 +23,30 @@ WelcomeDialog::WelcomeDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Welc
     QSignalBlocker s(ui->updatesCheckBox);
     ui->updatesCheckBox->setChecked(Config()->getAutoUpdateEnabled());
 
-    QStringList langs = Config()->getAvailableTranslations();
-    ui->languageComboBox->addItems(langs);
-    QString curr = Config()->getCurrLocale().nativeLanguageName();
-    if (!langs.contains(curr)) {
-        curr = "English";
+    auto langs = Config()->getAvailableTranslations();
+    for (auto &lang : langs) {
+        ui->languageComboBox->addItem(lang.name, lang.locale);
     }
-    ui->languageComboBox->setCurrentText(curr);
+
+    auto matchingLang =
+            std::find_if(langs.begin(), langs.end(), [](const Configuration::LangInfo &v) {
+                return v.locale == Config()->getCurrLocale();
+            });
+    if (matchingLang == langs.end()) {
+        matchingLang =
+                std::find_if(langs.begin(), langs.end(), [](const Configuration::LangInfo &v) {
+                    return v.locale.language() == QLocale::English;
+                });
+    }
+    if (matchingLang != langs.end()) {
+        ui->languageComboBox->setCurrentIndex(matchingLang - langs.begin());
+    } else {
+        ui->languageComboBox->setCurrentText("English");
+    }
+
     connect(ui->languageComboBox,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
-            &WelcomeDialog::onLanguageComboBox_currentIndexChanged);
+            &WelcomeDialog::onLanguageCurrentIndexChanged);
 
     Config()->adjustColorThemeDarkness();
 }
@@ -61,10 +75,12 @@ void WelcomeDialog::on_themeComboBox_currentIndexChanged(int index)
  * @brief change Cutter's interface language as selected by the user
  * @param index - a Slot being called after language combo box value changes its index
  */
-void WelcomeDialog::onLanguageComboBox_currentIndexChanged(int index)
+void WelcomeDialog::onLanguageCurrentIndexChanged(int)
 {
-    QString language = ui->languageComboBox->itemText(index);
-    Config()->setLocaleByName(language);
+    QVariant language = ui->languageComboBox->currentData();
+    if (language.canConvert<QLocale>()) {
+        Config()->setLocale(language.toLocale());
+    }
 
     QMessageBox mb(this);
     mb.setWindowTitle(tr("Language settings"));

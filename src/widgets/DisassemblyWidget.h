@@ -47,7 +47,7 @@ public slots:
     void scrollInstructions(int count);
     void seekPrev();
     void setPreviewMode(bool previewMode);
-    QFontMetrics getFontMetrics();
+    QFontMetricsF getFontMetrics();
     QList<DisassemblyLine> getLines();
 
 protected slots:
@@ -111,6 +111,8 @@ class DisassemblyScrollArea : public QAbstractScrollArea
 
 public:
     explicit DisassemblyScrollArea(QWidget *parent = nullptr);
+    RVA currentVScrollAddr();
+    void setVScrollPos(RVA address);
 
 signals:
     void scrollLines(int lines);
@@ -118,9 +120,13 @@ signals:
 
 protected:
     bool viewportEvent(QEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
 private:
-    void resetScrollBars();
+    void refreshVScrollbarRange();
+    RVA binSize();
+    RVA beginOffset, endOffset;
+    int accumScrollWheelDeltaY;
 };
 
 class DisassemblyTextEdit : public QPlainTextEdit

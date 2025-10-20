@@ -8,6 +8,7 @@
 #include "PluginsOptionsWidget.h"
 #include "InitializationFileEditor.h"
 #include "AnalysisOptionsWidget.h"
+#include "ShortcutOptionsWidget.h"
 
 #include "PreferenceCategory.h"
 
@@ -29,14 +30,15 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
           new AsmOptionsWidget(this),
           QIcon(":/img/icons/disas.svg"),
           {
-                  { "Graph", new GraphOptionsWidget(this), QIcon(":/img/icons/graph.svg") },
+                  { tr("Graph"), new GraphOptionsWidget(this), QIcon(":/img/icons/graph.svg") },
           } },
         { tr("Debug"), new DebugOptionsWidget(this), QIcon(":/img/icons/bug.svg") },
         { tr("Appearance"), new AppearanceOptionsWidget(this), QIcon(":/img/icons/polar.svg") },
         { tr("Plugins"), new PluginsOptionsWidget(this), QIcon(":/img/icons/plugins.svg") },
         { tr("Initialization Script"), new InitializationFileEditor(this),
           QIcon(":/img/icons/initialization.svg") },
-        { tr("Analysis"), new AnalysisOptionsWidget(this), QIcon(":/img/icons/cog_light.svg") }
+        { tr("Analysis"), new AnalysisOptionsWidget(this), QIcon(":/img/icons/cog_light.svg") },
+        { tr("Shortcuts"), new ShortcutOptionsWidget(this), QIcon(":/img/icons/edit_light.svg") }
     };
 
     for (auto &c : prefs) {

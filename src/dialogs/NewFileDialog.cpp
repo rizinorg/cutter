@@ -135,14 +135,16 @@ void NewFileDialog::on_shellcodeButton_clicked()
 
 void NewFileDialog::on_recentsListWidget_itemClicked(QListWidgetItem *item)
 {
-    QVariant data = item->data(Qt::UserRole);
-    QString sitem = data.toString();
-    ui->newFileEdit->setText(sitem);
+    QStringList sitem = item->data(Qt::UserRole).toStringList();
+
+    ui->ioPlugin->setCurrentIndex(ui->ioPlugin->findText(sitem.at(0)));
+    ui->newFileEdit->setText(sitem.at(1));
 }
 
 void NewFileDialog::on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item)
 {
-    loadFile(item->data(Qt::UserRole).toString());
+    const QStringList sitem = item->data(Qt::UserRole).toStringList();
+    loadFile(sitem.at(1));
 }
 
 void NewFileDialog::on_projectFileEdit_textChanged()
@@ -152,12 +154,12 @@ void NewFileDialog::on_projectFileEdit_textChanged()
 
 void NewFileDialog::on_projectsListWidget_itemClicked(QListWidgetItem *item)
 {
-    ui->projectFileEdit->setText(item->data(Qt::UserRole).toString());
+    ui->projectFileEdit->setText(item->data(Qt::UserRole).toStringList().at(1));
 }
 
 void NewFileDialog::on_projectsListWidget_itemDoubleClicked(QListWidgetItem *item)
 {
-    loadProject(item->data(Qt::UserRole).toString());
+    loadProject(item->data(Qt::UserRole).toStringList().at(1));
 }
 
 void NewFileDialog::on_aboutButton_clicked()
@@ -174,9 +176,10 @@ void NewFileDialog::on_actionRemove_item_triggered()
     if (item == nullptr) {
         return;
     }
-    QString sitem = item->data(Qt::UserRole).toString();
-    QStringList files = Config()->getRecentFiles();
-    files.removeAll(sitem);
+    QStringList sitem = item->data(Qt::UserRole).toStringList();
+    RecentFileEntry file = { sitem.at(0), sitem.at(1) };
+    QList<RecentFileEntry> files = Config()->getRecentFiles();
+    files.removeAll(file);
     Config()->setRecentFiles(files);
     ui->recentsListWidget->takeItem(ui->recentsListWidget->currentRow());
     ui->newFileEdit->clear();
@@ -196,8 +199,9 @@ void NewFileDialog::on_actionRemove_project_triggered()
         return;
     }
     QString sitem = item->data(Qt::UserRole).toString();
-    QStringList files = Config()->getRecentProjects();
-    files.removeAll(sitem);
+    RecentFileEntry project = { "", sitem };
+    QList<RecentFileEntry> files = Config()->getRecentProjects();
+    files.removeAll(project);
     Config()->setRecentProjects(files);
     ui->projectsListWidget->takeItem(ui->projectsListWidget->currentRow());
     ui->projectFileEdit->clear();
@@ -234,31 +238,38 @@ void NewFileDialog::dropEvent(QDropEvent *event)
  * @brief Add the existing files from the list to the widget.
  * @return the list of files that actually exist
  */
-static QStringList fillFilesList(QListWidget *widget, const QStringList &files)
+static QList<RecentFileEntry> fillFilesList(QListWidget *widget,
+                                            const QList<RecentFileEntry> &files)
 {
-    QStringList updatedFiles = files;
+    QList<RecentFileEntry> updatedFiles = files;
 
-    QMutableListIterator<QString> it(updatedFiles);
+    QMutableListIterator<RecentFileEntry> it(updatedFiles);
     int i = 0;
     while (it.hasNext()) {
         // Get the file name
-        const QString &fullpath = QDir::toNativeSeparators(it.next());
+        const RecentFileEntry &file = it.next();
+        const QString &path = QDir::toNativeSeparators(file.path);
+        const QString &ioMode = file.ioMode;
         const QString homepath = QDir::homePath();
-        const QString basename = fullpath.section(QDir::separator(), -1);
-        QString filenameHome = fullpath;
+        const QString basename = path.section(QDir::separator(), -1);
+
+        QString filenameHome = path;
         filenameHome.replace(homepath, "~");
         filenameHome.replace(basename, "");
         filenameHome.chop(1); // Remove last character that will be a path separator
         // Get file info
-        QFileInfo info(fullpath);
+        QFileInfo info(path);
         if (!info.exists()) {
             it.remove();
         } else {
-            // Format the text and add the item to the file list
+            // Format the text
             const QString text =
                     QString("%1\n%2\nSize: %3")
                             .arg(basename, filenameHome, qhelpers::formatBytecount(info.size()));
             QListWidgetItem *item = new QListWidgetItem(getIconFor(basename, i++), text);
+
+            // add the item to the file list
+            QStringList fullpath = { ioMode, path };
             item->setData(Qt::UserRole, fullpath);
             widget->addItem(item);
         }
@@ -268,7 +279,7 @@ static QStringList fillFilesList(QListWidget *widget, const QStringList &files)
 
 bool NewFileDialog::fillRecentFilesList()
 {
-    QStringList files = Config()->getRecentFiles();
+    QList<RecentFileEntry> files = Config()->getRecentFiles();
     files = fillFilesList(ui->recentsListWidget, files);
     // Removed files were deleted from the stringlist. Save it again.
     Config()->setRecentFiles(files);
@@ -277,7 +288,7 @@ bool NewFileDialog::fillRecentFilesList()
 
 bool NewFileDialog::fillProjectsList()
 {
-    QStringList files = Config()->getRecentProjects();
+    QList<RecentFileEntry> files = Config()->getRecentProjects();
     files = fillFilesList(ui->projectsListWidget, files);
     Config()->setRecentProjects(files);
     return !files.isEmpty();
@@ -325,21 +336,19 @@ void NewFileDialog::loadFile(const QString &filename)
         return;
     }
 
+    const QString ioMode = ui->ioPlugin->currentText();
+    const QString ioFile = ioMode + nativeFn;
+
     // Add file to recent file list
-    QSettings settings;
-    QStringList files = Config()->getRecentFiles();
-    files.removeAll(nativeFn);
-    files.prepend(nativeFn);
+    RecentFileEntry file = { ioMode, nativeFn };
+    QList<RecentFileEntry> files = Config()->getRecentFiles();
+    files.removeAll(file);
+    files.prepend(file);
     while (files.size() > MaxRecentFiles)
         files.removeLast();
     Config()->setRecentFiles(files);
 
     // Close dialog and open MainWindow/InitialOptionsDialog
-    QString ioFile = "";
-    if (ui->ioPlugin->currentIndex()) {
-        ioFile = ui->ioPlugin->currentText();
-    }
-    ioFile += nativeFn;
     InitialOptions options;
     options.filename = ioFile;
     main->openNewFile(options, ui->checkBox_FilelessOpen->isChecked());

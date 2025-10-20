@@ -1,11 +1,12 @@
 #include "core/MainWindow.h"
+#include "shortcuts/ShortcutManager.h"
 #include "OverviewWidget.h"
 #include "GraphWidget.h"
 #include "OverviewView.h"
 
 OverviewWidget::OverviewWidget(MainWindow *main) : CutterDockWidget(main)
 {
-    setWindowTitle("Graph Overview");
+    setWindowTitle(tr("Graph Overview"));
     setObjectName("Graph Overview");
     setAllowedAreas(Qt::AllDockWidgetAreas);
     graphView = new OverviewView(this);
@@ -17,10 +18,10 @@ OverviewWidget::OverviewWidget(MainWindow *main) : CutterDockWidget(main)
     graphDataRefreshDeferrer = createRefreshDeferrer([this]() { updateGraphData(); });
 
     // Zoom shortcuts
-    QShortcut *shortcut_zoom_in = new QShortcut(QKeySequence(Qt::Key_Plus), this);
+    QShortcut *shortcut_zoom_in = Shortcuts()->makeQShortcut("Overview.zoomIn", this);
     shortcut_zoom_in->setContext(Qt::WidgetWithChildrenShortcut);
     connect(shortcut_zoom_in, &QShortcut::activated, this, [this]() { zoomTarget(1); });
-    QShortcut *shortcut_zoom_out = new QShortcut(QKeySequence(Qt::Key_Minus), this);
+    QShortcut *shortcut_zoom_out = Shortcuts()->makeQShortcut("Overview.zoomOut", this);
     shortcut_zoom_out->setContext(Qt::WidgetWithChildrenShortcut);
     connect(shortcut_zoom_out, &QShortcut::activated, this, [this]() { zoomTarget(-1); });
 }

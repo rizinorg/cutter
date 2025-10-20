@@ -133,7 +133,7 @@ bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &po
             mmio_lookup_context_t ctx;
             ctx.selected = selectedText;
             ctx.mmio_address = RVA_INVALID;
-            auto core = Core()->core();
+            auto core = Core()->lock();
             RzPlatformTarget *arch_target = core->analysis->arch_target;
             if (arch_target && arch_target->profile) {
                 ht_up_foreach(arch_target->profile->registers_mmio, lookup_mmio_addr_cb, &ctx);

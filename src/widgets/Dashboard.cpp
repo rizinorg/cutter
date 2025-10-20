@@ -79,7 +79,7 @@ void Dashboard::updateContents()
 
     // Setting the value of "static"
     int static_value = rz_bin_is_static(core->bin);
-    setPlainText(ui->staticEdit, tr(setBoolText(static_value)));
+    setPlainText(ui->staticEdit, setBoolText(static_value));
 
     const RzPVector *hashes = bf ? rz_bin_file_compute_hashes(core->bin, bf, UT64_MAX) : nullptr;
 
@@ -228,7 +228,7 @@ void Dashboard::setRzBinInfo(const RzBinInfo *binInfo)
  * @brief Set the text of a QLineEdit as True, False
  * @param boolean value
  */
-const char *Dashboard::setBoolText(bool value)
+QString Dashboard::setBoolText(bool value)
 {
-    return value ? "True" : "False";
+    return value ? tr("True") : tr("False");
 }

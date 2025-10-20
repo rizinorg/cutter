@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string notr="true">Registers</string>
+   <string>Registers</string>
   </property>
   <widget class="QScrollArea" name="scrollArea">
   <property name="widgetResizable">

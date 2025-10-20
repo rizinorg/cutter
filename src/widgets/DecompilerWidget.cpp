@@ -10,6 +10,7 @@
 #include "common/CutterSeekable.h"
 #include "core/MainWindow.h"
 #include "common/DecompilerHighlighter.h"
+#include "shortcuts/ShortcutManager.h"
 
 #include <QTextEdit>
 #include <QPlainTextEdit>
@@ -96,8 +97,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main)
     connect(Core(), &CutterCore::refreshCodeViews, this, &DecompilerWidget::doRefresh);
 
     // Esc to seek backward
-    QAction *seekPrevAction = new QAction(this);
-    seekPrevAction->setShortcut(Qt::Key_Escape);
+    QAction *seekPrevAction = Shortcuts()->makeAction("General.seekPrev", this);
     seekPrevAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     addAction(seekPrevAction);
     connect(seekPrevAction, &QAction::triggered, seekable, &CutterSeekable::seekPrev);
@@ -482,11 +482,11 @@ void DecompilerWidget::updateSelection()
 QString DecompilerWidget::getWindowTitle() const
 {
     RzAnalysisFunction *fcn = Core()->functionAt(decompiledFunctionAddr);
-    QString windowTitle = tr("Decompiler");
+    QString windowTitle;
     if (fcn != NULL) {
-        windowTitle += " (" + QString(fcn->name) + ")";
+        windowTitle = tr("Decompiler (%1)").arg(fcn->name);
     } else {
-        windowTitle += " (Empty)";
+        windowTitle = tr("Decompiler (Empty)");
     }
     return windowTitle;
 }
