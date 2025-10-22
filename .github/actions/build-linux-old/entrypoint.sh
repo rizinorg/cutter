@@ -40,7 +40,8 @@ apt-get -y install libgraphviz-dev \
     libpcre2-dev \
     libfuse2 \
     pkg-config \
-    git
+    git \
+    squashfs-tools
 
 
 if [ "$image" = "ubuntu:18.04" ]; then
