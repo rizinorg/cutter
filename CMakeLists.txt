@@ -1,8 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
-
-if(POLICY CMP0074)
-    cmake_policy(SET CMP0074 NEW)
-endif()
+cmake_minimum_required(VERSION 3.12)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(DisallowInSource)
@@ -97,14 +93,8 @@ set(QT_PREFIX "Qt${CUTTER_QT}")
 find_package(${QT_PREFIX} REQUIRED COMPONENTS ${QT_COMPONENTS})
 
 if(CUTTER_ENABLE_PYTHON)
-    if(CMAKE_VERSION VERSION_LESS "3.12.0") 
-        find_package(PythonInterp REQUIRED)
-        find_package(PythonLibs ${CUTTER_PYTHON_MIN} REQUIRED)
-        include_directories(${PYTHON_INCLUDE_DIRS})
-    else()
-        find_package (Python3 ${CUTTER_PYTHON_MIN} REQUIRED COMPONENTS Interpreter Development)
-        set (PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
-    endif()
+    find_package (Python3 ${CUTTER_PYTHON_MIN} REQUIRED COMPONENTS Interpreter Development)
+    set (PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
 
     add_definitions(-DCUTTER_ENABLE_PYTHON)
 
