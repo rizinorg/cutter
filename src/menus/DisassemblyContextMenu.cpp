@@ -284,6 +284,7 @@ void DisassemblyContextMenu::addSetToDataMenu()
 
     auto switchAction = new QAction(this);
     initShortcutAction(switchAction, "Disassembly.setToData", SLOT(on_actionSetToData_triggered()));
+    setToDataMenu->addAction(switchAction);
 }
 
 void DisassemblyContextMenu::addEditMenu()

@@ -866,7 +866,7 @@ void CutterCore::setToData(RVA addr, int size, int repeat)
 
 int CutterCore::sizeofDataMeta(RVA addr)
 {
-    ut64 size;
+    ut64 size = 0;
     CORE_LOCK();
     rz_meta_get_at(core->analysis, addr, RZ_META_TYPE_DATA, &size);
     return (int)size;
