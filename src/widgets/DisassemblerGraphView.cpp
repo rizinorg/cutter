@@ -278,8 +278,12 @@ void DisassemblerGraphView::loadCurrentGraph()
         RzCoreDisasmOptions options = {};
         options.vec = vec.get();
         options.cbytes = 1;
+
+        bool asmOffset = Core()->getConfigb("asm.offset");
+        Core()->setConfig("asm.offset", Core()->getConfigb("graph.offset"));
         rz_core_print_disasm(core, bbi->addr, buf.get(), (int)bbi->size, (int)bbi->size, NULL,
                              &options);
+        Core()->setConfig("asm.offset", asmOffset);
 
         auto vecVisitor = CutterPVector<RzAnalysisDisasmText>(vec.get());
         auto iter = vecVisitor.begin();

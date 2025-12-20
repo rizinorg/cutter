@@ -623,6 +623,8 @@ void DisassemblyContextMenu::aboutToShowSlot()
     if (isLocalVar) {
         actionXRefsForVariables.setText(tr("X-Refs for %1").arg(curHighlightedWord));
     }
+
+    actionEditInstruction.setEnabled(Core()->hasAssembler());
 }
 
 void DisassemblyContextMenu::aboutToHideSlot()

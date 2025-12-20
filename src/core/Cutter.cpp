@@ -2984,6 +2984,29 @@ QStringList CutterCore::getAnalysisPluginNames()
     return ret;
 }
 
+bool CutterCore::hasAssembler()
+{
+    CORE_LOCK();
+    QString archStr = Core()->getConfig("asm.arch");
+    int currBits = Core()->getConfigi("asm.bits");
+    if (!core->rasm || archStr.isEmpty() || currBits == 0) {
+        return false;
+    }
+
+    bool found = false;
+    CutterHtSP<RzAsmPlugin>(core->rasm->plugins).ForEach([&](const char *k, const RzAsmPlugin *ap) {
+        if (!ap->arch || !ap->assemble || !(ap->bits & currBits)) {
+            return true;
+        }
+        if (QString(ap->arch) == archStr) {
+            found = true;
+            return false;
+        }
+        return true;
+    });
+    return found;
+}
+
 QList<RzBinPluginDescription> CutterCore::getBinPluginDescriptions(bool bin, bool xtr)
 {
     CORE_LOCK();

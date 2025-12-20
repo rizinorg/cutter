@@ -607,6 +607,12 @@ public:
     QStringList getAsmPluginNames();
     QStringList getAnalysisPluginNames();
 
+    /**
+     * @brief Checks if an assembler is available for the current architecture.
+     * @return true if there is an assembler plugin for the current architecture, false otherwise.
+     */
+    bool hasAssembler();
+
     /* Widgets */
     QList<RzBinPluginDescription> getBinPluginDescriptions(bool bin = true, bool xtr = true);
     QList<RzIOPluginDescription> getRIOPluginDescriptions();
