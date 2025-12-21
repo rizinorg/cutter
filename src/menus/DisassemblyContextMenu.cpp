@@ -515,8 +515,8 @@ void DisassemblyContextMenu::aboutToShowSlot()
     st64 memDisp = 0; // Displacement
 
     if (ab && ab->op) {
-        const char *opexstr = RZ_STRBUF_SAFEGET(&ab->op->opex);
-        CutterJson operands = Core()->parseJson("opex", strdup(opexstr), nullptr);
+        CutterJson operands = Core()->parseJson("opex", rz_structured_data_to_json(ab->op->opex),
+                                                nullptr);
 
         // Loop through both the operands of the instruction
         for (const CutterJson operand : operands) {
