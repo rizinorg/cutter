@@ -55,7 +55,7 @@ static inline auto fromOwned(RZ_OWN RzList *data) -> UniquePtrCP<decltype(data),
 // deprecated, prefer using CutterPVector and CutterRzList instead
 #define CutterRzListForeach(list, it, type, x)                                                     \
     if (list)                                                                                      \
-        for (it = list->head; it && ((x = static_cast<type *>(it->elem))); it = it->next)
+        for (it = list->head; it && ((x = static_cast<type *>(it->val))); it = it->next)
 
 #define CutterRzVectorForeach(vec, it, type)                                                       \
     if ((vec) && (vec)->a)                                                                         \
@@ -149,7 +149,7 @@ public:
             if (!iter) {
                 return nullptr;
             }
-            return reinterpret_cast<T *>(iter->elem);
+            return reinterpret_cast<T *>(iter->val);
         }
     };
 

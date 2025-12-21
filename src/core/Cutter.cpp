@@ -1256,7 +1256,7 @@ RzAnalysisFunction *CutterCore::functionIn(ut64 addr)
         return fcn;
     }
     RzList *fcns = rz_analysis_get_functions_in(core->analysis, addr);
-    fcn = !rz_list_empty(fcns) ? reinterpret_cast<RzAnalysisFunction *>(rz_list_first(fcns))
+    fcn = !rz_list_empty(fcns) ? reinterpret_cast<RzAnalysisFunction *>(rz_list_first_val(fcns))
                                : nullptr;
     rz_list_free(fcns);
     return fcn;
@@ -1655,7 +1655,7 @@ QVector<Chunk> CutterCore::getHeapChunks(RVA arena_addr)
             rz_list_free(arenas);
             return chunks_vector;
         }
-        m_arena = ((RzArenaListItem *)rz_list_first(arenas))->addr;
+        m_arena = ((RzArenaListItem *)rz_list_first_val(arenas))->addr;
         rz_list_free(arenas);
     } else {
         m_arena = arena_addr;
