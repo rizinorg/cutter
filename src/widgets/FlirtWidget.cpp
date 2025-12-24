@@ -3,14 +3,11 @@
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 
-FlirtModel::FlirtModel(QList<FlirtDescription> *sigdb, QObject *parent)
-    : QAbstractListModel(parent), sigdb(sigdb)
-{
-}
+FlirtModel::FlirtModel(QObject *parent) : QAbstractListModel(parent) {}
 
 int FlirtModel::rowCount(const QModelIndex &) const
 {
-    return sigdb->count();
+    return sigdb.count();
 }
 
 int FlirtModel::columnCount(const QModelIndex &) const
@@ -20,10 +17,10 @@ int FlirtModel::columnCount(const QModelIndex &) const
 
 QVariant FlirtModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= sigdb->count())
+    if (index.row() >= sigdb.count())
         return QVariant();
 
-    const FlirtDescription &entry = sigdb->at(index.row());
+    const FlirtDescription &entry = sigdb.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -128,7 +125,7 @@ FlirtWidget::FlirtWidget(MainWindow *main)
 {
     ui->setupUi(this);
 
-    model = new FlirtModel(&sigdb, this);
+    model = new FlirtModel(this);
     proxyModel = new FlirtProxyModel(model, this);
     ui->flirtTreeView->setModel(proxyModel);
     ui->flirtTreeView->sortByColumn(FlirtModel::BinTypeColumn, Qt::AscendingOrder);
@@ -151,7 +148,7 @@ FlirtWidget::~FlirtWidget() {}
 void FlirtWidget::refreshFlirt()
 {
     model->beginResetModel();
-    sigdb = Core()->getSignaturesDB();
+    model->sigdb = Core()->getSignaturesDB();
     model->endResetModel();
 
     ui->flirtTreeView->resizeColumnToContents(0);
@@ -170,7 +167,7 @@ void FlirtWidget::setScrollMode()
 void FlirtWidget::onSelectedItemChanged(const QModelIndex &index)
 {
     if (index.isValid()) {
-        const FlirtDescription &entry = sigdb.at(index.row());
+        const FlirtDescription &entry = model->sigdb.at(index.row());
         blockMenu->setTarget(entry);
     } else {
         blockMenu->clearTarget();
@@ -181,7 +178,7 @@ void FlirtWidget::showItemContextMenu(const QPoint &pt)
 {
     auto index = ui->flirtTreeView->currentIndex();
     if (index.isValid()) {
-        const FlirtDescription &entry = sigdb.at(index.row());
+        const FlirtDescription &entry = model->sigdb.at(index.row());
         blockMenu->setTarget(entry);
         blockMenu->exec(this->mapToGlobal(pt));
     }

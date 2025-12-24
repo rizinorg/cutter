@@ -11,14 +11,11 @@
 #include <QStandardItemModel>
 #include <QInputDialog>
 
-FlagsModel::FlagsModel(QList<FlagDescription> *flags, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), flags(flags)
-{
-}
+FlagsModel::FlagsModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
 int FlagsModel::rowCount(const QModelIndex &) const
 {
-    return flags->count();
+    return flags.count();
 }
 
 int FlagsModel::columnCount(const QModelIndex &) const
@@ -28,10 +25,10 @@ int FlagsModel::columnCount(const QModelIndex &) const
 
 QVariant FlagsModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= flags->count())
+    if (index.row() >= flags.count())
         return QVariant();
 
-    const FlagDescription &flag = flags->at(index.row());
+    const FlagDescription &flag = flags.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -81,20 +78,20 @@ QVariant FlagsModel::headerData(int section, Qt::Orientation, int role) const
 
 RVA FlagsModel::address(const QModelIndex &index) const
 {
-    const FlagDescription &flag = flags->at(index.row());
+    const FlagDescription &flag = flags.at(index.row());
     return flag.offset;
 }
 
 QString FlagsModel::name(const QModelIndex &index) const
 {
-    const FlagDescription &flag = flags->at(index.row());
+    const FlagDescription &flag = flags.at(index.row());
     return flag.name;
 }
 
 const FlagDescription *FlagsModel::description(QModelIndex index) const
 {
-    if (index.row() < flags->size()) {
-        return &flags->at(index.row());
+    if (index.row() < flags.size()) {
+        return &flags.at(index.row());
     }
     return nullptr;
 }
@@ -151,7 +148,7 @@ FlagsWidget::FlagsWidget(MainWindow *main)
     // Add Status Bar footer
     tree->addStatusBar(ui->verticalLayout);
 
-    flags_model = new FlagsModel(&flags, this);
+    flags_model = new FlagsModel(this);
     flags_proxy_model = new FlagsSortFilterProxyModel(flags_model, this);
     connect(ui->filterLineEdit, &QLineEdit::textChanged, flags_proxy_model,
             &QSortFilterProxyModel::setFilterWildcard);
@@ -267,14 +264,14 @@ void FlagsWidget::refreshFlags()
         flagspace = flagspace_data.value<FlagspaceDescription>().name;
 
     flags_model->beginResetModel();
-    flags = Core()->getAllFlags(flagspace);
+    flags_model->flags = Core()->getAllFlags(flagspace);
     flags_model->endResetModel();
 
     tree->showItemsNumber(flags_proxy_model->rowCount());
 
     // TODO: this is not a very good place for the following:
     QStringList flagNames;
-    for (const FlagDescription &i : flags)
+    for (const FlagDescription &i : flags_model->flags)
         flagNames.append(i.name);
     main->refreshOmniBar(flagNames);
 }

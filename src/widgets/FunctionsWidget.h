@@ -18,9 +18,9 @@ class FunctionModel : public AddressableItemModel<>
     friend FunctionsWidget;
 
 private:
-    QList<FunctionDescription> *functions;
-    QSet<RVA> *importAddresses;
-    ut64 *mainAdress;
+    QList<FunctionDescription> functions;
+    QSet<RVA> importAddresses;
+    ut64 mainAdress;
 
     QFont highlightFont;
     QFont defaultFont;
@@ -58,9 +58,7 @@ public:
         ColumnCount
     };
 
-    FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *importAddresses,
-                  ut64 *mainAdress, bool nested, QFont defaultFont, QFont highlightFont,
-                  QObject *parent = nullptr);
+    FunctionModel(bool nested, QFont defaultFont, QFont highlightFont, QObject *parent = nullptr);
 
     QModelIndex index(int row, int column,
                       const QModelIndex &parent = QModelIndex()) const override;
@@ -120,9 +118,6 @@ private slots:
 
 private:
     QSharedPointer<FunctionsTask> task;
-    QList<FunctionDescription> functions;
-    QSet<RVA> importAddresses;
-    ut64 mainAdress;
     FunctionModel *functionModel;
     FunctionSortFilterProxyModel *functionProxyModel;
 

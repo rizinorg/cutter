@@ -23,13 +23,13 @@ class FlagsModel : public AddressableItemModel<QAbstractListModel>
     friend FlagsWidget;
 
 private:
-    QList<FlagDescription> *flags;
+    QList<FlagDescription> flags;
 
 public:
     enum Columns { OFFSET = 0, SIZE, NAME, REALNAME, COMMENT, COUNT };
     static const int FlagDescriptionRole = Qt::UserRole;
 
-    FlagsModel(QList<FlagDescription> *flags, QObject *parent = nullptr);
+    FlagsModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -84,7 +84,6 @@ private:
     bool disableFlagRefresh = false;
     FlagsModel *flags_model;
     FlagsSortFilterProxyModel *flags_proxy_model;
-    QList<FlagDescription> flags;
     CutterTreeWidget *tree;
 
     void refreshFlags();

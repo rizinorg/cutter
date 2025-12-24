@@ -4,14 +4,13 @@
 #include "core/MainWindow.h"
 #include <QVBoxLayout>
 
-ResourcesModel::ResourcesModel(QList<ResourcesDescription> *resources, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), resources(resources)
+ResourcesModel::ResourcesModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent)
 {
 }
 
 int ResourcesModel::rowCount(const QModelIndex &) const
 {
-    return resources->count();
+    return resources.count();
 }
 
 int ResourcesModel::columnCount(const QModelIndex &) const
@@ -21,7 +20,7 @@ int ResourcesModel::columnCount(const QModelIndex &) const
 
 QVariant ResourcesModel::data(const QModelIndex &index, int role) const
 {
-    const ResourcesDescription &res = resources->at(index.row());
+    const ResourcesDescription &res = resources.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -96,7 +95,7 @@ QVariant ResourcesModel::headerData(int section, Qt::Orientation, int role) cons
 
 RVA ResourcesModel::address(const QModelIndex &index) const
 {
-    const ResourcesDescription &res = resources->at(index.row());
+    const ResourcesDescription &res = resources.at(index.row());
     return res.vaddr;
 }
 
@@ -105,7 +104,7 @@ ResourcesWidget::ResourcesWidget(MainWindow *main)
 {
     setObjectName("ResourcesWidget");
 
-    model = new ResourcesModel(&resources, this);
+    model = new ResourcesModel(this);
     filterModel = new AddressableFilterProxyModel(model, this);
     filterModel->setSortRole(Qt::EditRole);
     setModels(filterModel);
@@ -125,6 +124,6 @@ ResourcesWidget::ResourcesWidget(MainWindow *main)
 void ResourcesWidget::refreshResources()
 {
     model->beginResetModel();
-    resources = Core()->getAllResources();
+    model->resources = Core()->getAllResources();
     model->endResetModel();
 }

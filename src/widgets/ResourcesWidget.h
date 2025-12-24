@@ -17,11 +17,11 @@ class ResourcesModel : public AddressableItemModel<QAbstractListModel>
     friend ResourcesWidget;
 
 private:
-    QList<ResourcesDescription> *resources;
+    QList<ResourcesDescription> resources;
 
 public:
     enum Columns { INDEX = 0, NAME, VADDR, TYPE, SIZE, LANG, COMMENT, COUNT };
-    explicit ResourcesModel(QList<ResourcesDescription> *resources, QObject *parent = nullptr);
+    explicit ResourcesModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -40,7 +40,6 @@ class ResourcesWidget : public ListDockWidget
 private:
     ResourcesModel *model;
     AddressableFilterProxyModel *filterModel;
-    QList<ResourcesDescription> resources;
 
 public:
     explicit ResourcesWidget(MainWindow *main);

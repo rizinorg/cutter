@@ -27,13 +27,13 @@ class GlobalsModel : public AddressableItemModel<QAbstractListModel>
     friend GlobalsWidget;
 
 private:
-    QList<GlobalDescription> *globals;
+    QList<GlobalDescription> globals;
 
 public:
     enum Column { AddressColumn = 0, TypeColumn, NameColumn, CommentColumn, ColumnCount };
     enum Role { GlobalDescriptionRole = Qt::UserRole };
 
-    GlobalsModel(QList<GlobalDescription> *exports, QObject *parent = nullptr);
+    GlobalsModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -75,7 +75,6 @@ private slots:
 private:
     std::unique_ptr<Ui::GlobalsWidget> ui;
 
-    QList<GlobalDescription> globals;
     GlobalsModel *globalsModel;
     GlobalsProxyModel *globalsProxyModel;
     CutterTreeWidget *tree;

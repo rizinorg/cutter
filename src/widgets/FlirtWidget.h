@@ -37,7 +37,7 @@ public:
     };
     enum Role { FlirtDescriptionRole = Qt::UserRole };
 
-    FlirtModel(QList<FlirtDescription> *sigdb, QObject *parent = 0);
+    FlirtModel(QObject *parent = 0);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
@@ -46,7 +46,7 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
 private:
-    QList<FlirtDescription> *sigdb;
+    QList<FlirtDescription> sigdb;
 };
 
 class FlirtProxyModel : public QSortFilterProxyModel
@@ -79,7 +79,6 @@ private:
 
     FlirtModel *model;
     FlirtProxyModel *proxyModel;
-    QList<FlirtDescription> sigdb;
     FlirtContextMenu *blockMenu;
 
     void setScrollMode();

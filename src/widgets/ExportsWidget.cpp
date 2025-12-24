@@ -6,14 +6,11 @@
 
 #include <QShortcut>
 
-ExportsModel::ExportsModel(QList<ExportDescription> *exports, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), exports(exports)
-{
-}
+ExportsModel::ExportsModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
 int ExportsModel::rowCount(const QModelIndex &) const
 {
-    return exports->count();
+    return exports.count();
 }
 
 int ExportsModel::columnCount(const QModelIndex &) const
@@ -23,10 +20,10 @@ int ExportsModel::columnCount(const QModelIndex &) const
 
 QVariant ExportsModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= exports->count())
+    if (index.row() >= exports.count())
         return QVariant();
 
-    const ExportDescription &exp = exports->at(index.row());
+    const ExportDescription &exp = exports.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -76,13 +73,13 @@ QVariant ExportsModel::headerData(int section, Qt::Orientation, int role) const
 
 RVA ExportsModel::address(const QModelIndex &index) const
 {
-    const ExportDescription &exp = exports->at(index.row());
+    const ExportDescription &exp = exports.at(index.row());
     return exp.vaddr;
 }
 
 QString ExportsModel::name(const QModelIndex &index) const
 {
-    const ExportDescription &exp = exports->at(index.row());
+    const ExportDescription &exp = exports.at(index.row());
     return exp.name;
 }
 
@@ -138,7 +135,7 @@ ExportsWidget::ExportsWidget(MainWindow *main) : ListDockWidget(main)
     setWindowTitle(tr("Exports"));
     setObjectName("ExportsWidget");
 
-    exportsModel = new ExportsModel(&exports, this);
+    exportsModel = new ExportsModel(this);
     exportsProxyModel = new ExportsProxyModel(exportsModel, this);
     setModels(exportsProxyModel);
 
@@ -171,7 +168,7 @@ ExportsWidget::~ExportsWidget() {}
 void ExportsWidget::refreshExports()
 {
     exportsModel->beginResetModel();
-    exports = Core()->getAllExports();
+    exportsModel->exports = Core()->getAllExports();
     exportsModel->endResetModel();
 
     qhelpers::adjustColumns(ui->treeView, 3, 0);

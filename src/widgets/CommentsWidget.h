@@ -29,8 +29,8 @@ class CommentsModel : public AddressableItemModel<>
     friend CommentsWidget;
 
 private:
-    QList<CommentDescription> *comments;
-    QList<CommentGroup> *nestedComments;
+    QList<CommentDescription> comments;
+    QList<CommentGroup> nestedComments;
     bool nested;
 
 public:
@@ -38,8 +38,7 @@ public:
     enum NestedColumn { OffsetNestedColumn = 0, CommentNestedColumn, NestedColumnCount };
     enum Role { CommentDescriptionRole = Qt::UserRole, FunctionRole };
 
-    CommentsModel(QList<CommentDescription> *comments, QList<CommentGroup> *nestedComments,
-                  QObject *parent = nullptr);
+    CommentsModel(QObject *parent = nullptr);
 
     QModelIndex index(int row, int column,
                       const QModelIndex &parent = QModelIndex()) const override;
@@ -91,9 +90,6 @@ private:
     CommentsProxyModel *commentsProxyModel;
     QAction actionHorizontal;
     QAction actionVertical;
-
-    QList<CommentDescription> comments;
-    QList<CommentGroup> nestedComments;
 
     QMenu *titleContextMenu;
 };

@@ -8,14 +8,11 @@
 #include <QMenu>
 #include <QShortcut>
 
-GlobalsModel::GlobalsModel(QList<GlobalDescription> *globals, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), globals(globals)
-{
-}
+GlobalsModel::GlobalsModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
 int GlobalsModel::rowCount(const QModelIndex &) const
 {
-    return globals->count();
+    return globals.count();
 }
 
 int GlobalsModel::columnCount(const QModelIndex &) const
@@ -25,11 +22,11 @@ int GlobalsModel::columnCount(const QModelIndex &) const
 
 QVariant GlobalsModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= globals->count()) {
+    if (index.row() >= globals.count()) {
         return QVariant();
     }
 
-    const GlobalDescription &global = globals->at(index.row());
+    const GlobalDescription &global = globals.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -75,13 +72,13 @@ QVariant GlobalsModel::headerData(int section, Qt::Orientation, int role) const
 
 RVA GlobalsModel::address(const QModelIndex &index) const
 {
-    const GlobalDescription &global = globals->at(index.row());
+    const GlobalDescription &global = globals.at(index.row());
     return global.addr;
 }
 
 QString GlobalsModel::name(const QModelIndex &index) const
 {
-    const GlobalDescription &global = globals->at(index.row());
+    const GlobalDescription &global = globals.at(index.row());
     return global.name;
 }
 
@@ -165,7 +162,7 @@ GlobalsWidget::GlobalsWidget(MainWindow *main)
     ui->treeView->setMainWindow(mainWindow);
 
     // Setup up the model and the proxy model
-    globalsModel = new GlobalsModel(&globals, this);
+    globalsModel = new GlobalsModel(this);
     globalsProxyModel = new GlobalsProxyModel(globalsModel, this);
     ui->treeView->setModel(globalsProxyModel);
     ui->treeView->sortByColumn(GlobalsModel::AddressColumn, Qt::AscendingOrder);
@@ -211,7 +208,7 @@ GlobalsWidget::~GlobalsWidget() {}
 void GlobalsWidget::refreshGlobals()
 {
     globalsModel->beginResetModel();
-    globals = Core()->getAllGlobals();
+    globalsModel->globals = Core()->getAllGlobals();
     globalsModel->endResetModel();
 
     qhelpers::adjustColumns(ui->treeView, GlobalsModel::ColumnCount, 0);

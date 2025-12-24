@@ -27,13 +27,13 @@ class HeadersModel : public AddressableItemModel<QAbstractListModel>
     friend HeadersWidget;
 
 private:
-    QList<HeaderDescription> *headers;
+    QList<HeaderDescription> headers;
 
 public:
     enum Column { OffsetColumn = 0, NameColumn, ValueColumn, CommentColumn, ColumnCount };
     enum Role { HeaderDescriptionRole = Qt::UserRole };
 
-    HeadersModel(QList<HeaderDescription> *headers, QObject *parent = nullptr);
+    HeadersModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -72,7 +72,6 @@ private slots:
 private:
     HeadersModel *headersModel;
     HeadersProxyModel *headersProxyModel;
-    QList<HeaderDescription> headers;
 };
 
 #endif // HEADERSWIDGET_H

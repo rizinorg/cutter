@@ -21,13 +21,13 @@ class SearchModel : public AddressableItemModel<QAbstractListModel>
     friend SearchWidget;
 
 private:
-    QList<SearchDescription> *search;
+    QList<SearchDescription> search;
 
 public:
     enum Columns { OFFSET = 0, SIZE, CODE, DATA, COMMENT, COUNT };
     static const int SearchDescriptionRole = Qt::UserRole;
 
-    SearchModel(QList<SearchDescription> *search, QObject *parent = nullptr);
+    SearchModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -75,7 +75,6 @@ private:
 
     SearchModel *search_model;
     SearchSortFilterProxyModel *search_proxy_model;
-    QList<SearchDescription> search;
 
     void refreshSearch();
     void checkSearchResultEmpty();

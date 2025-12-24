@@ -27,7 +27,7 @@ class MemoryMapModel : public AddressableItemModel<QAbstractListModel>
     friend MemoryMapWidget;
 
 private:
-    QList<MemoryMapDescription> *memoryMaps;
+    QList<MemoryMapDescription> memoryMaps;
 
 public:
     enum Column {
@@ -40,7 +40,7 @@ public:
     };
     enum Role { MemoryDescriptionRole = Qt::UserRole };
 
-    MemoryMapModel(QList<MemoryMapDescription> *memoryMaps, QObject *parent = nullptr);
+    MemoryMapModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -79,7 +79,6 @@ private slots:
 private:
     MemoryMapModel *memoryModel;
     MemoryProxyModel *memoryProxyModel;
-    QList<MemoryMapDescription> memoryMaps;
 
     RefreshDeferrer *refreshDeferrer;
 };

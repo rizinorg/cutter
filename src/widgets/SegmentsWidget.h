@@ -19,7 +19,7 @@ class SegmentsModel : public AddressableItemModel<QAbstractListModel>
     friend SegmentsWidget;
 
 private:
-    QList<SegmentDescription> *segments;
+    QList<SegmentDescription> segments;
 
 public:
     enum Column {
@@ -33,7 +33,7 @@ public:
     };
     enum Role { SegmentDescriptionRole = Qt::UserRole };
 
-    SegmentsModel(QList<SegmentDescription> *segments, QObject *parent = nullptr);
+    SegmentsModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -69,7 +69,6 @@ private slots:
     void refreshSegments();
 
 private:
-    QList<SegmentDescription> segments;
     SegmentsModel *segmentsModel;
 };
 

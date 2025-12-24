@@ -30,13 +30,8 @@ static const int kMaxTooltipHighlightsLines = 5;
 
 }
 
-FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *importAddresses,
-                             ut64 *mainAdress, bool nested, QFont default_font,
-                             QFont highlight_font, QObject *parent)
+FunctionModel::FunctionModel(bool nested, QFont default_font, QFont highlight_font, QObject *parent)
     : AddressableItemModel<>(parent),
-      functions(functions),
-      importAddresses(importAddresses),
-      mainAdress(mainAdress),
       highlightFont(highlight_font),
       defaultFont(default_font),
       nested(nested),
@@ -76,7 +71,7 @@ QModelIndex FunctionModel::parent(const QModelIndex &index) const
 int FunctionModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
-        return functions->count();
+        return functions.count();
 
     if (nested) {
         if (parent.internalId() == 0)
@@ -96,12 +91,12 @@ int FunctionModel::columnCount(const QModelIndex & /*parent*/) const
 
 bool FunctionModel::functionIsImport(ut64 addr) const
 {
-    return importAddresses->contains(addr);
+    return importAddresses.contains(addr);
 }
 
 bool FunctionModel::functionIsMain(ut64 addr) const
 {
-    return *mainAdress == addr;
+    return mainAdress == addr;
 }
 
 QVariant FunctionModel::data(const QModelIndex &index, int role) const
@@ -121,9 +116,9 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         subnode = false;
     }
 
-    const FunctionDescription &function = functions->at(function_index);
+    const FunctionDescription &function = functions.at(function_index);
 
-    if (function_index >= functions->count())
+    if (function_index >= functions.count())
         return QVariant();
 
     switch (role) {
@@ -293,7 +288,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         return QVariant::fromValue(function);
 
     case IsImportRole:
-        return importAddresses->contains(function.offset);
+        return importAddresses.contains(function.offset);
 
     default:
         return {};
@@ -378,8 +373,8 @@ bool FunctionModel::updateCurrentIndex()
 
     RVA seek = Core()->getOffset();
 
-    for (int i = 0; i < functions->count(); i++) {
-        const FunctionDescription &function = functions->at(i);
+    for (int i = 0; i < functions.count(); i++) {
+        const FunctionDescription &function = functions.at(i);
 
         if (function.contains(seek) && function.offset >= offset) {
             offset = function.offset;
@@ -396,8 +391,8 @@ bool FunctionModel::updateCurrentIndex()
 
 void FunctionModel::functionRenamed(const RVA offset, const QString &new_name)
 {
-    for (int i = 0; i < functions->count(); i++) {
-        FunctionDescription &function = (*functions)[i];
+    for (int i = 0; i < functions.count(); i++) {
+        FunctionDescription &function = functions[i];
         if (function.offset == offset) {
             function.name = new_name;
             emit dataChanged(index(i, 0), index(i, columnCount() - 1));
@@ -504,8 +499,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     QFont default_font = QFont(font_info.family(), font_info.pointSize());
     QFont highlight_font = QFont(font_info.family(), font_info.pointSize(), QFont::Bold);
 
-    functionModel = new FunctionModel(&functions, &importAddresses, &mainAdress, false,
-                                      default_font, highlight_font, this);
+    functionModel = new FunctionModel(false, default_font, highlight_font, this);
     functionProxyModel = new FunctionSortFilterProxyModel(functionModel, this);
     setModels(functionProxyModel);
     ui->treeView->sortByColumn(FunctionModel::NameColumn, Qt::AscendingOrder);
@@ -568,14 +562,14 @@ void FunctionsWidget::refreshTree()
             [this](const QList<FunctionDescription> &functions) {
                 functionModel->beginResetModel();
 
-                this->functions = functions;
+                functionModel->functions = functions;
 
-                importAddresses.clear();
+                functionModel->importAddresses.clear();
                 for (const ImportDescription &import : Core()->getAllImports()) {
-                    importAddresses.insert(import.plt);
+                    functionModel->importAddresses.insert(import.plt);
                 }
 
-                mainAdress = RVA_INVALID;
+                functionModel->mainAdress = RVA_INVALID;
                 RzCoreLocked core(Core());
                 RzBinFile *bf = rz_bin_cur(core->bin);
                 if (bf) {
@@ -583,8 +577,9 @@ void FunctionsWidget::refreshTree()
                             rz_bin_object_get_special_symbol(bf->o, RZ_BIN_SPECIAL_SYMBOL_MAIN);
                     if (binmain) {
                         int va = core->io->va || core->bin->is_debugger;
-                        mainAdress = va ? rz_bin_object_addr_with_base(bf->o, binmain->vaddr)
-                                        : binmain->paddr;
+                        functionModel->mainAdress = va
+                                ? rz_bin_object_addr_with_base(bf->o, binmain->vaddr)
+                                : binmain->paddr;
                     }
                 }
 

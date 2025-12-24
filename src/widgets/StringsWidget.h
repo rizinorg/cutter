@@ -27,7 +27,7 @@ class StringsModel : public AddressableItemModel<QAbstractListModel>
     friend StringsWidget;
 
 private:
-    QList<StringDescription> *strings;
+    QList<StringDescription> strings;
 
 public:
     enum Column {
@@ -42,7 +42,7 @@ public:
     };
     static const int StringDescriptionRole = Qt::UserRole;
 
-    StringsModel(QList<StringDescription> *strings, QObject *parent = nullptr);
+    StringsModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -92,7 +92,6 @@ private:
 
     StringsModel *model;
     StringsProxyModel *proxyModel;
-    QList<StringDescription> strings;
     CutterTreeWidget *tree;
 };
 

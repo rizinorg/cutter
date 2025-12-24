@@ -25,7 +25,7 @@ class ExportsModel : public AddressableItemModel<QAbstractListModel>
     friend ExportsWidget;
 
 private:
-    QList<ExportDescription> *exports;
+    QList<ExportDescription> exports;
 
 public:
     enum Column {
@@ -38,7 +38,7 @@ public:
     };
     enum Role { ExportDescriptionRole = Qt::UserRole };
 
-    ExportsModel(QList<ExportDescription> *exports, QObject *parent = nullptr);
+    ExportsModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -77,7 +77,6 @@ private slots:
 private:
     ExportsModel *exportsModel;
     ExportsProxyModel *exportsProxyModel;
-    QList<ExportDescription> exports;
 };
 
 #endif // EXPORTSWIDGET_H

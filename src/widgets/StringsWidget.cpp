@@ -9,14 +9,11 @@
 #include <QModelIndex>
 #include <QShortcut>
 
-StringsModel::StringsModel(QList<StringDescription> *strings, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), strings(strings)
-{
-}
+StringsModel::StringsModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
 int StringsModel::rowCount(const QModelIndex &) const
 {
-    return strings->count();
+    return strings.count();
 }
 
 int StringsModel::columnCount(const QModelIndex &) const
@@ -26,10 +23,10 @@ int StringsModel::columnCount(const QModelIndex &) const
 
 QVariant StringsModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= strings->count())
+    if (index.row() >= strings.count())
         return QVariant();
 
-    const StringDescription &str = strings->at(index.row());
+    const StringDescription &str = strings.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -87,13 +84,13 @@ QVariant StringsModel::headerData(int section, Qt::Orientation, int role) const
 
 RVA StringsModel::address(const QModelIndex &index) const
 {
-    const StringDescription &str = strings->at(index.row());
+    const StringDescription &str = strings.at(index.row());
     return str.vaddr;
 }
 
 const StringDescription *StringsModel::description(const QModelIndex &index) const
 {
-    return &strings->at(index.row());
+    return &strings.at(index.row());
 }
 
 StringsProxyModel::StringsProxyModel(StringsModel *sourceModel, QObject *parent)
@@ -175,7 +172,7 @@ StringsWidget::StringsWidget(MainWindow *main)
 
     ui->stringsTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    model = new StringsModel(&strings, this);
+    model = new StringsModel(this);
     proxyModel = new StringsProxyModel(model, this);
     ui->stringsTreeView->setMainWindow(main);
     ui->stringsTreeView->setModel(proxyModel);
@@ -253,7 +250,7 @@ void StringsWidget::refreshSectionCombo()
 void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings)
 {
     model->beginResetModel();
-    this->strings = strings;
+    model->strings = strings;
     model->endResetModel();
 
     tree->showItemsNumber(proxyModel->rowCount());

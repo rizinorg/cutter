@@ -13,14 +13,11 @@
 #include <QShortcut>
 #include <QToolTip>
 
-SectionsModel::SectionsModel(QList<SectionDescription> *sections, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), sections(sections)
-{
-}
+SectionsModel::SectionsModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
 int SectionsModel::rowCount(const QModelIndex &) const
 {
-    return sections->count();
+    return sections.count();
 }
 
 int SectionsModel::columnCount(const QModelIndex &) const
@@ -45,11 +42,11 @@ QVariant SectionsModel::data(const QModelIndex &index, int role) const
         QColor("#95A5A6") // COBCRETE
     };
 
-    if (index.row() >= sections->count()) {
+    if (index.row() >= sections.count()) {
         return QVariant();
     }
 
-    const SectionDescription &section = sections->at(index.row());
+    const SectionDescription &section = sections.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -115,13 +112,13 @@ QVariant SectionsModel::headerData(int section, Qt::Orientation, int role) const
 
 RVA SectionsModel::address(const QModelIndex &index) const
 {
-    const SectionDescription &section = sections->at(index.row());
+    const SectionDescription &section = sections.at(index.row());
     return section.vaddr;
 }
 
 QString SectionsModel::name(const QModelIndex &index) const
 {
-    const SectionDescription &section = sections->at(index.row());
+    const SectionDescription &section = sections.at(index.row());
     return section.name;
 }
 
@@ -180,7 +177,7 @@ SectionsWidget::~SectionsWidget() = default;
 
 void SectionsWidget::initSectionsTable()
 {
-    sectionsModel = new SectionsModel(&sections, this);
+    sectionsModel = new SectionsModel(this);
     proxyModel = new SectionsProxyModel(sectionsModel, this);
     setModels(proxyModel);
 
@@ -255,7 +252,7 @@ void SectionsWidget::refreshSections()
         return;
     }
     sectionsModel->beginResetModel();
-    sections = Core()->getAllSections();
+    sectionsModel->sections = Core()->getAllSections();
     sectionsModel->endResetModel();
     qhelpers::adjustColumns(ui->treeView, SectionsModel::ColumnCount, 0);
     refreshDocks();

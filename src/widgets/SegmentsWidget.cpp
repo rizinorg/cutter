@@ -6,14 +6,11 @@
 #include <QVBoxLayout>
 #include <QShortcut>
 
-SegmentsModel::SegmentsModel(QList<SegmentDescription> *segments, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), segments(segments)
-{
-}
+SegmentsModel::SegmentsModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
 int SegmentsModel::rowCount(const QModelIndex &) const
 {
-    return segments->count();
+    return segments.count();
 }
 
 int SegmentsModel::columnCount(const QModelIndex &) const
@@ -38,10 +35,10 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
         QColor("#95A5A6") // COBCRETE
     };
 
-    if (index.row() >= segments->count())
+    if (index.row() >= segments.count())
         return QVariant();
 
-    const SegmentDescription &segment = segments->at(index.row());
+    const SegmentDescription &segment = segments.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -99,13 +96,13 @@ QVariant SegmentsModel::headerData(int segment, Qt::Orientation, int role) const
 
 RVA SegmentsModel::address(const QModelIndex &index) const
 {
-    const SegmentDescription &segment = segments->at(index.row());
+    const SegmentDescription &segment = segments.at(index.row());
     return segment.vaddr;
 }
 
 QString SegmentsModel::name(const QModelIndex &index) const
 {
-    const SegmentDescription &segment = segments->at(index.row());
+    const SegmentDescription &segment = segments.at(index.row());
     return segment.name;
 }
 
@@ -142,7 +139,7 @@ SegmentsWidget::SegmentsWidget(MainWindow *main) : ListDockWidget(main)
     setObjectName("SegmentsWidget");
     setWindowTitle(tr("Segments"));
 
-    segmentsModel = new SegmentsModel(&segments, this);
+    segmentsModel = new SegmentsModel(this);
     auto proxyModel = new SegmentsProxyModel(segmentsModel, this);
     setModels(proxyModel);
 
@@ -162,7 +159,7 @@ SegmentsWidget::~SegmentsWidget() {}
 void SegmentsWidget::refreshSegments()
 {
     segmentsModel->beginResetModel();
-    segments = Core()->getAllSegments();
+    segmentsModel->segments = Core()->getAllSegments();
     segmentsModel->endResetModel();
 
     qhelpers::adjustColumns(ui->treeView, SegmentsModel::ColumnCount, 0);

@@ -23,7 +23,7 @@ class BaseFindResultsModel : public QAbstractListModel
 public:
     enum Column { ScoreColumn = 0, CandidateColumn, ColumnCount };
 
-    BaseFindResultsModel(QList<BasefindResultDescription> *list, QObject *parent = nullptr);
+    BaseFindResultsModel(QList<BasefindResultDescription> list, QObject *parent = nullptr);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
@@ -32,7 +32,7 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
 private:
-    QList<BasefindResultDescription> *list;
+    QList<BasefindResultDescription> list;
 };
 
 class BaseFindResultsDialog : public QDialog
@@ -55,7 +55,6 @@ private:
     void onActionSetLoadAddr();
     void onActionSetMapAddr();
 
-    QList<BasefindResultDescription> list;
     std::unique_ptr<Ui::BaseFindResultsDialog> ui;
     BaseFindResultsModel *model;
     QMenu *blockMenu;

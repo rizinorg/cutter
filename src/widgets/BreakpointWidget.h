@@ -85,7 +85,6 @@ private:
 
     BreakpointModel *breakpointModel;
     BreakpointProxyModel *breakpointProxyModel;
-    QList<BreakpointDescription> breakpoints;
     QAction *actionDelBreakpoint = nullptr;
     QAction *actionToggleBreakpoint = nullptr;
     QAction *actionEditBreakpoint = nullptr;

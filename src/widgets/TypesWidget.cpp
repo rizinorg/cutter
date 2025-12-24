@@ -10,10 +10,7 @@
 #include <QShortcut>
 #include <QIcon>
 
-TypesModel::TypesModel(QList<TypeDescription> *types, QObject *parent)
-    : QAbstractListModel(parent), types(types)
-{
-}
+TypesModel::TypesModel(QObject *parent) : QAbstractListModel(parent) {}
 
 QVariant TypesModel::toolTipValue(const QModelIndex &index) const
 {
@@ -28,7 +25,7 @@ QVariant TypesModel::toolTipValue(const QModelIndex &index) const
 
 int TypesModel::rowCount(const QModelIndex &) const
 {
-    return types->count();
+    return types.count();
 }
 
 int TypesModel::columnCount(const QModelIndex &) const
@@ -38,10 +35,10 @@ int TypesModel::columnCount(const QModelIndex &) const
 
 QVariant TypesModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= types->count())
+    if (index.row() >= types.count())
         return QVariant();
 
-    const TypeDescription &exp = types->at(index.row());
+    const TypeDescription &exp = types.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -90,10 +87,10 @@ QVariant TypesModel::headerData(int section, Qt::Orientation, int role) const
 bool TypesModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     RzCoreLocked core(Core());
-    rz_type_db_del(core->analysis->typedb, types->at(row).type.toUtf8().constData());
+    rz_type_db_del(core->analysis->typedb, types.at(row).type.toUtf8().constData());
     beginRemoveRows(parent, row, row + count - 1);
     while (count--) {
-        types->removeAt(row);
+        types.removeAt(row);
     }
     endRemoveRows();
     return true;
@@ -160,7 +157,7 @@ TypesWidget::TypesWidget(MainWindow *main)
     ui->typesTreeView->setSelectionMode(QAbstractItemView::SingleSelection);
 
     // Setup up the model and the proxy model
-    types_model = new TypesModel(&types, this);
+    types_model = new TypesModel(this);
     types_proxy_model = new TypesSortFilterProxyModel(types_model, this);
     ui->typesTreeView->setModel(types_proxy_model);
     ui->typesTreeView->sortByColumn(TypesModel::TYPE, Qt::AscendingOrder);
@@ -210,11 +207,11 @@ TypesWidget::~TypesWidget() {}
 void TypesWidget::refreshTypes()
 {
     types_model->beginResetModel();
-    types = Core()->getAllTypes();
+    types_model->types = Core()->getAllTypes();
     types_model->endResetModel();
 
     QStringList categories;
-    for (TypeDescription exp : types) {
+    for (const TypeDescription &exp : types_model->types) {
         categories << exp.category;
     }
     categories.removeDuplicates();

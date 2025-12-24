@@ -4,14 +4,13 @@
 #include "common/Helpers.h"
 #include <QShortcut>
 
-MemoryMapModel::MemoryMapModel(QList<MemoryMapDescription> *memoryMaps, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), memoryMaps(memoryMaps)
+MemoryMapModel::MemoryMapModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent)
 {
 }
 
 int MemoryMapModel::rowCount(const QModelIndex &) const
 {
-    return memoryMaps->count();
+    return memoryMaps.count();
 }
 
 int MemoryMapModel::columnCount(const QModelIndex &) const
@@ -21,10 +20,10 @@ int MemoryMapModel::columnCount(const QModelIndex &) const
 
 QVariant MemoryMapModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= memoryMaps->count())
+    if (index.row() >= memoryMaps.count())
         return QVariant();
 
-    const MemoryMapDescription &memoryMap = memoryMaps->at(index.row());
+    const MemoryMapDescription &memoryMap = memoryMaps.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -74,7 +73,7 @@ QVariant MemoryMapModel::headerData(int section, Qt::Orientation, int role) cons
 
 RVA MemoryMapModel::address(const QModelIndex &index) const
 {
-    const MemoryMapDescription &memoryMap = memoryMaps->at(index.row());
+    const MemoryMapDescription &memoryMap = memoryMaps.at(index.row());
     return memoryMap.addrStart;
 }
 
@@ -123,7 +122,7 @@ MemoryMapWidget::MemoryMapWidget(MainWindow *main)
     setWindowTitle(tr("Memory Map"));
     setObjectName("MemoryMapWidget");
 
-    memoryModel = new MemoryMapModel(&memoryMaps, this);
+    memoryModel = new MemoryMapModel(this);
     memoryProxyModel = new MemoryProxyModel(memoryModel, this);
     setModels(memoryProxyModel);
     ui->treeView->sortByColumn(MemoryMapModel::AddrStartColumn, Qt::AscendingOrder);
@@ -150,7 +149,7 @@ void MemoryMapWidget::refreshMemoryMap()
         return;
     }
     memoryModel->beginResetModel();
-    memoryMaps = Core()->getMemoryMap();
+    memoryModel->memoryMaps = Core()->getMemoryMap();
     memoryModel->endResetModel();
 
     ui->treeView->resizeColumnToContents(0);

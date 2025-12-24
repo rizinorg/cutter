@@ -3,14 +3,11 @@
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 
-HeadersModel::HeadersModel(QList<HeaderDescription> *headers, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), headers(headers)
-{
-}
+HeadersModel::HeadersModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
 int HeadersModel::rowCount(const QModelIndex &) const
 {
-    return headers->count();
+    return headers.count();
 }
 
 int HeadersModel::columnCount(const QModelIndex &) const
@@ -20,10 +17,10 @@ int HeadersModel::columnCount(const QModelIndex &) const
 
 QVariant HeadersModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= headers->count())
+    if (index.row() >= headers.count())
         return QVariant();
 
-    const HeaderDescription &header = headers->at(index.row());
+    const HeaderDescription &header = headers.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -69,13 +66,13 @@ QVariant HeadersModel::headerData(int section, Qt::Orientation, int role) const
 
 RVA HeadersModel::address(const QModelIndex &index) const
 {
-    const HeaderDescription &header = headers->at(index.row());
+    const HeaderDescription &header = headers.at(index.row());
     return header.vaddr;
 }
 
 QString HeadersModel::name(const QModelIndex &index) const
 {
-    const HeaderDescription &header = headers->at(index.row());
+    const HeaderDescription &header = headers.at(index.row());
     return header.name;
 }
 
@@ -120,7 +117,7 @@ HeadersWidget::HeadersWidget(MainWindow *main) : ListDockWidget(main)
     setWindowTitle(tr("Headers"));
     setObjectName("HeadersWidget");
 
-    headersModel = new HeadersModel(&headers, this);
+    headersModel = new HeadersModel(this);
     headersProxyModel = new HeadersProxyModel(headersModel, this);
     setModels(headersProxyModel);
     ui->treeView->sortByColumn(HeadersModel::OffsetColumn, Qt::AscendingOrder);
@@ -139,7 +136,7 @@ HeadersWidget::~HeadersWidget() {}
 void HeadersWidget::refreshHeaders()
 {
     headersModel->beginResetModel();
-    headers = Core()->getAllHeaders();
+    headersModel->headers = Core()->getAllHeaders();
     headersModel->endResetModel();
 
     ui->treeView->resizeColumnToContents(0);

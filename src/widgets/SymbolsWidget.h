@@ -20,13 +20,13 @@ class SymbolsModel : public AddressableItemModel<QAbstractListModel>
     friend SymbolsWidget;
 
 private:
-    QList<SymbolDescription> *symbols;
+    QList<SymbolDescription> symbols;
 
 public:
     enum Column { AddressColumn = 0, TypeColumn, NameColumn, CommentColumn, ColumnCount };
     enum Role { SymbolDescriptionRole = Qt::UserRole };
 
-    SymbolsModel(QList<SymbolDescription> *exports, QObject *parent = nullptr);
+    SymbolsModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -63,7 +63,6 @@ private slots:
     void refreshSymbols();
 
 private:
-    QList<SymbolDescription> symbols;
     SymbolsModel *symbolsModel;
     SymbolsProxyModel *symbolsProxyModel;
 };

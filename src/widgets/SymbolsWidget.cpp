@@ -5,14 +5,11 @@
 
 #include <QShortcut>
 
-SymbolsModel::SymbolsModel(QList<SymbolDescription> *symbols, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), symbols(symbols)
-{
-}
+SymbolsModel::SymbolsModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
 int SymbolsModel::rowCount(const QModelIndex &) const
 {
-    return symbols->count();
+    return symbols.count();
 }
 
 int SymbolsModel::columnCount(const QModelIndex &) const
@@ -22,11 +19,11 @@ int SymbolsModel::columnCount(const QModelIndex &) const
 
 QVariant SymbolsModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= symbols->count()) {
+    if (index.row() >= symbols.count()) {
         return QVariant();
     }
 
-    const SymbolDescription &symbol = symbols->at(index.row());
+    const SymbolDescription &symbol = symbols.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -72,13 +69,13 @@ QVariant SymbolsModel::headerData(int section, Qt::Orientation, int role) const
 
 RVA SymbolsModel::address(const QModelIndex &index) const
 {
-    const SymbolDescription &symbol = symbols->at(index.row());
+    const SymbolDescription &symbol = symbols.at(index.row());
     return symbol.vaddr;
 }
 
 QString SymbolsModel::name(const QModelIndex &index) const
 {
-    const SymbolDescription &symbol = symbols->at(index.row());
+    const SymbolDescription &symbol = symbols.at(index.row());
     return symbol.name;
 }
 
@@ -123,7 +120,7 @@ SymbolsWidget::SymbolsWidget(MainWindow *main) : ListDockWidget(main)
     setWindowTitle(tr("Symbols"));
     setObjectName("SymbolsWidget");
 
-    symbolsModel = new SymbolsModel(&symbols, this);
+    symbolsModel = new SymbolsModel(this);
     symbolsProxyModel = new SymbolsProxyModel(symbolsModel, this);
     setModels(symbolsProxyModel);
     ui->treeView->sortByColumn(SymbolsModel::AddressColumn, Qt::AscendingOrder);
@@ -139,7 +136,7 @@ SymbolsWidget::~SymbolsWidget() {}
 void SymbolsWidget::refreshSymbols()
 {
     symbolsModel->beginResetModel();
-    symbols = Core()->getAllSymbols();
+    symbolsModel->symbols = Core()->getAllSymbols();
     symbolsModel->endResetModel();
 
     qhelpers::adjustColumns(ui->treeView, SymbolsModel::ColumnCount, 0);

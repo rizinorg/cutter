@@ -7,14 +7,14 @@
 #include <core/Cutter.h>
 #include <CutterApplication.h>
 
-BaseFindResultsModel::BaseFindResultsModel(QList<BasefindResultDescription> *list, QObject *parent)
+BaseFindResultsModel::BaseFindResultsModel(QList<BasefindResultDescription> list, QObject *parent)
     : QAbstractListModel(parent), list(list)
 {
 }
 
 int BaseFindResultsModel::rowCount(const QModelIndex &) const
 {
-    return list->count();
+    return list.count();
 }
 
 int BaseFindResultsModel::columnCount(const QModelIndex &) const
@@ -24,10 +24,10 @@ int BaseFindResultsModel::columnCount(const QModelIndex &) const
 
 QVariant BaseFindResultsModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= list->count())
+    if (index.row() >= list.count())
         return QVariant();
 
-    const BasefindResultDescription &entry = list->at(index.row());
+    const BasefindResultDescription &entry = list.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -68,12 +68,12 @@ QVariant BaseFindResultsModel::headerData(int section, Qt::Orientation, int role
 
 BaseFindResultsDialog::BaseFindResultsDialog(QList<BasefindResultDescription> results,
                                              QWidget *parent)
-    : QDialog(parent), list(results), ui(new Ui::BaseFindResultsDialog)
+    : QDialog(parent), ui(new Ui::BaseFindResultsDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
-    model = new BaseFindResultsModel(&list, this);
+    model = new BaseFindResultsModel(results, this);
     ui->tableView->setModel(model);
     ui->tableView->sortByColumn(BaseFindResultsModel::ScoreColumn, Qt::AscendingOrder);
     ui->tableView->verticalHeader()->hide();
@@ -104,7 +104,7 @@ void BaseFindResultsDialog::showItemContextMenu(const QPoint &pt)
 {
     auto index = ui->tableView->currentIndex();
     if (index.isValid()) {
-        const BasefindResultDescription &entry = list.at(index.row());
+        const BasefindResultDescription &entry = model->list.at(index.row());
         candidate = entry.candidate;
         auto addr = QString::asprintf("%#010llx", candidate);
         actionCopyCandidate->setText(tr("Copy %1").arg(addr));

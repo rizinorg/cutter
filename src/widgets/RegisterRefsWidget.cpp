@@ -9,14 +9,11 @@
 #include <QClipboard>
 #include <QShortcut>
 
-RegisterRefModel::RegisterRefModel(QList<RegisterRefDescription> *registerRefs, QObject *parent)
-    : QAbstractListModel(parent), registerRefs(registerRefs)
-{
-}
+RegisterRefModel::RegisterRefModel(QObject *parent) : QAbstractListModel(parent) {}
 
 int RegisterRefModel::rowCount(const QModelIndex &) const
 {
-    return registerRefs->count();
+    return registerRefs.count();
 }
 
 int RegisterRefModel::columnCount(const QModelIndex &) const
@@ -26,10 +23,10 @@ int RegisterRefModel::columnCount(const QModelIndex &) const
 
 QVariant RegisterRefModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= registerRefs->count())
+    if (index.row() >= registerRefs.count())
         return QVariant();
 
-    const RegisterRefDescription &registerRef = registerRefs->at(index.row());
+    const RegisterRefDescription &registerRef = registerRefs.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -129,7 +126,7 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main)
     // Add Status Bar footer
     tree->addStatusBar(ui->verticalLayout);
 
-    registerRefModel = new RegisterRefModel(&registerRefs, this);
+    registerRefModel = new RegisterRefModel(this);
     registerRefProxyModel = new RegisterRefProxyModel(registerRefModel, this);
     ui->registerRefTreeView->setModel(registerRefProxyModel);
     ui->registerRefTreeView->setAutoScroll(false);
@@ -185,7 +182,7 @@ void RegisterRefsWidget::refreshRegisterRef()
 
     registerRefModel->beginResetModel();
 
-    registerRefs.clear();
+    registerRefModel->registerRefs.clear();
     for (const RegisterRef &reg : Core()->getRegisterRefs()) {
         RegisterRefDescription desc;
 
@@ -193,7 +190,7 @@ void RegisterRefsWidget::refreshRegisterRef()
         desc.reg = reg.name;
         desc.refDesc = Core()->formatRefDesc(QSharedPointer<AddrRefs>::create(reg.ref));
 
-        registerRefs.push_back(desc);
+        registerRefModel->registerRefs.push_back(desc);
     }
 
     registerRefModel->endResetModel();

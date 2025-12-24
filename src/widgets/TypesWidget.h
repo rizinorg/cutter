@@ -28,7 +28,7 @@ class TypesModel : public QAbstractListModel
     friend TypesWidget;
 
 private:
-    QList<TypeDescription> *types;
+    QList<TypeDescription> types;
 
     /**
      * @brief Returns a description of the type for the given index
@@ -39,7 +39,7 @@ public:
     enum Columns { TYPE = 0, SIZE, CATEGORY, FORMAT, COUNT };
     static const int TypeDescriptionRole = Qt::UserRole;
 
-    TypesModel(QList<TypeDescription> *types, QObject *parent = nullptr);
+    TypesModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -121,7 +121,6 @@ private:
 
     TypesModel *types_model;
     TypesSortFilterProxyModel *types_proxy_model;
-    QList<TypeDescription> types;
     CutterTreeWidget *tree;
     QAction *actionViewType;
     QAction *actionEditType;

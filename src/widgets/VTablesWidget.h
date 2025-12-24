@@ -24,13 +24,13 @@ class VTableModel : public QAbstractItemModel
     friend VTablesWidget;
 
 private:
-    QList<VTableDescription> *vtables;
+    QList<VTableDescription> vtables;
 
 public:
     enum Columns { NAME = 0, ADDRESS, COUNT };
     static const int VTableDescriptionRole = Qt::UserRole;
 
-    VTableModel(QList<VTableDescription> *vtables, QObject *parent = nullptr);
+    VTableModel(QObject *parent = nullptr);
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
@@ -68,7 +68,6 @@ private:
 
     VTableModel *model;
     QSortFilterProxyModel *proxy;
-    QList<VTableDescription> vtables;
     CutterTreeWidget *tree;
     RefreshDeferrer *refreshDeferrer;
 };

@@ -33,7 +33,7 @@ class SectionsModel : public AddressableItemModel<QAbstractListModel>
     friend SectionsWidget;
 
 private:
-    QList<SectionDescription> *sections;
+    QList<SectionDescription> sections;
 
 public:
     enum Column {
@@ -49,7 +49,7 @@ public:
     };
     enum Role { SectionDescriptionRole = Qt::UserRole };
 
-    SectionsModel(QList<SectionDescription> *sections, QObject *parent = nullptr);
+    SectionsModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -89,7 +89,6 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
-    QList<SectionDescription> sections;
     SectionsModel *sectionsModel;
     SectionsProxyModel *proxyModel;
 

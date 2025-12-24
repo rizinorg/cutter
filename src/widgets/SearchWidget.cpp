@@ -89,14 +89,11 @@ static const SearchKindInfo &searchKindInfo(SearchKind kind)
     return searchKinds[1];
 }
 
-SearchModel::SearchModel(QList<SearchDescription> *search, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), search(search)
-{
-}
+SearchModel::SearchModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
 int SearchModel::rowCount(const QModelIndex &) const
 {
-    return search->count();
+    return search.count();
 }
 
 int SearchModel::columnCount(const QModelIndex &) const
@@ -106,10 +103,10 @@ int SearchModel::columnCount(const QModelIndex &) const
 
 QVariant SearchModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= search->count())
+    if (index.row() >= search.count())
         return QVariant();
 
-    const SearchDescription &exp = search->at(index.row());
+    const SearchDescription &exp = search.at(index.row());
 
     switch (role) {
     case Qt::FontRole: {
@@ -200,7 +197,7 @@ QVariant SearchModel::headerData(int section, Qt::Orientation, int role) const
 
 RVA SearchModel::address(const QModelIndex &index) const
 {
-    const SearchDescription &exp = search->at(index.row());
+    const SearchDescription &exp = search.at(index.row());
     return exp.offset;
 }
 
@@ -249,7 +246,7 @@ SearchWidget::SearchWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui
 
     updateSearchBoundaries();
 
-    search_model = new SearchModel(&search, this);
+    search_model = new SearchModel(this);
     search_proxy_model = new SearchSortFilterProxyModel(search_model, this);
     ui->searchTreeView->setModel(search_proxy_model);
     ui->searchTreeView->setMainWindow(main);
@@ -334,7 +331,7 @@ void SearchWidget::refreshSearch()
     QString searchIn = ui->searchInCombo->currentData().toString();
 
     search_model->beginResetModel();
-    search = Core()->getAllSearch(searchFor, searchSpace, searchIn);
+    search_model->search = Core()->getAllSearch(searchFor, searchSpace, searchIn);
     search_model->endResetModel();
 
     qhelpers::adjustColumns(ui->searchTreeView, 3, 0);
@@ -344,7 +341,7 @@ void SearchWidget::refreshSearch()
 // Called by &QShortcut::activated and &QAbstractButton::clicked signals
 void SearchWidget::checkSearchResultEmpty()
 {
-    if (!search.isEmpty())
+    if (!search_model->search.isEmpty())
         return;
 
     QString searchFor = ui->filterLineEdit->text();

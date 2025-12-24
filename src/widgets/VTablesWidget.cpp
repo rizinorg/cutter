@@ -8,10 +8,7 @@
 #include "VTablesWidget.h"
 #include "ui_VTablesWidget.h"
 
-VTableModel::VTableModel(QList<VTableDescription> *vtables, QObject *parent)
-    : QAbstractItemModel(parent), vtables(vtables)
-{
-}
+VTableModel::VTableModel(QObject *parent) : QAbstractItemModel(parent) {}
 
 QModelIndex VTableModel::index(int row, int column, const QModelIndex &parent) const
 {
@@ -28,8 +25,8 @@ QModelIndex VTableModel::parent(const QModelIndex &index) const
 int VTableModel::rowCount(const QModelIndex &parent) const
 {
     return parent.isValid()
-            ? (parent.parent().isValid() ? 0 : vtables->at(parent.row()).methods.count())
-            : vtables->count();
+            ? (parent.parent().isValid() ? 0 : vtables.at(parent.row()).methods.count())
+            : vtables.count();
 }
 
 int VTableModel::columnCount(const QModelIndex &) const
@@ -41,7 +38,7 @@ QVariant VTableModel::data(const QModelIndex &index, int role) const
 {
     QModelIndex parent = index.parent();
     if (parent.isValid()) {
-        const BinClassMethodDescription &res = vtables->at(parent.row()).methods.at(index.row());
+        const BinClassMethodDescription &res = vtables.at(parent.row()).methods.at(index.row());
         switch (role) {
         case Qt::DisplayRole:
             switch (index.column()) {
@@ -63,11 +60,11 @@ QVariant VTableModel::data(const QModelIndex &index, int role) const
             case NAME:
                 return tr("VTable") + " " + QString::number(index.row() + 1);
             case ADDRESS:
-                return RzAddressString(vtables->at(index.row()).addr);
+                return RzAddressString(vtables.at(index.row()).addr);
             }
             break;
         case VTableDescriptionRole: {
-            const VTableDescription &res = vtables->at(index.row());
+            const VTableDescription &res = vtables.at(index.row());
             return QVariant::fromValue(res);
         }
         default:
@@ -135,7 +132,7 @@ VTablesWidget::VTablesWidget(MainWindow *main)
     // Add Status Bar footer
     tree->addStatusBar(ui->verticalLayout);
 
-    model = new VTableModel(&vtables, this);
+    model = new VTableModel(this);
     proxy = new VTableSortFilterProxyModel(model, this);
 
     ui->vTableTreeView->setModel(proxy);
@@ -176,7 +173,7 @@ void VTablesWidget::refreshVTables()
     }
 
     model->beginResetModel();
-    vtables = Core()->getAllVTables();
+    model->vtables = Core()->getAllVTables();
     model->endResetModel();
 
     qhelpers::adjustColumns(ui->vTableTreeView, 3, 0);

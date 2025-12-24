@@ -36,13 +36,13 @@ class RegisterRefModel : public QAbstractListModel
     friend RegisterRefsWidget;
 
 private:
-    QList<RegisterRefDescription> *registerRefs;
+    QList<RegisterRefDescription> registerRefs;
 
 public:
     enum Column { RegColumn = 0, ValueColumn, RefColumn, CommentColumn, ColumnCount };
     enum Role { RegisterRefDescriptionRole = Qt::UserRole };
 
-    RegisterRefModel(QList<RegisterRefDescription> *registerRefs, QObject *parent = 0);
+    RegisterRefModel(QObject *parent = 0);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -83,7 +83,6 @@ private:
 
     RegisterRefModel *registerRefModel;
     RegisterRefProxyModel *registerRefProxyModel;
-    QList<RegisterRefDescription> registerRefs;
     CutterTreeWidget *tree;
     void setScrollMode();
 
