@@ -28,6 +28,8 @@ struct VariableEntry
     RVA offset; ///< Offset for navigation (Function start for locals, absolute address for globals)
 };
 
+Q_DECLARE_METATYPE(VariableEntry)
+
 class TypesVariablesModel : public QAbstractTableModel
 {
     Q_OBJECT

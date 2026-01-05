@@ -132,7 +132,7 @@ bool TypesVariablesProxyModel::lessThan(const QModelIndex &left, const QModelInd
 }
 
 TypesVariablesDialog::TypesVariablesDialog(QWidget *parent, const QString &typeName)
-    : QDialog(parent), ui(std::make_unique<Ui::TypesVariablesDialog>())
+    : QDialog(parent), ui(new Ui::TypesVariablesDialog)
 {
     ui->setupUi(this);
     setWindowTitle(tr("Variables: %1").arg(typeName));
@@ -156,10 +156,11 @@ TypesVariablesDialog::TypesVariablesDialog(QWidget *parent, const QString &typeN
 
     connect(ui->lineEdit, &QLineEdit::textChanged, proxyModel,
             &TypesVariablesProxyModel::setFilterFixedString);
-    connect(ui->comboBox, &QComboBox::currentIndexChanged, this, [this](int index) {
-        int scope = ui->comboBox->itemData(index).toInt();
-        proxyModel->setScope(static_cast<VariableScope>(scope));
-    });
+    connect(ui->comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            [this](int index) {
+                int scope = ui->comboBox->itemData(index).toInt();
+                proxyModel->setScope(static_cast<VariableScope>(scope));
+            });
 
     connect(ui->treeView, &QTreeView::doubleClicked, this,
             &TypesVariablesDialog::onItemDoubleClicked);
