@@ -71,6 +71,12 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QTreeWidget" name="leftTreeWidget">
+      <property name="contextMenuPolicy">
+        <enum>Qt::ActionsContextMenu</enum>
+      </property>
+      <property name="selectionMode">
+        <enum>QAbstractItemView::ExtendedSelection</enum>
+       </property>
        <property name="frameShape">
         <enum>QFrame::StyledPanel</enum>
        </property>
@@ -103,6 +109,12 @@
      </item>
      <item>
       <widget class="QTreeWidget" name="rightTreeWidget">
+      <property name="contextMenuPolicy">
+        <enum>Qt::ActionsContextMenu</enum>
+      </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::ExtendedSelection</enum>
+       </property>
        <property name="frameShape">
         <enum>QFrame::StyledPanel</enum>
        </property>
@@ -134,6 +146,29 @@
       </widget>
      </item>
     </layout>
+   </item>
+   
+   <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+         <widget class="QPushButton" name="copyVersionInfoButton">
+            <property name="icon">
+            <iconset resource="../resources.qrc">
+            <normaloff>:/img/icons/copy.svg</normaloff>:/img/icons/copy.svg</iconset>
+            </property>
+            <property name="text">
+            <string>Copy</string>
+            </property>
+         </widget>
+         </item>
+         <item>
+         <widget class="QDialogButtonBox" name="buttonBox">
+         <property name="standardButtons">
+            <set>QDialogButtonBox::Close</set>
+         </property>
+         </widget>
+         </item>
+      </layout>
    </item>
   </layout>
  </widget>
