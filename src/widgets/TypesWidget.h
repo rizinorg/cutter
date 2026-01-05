@@ -116,6 +116,12 @@ private slots:
      */
     void typeItemDoubleClicked(const QModelIndex &index);
 
+    /**
+     * @brief Opens a dialog that displays all global and local variables associated
+     * with the selected type
+     */
+    void showVariables();
+
 private:
     std::unique_ptr<Ui::TypesWidget> ui;
 
@@ -124,6 +130,7 @@ private:
     CutterTreeWidget *tree;
     QAction *actionViewType;
     QAction *actionEditType;
+    QAction *actionShowVariables;
 
     void setScrollMode();
 

@@ -3,6 +3,7 @@
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include "dialogs/TypesInteractionDialog.h"
+#include "dialogs/TypesVariablesDialog.h"
 #include "shortcuts/ShortcutManager.h"
 
 #include <QMenu>
@@ -195,11 +196,14 @@ TypesWidget::TypesWidget(MainWindow *main)
 
     actionViewType = new QAction(tr("View Type"), this);
     actionEditType = new QAction(tr("Edit Type"), this);
+    actionShowVariables = new QAction(tr("Show Variables and Globals of this Type"), this);
 
     connect(actionViewType, &QAction::triggered, [this]() { viewType(true); });
     connect(actionEditType, &QAction::triggered, [this]() { viewType(false); });
     connect(ui->typesTreeView, &QTreeView::doubleClicked, this,
             &TypesWidget::typeItemDoubleClicked);
+
+    connect(actionShowVariables, &QAction::triggered, [this]() { showVariables(); });
 }
 
 TypesWidget::~TypesWidget() {}
@@ -252,6 +256,7 @@ void TypesWidget::showTypesContextMenu(const QPoint &pt)
             // Add "Link To Address" option
             menu.addAction(actionViewType);
             menu.addAction(actionEditType);
+            menu.addAction(actionShowVariables);
         }
     }
 
@@ -364,4 +369,17 @@ void TypesWidget::typeItemDoubleClicked(const QModelIndex &index)
     dialog.setWindowTitle(tr("View Type: ") + t.type + tr(" (Read Only)"));
     dialog.setTypeName(t.type);
     dialog.exec();
+}
+
+void TypesWidget::showVariables()
+{
+    QModelIndex index = ui->typesTreeView->currentIndex();
+
+    if (!index.isValid()) {
+        return;
+    }
+    TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+
+    TypesVariablesDialog tvd(this, t.type);
+    tvd.exec();
 }
