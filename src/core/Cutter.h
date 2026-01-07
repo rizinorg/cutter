@@ -554,6 +554,14 @@ public:
     QList<RVA> getBreakpointsAddresses();
 
     /**
+     * @brief Sets the RzRun profile directives by writing them to a file
+     * If a profile path is already set in 'dbg.profile', this method overwrites that file
+     * If no path is set, it creates a temporary file and updates 'dbg.profile' to point to it
+     * @param directives The raw string containing key=value profile directives
+     */
+    void setProfileDirectives(const QString &directives);
+
+    /**
      * @brief Get all breakpoinst that are belong to a functions at this address
      */
     QList<RVA> getBreakpointsInFunction(RVA funcAddr);

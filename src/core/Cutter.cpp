@@ -441,6 +441,24 @@ bool CutterCore::isDebugTaskInProgress()
     return false;
 }
 
+void CutterCore::setProfileDirectives(const QString &directives)
+{
+    QString file = getConfig("dbg.profile");
+    if (file.isEmpty()) {
+        char *temp_path = rz_file_temp("rz-run");
+        file = QString::fromUtf8(temp_path);
+        free(temp_path);
+        setConfig("dbg.profile", file);
+    }
+
+    QByteArray fileNameBytes = file.toUtf8();
+    QByteArray directiveBytes = directives.toUtf8();
+
+    const char *pathPtr = fileNameBytes.constData();
+    rz_file_dump(pathPtr, (const ut8 *)directiveBytes.data(), (int)directiveBytes.size(), 0);
+    rz_file_dump(pathPtr, (const ut8 *)"\n", 1, 1);
+}
+
 bool CutterCore::asyncTask(std::function<void *(RzCore *)> fcn, QSharedPointer<RizinTask> &task)
 {
     if (!task.isNull()) {

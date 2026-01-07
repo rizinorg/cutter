@@ -159,6 +159,7 @@ set(SOURCES
     shortcuts/ShortcutManager.cpp
     shortcuts/DefaultShortcuts.cpp
     dialogs/MarkDialog.cpp
+    dialogs/ProfileDirectivesDialog.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -327,6 +328,7 @@ set(HEADER_FILES
     shortcuts/ShortcutManager.h
     shortcuts/DefaultShortcuts.h
     dialogs/MarkDialog.h
+    dialogs/ProfileDirectivesDialog.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -403,6 +405,7 @@ set(UI_FILES
     tools/basefind/BaseFindResultsDialog.ui
     dialogs/preferences/ShortcutOptionsWidget.ui
     dialogs/MarkDialog.ui
+    dialogs/ProfileDirectivesDialog.ui
 )
 set(QRC_FILES
     resources.qrc
