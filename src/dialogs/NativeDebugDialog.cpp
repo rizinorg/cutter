@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QShortcut>
 #include <QFileDialog>
+#include <QTextStream>
 
 NativeDebugDialog::NativeDebugDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::NativeDebugDialog)

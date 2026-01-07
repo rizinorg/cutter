@@ -61,7 +61,7 @@
    <item>
     <widget class="QCheckBox" name="profileCheckbox">
      <property name="text">
-      <string>Use Debugger Profile (RzRun)</string>
+      <string>Use RzRun Profile</string>
      </property>
     </widget>
    </item>
