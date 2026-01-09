@@ -125,5 +125,5 @@ void NativeDebugDialog::directiveListBtnClicked()
 
 void NativeDebugDialog::showWarning(const QString &filePath)
 {
-    QMessageBox::warning(this, "Error", QString("Could not open file: %1").arg(filePath));
+    QMessageBox::warning(this, tr("Error"), tr("Could not open file: %1").arg(filePath));
 }

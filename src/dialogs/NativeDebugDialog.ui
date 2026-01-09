@@ -121,7 +121,7 @@
      <item>
       <widget class="QPushButton" name="directiveListBtn">
        <property name="text">
-        <string>Show All Directives</string>
+        <string>Show Help</string>
        </property>
       </widget>
      </item>
