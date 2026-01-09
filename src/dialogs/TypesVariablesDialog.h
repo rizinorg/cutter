@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QSortFilterProxyModel>
 #include <QAbstractTableModel>
+#include "CutterTreeWidget.h"
 
 #include "core/Cutter.h"
 
@@ -92,6 +93,7 @@ private:
     std::unique_ptr<Ui::TypesVariablesDialog> ui;
     TypesVariablesModel *sourceModel;
     TypesVariablesProxyModel *proxyModel;
+    CutterTreeWidget *tree;
 };
 
 #endif // TYPESVARIABLESDIALOG_H

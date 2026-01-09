@@ -132,10 +132,12 @@ bool TypesVariablesProxyModel::lessThan(const QModelIndex &left, const QModelInd
 }
 
 TypesVariablesDialog::TypesVariablesDialog(QWidget *parent, const QString &typeName)
-    : QDialog(parent), ui(new Ui::TypesVariablesDialog)
+    : QDialog(parent), ui(new Ui::TypesVariablesDialog), tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
     setWindowTitle(tr("Variables: %1").arg(typeName));
+
+    tree->addStatusBar(ui->verticalLayout);
 
     sourceModel = new TypesVariablesModel(this);
     proxyModel = new TypesVariablesProxyModel(this);
@@ -150,22 +152,30 @@ TypesVariablesDialog::TypesVariablesDialog(QWidget *parent, const QString &typeN
     ui->treeView->header()->setSectionResizeMode(QHeaderView::Interactive);
     ui->treeView->header()->setStretchLastSection(true);
 
-    ui->comboBox->addItem(tr("All"), ALL);
-    ui->comboBox->addItem(tr("Globals Only"), GLOBAL);
-    ui->comboBox->addItem(tr("Locals Only"), LOCAL);
+    ui->quickFilterView->setLabelText(tr("Scope"));
+    QComboBox *scopeCombo = ui->quickFilterView->comboBox();
+    scopeCombo->addItem(tr("All"), ALL);
+    scopeCombo->addItem(tr("Globals Only"), GLOBAL);
+    scopeCombo->addItem(tr("Locals Only"), LOCAL);
 
-    connect(ui->lineEdit, &QLineEdit::textChanged, proxyModel,
+    auto updateCount = [this]() { tree->showItemsNumber(proxyModel->rowCount()); };
+
+    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, proxyModel,
             &TypesVariablesProxyModel::setFilterFixedString);
-    connect(ui->comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
-            [this](int index) {
-                int scope = ui->comboBox->itemData(index).toInt();
+    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this, updateCount);
+
+    connect(scopeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            [this, scopeCombo, updateCount](int index) {
+                int scope = scopeCombo->itemData(index).toInt();
                 proxyModel->setScope(static_cast<VariableScope>(scope));
+                updateCount();
             });
 
     connect(ui->treeView, &QTreeView::doubleClicked, this,
             &TypesVariablesDialog::onItemDoubleClicked);
 
     refreshModel(typeName);
+    updateCount();
 }
 
 void TypesVariablesDialog::refreshModel(const QString &typeName)

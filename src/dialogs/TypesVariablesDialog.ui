@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>681</width>
-    <height>433</height>
+    <width>700</width>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,24 +15,27 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="9,1">
    <item>
-    <widget class="QTreeView" name="treeView"/>
+    <widget class="CutterTreeView" name="treeView"/>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLineEdit" name="lineEdit">
-       <property name="placeholderText">
-        <string>Filter</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="comboBox"/>
-     </item>
-    </layout>
+    <widget class="ComboQuickFilterView" name="quickFilterView" native="true"/>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CutterTreeView</class>
+   <extends>QTreeView</extends>
+   <header>widgets/CutterTreeView.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ComboQuickFilterView</class>
+   <extends>QWidget</extends>
+   <header>widgets/ComboQuickFilterView.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
