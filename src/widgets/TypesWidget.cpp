@@ -395,9 +395,14 @@ void TypesWidget::selectTypeByName(const QString &typeName)
 
     // if results are empty, remove the filter and try again
     // avoids removing the filter unnecessarily
+    bool isTextFilterEmpty;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    isTextFilterEmpty = types_proxy_model->filterRegExp().pattern().isEmpty();
+#else
+    isTextFilterEmpty = types_proxy_model->filterRegularExpression().pattern().isEmpty();
+#endif
     if (results.isEmpty()
-        && (!types_proxy_model->filterRegularExpression().pattern().isEmpty()
-            || ui->quickFilterView->comboBox()->currentIndex() != 0)) {
+        && (!isTextFilterEmpty || ui->quickFilterView->comboBox()->currentIndex() != 0)) {
 
         ui->quickFilterView->clearFilter();
         ui->quickFilterView->comboBox()->setCurrentIndex(0); // select (All)
