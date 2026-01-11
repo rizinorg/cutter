@@ -267,7 +267,7 @@ void DisassemblerGraphView::loadCurrentGraph()
         if (!buf) {
             break;
         }
-        rz_io_read_at(core->io, bbi->addr, buf.get(), (int)bbi->size);
+        rz_io_read_at_mapped(core->io, bbi->addr, buf.get(), (int)bbi->size);
 
         auto vec = fromOwned(
                 rz_pvector_new(reinterpret_cast<RzPVectorFree>(rz_analysis_disasm_text_free)));

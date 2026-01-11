@@ -1789,7 +1789,7 @@ void MainWindow::on_actionExport_as_code_triggered()
     auto rc = core->lock();
     const auto size = static_cast<int>(rz_io_fd_size(rc->io, rc->file->fd));
     auto buffer = std::vector<ut8>(size);
-    if (!rz_io_read_at(rc->io, 0, buffer.data(), size)) {
+    if (!rz_io_read_at_mapped(rc->io, 0, buffer.data(), size)) {
         return;
     }
 
