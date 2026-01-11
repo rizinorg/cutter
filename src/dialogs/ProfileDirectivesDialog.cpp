@@ -8,10 +8,10 @@ ProfileDirectivesDialog::ProfileDirectivesDialog(QWidget *parent)
 {
     ui->setupUi(this);
 
-    setWindowTitle("Profile Directives");
+    setWindowTitle(tr("Profile Directives"));
 
     model = new QStandardItemModel(this);
-    model->setHorizontalHeaderLabels({ "Key", "Description" });
+    model->setHorizontalHeaderLabels({ tr("Key"), tr("Description") });
 
     addDirective("arg[0-511]", tr("Set value for argument N passed to the program"));
     addDirective("aslr", tr("Enable or disable ASLR"));
