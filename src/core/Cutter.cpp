@@ -2054,7 +2054,7 @@ void CutterCore::attachRemote(const QString &uri)
     // connect to a debugger with the given plugin
     if (!asyncTask(
                 [&](RzCore *core) {
-                    setConfig("cfg.debug", true);
+                    rz_config_set_b(core->config, "cfg.debug", true);
                     rz_core_file_reopen_remote_debug(core, uri.toStdString().c_str(), 0);
                     return nullptr;
                 },
