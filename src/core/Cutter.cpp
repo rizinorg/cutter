@@ -729,7 +729,7 @@ CutterRzIter<RzAnalysisBytes> CutterCore::getRzAnalysisBytesSingle(RVA addr)
 {
     CORE_LOCK();
     ut8 buf[128];
-    rz_io_read_at(core->io, addr, buf, sizeof(buf));
+    rz_io_read_at_mapped(core->io, addr, buf, sizeof(buf));
 
     // Warning! only safe to use with stack buffer, due to instruction count being 1
     auto result =
@@ -1615,7 +1615,7 @@ AddrRefs CutterCore::getAddrRefs(RVA addr, int depth)
             buf.resize(32);
             perms += "x";
             // Instruction disassembly
-            rz_io_read_at(core->io, addr, (unsigned char *)buf.data(), buf.size());
+            rz_io_read_at_mapped(core->io, addr, (unsigned char *)buf.data(), buf.size());
             rz_asm_set_pc(core->rasm, addr);
             rz_asm_disassemble(core->rasm, &op, (unsigned char *)buf.data(), buf.size());
             refs.asm_op = rz_asm_op_get_asm(&op);
@@ -1631,7 +1631,7 @@ AddrRefs CutterCore::getAddrRefs(RVA addr, int depth)
         buf.resize(64);
         ut32 *n32 = (ut32 *)buf.data();
         ut64 *n64 = (ut64 *)buf.data();
-        rz_io_read_at(core->io, addr, (unsigned char *)buf.data(), buf.size());
+        rz_io_read_at_mapped(core->io, addr, (unsigned char *)buf.data(), buf.size());
         ut64 n = (bits == 64) ? *n64 : *n32;
         // The value of the next address will serve as an indication that there's more to
         // telescope if we have reached the depth limit
@@ -1645,7 +1645,7 @@ AddrRefs CutterCore::getAddrRefs(RVA addr, int depth)
                 // might have a string in this address
                 if (ref.type.contains("ascii")) {
                     buf.resize(128);
-                    rz_io_read_at(core->io, addr, (unsigned char *)buf.data(), buf.size());
+                    rz_io_read_at_mapped(core->io, addr, (unsigned char *)buf.data(), buf.size());
                     QString strVal = QString(buf);
                     // Indicate that the string is longer than the printed value
                     if (strVal.size() == buf.size()) {
@@ -4085,7 +4085,7 @@ static QString cutterGetSearchHitData(RzCore *core, SearchKind kind, RzSearchHit
     size_t dataSize = RZ_MAX(hit->size, 16);
     std::vector<ut8> buffer(dataSize);
 
-    if (!rz_io_read_at(core->io, hit->address, buffer.data(), dataSize)) {
+    if (!rz_io_read_at_mapped(core->io, hit->address, buffer.data(), dataSize)) {
         return "";
     }
 
@@ -5029,7 +5029,7 @@ QByteArray CutterCore::ioRead(RVA addr, int len)
 
     /* Zero-copy */
     array.resize(len);
-    if (!rz_io_read_at(core->io, addr, (uint8_t *)array.data(), len)) {
+    if (!rz_io_read_at_mapped(core->io, addr, (uint8_t *)array.data(), len)) {
         array.fill(0xff);
     }
 
