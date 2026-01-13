@@ -387,15 +387,28 @@ void DebugActions::startDebug()
 
     NativeDebugDialog dialog(main);
     dialog.setArgs(Core()->getConfig("dbg.args"));
-    QString args;
-    if (dialog.exec()) {
-        args = dialog.getArgs();
-    } else {
+    dialog.setProfilePath(Core()->getConfig("dbg.profile"));
+    if (!dialog.exec()) {
         return;
     }
 
-    // Update dbg.args with the new args
-    Core()->setConfig("dbg.args", args);
+    switch (dialog.getSelectedMethod()) {
+    case DebugConfigMethod::CommandLine: {
+        Core()->setConfig("dbg.args", dialog.getArgs());
+        Core()->setConfig("dbg.profile", ""); // profile overrides args, so remove it
+        break;
+    }
+    case DebugConfigMethod::RzRunProfile: {
+        Core()->setConfig("dbg.profile", dialog.getProfilePath());
+        break;
+    }
+    case DebugConfigMethod::RzRunDirectives: {
+        Core()->setProfileDirectives(dialog.getDirectives());
+        break;
+    }
+    default:
+        break;
+    }
 
     setAllActionsVisible(true);
     actionAttach->setVisible(false);
