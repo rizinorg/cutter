@@ -125,6 +125,8 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     connect(structureOffsetMenu, &QMenu::triggered, this,
             &DisassemblyContextMenu::on_actionStructureOffsetMenu_triggered);
 
+    addSetCallingConventionMenu();
+
     addSetAsMenu();
 
     addSeparator();
@@ -582,6 +584,30 @@ void DisassemblyContextMenu::aboutToShowSlot()
     // Note: This might be useless if we consider setCurrentHighlightedWord is always called before
     setupRenaming();
 
+    if (isHighlightedWordCC()) {
+        setCallingConventionMenu->menuAction()->setVisible(true);
+        setCallingConventionMenu->clear();
+
+        RzCoreLocked core(Core());
+        RzList *list = rz_analysis_calling_conventions(core->analysis);
+        if (list) {
+            RzListIter *iter;
+            const char *cc;
+            CutterRzListForeach (list, iter, const char, cc) {
+                QString ccStr(cc);
+                QAction *action = setCallingConventionMenu->addAction(ccStr);
+                action->setData(ccStr);
+                if (ccStr == curHighlightedWord) {
+                    action->setCheckable(true);
+                    action->setChecked(true);
+                }
+            }
+            rz_list_free(list);
+        }
+    } else {
+        setCallingConventionMenu->menuAction()->setVisible(false);
+    }
+
     // Only show retype for local vars if in a function
     RzAnalysisFunction *in_fcn = Core()->functionIn(offset);
     if (in_fcn) {
@@ -998,7 +1024,7 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
                 fcn->cc = rz_str_constpool_get(&core->analysis->constpool, newCC.constData());
             }
 
-            emit Core()->functionsChanged();
+            emit Core() -> functionsChanged();
         }
     }
 }
@@ -1068,4 +1094,49 @@ bool DisassemblyContextMenu::isHighlightedWordLocalVar()
         }
     }
     return false;
+}
+
+void DisassemblyContextMenu::addSetCallingConventionMenu()
+{
+    setCallingConventionMenu = addMenu(tr("Set calling convention"));
+    connect(setCallingConventionMenu, &QMenu::triggered, this,
+            &DisassemblyContextMenu::on_actionSetCallingConvention_triggered);
+}
+
+void DisassemblyContextMenu::on_actionSetCallingConvention_triggered(QAction *action)
+{
+    QString newCC = action->data().toString();
+    if (newCC.isEmpty()) {
+        return;
+    }
+    RzCoreLocked core(Core());
+    RzAnalysisFunction *fcn = rz_analysis_get_fcn_in(core->analysis, offset, 0);
+    if (!fcn) {
+        return;
+    }
+    QByteArray newCCBytes = newCC.toUtf8();
+    if (rz_analysis_cc_exist(core->analysis, newCCBytes.constData())) {
+        fcn->cc = rz_str_constpool_get(&core->analysis->constpool, newCCBytes.constData());
+        emit Core() -> functionsChanged();
+    }
+}
+
+bool DisassemblyContextMenu::isHighlightedWordCC()
+{
+    RzCoreLocked core(Core());
+    RzList *list = rz_analysis_calling_conventions(core->analysis);
+    if (!list) {
+        return false;
+    }
+    bool found = false;
+    RzListIter *iter;
+    const char *cc;
+    CutterRzListForeach (list, iter, const char, cc) {
+        if (curHighlightedWord == QString(cc)) {
+            found = true;
+            break;
+        }
+    }
+    rz_list_free(list);
+    return found;
 }

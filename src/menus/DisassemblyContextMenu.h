@@ -74,6 +74,7 @@ private slots:
      * \param action The action which trigered the event
      */
     void on_actionStructureOffsetMenu_triggered(QAction *action);
+    void on_actionSetCallingConvention_triggered(QAction *action);
 
 private:
     RVA offset;
@@ -140,6 +141,7 @@ private:
     QAction actionSetAsStringAdvanced;
 
     QMenu *setToDataMenu;
+    QMenu *setCallingConventionMenu;
     QMenu *setAsMenu;
     QMenu *setAsString;
     QAction actionSetToDataEx;
@@ -173,6 +175,7 @@ private:
     void addSetBitsMenu();
     void addSetAsMenu();
     void addSetToDataMenu();
+    void addSetCallingConventionMenu();
     void addEditMenu();
     void addAddAtMenu();
     void addBreakpointMenu();
@@ -210,6 +213,7 @@ private:
      * parameter, return false otherwise.
      */
     bool isHighlightedWordLocalVar();
+    bool isHighlightedWordCC();
     struct ThingUsedHere
     {
         QString name;
