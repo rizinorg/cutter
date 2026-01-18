@@ -684,6 +684,19 @@ public:
     QString getTypeAsC(QString name);
 
     /**
+     * @brief Check if a type name exists
+     * @param typeName Name of the type to validate
+     * @return true if the type exists, false otherwise
+     */
+    bool isValidTypeName(const QString &typeName);
+
+    /**
+     * @brief Highlight a specific type in the Types widget
+     * @param typeName The name of the type to be shown
+     */
+    void showTypeInTypesWidget(const QString &typeName);
+
+    /**
      * @brief Checks if the given address is mapped to a region
      * @param addr The address to be checked
      * @return true if addr is mapped, false otherwise
@@ -725,6 +738,13 @@ public:
     QList<XrefDescription> getXRefsForVariable(QString variableName, bool findWrites, RVA offset);
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString());
+    /**
+     * @brief Find the first read or write access to a local variable
+     * @param variableName Name of the local variable
+     * @param offset An address within the function containing the variable
+     * @return The first XrefDescription found, empty if none
+     */
+    XrefDescription getFirstXRefForVariable(const QString &variableName, RVA offset);
 
     void handleREvent(int type, void *data);
 
@@ -869,6 +889,11 @@ signals:
 
     void showMemoryWidgetRequested();
 
+    /**
+     * @brief emitted when a specific type is requested to be shown in the Types Widget
+     */
+    void showTypeRequested(const QString &typeName);
+
 private:
     /**
      * Internal reference to the RzCore.
@@ -901,6 +926,16 @@ private:
     QList<TypeDescription> getBaseType(RzBaseTypeKind kind, const char *category);
     QList<SearchDescription> getAllSearchCommand(QString searchFor, SearchKind kind, QString in);
     QList<MarkDescription> convertMarks(RzList *marks);
+    /**
+     * @brief Collect cross-references for the specified local variable
+     * @param variableName Name of the variable
+     * @param offset An address within the function containing the variable
+     * @param accessTypeMask Mask of access types (Read/Write) to include
+     * @param stopAtFirst Whether to return immediately after the first match
+     * @return List of matching XrefDescription objects
+     */
+    QList<XrefDescription> collectXRefsForVariable(const QString &variableName, RVA offset,
+                                                   int accessTypeMask, bool stopAtFirst);
 };
 
 class CUTTER_EXPORT RzCoreLocked

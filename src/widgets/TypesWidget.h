@@ -74,6 +74,13 @@ public:
     explicit TypesWidget(MainWindow *main);
     ~TypesWidget();
 
+    /**
+     * @brief Highlight and scroll to a specific type in the list
+     * Clears the filter if the type is not visible in the filtered list
+     * @param typeName Name of the type to select
+     */
+    void selectTypeByName(const QString &typeName);
+
 private slots:
     void refreshTypes();
 

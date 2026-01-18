@@ -631,9 +631,24 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
         if (mouseEvent->button() == Qt::LeftButton) {
-            const QTextCursor &cursor = mDisasTextEdit->cursorForPosition(mouseEvent->pos());
-            jumpToOffsetUnderCursor(cursor);
+            QTextCursor cursor = mDisasTextEdit->cursorForPosition(mouseEvent->pos());
+            cursor.select(QTextCursor::WordUnderCursor);
 
+            const QString selectedText = cursor.selectedText();
+
+            if (Core()->isValidTypeName(selectedText)) {
+                Core()->showTypeInTypesWidget(selectedText);
+                return true;
+            }
+
+            RVA offset = DisassemblyPreview::readDisassemblyOffset(cursor);
+            XrefDescription firstXref = Core()->getFirstXRefForVariable(selectedText, offset);
+            if (!firstXref.from_str.isEmpty() || !firstXref.to_str.isEmpty()) {
+                seekable->seek(firstXref.from);
+                return true;
+            }
+
+            jumpToOffsetUnderCursor(cursor);
             return true;
         }
     } else if ((Config()->getPreviewValue() || Config()->getShowVarTooltips())

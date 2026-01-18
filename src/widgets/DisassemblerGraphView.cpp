@@ -931,6 +931,24 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
                                                QPoint pos)
 {
     Q_UNUSED(event);
+
+    Instr *instr = getInstrForMouseEvent(block, &pos);
+    if (!instr) {
+        return;
+    }
+
+    QString selectedText = highlight_token->content;
+    if (Core()->isValidTypeName(selectedText)) {
+        Core()->showTypeInTypesWidget(selectedText);
+        return;
+    }
+
+    XrefDescription firstXref = Core()->getFirstXRefForVariable(selectedText, instr->addr);
+    if (!firstXref.from_str.isEmpty() || !firstXref.to_str.isEmpty()) {
+        seekable->seek(firstXref.from);
+        return;
+    }
+
     seekable->seekToReference(getAddrForMouseEvent(block, &pos));
 }
 

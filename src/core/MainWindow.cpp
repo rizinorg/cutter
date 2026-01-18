@@ -204,6 +204,11 @@ void MainWindow::initUI()
     connect(core, &CutterCore::showMemoryWidgetRequested, this,
             static_cast<void (MainWindow::*)()>(&MainWindow::showMemoryWidget));
 
+    connect(core, &CutterCore::showTypeRequested, typesDock, [this](const QString &typeName) {
+        typesDock->toggleDockWidget(true);
+        typesDock->selectTypeByName(typeName);
+    });
+
     updateTasksIndicator();
     connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
             &MainWindow::updateTasksIndicator);

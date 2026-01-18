@@ -383,3 +383,37 @@ void TypesWidget::showVariables()
     TypesVariablesDialog tvd(this, t.type);
     tvd.exec();
 }
+
+void TypesWidget::selectTypeByName(const QString &typeName)
+{
+    if (typeName.isEmpty()) {
+        return;
+    }
+
+    QModelIndexList results = types_proxy_model->match(
+            types_proxy_model->index(0, 0), Qt::DisplayRole, typeName, 1, Qt::MatchExactly);
+
+    // if results are empty, remove the filter and try again
+    // avoids removing the filter unnecessarily
+    if (results.isEmpty()
+        && (!types_proxy_model->filterRegularExpression().pattern().isEmpty()
+            || ui->quickFilterView->comboBox()->currentIndex() != 0)) {
+
+        ui->quickFilterView->clearFilter();
+        ui->quickFilterView->comboBox()->setCurrentIndex(0); // select (All)
+        types_proxy_model->setFilterFixedString("");
+        results = types_proxy_model->match(types_proxy_model->index(0, 0), Qt::DisplayRole,
+                                           typeName, 1, Qt::MatchExactly);
+    }
+
+    if (results.isEmpty()) {
+        return;
+    }
+
+    QModelIndex index = results.first();
+    ui->typesTreeView->setCurrentIndex(index);
+    ui->typesTreeView->selectionModel()->select(
+            index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    ui->typesTreeView->scrollTo(index, QAbstractItemView::PositionAtCenter);
+    ui->typesTreeView->setFocus();
+}

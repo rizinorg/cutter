@@ -3961,6 +3961,17 @@ QString CutterCore::getTypeAsC(QString name)
     return result;
 }
 
+bool CutterCore::isValidTypeName(const QString &typeName)
+{
+    const auto &types = getAllTypes();
+    for (const auto &t : types) {
+        if (t.type == typeName) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool CutterCore::isAddressMapped(RVA addr)
 {
     CORE_LOCK();
@@ -4298,17 +4309,16 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
     return searchRef;
 }
 
-QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, bool findWrites,
-                                                       RVA offset)
+QList<XrefDescription> CutterCore::collectXRefsForVariable(const QString &variableName, RVA offset,
+                                                           int accessTypeMask, bool stopAtFirst)
 {
     CORE_LOCK();
     auto fcn = functionIn(offset);
     if (!fcn) {
         return {};
     }
-    const auto typ =
-            findWrites ? RZ_ANALYSIS_VAR_ACCESS_TYPE_WRITE : RZ_ANALYSIS_VAR_ACCESS_TYPE_READ;
-    QList<XrefDescription> xrefList = QList<XrefDescription>();
+
+    QList<XrefDescription> xrefs;
     for (const auto &v : CutterPVector<RzAnalysisVar>(&fcn->vars)) {
         if (variableName != v->name) {
             continue;
@@ -4316,22 +4326,42 @@ QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, boo
         RzAnalysisVarAccess *acc;
         CutterRzVectorForeach(&v->accesses, acc, RzAnalysisVarAccess)
         {
-            if (!(acc->type & typ)) {
+            if (!(acc->type & accessTypeMask)) {
                 continue;
             }
             XrefDescription xref;
             RVA addr = fcn->addr + acc->offset;
             xref.from = addr;
             xref.to = addr;
-            if (findWrites) {
+
+            if (acc->type & RZ_ANALYSIS_VAR_ACCESS_TYPE_WRITE) {
                 xref.from_str = RzAddressString(addr);
             } else {
                 xref.to_str = RzAddressString(addr);
             }
-            xrefList << xref;
+
+            xrefs << xref;
+            if (stopAtFirst) {
+                return xrefs;
+            }
         }
     }
-    return xrefList;
+    return xrefs;
+}
+
+QList<XrefDescription> CutterCore::getXRefsForVariable(QString variableName, bool findWrites,
+                                                       RVA offset)
+{
+    ut8 mask = findWrites ? RZ_ANALYSIS_VAR_ACCESS_TYPE_WRITE : RZ_ANALYSIS_VAR_ACCESS_TYPE_READ;
+    return collectXRefsForVariable(variableName, offset, mask, false);
+}
+
+XrefDescription CutterCore::getFirstXRefForVariable(const QString &variableName, RVA offset)
+{
+    ut8 mask = RZ_ANALYSIS_VAR_ACCESS_TYPE_WRITE | RZ_ANALYSIS_VAR_ACCESS_TYPE_READ;
+    auto result = collectXRefsForVariable(variableName, offset, mask, true);
+
+    return result.isEmpty() ? XrefDescription() : result.first();
 }
 
 QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_function,
@@ -5115,4 +5145,9 @@ void CutterCore::writeGraphvizGraphToFile(QString path, QString format, RzCoreGr
             qWarning() << tr("Cannot get graph at ") << RzAddressString(address);
         }
     }
+}
+
+void CutterCore::showTypeInTypesWidget(const QString &typeName)
+{
+    emit showTypeRequested(typeName);
 }
