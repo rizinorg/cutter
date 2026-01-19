@@ -12,15 +12,27 @@
 #include <QJsonParseError>
 #include <QToolTip>
 #include <QMouseEvent>
+#include <QLayout>
 
 #include <array>
 #include <cmath>
+
+static const int NAVBAR_HEIGHT = 15;
+static const int LEGEND_HEIGHT = 25;
+static const int TOTAL_HEIGHT = NAVBAR_HEIGHT + LEGEND_HEIGHT;
+
+static const int LEGEND_BOX_SIZE = 16;
+static const int LEGEND_BOX_Y_OFFSET = 7; // Relative to navbar bottom
+static const int LEGEND_TEXT_X_OFFSET = 17;
+static const int LEGEND_TEXT_Y_OFFSET = -5;
+static const int LEGEND_ITEM_SPACING = 30;
 
 VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent)
     : QToolBar(main),
       graphicsView(new QGraphicsView),
       seekGraphicsItem(nullptr),
       PCGraphicsItem(nullptr),
+      legendItem(nullptr),
       main(main)
 {
     Q_UNUSED(parent);
@@ -59,8 +71,12 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent)
     graphicsScene->setBackgroundBrush(bg);
 
     this->graphicsView->setAlignment(Qt::AlignLeft);
-    this->graphicsView->setMinimumHeight(15);
-    this->graphicsView->setMaximumHeight(15);
+
+    bool legendEnabled = Config()->getNavBarLegendEnabled();
+    int initialHeight = legendEnabled ? TOTAL_HEIGHT : NAVBAR_HEIGHT;
+    this->graphicsView->setMinimumHeight(initialHeight);
+    this->graphicsView->setMaximumHeight(initialHeight);
+
     this->graphicsView->setFrameShape(QFrame::NoFrame);
     this->graphicsView->setRenderHints({});
     this->graphicsView->setScene(graphicsScene);
@@ -71,6 +87,9 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent)
     this->graphicsView->setEnabled(false);
     this->graphicsView->setMouseTracking(true);
     setMouseTracking(true);
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, &QWidget::customContextMenuRequested, this, &VisualNavbar::showLegendContextMenu);
 }
 
 unsigned int nextPow2(unsigned int n)
@@ -146,22 +165,23 @@ void VisualNavbar::fetchStats()
             rz_core_analysis_get_stats(core, from, to, RZ_MAX(1, (to + 1 - from) / blocksCount)));
 }
 
-enum class DataType : int { Empty, Code, String, Symbol, Count };
+enum class DataType : int { Flirt, Code, Data, String, Import, Symbol, Unexplored, Count };
 
 void VisualNavbar::updateGraphicsScene()
 {
+    bool legendVisible = Config()->getNavBarLegendEnabled();
     graphicsScene->clear();
     xToAddress.clear();
     seekGraphicsItem = nullptr;
     PCGraphicsItem = nullptr;
-    graphicsScene->setBackgroundBrush(QBrush(Config()->getColor("gui.navbar.empty")));
+    legendItem = nullptr;
+    graphicsScene->setBackgroundBrush(QBrush(Config()->getColor("gui.navbar.unexplored")));
 
     if (!stats) {
         return;
     }
 
     int w = graphicsView->width();
-    int h = graphicsView->height();
 
     RVA totalSize = stats->to - stats->from + 1;
     RVA beginAddr = stats->from;
@@ -173,16 +193,24 @@ void VisualNavbar::updateGraphicsScene()
     };
 
     std::array<QBrush, static_cast<int>(DataType::Count)> dataTypeBrushes;
+    dataTypeBrushes[static_cast<int>(DataType::Flirt)] =
+            QBrush(Config()->getColor("gui.navbar.flirt"));
     dataTypeBrushes[static_cast<int>(DataType::Code)] =
             QBrush(Config()->getColor("gui.navbar.code"));
+    dataTypeBrushes[static_cast<int>(DataType::Data)] =
+            QBrush(Config()->getColor("gui.navbar.data"));
     dataTypeBrushes[static_cast<int>(DataType::String)] =
             QBrush(Config()->getColor("gui.navbar.str"));
+    dataTypeBrushes[static_cast<int>(DataType::Import)] =
+            QBrush(Config()->getColor("gui.navbar.import"));
     dataTypeBrushes[static_cast<int>(DataType::Symbol)] =
             QBrush(Config()->getColor("gui.navbar.sym"));
+    dataTypeBrushes[static_cast<int>(DataType::Unexplored)] =
+            QBrush(Config()->getColor("gui.navbar.unexplored"));
 
-    DataType lastDataType = DataType::Empty;
+    DataType lastDataType = DataType::Unexplored;
     QGraphicsRectItem *dataItem = nullptr;
-    QRectF dataItemRect(0.0, 0.0, 0.0, h);
+    QRectF dataItemRect(0.0, 0.0, 0.0, (double)NAVBAR_HEIGHT);
     for (size_t i = 0; i < rz_vector_len(&stats->blocks); i++) {
         RzCoreAnalysisStatsItem *block =
                 reinterpret_cast<RzCoreAnalysisStatsItem *>(rz_vector_index_ptr(&stats->blocks, i));
@@ -198,7 +226,11 @@ void VisualNavbar::updateGraphicsScene()
         xToAddress.append(x2a);
 
         DataType dataType;
-        if (block->functions) {
+        if (block->flirt) {
+            dataType = DataType::Flirt;
+        } else if (block->imports) {
+            dataType = DataType::Import;
+        } else if (block->functions) {
             dataType = DataType::Code;
         } else if (block->strings) {
             dataType = DataType::String;
@@ -206,8 +238,10 @@ void VisualNavbar::updateGraphicsScene()
             dataType = DataType::Symbol;
         } else if (block->in_functions) {
             dataType = DataType::Code;
+        } else if (block->perm & RZ_PERM_RW && !(block->perm & RZ_PERM_X)) {
+            dataType = DataType::Data;
         } else {
-            lastDataType = DataType::Empty;
+            lastDataType = DataType::Unexplored;
             continue;
         }
 
@@ -224,7 +258,7 @@ void VisualNavbar::updateGraphicsScene()
         dataItemRect.setX(xFromAddr(from));
         dataItemRect.setRight(xFromAddr(to));
 
-        dataItem = new QGraphicsRectItem();
+        dataItem = new QGraphicsRectItem(dataItemRect);
         dataItem->setPen(Qt::NoPen);
         dataItem->setBrush(dataTypeBrushes[static_cast<int>(dataType)]);
         graphicsScene->addItem(dataItem);
@@ -232,10 +266,50 @@ void VisualNavbar::updateGraphicsScene()
         lastDataType = dataType;
     }
 
-    // Update scene width
-    graphicsScene->setSceneRect(0, 0, w, h);
-
     drawSeekCursor();
+
+    legendItem = new QGraphicsItemGroup();
+
+    QColor themeBg = Config()->windowColorIsDark() ? palette().color(QPalette::Window)
+                                                   : Config()->getColor("gui.background");
+
+    QGraphicsRectItem *lBg = new QGraphicsRectItem(0, NAVBAR_HEIGHT, w, LEGEND_HEIGHT);
+    lBg->setBrush(themeBg);
+    lBg->setPen(Qt::NoPen);
+    legendItem->addToGroup(lBg);
+
+    struct LegendPart
+    {
+        QString name;
+        QBrush brush;
+    };
+    QList<LegendPart> parts = {
+        { tr("Flirt"), dataTypeBrushes[static_cast<int>(DataType::Flirt)] },
+        { tr("Code"), dataTypeBrushes[static_cast<int>(DataType::Code)] },
+        { tr("Data"), dataTypeBrushes[static_cast<int>(DataType::Data)] },
+        { tr("Strings"), dataTypeBrushes[static_cast<int>(DataType::String)] },
+        { tr("Imports"), dataTypeBrushes[static_cast<int>(DataType::Import)] },
+        { tr("Symbols"), dataTypeBrushes[static_cast<int>(DataType::Symbol)] },
+        { tr("Unexplored"), dataTypeBrushes[static_cast<int>(DataType::Unexplored)] }
+    };
+
+    qreal curX = 10;
+    qreal legY = NAVBAR_HEIGHT + LEGEND_BOX_Y_OFFSET;
+    for (const auto &p : parts) {
+        QGraphicsRectItem *r = new QGraphicsRectItem(curX, legY, LEGEND_BOX_SIZE, LEGEND_BOX_SIZE);
+        r->setBrush(p.brush);
+        r->setPen(QPen(Qt::black, 0.5));
+        legendItem->addToGroup(r);
+
+        QGraphicsTextItem *t = new QGraphicsTextItem(p.name);
+        t->setPos(curX + LEGEND_TEXT_X_OFFSET, legY + LEGEND_TEXT_Y_OFFSET);
+        legendItem->addToGroup(t);
+        curX += t->boundingRect().width() + LEGEND_ITEM_SPACING;
+    }
+
+    graphicsScene->addItem(legendItem);
+    legendItem->setVisible(legendVisible);
+    graphicsScene->setSceneRect(0, 0, w, legendVisible ? TOTAL_HEIGHT : NAVBAR_HEIGHT);
 }
 
 void VisualNavbar::drawCursor(RVA addr, QColor color, QGraphicsRectItem *&graphicsItem)
@@ -249,8 +323,7 @@ void VisualNavbar::drawCursor(RVA addr, QColor color, QGraphicsRectItem *&graphi
     if (std::isnan(cursor_x)) {
         return;
     }
-    int h = this->graphicsView->height();
-    graphicsItem = new QGraphicsRectItem(cursor_x, 0, 2, h);
+    graphicsItem = new QGraphicsRectItem(cursor_x, 0, 2, NAVBAR_HEIGHT);
     graphicsItem->setPen(Qt::NoPen);
     graphicsItem->setBrush(QBrush(color));
     graphicsScene->addItem(graphicsItem);
@@ -277,6 +350,13 @@ void VisualNavbar::on_seekChanged(RVA addr)
 void VisualNavbar::mousePressEvent(QMouseEvent *event)
 {
     if (blockTooltip) {
+        return;
+    }
+
+    // Ignore mouse event on legend
+    qreal y = qhelpers::mouseEventPos(event).y();
+    if (y > NAVBAR_HEIGHT + 10) {
+        QToolTip::hideText();
         return;
     }
     qreal x = qhelpers::mouseEventPos(event).x();
@@ -360,4 +440,29 @@ QString VisualNavbar::toolTipForAddress(RVA address)
         }
     }
     return ret;
+}
+
+void VisualNavbar::showLegendContextMenu(const QPoint &pos)
+{
+    QMenu menu(this);
+    QAction *toggleLegend = menu.addAction(tr("Show Legend"));
+    toggleLegend->setCheckable(true);
+    toggleLegend->setChecked(Config()->getNavBarLegendEnabled());
+
+    if (menu.exec(mapToGlobal(pos))) {
+        bool checked = toggleLegend->isChecked();
+        Config()->setNavBarLegendEnabled(checked);
+        int h = checked ? TOTAL_HEIGHT : NAVBAR_HEIGHT;
+        this->graphicsView->setMinimumHeight(h);
+        this->graphicsView->setMaximumHeight(h);
+
+        // Force the layout to realize the height change
+        // Without this navbar jumps slightly down and then back up, when hiding legend
+        this->graphicsView->updateGeometry();
+        if (this->layout()) {
+            this->layout()->activate();
+        }
+
+        updateGraphicsScene();
+    }
 }

@@ -264,6 +264,19 @@ public:
      * @param layout The layout of the Functions widget, either horizontal or vertical.
      */
     void setFunctionsWidgetLayout(const QString &layout);
+
+    /**
+     * @brief Enable or disable the display of the legend in the navigation bar
+     * @param enabled Set to true to show the legend, false to hide it
+     */
+    void setNavBarLegendEnabled(bool enabled);
+
+    /**
+     * @brief Check if the navigation bar legend is enabled
+     * @return True if the legend is enabled, false otherwise
+     */
+    bool getNavBarLegendEnabled();
+
 public slots:
     void refreshFont();
 signals:

@@ -65,7 +65,13 @@ const QHash<QString, QHash<ColorFlags, QColor>> Configuration::cutterOptionColor
       { { DarkFlag, QColor(0x6f, 0x86, 0xd8) }, { LightFlag, QColor(0x45, 0x68, 0xe5) } } },
     { "gui.navbar.sym",
       { { DarkFlag, QColor(0xdd, 0xa3, 0x68) }, { LightFlag, QColor(0xe5, 0x96, 0x45) } } },
-    { "gui.navbar.empty",
+    { "gui.navbar.import",
+      { { DarkFlag, QColor(0xEE, 0x8B, 0xA2) }, { LightFlag, QColor(0xEE, 0x8B, 0xA2) } } },
+    { "gui.navbar.flirt",
+      { { DarkFlag, QColor(0xF5, 0xF5, 0xF5) }, { LightFlag, QColor(0x8D, 0x6E, 0x63) } } },
+    { "gui.navbar.data",
+      { { DarkFlag, QColor(0x23, 0x3d, 0x4d) }, { LightFlag, QColor(0x4E, 0xD1, 0xC1) } } },
+    { "gui.navbar.unexplored",
       { { DarkFlag, QColor(0x64, 0x64, 0x64) }, { LightFlag, QColor(0xdc, 0xec, 0xf5) } } },
     { "gui.breakpoint_background",
       { { DarkFlag, QColor(0x8c, 0x4c, 0x4c) }, { LightFlag, QColor(0xe9, 0x8f, 0x8f) } } },
@@ -895,4 +901,14 @@ QString Configuration::getFunctionsWidgetLayout()
 void Configuration::setFunctionsWidgetLayout(const QString &layout)
 {
     s.setValue("functionsWidgetLayout", layout);
+}
+
+void Configuration::setNavBarLegendEnabled(bool enabled)
+{
+    s.setValue("navBarLegend", enabled);
+}
+
+bool Configuration::getNavBarLegendEnabled()
+{
+    return s.value("navBarLegend").toBool();
 }

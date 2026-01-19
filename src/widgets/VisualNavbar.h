@@ -12,6 +12,7 @@
 
 class MainWindow;
 class QGraphicsView;
+class QGraphicsItemGroup;
 
 class VisualNavbar : public QToolBar
 {
@@ -39,12 +40,14 @@ private slots:
     void drawPCCursor();
     void drawCursor(RVA addr, QColor color, QGraphicsRectItem *&graphicsItem);
     void on_seekChanged(RVA addr);
+    void showLegendContextMenu(const QPoint &pos);
 
 private:
     QGraphicsView *graphicsView;
     QGraphicsScene *graphicsScene;
     QGraphicsRectItem *seekGraphicsItem;
     QGraphicsRectItem *PCGraphicsItem;
+    QGraphicsItemGroup *legendItem;
     MainWindow *main;
 
     UniquePtrC<RzCoreAnalysisStats, &rz_core_analysis_stats_free> stats;
