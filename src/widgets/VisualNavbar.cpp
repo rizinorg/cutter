@@ -165,7 +165,7 @@ void VisualNavbar::fetchStats()
             rz_core_analysis_get_stats(core, from, to, RZ_MAX(1, (to + 1 - from) / blocksCount)));
 }
 
-enum class DataType : int { Flirt, Code, Data, String, Import, Symbol, Unexplored, Count };
+enum class DataType : int { Signature, Code, Data, String, Import, Symbol, Unexplored, Count };
 
 void VisualNavbar::updateGraphicsScene()
 {
@@ -193,8 +193,8 @@ void VisualNavbar::updateGraphicsScene()
     };
 
     std::array<QBrush, static_cast<int>(DataType::Count)> dataTypeBrushes;
-    dataTypeBrushes[static_cast<int>(DataType::Flirt)] =
-            QBrush(Config()->getColor("gui.navbar.flirt"));
+    dataTypeBrushes[static_cast<int>(DataType::Signature)] =
+            QBrush(Config()->getColor("gui.navbar.signature"));
     dataTypeBrushes[static_cast<int>(DataType::Code)] =
             QBrush(Config()->getColor("gui.navbar.code"));
     dataTypeBrushes[static_cast<int>(DataType::Data)] =
@@ -226,8 +226,8 @@ void VisualNavbar::updateGraphicsScene()
         xToAddress.append(x2a);
 
         DataType dataType;
-        if (block->flirt) {
-            dataType = DataType::Flirt;
+        if (block->signatures) {
+            dataType = DataType::Signature;
         } else if (block->imports) {
             dataType = DataType::Import;
         } else if (block->functions) {
@@ -284,7 +284,7 @@ void VisualNavbar::updateGraphicsScene()
         QBrush brush;
     };
     QList<LegendPart> parts = {
-        { tr("Flirt"), dataTypeBrushes[static_cast<int>(DataType::Flirt)] },
+        { tr("Signatures"), dataTypeBrushes[static_cast<int>(DataType::Signature)] },
         { tr("Code"), dataTypeBrushes[static_cast<int>(DataType::Code)] },
         { tr("Data"), dataTypeBrushes[static_cast<int>(DataType::Data)] },
         { tr("Strings"), dataTypeBrushes[static_cast<int>(DataType::String)] },

@@ -67,7 +67,7 @@ const QHash<QString, QHash<ColorFlags, QColor>> Configuration::cutterOptionColor
       { { DarkFlag, QColor(0xdd, 0xa3, 0x68) }, { LightFlag, QColor(0xe5, 0x96, 0x45) } } },
     { "gui.navbar.import",
       { { DarkFlag, QColor(0xEE, 0x8B, 0xA2) }, { LightFlag, QColor(0xEE, 0x8B, 0xA2) } } },
-    { "gui.navbar.flirt",
+    { "gui.navbar.signature",
       { { DarkFlag, QColor(0xF5, 0xF5, 0xF5) }, { LightFlag, QColor(0x8D, 0x6E, 0x63) } } },
     { "gui.navbar.data",
       { { DarkFlag, QColor(0x23, 0x3d, 0x4d) }, { LightFlag, QColor(0x4E, 0xD1, 0xC1) } } },
