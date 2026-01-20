@@ -1863,7 +1863,7 @@ QVector<RegisterRefValueDescription> CutterCore::getRegisterRefValues()
         desc.name = ri->name;
         ut64 value = rz_reg_get_value(getReg(), ri);
         desc.value = "0x" + QString::number(value, 16);
-        desc.ref = rz_core_analysis_hasrefs(core, value, true);
+        desc.ref = rz_core_analysis_hasrefs(core, value, RZ_OUTPUT_MODE_STANDARD);
         result.push_back(desc);
     }
     rz_list_free(ritems);
