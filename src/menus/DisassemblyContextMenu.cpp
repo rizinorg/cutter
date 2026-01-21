@@ -1024,7 +1024,7 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
                 fcn->cc = rz_str_constpool_get(&core->analysis->constpool, newCC.constData());
             }
 
-            emit Core()-> functionsChanged();
+            emit Core()->functionsChanged();
         }
     }
 }
@@ -1117,7 +1117,7 @@ void DisassemblyContextMenu::on_actionSetCallingConvention_triggered(QAction *ac
     QByteArray newCCBytes = newCC.toUtf8();
     if (rz_analysis_cc_exist(core->analysis, newCCBytes.constData())) {
         fcn->cc = rz_str_constpool_get(&core->analysis->constpool, newCCBytes.constData());
-        emit Core()-> functionsChanged();
+        emit Core()->functionsChanged();
     }
 }
 
