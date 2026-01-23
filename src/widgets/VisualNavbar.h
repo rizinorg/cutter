@@ -63,8 +63,7 @@ private:
     QList<QString> sectionsForAddress(RVA address);
     QString toolTipForAddress(RVA address);
 
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
     void handleMouseAction(QMouseEvent *event, const QPoint &scenePos);
 };
 

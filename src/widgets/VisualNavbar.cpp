@@ -85,6 +85,7 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent)
     this->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     // So the graphicsView doesn't intercept mouse events.
     this->graphicsView->setEnabled(false);
+    this->graphicsView->installEventFilter(this);
     this->graphicsView->setMouseTracking(true);
     setMouseTracking(true);
 
@@ -348,33 +349,38 @@ void VisualNavbar::on_seekChanged(RVA addr)
     this->drawSeekCursor();
 }
 
-void VisualNavbar::mousePressEvent(QMouseEvent *event)
+bool VisualNavbar::eventFilter(QObject *watched, QEvent *event)
 {
-    QPoint toolbarPos = qhelpers::mouseEventPos(event).toPoint();
-    QPoint scenePos = graphicsView->mapFromParent(toolbarPos);
+    switch (event->type()) {
+    case QEvent::MouseButtonPress: {
+        auto *mouseEvent = static_cast<QMouseEvent *>(event);
+        const QPoint scenePos = mouseEvent->pos();
 
-    if (scenePos.y() > NAVBAR_HEIGHT) {
-        // Only allow dragging if it originated from the main navbar (not the legend)
+        if (scenePos.y() <= NAVBAR_HEIGHT) {
+            isDraggable = true;
+            handleMouseAction(mouseEvent, scenePos);
+            return true;
+        }
         isDraggable = false;
-        QToolTip::hideText();
-        return;
+        break;
+    }
+    case QEvent::MouseMove: {
+        auto *mouseEvent = static_cast<QMouseEvent *>(event);
+        const QPoint scenePos = mouseEvent->pos();
+
+        if ((mouseEvent->buttons() & Qt::LeftButton && isDraggable)
+            || scenePos.y() <= NAVBAR_HEIGHT) {
+            handleMouseAction(mouseEvent, scenePos);
+        } else {
+            QToolTip::hideText();
+        }
+        return true;
+    }
+    default:
+        break;
     }
 
-    isDraggable = true;
-    handleMouseAction(event, scenePos);
-}
-
-void VisualNavbar::mouseMoveEvent(QMouseEvent *event)
-{
-
-    event->accept();
-    QPoint toolbarPos = qhelpers::mouseEventPos(event).toPoint();
-    QPoint scenePos = graphicsView->mapFromParent(toolbarPos);
-    if ((event->buttons() & Qt::LeftButton && isDraggable) || scenePos.y() <= NAVBAR_HEIGHT) {
-        handleMouseAction(event, scenePos);
-    } else {
-        QToolTip::hideText();
-    }
+    return QToolBar::eventFilter(watched, event);
 }
 
 void VisualNavbar::handleMouseAction(QMouseEvent *event, const QPoint &scenePos)
