@@ -323,7 +323,8 @@ void VisualNavbar::drawCursor(RVA addr, QColor color, QGraphicsRectItem *&graphi
     if (std::isnan(cursor_x)) {
         return;
     }
-    graphicsItem = new QGraphicsRectItem(cursor_x, 0, 2, NAVBAR_HEIGHT);
+    // Subtract 1 so the 2px wide cursor is centered
+    graphicsItem = new QGraphicsRectItem(cursor_x - 1, 0, 2, NAVBAR_HEIGHT);
     graphicsItem->setPen(Qt::NoPen);
     graphicsItem->setBrush(QBrush(color));
     graphicsScene->addItem(graphicsItem);
