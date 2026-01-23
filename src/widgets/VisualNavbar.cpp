@@ -350,20 +350,33 @@ void VisualNavbar::on_seekChanged(RVA addr)
 
 void VisualNavbar::mousePressEvent(QMouseEvent *event)
 {
-    if (blockTooltip) {
+    QPoint toolbarPos = qhelpers::mouseEventPos(event).toPoint();
+    QPoint scenePos = graphicsView->mapFromParent(toolbarPos);
+
+    if (scenePos.y() > NAVBAR_HEIGHT) {
+        QToolTip::hideText();
         return;
     }
 
-    // Get mouse position relative to toolbar (this)
+    handleMouseAction(event, scenePos);
+}
+
+void VisualNavbar::mouseMoveEvent(QMouseEvent *event)
+{
+
+    event->accept();
     QPoint toolbarPos = qhelpers::mouseEventPos(event).toPoint();
-
-    // Map mouse coordinates to the viewport to account for toolbar margins
     QPoint scenePos = graphicsView->mapFromParent(toolbarPos);
-    qreal y = scenePos.y();
-
-    // Ignore mouse event on legend
-    if (y > NAVBAR_HEIGHT) {
+    if (event->buttons() & Qt::LeftButton || scenePos.y() <= NAVBAR_HEIGHT) {
+        handleMouseAction(event, scenePos);
+    } else {
         QToolTip::hideText();
+    }
+}
+
+void VisualNavbar::handleMouseAction(QMouseEvent *event, const QPoint &scenePos)
+{
+    if (blockTooltip) {
         return;
     }
 
@@ -380,12 +393,6 @@ void VisualNavbar::mousePressEvent(QMouseEvent *event)
             Core()->seek(address);
         }
     }
-}
-
-void VisualNavbar::mouseMoveEvent(QMouseEvent *event)
-{
-    event->accept();
-    mousePressEvent(event);
 }
 
 RVA VisualNavbar::localXToAddress(double x)
