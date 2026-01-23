@@ -353,13 +353,20 @@ void VisualNavbar::mousePressEvent(QMouseEvent *event)
         return;
     }
 
+    // Get mouse position relative to toolbar (this)
+    QPoint toolbarPos = qhelpers::mouseEventPos(event).toPoint();
+
+    // Map mouse coordinates to the viewport to account for toolbar margins
+    QPoint scenePos = graphicsView->mapFromParent(toolbarPos);
+    qreal y = scenePos.y();
+
     // Ignore mouse event on legend
-    qreal y = qhelpers::mouseEventPos(event).y();
-    if (y > NAVBAR_HEIGHT + 10) {
+    if (y > NAVBAR_HEIGHT) {
         QToolTip::hideText();
         return;
     }
-    qreal x = qhelpers::mouseEventPos(event).x();
+
+    qreal x = scenePos.x();
     RVA address = localXToAddress(x);
     if (address != RVA_INVALID) {
         auto tooltipPos = qhelpers::mouseEventGlobalPos(event);
