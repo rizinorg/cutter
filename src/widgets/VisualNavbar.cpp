@@ -354,10 +354,13 @@ void VisualNavbar::mousePressEvent(QMouseEvent *event)
     QPoint scenePos = graphicsView->mapFromParent(toolbarPos);
 
     if (scenePos.y() > NAVBAR_HEIGHT) {
+        // Only allow dragging if it originated from the main navbar (not the legend)
+        isDraggable = false;
         QToolTip::hideText();
         return;
     }
 
+    isDraggable = true;
     handleMouseAction(event, scenePos);
 }
 
@@ -367,7 +370,7 @@ void VisualNavbar::mouseMoveEvent(QMouseEvent *event)
     event->accept();
     QPoint toolbarPos = qhelpers::mouseEventPos(event).toPoint();
     QPoint scenePos = graphicsView->mapFromParent(toolbarPos);
-    if (event->buttons() & Qt::LeftButton || scenePos.y() <= NAVBAR_HEIGHT) {
+    if ((event->buttons() & Qt::LeftButton && isDraggable) || scenePos.y() <= NAVBAR_HEIGHT) {
         handleMouseAction(event, scenePos);
     } else {
         QToolTip::hideText();

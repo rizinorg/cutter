@@ -56,6 +56,7 @@ private:
 
     QList<XToAddress> xToAddress;
     bool blockTooltip;
+    bool isDraggable = true;
 
     RVA localXToAddress(double x);
     double addressToLocalX(RVA address);
