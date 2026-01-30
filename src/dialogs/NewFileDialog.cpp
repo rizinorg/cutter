@@ -135,10 +135,12 @@ void NewFileDialog::on_shellcodeButton_clicked()
 
 void NewFileDialog::on_recentsListWidget_itemClicked(QListWidgetItem *item)
 {
-    QStringList sitem = item->data(Qt::UserRole).toStringList();
+    updateSelectionFromItem(item);
+}
 
-    ui->ioPlugin->setCurrentIndex(ui->ioPlugin->findText(sitem.at(0)));
-    ui->newFileEdit->setText(sitem.at(1));
+void NewFileDialog::on_recentsListWidget_currentItemChanged(QListWidgetItem *current)
+{
+    updateSelectionFromItem(current);
 }
 
 void NewFileDialog::on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item)
@@ -327,31 +329,34 @@ void NewFileDialog::updateLoadProjectButton()
 
 void NewFileDialog::loadFile(const QString &filename)
 {
-    const QString &nativeFn = QDir::toNativeSeparators(filename);
-    if (ui->ioPlugin->currentIndex() == 0 && !Core()->tryFile(nativeFn, false)
-        && !ui->checkBox_FilelessOpen->isChecked()) {
-        QMessageBox msgBox(this);
-        msgBox.setText(tr("Select a new program or a previous one before continuing."));
-        msgBox.exec();
-        return;
+    bool isFileless = ui->checkBox_FilelessOpen->isChecked();
+    QString ioFile;
+    if (!isFileless) {
+        const QString &nativeFn = QDir::toNativeSeparators(filename);
+        if (ui->ioPlugin->currentIndex() == 0 && !Core()->tryFile(nativeFn, false)) {
+            QMessageBox msgBox(this);
+            msgBox.setText(tr("Select a new program or a previous one before continuing."));
+            msgBox.exec();
+            return;
+        }
+
+        const QString ioMode = ui->ioPlugin->currentText();
+        ioFile = ioMode + nativeFn;
+
+        // Add file to recent file list
+        RecentFileEntry file = { ioMode, nativeFn };
+        QList<RecentFileEntry> files = Config()->getRecentFiles();
+        files.removeAll(file);
+        files.prepend(file);
+        while (files.size() > MaxRecentFiles)
+            files.removeLast();
+        Config()->setRecentFiles(files);
     }
-
-    const QString ioMode = ui->ioPlugin->currentText();
-    const QString ioFile = ioMode + nativeFn;
-
-    // Add file to recent file list
-    RecentFileEntry file = { ioMode, nativeFn };
-    QList<RecentFileEntry> files = Config()->getRecentFiles();
-    files.removeAll(file);
-    files.prepend(file);
-    while (files.size() > MaxRecentFiles)
-        files.removeLast();
-    Config()->setRecentFiles(files);
 
     // Close dialog and open MainWindow/InitialOptionsDialog
     InitialOptions options;
     options.filename = ioFile;
-    main->openNewFile(options, ui->checkBox_FilelessOpen->isChecked());
+    main->openNewFile(options, isFileless);
 
     close();
 }
@@ -407,4 +412,14 @@ bool NewFileDialog::eventFilter(QObject * /*obj*/, QEvent *event)
     }
 
     return false;
+}
+
+void NewFileDialog::updateSelectionFromItem(QListWidgetItem *item)
+{
+    if (!item) {
+        return;
+    }
+    QStringList sitem = item->data(Qt::UserRole).toStringList();
+    ui->ioPlugin->setCurrentIndex(ui->ioPlugin->findText(sitem.at(0)));
+    ui->newFileEdit->setText(sitem.at(1));
 }
