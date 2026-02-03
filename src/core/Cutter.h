@@ -562,6 +562,25 @@ public:
     void setProfileDirectives(const QString &directives);
 
     /**
+     * @brief Sets the register profile to the provided one
+     * @param profileData Raw profile string to be applied
+     */
+    void setRegisterProfile(const QString &profileData);
+
+    /**
+     * @brief Converts a GDB profile into Rizin format
+     * @param profilePath Path to the GDB profile
+     * @return Converted profile string
+     */
+    QString convertGDBProfile(const QString &profilePath);
+
+    /**
+     * @brief Retrieves the current register profile string
+     * @return The active register profile content
+     */
+    QString getRegisterProfile();
+
+    /**
      * @brief Get all breakpoinst that are belong to a functions at this address
      */
     QList<RVA> getBreakpointsInFunction(RVA funcAddr);

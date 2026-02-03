@@ -251,6 +251,29 @@ public:
     void setRecentProjects(const QList<RecentFileEntry> &list);
     void addRecentProject(QString file);
 
+    /**
+     * @brief Recently used register profiles, as shown in the RegisterProfileDialog
+     */
+    QStringList getRecentRegProfiles() const;
+
+    /**
+     * @brief Sets the list of recently used register profiles
+     * @param list List of serialized profile strings
+     */
+    void setRecentRegProfiles(const QStringList &list);
+
+    /**
+     * @brief Adds a profile to the top of recent profiles list
+     * @param profile Serialized profile path to add
+     */
+    void addRecentRegProfile(const QString &profile);
+
+    /**
+     * @brief Removes all occurences of a profile from recent profiles list
+     * @param profile Serialized profile path to remove
+     */
+    void removeRecentRegProfile(const QString &profile);
+
     // Functions Widget Layout
 
     /**

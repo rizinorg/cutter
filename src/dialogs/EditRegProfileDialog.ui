@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EditRegProfileDialog</class>
+ <widget class="QDialog" name="EditRegProfileDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Edit Register Profile</string>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <widget class="QWidget" name="tabAlias">
+      <attribute name="title">
+       <string>Aliases</string>
+      </attribute>
+      <layout class="QVBoxLayout">
+       <item>
+        <widget class="QTableView" name="aliasTable">
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>true</bool>
+         </attribute>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabRegs">
+      <attribute name="title">
+       <string>Registers</string>
+      </attribute>
+      <layout class="QVBoxLayout">
+       <item>
+        <widget class="QTableView" name="regTable">
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>true</bool>
+         </attribute>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabRaw">
+      <attribute name="title">
+       <string>Raw Profile</string>
+      </attribute>
+      <layout class="QVBoxLayout">
+       <item>
+        <widget class="QPlainTextEdit" name="rawProfileEdit">
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+          </font>
+         </property>
+         <property name="lineWrapMode">
+          <enum>QPlainTextEdit::LineWrapMode::NoWrap</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="actionLayout">
+     <item>
+      <widget class="QPushButton" name="addRowBtn">
+       <property name="text">
+        <string>Add Row</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="removeRowBtn">
+       <property name="text">
+        <string>Remove Row</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="hSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="standardButtons">
+        <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>EditRegProfileDialog</receiver>
+   <slot>accept()</slot>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>EditRegProfileDialog</receiver>
+   <slot>reject()</slot>
+  </connection>
+ </connections>
+</ui>

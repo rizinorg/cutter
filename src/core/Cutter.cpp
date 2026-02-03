@@ -459,6 +459,28 @@ void CutterCore::setProfileDirectives(const QString &directives)
     rz_file_dump(pathPtr, (const ut8 *)"\n", 1, 1);
 }
 
+void CutterCore::setRegisterProfile(const QString &profile)
+{
+    CORE_LOCK();
+    rz_reg_set_profile_string(core->dbg->reg, profile.toUtf8().constData());
+    emit registersChanged();
+}
+
+QString CutterCore::convertGDBProfile(const QString &profilePath)
+{
+    return QString::fromUtf8(rz_reg_parse_gdb_profile(profilePath.toUtf8().constData()));
+}
+
+QString CutterCore::getRegisterProfile()
+{
+    CORE_LOCK();
+    RzReg *reg = core->dbg->reg;
+    if (reg && reg->reg_profile_str) {
+        return QString::fromUtf8(reg->reg_profile_str);
+    }
+    return QString();
+}
+
 bool CutterCore::asyncTask(std::function<void *(RzCore *)> fcn, QSharedPointer<RizinTask> &task)
 {
     if (!task.isNull()) {

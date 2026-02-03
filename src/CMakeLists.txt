@@ -162,6 +162,8 @@ set(SOURCES
     shortcuts/DefaultShortcuts.cpp
     dialogs/MarkDialog.cpp
     dialogs/ProfileDirectivesDialog.cpp
+    dialogs/RegisterProfileDialog.cpp
+    dialogs/EditRegProfileDialog.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -333,6 +335,8 @@ set(HEADER_FILES
     shortcuts/DefaultShortcuts.h
     dialogs/MarkDialog.h
     dialogs/ProfileDirectivesDialog.h
+    dialogs/RegisterProfileDialog.h
+    dialogs/EditRegProfileDialog.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -411,6 +415,8 @@ set(UI_FILES
     dialogs/preferences/ShortcutOptionsWidget.ui
     dialogs/MarkDialog.ui
     dialogs/ProfileDirectivesDialog.ui
+    dialogs/RegisterProfileDialog.ui
+    dialogs/EditRegProfileDialog.ui
 )
 set(QRC_FILES
     resources.qrc

@@ -29,6 +29,14 @@ private slots:
     void setRegisterGrid();
     void openContextMenu(QPoint point, QString address);
 
+    /**
+     * @brief Opens the RegisterProfileDialog to view or edit register profile
+     *
+     * Updates Core with the new profile and saves the custom path to recent settings if the user
+     * accepts the changes
+     */
+    void configureRegProfileClicked();
+
 private:
     std::unique_ptr<Ui::RegistersWidget> ui;
     QGridLayout *registerLayout = new QGridLayout;
@@ -36,4 +44,5 @@ private:
     int numCols = 2;
     int registerLen = 0;
     RefreshDeferrer *refreshDeferrer;
+    QString currProfilePath;
 };

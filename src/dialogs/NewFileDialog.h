@@ -31,6 +31,7 @@ private slots:
 
     void on_recentsListWidget_itemClicked(QListWidgetItem *item);
     void on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item);
+    void on_recentsListWidget_currentItemChanged(QListWidgetItem *current);
 
     void on_projectFileEdit_textChanged();
     void on_projectsListWidget_itemClicked(QListWidgetItem *item);
@@ -68,6 +69,11 @@ private:
     void loadFile(const QString &filename);
     void loadProject(const QString &project);
     void loadShellcode(const QString &shellcode, const int size);
+    /**
+     * @brief Updates IO plugin and file path based on the selected recent item
+     * @param item The list item containing the IO mode and file path in its UserRole data
+     */
+    void updateSelectionFromItem(QListWidgetItem *item);
 
     bool eventFilter(QObject *obj, QEvent *event);
 

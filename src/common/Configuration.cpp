@@ -893,6 +893,32 @@ void Configuration::addRecentProject(QString file)
     setRecentProjects(files);
 }
 
+QStringList Configuration::getRecentRegProfiles() const
+{
+    return s.value("recentRegProfilesList").toStringList();
+}
+
+void Configuration::setRecentRegProfiles(const QStringList &list)
+{
+    s.setValue("recentRegProfilesList", list);
+}
+
+void Configuration::addRecentRegProfile(const QString &profile)
+{
+    QStringList recentProfiles = getRecentRegProfiles();
+    recentProfiles.removeAll(profile);
+    recentProfiles.prepend(profile);
+    setRecentRegProfiles(recentProfiles);
+}
+
+void Configuration::removeRecentRegProfile(const QString &profile)
+{
+
+    QStringList recentProfiles = getRecentRegProfiles();
+    recentProfiles.removeAll(profile);
+    setRecentRegProfiles(recentProfiles);
+}
+
 QString Configuration::getFunctionsWidgetLayout()
 {
     return s.value("functionsWidgetLayout").toString();

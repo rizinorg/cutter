@@ -13,26 +13,85 @@
   <property name="windowTitle">
    <string>Registers</string>
   </property>
-  <widget class="QScrollArea" name="scrollArea">
-  <property name="widgetResizable">
-  <bool>true</bool>
-  </property>
-  <widget class="QWidget" name="dockWidgetContents">
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <property name="spacing">
-       <number>10</number>
+  <widget class="QWidget" name="mainContainer">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="margin" stdset="0">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QScrollArea" name="scrollArea">
+      <property name="frameShape">
+       <enum>QFrame::Shape::NoFrame</enum>
       </property>
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="dockWidgetContents">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>463</width>
+         <height>248</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="spacing">
+         <number>10</number>
+        </property>
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="regProfileLayout">
       <property name="leftMargin">
        <number>6</number>
       </property>
       <property name="topMargin">
-       <number>6</number>
+       <number>4</number>
       </property>
       <property name="rightMargin">
        <number>6</number>
       </property>
+      <property name="bottomMargin">
+       <number>4</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="configureProfileBtn">
+        <property name="text">
+         <string>Configure Register Profile</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
      </layout>
-  </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

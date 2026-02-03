@@ -1,6 +1,7 @@
 #include "RegistersWidget.h"
 #include "ui_RegistersWidget.h"
 #include "common/JsonModel.h"
+#include "dialogs/RegisterProfileDialog.h"
 
 #include "core/MainWindow.h"
 
@@ -22,6 +23,8 @@ RegistersWidget::RegistersWidget(MainWindow *main)
 
     connect(Core(), &CutterCore::refreshAll, this, &RegistersWidget::updateContents);
     connect(Core(), &CutterCore::registersChanged, this, &RegistersWidget::updateContents);
+    connect(ui->configureProfileBtn, &QPushButton::clicked, this,
+            &RegistersWidget::configureRegProfileClicked);
 
     // Hide shortcuts because there is no way of selecting an item and triger them
     for (auto &action : addressContextMenu.actions()) {
@@ -115,4 +118,23 @@ void RegistersWidget::openContextMenu(QPoint point, QString address)
 {
     addressContextMenu.setTarget(address.toULongLong(nullptr, 16));
     addressContextMenu.exec(point);
+}
+
+void RegistersWidget::configureRegProfileClicked()
+{
+    RegisterProfileDialog dialog(this);
+    dialog.setProfileData(Core()->getRegisterProfile());
+    dialog.setProfilePath(currProfilePath);
+    dialog.fillProfilePaths(Config()->getRecentRegProfiles());
+
+    if (dialog.exec() != QDialog::Accepted) {
+        return;
+    }
+
+    Core()->setRegisterProfile(dialog.getProfileData());
+    currProfilePath = dialog.getProfilePath();
+
+    if (dialog.getLoadedProfile() != RegisterProfile::Default) {
+        Config()->addRecentRegProfile(dialog.getSerializedProfilePath());
+    }
 }
