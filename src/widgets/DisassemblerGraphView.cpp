@@ -932,6 +932,10 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
 {
     Q_UNUSED(event);
 
+    if (!highlight_token) {
+        return;
+    }
+
     Instr *instr = getInstrForMouseEvent(block, &pos);
     if (!instr) {
         return;
