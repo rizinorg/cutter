@@ -93,6 +93,7 @@ private:
     RVA readCurrentDisassemblyOffset();
     bool eventFilter(QObject *obj, QEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
     QString getWindowTitle() const override;
 
     int topOffsetHistoryPos = 0;

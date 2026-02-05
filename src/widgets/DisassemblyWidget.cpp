@@ -690,6 +690,17 @@ void DisassemblyWidget::keyPressEvent(QKeyEvent *event)
     MemoryDockWidget::keyPressEvent(event);
 }
 
+void DisassemblyWidget::contextMenuEvent(QContextMenuEvent *event)
+{
+    if (event->reason() == QContextMenuEvent::Keyboard) {
+        showDisasContextMenu(event->pos());
+        event->accept();
+        return;
+    }
+
+    MemoryDockWidget::contextMenuEvent(event);
+}
+
 QString DisassemblyWidget::getWindowTitle() const
 {
     return tr("Disassembly");

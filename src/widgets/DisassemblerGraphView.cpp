@@ -899,9 +899,17 @@ void DisassemblerGraphView::blockContextMenuRequested(GraphView::GraphBlock &blo
 
 void DisassemblerGraphView::contextMenuEvent(QContextMenuEvent *event)
 {
+    if (event->reason() == QContextMenuEvent::Keyboard) {
+        auto *db = blockForAddress(seekable->getOffset());
+        if (db) {
+            auto gb = blocks[db->entry];
+            blockContextMenuRequested(gb, event, QPoint());
+            return;
+        }
+    }
+
     GraphView::contextMenuEvent(event);
     if (!event->isAccepted()) {
-        // TODO: handle opening block menu using keyboard
         contextMenu->exec(event->globalPos());
         event->accept();
     }
