@@ -736,6 +736,8 @@ void DisassemblyWidget::on_seekChanged(RVA offset, CutterCore::SeekHistoryType t
         refreshDisasm(topOffsetHistory[topOffsetHistoryPos]);
     }
     mCtxMenu->setOffset(offset);
+    // after seek it will select curret instruction and updates renaming options
+    mCtxMenu->setCurHighlightedWord(curHighlightedWord);
 }
 
 void DisassemblyWidget::fontsUpdatedSlot()
