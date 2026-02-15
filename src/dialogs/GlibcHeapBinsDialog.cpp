@@ -190,7 +190,7 @@ QVariant BinsModel::headerData(int section, Qt::Orientation orientation, int rol
 void BinsModel::clearData()
 {
     for (auto item : values) {
-        rz_heap_bin_free_64(item);
+        rz_heap_bin_free(item);
     }
 }
 
