@@ -84,8 +84,7 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     ui->cmtcolSpinBox->blockSignals(false);
     ui->cmtcolSpinBox->setEnabled(cmtRightEnabled);
 
-    bool offsetsEnabled =
-            Config()->getConfigBool("asm.offset") || Config()->getConfigBool("graph.offset");
+    bool offsetsEnabled = Config()->getConfigBool("asm.offset");
     ui->relOffsetLabel->setEnabled(offsetsEnabled);
     ui->relOffsetCheckBox->setEnabled(offsetsEnabled);
     ui->relOffFlagsCheckBox->setEnabled(Config()->getConfigBool("asm.offset")
@@ -296,8 +295,8 @@ void AsmOptionsWidget::asmComboBoxChanged(int index)
 
 void AsmOptionsWidget::offsetCheckBoxToggled(bool checked)
 {
-    ui->relOffsetLabel->setEnabled(checked || Config()->getConfigBool("graph.offset"));
-    ui->relOffsetCheckBox->setEnabled(checked || Config()->getConfigBool("graph.offset"));
+    ui->relOffsetLabel->setEnabled(checked);
+    ui->relOffsetCheckBox->setEnabled(checked);
     ui->relOffFlagsCheckBox->setEnabled(checked && Config()->getConfigBool("asm.reloff"));
 }
 
