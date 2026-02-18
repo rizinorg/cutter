@@ -200,7 +200,6 @@ ColorPicker::ColorPicker(QWidget *parent)
 ColorPicker::~ColorPicker()
 {
     if (pickingFromScreen) {
-        setColor(getColorAtMouse());
         stopPickingFromScreen();
     }
 }
@@ -288,6 +287,8 @@ void ColorPicker::startPickingFromScreen()
         setMouseTracking(true);
         pickingFromScreen = true;
         bufferColor = currColor;
+        grabMouse();
+        QGuiApplication::setOverrideCursor(Qt::CrossCursor);
     }
 }
 
@@ -297,6 +298,8 @@ void ColorPicker::mouseReleaseEvent(QMouseEvent *event)
         setColor(getColorAtMouse());
         pickingFromScreen = false;
         setMouseTracking(false);
+        releaseMouse();
+        QGuiApplication::restoreOverrideCursor();
     }
     QWidget::mouseReleaseEvent(event);
 }
@@ -351,6 +354,7 @@ void ColorPicker::stopPickingFromScreen()
         updateColor(bufferColor);
         releaseMouse();
         setMouseTracking(false);
+        QGuiApplication::restoreOverrideCursor();
     }
 }
 

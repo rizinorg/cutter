@@ -1,6 +1,7 @@
 
 #include "SelectionHighlight.h"
 #include "Configuration.h"
+#include "Colors.h"
 
 #include <QList>
 #include <QTextEdit>
@@ -15,7 +16,15 @@ QList<QTextEdit::ExtraSelection> createSameWordsSelections(QPlainTextEdit *textE
     QList<QTextEdit::ExtraSelection> selections;
     QTextEdit::ExtraSelection highlightSelection;
     QTextDocument *document = textEdit->document();
-    QColor highlightWordColor = ConfigColor("wordHighlight");
+    QColor highlightWordBgColor = ConfigColor("wordHighlightBg");
+    QColor highlightWordFgColor = ConfigColor("wordHighlightFg");
+
+    auto applyHighlight = [&] {
+        QColor originalColor = highlightSelection.cursor.charFormat().foreground().color();
+        highlightSelection.format.setForeground(
+                Colors::overlayColor(originalColor, highlightWordFgColor));
+        highlightSelection.format.setBackground(highlightWordBgColor);
+    };
 
     if (word.isEmpty()) {
         return QList<QTextEdit::ExtraSelection>();
@@ -49,7 +58,7 @@ QList<QTextEdit::ExtraSelection> createSameWordsSelections(QPlainTextEdit *textE
                     val--;
                 }
                 if (val == 0) {
-                    highlightSelection.format.setBackground(highlightWordColor);
+                    applyHighlight();
                     selections.append(highlightSelection);
                     break;
                 }
@@ -65,8 +74,7 @@ QList<QTextEdit::ExtraSelection> createSameWordsSelections(QPlainTextEdit *textE
                 document->find(word, highlightSelection.cursor, QTextDocument::FindWholeWords);
 
         if (!highlightSelection.cursor.isNull()) {
-            highlightSelection.format.setBackground(highlightWordColor);
-
+            applyHighlight();
             selections.append(highlightSelection);
         }
     }

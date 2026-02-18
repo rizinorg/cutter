@@ -11,14 +11,19 @@
 #include "common/Configuration.h"
 
 const QStringList ColorThemeWorker::cutterSpecificOptions = {
-    "wordHighlight",      "lineHighlight",       "gui.main",
-    "gui.imports",        "highlightPC",         "gui.navbar.err",
-    "gui.navbar.seek",    "gui.navbar.pc",       "gui.navbar.sym",
-    "gui.dataoffset",     "gui.navbar.code",     "gui.navbar.empty",
-    "angui.navbar.str",   "gui.disass_selected", "gui.breakpoint_background",
-    "gui.overview.node",  "gui.overview.fill",   "gui.overview.border",
-    "gui.border",         "gui.background",      "gui.alt_background",
-    "gui.disass_selected"
+    "wordHighlightBg",       "wordHighlightFg",
+    "lineHighlight",         "gui.main",
+    "gui.imports",           "highlightPC",
+    "gui.navbar.err",        "gui.navbar.seek",
+    "gui.navbar.pc",         "gui.navbar.sym",
+    "gui.dataoffset",        "gui.navbar.code",
+    "gui.navbar.unexplored", "gui.navbar.str",
+    "gui.navbar.import",     "gui.navbar.signature",
+    "gui.navbar.data",       "gui.breakpoint_background",
+    "gui.overview.node",     "gui.overview.fill",
+    "gui.overview.border",   "gui.border",
+    "gui.background",        "gui.alt_background",
+    "gui.disass_selected",
 };
 
 const QStringList ColorThemeWorker::rizinUnusedOptions = {

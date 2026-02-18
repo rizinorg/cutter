@@ -18,8 +18,8 @@ ColorThemeEditDialog::ColorThemeEditDialog(QWidget *parent)
               Config()), // Blocks signals from Config to avoid updating of widgets during editing
       colorTheme(Config()->getColorTheme())
 {
-    showAlphaOptions = { "gui.overview.border", "gui.overview.fill", "wordHighlight",
-                         "lineHighlight" };
+    showAlphaOptions = { "gui.overview.border", "gui.overview.fill", "wordHighlightBg",
+                         "wordHighlightFg", "lineHighlight" };
     ui->setupUi(this);
     ui->colorComboBox->setShowOnlyCustom(true);
 

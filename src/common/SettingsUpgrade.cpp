@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QMessageBox>
 
+#include "Configuration.h"
 #include "common/ColorThemeWorker.h"
 
 /**
@@ -188,7 +189,7 @@ void Cutter::initializeSettings()
     settings.setValue(CUTTER_SETTINGS_VERSION_KEY, CUTTER_SETTINGS_VERSION_CURRENT);
 }
 
-#define THEME_VERSION_CURRENT 1
+#define THEME_VERSION_CURRENT 2
 #define THEME_VERSION_KEY "theme_version"
 
 static void removeObsoleteOptionsFromCustomThemes()
@@ -210,14 +211,82 @@ static void removeObsoleteOptionsFromCustomThemes()
     }
 }
 
+static void syncCustomThemes()
+{
+    const QStringList options = Core()->getThemeKeys() << ColorThemeWorker::cutterSpecificOptions;
+    QStringList themes = Core()->getColorThemes();
+    ColorThemeWorker::Theme lightTheme = ThemeWorker().getTheme("cutter"); // default light theme
+    ColorThemeWorker::Theme darkTheme = ThemeWorker().getTheme("ayu"); // default dark theme
+
+    // note that there was no entry for angui.navbar.str (as it is a typo) so the
+    // default color for it will most likely be black instead of the color defined
+    // in config, unless changed by the user
+    QHash<QString, QString> renames = {
+        { "angui.navbar.str", "gui.navbar.str" },
+        { "wordHighlight", "wordHighlightBg" },
+        { "gui.navbar.empty", "gui.navbar.unexplored" },
+    };
+    const QStringList forceDefaultKeys = { "gui.navbar.signature", "gui.navbar.data" };
+
+    for (const auto &themeName : themes) {
+        if (!ThemeWorker().isCustomTheme(themeName)) {
+            continue;
+        }
+
+        ColorThemeWorker::Theme originalTheme = ThemeWorker().getTheme(themeName);
+        ColorThemeWorker::Theme updatedTheme;
+
+        for (auto it = renames.begin(); it != renames.end(); ++it) {
+            if (originalTheme.contains(it.key())) {
+                updatedTheme.insert(it.value(), originalTheme.value(it.key()));
+            }
+        }
+
+        QColor bg = originalTheme.value("gui.background", QColor(Qt::white));
+        const QStringList renameValues = renames.values();
+        for (const auto &option : options) {
+            if (renameValues.contains(option)) {
+                continue;
+            }
+            if (originalTheme.contains(option) && !forceDefaultKeys.contains(option)) {
+                updatedTheme.insert(option, originalTheme.value(option));
+            } else {
+                QColor color =
+                        bg.lightness() > 128 ? lightTheme.value(option) : darkTheme.value(option);
+                updatedTheme.insert(option, color);
+            }
+        }
+
+        ThemeWorker().save(updatedTheme, themeName);
+        if (Config()->getColorTheme() == themeName) {
+            Config()->setColorTheme(themeName);
+        }
+    }
+}
+
 void Cutter::migrateThemes()
 {
     QSettings settings;
     int themeVersion = settings.value(THEME_VERSION_KEY, 0).toInt();
-    if (themeVersion != THEME_VERSION_CURRENT) {
-        removeObsoleteOptionsFromCustomThemes();
-        settings.setValue(THEME_VERSION_KEY, THEME_VERSION_CURRENT);
+    if (themeVersion >= THEME_VERSION_CURRENT) {
+        qWarning() << "Themes have a higher version than current! Skipping migration.";
+        return;
     }
+    for (int v = themeVersion + 1; v <= THEME_VERSION_CURRENT; v++) {
+        qInfo() << "Migrating Themes to Version" << v;
+        switch (v) {
+        case 1:
+            removeObsoleteOptionsFromCustomThemes();
+            break;
+        case 2:
+            syncCustomThemes();
+            break;
+        default:
+            break;
+        }
+    }
+
+    settings.setValue(THEME_VERSION_KEY, THEME_VERSION_CURRENT);
 }
 
 static const char PRE_RIZIN_ORG[] = "RadareOrg";

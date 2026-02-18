@@ -97,3 +97,20 @@ QString Colors::getColor(ut64 type)
         return "invalid";
     }
 }
+
+QColor Colors::overlayColor(const QColor &base, const QColor &overlay)
+{
+    int alpha = overlay.alpha();
+    if (alpha == 255) {
+        return overlay;
+    }
+    if (alpha == 0) {
+        return base;
+    }
+
+    int r = (overlay.red() * alpha + base.red() * (255 - alpha)) / 255;
+    int g = (overlay.green() * alpha + base.green() * (255 - alpha)) / 255;
+    int b = (overlay.blue() * alpha + base.blue() * (255 - alpha)) / 255;
+
+    return QColor(r, g, b);
+}
