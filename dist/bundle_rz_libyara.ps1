@@ -11,6 +11,7 @@ cd rz_libyara
 & meson.exe --buildtype=release --prefix=$dist -Duse_sys_yara=disabled -Denable_openssl=false build
 ninja -C build install
 $pathdll = "$dist\lib\rizin\plugins\rz_yara.dll"
+$ErrorActionPreference = 'Stop'
 if(![System.IO.File]::Exists($pathdll)) {
     type build/meson-logs/meson-log.txt
     ls "$dist\lib\rizin\plugins\"
