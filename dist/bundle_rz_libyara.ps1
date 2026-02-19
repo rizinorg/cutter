@@ -12,6 +12,7 @@ cd rz_libyara
 ninja -C build install
 $pathdll = "$dist\lib\rizin\plugins\rz_yara.dll"
 $ErrorActionPreference = 'Stop'
+$PSNativeCommandUseErrorActionPreference = $true
 if(![System.IO.File]::Exists($pathdll)) {
     type build/meson-logs/meson-log.txt
     ls "$dist\lib\rizin\plugins\"
