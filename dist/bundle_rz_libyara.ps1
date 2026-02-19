@@ -11,8 +11,6 @@ cd rz_libyara
 & meson.exe --buildtype=release --prefix=$dist -Duse_sys_yara=disabled -Denable_openssl=false build
 ninja -C build install
 $pathdll = "$dist\lib\rizin\plugins\rz_yara.dll"
-$ErrorActionPreference = 'Stop'
-$PSNativeCommandUseErrorActionPreference = $true
 if(![System.IO.File]::Exists($pathdll)) {
     type build/meson-logs/meson-log.txt
     ls "$dist\lib\rizin\plugins\"
@@ -26,3 +24,14 @@ cd build
 cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DRIZIN_INSTALL_PLUGDIR="../build" -DCMAKE_INSTALL_PREFIX="$dist" $cmake_opts ..
 ninja
 ninja install
+
+$ErrorActionPreference = 'Stop'
+
+$plugin_path = "$dist\plugins\native\"
+$pathdll = "$plugin_path\cutter_yara_plugin.dll"
+
+if(![System.IO.File]::Exists($pathdll)) {
+    echo "files: $plugin_path"
+    ls "$plugin_path"
+    throw (New-Object System.IO.FileNotFoundException("File not found: $pathdll", $pathdll))
+}
