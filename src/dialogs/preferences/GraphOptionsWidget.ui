@@ -36,13 +36,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="graphOffsetCheckBox">
-          <property name="text">
-           <string>Show offset for each instruction (graph.offset)</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QCheckBox" name="graphPreviewCheckBox">
           <property name="text">
            <string>Show preview when hovering (graph.preview)</string>
@@ -262,7 +255,6 @@
  </widget>
  <tabstops>
   <tabstop>blockEntryCheckBox</tabstop>
-  <tabstop>graphOffsetCheckBox</tabstop>
   <tabstop>maxColsSpinBox</tabstop>
   <tabstop>horizontalBlockSpacing</tabstop>
   <tabstop>verticalBlockSpacing</tabstop>

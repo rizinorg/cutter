@@ -2,20 +2,9 @@
 #define DISASSEMBLYPREVIEW_H
 
 #include <QTextBlockUserData>
-
 #include "core/CutterDescriptions.h"
 
 class QWidget;
-
-class DisassemblyTextBlockUserData : public QTextBlockUserData
-{
-public:
-    DisassemblyLine line;
-
-    explicit DisassemblyTextBlockUserData(const DisassemblyLine &line);
-};
-
-DisassemblyTextBlockUserData *getUserData(const QTextBlock &block);
 
 /**
  * @brief Namespace to define relevant functions
@@ -34,13 +23,13 @@ QString getToolTipStyleSheet();
  * It works for GraphWidget and DisassemblyWidget
  * @return True if the tooltip is shown
  */
-bool showDisasPreview(QWidget *parent, const QPoint &pointOfEvent, const RVA offsetFrom);
+bool showDisasPreview(QWidget *parent, const QPoint &pointOfEvent, const RVA offsetFromk);
 
-/*!
- * @brief Reads the offset for the cursor position
- * @return The disassembly offset of the hovered asm text
+/**
+ * @brief Show a QToolTip that previews the disassembly at a specific address
+ * @return True if the tooltip is shown
  */
-RVA readDisassemblyOffset(QTextCursor tc);
+bool showDisasPreviewAt(QWidget *parent, const QPoint &pointOfEvent, const RVA offset);
 
 /**
  * @brief Show a QToolTip that shows the value of the highlighted register, variable, or memory

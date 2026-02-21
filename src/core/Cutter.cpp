@@ -4424,6 +4424,18 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
     return xrefList;
 }
 
+QString CutterCore::getXRefCommentAt(RVA offset)
+{
+    CORE_LOCK();
+    QString commentStr;
+    char *comment = rz_core_get_xref_comment(core, offset);
+    if (comment) {
+        commentStr = QString::fromUtf8(comment);
+    }
+    free(comment);
+    return commentStr;
+}
+
 void CutterCore::addGlobalVariable(RVA offset, QString name, QString typ)
 {
     name = sanitizeStringForCommand(name);

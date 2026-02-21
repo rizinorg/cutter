@@ -164,6 +164,7 @@ set(SOURCES
     dialogs/ProfileDirectivesDialog.cpp
     dialogs/RegisterProfileDialog.cpp
     dialogs/EditRegProfileDialog.cpp
+    common/DisassemblyHelper.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -337,6 +338,7 @@ set(HEADER_FILES
     dialogs/ProfileDirectivesDialog.h
     dialogs/RegisterProfileDialog.h
     dialogs/EditRegProfileDialog.h
+    common/DisassemblyHelper.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui

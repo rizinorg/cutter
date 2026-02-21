@@ -765,6 +765,12 @@ public:
      */
     XrefDescription getFirstXRefForVariable(const QString &variableName, RVA offset);
 
+    /**
+     * @brief Retrieves the auto-generated comment describing XRefs at a specific offset
+     * @return The XRef comment string, seperated by \n if it spans multiple lines
+     */
+    QString getXRefCommentAt(RVA offset);
+
     void handleREvent(int type, void *data);
 
     /* Signals related */

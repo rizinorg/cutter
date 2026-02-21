@@ -7,21 +7,6 @@
 #include <QToolTip>
 #include <QProcessEnvironment>
 
-DisassemblyTextBlockUserData::DisassemblyTextBlockUserData(const DisassemblyLine &line)
-    : line { line }
-{
-}
-
-DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
-{
-    QTextBlockUserData *userData = block.userData();
-    if (!userData) {
-        return nullptr;
-    }
-
-    return static_cast<DisassemblyTextBlockUserData *>(userData);
-}
-
 QString DisassemblyPreview::getToolTipStyleSheet()
 {
     return QString { "QToolTip { border-width: 1px; max-width: %1px;"
@@ -49,38 +34,30 @@ bool DisassemblyPreview::showDisasPreview(QWidget *parent, const QPoint &pointOf
          * on *and* the former is a valid offset, we are allowed to get a preview of offsetTo
          */
         if (offsetTo != offsetFrom && offsetTo != RVA_INVALID) {
-            QStringList disasmPreview = Core()->getDisassemblyPreview(offsetTo, 10);
-
-            // Last check to make sure the returned preview isn't an empty text (QStringList)
-            if (!disasmPreview.isEmpty()) {
-                const QFont &fnt = Config()->getFont();
-
-                QFontMetrics fm { fnt };
-
-                QString tooltip =
-                        QString { "<html><div style=\"font-family: %1; font-size: %2pt; "
-                                  "white-space: nowrap;\"><div style=\"margin-bottom: "
-                                  "10px;\"><strong>Disassembly Preview</strong>:<br>%3<div>" }
-                                .arg(fnt.family())
-                                .arg(qMax(8, fnt.pointSize() - 1))
-                                .arg(disasmPreview.join("<br>"));
-
-                QToolTip::showText(pointOfEvent, tooltip, parent, QRect {}, 3500);
-                return true;
-            }
+            return showDisasPreviewAt(parent, pointOfEvent, offsetTo);
         }
     }
     return false;
 }
 
-RVA DisassemblyPreview::readDisassemblyOffset(QTextCursor tc)
+bool DisassemblyPreview::showDisasPreviewAt(QWidget *parent, const QPoint &pointOfEvent,
+                                            const RVA offset)
 {
-    auto userData = getUserData(tc.block());
-    if (!userData) {
-        return RVA_INVALID;
+    QStringList disasmPreview = Core()->getDisassemblyPreview(offset, 10);
+    if (!disasmPreview.isEmpty()) {
+        const QFont &fnt = Config()->getFont();
+        QString tooltip = QString { "<html><div style=\"font-family: %1; font-size: %2pt; "
+                                    "white-space: nowrap;\"><div style=\"margin-bottom: "
+                                    "10px;\"><strong>Disassembly Preview</strong>:<br>%3<div>" }
+                                  .arg(fnt.family())
+                                  .arg(qMax(8, fnt.pointSize() - 1))
+                                  .arg(disasmPreview.join("<br>"));
+
+        QToolTip::showText(pointOfEvent, tooltip, parent, QRect {}, 3500);
+        return true;
     }
 
-    return userData->line.offset;
+    return false;
 }
 
 typedef struct mmio_lookup_context

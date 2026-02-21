@@ -149,8 +149,7 @@ static const QHash<QString, QVariant> asmOptions = { { "asm.esil", false },
                                                      { "asm.reloff", false },
                                                      { "asm.reloff.flags", false },
                                                      { "esil.breakoninvalid", true },
-                                                     { "dbg.trace_continue", true },
-                                                     { "graph.offset", false } };
+                                                     { "dbg.trace_continue", true } };
 
 Configuration::Configuration() : QObject(), nativePalette(qApp->palette())
 {

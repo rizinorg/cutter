@@ -12,6 +12,7 @@
 #include "common/BasicInstructionHighlighter.h"
 #include "common/Helpers.h"
 #include "shortcuts/ShortcutManager.h"
+#include "common/DisassemblyHelper.h"
 
 #include <QColorDialog>
 #include <QPainter>
@@ -279,11 +280,8 @@ void DisassemblerGraphView::loadCurrentGraph()
         options.vec = vec.get();
         options.cbytes = 1;
 
-        bool asmOffset = Core()->getConfigb("asm.offset");
-        Core()->setConfig("asm.offset", Core()->getConfigb("graph.offset"));
         rz_core_print_disasm(core, bbi->addr, buf.get(), (int)bbi->size, (int)bbi->size, NULL,
                              &options);
-        Core()->setConfig("asm.offset", asmOffset);
 
         auto vecVisitor = CutterPVector<RzAnalysisDisasmText>(vec.get());
         auto iter = vecVisitor.begin();
@@ -565,12 +563,24 @@ bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
 
             // Don't preview anything for a small scale
             if (getViewScale() >= 0.8) {
-                if (Config()->getGraphPreview()
+                auto token = getToken(inst, pos.x());
+                bool hasPreview = Config()->getGraphPreview();
+                if (hasPreview && Core()->getConfigb("asm.xrefs")
+                    && DisassemblyHelper::isXRefFromComment(offsetFrom, inst->plainText)) {
+                    if (!token) {
+                        return true;
+                    }
+                    RVA xrefFrom = DisassemblyHelper::getXRefFromWord(offsetFrom, token->content);
+                    if (xrefFrom != RVA_INVALID) {
+                        DisassemblyPreview::showDisasPreviewAt(this, pointOfEvent, xrefFrom);
+                    }
+                    return true;
+                }
+                if (hasPreview
                     && DisassemblyPreview::showDisasPreview(this, pointOfEvent, offsetFrom)) {
                     return true;
                 }
                 if (Config()->getShowVarTooltips() && inst) {
-                    auto token = getToken(inst, pos.x());
                     if (token
                         && DisassemblyPreview::showDebugValueTooltip(this, pointOfEvent,
                                                                      token->content, offsetFrom)) {
@@ -955,13 +965,24 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
         return;
     }
 
+    RVA offset = getAddrForMouseEvent(block, &pos);
+
+    if (Core()->getConfigb("asm.xrefs")
+        && DisassemblyHelper::isXRefFromComment(offset, instr->plainText)) {
+        RVA xrefFrom = DisassemblyHelper::getXRefFromWord(offset, selectedText);
+        if (xrefFrom != RVA_INVALID) {
+            seekable->seek(xrefFrom);
+        }
+        return;
+    }
+
     XrefDescription firstXref = Core()->getFirstXRefForVariable(selectedText, instr->addr);
     if (!firstXref.from_str.isEmpty() || !firstXref.to_str.isEmpty()) {
         seekable->seek(firstXref.from);
         return;
     }
 
-    seekable->seekToReference(getAddrForMouseEvent(block, &pos));
+    seekable->seekToReference(offset);
 }
 
 void DisassemblerGraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event,
