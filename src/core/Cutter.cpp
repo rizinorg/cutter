@@ -1766,13 +1766,13 @@ QVector<RzHeapBin *> CutterCore::getHeapBins(ut64 arena_addr)
     }
 
     // get small, large, unsorted bins
-    for (int i = 0; i <= NBINS - 2; i++) {
+    for (int i = 0; i <= RZ_GLIBC_NBINS - 2; i++) {
         RzHeapBin *bin = rz_heap_bin_content(core, arena, i, arena_addr);
         if (!bin) {
             continue;
         }
         if (!rz_list_length(bin->chunks)) {
-            rz_heap_bin_free_64(bin);
+            rz_heap_bin_free(bin);
             continue;
         }
         bins_vector.append(bin);
@@ -1784,7 +1784,7 @@ QVector<RzHeapBin *> CutterCore::getHeapBins(ut64 arena_addr)
             continue;
         }
         if (!rz_list_length(bin->chunks)) {
-            rz_heap_bin_free_64(bin);
+            rz_heap_bin_free(bin);
             continue;
         }
         bins_vector.append(bin);
@@ -1798,7 +1798,7 @@ QVector<RzHeapBin *> CutterCore::getHeapBins(ut64 arena_addr)
             continue;
         }
         if (!rz_list_length(bin->chunks)) {
-            rz_heap_bin_free_64(bin);
+            rz_heap_bin_free(bin);
             continue;
         }
         bins_vector.append(bin);

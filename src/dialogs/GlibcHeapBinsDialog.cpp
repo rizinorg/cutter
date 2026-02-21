@@ -168,7 +168,7 @@ QVariant BinsModel::headerData(int section, Qt::Orientation orientation, int rol
     case Qt::ToolTipRole:
         switch (section) {
         case BinNumColumn:
-            return tr("Bin number in NBINS or fastbinsY array");
+            return tr("Bin number in RZ_GLIBC_NBINS or fastbinsY array");
         case FdColumn:
             return tr("Pointer to first chunk of the bin");
         case BkColumn:
@@ -190,7 +190,7 @@ QVariant BinsModel::headerData(int section, Qt::Orientation orientation, int rol
 void BinsModel::clearData()
 {
     for (auto item : values) {
-        rz_heap_bin_free_64(item);
+        rz_heap_bin_free(item);
     }
 }
 
