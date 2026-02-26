@@ -42,3 +42,47 @@ RVA DisassemblyHelper::readDisassemblyOffset(QTextCursor tc)
 
     return userData->line.offset;
 }
+
+DisassemblyHelper::TargetContext DisassemblyHelper::getContextFromCursor(QTextCursor tc)
+{
+    tc.select(QTextCursor::WordUnderCursor);
+    TargetContext ctx;
+    ctx.word = tc.selectedText();
+    ctx.line = tc.block().text();
+    ctx.offset = DisassemblyHelper::readDisassemblyOffset(tc);
+    return ctx;
+}
+
+DisassemblyHelper::TargetAction DisassemblyHelper::resolveTarget(const TargetContext &ctx,
+                                                                 TargetFilter filter)
+{
+    TargetAction res = { RVA_INVALID, TargetType::None };
+
+    if (filter == TargetFilter::All || filter == TargetFilter::XRefCommentOnly) {
+        // Xref comments need special handling to show preview for each caller offset
+        bool showXRefComments = Core()->getConfigb("asm.xrefs");
+        if (showXRefComments && isXRefFromComment(ctx.offset, ctx.line)) {
+            res.offset = getXRefFromWord(ctx.offset, ctx.word);
+            res.type = TargetType::XRefComment;
+            return res;
+        }
+    }
+
+    if (filter == TargetFilter::All) {
+        // check for local variables
+        XrefDescription xref = Core()->getFirstXRefForVariable(ctx.word, ctx.offset);
+        if (!xref.from_str.isEmpty() || !xref.to_str.isEmpty()) {
+            res.offset = xref.from;
+            res.type = TargetType::VariableName;
+            return res;
+        }
+
+        // check for types
+        if (Core()->typeExists(ctx.word)) {
+            res.type = TargetType::TypeName;
+            return res;
+        }
+    }
+
+    return res;
+}

@@ -131,3 +131,35 @@ bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &po
     // Else show preview for value?
     return false;
 }
+
+bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
+                                     const DisassemblyHelper::TargetContext &ctx, bool hasPreview)
+{
+    bool isWordEmpty = ctx.word.isEmpty();
+    if (hasPreview) {
+        if (!isWordEmpty) {
+            auto ta = DisassemblyHelper::resolveTarget(
+                    ctx, DisassemblyHelper::TargetFilter::XRefCommentOnly);
+            if (ta.type == DisassemblyHelper::TargetType::XRefComment) {
+                if (ta.offset != RVA_INVALID) {
+                    showDisasPreviewAt(parent, globalPos, ta.offset);
+                }
+                // consume the event even if the text under cursor is not an address, this prevents
+                // jumping to incorrect offset (offset pointed to by the next instruction line)
+                // when double clicking on auto generated XREF comment
+                return true;
+            }
+        }
+
+        if (showDisasPreview(parent, globalPos, ctx.offset)) {
+            return true;
+        }
+    }
+
+    if (Config()->getShowVarTooltips() && !isWordEmpty
+        && showDebugValueTooltip(parent, globalPos, ctx.word, ctx.offset)) {
+        return true;
+    }
+
+    return false;
+}

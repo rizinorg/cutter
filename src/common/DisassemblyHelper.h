@@ -22,6 +22,43 @@ public:
  */
 namespace DisassemblyHelper {
 
+/**
+ * @brief Identifies what kind of item was clicked or hovered
+ */
+enum class TargetType {
+    VariableName,
+    TypeName,
+    XRefComment,
+    None,
+};
+
+/**
+ * @brief Data used to figure out what is under the mouse
+ */
+struct TargetContext
+{
+    RVA offset;
+    QString word;
+    QString line;
+};
+
+/**
+ * @brief What was found after checking the context
+ */
+struct TargetAction
+{
+    RVA offset;
+    TargetType type;
+};
+
+/**
+ * @brief Filter to control how deep the search goes
+ */
+enum class TargetFilter {
+    All,
+    XRefCommentOnly,
+};
+
 DisassemblyTextBlockUserData *getUserData(const QTextBlock &block);
 
 /**
@@ -46,6 +83,20 @@ bool isXRefFromComment(RVA offset, const QString &line);
  */
 RVA readDisassemblyOffset(QTextCursor tc);
 
+/**
+ * @brief Gets the text and address at the current cursor position
+ * @param tc The cursor to check
+ * @return TargetContext containing info about the offset, word and line at the cursor
+ */
+TargetContext getContextFromCursor(QTextCursor tc);
+
+/**
+ * @brief Identifies what a context points to (like a variable or type)
+ * @param ctx The context found at the cursor
+ * @param filter Limits what kind of items to look for
+ * @return The result containing the address and type found
+ */
+TargetAction resolveTarget(const TargetContext &ctx, TargetFilter filter = TargetFilter::All);
 }
 
 #endif // DISASSEMBLYHELPER_H

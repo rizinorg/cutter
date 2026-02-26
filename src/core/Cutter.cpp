@@ -3983,15 +3983,10 @@ QString CutterCore::getTypeAsC(QString name)
     return result;
 }
 
-bool CutterCore::isValidTypeName(const QString &typeName)
+bool CutterCore::typeExists(const QString &typeName)
 {
-    const auto &types = getAllTypes();
-    for (const auto &t : types) {
-        if (t.type == typeName) {
-            return true;
-        }
-    }
-    return false;
+    CORE_LOCK();
+    return rz_type_exists(core->analysis->typedb, typeName.toUtf8().constData());
 }
 
 bool CutterCore::isAddressMapped(RVA addr)

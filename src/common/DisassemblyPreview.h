@@ -3,6 +3,7 @@
 
 #include <QTextBlockUserData>
 #include "core/CutterDescriptions.h"
+#include "DisassemblyHelper.h"
 
 class QWidget;
 
@@ -38,5 +39,15 @@ bool showDisasPreviewAt(QWidget *parent, const QPoint &pointOfEvent, const RVA o
 bool showDebugValueTooltip(QWidget *parent, const QPoint &pointOfEvent, const QString &selectedText,
                            const RVA offset);
 
+/**
+ * @brief Displays a tooltip or preview window based on the item under the cursor
+ * @param parent The widget that owns and positions the tooltip
+ * @param globalPos The screen position where the tooltip should appear
+ * @param ctx The context identifying the word and address under the mouse
+ * @param hasPreview The config value indicating whether preview should be shown for the widget
+ * @return True if a tooltip was shown or the event was handled, false otherwise
+ */
+bool showTooltip(QWidget *parent, const QPoint &globalPos,
+                 const DisassemblyHelper::TargetContext &ctx, bool hasPreview);
 }
 #endif

@@ -703,11 +703,11 @@ public:
     QString getTypeAsC(QString name);
 
     /**
-     * @brief Check if a type name exists
+     * @brief Check if a type exists using its name
      * @param typeName Name of the type to validate
      * @return true if the type exists, false otherwise
      */
-    bool isValidTypeName(const QString &typeName);
+    bool typeExists(const QString &typeName);
 
     /**
      * @brief Highlight a specific type in the Types widget

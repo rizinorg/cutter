@@ -542,7 +542,6 @@ bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
         && event->type() == QEvent::Type::ToolTip) {
 
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
-        QPoint pointOfEvent = helpEvent->globalPos();
         QPoint point = viewToLogicalCoordinates(helpEvent->pos());
 
         if (auto block = getBlockContaining(point)) {
@@ -564,28 +563,13 @@ bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
             // Don't preview anything for a small scale
             if (getViewScale() >= 0.8) {
                 auto token = getToken(inst, pos.x());
-                bool hasPreview = Config()->getGraphPreview();
-                if (hasPreview && Core()->getConfigb("asm.xrefs")
-                    && DisassemblyHelper::isXRefFromComment(offsetFrom, inst->plainText)) {
-                    if (!token) {
-                        return true;
-                    }
-                    RVA xrefFrom = DisassemblyHelper::getXRefFromWord(offsetFrom, token->content);
-                    if (xrefFrom != RVA_INVALID) {
-                        DisassemblyPreview::showDisasPreviewAt(this, pointOfEvent, xrefFrom);
-                    }
+                DisassemblyHelper::TargetContext ctx;
+                ctx.offset = offsetFrom;
+                ctx.word = token ? token->content : QString();
+                ctx.line = inst->plainText;
+                if (DisassemblyPreview::showTooltip(this, helpEvent->globalPos(), ctx,
+                                                    Config()->getGraphPreview())) {
                     return true;
-                }
-                if (hasPreview
-                    && DisassemblyPreview::showDisasPreview(this, pointOfEvent, offsetFrom)) {
-                    return true;
-                }
-                if (Config()->getShowVarTooltips() && inst) {
-                    if (token
-                        && DisassemblyPreview::showDebugValueTooltip(this, pointOfEvent,
-                                                                     token->content, offsetFrom)) {
-                        return true;
-                    }
                 }
             }
         }
@@ -950,39 +934,31 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
 {
     Q_UNUSED(event);
 
-    if (!highlight_token) {
-        return;
-    }
-
     Instr *instr = getInstrForMouseEvent(block, &pos);
     if (!instr) {
         return;
     }
 
-    QString selectedText = highlight_token->content;
-    if (Core()->isValidTypeName(selectedText)) {
-        Core()->showTypeInTypesWidget(selectedText);
-        return;
-    }
+    DisassemblyHelper::TargetContext ctx;
+    ctx.word = highlight_token ? highlight_token->content : QString();
+    ctx.line = instr->plainText;
+    ctx.offset = getAddrForMouseEvent(block, &pos);
 
-    RVA offset = getAddrForMouseEvent(block, &pos);
-
-    if (Core()->getConfigb("asm.xrefs")
-        && DisassemblyHelper::isXRefFromComment(offset, instr->plainText)) {
-        RVA xrefFrom = DisassemblyHelper::getXRefFromWord(offset, selectedText);
-        if (xrefFrom != RVA_INVALID) {
-            seekable->seek(xrefFrom);
+    DisassemblyHelper::TargetAction ta = DisassemblyHelper::resolveTarget(ctx);
+    switch (ta.type) {
+    case DisassemblyHelper::TargetType::TypeName:
+        Core()->showTypeInTypesWidget(ctx.word);
+        break;
+    case DisassemblyHelper::TargetType::XRefComment:
+    case DisassemblyHelper::TargetType::VariableName:
+        if (ta.offset != RVA_INVALID) {
+            seekable->seek(ta.offset);
         }
-        return;
+        break;
+    case DisassemblyHelper::TargetType::None:
+        seekable->seekToReference(ctx.offset);
+        break;
     }
-
-    XrefDescription firstXref = Core()->getFirstXRefForVariable(selectedText, instr->addr);
-    if (!firstXref.from_str.isEmpty() || !firstXref.to_str.isEmpty()) {
-        seekable->seek(firstXref.from);
-        return;
-    }
-
-    seekable->seekToReference(offset);
 }
 
 void DisassemblerGraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event,

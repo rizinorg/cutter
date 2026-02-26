@@ -639,70 +639,35 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
         if (mouseEvent->button() == Qt::LeftButton) {
-            QTextCursor cursor = mDisasTextEdit->cursorForPosition(mouseEvent->pos());
-            cursor.select(QTextCursor::WordUnderCursor);
+            auto ctx = DisassemblyHelper::getContextFromCursor(
+                    mDisasTextEdit->cursorForPosition(mouseEvent->pos()));
 
-            const QString selectedText = cursor.selectedText();
-
-            if (Core()->isValidTypeName(selectedText)) {
-                Core()->showTypeInTypesWidget(selectedText);
-                return true;
-            }
-
-            RVA offset = DisassemblyHelper::readDisassemblyOffset(cursor);
-
-            if (Core()->getConfigb("asm.xrefs")
-                && DisassemblyHelper::isXRefFromComment(offset, cursor.block().text())) {
-                RVA xrefFrom = DisassemblyHelper::getXRefFromWord(offset, selectedText);
-                if (xrefFrom != RVA_INVALID) {
-                    seekable->seek(xrefFrom);
+            DisassemblyHelper::TargetAction ta = DisassemblyHelper::resolveTarget(ctx);
+            switch (ta.type) {
+            case DisassemblyHelper::TargetType::TypeName:
+                Core()->showTypeInTypesWidget(ctx.word);
+                break;
+            case DisassemblyHelper::TargetType::XRefComment:
+            case DisassemblyHelper::TargetType::VariableName:
+                if (ta.offset != RVA_INVALID) {
+                    seekable->seek(ta.offset);
                 }
-                // consume the event even if the text under cursor is not an address, this prevents
-                // jumping to incorrect offset (offset pointed to by the next instruction line)
-                // when double clicking on auto generated XREF comment
-                return true;
+                break;
+            case DisassemblyHelper::TargetType::None:
+                seekable->seekToReference(ctx.offset);
+                break;
             }
-
-            XrefDescription firstXref = Core()->getFirstXRefForVariable(selectedText, offset);
-            if (!firstXref.from_str.isEmpty() || !firstXref.to_str.isEmpty()) {
-                seekable->seek(firstXref.from);
-                return true;
-            }
-
-            jumpToOffsetUnderCursor(cursor);
             return true;
         }
     } else if ((Config()->getPreviewValue() || Config()->getShowVarTooltips())
                && event->type() == QEvent::ToolTip && obj == mDisasTextEdit->viewport()) {
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
-        auto cursorForWord = mDisasTextEdit->cursorForPosition(helpEvent->pos());
-        cursorForWord.select(QTextCursor::WordUnderCursor);
 
-        RVA offsetFrom = DisassemblyHelper::readDisassemblyOffset(cursorForWord);
+        auto ctx = DisassemblyHelper::getContextFromCursor(
+                mDisasTextEdit->cursorForPosition(helpEvent->pos()));
 
-        const QPoint pointOfEvent = helpEvent->globalPos();
-        const QString word = cursorForWord.selectedText();
-        const QString line = cursorForWord.block().text().trimmed();
-
-        bool hasPreview = Config()->getPreviewValue();
-        if (hasPreview && Core()->getConfigb("asm.xrefs")
-            && DisassemblyHelper::isXRefFromComment(offsetFrom, line)) {
-            // Only show the tooltip if the text under cursor is an address when hovering over auto
-            // generated XRef comment, this will show the preview of the caller where this offset is
-            // called
-            RVA xrefFrom = DisassemblyHelper::getXRefFromWord(offsetFrom, word);
-            if (xrefFrom != RVA_INVALID) {
-                DisassemblyPreview::showDisasPreviewAt(this, pointOfEvent, xrefFrom);
-            }
-            return true;
-        }
-        if (hasPreview && DisassemblyPreview::showDisasPreview(this, pointOfEvent, offsetFrom)) {
-            return true;
-        }
-        if (Config()->getShowVarTooltips()
-            && DisassemblyPreview::showDebugValueTooltip(this, pointOfEvent, word, offsetFrom)) {
-            return true;
-        }
+        return DisassemblyPreview::showTooltip(this, helpEvent->globalPos(), ctx,
+                                               Config()->getPreviewValue());
     }
 
     return MemoryDockWidget::eventFilter(obj, event);
