@@ -7,6 +7,8 @@
 #include <QToolTip>
 #include <QProcessEnvironment>
 
+namespace DH = DisassemblyHelper;
+
 QString DisassemblyPreview::getToolTipStyleSheet()
 {
     return QString { "QToolTip { border-width: 1px; max-width: %1px;"
@@ -133,22 +135,24 @@ bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &po
 }
 
 bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
-                                     const DisassemblyHelper::TargetContext &ctx, bool hasPreview)
+                                     const DH::TargetContext &ctx, bool hasPreview)
 {
     bool isWordEmpty = ctx.word.isEmpty();
     if (hasPreview) {
-        if (!isWordEmpty) {
-            auto ta = DisassemblyHelper::resolveTarget(
-                    ctx, DisassemblyHelper::TargetFilter::XRefCommentOnly);
-            if (ta.type == DisassemblyHelper::TargetType::XRefComment) {
-                if (ta.offset != RVA_INVALID) {
-                    showDisasPreviewAt(parent, globalPos, ta.offset);
-                }
-                // consume the event even if the text under cursor is not an address, this prevents
-                // jumping to incorrect offset (offset pointed to by the next instruction line)
-                // when double clicking on auto generated XREF comment
-                return true;
+        auto ta = DH::resolveTarget(ctx, DH::XRefComments | DH::Arrows);
+
+        if (!isWordEmpty && ta.type == DH::TargetType::XRefComment) {
+            if (ta.offset != RVA_INVALID) {
+                showDisasPreviewAt(parent, globalPos, ta.offset);
             }
+            // consume the event even if the text under cursor is not an address, this prevents
+            // jumping to incorrect offset (offset pointed to by the next instruction line)
+            // when double clicking on auto generated XREF comment
+            return true;
+        }
+
+        if (ta.type == DH::TargetType::Arrow && showDisasPreviewAt(parent, globalPos, ta.offset)) {
+            return true;
         }
 
         if (showDisasPreview(parent, globalPos, ctx.offset)) {
@@ -162,14 +166,4 @@ bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
     }
 
     return false;
-}
-
-RVA DisassemblyPreview::readDisassemblyArrow(QTextCursor tc)
-{
-    auto userData = getUserData(tc.block());
-    if (!userData && userData->line.arrow != RVA_INVALID) {
-        return RVA_INVALID;
-    }
-
-    return userData->line.arrow;
 }

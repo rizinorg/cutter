@@ -29,6 +29,7 @@ enum class TargetType {
     VariableName,
     TypeName,
     XRefComment,
+    Arrow,
     None,
 };
 
@@ -38,6 +39,7 @@ enum class TargetType {
 struct TargetContext
 {
     RVA offset;
+    RVA arrow;
     QString word;
     QString line;
 };
@@ -54,9 +56,13 @@ struct TargetAction
 /**
  * @brief Filter to control how deep the search goes
  */
-enum class TargetFilter {
-    All,
-    XRefCommentOnly,
+enum TargetFilter {
+    XRefComments = 1 << 0,
+    Variables = 1 << 1,
+    Types = 1 << 2,
+    Arrows = 1 << 3,
+
+    All = XRefComments | Variables | Types | Arrows
 };
 
 DisassemblyTextBlockUserData *getUserData(const QTextBlock &block);
@@ -83,6 +89,12 @@ bool isXRefFromComment(RVA offset, const QString &line);
  */
 RVA readDisassemblyOffset(QTextCursor tc);
 
+/*!
+ * @brief Reads the arrow offset for the cursor position
+ * @return Offset the arrow points to
+ */
+RVA readDisassemblyArrow(QTextCursor tc);
+
 /**
  * @brief Gets the text and address at the current cursor position
  * @param tc The cursor to check
@@ -96,7 +108,7 @@ TargetContext getContextFromCursor(QTextCursor tc);
  * @param filter Limits what kind of items to look for
  * @return The result containing the address and type found
  */
-TargetAction resolveTarget(const TargetContext &ctx, TargetFilter filter = TargetFilter::All);
+TargetAction resolveTarget(const TargetContext &ctx, int filter = TargetFilter::All);
 }
 
 #endif // DISASSEMBLYHELPER_H

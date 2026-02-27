@@ -27,6 +27,8 @@
 #include <cmath>
 #include <cstring>
 
+namespace DH = DisassemblyHelper;
+
 DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     : MemoryDockWidget(MemoryWidgetType::Disassembly, main),
       mCtxMenu(new DisassemblyContextMenu(this, main)),
@@ -386,7 +388,7 @@ void DisassemblyWidget::highlightCurrentLine()
     highlightSelection.cursor = cursor;
     highlightSelection.cursor.movePosition(QTextCursor::Start);
     while (true) {
-        RVA lineOffset = DisassemblyHelper::readDisassemblyOffset(highlightSelection.cursor);
+        RVA lineOffset = DH::readDisassemblyOffset(highlightSelection.cursor);
         if (lineOffset == seekable->getOffset()) {
             highlightSelection.format.setBackground(highlightColor);
             highlightSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
@@ -421,7 +423,7 @@ void DisassemblyWidget::highlightPCLine()
     highlightSelection.cursor.movePosition(QTextCursor::Start);
     if (PCAddr != RVA_INVALID) {
         while (true) {
-            RVA lineOffset = DisassemblyHelper::readDisassemblyOffset(highlightSelection.cursor);
+            RVA lineOffset = DH::readDisassemblyOffset(highlightSelection.cursor);
             if (lineOffset == PCAddr) {
                 highlightSelection.format.setBackground(highlightPCColor);
                 highlightSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
@@ -454,7 +456,7 @@ void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
 RVA DisassemblyWidget::readCurrentDisassemblyOffset()
 {
     QTextCursor tc = mDisasTextEdit->textCursor();
-    return DisassemblyHelper::readDisassemblyOffset(tc);
+    return DH::readDisassemblyOffset(tc);
 }
 
 void DisassemblyWidget::updateCursorPosition()
@@ -481,7 +483,7 @@ void DisassemblyWidget::updateCursorPosition()
         cursor.movePosition(QTextCursor::Start);
 
         while (true) {
-            RVA lineOffset = DisassemblyHelper::readDisassemblyOffset(cursor);
+            RVA lineOffset = DH::readDisassemblyOffset(cursor);
             if (lineOffset == offset) {
                 if (cursorLineOffset > 0) {
                     cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor,
@@ -542,7 +544,7 @@ void DisassemblyWidget::cursorPositionChanged()
     cursorCharOffset = c.positionInBlock();
     while (c.blockNumber() > 0) {
         c.movePosition(QTextCursor::PreviousBlock);
-        if (DisassemblyHelper::readDisassemblyOffset(c) != offset) {
+        if (DH::readDisassemblyOffset(c) != offset) {
             break;
         }
         cursorLineOffset++;
@@ -628,18 +630,7 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 
 void DisassemblyWidget::jumpToOffsetUnderCursor(const QTextCursor &cursor)
 {
-<<<<<<< HEAD
-    RVA offset = DisassemblyHelper::readDisassemblyOffset(cursor);
-=======
-    // Handles "jmp" and conditonal jump instructions
-    RVA arrow = DisassemblyPreview::readDisassemblyArrow(cursor);
-    if (arrow != RVA_INVALID) {
-        seekable->seek(arrow);
-    }
-
-    // Handles "call" and "lea" instructions
-    RVA offset = DisassemblyPreview::readDisassemblyOffset(cursor);
->>>>>>> 5ed0f334 (Fix "return" key in disassembler widget (#3090))
+    RVA offset = DH::readDisassemblyOffset(cursor);
     seekable->seekToReference(offset);
 }
 
@@ -650,32 +641,32 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
         if (mouseEvent->button() == Qt::LeftButton) {
-            auto ctx = DisassemblyHelper::getContextFromCursor(
-                    mDisasTextEdit->cursorForPosition(mouseEvent->pos()));
+            auto ctx =
+                    DH::getContextFromCursor(mDisasTextEdit->cursorForPosition(mouseEvent->pos()));
 
-            DisassemblyHelper::TargetAction ta = DisassemblyHelper::resolveTarget(ctx);
+            DH::TargetAction ta = DH::resolveTarget(ctx);
             switch (ta.type) {
-            case DisassemblyHelper::TargetType::TypeName:
+            case DH::TargetType::TypeName:
                 Core()->showTypeInTypesWidget(ctx.word);
                 break;
-            case DisassemblyHelper::TargetType::XRefComment:
-            case DisassemblyHelper::TargetType::VariableName:
+            case DH::TargetType::XRefComment:
+            case DH::TargetType::VariableName:
+            case DH::TargetType::Arrow:
                 if (ta.offset != RVA_INVALID) {
                     seekable->seek(ta.offset);
                 }
                 break;
-            case DisassemblyHelper::TargetType::None:
+            case DH::TargetType::None:
                 seekable->seekToReference(ctx.offset);
                 break;
             }
             return true;
         }
-    } else if (Config()->getPreviewValue() && event->type() == QEvent::ToolTip
-               && obj == mDisasTextEdit->viewport()) {
+    } else if ((Config()->getPreviewValue() || Config()->getShowVarTooltips())
+               && event->type() == QEvent::ToolTip && obj == mDisasTextEdit->viewport()) {
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
 
-        auto ctx = DisassemblyHelper::getContextFromCursor(
-                mDisasTextEdit->cursorForPosition(helpEvent->pos()));
+        auto ctx = DH::getContextFromCursor(mDisasTextEdit->cursorForPosition(helpEvent->pos()));
 
         return DisassemblyPreview::showTooltip(this, helpEvent->globalPos(), ctx,
                                                Config()->getPreviewValue());
@@ -688,7 +679,12 @@ void DisassemblyWidget::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Return) {
         const QTextCursor cursor = mDisasTextEdit->textCursor();
-        jumpToOffsetUnderCursor(cursor);
+        auto ta = DH::resolveTarget(DH::getContextFromCursor(cursor), DH::TargetFilter::Arrows);
+        if (ta.type == DH::TargetType::Arrow) {
+            seekable->seek(ta.offset);
+        } else {
+            jumpToOffsetUnderCursor(cursor);
+        }
     }
 
     MemoryDockWidget::keyPressEvent(event);

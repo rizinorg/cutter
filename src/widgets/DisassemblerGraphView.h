@@ -140,6 +140,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
     void restoreCurrentBlock() override;
     bool eventFilter(QObject *obj, QEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     void showExportDialog() override;
@@ -173,6 +174,12 @@ private:
      * @return
      */
     QRectF getInstrRect(GraphView::GraphBlock &block, RVA addr) const;
+    /**
+     * @brief Get the true path address if the offset represents the last instruction of block
+     * @param offset Offset to check
+     * @return RVA Offset for true path
+     */
+    RVA getTruePathForOffset(RVA offset);
     void showInstruction(GraphView::GraphBlock &block, RVA addr);
     const Instr *instrForAddress(RVA addr);
     DisassemblyBlock *blockForAddress(RVA addr);

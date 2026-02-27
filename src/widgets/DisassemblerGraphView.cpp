@@ -32,6 +32,8 @@
 
 #include <cmath>
 
+namespace DH = DisassemblyHelper;
+
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable,
                                              MainWindow *mainWindow,
                                              QList<QAction *> additionalMenuActions)
@@ -563,10 +565,11 @@ bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
             // Don't preview anything for a small scale
             if (getViewScale() >= 0.8) {
                 auto token = getToken(inst, pos.x());
-                DisassemblyHelper::TargetContext ctx;
+                DH::TargetContext ctx;
                 ctx.offset = offsetFrom;
                 ctx.word = token ? token->content : QString();
                 ctx.line = inst->plainText;
+                ctx.arrow = getTruePathForOffset(offsetFrom);
                 if (DisassemblyPreview::showTooltip(this, helpEvent->globalPos(), ctx,
                                                     Config()->getGraphPreview())) {
                     return true;
@@ -575,6 +578,19 @@ bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
         }
     }
     return CutterGraphView::eventFilter(obj, event);
+}
+
+void DisassemblerGraphView::keyPressEvent(QKeyEvent *event)
+{
+    // pressing enter at last instruction of the block seeks to true path if valid
+    if (event->key() == Qt::Key_Return && seekable) {
+        RVA truePath = getTruePathForOffset(seekable->getOffset());
+        if (truePath != RVA_INVALID) {
+            seekable->seek(truePath);
+        }
+    }
+
+    CutterGraphView::keyPressEvent(event);
 }
 
 RVA DisassemblerGraphView::getAddrForMouseEvent(GraphBlock &block, QPoint *point)
@@ -667,6 +683,18 @@ QRectF DisassemblerGraphView::getInstrRect(GraphView::GraphBlock &block, RVA add
         currentLine += instr.text.lines.size();
     }
     return QRectF();
+}
+
+RVA DisassemblerGraphView::getTruePathForOffset(RVA offset)
+{
+    DisassemblyBlock *db = blockForAddress(offset);
+    if (db && !db->instrs.empty()) {
+        Instr lastInstruction = db->instrs.back();
+        if (lastInstruction.addr == offset) {
+            return db->true_path;
+        }
+    }
+    return RVA_INVALID;
 }
 
 void DisassemblerGraphView::showInstruction(GraphView::GraphBlock &block, RVA addr)
@@ -939,57 +967,27 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
         return;
     }
 
-    DisassemblyHelper::TargetContext ctx;
+    DH::TargetContext ctx;
     ctx.word = highlight_token ? highlight_token->content : QString();
     ctx.line = instr->plainText;
     ctx.offset = getAddrForMouseEvent(block, &pos);
+    ctx.arrow = getTruePathForOffset(ctx.offset);
 
-    DisassemblyHelper::TargetAction ta = DisassemblyHelper::resolveTarget(ctx);
+    DH::TargetAction ta = DH::resolveTarget(ctx);
     switch (ta.type) {
-    case DisassemblyHelper::TargetType::TypeName:
+    case DH::TargetType::TypeName:
         Core()->showTypeInTypesWidget(ctx.word);
         break;
-    case DisassemblyHelper::TargetType::XRefComment:
-    case DisassemblyHelper::TargetType::VariableName:
+    case DH::TargetType::XRefComment:
+    case DH::TargetType::VariableName:
+    case DH::TargetType::Arrow:
         if (ta.offset != RVA_INVALID) {
             seekable->seek(ta.offset);
         }
         break;
-    case DisassemblyHelper::TargetType::None:
+    case DH::TargetType::None:
         seekable->seekToReference(ctx.offset);
         break;
-    }
-    RVA arrow = NULL;
-    RVA offset = getAddrForMouseEvent(block, &pos);
-    DisassemblyBlock *db = blockForAddress(offset);
-
-    Instr lastInstruction = db->instrs.back();
-
-    // Handle the blocks without any paths
-    if (offset == lastInstruction.addr && db->false_path == RVA_INVALID
-        && db->true_path == RVA_INVALID) {
-        return;
-    }
-
-    // Handle the blocks with just one path
-    if (offset == lastInstruction.addr && db->false_path == RVA_INVALID) {
-        seekable->seek(db->true_path);
-        return;
-    }
-
-    // Handle blocks with two paths
-    if (offset == lastInstruction.addr && db->false_path != RVA_INVALID) {
-        // gets the offset for the next instruction
-        RVA nextOffset = lastInstruction.addr + lastInstruction.size;
-        // sets "arrow" to the path that isn't going to the next offset
-        if (db->false_path == nextOffset) {
-            arrow = db->true_path;
-        } else if (db->true_path == nextOffset) {
-            arrow = db->false_path;
-        }
-
-        seekable->seek(arrow);
-        return;
     }
 }
 

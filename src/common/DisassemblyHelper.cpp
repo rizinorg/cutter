@@ -43,6 +43,16 @@ RVA DisassemblyHelper::readDisassemblyOffset(QTextCursor tc)
     return userData->line.offset;
 }
 
+RVA DisassemblyHelper::readDisassemblyArrow(QTextCursor tc)
+{
+    auto userData = getUserData(tc.block());
+    if (!userData) {
+        return RVA_INVALID;
+    }
+
+    return userData->line.arrow;
+}
+
 DisassemblyHelper::TargetContext DisassemblyHelper::getContextFromCursor(QTextCursor tc)
 {
     tc.select(QTextCursor::WordUnderCursor);
@@ -50,16 +60,17 @@ DisassemblyHelper::TargetContext DisassemblyHelper::getContextFromCursor(QTextCu
     ctx.word = tc.selectedText();
     ctx.line = tc.block().text();
     ctx.offset = DisassemblyHelper::readDisassemblyOffset(tc);
+    ctx.arrow = DisassemblyHelper::readDisassemblyArrow(tc);
     return ctx;
 }
 
 DisassemblyHelper::TargetAction DisassemblyHelper::resolveTarget(const TargetContext &ctx,
-                                                                 TargetFilter filter)
+                                                                 int filter)
 {
     TargetAction res = { RVA_INVALID, TargetType::None };
 
-    if (filter == TargetFilter::All || filter == TargetFilter::XRefCommentOnly) {
-        // Xref comments need special handling to show preview for each caller offset
+    // Xref comments need special handling to show preview for each caller offset
+    if (filter & TargetFilter::XRefComments) {
         bool showXRefComments = Core()->getConfigb("asm.xrefs");
         if (showXRefComments && isXRefFromComment(ctx.offset, ctx.line)) {
             res.offset = getXRefFromWord(ctx.offset, ctx.word);
@@ -68,18 +79,26 @@ DisassemblyHelper::TargetAction DisassemblyHelper::resolveTarget(const TargetCon
         }
     }
 
-    if (filter == TargetFilter::All) {
-        // check for local variables
+    if (filter & TargetFilter::Variables) {
         XrefDescription xref = Core()->getFirstXRefForVariable(ctx.word, ctx.offset);
         if (!xref.from_str.isEmpty() || !xref.to_str.isEmpty()) {
             res.offset = xref.from;
             res.type = TargetType::VariableName;
             return res;
         }
+    }
 
-        // check for types
+    if (filter & TargetFilter::Types) {
         if (Core()->typeExists(ctx.word)) {
             res.type = TargetType::TypeName;
+            return res;
+        }
+    }
+
+    if (filter & TargetFilter::Arrows) {
+        if (ctx.arrow != RVA_INVALID) {
+            res.type = TargetType::Arrow;
+            res.offset = ctx.arrow;
             return res;
         }
     }

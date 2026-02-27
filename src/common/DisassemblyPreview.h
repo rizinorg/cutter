@@ -49,12 +49,5 @@ bool showDebugValueTooltip(QWidget *parent, const QPoint &pointOfEvent, const QS
  */
 bool showTooltip(QWidget *parent, const QPoint &globalPos,
                  const DisassemblyHelper::TargetContext &ctx, bool hasPreview);
-RVA readDisassemblyOffset(QTextCursor tc);
-
-/*!
- * @brief Reads the arrow offset for the cursor position
- * @return The jump address of the hovered asm text
- */
-RVA readDisassemblyArrow(QTextCursor tc);
 }
 #endif
