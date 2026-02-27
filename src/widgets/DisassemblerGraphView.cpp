@@ -582,11 +582,14 @@ bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
 
 void DisassemblerGraphView::keyPressEvent(QKeyEvent *event)
 {
-    // pressing enter at last instruction of the block seeks to true path if valid
     if (event->key() == Qt::Key_Return && seekable) {
-        RVA truePath = getTruePathForOffset(seekable->getOffset());
+        RVA offset = seekable->getOffset();
+        // pressing enter at last instruction of the block seeks to true path if valid
+        RVA truePath = getTruePathForOffset(offset);
         if (truePath != RVA_INVALID) {
             seekable->seek(truePath);
+        } else {
+            seekable->seekToReference(offset);
         }
     }
 
