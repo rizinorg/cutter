@@ -7,6 +7,8 @@
 #include "core/MainWindow.h"
 
 #include <QJsonArray>
+#include <QGuiApplication>
+#include <QScreen>
 
 XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom)
     : QDialog(parent), addr(0), toModel(this), fromModel(this), ui(new Ui::XrefsDialog)
@@ -185,6 +187,9 @@ void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function
     qhelpers::adjustColumns(ui->fromTreeWidget, fromModel.columnCount(), 0);
     qhelpers::adjustColumns(ui->toTreeWidget, toModel.columnCount(), 0);
 
+    // Limit dialog width to screen width
+    resize(qMin(width(), qApp->primaryScreen()->availableGeometry().width()), height());
+
     // Automatically select the first line
     if (!qhelpers::selectFirstItem(ui->toTreeWidget)) {
         qhelpers::selectFirstItem(ui->fromTreeWidget);
@@ -205,6 +210,9 @@ void XrefsDialog::fillRefsForVariable(QString nameOfVariable, RVA offset)
     // Adjust columns to content
     qhelpers::adjustColumns(ui->fromTreeWidget, fromModel.columnCount(), 0);
     qhelpers::adjustColumns(ui->toTreeWidget, toModel.columnCount(), 0);
+
+    // Limit dialog width to screen width
+    resize(qMin(width(), qApp->primaryScreen()->availableGeometry().width()), height());
 
     // Automatically select the first line
     if (!qhelpers::selectFirstItem(ui->toTreeWidget)) {
