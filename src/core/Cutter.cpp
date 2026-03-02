@@ -664,6 +664,8 @@ bool CutterCore::tryFile(QString path, bool rw)
         return true;
     }
     CORE_LOCK();
+    // clear info from previous fails
+    rz_cons_break_clear();
     RzCoreFile *cf;
     int flags = RZ_PERM_R;
     if (rw)
