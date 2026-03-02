@@ -506,7 +506,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     ui->treeView->setExpandsOnDoubleClick(false);
     ui->treeView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->treeView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    
+
     titleContextMenu = new QMenu(this);
     auto viewTypeGroup = new QActionGroup(titleContextMenu);
     actionHorizontal.setCheckable(true);
