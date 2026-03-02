@@ -505,7 +505,6 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     ui->treeView->sortByColumn(FunctionModel::NameColumn, Qt::AscendingOrder);
     ui->treeView->setExpandsOnDoubleClick(false);
     ui->treeView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->treeView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
     titleContextMenu = new QMenu(this);
     auto viewTypeGroup = new QActionGroup(titleContextMenu);
