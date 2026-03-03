@@ -45,3 +45,15 @@ We align with similar policies adopted by other major open-source projects, whic
 > These issues are generally not urgent, and are intended to be learning opportunities for new contributors to get familiar with the codebase.
 > Whether you are a newcomer or not, fully automating the process of fixing this issue squanders the learning opportunity and doesn't add much value to the project.
 > **Using AI tools to fix issues labelled as "good first issues" is forbidden**.
+
+## Requirements for new contributors
+
+Due to the high number of AI-generated contributions,
+we raised the standard for new contributors.
+
+You must provide a "before" and "after" screenshot or video showing that the change fixed the issue.
+
+> [!IMPORTANT]
+> If this requirement is not met, we won't review the PR and will close it
+> if there are no visible attempts to meet it.
+
