@@ -85,15 +85,11 @@ bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &po
         return false;
 
     if (selectedText.at(0).isLetter()) {
-        {
-            const auto registerRefs = Core()->getRegisterRefValues();
-            for (auto &reg : registerRefs) {
-                if (reg.name == selectedText) {
-                    auto msg = QString("reg %1 = %2").arg(reg.name, reg.value);
-                    QToolTip::showText(pointOfEvent, msg, parent);
-                    return true;
-                }
-            }
+        const auto reg = Core()->getRegisterRefValue(selectedText);
+        if (!reg.name.isEmpty()) {
+            auto msg = QString("reg %1 = %2").arg(reg.name, reg.value);
+            QToolTip::showText(pointOfEvent, msg, parent);
+            return true;
         }
 
         if (offset != RVA_INVALID) {

@@ -742,6 +742,7 @@ public:
      */
     QList<RegisterRef> getRegisterRefs(int depth = 6);
     QVector<RegisterRefValueDescription> getRegisterRefValues();
+    RegisterRefValueDescription getRegisterRefValue(const QString &regName);
     QList<VariableDescription> getVariables(RVA at);
     /**
      * @brief Fetches all the writes or reads to the specified local variable 'variableName'

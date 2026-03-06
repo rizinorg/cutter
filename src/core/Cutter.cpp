@@ -1894,6 +1894,21 @@ QVector<RegisterRefValueDescription> CutterCore::getRegisterRefValues()
     return result;
 }
 
+RegisterRefValueDescription CutterCore::getRegisterRefValue(const QString &regName)
+{
+    RegisterRefValueDescription desc;
+    CORE_LOCK();
+    RzRegItem *ri = rz_reg_get(getReg(), regName.toUtf8().constData(), -1);
+    if (!ri) {
+        return desc;
+    }
+    desc.name = ri->name;
+    ut64 value = rz_reg_get_value(getReg(), ri);
+    desc.value = "0x" + QString::number(value, 16);
+    desc.ref = rz_core_analysis_hasrefs(core, value, RZ_OUTPUT_MODE_STANDARD);
+    return desc;
+}
+
 QString CutterCore::getRegisterName(QString registerRole)
 {
     if (!currentlyDebugging) {
