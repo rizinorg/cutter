@@ -124,5 +124,7 @@
         <file>img/icons/upload_black.svg</file>
         <file>img/icons/rename.svg</file>
         <file>img/icons/reset.svg</file>
+        <file>img/icons/down_light.svg</file>
+        <file>img/icons/delete_light.svg</file>
     </qresource>
 </RCC>

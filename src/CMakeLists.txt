@@ -165,6 +165,10 @@ set(SOURCES
     dialogs/RegisterProfileDialog.cpp
     dialogs/EditRegProfileDialog.cpp
     common/DisassemblyHelper.cpp
+    widgets/SearchBarWidget.cpp
+    widgets/SearchableDockWidget.cpp
+    common/CutterSearchable.cpp
+    widgets/SearchableTextEdit.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -339,6 +343,10 @@ set(HEADER_FILES
     dialogs/RegisterProfileDialog.h
     dialogs/EditRegProfileDialog.h
     common/DisassemblyHelper.h
+    widgets/SearchBarWidget.h
+    widgets/SearchableDockWidget.h
+    common/CutterSearchable.h
+    widgets/SearchableTextEdit.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -419,6 +427,7 @@ set(UI_FILES
     dialogs/ProfileDirectivesDialog.ui
     dialogs/RegisterProfileDialog.ui
     dialogs/EditRegProfileDialog.ui
+    widgets/SearchBarWidget.ui
 )
 set(QRC_FILES
     resources.qrc
