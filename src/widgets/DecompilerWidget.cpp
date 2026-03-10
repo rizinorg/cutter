@@ -20,6 +20,7 @@
 #include <QTextBlockUserData>
 #include <QScrollBar>
 #include <QAbstractSlider>
+#include <qtooltip.h>
 
 DecompilerWidget::DecompilerWidget(MainWindow *main)
     : MemoryDockWidget(MemoryWidgetType::Decompiler, main),
@@ -519,8 +520,91 @@ void DecompilerWidget::seekToReference()
     seekable->seekToReference(offsetForPosition(pos));
 }
 
+void DecompilerWidget::showVariableTooltip(QHelpEvent *event, RzCodeAnnotation *annotation)
+{
+    if (!annotation->variable.name) {
+        return;
+    }
+    RzCoreLocked core = Core()->lock();
+    RzAnalysisFunction *fcn = rz_analysis_get_function_at(core->analysis, decompiledFunctionAddr);
+    if (!fcn) {
+        return;
+    }
+    RzAnalysisVar *var = rz_analysis_function_get_var_byname(fcn, annotation->variable.name);
+    QString tooltipContent;
+    if (var) {
+        tooltipContent = formatVarValue(var);
+    } else {
+        // TODO: track the value of the synthetic/untracked variables and show it in the tooltip.
+        tooltipContent = QString("<b>%1</b><br><i>(Synthetic/Untracked Variable)</i>")
+        .arg(QString::fromUtf8(annotation->variable.name));
+    }
+    QToolTip::showText(event->globalPos(), tooltipContent, ui->textEdit);
+}
+
+QString DecompilerWidget::formatVarValue(RzAnalysisVar *var)
+{
+    RzCoreLocked core = Core()->lock();
+    QString typeStr = "unknown data type";
+    if (var && var->type) {
+        char *type = rz_type_as_string(core->analysis->typedb, var->type);
+        if (type) {
+            typeStr = QString::fromUtf8(type);
+            rz_mem_free(type);
+        }
+    }
+    char *rawVal = rz_core_analysis_var_display(core, var, false);
+    QString displayValue = rawVal ? QString::fromUtf8(rawVal).trimmed() : "??";
+    if (rawVal && typeStr.trimmed().contains("*")) {
+        char *eq = strchr(rawVal, '=');
+        if (eq) {
+            QString left = QString::fromUtf8(rawVal, eq - rawVal).trimmed();
+            ut64 stackAddr = rz_num_math(core->num, left.toUtf8().constData());
+            if (stackAddr != 0) {
+                ut64 pointedAddr = 0;
+                int ptrSize = core->analysis->bits / 8;
+                int pointedAddr_state = rz_io_read_at_mapped(core->io, stackAddr, (ut8*)&pointedAddr, ptrSize);
+                if (pointedAddr_state > 0 && pointedAddr != 0) {
+                    ut8 buf[256];
+                    int str_state = rz_io_read_at_mapped(core->io, pointedAddr, buf, sizeof(buf) - 1);
+                    if (str_state != 0) {
+                        buf[sizeof(buf)-1] = 0;
+                        if (isprint(buf[0]) || buf[0] == '\0') {
+                        displayValue += QString("<br><font color='#f1c40f'>value: \"%1\"</font>")
+                            .arg(QString::fromUtf8(reinterpret_cast<const char*>(buf)));
+                        }
+                    }
+                }
+            }
+        }
+    }
+    rz_mem_free(rawVal);
+    return QString("<b>%1</b> (%2)<br>Value: %3")
+        .arg(QString::fromUtf8(var->name), typeStr, displayValue);
+}
+
 bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
 {
+    if (event->type() == QEvent::ToolTip &&
+        Config()->getShowVarTooltips() &&
+        (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
+        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+        QTextCursor cursor = ui->textEdit->cursorForPosition(helpEvent->pos());
+        size_t pos = cursor.position();
+        void *iter;
+        rz_vector_foreach(&this->code->annotations, iter) {
+            RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
+            if (pos >= annotation->start && pos < annotation->end) {
+                if (annotation->type == RZ_CODE_ANNOTATION_TYPE_LOCAL_VARIABLE ||
+                    annotation->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_PARAMETER) {
+                    showVariableTooltip(helpEvent, annotation);
+                    return true;
+                }
+            }
+        }
+        QToolTip::hideText();
+        return true;
+    }
     if (event->type() == QEvent::MouseButtonDblClick
         && (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
