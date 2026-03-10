@@ -820,6 +820,48 @@ void DisassemblyScrollArea::wheelEvent(QWheelEvent *event)
     }
 }
 
+//HoverInfoWidget
+
+HoverInfoWidget::HoverInfoWidget(QWidget *parent)
+    : QWidget(parent)
+{
+    setWindowFlags(Qt::FramelessWindowHint | Qt::ToolTip);
+
+    title = new QLabel(this);
+    info = new QLabel(this);
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->addWidget(title);
+    layout->addWidget(info);
+
+    setLayout(layout);
+
+    setStyleSheet(
+        "background-color: #222;"
+        "color: white;"
+        "border: 1px solid #555;"
+        "padding: 6px;"
+    );
+}
+
+void HoverInfoWidget::setWord(const QString &word)
+{
+    title->setText("Token: " + word);
+}
+
+void HoverInfoWidget::setInfo(const QString &infotext){
+	info->setText(infotext);
+}
+
+
+DisassemblyTextEdit::DisassemblyTextEdit(QWidget *parent)
+    : QPlainTextEdit(parent), lockScroll(false)
+{
+	setMouseTracking(true);
+	hoverInfo = new HoverInfoWidget(this);
+	hoverInfo->hide();
+}
+
 qreal DisassemblyTextEdit::textOffset() const
 {
     return (blockBoundingGeometry(document()->begin()).topLeft() + contentOffset()).y();
@@ -855,6 +897,65 @@ void DisassemblyTextEdit::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::RightButton && !textCursor().hasSelection()) {
         setTextCursor(cursorForPosition(event->pos()));
     }
+}
+
+void DisassemblyTextEdit::mouseMoveEvent(QMouseEvent *event)
+{
+    QPlainTextEdit::mouseMoveEvent(event);
+
+    QTextCursor cursor = cursorForPosition(event->pos());
+    int clickedCharPos = cursor.positionInBlock();
+
+    cursor.select(QTextCursor::BlockUnderCursor);
+
+    QString searchString = cursor.selectedText().replace("\xc2\xa0", " ");
+
+    static const QRegularExpression tokenRegExp(R"(\b(?<!\.)([^\s]+)\b(?!\.))");
+
+    QRegularExpressionMatchIterator it = tokenRegExp.globalMatch(searchString);
+
+    QString word;
+
+    while (it.hasNext()) {
+        QRegularExpressionMatch match = it.next();
+
+        if (match.capturedStart() <= clickedCharPos &&
+            match.capturedEnd() > clickedCharPos)
+        {
+            word = match.captured();
+            break;
+        }
+    }
+    
+    QString afvd = Core()->cmd("afvd");
+    QStringList lines = afvd.split('\n', Qt::SkipEmptyParts),filtered;
+    
+    QRegularExpression rx("\\b" + QRegularExpression::escape(word) + "\\b");
+    
+	for (const QString &line : lines) {
+		if (rx.match(line).hasMatch()) {
+		    filtered.append(line);
+		}
+	}
+	afvd = filtered.join("\n");
+	
+    if (!word.isEmpty()&&!afvd.isEmpty()
+    	) {
+        hoverInfo->setWord(word);
+        hoverInfo->setInfo(afvd);
+        hoverInfo->adjustSize();
+        hoverInfo->move(mapToGlobal(event->pos()) + QPoint(15,20));
+        hoverInfo->show();
+    }
+    else {
+        hoverInfo->hide();
+    }
+}
+
+void DisassemblyTextEdit::leaveEvent(QEvent *event)
+{
+    hoverInfo->hide();
+    QPlainTextEdit::leaveEvent(event);
 }
 
 void DisassemblyWidget::seekPrev()

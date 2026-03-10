@@ -11,6 +11,7 @@
 #include <QPlainTextEdit>
 #include <QShortcut>
 #include <QAction>
+#include <QLabel>
 
 #include <vector>
 
@@ -135,15 +136,37 @@ private:
     int accumScrollWheelDeltaY;
 };
 
+//New HoverInfoWidget
+
+class HoverInfoWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit HoverInfoWidget(QWidget *parent = nullptr);
+
+    void setWord(const QString &word);
+    void setInfo(const QString &infotext);
+
+private:
+    QLabel *title;
+    QLabel *info;
+};
+
+
+
 class DisassemblyTextEdit : public QPlainTextEdit
 {
     Q_OBJECT
 
 public:
-    explicit DisassemblyTextEdit(QWidget *parent = nullptr)
+    /*explicit DisassemblyTextEdit(QWidget *parent = nullptr)
         : QPlainTextEdit(parent), lockScroll(false)
     {
-    }
+    	setMouseTracking(true);
+    }*/
+    
+    explicit DisassemblyTextEdit(QWidget *parent = nullptr);
 
     void setLockScroll(bool lock) { this->lockScroll = lock; }
 
@@ -154,8 +177,10 @@ protected:
     void scrollContentsBy(int dx, int dy) override;
     void keyPressEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
-
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 private:
+	HoverInfoWidget *hoverInfo;
     bool lockScroll;
 };
 
