@@ -16,6 +16,8 @@ class CUTTER_EXPORT SearchableDockWidget : public CutterDockWidget, public Cutte
 public:
     explicit SearchableDockWidget(MainWindow *parent);
 
+    void updateSearchBarPosition();
+
 protected:
     SearchBarWidget *m_searchBar;
 

@@ -14,7 +14,7 @@ QPair<int, int> SearchableTextEdit::search(const QString &string, int options)
     m_highlightMatches = options & SearchOption::HighlightMatches;
 
     if (string.isEmpty()) {
-        this->setExtraSelections({});
+        clearSearch();
         return { 0, 0 };
     }
 
@@ -48,10 +48,8 @@ QPair<int, int> SearchableTextEdit::search(const QString &string, int options)
         m_currentIndex = 0;
     }
 
-    if (m_currentIndex >= 0) {
-        scrollToCurrentIndex();
-        highlightMatches();
-    }
+    scrollToCurrentIndex();
+    highlightMatches();
 
     return { m_currentIndex, m_searchCursors.size() };
 }
@@ -161,6 +159,10 @@ void SearchableTextEdit::highlightMatches()
 
 void SearchableTextEdit::scrollToCurrentIndex()
 {
+    if (m_currentIndex < 0 || m_currentIndex >= m_searchCursors.size()) {
+        return;
+    }
+
     QTextCursor scrollCursor = m_searchCursors[m_currentIndex];
     scrollCursor.setPosition(scrollCursor.selectionStart());
     scrollCursor.clearSelection();

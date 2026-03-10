@@ -19,6 +19,11 @@ SearchableDockWidget::SearchableDockWidget(MainWindow *parent)
 void SearchableDockWidget::resizeEvent(QResizeEvent *event)
 {
     CutterDockWidget::resizeEvent(event);
+    updateSearchBarPosition();
+}
+
+void SearchableDockWidget::updateSearchBarPosition()
+{
     CutterSearchableHelper::positionSearchBar(this, m_searchBar, searchableArea(), searchHPadding(),
                                               searchVPadding());
 }

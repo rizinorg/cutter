@@ -146,6 +146,7 @@ ConsoleWidget::ConsoleWidget(MainWindow *main)
     });
 
     completer->popup()->installEventFilter(this);
+    ui->outputTextEdit->verticalScrollBar()->installEventFilter(this);
 
     if (Config()->getOutputRedirectionEnabled()) {
         redirectOutput();
@@ -199,6 +200,11 @@ bool ConsoleWidget::eventFilter(QObject *obj, QEvent *event)
         }
         if (historyDownShortcut) {
             historyDownShortcut->setEnabled(enabled);
+        }
+    } else if (m_searchBar && m_searchBar->isVisible()
+               && obj == ui->outputTextEdit->verticalScrollBar()) {
+        if (event->type() == QEvent::Show || event->type() == QEvent::Hide) {
+            this->updateSearchBarPosition();
         }
     }
     return false;
