@@ -1,5 +1,6 @@
 #include "DisassemblyPreview.h"
 #include "Configuration.h"
+#include "rz_types_base.h"
 #include "widgets/GraphView.h"
 
 #include <QCoreApplication>
@@ -87,7 +88,12 @@ bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &po
     if (selectedText.at(0).isLetter()) {
         const auto reg = Core()->getRegisterRefValue(selectedText);
         if (!reg.name.isEmpty()) {
+            ut64 val = Core()->math(reg.value);
+            auto fcn = Core()->functionIn(val);
             auto msg = QString("reg %1 = %2").arg(reg.name, reg.value);
+            if (fcn) {
+                msg += QString(" (%1)").arg(fcn->name);
+            }
             QToolTip::showText(pointOfEvent, msg, parent);
             return true;
         }
@@ -125,7 +131,15 @@ bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &po
                 }
             }
         }
+    } else if (selectedText.startsWith('[') && selectedText.endsWith(']')) {
+        QString innerExpr = selectedText.mid(1, selectedText.length() - 2);
+        ut64 val = Core()->math(selectedText);
+        ut64 addr = Core()->math(innerExpr);
+        auto msg = QString("%1 = 0x%2 -> 0x%3").arg(selectedText).arg(addr, 0, 16).arg(val, 0, 16);
+        QToolTip::showText(pointOfEvent, msg, parent);
+        return true;
     }
+
     // Else show preview for value?
     return false;
 }

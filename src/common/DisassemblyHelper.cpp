@@ -55,10 +55,43 @@ RVA DisassemblyHelper::readDisassemblyArrow(QTextCursor tc)
 
 DisassemblyHelper::TargetContext DisassemblyHelper::getContextFromCursor(QTextCursor tc)
 {
+    int originalPos = tc.position();
     tc.select(QTextCursor::WordUnderCursor);
+    QString word = tc.selectedText();
+    QString line = tc.block().text();
+    int lineStart = tc.block().position();
+    int posInLine = originalPos - lineStart;
+
+    int openBracket = line.lastIndexOf('[', posInLine);
+    int closeBracket = line.indexOf(']', posInLine);
+
+    if (openBracket != -1 && closeBracket != -1) {
+        bool isInside = true;
+        for (int i = openBracket + 1; i < posInLine; ++i) {
+            if (line[i] == ']') {
+                isInside = false;
+                break;
+            }
+        }
+        if (isInside) {
+            for (int i = posInLine; i < closeBracket; ++i) {
+                if (line[i] == '[') {
+                    isInside = false;
+                    break;
+                }
+            }
+        }
+
+        if (isInside) {
+            tc.setPosition(lineStart + openBracket);
+            tc.setPosition(lineStart + closeBracket + 1, QTextCursor::KeepAnchor);
+            word = tc.selectedText();
+        }
+    }
+
     TargetContext ctx;
-    ctx.word = tc.selectedText();
-    ctx.line = tc.block().text();
+    ctx.word = word;
+    ctx.line = line;
     ctx.offset = DisassemblyHelper::readDisassemblyOffset(tc);
     ctx.arrow = DisassemblyHelper::readDisassemblyArrow(tc);
     return ctx;
