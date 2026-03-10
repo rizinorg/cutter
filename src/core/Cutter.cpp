@@ -4389,13 +4389,12 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
     QList<XrefDescription> xrefList = QList<XrefDescription>();
 
     RzList *xrefs = nullptr;
-    {
-        CORE_LOCK();
-        if (to) {
-            xrefs = rz_analysis_xrefs_get_to(core->analysis, addr);
-        } else {
-            xrefs = rz_analysis_xrefs_get_from(core->analysis, addr);
-        }
+    CORE_LOCK();
+
+    if (to) {
+        xrefs = rz_analysis_xrefs_get_to(core->analysis, addr);
+    } else {
+        xrefs = rz_analysis_xrefs_get_from(core->analysis, addr);
     }
 
     RzListIter *it;
@@ -4412,7 +4411,14 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
             continue;
         }
 
-        xd.from_str = RzAddressString(xd.from);
+        char *from = rz_core_addr_get_name_delta(core, xd.from);
+        if (from) {
+            xd.from_str = QString::fromUtf8(from);
+            free(from);
+        } else {
+            xd.from_str = RzAddressString(xd.from);
+        }
+
         xd.to_str = Core()->flagAt(xd.to);
 
         xrefList << xd;
