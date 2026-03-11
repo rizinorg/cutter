@@ -302,6 +302,33 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
           { { Qt::SHIFT | Qt::Key_F12 },
             QT_TRANSLATE_NOOP("StringsWidget", "Toggle Strings Window"),
             "StringsWidget" } },
+
+        // Search
+        { "Search.toggle",
+          { { QKeySequence::keyBindings(QKeySequence::Find) },
+            QT_TRANSLATE_NOOP("CutterSearchable", "Toggle Search Bar"),
+            "CutterSearchable" } },
+        { "Search.findNext",
+          { { Qt::Key_Return },
+            QT_TRANSLATE_NOOP("SearchBarWidget", "Find Next Match"),
+            "SearchBarWidget" } },
+        { "Search.findPrev",
+          { { Qt::SHIFT | Qt::Key_Return },
+            QT_TRANSLATE_NOOP("SearchBarWidget", "Find Previous Match"),
+            "SearchBarWidget" } },
+        { "Search.findLast",
+          { { Qt::CTRL | Qt::Key_Return },
+            QT_TRANSLATE_NOOP("SearchBarWidget", "Find Last Match"),
+            "SearchBarWidget" } },
+        { "Search.hide",
+          { { Qt::Key_Escape },
+            QT_TRANSLATE_NOOP("SearchBarWidget", "Hide Search Bar"),
+            "SearchBarWidget" } },
+        { "Search.options",
+          { { Qt::CTRL | Qt::Key_O },
+            QT_TRANSLATE_NOOP("SearchBarWidget", "Show Search Bar Options Menu"),
+            "SearchBarWidget" } },
+
     };
     return defaultShortcuts;
 }

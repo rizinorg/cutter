@@ -31,7 +31,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QPlainTextEdit" name="outputTextEdit">
+     <widget class="SearchableTextEdit" name="outputTextEdit">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -181,6 +181,11 @@
    <extends>QComboBox</extends>
    <header>common/DirectionalComboBox.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SearchableTextEdit</class>
+   <extends>QPlainTextEdit</extends>
+   <header>widgets/SearchableTextEdit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

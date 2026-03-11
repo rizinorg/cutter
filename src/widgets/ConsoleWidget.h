@@ -5,6 +5,8 @@
 #include "CutterDockWidget.h"
 #include "common/CommandTask.h"
 #include "common/DirectionalComboBox.h"
+#include "SearchBarWidget.h"
+#include "SearchableDockWidget.h"
 
 #include <QStringListModel>
 #include <QSocketNotifier>
@@ -19,7 +21,7 @@ namespace Ui {
 class ConsoleWidget;
 }
 
-class ConsoleWidget : public CutterDockWidget
+class ConsoleWidget : public SearchableDockWidget
 {
     Q_OBJECT
 
@@ -35,6 +37,15 @@ public:
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
     QWidget *widgetToFocusOnRaise() override;
+
+    // search related
+    void searchChanged(const QString &text, int options) override;
+    void findNext() override;
+    void findPrev() override;
+    void findLast() override;
+    void searchBarShown() override;
+    void searchBarHidden() override;
+    QWidget *searchableArea() const override;
 
 public slots:
     void focusInputLineEdit();
