@@ -52,11 +52,9 @@ public slots:
     QList<DisassemblyLine> getLines();
 
     /**
-     * @brief Reposts a wheel event to vertical scrollbar
-     *
-     * @param event The original QWheelEvent to be processed by the scrollbar
+     * @brief Forces the transient vertical scrollbar to appear on scroll
      */
-    void repostWheelEvent(QWheelEvent *event);
+    void showTransientScrollBar();
 protected slots:
     void on_seekChanged(RVA offset, CutterCore::SeekHistoryType type);
     void refreshIfInRange(RVA offset);
@@ -124,7 +122,7 @@ public:
 signals:
     void scrollLines(int lines, bool clampToScrollBarRange = false);
     void disassemblyResized();
-    void wheelEventTriggered(QWheelEvent *event);
+    void wheelEventTriggered();
 
 protected:
     bool viewportEvent(QEvent *event) override;

@@ -126,7 +126,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     connect(mDisasScrollArea, &DisassemblyScrollArea::disassemblyResized, this,
             &DisassemblyWidget::updateMaxLines);
     connect(mDisasScrollArea, &DisassemblyScrollArea::wheelEventTriggered, this,
-            &DisassemblyWidget::repostWheelEvent);
+            &DisassemblyWidget::showTransientScrollBar);
 
     connectCursorPositionChanged(false);
 
@@ -219,9 +219,9 @@ QList<DisassemblyLine> DisassemblyWidget::getLines()
     return lines;
 }
 
-void DisassemblyWidget::repostWheelEvent(QWheelEvent *event)
+void DisassemblyWidget::showTransientScrollBar()
 {
-    mDisasScrollArea->verticalScrollBar()->repostWheelEvent(event);
+    mDisasScrollArea->verticalScrollBar()->showTransientScrollBar();
 }
 
 void DisassemblyWidget::refreshIfInRange(RVA offset)
@@ -807,7 +807,6 @@ void DisassemblyScrollArea::wheelEvent(QWheelEvent *event)
         return;
     }
 
-    emit wheelEventTriggered(event);
     accumScrollWheelDeltaY += event->angleDelta().y();
     // Delta is reported in 1/8 of a degree
     // eg. 120 units * 1/8 = 15 degrees
@@ -818,6 +817,7 @@ void DisassemblyScrollArea::wheelEvent(QWheelEvent *event)
         accumScrollWheelDeltaY -= lineDelta * lineCount;
         emit scrollLines(-lineCount);
     }
+    emit wheelEventTriggered();
 }
 
 qreal DisassemblyTextEdit::textOffset() const
@@ -874,11 +874,11 @@ DisassemblyLeftPanel::DisassemblyLeftPanel(DisassemblyWidget *disas)
 
 void DisassemblyLeftPanel::wheelEvent(QWheelEvent *event)
 {
-    this->disas->repostWheelEvent(event);
 
     int count = -(event->angleDelta() / 15).y();
     count -= (count > 0 ? 5 : -5);
 
+    this->disas->showTransientScrollBar();
     this->disas->scrollInstructions(count);
 }
 

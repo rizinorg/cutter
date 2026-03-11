@@ -181,9 +181,15 @@ RVA AddressRangeScrollBar::rangeSize()
     return endOffset - beginOffset;
 }
 
-void AddressRangeScrollBar::repostWheelEvent(QWheelEvent *event)
+void AddressRangeScrollBar::showTransientScrollBar()
 {
-    QScrollBar::wheelEvent(event);
+    QWheelEvent eventBegin(QPointF(0, 0), QPointF(0, 0), QPoint(0, 0), QPoint(0, 0), Qt::NoButton,
+                           Qt::NoModifier, Qt::ScrollBegin, false);
+    QScrollBar::wheelEvent(&eventBegin);
+
+    QWheelEvent eventEnd(QPointF(0, 0), QPointF(0, 0), QPoint(0, 0), QPoint(0, 0), Qt::NoButton,
+                         Qt::NoModifier, Qt::ScrollEnd, false);
+    QScrollBar::wheelEvent(&eventEnd);
 }
 
 void AddressRangeScrollBar::wheelEvent(QWheelEvent *event)
