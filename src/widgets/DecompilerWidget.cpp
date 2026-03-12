@@ -534,10 +534,6 @@ void DecompilerWidget::showVariableTooltip(QHelpEvent *event, RzCodeAnnotation *
     QString tooltipContent;
     if (var) {
         tooltipContent = formatVarValue(var);
-    } else {
-        // TODO: track the value of the synthetic/untracked variables and show it in the tooltip.
-        tooltipContent = QString("<b>%1</b><br><i>(Synthetic/Untracked Variable)</i>")
-                                 .arg(QString::fromUtf8(annotation->variable.name));
     }
     QToolTip::showText(event->globalPos(), tooltipContent, ui->textEdit);
 }
@@ -555,36 +551,32 @@ QString DecompilerWidget::formatVarValue(RzAnalysisVar *var)
     }
     char *rawVal = rz_core_analysis_var_display(core, var, false);
     QString displayValue = rawVal ? QString::fromUtf8(rawVal).trimmed() : "??";
-    if (rawVal && typeStr.trimmed().contains("*")) {
-        char *eq = strchr(rawVal, '=');
-        if (eq) {
-            QString left = QString::fromUtf8(rawVal, eq - rawVal).trimmed();
-            ut64 stackAddr = rz_num_math(core->num, left.toUtf8().constData());
-            if (stackAddr != 0) {
-                ut64 pointedAddr = 0;
-                int ptrSize = core->analysis->bits / 8;
-                int pointedAddr_state =
-                        rz_io_read_at_mapped(core->io, stackAddr, (ut8 *)&pointedAddr, ptrSize);
-                if (pointedAddr_state > 0 && pointedAddr != 0) {
-                    ut8 buf[256];
-                    int str_state =
-                            rz_io_read_at_mapped(core->io, pointedAddr, buf, sizeof(buf) - 1);
-                    if (str_state != 0) {
-                        buf[sizeof(buf) - 1] = 0;
-                        if (isprint(buf[0]) || buf[0] == '\0') {
-                            displayValue +=
-                                    QString("<br><font color='#f1c40f'>value: \"%1\"</font>")
-                                            .arg(QString::fromUtf8(
-                                                    reinterpret_cast<const char *>(buf)));
-                        }
-                    }
+    rz_mem_free(rawVal);
+    if (typeStr.contains("*")) {
+        ut64 pointedAddr = 0;
+        int ptrSize = core->analysis->bits / 8;
+        bool pointedAddr_state = false;
+        if (var->storage.type == RZ_ANALYSIS_VAR_STORAGE_REG) {
+            pointedAddr = rz_debug_reg_get(core->dbg, var->storage.reg);
+            pointedAddr_state = (pointedAddr != 0);
+        } else if (var->storage.type == RZ_ANALYSIS_VAR_STORAGE_STACK) {
+            ut64 stackAddr = rz_core_analysis_var_addr(core, var);
+            pointedAddr_state =
+                    rz_io_read_at_mapped(core->io, stackAddr, (ut8 *)&pointedAddr, ptrSize);
+        }
+        if (pointedAddr_state && pointedAddr) {
+            ut8 buf[256];
+            bool str_state = rz_io_read_at_mapped(core->io, pointedAddr, buf, sizeof(buf) - 1);
+            if (str_state) {
+                size_t len = strnlen((const char *)buf, sizeof(buf));
+                if (len > 0 && rz_str_is_printable((const char *)buf)) {
+                    QString str = QString::fromUtf8((const char *)buf, len);
+                    displayValue += QString("\nvalue: \"%1\"").arg(str);
                 }
             }
         }
     }
-    rz_mem_free(rawVal);
-    return QString("<b>%1</b> (%2)<br>Value: %3")
-            .arg(QString::fromUtf8(var->name), typeStr, displayValue);
+    return QString("%1 (%2)\nValue: %3").arg(QString::fromUtf8(var->name), typeStr, displayValue);
 }
 
 bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
