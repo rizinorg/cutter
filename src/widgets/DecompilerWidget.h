@@ -258,7 +258,6 @@ private:
 
     void showVariableTooltip(QHelpEvent *event, RzCodeAnnotation *annotation);
     QString formatVarValue(RzAnalysisVar *var);
-
 };
 
 #endif // DECOMPILERWIDGET_H

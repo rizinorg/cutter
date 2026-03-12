@@ -537,7 +537,7 @@ void DecompilerWidget::showVariableTooltip(QHelpEvent *event, RzCodeAnnotation *
     } else {
         // TODO: track the value of the synthetic/untracked variables and show it in the tooltip.
         tooltipContent = QString("<b>%1</b><br><i>(Synthetic/Untracked Variable)</i>")
-        .arg(QString::fromUtf8(annotation->variable.name));
+                                 .arg(QString::fromUtf8(annotation->variable.name));
     }
     QToolTip::showText(event->globalPos(), tooltipContent, ui->textEdit);
 }
@@ -563,15 +563,19 @@ QString DecompilerWidget::formatVarValue(RzAnalysisVar *var)
             if (stackAddr != 0) {
                 ut64 pointedAddr = 0;
                 int ptrSize = core->analysis->bits / 8;
-                int pointedAddr_state = rz_io_read_at_mapped(core->io, stackAddr, (ut8*)&pointedAddr, ptrSize);
+                int pointedAddr_state =
+                        rz_io_read_at_mapped(core->io, stackAddr, (ut8 *)&pointedAddr, ptrSize);
                 if (pointedAddr_state > 0 && pointedAddr != 0) {
                     ut8 buf[256];
-                    int str_state = rz_io_read_at_mapped(core->io, pointedAddr, buf, sizeof(buf) - 1);
+                    int str_state =
+                            rz_io_read_at_mapped(core->io, pointedAddr, buf, sizeof(buf) - 1);
                     if (str_state != 0) {
-                        buf[sizeof(buf)-1] = 0;
+                        buf[sizeof(buf) - 1] = 0;
                         if (isprint(buf[0]) || buf[0] == '\0') {
-                        displayValue += QString("<br><font color='#f1c40f'>value: \"%1\"</font>")
-                            .arg(QString::fromUtf8(reinterpret_cast<const char*>(buf)));
+                            displayValue +=
+                                    QString("<br><font color='#f1c40f'>value: \"%1\"</font>")
+                                            .arg(QString::fromUtf8(
+                                                    reinterpret_cast<const char *>(buf)));
                         }
                     }
                 }
@@ -580,23 +584,23 @@ QString DecompilerWidget::formatVarValue(RzAnalysisVar *var)
     }
     rz_mem_free(rawVal);
     return QString("<b>%1</b> (%2)<br>Value: %3")
-        .arg(QString::fromUtf8(var->name), typeStr, displayValue);
+            .arg(QString::fromUtf8(var->name), typeStr, displayValue);
 }
 
 bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::ToolTip &&
-        Config()->getShowVarTooltips() &&
-        (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
+    if (event->type() == QEvent::ToolTip && Config()->getShowVarTooltips()
+        && (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
         QTextCursor cursor = ui->textEdit->cursorForPosition(helpEvent->pos());
         size_t pos = cursor.position();
         void *iter;
-        rz_vector_foreach(&this->code->annotations, iter) {
+        rz_vector_foreach(&this->code->annotations, iter)
+        {
             RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
             if (pos >= annotation->start && pos < annotation->end) {
-                if (annotation->type == RZ_CODE_ANNOTATION_TYPE_LOCAL_VARIABLE ||
-                    annotation->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_PARAMETER) {
+                if (annotation->type == RZ_CODE_ANNOTATION_TYPE_LOCAL_VARIABLE
+                    || annotation->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_PARAMETER) {
                     showVariableTooltip(helpEvent, annotation);
                     return true;
                 }
