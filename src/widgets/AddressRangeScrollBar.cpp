@@ -183,13 +183,17 @@ RVA AddressRangeScrollBar::rangeSize()
 
 void AddressRangeScrollBar::showTransientScrollBar()
 {
-    QWheelEvent eventBegin(QPointF(0, 0), QPointF(0, 0), QPoint(0, 0), QPoint(0, 0), Qt::NoButton,
-                           Qt::NoModifier, Qt::ScrollBegin, false);
-    QScrollBar::wheelEvent(&eventBegin);
-
-    QWheelEvent eventEnd(QPointF(0, 0), QPointF(0, 0), QPoint(0, 0), QPoint(0, 0), Qt::NoButton,
-                         Qt::NoModifier, Qt::ScrollEnd, false);
-    QScrollBar::wheelEvent(&eventEnd);
+    const Qt::ScrollPhase phases[] = { Qt::ScrollBegin, Qt::ScrollEnd };
+    for (const auto &phase : phases) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+        QWheelEvent event(QPointF(0, 0), QPointF(0, 0), QPoint(0, 0), QPoint(0, 0), Qt::NoButton,
+                          Qt::NoModifier, phase, false);
+#else
+        QWheelEvent event(QPointF(0, 0), QPointF(0, 0), QPoint(0, 0), QPoint(0, 0), 0, Qt::Vertical,
+                          Qt::NoButton, Qt::NoModifier, phase);
+#endif
+        QScrollBar::wheelEvent(&event);
+    }
 }
 
 void AddressRangeScrollBar::wheelEvent(QWheelEvent *event)
