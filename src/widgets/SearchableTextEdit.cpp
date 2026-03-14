@@ -8,9 +8,8 @@ SearchableTextEdit::SearchableTextEdit(QWidget *parent) : QPlainTextEdit(parent)
 
 QPair<int, int> SearchableTextEdit::search(const QString &string, int options)
 {
-    m_searchCursors.clear();
+    m_searchResults.clear();
     m_currentIndex = -1;
-    m_searchedMatchLen = -1;
     m_highlightMatches = options & SearchOption::HighlightMatches;
 
     if (string.isEmpty()) {
@@ -34,7 +33,12 @@ QPair<int, int> SearchableTextEdit::search(const QString &string, int options)
         const QRegularExpression regex(string);
         while (!cursor.isNull() && !cursor.atEnd()) {
             cursor = doc->find(regex, cursor, flags);
-            handleMatch(cursor, originalCursor);
+
+            if (cursor.hasSelection()) {
+                handleMatch(cursor, originalCursor);
+            } else {
+                cursor.movePosition(QTextCursor::NextCharacter); // avoid infinite loop
+            }
         }
     } else {
         while (!cursor.isNull() && !cursor.atEnd()) {
@@ -44,14 +48,14 @@ QPair<int, int> SearchableTextEdit::search(const QString &string, int options)
     }
 
     // wrap around
-    if (m_currentIndex < 0 && !m_searchCursors.isEmpty()) {
+    if (m_currentIndex < 0 && !m_searchResults.isEmpty()) {
         m_currentIndex = 0;
     }
 
     scrollToCurrentIndex();
     highlightMatches();
 
-    return { m_currentIndex, m_searchCursors.size() };
+    return { m_currentIndex, m_searchResults.size() };
 }
 
 void SearchableTextEdit::handleMatch(const QTextCursor &currentCursor,
@@ -60,22 +64,27 @@ void SearchableTextEdit::handleMatch(const QTextCursor &currentCursor,
     if (!currentCursor.isNull()) {
 
         if (m_currentIndex < 0 && currentCursor.selectionEnd() >= originalCursor.selectionStart()) {
-            m_currentIndex = m_searchCursors.size();
+            m_currentIndex = m_searchResults.size();
         }
 
-        m_searchCursors.append(currentCursor);
+        int len = currentCursor.selectionEnd() - currentCursor.selectionStart();
+        m_searchResults.append(SearchResult { currentCursor.selectionStart(), len });
     }
 }
 
 void SearchableTextEdit::clearSearch()
 {
     this->setExtraSelections({});
-    m_searchCursors.clear();
+    m_searchResults.clear();
 }
 
 int SearchableTextEdit::findNext()
 {
-    m_currentIndex = (m_currentIndex + 1) % m_searchCursors.size();
+    if (m_searchResults.isEmpty()) {
+        return 0;
+    }
+
+    m_currentIndex = (m_currentIndex + 1) % m_searchResults.size();
 
     scrollToCurrentIndex();
     highlightMatches();
@@ -85,7 +94,11 @@ int SearchableTextEdit::findNext()
 
 int SearchableTextEdit::findPrev()
 {
-    int count = m_searchCursors.size();
+    if (m_searchResults.isEmpty()) {
+        return 0;
+    }
+
+    int count = m_searchResults.size();
     m_currentIndex = (m_currentIndex - 1 + count) % count;
     scrollToCurrentIndex();
     highlightMatches();
@@ -95,7 +108,11 @@ int SearchableTextEdit::findPrev()
 
 int SearchableTextEdit::findLast()
 {
-    m_currentIndex = m_searchCursors.size() - 1;
+    if (m_searchResults.isEmpty()) {
+        return 0;
+    }
+
+    m_currentIndex = m_searchResults.size() - 1;
 
     scrollToCurrentIndex();
     highlightMatches();
@@ -111,13 +128,15 @@ void SearchableTextEdit::resizeEvent(QResizeEvent *event)
 
 void SearchableTextEdit::highlightMatches()
 {
-    if (m_currentIndex < 0 || m_currentIndex >= m_searchCursors.size()) {
+    if (m_currentIndex < 0 || m_currentIndex >= m_searchResults.size()) {
         this->setExtraSelections({});
         return;
     }
 
+    QTextCursor cursor(this->document());
+
     if (!m_highlightMatches) {
-        const QTextCursor cursor = m_searchCursors[m_currentIndex];
+        mapCursorToResult(cursor, m_searchResults[m_currentIndex]);
         QTextEdit::ExtraSelection selection;
         selection.format.setBackground(ConfigColor("searchCurrent"));
         selection.cursor = cursor;
@@ -127,26 +146,25 @@ void SearchableTextEdit::highlightMatches()
 
     QPoint startPoint = QPoint(0, 0);
     int startPos = this->cursorForPosition(startPoint).position();
-    startPos -= m_searchedMatchLen;
-    startPos = startPos >= 0 ? startPos : 0;
 
     QPoint endPoint = QPoint(this->geometry().width(), this->geometry().height());
     auto endCursor = this->cursorForPosition(endPoint);
     int endPos = endCursor.position();
-    endPos += m_searchedMatchLen;
     endCursor.movePosition(QTextCursor::End);
-    endPos = endPos <= endCursor.position() ? endPos : endCursor.position();
+    int maxPos = endCursor.position();
 
     QList<QTextEdit::ExtraSelection> selections;
-    for (int i = 0; i < m_searchCursors.size(); ++i) {
-        const QTextCursor cursor = m_searchCursors[i];
-        int pos = cursor.selectionStart();
+    for (int i = 0; i < m_searchResults.size(); ++i) {
+        const auto res = m_searchResults[i];
+        mapCursorToResult(cursor, m_searchResults[i]);
+        int sPos = std::max(startPos - res.length, 0);
+        int ePos = std::min(endPos + res.length, maxPos);
         if (i == m_currentIndex) {
             QTextEdit::ExtraSelection selection;
             selection.format.setBackground(ConfigColor("searchCurrent"));
             selection.cursor = cursor;
             selections.append(selection);
-        } else if (pos >= startPos && pos < endPos) {
+        } else if (cursor.selectionStart() >= sPos && cursor.selectionEnd() <= ePos) {
             // only highlight visible matches
             QTextEdit::ExtraSelection selection;
             selection.format.setBackground(ConfigColor("searchHighlight"));
@@ -159,11 +177,12 @@ void SearchableTextEdit::highlightMatches()
 
 void SearchableTextEdit::scrollToCurrentIndex()
 {
-    if (m_currentIndex < 0 || m_currentIndex >= m_searchCursors.size()) {
+    if (m_currentIndex < 0 || m_currentIndex >= m_searchResults.size()) {
         return;
     }
 
-    QTextCursor scrollCursor = m_searchCursors[m_currentIndex];
+    QTextCursor scrollCursor(this->document());
+    mapCursorToResult(scrollCursor, m_searchResults[m_currentIndex]);
     scrollCursor.setPosition(scrollCursor.selectionStart());
     scrollCursor.clearSelection();
     this->setTextCursor(scrollCursor);

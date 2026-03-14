@@ -39,13 +39,24 @@ public slots:
     void highlightMatches();
 
 private:
+    struct SearchResult
+    {
+        int position;
+        int length;
+    };
+
     int m_currentIndex;
-    QList<QTextCursor> m_searchCursors;
-    int m_searchedMatchLen;
+    QList<SearchResult> m_searchResults;
     bool m_highlightMatches;
 
     void handleMatch(const QTextCursor &currentCursor, const QTextCursor &originalCursor);
     void scrollToCurrentIndex();
+
+    inline void mapCursorToResult(QTextCursor &cursor, const SearchResult result)
+    {
+        cursor.setPosition(result.position);
+        cursor.setPosition(result.position + result.length, QTextCursor::KeepAnchor);
+    }
 };
 
 #endif // SEARCHABLETEXTEDIT_H
