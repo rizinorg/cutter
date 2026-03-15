@@ -53,9 +53,11 @@ public slots:
     QList<DisassemblyLine> getLines();
 
     /**
-     * @brief Forces the transient vertical scrollbar to appear on scroll
+     * @brief Reposts a wheel event to vertical scrollbar
+     *
+     * @param event The original QWheelEvent to be processed by the scrollbar
      */
-    void showTransientScrollBar();
+    void repostWheelEvent(QWheelEvent *event);
 protected slots:
     void on_seekChanged(RVA offset, CutterCore::SeekHistoryType type);
     void refreshIfInRange(RVA offset);
@@ -123,7 +125,7 @@ public:
 signals:
     void scrollLines(int lines, bool clampToScrollBarRange = false);
     void disassemblyResized();
-    void wheelEventTriggered();
+    void wheelEventTriggered(QWheelEvent *event);
 
 protected:
     bool viewportEvent(QEvent *event) override;
@@ -145,10 +147,15 @@ public:
 
     void setWord(const QString &word);
     void setInfo(const QString &infotext);
+    void addInfo(const QString &infoText);
+    void setPrev(const QString &prev);
+    void hidePrev();
+    void showPrev(RVA addr);
 
 private:
     QLabel *title;
     QLabel *info;
+    QLabel *refPrev;
 };
 
 
@@ -159,11 +166,11 @@ class DisassemblyTextEdit : public QPlainTextEdit
 
 public:
     /*explicit DisassemblyTextEdit(QWidget *parent = nullptr)
-        : QPlainTextEdit(parent), lockScroll(false)
-    {
-    	setMouseTracking(true);
-    }*/
-    
+     : QPlainTextEdit(pare*nt), lockScroll(false)
+     {
+     setMouseTracking(true);
+}*/
+
     explicit DisassemblyTextEdit(QWidget *parent = nullptr);
 
     void setLockScroll(bool lock) { this->lockScroll = lock; }
@@ -177,8 +184,9 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void leaveEvent(QEvent *event) override;
+    void showHoverInfo(QMouseEvent * event);
 private:
-	HoverInfoWidget *hoverInfo;
+    HoverInfoWidget *hoverInfo;
     bool lockScroll;
 };
 

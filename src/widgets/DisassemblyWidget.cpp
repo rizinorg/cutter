@@ -30,10 +30,10 @@
 namespace DH = DisassemblyHelper;
 
 DisassemblyWidget::DisassemblyWidget(MainWindow *main)
-    : MemoryDockWidget(MemoryWidgetType::Disassembly, main),
-      mCtxMenu(new DisassemblyContextMenu(this, main)),
-      mDisasScrollArea(new DisassemblyScrollArea(this)),
-      mDisasTextEdit(new DisassemblyTextEdit(this))
+: MemoryDockWidget(MemoryWidgetType::Disassembly, main),
+mCtxMenu(new DisassemblyContextMenu(this, main)),
+mDisasScrollArea(new DisassemblyScrollArea(this)),
+mDisasTextEdit(new DisassemblyTextEdit(this))
 {
     setObjectName(main ? main->getUniqueObjectName(getWidgetType()) : getWidgetType());
     updateWindowTitle();
@@ -72,12 +72,12 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     // Behave like all widgets: highlight on focus and hover
     connect(qApp, &QApplication::focusChanged, this, [this](QWidget *, QWidget *now) {
         QColor borderColor = this == now ? palette().color(QPalette::Highlight)
-                                         : palette().color(QPalette::WindowText).darker();
+        : palette().color(QPalette::WindowText).darker();
         widget()->setStyleSheet(QString("QSplitter { border: %1px solid %2 } \n"
-                                        "QSplitter:hover { border: %1px solid %3 } \n")
-                                        .arg(devicePixelRatio())
-                                        .arg(borderColor.name())
-                                        .arg(palette().color(QPalette::Highlight).name()));
+        "QSplitter:hover { border: %1px solid %3 } \n")
+        .arg(devicePixelRatio())
+        .arg(borderColor.name())
+        .arg(palette().color(QPalette::Highlight).name()));
     });
 
     splitter->setFrameShape(QFrame::Box);
@@ -96,7 +96,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     setupColors();
 
     disasmRefresh = createReplacingRefreshDeferrer<RVA>(
-            false, [this](const RVA *offset) { refreshDisasm(offset ? *offset : RVA_INVALID); });
+        false, [this](const RVA *offset) { refreshDisasm(offset ? *offset : RVA_INVALID); });
 
     maxLines = 0;
     updateMaxLines();
@@ -126,7 +126,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     connect(mDisasScrollArea, &DisassemblyScrollArea::disassemblyResized, this,
             &DisassemblyWidget::updateMaxLines);
     connect(mDisasScrollArea, &DisassemblyScrollArea::wheelEventTriggered, this,
-            &DisassemblyWidget::showTransientScrollBar);
+            &DisassemblyWidget::repostWheelEvent);
 
     connectCursorPositionChanged(false);
 
@@ -157,7 +157,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
 
     addActions(mCtxMenu->actions());
 
-#define ADD_ACTION(id, ctx, slot)                                                                  \
+    #define ADD_ACTION(id, ctx, slot)                                                                  \
     {                                                                                              \
         QAction *a = Shortcuts()->makeAction(id, this);                                            \
         a->setShortcutContext(ctx);                                                                \
@@ -179,7 +179,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
                [this]() { moveCursorRelative(false, true); })
     ADD_ACTION("Disassembly.pageUp", Qt::WidgetWithChildrenShortcut,
                [this]() { moveCursorRelative(true, true); })
-#undef ADD_ACTION
+    #undef ADD_ACTION
 }
 
 void DisassemblyWidget::setPreviewMode(bool previewMode)
@@ -219,9 +219,9 @@ QList<DisassemblyLine> DisassemblyWidget::getLines()
     return lines;
 }
 
-void DisassemblyWidget::showTransientScrollBar()
+void DisassemblyWidget::repostWheelEvent(QWheelEvent *event)
 {
-    mDisasScrollArea->verticalScrollBar()->showTransientScrollBar();
+    mDisasScrollArea->verticalScrollBar()->repostWheelEvent(event);
 }
 
 void DisassemblyWidget::refreshIfInRange(RVA offset)
@@ -474,7 +474,7 @@ void DisassemblyWidget::updateCursorPosition()
     if (offset < topOffset || (offset > bottomOffset && bottomOffset != RVA_INVALID)) {
         mDisasTextEdit->moveCursor(QTextCursor::Start);
         mDisasTextEdit->setExtraSelections(
-                createSameWordsSelections(mDisasTextEdit, curHighlightedWord));
+            createSameWordsSelections(mDisasTextEdit, curHighlightedWord));
     } else {
         RVA currentCursorOffset = readCurrentDisassemblyOffset();
         QTextCursor originalCursor = mDisasTextEdit->textCursor();
@@ -594,10 +594,10 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
                 int overflowLines = oldTopLine - maxLines;
                 if (overflowLines > 0) {
                     while (lines[overflowLines - 1].offset == lines[overflowLines].offset
-                           && overflowLines < lines.length() - 1) {
+                        && overflowLines < lines.length() - 1) {
                         overflowLines++;
-                    }
-                    offset = lines[overflowLines].offset;
+                        }
+                        offset = lines[overflowLines].offset;
                 }
             }
         }
@@ -640,12 +640,12 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         && (obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
-        if (mouseEvent->button() == Qt::LeftButton) {
-            auto ctx =
-                    DH::getContextFromCursor(mDisasTextEdit->cursorForPosition(mouseEvent->pos()));
+    if (mouseEvent->button() == Qt::LeftButton) {
+        auto ctx =
+        DH::getContextFromCursor(mDisasTextEdit->cursorForPosition(mouseEvent->pos()));
 
-            DH::TargetAction ta = DH::resolveTarget(ctx);
-            switch (ta.type) {
+        DH::TargetAction ta = DH::resolveTarget(ctx);
+        switch (ta.type) {
             case DH::TargetType::TypeName:
                 Core()->showTypeInTypesWidget(ctx.word);
                 break;
@@ -659,20 +659,20 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
             case DH::TargetType::None:
                 seekable->seekToReference(ctx.offset);
                 break;
-            }
-            return true;
         }
-    } else if ((Config()->getPreviewValue() || Config()->getShowVarTooltips())
-               && event->type() == QEvent::ToolTip && obj == mDisasTextEdit->viewport()) {
-        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+        return true;
+    }
+        } else if ((Config()->getPreviewValue() || Config()->getShowVarTooltips())
+            && event->type() == QEvent::ToolTip && obj == mDisasTextEdit->viewport()) {
+            QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
 
         auto ctx = DH::getContextFromCursor(mDisasTextEdit->cursorForPosition(helpEvent->pos()));
 
         return DisassemblyPreview::showTooltip(this, helpEvent->globalPos(), ctx,
                                                Config()->getPreviewValue());
-    }
+            }
 
-    return MemoryDockWidget::eventFilter(obj, event);
+            return MemoryDockWidget::eventFilter(obj, event);
 }
 
 void DisassemblyWidget::keyPressEvent(QKeyEvent *event)
@@ -730,14 +730,14 @@ void DisassemblyWidget::on_seekChanged(RVA offset, CutterCore::SeekHistoryType t
         && type == CutterCore::SeekHistoryType::New) {
         // if the line with the seek offset is currently visible, just move the cursor there
         updateCursorPosition();
-        topOffsetHistory[topOffsetHistoryPos] = topOffset;
-    } else {
-        // otherwise scroll there
-        refreshDisasm(topOffsetHistory[topOffsetHistoryPos]);
-    }
-    mCtxMenu->setOffset(offset);
-    // after seek it will select curret instruction and updates renaming options
-    mCtxMenu->setCurHighlightedWord(curHighlightedWord);
+    topOffsetHistory[topOffsetHistoryPos] = topOffset;
+        } else {
+            // otherwise scroll there
+            refreshDisasm(topOffsetHistory[topOffsetHistoryPos]);
+        }
+        mCtxMenu->setOffset(offset);
+        // after seek it will select curret instruction and updates renaming options
+        mCtxMenu->setCurHighlightedWord(curHighlightedWord);
 }
 
 void DisassemblyWidget::fontsUpdatedSlot()
@@ -763,8 +763,8 @@ void DisassemblyWidget::setupFonts()
 void DisassemblyWidget::setupColors()
 {
     mDisasTextEdit->setStyleSheet(QString("QPlainTextEdit { background-color: %1; color: %2; }")
-                                          .arg(ConfigColor("gui.background").name())
-                                          .arg(ConfigColor("btext").name()));
+    .arg(ConfigColor("gui.background").name())
+    .arg(ConfigColor("btext").name()));
 
     // Read and set a stylesheet for the QToolTip too
     setStyleSheet(DisassemblyPreview::getToolTipStyleSheet());
@@ -807,6 +807,7 @@ void DisassemblyScrollArea::wheelEvent(QWheelEvent *event)
         return;
     }
 
+    emit wheelEventTriggered(event);
     accumScrollWheelDeltaY += event->angleDelta().y();
     // Delta is reported in 1/8 of a degree
     // eg. 120 units * 1/8 = 15 degrees
@@ -817,24 +818,34 @@ void DisassemblyScrollArea::wheelEvent(QWheelEvent *event)
         accumScrollWheelDeltaY -= lineDelta * lineCount;
         emit scrollLines(-lineCount);
     }
-    emit wheelEventTriggered();
 }
 
 //HoverInfoWidget
 
+
 HoverInfoWidget::HoverInfoWidget(QWidget *parent)
-    : QWidget(parent)
+: QWidget(parent)
 {
     setWindowFlags(Qt::FramelessWindowHint | Qt::ToolTip);
 
     title = new QLabel(this);
+    title->setMaximumWidth(150);
     info = new QLabel(this);
+    info->setMaximumWidth(150);
+    info->setWordWrap(true);
+    refPrev = new QLabel(this);
+    refPrev->setStyleSheet(QString("QLabel { background-color: %1; color: %2; }")
+    .arg(ConfigColor("gui.background").name())
+    .arg(ConfigColor("btext").name()));
+    refPrev->setTextFormat(Qt::RichText);
+    QHBoxLayout *layouth = new QHBoxLayout(this);
+    QVBoxLayout *layoutv = new QVBoxLayout();
+    layouth->addLayout(layoutv);
+    layoutv->addWidget(title);
+    layoutv->addWidget(info);
+    layouth->addWidget(refPrev);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(title);
-    layout->addWidget(info);
-
-    setLayout(layout);
+    setLayout(layouth);
 
     setStyleSheet(
         "background-color: #222;"
@@ -844,22 +855,116 @@ HoverInfoWidget::HoverInfoWidget(QWidget *parent)
     );
 }
 
+void HoverInfoWidget::setPrev(const QString &prevtext){
+    refPrev->setText(prevtext);
+}
 void HoverInfoWidget::setWord(const QString &word)
 {
     title->setText("Token: " + word);
 }
 
 void HoverInfoWidget::setInfo(const QString &infotext){
-	info->setText(infotext);
+    info->setText(infotext);
 }
 
+void HoverInfoWidget::addInfo(const QString &infoText){
+    info->setText(info->text()+infoText);
+}
+
+void HoverInfoWidget::showPrev(RVA addr){
+    QStringList lines = Core()->getDisassemblyPreview(addr ,5);
+    refPrev->setText(lines.join("<br>"));
+    refPrev->show();
+}
+void HoverInfoWidget::hidePrev(){
+    refPrev->hide();
+}
 
 DisassemblyTextEdit::DisassemblyTextEdit(QWidget *parent)
-    : QPlainTextEdit(parent), lockScroll(false)
+: QPlainTextEdit(parent), lockScroll(false)
 {
-	setMouseTracking(true);
-	hoverInfo = new HoverInfoWidget(this);
-	hoverInfo->hide();
+    setMouseTracking(true);
+    hoverInfo = new HoverInfoWidget(this);
+    hoverInfo->hide();
+}
+
+void DisassemblyTextEdit::showHoverInfo(QMouseEvent *event){
+    if(Config()->getShowHoverInfo()){
+        QTextCursor cursor = cursorForPosition(event->pos());
+        auto token = DisassemblyHelper::getToken(cursor);
+        hoverInfo->setWord("");
+        hoverInfo->setInfo("");
+        hoverInfo->setPrev("");
+        hoverInfo->hidePrev();
+        auto lock = Core()->lock();
+        if(token.type != DisassemblyHelper::TokenType::Undef&&token.value!=token.offset){
+            hoverInfo->setWord(token.token);
+            if(token.ref){
+                hoverInfo->setWord(token.expression);
+                QString normalized = DisassemblyHelper::normalizeExpression(token.expression);
+                hoverInfo->setInfo(
+                    "<font color='gray'>Expression<br></font>"
+                    "Normalized:"+normalized+"<br>"
+                    "Value: 0x"+ QString::number(Core()->math(normalized), 16)+"<br>"
+                );
+                ut64 addr= Core()->math(normalized);
+                bool valid = lock->analysis->iob.is_valid_offset(
+                    lock->analysis->iob.io,
+                    addr,
+                    0
+                );
+                if(valid){
+                    hoverInfo->showPrev(addr);
+                }
+            }
+            if(token.type == DisassemblyHelper::TokenType::Variable){
+                hoverInfo->addInfo(
+                    "<font color='gray'>Variable<br></font>"
+                    "Type:"+token.vardesc.type+"<br>"
+                    "Value:"+token.vardesc.value+"<br>"
+                    "Storage Type:"+QString::number(token.vardesc.storageType)+"<br>"
+                );
+            }else if(token.type == DisassemblyHelper::TokenType::Register){
+                QString typeStr;
+                QString ref;
+                switch (token.regitem->type) {
+                    case RZ_REG_TYPE_GPR: typeStr = "GPR"; break;
+                    case RZ_REG_TYPE_FLG: typeStr = "Flag"; break;
+                    case RZ_REG_TYPE_FPU: typeStr = "FPU"; break;
+                    default: typeStr = "Other";
+                }
+                ut64 value = rz_reg_get_value(Core()->getReg(), token.regitem);
+                hoverInfo->addInfo(
+                    "<font color='gray'>Register<br></font>"
+                    "Type:"+typeStr+"<br>"
+                    "Size:"+QString::number(token.regitem->size)+"<br>"
+                    "Value:"+QString("0x%1").arg(value, 0, 16)+"<br>"
+                );
+            }else if(token.type == DisassemblyHelper::TokenType::Symbol){
+                hoverInfo->showPrev(token.points);
+            }else if(token.type== DisassemblyHelper::TokenType::Immediate){
+                bool valid = lock->analysis->iob.is_valid_offset(
+                    lock->analysis->iob.io,
+                    token.value,
+                    0
+                );
+                if(valid){
+                    hoverInfo->showPrev(token.value);
+                }
+            }
+            if (token.isStack){
+                hoverInfo->addInfo(
+                    "<font color='gray'>Stack</font><br><i>"
+                    +token.stackValues+"</i>"
+                );
+            }
+            hoverInfo->adjustSize();
+            hoverInfo->move(mapToGlobal(event->pos()) + QPoint(15,20));
+            hoverInfo->show();
+        }else{
+            hoverInfo->hide();
+        }
+    }
 }
 
 qreal DisassemblyTextEdit::textOffset() const
@@ -870,10 +975,10 @@ qreal DisassemblyTextEdit::textOffset() const
 bool DisassemblyTextEdit::viewportEvent(QEvent *event)
 {
     switch (event->type()) {
-    case QEvent::Type::Wheel:
-        return false;
-    default:
-        return QAbstractScrollArea::viewportEvent(event);
+        case QEvent::Type::Wheel:
+            return false;
+        default:
+            return QAbstractScrollArea::viewportEvent(event);
     }
 }
 
@@ -903,53 +1008,7 @@ void DisassemblyTextEdit::mouseMoveEvent(QMouseEvent *event)
 {
     QPlainTextEdit::mouseMoveEvent(event);
 
-    QTextCursor cursor = cursorForPosition(event->pos());
-    int clickedCharPos = cursor.positionInBlock();
-
-    cursor.select(QTextCursor::BlockUnderCursor);
-
-    QString searchString = cursor.selectedText().replace("\xc2\xa0", " ");
-
-    static const QRegularExpression tokenRegExp(R"(\b(?<!\.)([^\s]+)\b(?!\.))");
-
-    QRegularExpressionMatchIterator it = tokenRegExp.globalMatch(searchString);
-
-    QString word;
-
-    while (it.hasNext()) {
-        QRegularExpressionMatch match = it.next();
-
-        if (match.capturedStart() <= clickedCharPos &&
-            match.capturedEnd() > clickedCharPos)
-        {
-            word = match.captured();
-            break;
-        }
-    }
-    
-    QString afvd = Core()->cmd("afvd");
-    QStringList lines = afvd.split('\n', Qt::SkipEmptyParts),filtered;
-    
-    QRegularExpression rx("\\b" + QRegularExpression::escape(word) + "\\b");
-    
-	for (const QString &line : lines) {
-		if (rx.match(line).hasMatch()) {
-		    filtered.append(line);
-		}
-	}
-	afvd = filtered.join("\n");
-	
-    if (!word.isEmpty()&&!afvd.isEmpty()
-    	) {
-        hoverInfo->setWord(word);
-        hoverInfo->setInfo(afvd);
-        hoverInfo->adjustSize();
-        hoverInfo->move(mapToGlobal(event->pos()) + QPoint(15,20));
-        hoverInfo->show();
-    }
-    else {
-        hoverInfo->hide();
-    }
+    showHoverInfo(event);
 }
 
 void DisassemblyTextEdit::leaveEvent(QEvent *event)
@@ -975,11 +1034,11 @@ DisassemblyLeftPanel::DisassemblyLeftPanel(DisassemblyWidget *disas)
 
 void DisassemblyLeftPanel::wheelEvent(QWheelEvent *event)
 {
+    this->disas->repostWheelEvent(event);
 
     int count = -(event->angleDelta() / 15).y();
     count -= (count > 0 ? 5 : -5);
 
-    this->disas->showTransientScrollBar();
     this->disas->scrollInstructions(count);
 }
 
@@ -1032,7 +1091,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
                                          [&](const Arrow &it) {
                                              return it.min == a.min && it.max == a.max;
                                          })
-                    != std::end(arrows);
+            != std::end(arrows);
             if (!contains) {
                 arrows.emplace_back(lines[i].offset, lines[i].arrow);
             }
@@ -1056,18 +1115,18 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     lineOffsets.erase(std::unique(lineOffsets.begin(), lineOffsets.end()), lineOffsets.end());
     size_t firstVisibleLine = std::find_if(lineOffsets.begin(), lineOffsets.end(),
                                            [](const LineInfo &line) { return line.second == 0; })
-            - lineOffsets.begin();
+    - lineOffsets.begin();
     for (int i = int(firstVisibleLine) - 1; i >= 0; i--) {
         // -1 to ensure end of arrrow is drawn outside screen
         lineOffsets[i].second = i - firstVisibleLine - 1;
     }
     size_t firstLineAfter =
-            std::find_if(lineOffsets.begin(), lineOffsets.end(),
-                         [&](const LineInfo &line) { return line.first > maxViewOffset; })
-            - lineOffsets.begin();
+    std::find_if(lineOffsets.begin(), lineOffsets.end(),
+                 [&](const LineInfo &line) { return line.first > maxViewOffset; })
+    - lineOffsets.begin();
     for (size_t i = firstLineAfter; i < lineOffsets.size(); i++) {
         lineOffsets[i].second = lines.size() + (i - firstLineAfter)
-                + 1; // +1 to ensure end of arrrow is drawn outside screen
+        + 1; // +1 to ensure end of arrrow is drawn outside screen
     }
 
     auto offsetToLine = [&](RVA offset) -> int {
@@ -1133,7 +1192,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
             continue;
         }
         int lineOffset =
-                int((distanceBetweenLines * arrow.level + distanceBetweenLines) * pixelRatio);
+        int((distanceBetweenLines * arrow.level + distanceBetweenLines) * pixelRatio);
 
         p.setPen(arrow.up ? penUp : penDown);
         if (arrow.min == currOffset || arrow.max == currOffset) {
