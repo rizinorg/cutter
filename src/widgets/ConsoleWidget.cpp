@@ -39,7 +39,7 @@ static const int invalidHistoryPos = -1;
 static const char *consoleWrapSettingsKey = "console.wrap";
 
 ConsoleWidget::ConsoleWidget(MainWindow *main)
-    : CutterDockWidget(main),
+    : SearchableDockWidget(main),
       ui(new Ui::ConsoleWidget),
       debugOutputEnabled(true),
       maxHistoryEntries(100),
@@ -70,7 +70,11 @@ ConsoleWidget::ConsoleWidget(MainWindow *main)
     });
 
     QAction *actionClear = Shortcuts()->makeAction("Console.clear", this);
-    connect(actionClear, &QAction::triggered, ui->outputTextEdit, &QPlainTextEdit::clear);
+    connect(actionClear, &QAction::triggered, this, [this] {
+        ui->outputTextEdit->clear();
+        ui->outputTextEdit->setExtraSelections({});
+        m_searchBar->clear();
+    });
     addAction(actionClear);
 
     // Ctrl+l to clear the output
@@ -142,10 +146,26 @@ ConsoleWidget::ConsoleWidget(MainWindow *main)
     });
 
     completer->popup()->installEventFilter(this);
+    ui->outputTextEdit->verticalScrollBar()->installEventFilter(this);
 
     if (Config()->getOutputRedirectionEnabled()) {
         redirectOutput();
     }
+
+    connect(ui->outputTextEdit, &SearchableTextEdit::textChanged, this, [this] {
+        if (m_searchBar && m_searchBar->isVisible()) {
+            QPair<int, int> range =
+                    ui->outputTextEdit->search(m_searchBar->text(), m_searchBar->options());
+            m_searchBar->setRange(range.first, range.second);
+        }
+    });
+
+    connect(ui->outputTextEdit, &SearchableTextEdit::updateRequest, this,
+            [this](const QRect &, int dy) {
+                if (m_searchBar && m_searchBar->isVisible() && dy != 0) {
+                    ui->outputTextEdit->highlightMatches();
+                }
+            });
 }
 
 ConsoleWidget::~ConsoleWidget()
@@ -180,6 +200,11 @@ bool ConsoleWidget::eventFilter(QObject *obj, QEvent *event)
         }
         if (historyDownShortcut) {
             historyDownShortcut->setEnabled(enabled);
+        }
+    } else if (m_searchBar && m_searchBar->isVisible()
+               && obj == ui->outputTextEdit->verticalScrollBar()) {
+        if (event->type() == QEvent::Show || event->type() == QEvent::Hide) {
+            this->updateSearchBarPosition();
         }
     }
     return false;
@@ -501,4 +526,43 @@ void ConsoleWidget::redirectOutput()
 
     hasOutputRedirection = true;
     connect(pipeSocket, &QIODevice::readyRead, this, &ConsoleWidget::processQueuedOutput);
+}
+
+QWidget *ConsoleWidget::searchableArea() const
+{
+    return ui->outputTextEdit;
+}
+
+void ConsoleWidget::searchBarHidden()
+{
+    ui->outputTextEdit->clearSearch();
+}
+
+void ConsoleWidget::searchBarShown()
+{
+    searchChanged(m_searchBar->text(), m_searchBar->options());
+}
+
+void ConsoleWidget::findNext()
+{
+    int index = ui->outputTextEdit->findNext();
+    m_searchBar->setCurrentIndex(index);
+}
+
+void ConsoleWidget::findPrev()
+{
+    int index = ui->outputTextEdit->findPrev();
+    m_searchBar->setCurrentIndex(index);
+}
+
+void ConsoleWidget::findLast()
+{
+    int index = ui->outputTextEdit->findLast();
+    m_searchBar->setCurrentIndex(index);
+}
+
+void ConsoleWidget::searchChanged(const QString &text, int options)
+{
+    QPair<int, int> range = ui->outputTextEdit->search(text, options);
+    m_searchBar->setRange(range.first, range.second);
 }

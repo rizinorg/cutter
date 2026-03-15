@@ -728,11 +728,11 @@ void HexWidget::mouseReleaseEvent(QMouseEvent *event)
 
 void HexWidget::wheelEvent(QWheelEvent *event)
 {
-    vScrollBar->repostWheelEvent(event);
 
     // according to Qt doc 1 row per 5 degrees, angle measured in 1/8 of degree
     int dy = event->angleDelta().y() / (8 * 5);
     scrollLines(dy);
+    vScrollBar->showTransientScrollBar();
 }
 
 bool HexWidget::validCharForEdit(QChar digit)

@@ -19,7 +19,8 @@ ColorThemeEditDialog::ColorThemeEditDialog(QWidget *parent)
       colorTheme(Config()->getColorTheme())
 {
     showAlphaOptions = { "gui.overview.border", "gui.overview.fill", "wordHighlightBg",
-                         "wordHighlightFg", "lineHighlight" };
+                         "wordHighlightFg",     "lineHighlight",     "searchCurrent",
+                         "searchHighlight" };
     ui->setupUi(this);
     ui->colorComboBox->setShowOnlyCustom(true);
 

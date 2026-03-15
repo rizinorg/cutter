@@ -12,7 +12,8 @@
 
 const QStringList ColorThemeWorker::cutterSpecificOptions = {
     "wordHighlightBg",       "wordHighlightFg",
-    "lineHighlight",         "gui.main",
+    "lineHighlight",         "searchCurrent",
+    "searchHighlight",       "gui.main",
     "gui.imports",           "highlightPC",
     "gui.navbar.err",        "gui.navbar.seek",
     "gui.navbar.pc",         "gui.navbar.sym",
