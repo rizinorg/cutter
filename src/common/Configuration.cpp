@@ -107,14 +107,7 @@ const QHash<QString, QHash<ColorFlags, QColor>> Configuration::cutterOptionColor
       { { DarkFlag, QColor(0x63, 0xda, 0xe8, 0x32) },
         { LightFlag, QColor(0x63, 0xda, 0xe8, 0x32) } } },
     { "gui.navbar.err",
-      { { DarkFlag, QColor(0x03, 0xaa, 0xf5) }, { LightFlag, QColor(0x03, 0xaa, 0xf5) } } },
-    { "gui.navbar.err",
-      { { DarkFlag, QColor(0x03, 0xaa, 0xf5) }, { LightFlag, QColor(0x03, 0xaa, 0xf5) } } },
-    { "searchCurrent",
-      { { DarkFlag, QColor(0x8B, 0x3A, 0x22) }, { LightFlag, QColor(0xA5, 0xC8, 0xA2) } } },
-    { "searchHighlight",
-      { { DarkFlag, QColor(0x3a, 0x41, 0x50, 0xff) },
-        { LightFlag, QColor(0xb3, 0x77, 0xd6, 0x50) } } }
+      { { DarkFlag, QColor(0x03, 0xaa, 0xf5) }, { LightFlag, QColor(0x03, 0xaa, 0xf5) } } }
 };
 
 Configuration *Configuration::mPtr = nullptr;
@@ -833,6 +826,16 @@ void Configuration::setShowVarTooltips(bool enabled)
 bool Configuration::getShowVarTooltips() const
 {
     return s.value("showVarTooltips").toBool();
+}
+
+void Configuration::setShowHoverInfo(bool enabled)
+{
+    s.setValue("showHoverInfo", enabled);
+}
+
+bool Configuration::getShowHoverInfo() const
+{
+    return s.value("showHoverInfo").toBool();
 }
 
 bool Configuration::getGraphBlockEntryOffset()

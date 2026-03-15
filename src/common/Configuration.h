@@ -239,6 +239,12 @@ public:
     bool getShowVarTooltips() const;
 
     /**
+     * @brief Show advanced hoverInfo on hovering tokens in disassembler while debugging.
+     */
+    void setShowHoverInfo(bool enabled);
+    bool getShowHoverInfo() const;
+
+    /**
      * @brief Recently opened binaries, as shown in NewFileDialog.
      */
     QList<RecentFileEntry> getRecentFiles() const;
