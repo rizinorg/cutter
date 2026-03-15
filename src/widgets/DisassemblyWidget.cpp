@@ -845,10 +845,15 @@ HoverInfoWidget::HoverInfoWidget(QWidget *parent) : QWidget(parent)
 
     setLayout(layouth);
 
-    setStyleSheet("background-color: #222;"
-                  "color: white;"
-                  "border: 1px solid #555;"
-                  "padding: 6px;");
+    setStyleSheet(QString(
+        "HoverInfoWidget { "
+        "background-color: %1;"
+        "border: 1px solid %2;"
+        "border-radius: 4px;"
+        "} "
+    )
+    .arg(ConfigColor("gui.alt_background").name())
+    .arg(ConfigColor("gui.border").name())
 }
 
 void HoverInfoWidget::setPrev(const QString &prevtext)
@@ -903,8 +908,8 @@ void DisassemblyTextEdit::showHoverInfo(QMouseEvent *event)
             hoverInfo->setWord(token.token);
             if (token.ref) {
                 hoverInfo->setWord(token.expression);
-                QString normalized = DisassemblyHelper::normalizeExpression(token.expression);
-                hoverInfo->setInfo("<font color='gray'>Expression<br></font>"
+                QString normalized = token.normExp;
+                hoverInfo->setInfo("<font color='"+ConfigColor("meta").name()+"'>Expression<br></font>"
                                    "Normalized:"
                                    + normalized
                                    + "<br>"
@@ -917,7 +922,7 @@ void DisassemblyTextEdit::showHoverInfo(QMouseEvent *event)
                 }
             }
             if (token.type == DisassemblyHelper::TokenType::Variable) {
-                hoverInfo->addInfo("<font color='gray'>Variable<br></font>"
+                hoverInfo->addInfo("<font color='"+ConfigColor("meta").name()+"'>Variable<br></font>"
                                    "Type:"
                                    + token.vardesc.type
                                    + "<br>"
@@ -943,7 +948,7 @@ void DisassemblyTextEdit::showHoverInfo(QMouseEvent *event)
                     typeStr = "Other";
                 }
                 ut64 value = rz_reg_get_value(Core()->getReg(), token.regitem);
-                hoverInfo->addInfo("<font color='gray'>Register<br></font>"
+                hoverInfo->addInfo("<font color='"+ConfigColor("meta").name()+"'>Register<br></font>"
                                    "Type:"
                                    + typeStr
                                    + "<br>"
@@ -962,7 +967,7 @@ void DisassemblyTextEdit::showHoverInfo(QMouseEvent *event)
                 }
             }
             if (token.isStack) {
-                hoverInfo->addInfo("<font color='gray'>Stack</font><br><i>" + token.stackValues
+                hoverInfo->addInfo("<font color='"+ConfigColor("meta").name()+"'>Stack</font><br><i>" + token.stackValues
                                    + "</i>");
             }
             hoverInfo->adjustSize();

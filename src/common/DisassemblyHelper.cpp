@@ -106,34 +106,98 @@ DisassemblyHelper::TargetAction DisassemblyHelper::resolveTarget(const TargetCon
     return res;
 }
 
-QString DisassemblyHelper::normalizeExpression(QString expr)
+int DisassemblyHelper::getOperandIndex(const QTextCursor &cursor)
 {
-    expr = expr.trimmed();
+    QString line = cursor.block().text();
+    int col = cursor.positionInBlock();
+    int commentPos = line.indexOf(';');
+    if (commentPos != -1)
+        line = line.left(commentPos);
+    bool ib=false;
+    int op=0;
+    while(col>0){
+        if(line[col]==','&&!ib) op++;
+        if(line[col]==']') ib=true;
+        if(line[col]=='['){
+            if(!ib) op=0;
+            ib=false;
+        }
+        col--;
+    }
+    return op;
+}
 
-    // remove surrounding brackets
-    if (expr.startsWith('[') && expr.endsWith(']')) {
-        expr = expr.mid(1, expr.size() - 2);
+QString DisassemblyHelper::normalizeExpression(RVA rva, int operandIndex)
+{
+    QString cmd = QString("aoj 1 @ %1").arg(rva);
+    CutterJson aoj = Core()->cmdj(cmd.toUtf8().constData());
+
+    if (!aoj.valid())
+        return "";
+
+    CutterJson inst = aoj.first();
+    if (!inst.valid())
+        return "";
+
+    CutterJson operands = inst["opex"]["operands"];
+    if (!operands.valid())
+        return "";
+
+    int i = 0;
+    for (auto it = operands.begin(); it != operands.end(); ++it, ++i) {
+        if (i != operandIndex)
+            continue;
+
+        CutterJson op = *it;
+
+        if (op["type"].toString() != "mem")
+            return "";
+
+        QString expr;
+
+        // base register
+        if (op["base"].valid())
+            expr += op["base"].toString();
+
+        // index register
+        if (op["index"].valid()) {
+            QString index = op["index"].toString();
+            QString term = index;
+
+            if (op["shift"].valid()) {
+                term = QString("(%1 << %2)")
+                .arg(index)
+                .arg(op["shift"].toUt64());
+            } else if (op["scale"].valid()) {
+                term = QString("(%1 * %2)")
+                .arg(index)
+                .arg(op["scale"].toUt64());
+            }
+
+            if (!expr.isEmpty())
+                expr += " + ";
+
+            expr += term;
+        }
+
+        // displacement
+        if (op["disp"].valid()) {
+            st64 disp = op["disp"].toSt64();
+
+            if (!expr.isEmpty()) {
+                if (disp >= 0)
+                    expr += QString(" + 0x%1").arg((ut64)disp, 0, 16);
+                else
+                    expr += QString(" - 0x%1").arg((ut64)(-disp), 0, 16);
+            } else {
+                expr += QString("0x%1").arg((ut64)disp, 0, 16);
+            }
+        }
+
+        return expr;
     }
 
-    // ARM style: [x16, 0xb48] → x16+0xb48
-    expr.replace(",", "+");
-
-    // remove ARM immediates
-    expr.replace("#", "");
-
-    // ARM shift syntax: lsl → <<
-    QRegularExpression lslRegex(R"(\\b([a-zA-Z0-9]+)\\s*\\+?\\s*([a-zA-Z0-9]+)\\s*lsl\\s*(\\d+))");
-    expr.replace(QRegularExpression("lsl"), "<<");
-
-    // MIPS/RISCV style: 0x10(sp) → sp+0x10
-    QRegularExpression baseOffset(R"((0x[0-9a-fA-F]+|\d+)\((\w+)\))");
-    expr.replace(baseOffset, "\\2+\\1");
-
-    // remove extra spaces
-    expr.replace(QRegularExpression("\\s+"), "");
-    expr.replace(QChar(0xA0), ' '); // remove non-breaking spaces
-    expr.replace(" ", ""); // optional: remove spaces entirely
-    return expr;
+    return "";
 }
 
 DisassemblyHelper::Token DisassemblyHelper::getToken(QTextCursor cursor)
@@ -157,6 +221,9 @@ DisassemblyHelper::Token DisassemblyHelper::getToken(QTextCursor cursor)
     bool inBracket = false;
 
     QString word = cursor.selectedText();
+    auto lock = Core()->lock();
+    RVA rva = DisassemblyHelper::readDisassemblyOffset(cursor);
+    token.operandIndex = getOperandIndex(cursor);
 
     // scan left
     token.token = word;
@@ -200,11 +267,10 @@ DisassemblyHelper::Token DisassemblyHelper::getToken(QTextCursor cursor)
         token.ref = true;
         token.expression = line.mid(start, end - start).trimmed();
         token.exparg = "";
+        token.normExp = normalizeExpression(rva,token.operandIndex);
     };
 
     token.token = line.mid(tokenStart, tokenEnd - tokenStart).trimmed();
-    auto lock = Core()->lock();
-    RVA rva = DisassemblyHelper::readDisassemblyOffset(cursor);
     token.offset = rva;
 
     // varcheck
@@ -280,6 +346,8 @@ DisassemblyHelper::Token DisassemblyHelper::getToken(QTextCursor cursor)
             return token;
         }
     }
+
+    QString instruction = Core()->disassembleSingleInstruction(rva);
 
     return token;
 }

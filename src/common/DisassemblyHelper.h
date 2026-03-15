@@ -44,13 +44,17 @@ struct Token
     bool ref;
     QString expression;
     QString exparg;
+    QString normExp;
     VariableDescription vardesc;
     RVA offset;
     RzRegItem *regitem;
     bool isStack;
     QString stackValues;
     ut64 points;
+    int operandIndex;//>=0 ; <0 if not an operand
 };
+
+int getOperandIndex(const QTextCursor &cursor);
 
 QString referenceInfo(ut64 address);
 
@@ -67,7 +71,7 @@ struct TargetContext
     QString line;
 };
 
-QString normalizeExpression(QString);
+QString normalizeExpression(RVA rva, int operandIndex);
 
 /**
  * @brief What was found after checking the context
