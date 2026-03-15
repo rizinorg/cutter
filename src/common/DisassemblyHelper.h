@@ -2,6 +2,7 @@
 #define DISASSEMBLYHELPER_H
 
 #include <QTextBlockUserData>
+#include <QRegularExpression>
 #include "core/CutterDescriptions.h"
 
 /**
@@ -33,6 +34,35 @@ enum class TargetType {
     None,
 };
 
+
+enum class TokenType{
+    Undef,
+    Register,
+    Variable,
+    Immediate,
+    Function,
+    Symbol
+};
+
+struct Token{
+    QString token;
+    ut64 value;
+    TokenType type;
+    bool ref;
+    QString expression;
+    QString exparg;
+    VariableDescription vardesc;
+    RVA offset;
+    RzRegItem *regitem;
+    bool isStack;
+    QString stackValues;
+    ut64 points;
+};
+
+QString referenceInfo(ut64 address);
+
+Token getToken(QTextCursor cursor);
+
 /**
  * @brief Data used to figure out what is under the mouse
  */
@@ -43,6 +73,8 @@ struct TargetContext
     QString word;
     QString line;
 };
+
+QString normalizeExpression(QString);
 
 /**
  * @brief What was found after checking the context
