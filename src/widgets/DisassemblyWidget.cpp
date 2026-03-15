@@ -909,8 +909,9 @@ void DisassemblyTextEdit::showHoverInfo(QMouseEvent *event)
             if (token.ref) {
                 hoverInfo->setWord(token.expression);
                 QString normalized = token.normExp;
-                hoverInfo->setInfo("<font color='"+ConfigColor("meta").name()+"'>Expression<br></font>"
-                                   "Normalized:"
+                hoverInfo->setInfo("<font color='" + ConfigColor("meta").name()
+                                   + "'>Expression<br></font>"
+                                     "Normalized:"
                                    + normalized
                                    + "<br>"
                                      "Value: 0x"
@@ -922,8 +923,9 @@ void DisassemblyTextEdit::showHoverInfo(QMouseEvent *event)
                 }
             }
             if (token.type == DisassemblyHelper::TokenType::Variable) {
-                hoverInfo->addInfo("<font color='"+ConfigColor("meta").name()+"'>Variable<br></font>"
-                                   "Type:"
+                hoverInfo->addInfo("<font color='" + ConfigColor("meta").name()
+                                   + "'>Variable<br></font>"
+                                     "Type:"
                                    + token.vardesc.type
                                    + "<br>"
                                      "Value:"
@@ -948,8 +950,9 @@ void DisassemblyTextEdit::showHoverInfo(QMouseEvent *event)
                     typeStr = "Other";
                 }
                 ut64 value = rz_reg_get_value(Core()->getReg(), token.regitem);
-                hoverInfo->addInfo("<font color='"+ConfigColor("meta").name()+"'>Register<br></font>"
-                                   "Type:"
+                hoverInfo->addInfo("<font color='" + ConfigColor("meta").name()
+                                   + "'>Register<br></font>"
+                                     "Type:"
                                    + typeStr
                                    + "<br>"
                                      "Size:"
@@ -967,8 +970,8 @@ void DisassemblyTextEdit::showHoverInfo(QMouseEvent *event)
                 }
             }
             if (token.isStack) {
-                hoverInfo->addInfo("<font color='"+ConfigColor("meta").name()+"'>Stack</font><br><i>" + token.stackValues
-                                   + "</i>");
+                hoverInfo->addInfo("<font color='" + ConfigColor("meta").name()
+                                   + "'>Stack</font><br><i>" + token.stackValues + "</i>");
             }
             hoverInfo->adjustSize();
             hoverInfo->move(mapToGlobal(event->pos()) + QPoint(15, 20));

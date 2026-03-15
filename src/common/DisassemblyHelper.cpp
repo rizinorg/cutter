@@ -113,14 +113,17 @@ int DisassemblyHelper::getOperandIndex(const QTextCursor &cursor)
     int commentPos = line.indexOf(';');
     if (commentPos != -1)
         line = line.left(commentPos);
-    bool ib=false;
-    int op=0;
-    while(col>0){
-        if(line[col]==','&&!ib) op++;
-        if(line[col]==']') ib=true;
-        if(line[col]=='['){
-            if(!ib) op=0;
-            ib=false;
+    bool ib = false;
+    int op = 0;
+    while (col > 0) {
+        if (line[col] == ',' && !ib)
+            op++;
+        if (line[col] == ']')
+            ib = true;
+        if (line[col] == '[') {
+            if (!ib)
+                op = 0;
+            ib = false;
         }
         col--;
     }
@@ -165,13 +168,9 @@ QString DisassemblyHelper::normalizeExpression(RVA rva, int operandIndex)
             QString term = index;
 
             if (op["shift"].valid()) {
-                term = QString("(%1 << %2)")
-                .arg(index)
-                .arg(op["shift"].toUt64());
+                term = QString("(%1 << %2)").arg(index).arg(op["shift"].toUt64());
             } else if (op["scale"].valid()) {
-                term = QString("(%1 * %2)")
-                .arg(index)
-                .arg(op["scale"].toUt64());
+                term = QString("(%1 * %2)").arg(index).arg(op["scale"].toUt64());
             }
 
             if (!expr.isEmpty())
@@ -267,7 +266,7 @@ DisassemblyHelper::Token DisassemblyHelper::getToken(QTextCursor cursor)
         token.ref = true;
         token.expression = line.mid(start, end - start).trimmed();
         token.exparg = "";
-        token.normExp = normalizeExpression(rva,token.operandIndex);
+        token.normExp = normalizeExpression(rva, token.operandIndex);
     };
 
     token.token = line.mid(tokenStart, tokenEnd - tokenStart).trimmed();
