@@ -134,7 +134,7 @@ private:
     int accumScrollWheelDeltaY;
 };
 
-//New HoverInfoWidget
+// New HoverInfoWidget
 
 class HoverInfoWidget : public QWidget
 {
@@ -155,8 +155,6 @@ private:
     QLabel *info;
     QLabel *refPrev;
 };
-
-
 
 class DisassemblyTextEdit : public QPlainTextEdit
 {
@@ -182,7 +180,8 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void leaveEvent(QEvent *event) override;
-    void showHoverInfo(QMouseEvent * event);
+    void showHoverInfo(QMouseEvent *event);
+
 private:
     HoverInfoWidget *hoverInfo;
     bool lockScroll;

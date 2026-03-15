@@ -70,7 +70,7 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
         Config()->setShowVarTooltips(checked);
         triggerAsmOptionsChanged();
     });
-    connect(ui->hoverInfoCheckBox, &QCheckBox::toggled,[this](bool checked){
+    connect(ui->hoverInfoCheckBox, &QCheckBox::toggled, [this](bool checked) {
         Config()->setShowHoverInfo(checked);
         triggerAsmOptionsChanged();
     });

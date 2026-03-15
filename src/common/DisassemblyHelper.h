@@ -34,17 +34,10 @@ enum class TargetType {
     None,
 };
 
+enum class TokenType { Undef, Register, Variable, Immediate, Function, Symbol };
 
-enum class TokenType{
-    Undef,
-    Register,
-    Variable,
-    Immediate,
-    Function,
-    Symbol
-};
-
-struct Token{
+struct Token
+{
     QString token;
     ut64 value;
     TokenType type;
