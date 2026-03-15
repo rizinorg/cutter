@@ -70,6 +70,10 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
         Config()->setShowVarTooltips(checked);
         triggerAsmOptionsChanged();
     });
+    connect(ui->hoverInfoCheckBox, &QCheckBox::toggled,[this](bool checked){
+        Config()->setShowHoverInfo(checked);
+        triggerAsmOptionsChanged();
+    });
 
     updateAsmOptionsFromVars();
 }
@@ -142,6 +146,10 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     ui->previewCheckBox->blockSignals(true);
     ui->previewCheckBox->setChecked(Config()->getPreviewValue());
     ui->previewCheckBox->blockSignals(false);
+
+    ui->hoverInfoCheckBox->blockSignals(true);
+    ui->hoverInfoCheckBox->setChecked(Config()->getShowHoverInfo());
+    ui->hoverInfoCheckBox->blockSignals(false);
 
     qhelpers::setCheckedWithoutSignals(ui->varTooltipsCheckBox, Config()->getShowVarTooltips());
 
