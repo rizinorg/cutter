@@ -51,7 +51,7 @@ struct Token
     bool isStack;
     QString stackValues;
     ut64 points;
-    int operandIndex;//>=0 ; <0 if not an operand
+    int operandIndex; //>=0 ; <0 if not an operand
 };
 
 int getOperandIndex(const QTextCursor &cursor);
