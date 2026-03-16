@@ -1,5 +1,6 @@
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QJsonDocument>
 #include <QRegularExpression>
 #include <QDir>
 #include <QCoreApplication>
@@ -1288,6 +1289,47 @@ QString CutterCore::disassembleSingleInstruction(RVA addr)
 {
     auto ab = getRzAnalysisBytesSingle(addr);
     return QString(ab->disasm).simplified();
+}
+
+// API for getting operand attributes as json follows a lengthy path from string->RzJson->CutterJson
+// TODO:a more direct api
+CutterJson CutterCore::analyseOperandsAt(RVA rva)
+{
+    CORE_LOCK();
+
+    ut8 buf[32];
+    rz_io_read_at_mapped(core->io, rva, buf, sizeof(buf));
+
+    RzAnalysisOp op;
+    rz_analysis_op_init(&op);
+
+    int ret = rz_analysis_op(core->analysis, &op, rva, buf, sizeof(buf), RZ_ANALYSIS_OP_MASK_ALL);
+
+    if (!op.opex) {
+        rz_analysis_op_fini(&op);
+        RZ_LOG_ERROR("Operand Analysis Failed\n");
+        return CutterJson();
+    }
+
+    char *json = rz_structured_data_to_json(op.opex);
+
+    if (RZ_STR_ISEMPTY(json)) {
+        RZ_LOG_ERROR("Empty operand analysis\n");
+        rz_analysis_op_fini(&op);
+        return CutterJson();
+    }
+
+    RzJson *doc = rz_json_parse(json);
+
+    if (!doc) {
+        RZ_LOG_ERROR("Failed to parse JSON\n");
+        rz_analysis_op_fini(&op);
+        return CutterJson();
+    }
+
+    rz_analysis_op_fini(&op);
+
+    return CutterJson(doc, QSharedPointer<CutterJsonOwner>::create(doc, json));
 }
 
 RzAnalysisFunction *CutterCore::functionIn(ut64 addr)
@@ -4831,29 +4873,27 @@ QString CutterCore::getVersionInformation()
     {
         const char *name;
         const char *(*callback)();
-    } vcs[] = {
-        { "rz_arch", &rz_arch_version },
-        { "rz_lib", &rz_lib_version },
-        { "rz_egg", &rz_egg_version },
-        { "rz_bin", &rz_bin_version },
-        { "rz_cons", &rz_cons_version },
-        { "rz_flag", &rz_flag_version },
-        { "rz_core", &rz_core_version },
-        { "rz_crypto", &rz_crypto_version },
-        { "rz_debug", &rz_debug_version },
-        { "rz_hash", &rz_hash_version },
-        { "rz_io", &rz_io_version },
+    } vcs[] = { { "rz_arch", &rz_arch_version },
+                { "rz_lib", &rz_lib_version },
+                { "rz_egg", &rz_egg_version },
+                { "rz_bin", &rz_bin_version },
+                { "rz_cons", &rz_cons_version },
+                { "rz_flag", &rz_flag_version },
+                { "rz_core", &rz_core_version },
+                { "rz_crypto", &rz_crypto_version },
+                { "rz_debug", &rz_debug_version },
+                { "rz_hash", &rz_hash_version },
+                { "rz_io", &rz_io_version },
 #if !USE_LIB_MAGIC
-        { "rz_magic", &rz_magic_version },
+                { "rz_magic", &rz_magic_version },
 #endif
-        { "rz_reg", &rz_reg_version },
-        { "rz_sign", &rz_sign_version },
-        { "rz_search", &rz_search_version },
-        { "rz_syscall", &rz_syscall_version },
-        { "rz_util", &rz_util_version },
-        /* ... */
-        { NULL, NULL }
-    };
+                { "rz_reg", &rz_reg_version },
+                { "rz_sign", &rz_sign_version },
+                { "rz_search", &rz_search_version },
+                { "rz_syscall", &rz_syscall_version },
+                { "rz_util", &rz_util_version },
+                /* ... */
+                { NULL, NULL } };
     versionInfo.append(getRizinVersionReadable());
     versionInfo.append("\n");
     for (i = 0; vcs[i].name; i++) {

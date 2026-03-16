@@ -132,8 +132,7 @@ int DisassemblyHelper::getOperandIndex(const QTextCursor &cursor)
 
 QString DisassemblyHelper::normalizeExpression(RVA rva, int operandIndex)
 {
-    QString cmd = QString("aoj 1 @ %1").arg(rva);
-    CutterJson aoj = Core()->cmdj(cmd.toUtf8().constData());
+    CutterJson aoj = Core()->analyseOperandsAt(rva);
 
     if (!aoj.valid())
         return "";
@@ -142,7 +141,7 @@ QString DisassemblyHelper::normalizeExpression(RVA rva, int operandIndex)
     if (!inst.valid())
         return "";
 
-    CutterJson operands = inst["opex"]["operands"];
+    CutterJson operands = inst["operands"];
     if (!operands.valid())
         return "";
 
@@ -345,8 +344,6 @@ DisassemblyHelper::Token DisassemblyHelper::getToken(QTextCursor cursor)
             return token;
         }
     }
-
-    QString instruction = Core()->disassembleSingleInstruction(rva);
 
     return token;
 }

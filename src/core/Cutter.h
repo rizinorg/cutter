@@ -15,6 +15,8 @@
 #include <QStringList>
 #include <QMessageBox>
 #include <QErrorMessage>
+#include <QJsonObject>
+#include <QJsonDocument>
 #include <QMutex>
 #include <QDir>
 #include <functional>
@@ -425,6 +427,7 @@ public:
     QString disassembleSingleInstruction(RVA addr);
     QList<DisassemblyLine> disassembleLines(RVA offset, int lines);
 
+    CutterJson analyseOperandsAt(RVA rva);
     static QByteArray hexStringToBytes(const QString &hex);
     static QString bytesToHexString(const QByteArray &bytes);
     enum class HexdumpFormats { Normal, Half, Word, Quad, Signed, Octal };
