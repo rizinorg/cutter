@@ -853,7 +853,7 @@ HoverInfoWidget::HoverInfoWidget(QWidget *parent) : QWidget(parent)
         "} "
     )
     .arg(ConfigColor("gui.alt_background").name())
-    .arg(ConfigColor("gui.border").name())
+    .arg(ConfigColor("gui.border").name()));
 }
 
 void HoverInfoWidget::setPrev(const QString &prevtext)
