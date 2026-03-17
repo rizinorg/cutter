@@ -133,6 +133,19 @@ bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &po
         }
     } else if (selectedText.startsWith('[') && selectedText.endsWith(']')) {
         QString innerExpr = selectedText.mid(1, selectedText.length() - 2);
+
+        if (offset != RVA_INVALID) {
+            auto vars = Core()->getVariables(offset);
+            for (auto &var : vars) {
+                qDebug() << "var" << var.name << var.value << innerExpr;
+                if (var.name == innerExpr) {
+                    auto msg = QString("var %1 = %2").arg(var.name, var.value);
+                    QToolTip::showText(pointOfEvent, msg, parent);
+                    return true;
+                }
+            }
+        }
+
         ut64 val = Core()->math(selectedText);
         ut64 addr = Core()->math(innerExpr);
         auto msg = QString("%1 = 0x%2 -> 0x%3").arg(selectedText).arg(addr, 0, 16).arg(val, 0, 16);
