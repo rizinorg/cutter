@@ -81,7 +81,11 @@ void ItemCountLineEdit::updateLabelPosition()
     if (m_itemCountAutoHide) {
         QFont font = this->font();
         QFontMetrics fm(font);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
         int textWidth = fm.horizontalAdvance(this->text());
+#else
+        int textWidth = fm.width(this->text());
+#endif
         const int BUFFER = Config()->windowColorIsDark() ? 4 : 5;
         if (x <= (PADDING * BUFFER) + textWidth) {
             m_itemCountLabel->hide();
