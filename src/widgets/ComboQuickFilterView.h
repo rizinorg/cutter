@@ -1,17 +1,15 @@
 #ifndef COMBOQUICKFILTERVIEW_H
 #define COMBOQUICKFILTERVIEW_H
 
-#include "core/CutterCommon.h"
-
-#include <QWidget>
+#include "AbstractFilterView.h"
 #include <QComboBox>
-#include <QTimer>
+#include <memory>
 
 namespace Ui {
 class ComboQuickFilterView;
 }
 
-class CUTTER_EXPORT ComboQuickFilterView : public QWidget
+class ComboQuickFilterView : public AbstractFilterView
 {
     Q_OBJECT
 
@@ -22,18 +20,11 @@ public:
     void setLabelText(const QString &text);
     QComboBox *comboBox();
 
-public slots:
-    void showFilter();
-    void closeFilter();
-    void clearFilter();
-
-signals:
-    void filterTextChanged(const QString &text);
-    void filterClosed();
+protected:
+    ItemCountLineEdit *lineEdit() const override;
 
 private:
-    Ui::ComboQuickFilterView *ui;
-    QTimer *debounceTimer;
+    std::unique_ptr<Ui::ComboQuickFilterView> ui;
 };
 
 #endif // COMBOQUICKFILTERVIEW_H

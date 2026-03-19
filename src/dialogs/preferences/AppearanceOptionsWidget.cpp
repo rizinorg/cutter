@@ -78,6 +78,21 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
     ui->useDecompilerHighlighter->setChecked(Config()->isDecompilerAnnotationHighlighterEnabled());
     connect(ui->useDecompilerHighlighter, &QCheckBox::toggled, this,
             [](bool checked) { Config()->enableDecompilerAnnotationHighlighter(checked); });
+
+    ui->quickFilterCheckBox->setChecked(Config()->getShowQuickFilter());
+    connect(ui->quickFilterCheckBox, &QCheckBox::toggled, this,
+            [](bool checked) { Config()->setShowQuickFilter(checked); });
+
+    ui->itemCountCheckBox->setChecked(Config()->getItemCountVisible());
+    connect(ui->itemCountCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
+        Config()->setItemCountVisible(checked);
+        ui->hideItemCountCheckBox->setEnabled(checked);
+    });
+
+    connect(ui->hideItemCountCheckBox, &QCheckBox::toggled, this,
+            [](bool checked) { Config()->setItemCountAutoHide(checked); });
+    ui->hideItemCountCheckBox->setChecked(Config()->getItemCountAutoHide());
+    ui->hideItemCountCheckBox->setEnabled(ui->itemCountCheckBox->isChecked());
 }
 
 AppearanceOptionsWidget::~AppearanceOptionsWidget() {}

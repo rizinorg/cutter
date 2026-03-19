@@ -144,17 +144,13 @@ void GlobalsWidget::deleteGlobal()
     Core()->delGlobalVariable(globalVariableAddress);
 }
 
-GlobalsWidget::GlobalsWidget(MainWindow *main)
-    : CutterDockWidget(main), ui(new Ui::GlobalsWidget), tree(new CutterTreeWidget(this))
+GlobalsWidget::GlobalsWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::GlobalsWidget)
 {
     ui->setupUi(this);
     ui->quickFilterView->setLabelText(tr("Category"));
 
     setWindowTitle(tr("Globals"));
     setObjectName("GlobalsWidget");
-
-    // Add status bar which displays the count
-    tree->addStatusBar(ui->verticalLayout);
 
     // Set single select mode
     ui->treeView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -174,7 +170,7 @@ GlobalsWidget::GlobalsWidget(MainWindow *main)
             &QSortFilterProxyModel::setFilterWildcard);
 
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
-            [this] { tree->showItemsNumber(globalsProxyModel->rowCount()); });
+            [this] { ui->quickFilterView->setItemCount(globalsProxyModel->rowCount()); });
 
     QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
     connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
@@ -210,6 +206,9 @@ void GlobalsWidget::refreshGlobals()
     globalsModel->beginResetModel();
     globalsModel->globals = Core()->getAllGlobals();
     globalsModel->endResetModel();
+
+    // set the initial item count
+    ui->quickFilterView->setItemCount(globalsProxyModel->rowCount());
 
     qhelpers::adjustColumns(ui->treeView, GlobalsModel::ColumnCount, 0);
 }

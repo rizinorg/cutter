@@ -1,34 +1,38 @@
-
 #include "QuickFilterView.h"
 #include "ui_QuickFilterView.h"
+#include "Configuration.h"
 
-QuickFilterView::QuickFilterView(QWidget *parent, bool defaultOn)
-    : QWidget(parent), ui(new Ui::QuickFilterView())
+QuickFilterView::QuickFilterView(QWidget *parent)
+    : AbstractFilterView(parent), ui(new Ui::QuickFilterView())
 {
     ui->setupUi(this);
 
-    debounceTimer = new QTimer(this);
-    debounceTimer->setSingleShot(true);
+    setupSharedConnections();
 
     connect(ui->closeFilterButton, &QAbstractButton::clicked, this, &QuickFilterView::closeFilter);
 
-    connect(debounceTimer, &QTimer::timeout, this,
-            [this]() { emit filterTextChanged(ui->filterLineEdit->text()); });
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, &QuickFilterView::customContextMenuRequested, this,
+            &QuickFilterView::showCustomContextMenu);
 
-    connect(ui->filterLineEdit, &QLineEdit::textChanged, this,
-            [this]() { debounceTimer->start(150); });
+    connect(Config(), &Configuration::quickFilterToggled, this, [this](bool show) {
+        if (show) {
+            this->show();
+        } else if (ui->filterLineEdit->text().isEmpty()) {
+            this->hide();
+        }
+    });
 
-    if (!defaultOn) {
-        closeFilter();
+    if (!Config()->getShowQuickFilter()) {
+        hide();
     }
 }
 
 QuickFilterView::~QuickFilterView() {}
 
-void QuickFilterView::showFilter()
+ItemCountLineEdit *QuickFilterView::lineEdit() const
 {
-    show();
-    ui->filterLineEdit->setFocus();
+    return ui->filterLineEdit;
 }
 
 void QuickFilterView::clearFilter()
@@ -38,11 +42,4 @@ void QuickFilterView::clearFilter()
     } else {
         ui->filterLineEdit->setText("");
     }
-}
-
-void QuickFilterView::closeFilter()
-{
-    ui->filterLineEdit->setText("");
-    hide();
-    emit filterClosed();
 }

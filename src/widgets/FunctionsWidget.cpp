@@ -586,6 +586,9 @@ void FunctionsWidget::refreshTree()
                 functionModel->updateCurrentIndex();
                 functionModel->endResetModel();
 
+                // set the initial item count
+                ui->quickFilterView->setItemCount(functionProxyModel->rowCount());
+
                 // resize offset and size columns
                 qhelpers::adjustColumns(ui->treeView, 3, 0);
             });

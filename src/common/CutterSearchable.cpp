@@ -36,6 +36,7 @@ void CutterSearchableHelper::setupConnections(QWidget *parent, SearchBarWidget *
                      [searchable]() { searchable->searchBarShown(); });
 
     QShortcut *shortcut = Shortcuts()->makeQShortcut("Search.toggle", parent);
+    shortcut->setContext(Qt::WidgetWithChildrenShortcut);
     QObject::connect(shortcut, &QShortcut::activated, parent, [=]() {
         if (searchBar->isVisible()) {
             if (searchBar->hasFocus()) {

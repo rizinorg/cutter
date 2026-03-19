@@ -1,6 +1,7 @@
  /* QMainWindow */
 
 QHeaderView::section {
+     min-height: 1em;
      padding: 3px;
      padding-left: 10px;
 /*     border: 2px solid white;*/

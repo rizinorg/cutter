@@ -6,7 +6,6 @@
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
 #include "common/StringsTask.h"
-#include "CutterTreeWidget.h"
 #include "AddressableItemModel.h"
 
 #include <QAbstractListModel>
@@ -92,7 +91,6 @@ private:
 
     StringsModel *model;
     StringsProxyModel *proxyModel;
-    CutterTreeWidget *tree;
 };
 
 #endif // STRINGSWIDGET_H

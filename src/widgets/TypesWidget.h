@@ -5,7 +5,6 @@
 
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
-#include "CutterTreeWidget.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
@@ -134,7 +133,6 @@ private:
 
     TypesModel *types_model;
     TypesSortFilterProxyModel *types_proxy_model;
-    CutterTreeWidget *tree;
     QAction *actionViewType;
     QAction *actionEditType;
     QAction *actionShowVariables;

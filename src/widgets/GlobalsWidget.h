@@ -77,7 +77,6 @@ private:
 
     GlobalsModel *globalsModel;
     GlobalsProxyModel *globalsProxyModel;
-    CutterTreeWidget *tree;
 
     QAction *actionEditGlobal;
     QAction *actionDeleteGlobal;

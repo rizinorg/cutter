@@ -116,8 +116,7 @@ bool MemoryProxyModel::lessThan(const QModelIndex &left, const QModelIndex &righ
     return leftMemMap.addrStart < rightMemMap.addrStart;
 }
 
-MemoryMapWidget::MemoryMapWidget(MainWindow *main)
-    : ListDockWidget(main, ListDockWidget::SearchBarPolicy::HideByDefault)
+MemoryMapWidget::MemoryMapWidget(MainWindow *main) : ListDockWidget(main)
 {
     setWindowTitle(tr("Memory Map"));
     setObjectName("MemoryMapWidget");
@@ -133,8 +132,8 @@ MemoryMapWidget::MemoryMapWidget(MainWindow *main)
     connect(Core(), &CutterCore::registersChanged, this, &MemoryMapWidget::refreshMemoryMap);
     connect(Core(), &CutterCore::commentsChanged, this,
             [this]() { qhelpers::emitColumnChanged(memoryModel, MemoryMapModel::CommentColumn); });
-
-    showCount(false);
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
+            [this] { ui->quickFilterView->setItemCount(memoryProxyModel->rowCount()); });
 }
 
 MemoryMapWidget::~MemoryMapWidget() = default;
@@ -155,4 +154,7 @@ void MemoryMapWidget::refreshMemoryMap()
     ui->treeView->resizeColumnToContents(0);
     ui->treeView->resizeColumnToContents(1);
     ui->treeView->resizeColumnToContents(2);
+
+    // set the initial item count
+    ui->quickFilterView->setItemCount(memoryProxyModel->rowCount());
 }

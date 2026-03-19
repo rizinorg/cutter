@@ -947,3 +947,36 @@ bool Configuration::getNavBarLegendEnabled()
 {
     return s.value("navBarLegend").toBool();
 }
+
+void Configuration::setShowQuickFilter(bool show)
+{
+    s.setValue("showQuickFilter", show);
+    emit quickFilterToggled(show);
+}
+
+bool Configuration::getShowQuickFilter() const
+{
+    return s.value("showQuickFilter", true).toBool();
+}
+
+void Configuration::setItemCountVisible(bool visible)
+{
+    s.setValue("itemCountVisible", visible);
+    emit itemCountToggled(visible);
+}
+
+bool Configuration::getItemCountVisible() const
+{
+    return s.value("itemCountVisible", true).toBool();
+}
+
+void Configuration::setItemCountAutoHide(bool value)
+{
+    s.value("autoHideItemCount", value);
+    emit itemCountAutoHideToggled(value);
+}
+
+bool Configuration::getItemCountAutoHide() const
+{
+    return s.value("autoHideItemCount", false).toBool();
+}

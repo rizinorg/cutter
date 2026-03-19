@@ -9,7 +9,6 @@
 
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
-#include "CutterTreeWidget.h"
 #include "AddressableItemList.h"
 #include "AddressableItemModel.h"
 
@@ -84,7 +83,6 @@ private:
     bool disableFlagRefresh = false;
     FlagsModel *flags_model;
     FlagsSortFilterProxyModel *flags_proxy_model;
-    CutterTreeWidget *tree;
 
     void refreshFlags();
     void setScrollMode();

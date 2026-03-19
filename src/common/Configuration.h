@@ -300,12 +300,53 @@ public:
      */
     bool getNavBarLegendEnabled();
 
+    /**
+     * @brief Enable or disable the display of the Quick Filter by default in views
+     * @param show Set to true to show the Quick Filter by default
+     */
+    void setShowQuickFilter(bool show);
+
+    /**
+     * @brief Check if the Quick Filter is set to be shown by default
+     * @return True if the Quick Filter is shown by default, false otherwise
+     */
+    bool getShowQuickFilter() const;
+
+    /**
+     * @brief Enable or disable the visibility of the item count label within the Quick Filter
+     * @param visible Set to true to show the item count, false to hide it
+     */
+    void setItemCountVisible(bool visible);
+
+    /**
+     * @brief Check if the item count label within the Quick Filter is set to be visible
+     * @return True if the item count is visible, false otherwise
+     */
+    bool getItemCountVisible() const;
+
+    /**
+     * @brief Enable or disable the item count label automatically hiding on overflow within the
+     * Quick Filter
+     * @param value Set to true to auto hide the item count, false otherwise
+     */
+    void setItemCountAutoHide(bool value);
+
+    /**
+     * @brief Check if the item count label within the Quick Filter is set to automatically hide on
+     * overflow
+     * @return True if the item count is set to auto hide, false otherwise
+     */
+    bool getItemCountAutoHide() const;
+
 public slots:
     void refreshFont();
 signals:
     void fontsUpdated();
     void colorsUpdated();
     void interfaceThemeChanged();
+    void quickFilterToggled(bool show);
+    void itemCountToggled(bool visible);
+    void itemCountAutoHideToggled(bool value);
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
     void kSyntaxHighlightingThemeChanged();
 #endif

@@ -141,12 +141,9 @@ bool FlagsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIn
 }
 
 FlagsWidget::FlagsWidget(MainWindow *main)
-    : CutterDockWidget(main), ui(new Ui::FlagsWidget), main(main), tree(new CutterTreeWidget(this))
+    : CutterDockWidget(main), ui(new Ui::FlagsWidget), main(main)
 {
     ui->setupUi(this);
-
-    // Add Status Bar footer
-    tree->addStatusBar(ui->verticalLayout);
 
     flags_model = new FlagsModel(this);
     flags_proxy_model = new FlagsSortFilterProxyModel(flags_model, this);
@@ -174,7 +171,7 @@ FlagsWidget::FlagsWidget(MainWindow *main)
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     connect(ui->filterLineEdit, &QLineEdit::textChanged, this,
-            [this] { tree->showItemsNumber(flags_proxy_model->rowCount()); });
+            [this] { ui->filterLineEdit->setItemCount(flags_proxy_model->rowCount()); });
 
     setScrollMode();
 
@@ -267,7 +264,8 @@ void FlagsWidget::refreshFlags()
     flags_model->flags = Core()->getAllFlags(flagspace);
     flags_model->endResetModel();
 
-    tree->showItemsNumber(flags_proxy_model->rowCount());
+    // set the initial item count
+    ui->filterLineEdit->setItemCount(flags_proxy_model->rowCount());
 
     // TODO: this is not a very good place for the following:
     QStringList flagNames;

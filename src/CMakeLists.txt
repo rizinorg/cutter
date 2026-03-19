@@ -73,7 +73,6 @@ set(SOURCES
     CutterApplication.cpp
     dialogs/RizinPluginsDialog.cpp
     widgets/CutterDockWidget.cpp
-    widgets/CutterTreeWidget.cpp
     widgets/GraphWidget.cpp
     widgets/OverviewWidget.cpp
     common/JsonModel.cpp
@@ -169,6 +168,8 @@ set(SOURCES
     widgets/SearchableDockWidget.cpp
     common/CutterSearchable.cpp
     widgets/SearchableTextEdit.cpp
+    widgets/ItemCountLineEdit.cpp
+    widgets/AbstractFilterView.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -242,7 +243,6 @@ set(HEADER_FILES
     widgets/SearchWidget.h
     dialogs/RizinPluginsDialog.h
     widgets/CutterDockWidget.h
-    widgets/CutterTreeWidget.h
     widgets/GraphWidget.h
     widgets/OverviewWidget.h
     common/JsonModel.h
@@ -347,6 +347,8 @@ set(HEADER_FILES
     widgets/SearchableDockWidget.h
     common/CutterSearchable.h
     widgets/SearchableTextEdit.h
+    widgets/ItemCountLineEdit.h
+    widgets/AbstractFilterView.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui

@@ -140,18 +140,17 @@ SegmentsWidget::SegmentsWidget(MainWindow *main) : ListDockWidget(main)
     setWindowTitle(tr("Segments"));
 
     segmentsModel = new SegmentsModel(this);
-    auto proxyModel = new SegmentsProxyModel(segmentsModel, this);
+    proxyModel = new SegmentsProxyModel(segmentsModel, this);
     setModels(proxyModel);
 
     ui->treeView->sortByColumn(SegmentsModel::NameColumn, Qt::AscendingOrder);
-
-    ui->quickFilterView->closeFilter();
-    showCount(false);
 
     connect(Core(), &CutterCore::refreshAll, this, &SegmentsWidget::refreshSegments);
     connect(Core(), &CutterCore::codeRebased, this, &SegmentsWidget::refreshSegments);
     connect(Core(), &CutterCore::commentsChanged, this,
             [this]() { qhelpers::emitColumnChanged(segmentsModel, SegmentsModel::CommentColumn); });
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
+            [this] { ui->quickFilterView->setItemCount(proxyModel->rowCount()); });
 }
 
 SegmentsWidget::~SegmentsWidget() {}
@@ -163,4 +162,7 @@ void SegmentsWidget::refreshSegments()
     segmentsModel->endResetModel();
 
     qhelpers::adjustColumns(ui->treeView, SegmentsModel::ColumnCount, 0);
+
+    // set the initial item count
+    ui->quickFilterView->setItemCount(proxyModel->rowCount());
 }

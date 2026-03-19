@@ -504,6 +504,7 @@ QTableCornerButton::section
 
 QHeaderView::section
 {
+  min-height: 1em;
   background-color:#fafcfe;
   border-radius:0;
   text-align:center;

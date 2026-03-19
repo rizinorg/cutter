@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>619</width>
-    <height>225</height>
+    <height>365</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,288 +15,335 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QFormLayout" name="formLayout">
-     <property name="labelAlignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    <widget class="QGroupBox" name="styleGroupBox">
+     <property name="enabled">
+      <bool>true</bool>
      </property>
-     <property name="formAlignment">
-      <set>Qt::AlignCenter</set>
+     <property name="title">
+      <string>Style</string>
      </property>
-     <item row="0" column="0">
-      <widget class="QLabel" name="fontLabel">
-       <property name="text">
-        <string>Font:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <layout class="QHBoxLayout" name="fontSelectionLayout">
-       <item>
-        <widget class="QLabel" name="fontSelectionLabel">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>1</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string notr="true"/>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="fontSelectionButton">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Select font</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>30</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Zoom</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="fontZoomBox">
-         <property name="wrapping">
-          <bool>false</bool>
-         </property>
-         <property name="frame">
-          <bool>true</bool>
-         </property>
-         <property name="buttonSymbols">
-          <enum>QAbstractSpinBox::PlusMinus</enum>
-         </property>
-         <property name="showGroupSeparator" stdset="0">
-          <bool>false</bool>
-         </property>
-         <property name="suffix">
-          <string>%</string>
-         </property>
-         <property name="minimum">
-          <number>10</number>
-         </property>
-         <property name="maximum">
-          <number>3000</number>
-         </property>
-         <property name="singleStep">
-          <number>10</number>
-         </property>
-         <property name="value">
-          <number>100</number>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="languageLabel">
-       <property name="text">
-        <string>Language:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="languageComboBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="themeLabel">
-       <property name="text">
-        <string>Interface Theme:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="themeComboBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <item>
+     <layout class="QFormLayout" name="formLayout">
+      <property name="labelAlignment">
+       <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+      </property>
+      <property name="formAlignment">
+       <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
+      </property>
+      <property name="topMargin">
+       <number>24</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="fontLabel">
         <property name="text">
-         <string>Default</string>
+         <string>Font:</string>
         </property>
-       </item>
-       <item>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <layout class="QHBoxLayout" name="fontSelectionLayout">
+        <item>
+         <widget class="QLabel" name="fontSelectionLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="fontSelectionButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Select font</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>30</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Zoom</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="fontZoomBox">
+          <property name="wrapping">
+           <bool>false</bool>
+          </property>
+          <property name="frame">
+           <bool>true</bool>
+          </property>
+          <property name="buttonSymbols">
+           <enum>QAbstractSpinBox::ButtonSymbols::PlusMinus</enum>
+          </property>
+          <property name="showGroupSeparator" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="suffix">
+           <string>%</string>
+          </property>
+          <property name="minimum">
+           <number>10</number>
+          </property>
+          <property name="maximum">
+           <number>3000</number>
+          </property>
+          <property name="singleStep">
+           <number>10</number>
+          </property>
+          <property name="value">
+           <number>100</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="languageLabel">
         <property name="text">
-         <string>Dark</string>
+         <string>Language:</string>
         </property>
-       </item>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="colorLabel">
-       <property name="text">
-        <string>Color Theme:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="ColorThemeComboBox" name="colorComboBox">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="editButton">
-         <property name="toolTip">
-          <string>Edit Theme</string>
-         </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="languageComboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="themeLabel">
+        <property name="text">
+         <string>Interface Theme:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="themeComboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <item>
          <property name="text">
-          <string/>
+          <string>Default</string>
          </property>
-         <property name="icon">
-          <iconset resource="../../resources.qrc">
-           <normaloff>:/img/icons/pencil_thin.svg</normaloff>:/img/icons/pencil_thin.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="renameButton">
-         <property name="toolTip">
-          <string>Rename</string>
-         </property>
+        </item>
+        <item>
          <property name="text">
-          <string/>
+          <string>Dark</string>
          </property>
-         <property name="icon">
-          <iconset resource="../../resources.qrc">
-           <normaloff>:/img/icons/rename.svg</normaloff>:/img/icons/rename.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="copyButton">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip">
-          <string>Copy</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources.qrc">
-           <normaloff>:/img/icons/copy.svg</normaloff>:/img/icons/copy.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="deleteButton">
-         <property name="toolTip">
-          <string>Delete</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources.qrc">
-           <normaloff>:/img/icons/trash_bin.svg</normaloff>:/img/icons/trash_bin.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="exportButton">
-         <property name="toolTip">
-          <string>Export</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources.qrc">
-           <normaloff>:/img/icons/upload_black.svg</normaloff>:/img/icons/upload_black.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="importButton">
-         <property name="toolTip">
-          <string>Import</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources.qrc">
-           <normaloff>:/img/icons/download_black.svg</normaloff>:/img/icons/download_black.svg</iconset>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_3"/>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-    </layout>
+        </item>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="colorLabel">
+        <property name="text">
+         <string>Color Theme:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="ColorThemeComboBox" name="colorComboBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="editButton">
+          <property name="toolTip">
+           <string>Edit Theme</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../resources.qrc">
+            <normaloff>:/img/icons/pencil_thin.svg</normaloff>:/img/icons/pencil_thin.svg</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="renameButton">
+          <property name="toolTip">
+           <string>Rename</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../resources.qrc">
+            <normaloff>:/img/icons/rename.svg</normaloff>:/img/icons/rename.svg</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="copyButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Copy</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../resources.qrc">
+            <normaloff>:/img/icons/copy.svg</normaloff>:/img/icons/copy.svg</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="deleteButton">
+          <property name="toolTip">
+           <string>Delete</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../resources.qrc">
+            <normaloff>:/img/icons/trash_bin.svg</normaloff>:/img/icons/trash_bin.svg</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="exportButton">
+          <property name="toolTip">
+           <string>Export</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../resources.qrc">
+            <normaloff>:/img/icons/upload_black.svg</normaloff>:/img/icons/upload_black.svg</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="importButton">
+          <property name="toolTip">
+           <string>Import</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../resources.qrc">
+            <normaloff>:/img/icons/download_black.svg</normaloff>:/img/icons/download_black.svg</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="useDecompilerHighlighter">
+        <property name="toolTip">
+         <string>Use information provided by decompiler when highlighting code.</string>
+        </property>
+        <property name="text">
+         <string>Decompiler based highlighting</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="useDecompilerHighlighter">
-     <property name="toolTip">
-      <string>Use information provided by decompiler when highlighting code.</string>
+    <widget class="QGroupBox" name="quickFilterGroupBox">
+     <property name="title">
+      <string>Quick FIlter</string>
      </property>
-     <property name="text">
-      <string>Decompiler based highlighting</string>
-     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="topMargin">
+       <number>24</number>
+      </property>
+      <item>
+       <widget class="QCheckBox" name="quickFilterCheckBox">
+        <property name="text">
+         <string>Show Quick Filter by default</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="itemCountCheckBox">
+        <property name="text">
+         <string>Show Item Count in Quick Filter</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="hideItemCountCheckBox">
+        <property name="text">
+         <string>Hide Item Count on overflow</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
-      <enum>Qt::Vertical</enum>
+      <enum>Qt::Orientation::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>

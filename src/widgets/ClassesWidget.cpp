@@ -693,6 +693,9 @@ void ClassesWidget::refreshClasses()
 
     qhelpers::adjustColumns(ui->treeView, 3, 0);
 
+    // set the initial item count
+    ui->quickFilterView->setItemCount(proxy_model->rowCount());
+
     ui->treeView->setColumnWidth(0, 200);
 }
 
