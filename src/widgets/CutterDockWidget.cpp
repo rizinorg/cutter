@@ -3,6 +3,7 @@
 
 #include <QEvent>
 #include <QShortcut>
+#include <QApplication>
 
 CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *) : CutterDockWidget(parent) {}
 
@@ -12,6 +13,24 @@ CutterDockWidget::CutterDockWidget(MainWindow *parent) : QDockWidget(parent), ma
     installEventFilter(this);
     updateIsVisibleToUser();
     connect(toggleViewAction(), &QAction::triggered, this, &QWidget::raise);
+}
+
+/**
+ * @brief On any event(targeting windowMove event) if the altmodifer is
+ * pressed then the dock will be non dockable.
+ */
+bool CutterDockWidget::event(QEvent *event)
+{
+    if (event->type() == QEvent::Move || event->type() == QEvent::MouseMove) {
+        Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
+
+        if (mods & Qt::AltModifier) {
+            setAllowedAreas(Qt::NoDockWidgetArea);
+        } else {
+            setAllowedAreas(Qt::AllDockWidgetAreas);
+        }
+    }
+    return QDockWidget::event(event);
 }
 
 CutterDockWidget::~CutterDockWidget() = default;

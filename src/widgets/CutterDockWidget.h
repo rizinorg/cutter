@@ -5,6 +5,7 @@
 #include "common/RefreshDeferrer.h"
 
 #include <QDockWidget>
+#include <QPushButton>
 
 class MainWindow;
 
@@ -109,6 +110,7 @@ protected:
     virtual QWidget *widgetToFocusOnRaise();
 
     void closeEvent(QCloseEvent *event) override;
+    bool event(QEvent *event) override;
     QString getDockNumber();
 
     MainWindow *mainWindow;
