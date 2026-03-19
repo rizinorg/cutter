@@ -116,9 +116,7 @@ bool RegisterRefProxyModel::lessThan(const QModelIndex &left, const QModelIndex 
 }
 
 RegisterRefsWidget::RegisterRefsWidget(MainWindow *main)
-    : CutterDockWidget(main),
-      ui(new Ui::RegisterRefsWidget),
-      addressableItemContextMenu(this, main)
+    : CutterDockWidget(main), ui(new Ui::RegisterRefsWidget), addressableItemContextMenu(this, main)
 {
     ui->setupUi(this);
 

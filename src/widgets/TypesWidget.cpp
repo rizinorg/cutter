@@ -187,7 +187,7 @@ TypesWidget::TypesWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::
 
     connect(ui->quickFilterView->comboBox(), &QComboBox::currentTextChanged, this, [this]() {
         types_proxy_model->setCategory(ui->quickFilterView->comboBox()->currentData().toString());
-        ui->quickFilterView->setItemCount(types_proxy_model->rowCount()); 
+        ui->quickFilterView->setItemCount(types_proxy_model->rowCount());
     });
 
     actionViewType = new QAction(tr("View Type"), this);
