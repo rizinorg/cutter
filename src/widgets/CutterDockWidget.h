@@ -5,7 +5,6 @@
 #include "common/RefreshDeferrer.h"
 #include "shortcuts/ShortcutManager.h"
 #include <QDockWidget>
-#include <QPushButton>
 
 class MainWindow;
 

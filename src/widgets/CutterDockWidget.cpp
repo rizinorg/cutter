@@ -4,7 +4,6 @@
 #include <QEvent>
 #include <QShortcut>
 #include <QApplication>
-#include <QKeySequence>
 
 CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *) : CutterDockWidget(parent) {}
 
