@@ -114,11 +114,9 @@ bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
 {
     bool isWordEmpty = ctx.word.isEmpty();
     if (hasPreview) {
-        auto ta = DH::resolveTarget(ctx, DH::XRefComments | DH::Arrows | DH::Variables);
+        auto ta = DH::resolveTarget(ctx, DH::XRefComments | DH::Arrows);
 
-        if (!isWordEmpty
-            && (ta.type == DH::TargetType::XRefComment
-                || ta.type == DH::TargetType::VariableName)) {
+        if (!isWordEmpty && ta.type == DH::TargetType::XRefComment) {
             if (ta.value != RVA_INVALID) {
                 showDisasPreviewAt(parent, globalPos, ta.value);
             }
