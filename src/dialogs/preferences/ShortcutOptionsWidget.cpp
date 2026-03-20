@@ -32,7 +32,7 @@ void ShortcutOptionsWidget::populateShortcutTree()
         { "Debug", tr("Debug") },           { "Functions", tr("Functions") },
         { "Omnibar", tr("Omnibar") },       { "Exports", tr("Exports") },
         { "Imports", tr("Imports") },       { "Overview", tr("Graph Overview") },
-        { "Docking", tr("Docking")},
+        { "Docking", tr("Docking") },
     };
 
     QHash<QString, QTreeWidgetItem *> prefixToItem;

@@ -3,8 +3,7 @@
 
 #include "core/CutterCommon.h"
 #include "common/RefreshDeferrer.h"
-#include "shortcuts/DefaultShortcuts.h"
-
+#include "shortcuts/ShortcutManager.h"
 #include <QDockWidget>
 #include <QPushButton>
 
@@ -121,14 +120,6 @@ protected:
     MainWindow *mainWindow;
 
 private:
-    /**
-     * @brief take keys from shortcut and convert it into keyboard modifier
-     * avoiding user confusion.
-     * TODO: a better method may be give a docking
-     * property to MainWindows event filter and setting a shortcut to toggling it
-     * on and off.
-     */
-    Qt::KeyboardModifier keyToModifier();
     bool docking = true;
     bool isTransient = false;
 

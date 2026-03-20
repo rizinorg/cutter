@@ -6,7 +6,6 @@
 #include <QApplication>
 #include <QKeySequence>
 
-
 CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *) : CutterDockWidget(parent) {}
 
 CutterDockWidget::CutterDockWidget(MainWindow *parent) : QDockWidget(parent), mainWindow(parent)
@@ -17,38 +16,13 @@ CutterDockWidget::CutterDockWidget(MainWindow *parent) : QDockWidget(parent), ma
     connect(toggleViewAction(), &QAction::triggered, this, &QWidget::raise);
 }
 
-Qt::KeyboardModifier CutterDockWidget::keyToModifier()
+bool CutterDockWidget::event(QEvent *event)
 {
-    Qt::Key key = static_cast<Qt::Key>(
-            getDefaultShortcuts()["Docking.toggle"].keySequences[0][0]
-            & ~Qt::KeyboardModifierMask
-            );
-    switch (key) {
-    case Qt::Key_Shift:
-        return Qt::ShiftModifier;
-
-    case Qt::Key_Control:
-        return Qt::ControlModifier;
-
-    case Qt::Key_Alt:
-        return Qt::AltModifier;
-
-    case Qt::Key_Meta:
-        return Qt::MetaModifier;
-    case Qt::Key_AltGr:
-        return Qt::GroupSwitchModifier;
-
-    default:
-        return Qt::NoModifier;
-    }
-}
-
-bool CutterDockWidget::event(QEvent *event) {
 
     if (event->type() == QEvent::Move || event->type() == QEvent::MouseMove) {
 
         Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
-        Qt::KeyboardModifier mod = keyToModifier();
+        Qt::KeyboardModifier mod = Shortcuts()->getKeyboardModifier("Docking.toggle");
 
         if (mods & mod) {
             setAllowedAreas(Qt::NoDockWidgetArea);

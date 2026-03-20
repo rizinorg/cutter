@@ -329,11 +329,11 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
             QT_TRANSLATE_NOOP("SearchBarWidget", "Show Search Bar Options Menu"),
             "SearchBarWidget" } },
 
-        //Docking
-        {"Docking.toggle",
-          {{Qt::Key_Alt},
-          QT_TRANSLATE_NOOP("CutterDockWidget","Enable/Disable Docking"),
-          "CutterDockWidget"}},
+        // Docking
+        { "Docking.toggle",
+          { { Qt::Key_Alt },
+            QT_TRANSLATE_NOOP("CutterDockWidget", "Enable/Disable Docking"),
+            "CutterDockWidget" } },
 
     };
     return defaultShortcuts;
