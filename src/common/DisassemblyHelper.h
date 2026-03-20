@@ -27,9 +27,13 @@ namespace DisassemblyHelper {
  */
 enum class TargetType {
     VariableName,
+    VariableValue,
     TypeName,
     XRefComment,
     Arrow,
+    Register,
+    Memory,
+    MMIO,
     None,
 };
 
@@ -49,7 +53,7 @@ struct TargetContext
  */
 struct TargetAction
 {
-    RVA offset;
+    RVA value;
     TargetType type;
 };
 
@@ -61,8 +65,11 @@ enum TargetFilter {
     Variables = 1 << 1,
     Types = 1 << 2,
     Arrows = 1 << 3,
+    Registers = 1 << 4,
+    Memory = 1 << 5,
+    MMIO = 1 << 6,
 
-    All = XRefComments | Variables | Types | Arrows
+    All = XRefComments | Variables | Types | Arrows | Registers | Memory | MMIO
 };
 
 DisassemblyTextBlockUserData *getUserData(const QTextBlock &block);

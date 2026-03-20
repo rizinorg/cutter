@@ -984,10 +984,14 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
         Core()->showTypeInTypesWidget(ctx.word);
         break;
     case DH::TargetType::XRefComment:
+    case DH::TargetType::Register:
+    case DH::TargetType::Memory:
+    case DH::TargetType::MMIO:
+    case DH::TargetType::VariableValue:
     case DH::TargetType::VariableName:
     case DH::TargetType::Arrow:
-        if (ta.offset != RVA_INVALID) {
-            seekable->seek(ta.offset);
+        if (ta.value != RVA_INVALID) {
+            seekable->seek(ta.value);
         }
         break;
     case DH::TargetType::None:

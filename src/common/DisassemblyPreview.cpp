@@ -63,92 +63,44 @@ bool DisassemblyPreview::showDisasPreviewAt(QWidget *parent, const QPoint &point
     return false;
 }
 
-typedef struct mmio_lookup_context
+bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &pointOfEvent,
+                                               const DH::TargetAction &ta,
+                                               const DH::TargetContext &ctx)
 {
-    QString selected;
-    RVA mmio_address;
-} mmio_lookup_context_t;
-
-static bool lookup_mmio_addr_cb(void *user, const ut64 key, const void *value)
-{
-    mmio_lookup_context_t *ctx = (mmio_lookup_context_t *)user;
-    if (ctx->selected == (const char *)value) {
-        ctx->mmio_address = key;
+    QString msg;
+    switch (ta.type) {
+    case DH::TargetType::Register: {
+        msg = QString("reg %1 = 0x%2").arg(ctx.word).arg(ta.value, 0, 16);
+        auto fcn = Core()->functionIn(ta.value);
+        if (fcn) {
+            msg += QString(" (%1)").arg(fcn->name);
+        }
+        break;
+    }
+    case DH::TargetType::VariableValue: {
+        msg = QString("var %1 = 0x%2").arg(ctx.word).arg(ta.value, 0, 16);
+        break;
+    }
+    case DH::TargetType::MMIO: {
+        int len = 8; // TODO: Determine proper len of mmio address for the cpu
+        auto core = Core()->lock();
+        if (char *r = rz_core_print_hexdump_or_hexdiff_str(core, RZ_OUTPUT_MODE_STANDARD, ta.value,
+                                                           len, false)) {
+            msg = QString("mmio %1 %2").arg(ctx.word, QString::fromUtf8(r).trimmed());
+            free(r);
+        }
+        break;
+    }
+    case DH::TargetType::Memory: {
+        ut64 addr = Core()->math(ctx.word.mid(1, ctx.word.length() - 2));
+        msg = QString("%1 = 0x%2 -> 0x%3").arg(ctx.word).arg(addr, 0, 16).arg(ta.value, 0, 16);
+        break;
+    }
+    default:
         return false;
     }
-    return true;
-}
 
-bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &pointOfEvent,
-                                               const QString &selectedText, const RVA offset)
-{
-    if (selectedText.isEmpty())
-        return false;
-
-    if (selectedText.at(0).isLetter()) {
-        const auto reg = Core()->getRegisterRefValue(selectedText);
-        if (!reg.name.isEmpty()) {
-            ut64 val = Core()->math(reg.value);
-            auto fcn = Core()->functionIn(val);
-            auto msg = QString("reg %1 = %2").arg(reg.name, reg.value);
-            if (fcn) {
-                msg += QString(" (%1)").arg(fcn->name);
-            }
-            QToolTip::showText(pointOfEvent, msg, parent);
-            return true;
-        }
-
-        if (offset != RVA_INVALID) {
-            auto vars = Core()->getVariables(offset);
-            for (auto &var : vars) {
-                if (var.name == selectedText) {
-                    auto msg = QString("var %1 = %2").arg(var.name, var.value);
-                    QToolTip::showText(pointOfEvent, msg, parent);
-                    return true;
-                }
-            }
-        }
-
-        {
-            // Lookup MMIO address
-            mmio_lookup_context_t ctx;
-            ctx.selected = selectedText;
-            ctx.mmio_address = RVA_INVALID;
-            auto core = Core()->lock();
-            RzPlatformTarget *arch_target = core->analysis->arch_target;
-            if (arch_target && arch_target->profile) {
-                ht_up_foreach(arch_target->profile->registers_mmio, lookup_mmio_addr_cb, &ctx);
-            }
-            if (ctx.mmio_address != RVA_INVALID) {
-                int len = 8; // TODO: Determine proper len of mmio address for the cpu
-                if (char *r = rz_core_print_hexdump_or_hexdiff_str(core, RZ_OUTPUT_MODE_STANDARD,
-                                                                   ctx.mmio_address, len, false)) {
-                    auto val = QString::fromUtf8(r).trimmed().split("\n").last();
-                    auto msg = QString("mmio %1 %2").arg(selectedText, val);
-                    free(r);
-                    QToolTip::showText(pointOfEvent, msg, parent);
-                    return true;
-                }
-            }
-        }
-    } else if (selectedText.startsWith('[') && selectedText.endsWith(']')) {
-        QString innerExpr = selectedText.mid(1, selectedText.length() - 2);
-
-        if (offset != RVA_INVALID) {
-            auto vars = Core()->getVariables(offset);
-            for (auto &var : vars) {
-                qDebug() << "var" << var.name << var.value << innerExpr;
-                if (var.name == innerExpr) {
-                    auto msg = QString("var %1 = %2").arg(var.name, var.value);
-                    QToolTip::showText(pointOfEvent, msg, parent);
-                    return true;
-                }
-            }
-        }
-
-        ut64 val = Core()->math(selectedText);
-        ut64 addr = Core()->math(innerExpr);
-        auto msg = QString("%1 = 0x%2 -> 0x%3").arg(selectedText).arg(addr, 0, 16).arg(val, 0, 16);
+    if (!msg.isEmpty()) {
         QToolTip::showText(pointOfEvent, msg, parent);
         return true;
     }
@@ -162,11 +114,13 @@ bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
 {
     bool isWordEmpty = ctx.word.isEmpty();
     if (hasPreview) {
-        auto ta = DH::resolveTarget(ctx, DH::XRefComments | DH::Arrows);
+        auto ta = DH::resolveTarget(ctx, DH::XRefComments | DH::Arrows | DH::Variables);
 
-        if (!isWordEmpty && ta.type == DH::TargetType::XRefComment) {
-            if (ta.offset != RVA_INVALID) {
-                showDisasPreviewAt(parent, globalPos, ta.offset);
+        if (!isWordEmpty
+            && (ta.type == DH::TargetType::XRefComment
+                || ta.type == DH::TargetType::VariableName)) {
+            if (ta.value != RVA_INVALID) {
+                showDisasPreviewAt(parent, globalPos, ta.value);
             }
             // consume the event even if the text under cursor is not an address, this prevents
             // jumping to incorrect offset (offset pointed to by the next instruction line)
@@ -174,7 +128,7 @@ bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
             return true;
         }
 
-        if (ta.type == DH::TargetType::Arrow && showDisasPreviewAt(parent, globalPos, ta.offset)) {
+        if (ta.type == DH::TargetType::Arrow && showDisasPreviewAt(parent, globalPos, ta.value)) {
             return true;
         }
 
@@ -183,9 +137,13 @@ bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
         }
     }
 
-    if (Config()->getShowVarTooltips() && !isWordEmpty
-        && showDebugValueTooltip(parent, globalPos, ctx.word, ctx.offset)) {
-        return true;
+    if (Config()->getShowVarTooltips() && !isWordEmpty) {
+        auto ta = DH::resolveTarget(ctx,
+                                    DH::TargetFilter::Registers | DH::TargetFilter::Variables
+                                            | DH::TargetFilter::Memory | DH::TargetFilter::MMIO);
+        if (ta.type != DH::TargetType::None && showDebugValueTooltip(parent, globalPos, ta, ctx)) {
+            return true;
+        }
     }
 
     return false;

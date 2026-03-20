@@ -652,8 +652,9 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
             case DH::TargetType::XRefComment:
             case DH::TargetType::VariableName:
             case DH::TargetType::Arrow:
-                if (ta.offset != RVA_INVALID) {
-                    seekable->seek(ta.offset);
+            case DH::TargetType::Register:
+                if (ta.value != RVA_INVALID) {
+                    seekable->seek(ta.value);
                 }
                 break;
             case DH::TargetType::None:
@@ -681,7 +682,7 @@ void DisassemblyWidget::keyPressEvent(QKeyEvent *event)
         const QTextCursor cursor = mDisasTextEdit->textCursor();
         auto ta = DH::resolveTarget(DH::getContextFromCursor(cursor), DH::TargetFilter::Arrows);
         if (ta.type == DH::TargetType::Arrow) {
-            seekable->seek(ta.offset);
+            seekable->seek(ta.value);
         } else {
             jumpToOffsetUnderCursor(cursor);
         }
