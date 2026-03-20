@@ -3,6 +3,7 @@
 
 #include "core/CutterCommon.h"
 #include "common/RefreshDeferrer.h"
+#include "shortcuts/DefaultShortcuts.h"
 
 #include <QDockWidget>
 #include <QPushButton>
@@ -108,14 +109,27 @@ public slots:
 
 protected:
     virtual QWidget *widgetToFocusOnRaise();
-
     void closeEvent(QCloseEvent *event) override;
+
+    /**
+     * @brief On any event(targeting windowMove event) if the altmodifer is
+     * pressed then the dock will be non dockable.
+     */
     bool event(QEvent *event) override;
     QString getDockNumber();
 
     MainWindow *mainWindow;
 
 private:
+    /**
+     * @brief take keys from shortcut and convert it into keyboard modifier
+     * avoiding user confusion.
+     * TODO: a better method may be give a docking
+     * property to MainWindows event filter and setting a shortcut to toggling it
+     * on and off.
+     */
+    Qt::KeyboardModifier keyToModifier();
+    bool docking = true;
     bool isTransient = false;
 
     bool isVisibleToUserCurrent = false;
