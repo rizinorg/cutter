@@ -7,6 +7,7 @@
 #include "common/Highlighter.h"
 #include "core/Cutter.h"
 #include "common/AddressableItemModel.h"
+#include "QuickFilterView.h"
 
 class XrefModel : public AddressableItemModel<QAbstractListModel>
 {
@@ -32,6 +33,18 @@ public:
     RVA address(const QModelIndex &index) const override;
 
     static QString xrefTypeString(const QString &type);
+    bool getTo() const;
+};
+
+class XrefFilterProxyModel : public AddressableFilterProxyModel
+{
+    Q_OBJECT
+public:
+    XrefFilterProxyModel(XrefModel *source_model, QObject *parent = nullptr);
+private:
+    bool to;
+protected:
+    bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
 };
 
 class MainWindow;
@@ -73,7 +86,9 @@ private:
     RVA addr;
     QString func_name;
     XrefModel toModel;
+    XrefFilterProxyModel toProxyModel;
     XrefModel fromModel;
+    XrefFilterProxyModel fromProxyModel;
 
     std::unique_ptr<Ui::XrefsDialog> ui;
 

@@ -9,7 +9,7 @@
 #include <QJsonArray>
 
 XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom)
-    : QDialog(parent), addr(0), toModel(this), fromModel(this), ui(new Ui::XrefsDialog)
+    : QDialog(parent), addr(0), toModel(this),toProxyModel(&toModel), fromModel(this),fromProxyModel(&fromModel), ui(new Ui::XrefsDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -17,8 +17,9 @@ XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom)
     ui->toTreeWidget->setMainWindow(parent);
     ui->fromTreeWidget->setMainWindow(parent);
 
-    ui->toTreeWidget->setModel(&toModel);
-    ui->fromTreeWidget->setModel(&fromModel);
+    ui->toTreeWidget->setModel(&toProxyModel);
+    ui->fromTreeWidget->setModel(&fromProxyModel);
+
 
     ui->toTreeWidget->getItemContextMenu()->toggleBreakpointAction(true);
     ui->fromTreeWidget->getItemContextMenu()->toggleBreakpointAction(true);
@@ -44,7 +45,8 @@ XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom)
             &XrefsDialog::onToTreeWidgetItemSelectionChanged);
     connect(ui->fromTreeWidget->selectionModel(), &QItemSelectionModel::selectionChanged, this,
             &XrefsDialog::onFromTreeWidgetItemSelectionChanged);
-
+    connect(ui->fromQuickFilter,&QuickFilterView::filterTextChanged,&fromProxyModel,&QSortFilterProxyModel::setFilterWildcard);
+    connect(ui->toQuickFilter,&QuickFilterView::filterTextChanged,&toProxyModel,&QSortFilterProxyModel::setFilterWildcard);
     // Don't create recursive xref dialogs
     auto toContextMenu = ui->toTreeWidget->getItemContextMenu();
     connect(toContextMenu, &AddressableItemContextMenu::xrefsTriggered, this, &QWidget::close);
@@ -317,3 +319,19 @@ RVA XrefModel::address(const QModelIndex &index) const
     const auto &xref = xrefs.at(index.row());
     return to ? xref.from : xref.to;
 }
+
+bool XrefModel::getTo() const{
+    return to;
+}
+
+XrefFilterProxyModel::XrefFilterProxyModel(XrefModel * source_model, QObject *parent)
+    : AddressableFilterProxyModel(source_model,parent),to(source_model->getTo())
+{
+}
+
+bool XrefFilterProxyModel::filterAcceptsRow(int row,const QModelIndex & parent) const{
+    QModelIndex index = sourceModel()->index(row,0,parent);
+    XrefDescription xref = index.data(XrefModel::FlagDescriptionRole).value<XrefDescription>();
+    return qhelpers::filterStringContains( to ? xref.to_str:xref.from_str,this);
+}
+
