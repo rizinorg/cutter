@@ -41,8 +41,10 @@ class XrefFilterProxyModel : public AddressableFilterProxyModel
     Q_OBJECT
 public:
     XrefFilterProxyModel(XrefModel *source_model, QObject *parent = nullptr);
+
 private:
     bool to;
+
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
 };
