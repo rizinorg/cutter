@@ -167,7 +167,7 @@
     </widget>
     <widget class="QMenu" name="menuAddDebugWidgets">
      <property name="title">
-      <string>Debug...</string>
+      <string>&Debug...</string>
      </property>
     </widget>
     <addaction name="actionExtraDecompiler"/>
