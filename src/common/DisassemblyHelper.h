@@ -26,7 +26,7 @@ namespace DisassemblyHelper {
  * @brief Identifies what kind of item was clicked or hovered
  */
 enum class TargetType {
-    VariableName,
+    VariableXRef,
     VariableValue,
     TypeName,
     XRefComment,
@@ -62,14 +62,17 @@ struct TargetAction
  */
 enum TargetFilter {
     XRefComments = 1 << 0,
-    Variables = 1 << 1,
-    Types = 1 << 2,
-    Arrows = 1 << 3,
-    Registers = 1 << 4,
-    Memory = 1 << 5,
-    MMIO = 1 << 6,
+    VariableXrefs = 1 << 1,
+    VariableValues = 1 << 2,
+    Types = 1 << 3,
+    Arrows = 1 << 4,
+    Registers = 1 << 5,
+    Memory = 1 << 6,
+    MMIO = 1 << 7,
 
-    All = XRefComments | Variables | Types | Arrows | Registers | Memory | MMIO
+    Standard = XRefComments | VariableXrefs | Types | Arrows,
+    Debug = Registers | Memory | MMIO | VariableValues,
+    All = Standard | Debug
 };
 
 DisassemblyTextBlockUserData *getUserData(const QTextBlock &block);

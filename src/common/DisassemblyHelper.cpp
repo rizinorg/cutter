@@ -129,7 +129,7 @@ DisassemblyHelper::TargetAction DisassemblyHelper::resolveTarget(const TargetCon
         }
     }
 
-    if (filter & TargetFilter::Variables) {
+    if (filter & TargetFilter::VariableValues) {
         QString inner = ctx.word;
         if (inner.startsWith('[') && inner.endsWith(']')) {
             inner = inner.mid(1, inner.length() - 2);
@@ -145,11 +145,13 @@ DisassemblyHelper::TargetAction DisassemblyHelper::resolveTarget(const TargetCon
                 }
             }
         }
+    }
 
-        XrefDescription xref = Core()->getFirstXRefForVariable(inner, ctx.offset);
+    if (filter & TargetFilter::VariableXrefs) {
+        XrefDescription xref = Core()->getFirstXRefForVariable(ctx.word, ctx.offset);
         if (!xref.from_str.isEmpty() || !xref.to_str.isEmpty()) {
             res.value = xref.from;
-            res.type = TargetType::VariableName;
+            res.type = TargetType::VariableXRef;
             return res;
         }
     }

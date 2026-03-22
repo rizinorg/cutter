@@ -1904,7 +1904,7 @@ RegisterRefValueDescription CutterCore::getRegisterRefValue(const QString &regNa
     }
     desc.name = ri->name;
     ut64 value = rz_reg_get_value(getReg(), ri);
-    desc.value = "0x" + QString::number(value, 16);
+    desc.value = RzAddressString(value);
     desc.ref = rz_core_analysis_hasrefs(core, value, RZ_OUTPUT_MODE_STANDARD);
     return desc;
 }

@@ -644,15 +644,14 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
             auto ctx =
                     DH::getContextFromCursor(mDisasTextEdit->cursorForPosition(mouseEvent->pos()));
 
-            DH::TargetAction ta = DH::resolveTarget(ctx);
+            DH::TargetAction ta = DH::resolveTarget(ctx, DisassemblyHelper::TargetFilter::Standard);
             switch (ta.type) {
             case DH::TargetType::TypeName:
                 Core()->showTypeInTypesWidget(ctx.word);
                 break;
             case DH::TargetType::XRefComment:
-            case DH::TargetType::VariableName:
+            case DH::TargetType::VariableXRef:
             case DH::TargetType::Arrow:
-            case DH::TargetType::Register:
                 if (ta.value != RVA_INVALID) {
                     seekable->seek(ta.value);
                 }
