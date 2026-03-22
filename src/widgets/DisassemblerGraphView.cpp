@@ -144,6 +144,8 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     blockMenu->addSeparator();
     blockMenu->addActions(contextMenu->actions());
 
+    this->addActions(blockMenu->actions());
+
     connect(blockMenu, &DisassemblyContextMenu::copy, this, &DisassemblerGraphView::copySelection);
 
     // Add header as widget to layout so it stretches to the layout width
