@@ -33,6 +33,7 @@ private slots:
 
     void updatePDBLayout();
     void updateScriptLayout();
+    void updateDebuginfodLayout();
 
 protected:
     void closeEvent(QCloseEvent *event) override;

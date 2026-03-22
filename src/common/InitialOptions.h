@@ -35,12 +35,14 @@ struct InitialOptions
 
     bool writeEnabled = false;
     bool loadBinInfo = true;
+    bool debuginfodEnabled = false;
     QString forceBinPlugin;
 
     bool demangle = true;
 
     QString pdbFile;
     QString script;
+    QString debuginfodUrls;
 
     QList<CommandDescription> analysisCmd = {
         { "aaa", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Auto analysis") }

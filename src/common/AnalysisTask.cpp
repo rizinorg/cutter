@@ -32,7 +32,7 @@ void AnalysisTask::runTask()
     int perms = RZ_PERM_RX;
     if (options.writeEnabled) {
         perms |= RZ_PERM_W;
-        emit Core()->ioModeChanged();
+        emit Core() -> ioModeChanged();
     }
 
     // Demangle (must be before file Core()->loadFile)
@@ -71,6 +71,11 @@ void AnalysisTask::runTask()
     if (!options.pdbFile.isNull()) {
         log(tr("Loading PDB file..."));
         Core()->loadPDB(options.pdbFile);
+    }
+
+    if (options.debuginfodEnabled && !options.debuginfodUrls.isNull()) {
+        Core()->setConfig("bin.dbginfo.debuginfod", true);
+        Core()->setConfig("bin.dbginfo.debuginfod_urls", options.debuginfodUrls);
     }
 
     if (isInterrupted()) {
