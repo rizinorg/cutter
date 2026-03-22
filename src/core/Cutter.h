@@ -630,6 +630,7 @@ public:
     void setSettings();
 
     void loadPDB(const QString &file);
+    void applyDwarf();
 
     QByteArray ioRead(RVA addr, int len);
 

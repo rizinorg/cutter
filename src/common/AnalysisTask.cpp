@@ -76,6 +76,7 @@ void AnalysisTask::runTask()
     if (options.debuginfodEnabled && !options.debuginfodUrls.isNull()) {
         Core()->setConfig("bin.dbginfo.debuginfod", true);
         Core()->setConfig("bin.dbginfo.debuginfod_urls", options.debuginfodUrls);
+        Core()->applyDwarf();
     }
 
     if (isInterrupted()) {
