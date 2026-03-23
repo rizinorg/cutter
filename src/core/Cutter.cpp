@@ -4850,6 +4850,7 @@ QString CutterCore::getRizinVersionReadable(const char *program)
     return fromOwnedCharPtr(rz_version_str(core_->sys_path, program));
 }
 
+
 QString CutterCore::getVersionInformation()
 {
     int i;
@@ -4858,27 +4859,29 @@ QString CutterCore::getVersionInformation()
     {
         const char *name;
         const char *(*callback)();
-    } vcs[] = { { "rz_arch", &rz_arch_version },
-                { "rz_lib", &rz_lib_version },
-                { "rz_egg", &rz_egg_version },
-                { "rz_bin", &rz_bin_version },
-                { "rz_cons", &rz_cons_version },
-                { "rz_flag", &rz_flag_version },
-                { "rz_core", &rz_core_version },
-                { "rz_crypto", &rz_crypto_version },
-                { "rz_debug", &rz_debug_version },
-                { "rz_hash", &rz_hash_version },
-                { "rz_io", &rz_io_version },
+    } vcs[] = {
+        { "rz_arch", &rz_arch_version },
+        { "rz_lib", &rz_lib_version },
+        { "rz_egg", &rz_egg_version },
+        { "rz_bin", &rz_bin_version },
+        { "rz_cons", &rz_cons_version },
+        { "rz_flag", &rz_flag_version },
+        { "rz_core", &rz_core_version },
+        { "rz_crypto", &rz_crypto_version },
+        { "rz_debug", &rz_debug_version },
+        { "rz_hash", &rz_hash_version },
+        { "rz_io", &rz_io_version },
 #if !USE_LIB_MAGIC
-                { "rz_magic", &rz_magic_version },
+        { "rz_magic", &rz_magic_version },
 #endif
-                { "rz_reg", &rz_reg_version },
-                { "rz_sign", &rz_sign_version },
-                { "rz_search", &rz_search_version },
-                { "rz_syscall", &rz_syscall_version },
-                { "rz_util", &rz_util_version },
-                /* ... */
-                { NULL, NULL } };
+        { "rz_reg", &rz_reg_version },
+        { "rz_sign", &rz_sign_version },
+        { "rz_search", &rz_search_version },
+        { "rz_syscall", &rz_syscall_version },
+        { "rz_util", &rz_util_version },
+        /* ... */
+        { NULL, NULL }
+    };
     versionInfo.append(getRizinVersionReadable());
     versionInfo.append("\n");
     for (i = 0; vcs[i].name; i++) {

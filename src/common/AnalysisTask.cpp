@@ -32,7 +32,7 @@ void AnalysisTask::runTask()
     int perms = RZ_PERM_RX;
     if (options.writeEnabled) {
         perms |= RZ_PERM_W;
-        emit Core() -> ioModeChanged();
+        emit Core()->ioModeChanged();
     }
 
     // Demangle (must be before file Core()->loadFile)
