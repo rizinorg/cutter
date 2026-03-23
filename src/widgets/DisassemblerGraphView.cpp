@@ -978,7 +978,7 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
     ctx.offset = getAddrForMouseEvent(block, &pos);
     ctx.arrow = getTruePathForOffset(ctx.offset);
 
-    DH::TargetAction ta = DH::resolveTarget(ctx);
+    DH::TargetAction ta = DH::resolveTarget(ctx, DH::TargetFilter::Standard);
     switch (ta.type) {
     case DH::TargetType::TypeName:
         Core()->showTypeInTypesWidget(ctx.word);
