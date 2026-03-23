@@ -34,6 +34,8 @@ public:
 
     static QString xrefTypeString(const QString &type);
     bool getTo() const;
+
+    const XrefDescription *description(const QModelIndex &index) const;
 };
 
 class XrefFilterProxyModel : public AddressableFilterProxyModel
@@ -47,6 +49,7 @@ private:
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
 class MainWindow;
