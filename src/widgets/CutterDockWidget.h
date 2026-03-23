@@ -119,7 +119,6 @@ protected:
     MainWindow *mainWindow;
 
 private:
-    bool docking = true;
     bool isTransient = false;
 
     bool isVisibleToUserCurrent = false;

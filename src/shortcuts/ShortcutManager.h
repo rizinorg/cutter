@@ -17,8 +17,8 @@ public:
 
     Shortcut getShortcut(const QString &id);
     QKeySequence getKeySequence(const QString &id);
-    Qt::KeyboardModifier getKeyboardModifier(const QString &id);
-    QList<QKeySequence> getKeySequences(const QString &id);
+    Qt::KeyboardModifier convertKeyToModifer(const QString &id);
+    QList<QKeySequence> getKeySequences(const QKeySequence &sequence);
     QHash<QString, Shortcut> getAllShortcuts();
 
     QAction *makeAction(const QString &id, QObject *parent);
