@@ -4850,7 +4850,6 @@ QString CutterCore::getRizinVersionReadable(const char *program)
     return fromOwnedCharPtr(rz_version_str(core_->sys_path, program));
 }
 
-
 QString CutterCore::getVersionInformation()
 {
     int i;
