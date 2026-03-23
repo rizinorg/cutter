@@ -169,6 +169,7 @@ set(SOURCES
     widgets/SearchableDockWidget.cpp
     common/CutterSearchable.cpp
     widgets/SearchableTextEdit.cpp
+    dialogs/preferences/SymbolServers.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -347,6 +348,7 @@ set(HEADER_FILES
     widgets/SearchableDockWidget.h
     common/CutterSearchable.h
     widgets/SearchableTextEdit.h
+    dialogs/preferences/SymbolServers.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -428,6 +430,7 @@ set(UI_FILES
     dialogs/RegisterProfileDialog.ui
     dialogs/EditRegProfileDialog.ui
     widgets/SearchBarWidget.ui
+    dialogs/preferences/SymbolServers.ui
 )
 set(QRC_FILES
     resources.qrc

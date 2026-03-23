@@ -9,7 +9,7 @@
 #include "InitializationFileEditor.h"
 #include "AnalysisOptionsWidget.h"
 #include "ShortcutOptionsWidget.h"
-
+#include "SymbolServers.h"
 #include "PreferenceCategory.h"
 
 #include "common/Helpers.h"
@@ -37,7 +37,13 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
         { tr("Plugins"), new PluginsOptionsWidget(this), QIcon(":/img/icons/plugins.svg") },
         { tr("Initialization Script"), new InitializationFileEditor(this),
           QIcon(":/img/icons/initialization.svg") },
-        { tr("Analysis"), new AnalysisOptionsWidget(this), QIcon(":/img/icons/cog_light.svg") },
+        { tr("Analysis"),
+          new AnalysisOptionsWidget(this),
+          QIcon(":/img/icons/cog_light.svg"),
+          {
+                  { tr("SymbolServers"), new SymbolServers(this),
+                    QIcon(":/img/icons/symbols.svg") },
+          } },
         { tr("Shortcuts"), new ShortcutOptionsWidget(this), QIcon(":/img/icons/edit_light.svg") }
     };
 
@@ -98,6 +104,7 @@ void PreferencesDialog::chooseThemeIcons()
         { QStringLiteral("Plugins"), QStringLiteral("plugins.svg") },
         { QStringLiteral("Initialization Script"), QStringLiteral("initialization.svg") },
         { QStringLiteral("Analysis"), QStringLiteral("cog_light.svg") },
+        { QStringLiteral("SymbolServers"), QStringLiteral("symbols_light.svg") },
     };
     QList<QPair<void *, QString>> supportedIconsNames;
 
