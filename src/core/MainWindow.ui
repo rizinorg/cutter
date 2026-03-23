@@ -58,7 +58,7 @@
      </rect>
     </property>
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
     <widget class="QMenu" name="menuSetMode">
      <property name="toolTip">
@@ -94,7 +94,7 @@
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>View</string>
+     <string>&amp;View</string>
     </property>
     <property name="tabsOnTop" stdset="0">
      <bool>false</bool>
