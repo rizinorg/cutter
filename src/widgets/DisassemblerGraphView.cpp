@@ -993,6 +993,8 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
     case DH::TargetType::None:
         seekable->seekToReference(ctx.offset);
         break;
+    default:
+        break;
     }
 }
 

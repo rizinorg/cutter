@@ -659,6 +659,8 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
             case DH::TargetType::None:
                 seekable->seekToReference(ctx.offset);
                 break;
+            default:
+                break;
             }
             return true;
         }
