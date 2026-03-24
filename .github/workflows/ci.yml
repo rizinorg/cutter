@@ -283,7 +283,7 @@ jobs:
         echo PACKAGE_NAME=Cutter-${PACKAGE_ID}-src.tar.gz >> $GITHUB_ENV
         echo PACKAGE_PATH=Cutter-${PACKAGE_ID}-src.tar.gz >> $GITHUB_ENV
         echo UPLOAD_ASSET_TYPE=application/gzip >> $GITHUB_ENV
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: env.PACKAGE_NAME != null
       with:
         name: ${{ env.PACKAGE_NAME }}
@@ -368,7 +368,7 @@ jobs:
         qt-major: ${{ matrix.qt-major }}
         package: ${{ matrix.package }}
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: env.PACKAGE_NAME != null
       with:
         name: ${{ steps.build.outputs.PACKAGE_NAME }}
@@ -543,7 +543,7 @@ jobs:
         echo PACKAGE_NAME=%PACKAGE_NAME%.zip >> %GITHUB_ENV%
         echo PACKAGE_PATH=build/%PACKAGE_NAME%.zip >> %GITHUB_ENV%
         echo UPLOAD_ASSET_TYPE=application/zip >> %GITHUB_ENV%
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: env.PACKAGE_NAME != null
       with:
         name: ${{ env.PACKAGE_NAME }}
