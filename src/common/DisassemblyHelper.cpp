@@ -70,15 +70,10 @@ RVA DisassemblyHelper::readDisassemblyArrow(QTextCursor tc)
     return userData->line.arrow;
 }
 
-DisassemblyHelper::TargetContext DisassemblyHelper::getContextFromCursor(QTextCursor tc)
+DisassemblyHelper::BracketResult DisassemblyHelper::findBracketRange(const QString &line,
+                                                                     int posInLine)
 {
-    int originalPos = tc.position();
-    tc.select(QTextCursor::WordUnderCursor);
-    QString word = tc.selectedText();
-    QString line = tc.block().text();
-    int lineStart = tc.block().position();
-    int posInLine = originalPos - lineStart;
-
+    BracketResult res;
     int openBracket = line.lastIndexOf('[', posInLine);
     int closeBracket = line.indexOf(']', posInLine);
 
@@ -100,10 +95,29 @@ DisassemblyHelper::TargetContext DisassemblyHelper::getContextFromCursor(QTextCu
         }
 
         if (isInside) {
-            tc.setPosition(lineStart + openBracket);
-            tc.setPosition(lineStart + closeBracket + 1, QTextCursor::KeepAnchor);
-            word = tc.selectedText();
+            res.found = true;
+            res.start = openBracket;
+            res.length = (closeBracket - openBracket) + 1;
+            res.content = line.mid(res.start, res.length);
         }
+    }
+    return res;
+}
+
+DisassemblyHelper::TargetContext DisassemblyHelper::getContextFromCursor(QTextCursor tc)
+{
+    int originalPos = tc.position();
+    tc.select(QTextCursor::WordUnderCursor);
+    QString word = tc.selectedText();
+    QString line = tc.block().text();
+    int lineStart = tc.block().position();
+    int posInLine = originalPos - lineStart;
+
+    auto bracketRes = findBracketRange(line, posInLine);
+    if (bracketRes.found) {
+        tc.setPosition(lineStart + bracketRes.start);
+        tc.setPosition(lineStart + bracketRes.start + bracketRes.length, QTextCursor::KeepAnchor);
+        word = bracketRes.content;
     }
 
     TargetContext ctx;
