@@ -1,6 +1,7 @@
 #include "ShortcutManager.h"
 #include <QCoreApplication>
 #include <QDebug>
+#include <qglobal.h>
 
 Q_GLOBAL_STATIC(ShortcutManager, uniqueInstance)
 
@@ -37,7 +38,12 @@ Qt::KeyboardModifier ShortcutManager::convertKeyToModifer(const QKeySequence &se
 {
     if (sequence.isEmpty())
         return Qt::NoModifier;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     Qt::Key key = static_cast<Qt::Key>(sequence[0] & ~Qt::KeyboardModifierMask);
+#else
+    QKeyCombination combo = sequence[0];
+    Qt::Key key = combo.key();
+#endif
     switch (key) {
     case Qt::Key_Alt:
         return Qt::AltModifier;

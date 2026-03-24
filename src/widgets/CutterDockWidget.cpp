@@ -22,7 +22,7 @@ bool CutterDockWidget::event(QEvent *event)
 
         Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
         Qt::KeyboardModifier mod =
-                Shortcuts()->getKeyboardModifier(Shortcuts()->getKeySequence("Docking.toggle"));
+                Shortcuts()->convertKeyToModifer(Shortcuts()->getKeySequence("Docking.toggle"));
 
         if (mods & mod) {
             setAllowedAreas(Qt::NoDockWidgetArea);
