@@ -567,7 +567,8 @@ bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
 
             // Don't preview anything for a small scale
             if (getViewScale() >= 0.8) {
-                auto bracketValue = DH::findBracketRange(inst->plainText, pos.x());
+                auto bracketValue = DH::findBracketRange(
+                        inst->plainText, mFontMetrics->position(inst->plainText, pos.x()));
 
                 DH::TargetContext ctx;
                 ctx.offset = offsetFrom;
