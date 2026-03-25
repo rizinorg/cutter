@@ -61,7 +61,8 @@ XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom)
     // SearchWidget shortcuts
 
     QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", ui->toTreeWidget);
-    QShortcut *clearShortcut = Shortcuts()->makeQShortcut("General.clearFilter", ui->fromQuickFilter);
+    QShortcut *clearShortcut =
+            Shortcuts()->makeQShortcut("General.clearFilter", ui->fromQuickFilter);
 
     connect(searchShortcut, &QShortcut::activated, this, [this]() {
         QWidget *fw = QApplication::focusWidget();
@@ -72,7 +73,7 @@ XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom)
         }
     });
 
-    connect(clearShortcut, &QShortcut::activated,[this]() {
+    connect(clearShortcut, &QShortcut::activated, [this]() {
         QWidget *fw = QApplication::focusWidget();
         if (ui->toQuickFilter->isAncestorOf(fw)) {
             ui->toQuickFilter->clearFilter();
