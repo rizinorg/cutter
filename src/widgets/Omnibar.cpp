@@ -208,7 +208,12 @@ void Omnibar::handleSearch(const QString &Text, bool append)
             actionItem->setData(type, Qt::UserRole);
 
             QPalette palette = this->palette();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
             QColor placeholderColor = palette.color(QPalette::PlaceholderText);
+#else
+            QColor placeholderColor = palette.color(QPalette::Text);
+            placeholderColor.setAlpha(128);
+#endif
             actionItem->setForeground(placeholderColor);
 
             QFont font = actionItem->font();
