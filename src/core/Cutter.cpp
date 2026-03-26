@@ -1111,7 +1111,8 @@ void CutterCore::createSignature(const QString &filepath)
 
 bool CutterCore::isValidInputNumValue(const QString &expression)
 {
-    return rz_is_valid_input_num_value(NULL, expression.toUtf8().constData());
+    CORE_LOCK();
+    return rz_is_valid_input_num_value(core ? core->num : NULL, expression.toUtf8().constData());
 }
 
 ut64 CutterCore::math(const QString &expr)
