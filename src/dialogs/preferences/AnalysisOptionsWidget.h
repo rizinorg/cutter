@@ -6,6 +6,8 @@
 
 #include "core/Cutter.h"
 
+class MainWindow;
+
 class PreferencesDialog;
 
 namespace Ui {
@@ -21,6 +23,7 @@ public:
     ~AnalysisOptionsWidget();
 
 private:
+
     std::unique_ptr<Ui::AnalysisOptionsWidget> ui;
     struct ConfigCheckbox
     {
@@ -28,6 +31,7 @@ private:
         QString config;
     };
     QList<ConfigCheckbox> checkboxes;
+    MainWindow *mainWindow;
 
     /**
      * @brief This function creates the list with the different options shown in the selector for

@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QDialog>
 
+class MainWindow;
+
 class PreferencesDialog;
 
 namespace Ui {
@@ -15,13 +17,14 @@ class SymbolServers : public QDialog
     Q_OBJECT
 
 public:
-    explicit SymbolServers(QWidget *parent = nullptr);
+    explicit SymbolServers(PreferencesDialog *parent = nullptr);
     ~SymbolServers();
 
 private slots:
-    void on_pdbSelectButton_clicked();
+    void pdbSelectButtonClicked();
 
 private:
+    MainWindow* mainWindow;
     Ui::SymbolServers *ui;
     void updateDebuginfodLayout();
     void updatePDBLayout();

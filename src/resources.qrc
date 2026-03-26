@@ -126,5 +126,8 @@
         <file>img/icons/reset.svg</file>
         <file>img/icons/down_light.svg</file>
         <file>img/icons/delete_light.svg</file>
+        <file>img/icons/symbol_server_light.svg</file>
+        <file>img/icons/symbol_server_white.svg</file>
+        <file>img/icons/symbol_server.svg</file>
     </qresource>
 </RCC>

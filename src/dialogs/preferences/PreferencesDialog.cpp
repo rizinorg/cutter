@@ -17,8 +17,8 @@
 
 #include <QDialogButtonBox>
 
-PreferencesDialog::PreferencesDialog(QWidget *parent)
-    : QDialog(parent), ui(new Ui::PreferencesDialog)
+PreferencesDialog::PreferencesDialog(MainWindow *parent)
+    : QDialog(parent), mainWindow(parent), ui(new Ui::PreferencesDialog)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
@@ -41,8 +41,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
           new AnalysisOptionsWidget(this),
           QIcon(":/img/icons/cog_light.svg"),
           {
-                  { tr("SymbolServers"), new SymbolServers(this),
-                    QIcon(":/img/icons/symbols.svg") },
+                  { tr("Symbol Servers"), new SymbolServers(this),
+                    QIcon(":/img/icons/symbol_server.svg") },
           } },
         { tr("Shortcuts"), new ShortcutOptionsWidget(this), QIcon(":/img/icons/edit_light.svg") }
     };
@@ -104,7 +104,7 @@ void PreferencesDialog::chooseThemeIcons()
         { QStringLiteral("Plugins"), QStringLiteral("plugins.svg") },
         { QStringLiteral("Initialization Script"), QStringLiteral("initialization.svg") },
         { QStringLiteral("Analysis"), QStringLiteral("cog_light.svg") },
-        { QStringLiteral("SymbolServers"), QStringLiteral("symbols_light.svg") },
+        { QStringLiteral("Symbol Servers"), QStringLiteral("symbol_server_light.svg") },
     };
     QList<QPair<void *, QString>> supportedIconsNames;
 
@@ -123,4 +123,8 @@ void PreferencesDialog::chooseThemeIcons()
         // the column in `setIcon` call
         static_cast<QTreeWidgetItem *>(obj)->setIcon(0, icon);
     });
+}
+
+MainWindow *PreferencesDialog::getMainWindow(){
+    return mainWindow;
 }

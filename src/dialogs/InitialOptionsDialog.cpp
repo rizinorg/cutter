@@ -30,7 +30,7 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     ui->logoSvgWidget->load(Config()->getLogoFile());
-    ui->debuginfodCheckBox->setChecked(Core()->getConfig("bin.dbginfo.debuginfod") == "true");
+    ui->debuginfodCheckBox->setChecked(Core()->getConfigb("bin.dbginfo.debuginfod"));
     ui->debuginfodLineEdit->setText(Core()->getConfig("bin.dbginfo.debuginfod_urls"));
 
     // Fill the plugins combo
