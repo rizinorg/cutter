@@ -1109,6 +1109,11 @@ void CutterCore::createSignature(const QString &filepath)
                              tr("Written %1 signatures to %2.").arg(n_modules).arg(filepath));
 }
 
+bool CutterCore::isValidInputNumValue(const QString &expression)
+{
+    return rz_is_valid_input_num_value(NULL, expression.toUtf8().constData());
+}
+
 ut64 CutterCore::math(const QString &expr)
 {
     CORE_LOCK();
