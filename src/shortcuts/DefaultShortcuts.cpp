@@ -289,11 +289,11 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
             QT_TRANSLATE_NOOP("Omnibar", "Clear Omnibar"),
             "Omnibar" } },
         { "Omnibar.showMore",
-          { { Qt::ControlModifier | Qt::Key_Return },
+          { { QKeySequence(Qt::ControlModifier | Qt::Key_Return) },
             QT_TRANSLATE_NOOP("Omnibar", "Show More Completions"),
             "Omnibar" } },
         { "Omnibar.showAll",
-          { { Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Return },
+          { { QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Return) },
             QT_TRANSLATE_NOOP("Omnibar", "Show All Completions"),
             "Omnibar" } },
 
