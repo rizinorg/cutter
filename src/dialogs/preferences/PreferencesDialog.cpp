@@ -18,7 +18,7 @@
 #include <QDialogButtonBox>
 
 PreferencesDialog::PreferencesDialog(MainWindow *parent)
-    : QDialog(parent), mainWindow(parent), ui(new Ui::PreferencesDialog)
+    : QDialog(parent), ui(new Ui::PreferencesDialog), mainWindow(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
