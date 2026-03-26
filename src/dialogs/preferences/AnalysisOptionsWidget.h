@@ -23,7 +23,6 @@ public:
     ~AnalysisOptionsWidget();
 
 private:
-
     std::unique_ptr<Ui::AnalysisOptionsWidget> ui;
     struct ConfigCheckbox
     {

@@ -125,6 +125,7 @@ void PreferencesDialog::chooseThemeIcons()
     });
 }
 
-MainWindow *PreferencesDialog::getMainWindow(){
+MainWindow *PreferencesDialog::getMainWindow()
+{
     return mainWindow;
 }

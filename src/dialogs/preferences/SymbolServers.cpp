@@ -9,8 +9,8 @@
 #include "common/Configuration.h"
 #include "PreferencesDialog.h"
 
-
-SymbolServers::SymbolServers(PreferencesDialog *parent) : QDialog(parent),mainWindow(parent->getMainWindow()), ui(new Ui::SymbolServers)
+SymbolServers::SymbolServers(PreferencesDialog *parent)
+    : QDialog(parent), mainWindow(parent->getMainWindow()), ui(new Ui::SymbolServers)
 {
     ui->setupUi(this);
     // debuginfod

@@ -24,7 +24,7 @@ private slots:
     void pdbSelectButtonClicked();
 
 private:
-    MainWindow* mainWindow;
+    MainWindow *mainWindow;
     Ui::SymbolServers *ui;
     void updateDebuginfodLayout();
     void updatePDBLayout();

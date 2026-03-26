@@ -18,7 +18,7 @@ static const QHash<QString, const char *> analysisBoundaries {
 };
 
 AnalysisOptionsWidget::AnalysisOptionsWidget(PreferencesDialog *dialog)
-    : QDialog(dialog),mainWindow(dialog->getMainWindow()), ui(new Ui::AnalysisOptionsWidget)
+    : QDialog(dialog), mainWindow(dialog->getMainWindow()), ui(new Ui::AnalysisOptionsWidget)
 {
     ui->setupUi(this);
 

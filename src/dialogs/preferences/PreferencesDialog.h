@@ -25,7 +25,7 @@ public:
     ~PreferencesDialog();
 
     void showSection(Section section);
-    MainWindow* getMainWindow();
+    MainWindow *getMainWindow();
 
 public slots:
     void changePage(QTreeWidgetItem *current, QTreeWidgetItem *previous);
