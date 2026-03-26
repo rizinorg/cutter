@@ -215,15 +215,12 @@ DisassemblyHelper::TargetAction DisassemblyHelper::resolveTarget(const TargetCon
             QString stripped = ctx.word;
             if (stripped.startsWith('[') && stripped.endsWith(']')) {
                 stripped = stripped.mid(1, stripped.length() - 2);
-            } else {
-                return res;
-            }
-
-            if (Core()->isValidInputNumValue(stripped)
-                || !Core()->getRegisterRefValue(stripped).name.isEmpty()) {
-                res.value = Core()->math(ctx.word);
-                res.type = TargetType::Memory;
-                return res;
+                if (Core()->isValidInputNumValue(stripped)
+                    || Core()->isValidInputNumValue(ctx.word)) {
+                    res.value = Core()->math(ctx.word);
+                    res.type = TargetType::Memory;
+                    return res;
+                }
             }
         }
     }
