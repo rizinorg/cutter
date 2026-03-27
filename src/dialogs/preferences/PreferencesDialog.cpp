@@ -44,7 +44,7 @@ PreferencesDialog::PreferencesDialog(MainWindow *parent)
                   { tr("Symbol Servers"), new SymbolServers(this),
                     QIcon(":/img/icons/symbol_server.svg") },
           } },
-        { tr("Shortcuts"), new ShortcutOptionsWidget(this), QIcon(":/img/icons/edit_light.svg") }
+        { tr("Shortcuts"), new ShortcutOptionsWidget(this), QIcon(":/img/icons/edit.svg") }
     };
 
     for (auto &c : prefs) {
@@ -104,7 +104,8 @@ void PreferencesDialog::chooseThemeIcons()
         { QStringLiteral("Plugins"), QStringLiteral("plugins.svg") },
         { QStringLiteral("Initialization Script"), QStringLiteral("initialization.svg") },
         { QStringLiteral("Analysis"), QStringLiteral("cog_light.svg") },
-        { QStringLiteral("Symbol Servers"), QStringLiteral("symbol_server_light.svg") },
+        { QStringLiteral("Symbol Servers"), QStringLiteral("symbol_server.svg") },
+        { QStringLiteral("Shortcuts"), QStringLiteral("edit.svg") },
     };
     QList<QPair<void *, QString>> supportedIconsNames;
 
