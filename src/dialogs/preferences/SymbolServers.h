@@ -1,6 +1,8 @@
 #ifndef SYMBOLSERVERS_H
 #define SYMBOLSERVERS_H
 
+#include <memory>
+
 #include <QWidget>
 #include <QDialog>
 
