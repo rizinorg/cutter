@@ -25,7 +25,7 @@ private slots:
 
 private:
     MainWindow *mainWindow;
-    Ui::SymbolServers *ui;
+    std::unique_ptr<Ui::SymbolServers> ui;
     void updateDebuginfodLayout();
     void updatePDBLayout();
     void reanalyze();

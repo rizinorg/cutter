@@ -31,19 +31,7 @@
         <height>245</height>
        </rect>
       </property>
-      <layout class="QFormLayout" name="formLayout_2">
-       <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::FieldGrowthPolicy::ExpandingFieldsGrow</enum>
-       </property>
-       <property name="labelAlignment">
-        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-       </property>
-       <property name="horizontalSpacing">
-        <number>6</number>
-       </property>
-       <property name="verticalSpacing">
-        <number>10</number>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
        <property name="leftMargin">
         <number>3</number>
        </property>
@@ -56,64 +44,85 @@
        <property name="bottomMargin">
         <number>3</number>
        </property>
-       <item row="0" column="0">
+       <item>
         <widget class="QLabel" name="pdbTitle">
          <property name="text">
           <string>PDB Files</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QCheckBox" name="pdbCheckBox">
-         <property name="text">
-          <string>PDB Files</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QWidget" name="pdbWidget" native="true">
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QLineEdit" name="pdbLineEdit"/>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pdbSelect">
-            <property name="text">
-             <string>Select</string>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QCheckBox" name="pdbCheckBox">
+           <property name="text">
+            <string>PDB Files</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QWidget" name="pdbWidget" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="leftMargin">
+             <number>0</number>
             </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLineEdit" name="pdbLineEdit"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pdbSelect">
+              <property name="text">
+               <string>Select</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
        </item>
-       <item row="2" column="0">
+       <item>
         <widget class="QLabel" name="debuginfodTitle">
          <property name="text">
           <string>Debuginfod</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="debuginfodLineEdit"/>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="QCheckBox" name="debuginfodCheckBox">
+           <property name="text">
+            <string>debuginfod</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="debuginfodLineEdit"/>
+         </item>
+        </layout>
        </item>
-       <item row="3" column="0">
-        <widget class="QCheckBox" name="debuginfodCheckBox">
-         <property name="text">
-          <string>debuginfod</string>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
-        </widget>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
