@@ -47,7 +47,7 @@
        <item>
         <widget class="QLabel" name="pdbTitle">
          <property name="text">
-          <string>PDB Files</string>
+          <string>PDB</string>
          </property>
         </widget>
        </item>
@@ -87,6 +87,20 @@
             </item>
            </layout>
           </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="pdbServerLabel">
+           <property name="text">
+            <string>PDB Server</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="pdbServerEdit"/>
          </item>
         </layout>
        </item>
@@ -142,6 +156,13 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="save">
+       <property name="text">
+        <string>Save</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="reanalyzeButton">

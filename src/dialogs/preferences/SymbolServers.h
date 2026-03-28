@@ -31,6 +31,7 @@ private:
     void updateDebuginfodLayout();
     void updatePDBLayout();
     void reanalyze();
+    void saveConfig();
 };
 
 #endif // SYMBOLSERVERS_H

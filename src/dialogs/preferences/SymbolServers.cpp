@@ -6,17 +6,32 @@
 #include <QUrl>
 #include "core/Cutter.h"
 #include "core/MainWindow.h"
+#include "common/AnalysisTask.h"
+#include "common/AsyncTask.h"
+#include "dialogs/AsyncTaskDialog.h"
 #include "common/Configuration.h"
 #include "PreferencesDialog.h"
+#include "CutterApplication.h"
 
 SymbolServers::SymbolServers(PreferencesDialog *parent)
     : QDialog(parent), mainWindow(parent->getMainWindow()), ui(new Ui::SymbolServers)
 {
     ui->setupUi(this);
+
+    // pdbfile
+    QString pdbFile = static_cast<CutterApplication *>(qApp)->getInitialOptions().pdbFile;
+    if (!pdbFile.isEmpty()) {
+        ui->pdbCheckBox->setChecked(true);
+        ui->pdbCheckBox->setDisabled(true);
+        ui->pdbLineEdit->setText(pdbFile);
+    }
+    // pdbServer
+    ui->pdbServerEdit->setText(Core()->getConfig("pdb.server"));
     // debuginfod
     ui->debuginfodCheckBox->setChecked(Core()->getConfigb("bin.dbginfo.debuginfod"));
     ui->debuginfodLineEdit->setText(Core()->getConfig("bin.dbginfo.debuginfod_urls"));
     updateDebuginfodLayout();
+    connect(ui->save, &QPushButton::clicked, this, &SymbolServers::saveConfig);
     connect(ui->debuginfodCheckBox, &QCheckBox::stateChanged, this,
             &SymbolServers::updateDebuginfodLayout);
     updatePDBLayout();
@@ -27,16 +42,26 @@ SymbolServers::SymbolServers(PreferencesDialog *parent)
 
 void SymbolServers::reanalyze()
 {
+    saveConfig();
+    InitialOptions options;
     QUrl pdbFile = QUrl::fromUserInput(ui->pdbLineEdit->text());
     if (pdbFile.isValid() && pdbFile.isLocalFile()) {
         QFileInfo pdbFileInfo(pdbFile.toLocalFile());
         if (pdbFileInfo.exists() && pdbFileInfo.isFile())
-            Core()->loadPDB(ui->pdbLineEdit->text());
+            options.pdbFile = ui->pdbLineEdit->text();
     }
-    Core()->setConfig("bin.dbginfo.debuginfod", ui->debuginfodCheckBox->isChecked());
-    Core()->setConfig("bin.dbginfo.debuginfod_urls", ui->debuginfodLineEdit->text());
-    Core()->applyDwarf();
-    mainWindow->on_actionAnalyze_triggered();
+    auto *analysisTask = new AnalysisTask();
+    options.analysisCmd = { { "aaa", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Auto analysis") } };
+    analysisTask->setOptions(options);
+    AsyncTask::Ptr analysisTaskPtr(analysisTask);
+
+    auto *taskDialog = new AsyncTaskDialog(analysisTaskPtr);
+    taskDialog->setInterruptOnClose(true);
+    taskDialog->setAttribute(Qt::WA_DeleteOnClose);
+    taskDialog->show();
+    connect(analysisTask, &AnalysisTask::finished, mainWindow, &MainWindow::refreshAll);
+
+    Core()->getAsyncTaskManager()->start(analysisTaskPtr);
 }
 
 SymbolServers::~SymbolServers() {}
@@ -49,6 +74,13 @@ void SymbolServers::updateDebuginfodLayout()
 void SymbolServers::updatePDBLayout()
 {
     ui->pdbWidget->setEnabled(ui->pdbCheckBox->isChecked());
+}
+
+void SymbolServers::saveConfig()
+{
+    Core()->setConfig("bin.dbginfo.debuginfod", ui->debuginfodCheckBox->isChecked());
+    Core()->setConfig("bin.dbginfo.debuginfod_urls", ui->debuginfodLineEdit->text());
+    Core()->setConfig("pdb.server", ui->pdbServerEdit->text());
 }
 
 void SymbolServers::pdbSelectButtonClicked()

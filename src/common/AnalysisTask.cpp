@@ -73,9 +73,7 @@ void AnalysisTask::runTask()
         Core()->loadPDB(options.pdbFile);
     }
 
-    if (options.debuginfodEnabled && !options.debuginfodUrls.isNull()) {
-        Core()->setConfig("bin.dbginfo.debuginfod", true);
-        Core()->setConfig("bin.dbginfo.debuginfod_urls", options.debuginfodUrls);
+    if (Core()->getConfigb("bin.dbginfo.debuginfod")) {
         Core()->applyDwarf();
     }
 

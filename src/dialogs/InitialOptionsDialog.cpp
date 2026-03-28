@@ -6,6 +6,7 @@
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/AsyncTaskDialog.h"
 #include "common/Helpers.h"
+#include "core/Cutter.h"
 
 #include <QSettings>
 #include <QFileInfo>
@@ -381,8 +382,8 @@ void InitialOptionsDialog::setupAndStartAnalysis()
         options.script = ui->scriptLineEdit->text();
     }
     if (ui->debuginfodCheckBox->isChecked()) {
-        options.debuginfodUrls = ui->debuginfodLineEdit->text();
-        options.debuginfodEnabled = true;
+        Core()->setConfig("bin.dbginfo.debuginfod", true);
+        Core()->setConfig("bin.dbginfo.debuginfod_urls", ui->debuginfodLineEdit->text());
     }
 
     options.endian = getSelectedEndianness();
