@@ -382,7 +382,7 @@ void InitialOptionsDialog::setupAndStartAnalysis()
     }
     if (ui->debuginfodCheckBox->isChecked()) {
         options.debuginfodUrls = ui->debuginfodLineEdit->text();
-        options.debuginfodEnabled = ui->demangleCheckBox->isChecked();
+        options.debuginfodEnabled = ui->debuginfodCheckBox->isChecked();
     }
 
     options.endian = getSelectedEndianness();
