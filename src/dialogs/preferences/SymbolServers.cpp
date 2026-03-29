@@ -56,7 +56,6 @@ void SymbolServers::updateDebuginfodLayout()
     ui->debuginfodLineEdit->setEnabled(ui->debuginfodCheckBox->isChecked());
 }
 
-
 void SymbolServers::saveConfig()
 {
     Core()->setConfig("bin.dbginfo.debuginfod", ui->debuginfodCheckBox->isChecked());
