@@ -18,13 +18,6 @@ SymbolServers::SymbolServers(PreferencesDialog *parent)
 {
     ui->setupUi(this);
 
-    // pdbfile
-    QString pdbFile = static_cast<CutterApplication *>(qApp)->getInitialOptions().pdbFile;
-    if (!pdbFile.isEmpty()) {
-        ui->pdbCheckBox->setChecked(true);
-        ui->pdbCheckBox->setDisabled(true);
-        ui->pdbLineEdit->setText(pdbFile);
-    }
     // pdbServer
     ui->pdbServerEdit->setText(Core()->getConfig("pdb.server"));
     // debuginfod
@@ -34,8 +27,6 @@ SymbolServers::SymbolServers(PreferencesDialog *parent)
     connect(ui->save, &QPushButton::clicked, this, &SymbolServers::saveConfig);
     connect(ui->debuginfodCheckBox, &QCheckBox::stateChanged, this,
             &SymbolServers::updateDebuginfodLayout);
-    updatePDBLayout();
-    connect(ui->pdbCheckBox, &QCheckBox::stateChanged, this, &SymbolServers::updatePDBLayout);
     connect(ui->pdbSelect, &QPushButton::clicked, this, &SymbolServers::pdbSelectButtonClicked);
     connect(ui->reanalyzeButton, &QPushButton::clicked, this, &SymbolServers::reanalyze);
 }
@@ -44,13 +35,6 @@ void SymbolServers::reanalyze()
 {
     saveConfig();
     InitialOptions options;
-    QUrl pdbFile = QUrl::fromUserInput(ui->pdbLineEdit->text());
-    if (pdbFile.isValid() && pdbFile.isLocalFile()) {
-        QFileInfo pdbFileInfo(pdbFile.toLocalFile());
-        if (pdbFileInfo.exists() && pdbFileInfo.isFile()){
-            options.pdbFile = ui->pdbLineEdit->text();
-        }
-    }
     auto *analysisTask = new AnalysisTask();
     options.analysisCmd = { { "aaa", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Auto analysis") } };
     analysisTask->setOptions(options);
@@ -72,10 +56,6 @@ void SymbolServers::updateDebuginfodLayout()
     ui->debuginfodLineEdit->setEnabled(ui->debuginfodCheckBox->isChecked());
 }
 
-void SymbolServers::updatePDBLayout()
-{
-    ui->pdbWidget->setEnabled(ui->pdbCheckBox->isChecked());
-}
 
 void SymbolServers::saveConfig()
 {
@@ -98,5 +78,14 @@ void SymbolServers::pdbSelectButtonClicked()
 
     if (!fileName.isEmpty()) {
         ui->pdbLineEdit->setText(fileName);
+    }
+
+    QUrl pdbFile = QUrl::fromUserInput(fileName);
+    if (pdbFile.isValid() && pdbFile.isLocalFile()) {
+        QFileInfo pdbFileInfo(pdbFile.toLocalFile());
+        if (pdbFileInfo.exists() && pdbFileInfo.isFile()) {
+            Core()->loadPDB(fileName);
+            mainWindow->refreshAll();
+        }
     }
 }

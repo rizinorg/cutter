@@ -29,7 +29,6 @@ private:
     MainWindow *mainWindow;
     std::unique_ptr<Ui::SymbolServers> ui;
     void updateDebuginfodLayout();
-    void updatePDBLayout();
     void reanalyze();
     void saveConfig();
 };
