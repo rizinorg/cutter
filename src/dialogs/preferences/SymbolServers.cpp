@@ -47,8 +47,9 @@ void SymbolServers::reanalyze()
     QUrl pdbFile = QUrl::fromUserInput(ui->pdbLineEdit->text());
     if (pdbFile.isValid() && pdbFile.isLocalFile()) {
         QFileInfo pdbFileInfo(pdbFile.toLocalFile());
-        if (pdbFileInfo.exists() && pdbFileInfo.isFile())
+        if (pdbFileInfo.exists() && pdbFileInfo.isFile()){
             options.pdbFile = ui->pdbLineEdit->text();
+        }
     }
     auto *analysisTask = new AnalysisTask();
     options.analysisCmd = { { "aaa", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Auto analysis") } };
