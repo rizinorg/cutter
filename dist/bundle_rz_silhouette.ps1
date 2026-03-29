@@ -6,6 +6,9 @@ if (-not (Test-Path -Path 'rz-silhouette' -PathType Container)) {
     git clone https://github.com/rizinorg/rz-silhouette.git --depth 1 rz-silhouette
 }
 cd rz-silhouette
+if (-not (Get-Command capnp -ErrorAction SilentlyContinue)) {
+    throw "capnp is required to build rz-silhouette. Install the Cap'n Proto compiler and retry."
+}
 & meson.exe --buildtype=release --prefix=$dist build
 ninja -C build install
 $pathdll = "$dist\lib\rizin\plugins\rz_silhouette.dll"

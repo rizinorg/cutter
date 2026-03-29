@@ -40,6 +40,7 @@ apt-get -y install libgraphviz-dev \
     libpcre2-dev \
     libfuse2 \
     pkg-config \
+    capnproto \
     git
 
 

@@ -13,5 +13,10 @@ fi
 
 cd rz-silhouette
 
+if ! command -v capnp >/dev/null 2>&1; then
+	echo "capnp is required to build rz-silhouette. Install the Cap'n Proto compiler and retry." >&2
+	exit 1
+fi
+
 meson --buildtype=release --pkg-config-path="$INSTALL_PREFIX/lib/pkgconfig" --prefix="$INSTALL_PREFIX" build
 ninja -C build install

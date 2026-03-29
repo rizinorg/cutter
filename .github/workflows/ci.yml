@@ -114,7 +114,8 @@ jobs:
                            curl \
                            libpcre2-dev \
                            libfuse2 \
-                           pkg-config
+                           pkg-config \
+                           capnproto
 
         if [ "${{ matrix.image }}" = "ubuntu:18.04" ]; then
           # install additional packages needed for appimage
@@ -503,6 +504,7 @@ jobs:
       run: |
         pip install ninja
         scripts/fetch_deps.sh
+        choco install capnproto
         choco install winflexbison3
     - name: windows cmake
       if: contains(matrix.os, 'windows')
