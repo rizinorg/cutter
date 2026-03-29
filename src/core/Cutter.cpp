@@ -3182,9 +3182,15 @@ QList<RzAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
 
                 // Bits
                 QStringList bitsList;
-                for (int bits = 4; bits <= 64; bits *= 2) {
-                    if (ap->bits & bits) {
-                        bitsList << QString::number(bits);
+                if (ap->bits == 27) {
+                    bitsList << "27";
+                } else if (ap->bits == 0) {
+                    bitsList << "any";
+                } else {
+                    for (int bits = 4; bits <= 64; bits *= 2) {
+                        if (ap->bits & bits) {
+                            bitsList << QString::number(bits);
+                        }
                     }
                 }
                 plugin.bits = bitsList.join(" ");
