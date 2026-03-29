@@ -69,6 +69,8 @@ RizinPluginsDialog::RizinPluginsDialog(QWidget *parent)
         item->setText(4, plugin.description);
         item->setText(5, plugin.license);
         item->setText(6, plugin.author);
+        item->setText(7, plugin.capabilities);
+        item->setText(8, plugin.bits);
         ui->RzAsmTreeWidget->addTopLevelItem(item);
     }
     ui->RzAsmTreeWidget->sortByColumn(0, Qt::AscendingOrder);

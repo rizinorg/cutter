@@ -189,6 +189,16 @@
            <string>Author</string>
           </property>
          </column>
+         <column>
+           <property name="text">
+            <string>Capabilities</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Bits</string>
+           </property>
+          </column>
         </widget>
        </item>
       </layout>
