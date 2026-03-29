@@ -554,29 +554,31 @@ QString DecompilerWidget::formatVarValue(RzAnalysisVar *var)
     rz_mem_free(rawVal);
     if (typeStr.contains("*")) {
         ut64 pointedAddr = 0;
-        int ptrSize = core->analysis->bits / 8;
-        bool pointedAddr_state = false;
+        const int bits = core->rasm->bits;
+        const int ptrSize = bits / 8;
         if (var->storage.type == RZ_ANALYSIS_VAR_STORAGE_REG) {
             pointedAddr = rz_debug_reg_get(core->dbg, var->storage.reg);
-            pointedAddr_state = (pointedAddr != 0);
         } else if (var->storage.type == RZ_ANALYSIS_VAR_STORAGE_STACK) {
             ut64 stackAddr = rz_core_analysis_var_addr(core, var);
-            pointedAddr_state =
-                    rz_io_read_at_mapped(core->io, stackAddr, (ut8 *)&pointedAddr, ptrSize);
+            ut8 ptrBuf[8];
+            if (rz_io_read_at_mapped(core->io, stackAddr, ptrBuf, ptrSize)) {
+                pointedAddr = rz_read_ble(ptrBuf, core->rasm->big_endian, bits);
+            }
         }
-        if (pointedAddr_state && pointedAddr) {
+        if (pointedAddr) {
             ut8 buf[256];
             bool str_state = rz_io_read_at_mapped(core->io, pointedAddr, buf, sizeof(buf) - 1);
             if (str_state) {
                 size_t len = strnlen((const char *)buf, sizeof(buf));
                 if (len > 0 && rz_str_is_printable((const char *)buf)) {
-                    QString str = QString::fromUtf8((const char *)buf, len);
+                    QString str = QString::fromUtf8((const char *)buf, len).toHtmlEscaped();
                     displayValue += QString("\nvalue: \"%1\"").arg(str);
                 }
             }
         }
     }
-    return QString("%1 (%2)\nValue: %3").arg(QString::fromUtf8(var->name), typeStr, displayValue);
+    return QString("%1 (%2)\nValue: %3")
+        .arg(QString::fromUtf8(var->name).toHtmlEscaped(), typeStr, displayValue);
 }
 
 bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
