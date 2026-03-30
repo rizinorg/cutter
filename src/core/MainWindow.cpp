@@ -1111,29 +1111,13 @@ void MainWindow::showAddress(RVA addr)
 {
     AddressTypeHint addressType = core->getAddressType(addr);
 
-    if (addressType == AddressTypeHint::Unknown) {
-        if (lastMemoryWidget) {
-            lastMemoryWidget->getSeekable()->seek(addr);
-            lastMemoryWidget->tryRaiseMemoryWidget();
-            setCurrentMemoryWidget(lastMemoryWidget);
-            return;
-        }
-
-        addressType = AddressTypeHint::Code;
-    }
-
     MemoryWidgetType targetType;
-    switch (addressType) {
-    case AddressTypeHint::Function:
-        targetType = MemoryWidgetType::Graph;
-        break;
-    case AddressTypeHint::Code:
-        targetType = MemoryWidgetType::Disassembly;
-        break;
-    case AddressTypeHint::Data:
-    default:
+    if (addressType == AddressTypeHint::Data) {
         targetType = MemoryWidgetType::Hexdump;
-        break;
+    } else if (addressType == AddressTypeHint::Function) {
+        targetType = MemoryWidgetType::Graph;
+    } else {
+        targetType = MemoryWidgetType::Disassembly;
     }
 
     auto memoryWidget = getOrCreateMemoryWidget(targetType, addr, true);
