@@ -204,6 +204,7 @@ void MainWindow::initUI()
     connect(core, &CutterCore::showMemoryWidgetRequested, this,
             static_cast<void (MainWindow::*)()>(&MainWindow::showMemoryWidget));
     connect(core, &CutterCore::showAddressRequested, this, &MainWindow::showAddress);
+    connect(core, &CutterCore::seekChanged, this, &MainWindow::on_core_seekChanged);
 
     connect(core, &CutterCore::showTypeRequested, typesDock, [this](const QString &typeName) {
         typesDock->toggleDockWidget(true);
@@ -1681,6 +1682,13 @@ void MainWindow::on_actionBackward_triggered()
 void MainWindow::on_actionForward_triggered()
 {
     core->seekNext();
+}
+
+void MainWindow::on_core_seekChanged(RVA addr, CutterCore::SeekHistoryType type)
+{
+    if (type == CutterCore::SeekHistoryType::Undo || type == CutterCore::SeekHistoryType::Redo) {
+        this->showAddress(addr);
+    }
 }
 
 void MainWindow::on_actionDisasAdd_comment_triggered()

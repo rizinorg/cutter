@@ -158,6 +158,7 @@ private slots:
     void on_actionBaseFind_triggered();
     void on_actionAbout_triggered();
     void on_actionIssue_triggered();
+    void on_core_seekChanged(RVA addr, CutterCore::SeekHistoryType type);
     void documentationClicked();
     void addExtraGraph();
     void addExtraHexdump();
