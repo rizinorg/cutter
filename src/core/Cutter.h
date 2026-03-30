@@ -79,6 +79,8 @@ enum class SearchKind {
     MagicSignature,
 };
 
+enum class AddressTypeHint { Function, Code, Data, Unknown };
+
 class CUTTER_EXPORT CutterCore : public QObject
 {
     Q_OBJECT
@@ -236,6 +238,7 @@ public:
     RVA getFunctionEnd(RVA addr);
     RVA getLastFunctionInstruction(RVA addr);
     QString flagAt(RVA addr, bool getClosestFlag = true);
+    AddressTypeHint getAddressType(RVA addr);
     void createFunctionAt(RVA addr);
     void createFunctionAt(RVA addr, QString name);
     QStringList getDisassemblyPreview(RVA address, int num_of_lines);
@@ -924,6 +927,7 @@ signals:
     void newDebugMessage(const QString &msg);
 
     void showMemoryWidgetRequested();
+    void showAddressRequested(RVA addr);
 
     /**
      * @brief emitted when a specific type is requested to be shown in the Types Widget

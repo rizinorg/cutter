@@ -75,14 +75,14 @@ void CutterSeekable::seekToReference(RVA offset)
         // Try first call
         for (auto &ref : refs) {
             if (ref.to != RVA_INVALID && ref.type == "CALL") {
-                seek(ref.to);
+                Core()->seekAndShow(ref.to);
                 return;
             }
         }
         // Fallback to first valid, if any
         for (auto &ref : refs) {
             if (ref.to != RVA_INVALID) {
-                seek(ref.to);
+                Core()->seekAndShow(ref.to);
                 return;
             }
         }

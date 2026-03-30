@@ -1009,13 +1009,13 @@ void CutterCore::showMemoryWidget()
 void CutterCore::seekAndShow(ut64 offset)
 {
     seek(offset);
-    showMemoryWidget();
+    emit showAddressRequested(offset);
 }
 
 void CutterCore::seekAndShow(QString offset)
 {
     seek(offset);
-    showMemoryWidget();
+    emit showAddressRequested(math(offset));
 }
 
 void CutterCore::seek(QString thing)
@@ -1148,6 +1148,30 @@ void CutterCore::setConfig(const char *k, const QString &v)
 {
     CORE_LOCK();
     rz_config_set(core->config, k, v.toUtf8().constData());
+}
+
+AddressTypeHint CutterCore::getAddressType(RVA addr)
+{
+    CORE_LOCK();
+
+    if (functionIn(addr)) {
+        return AddressTypeHint::Function;
+    }
+
+    auto sections = getAllSections();
+    for (const auto &sect : sections) {
+        if (addr >= sect.vaddr && addr < sect.vaddr + sect.vsize) {
+            if (sect.perm.toLower().contains('x')) {
+                return AddressTypeHint::Code;
+            }
+            if (sect.perm.toLower().contains('r') || sect.perm.toLower().contains('w')) {
+                return AddressTypeHint::Data;
+            }
+            return AddressTypeHint::Unknown;
+        }
+    }
+
+    return AddressTypeHint::Unknown;
 }
 
 void CutterCore::setConfig(const char *k, int v)
