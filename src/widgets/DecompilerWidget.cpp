@@ -557,7 +557,10 @@ QString DecompilerWidget::formatVarValue(RzAnalysisVar *var)
         const int bits = core->rasm->bits;
         const int ptrSize = bits / 8;
         if (var->storage.type == RZ_ANALYSIS_VAR_STORAGE_REG) {
-            pointedAddr = rz_debug_reg_get(core->dbg, var->storage.reg);
+            auto reg = Core()->getRegisterRefValue(QString::fromUtf8(var->storage.reg));
+            if (!reg.name.isEmpty()) {
+                pointedAddr = Core()->math(reg.value);
+            }
         } else if (var->storage.type == RZ_ANALYSIS_VAR_STORAGE_STACK) {
             ut64 stackAddr = rz_core_analysis_var_addr(core, var);
             ut8 ptrBuf[8];
