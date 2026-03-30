@@ -1109,6 +1109,12 @@ void CutterCore::createSignature(const QString &filepath)
                              tr("Written %1 signatures to %2.").arg(n_modules).arg(filepath));
 }
 
+bool CutterCore::isValidInputNumValue(const QString &expression)
+{
+    CORE_LOCK();
+    return rz_is_valid_input_num_value(core ? core->num : NULL, expression.toUtf8().constData());
+}
+
 ut64 CutterCore::math(const QString &expr)
 {
     CORE_LOCK();
@@ -1892,6 +1898,21 @@ QVector<RegisterRefValueDescription> CutterCore::getRegisterRefValues()
     }
     rz_list_free(ritems);
     return result;
+}
+
+RegisterRefValueDescription CutterCore::getRegisterRefValue(const QString &regName)
+{
+    RegisterRefValueDescription desc;
+    CORE_LOCK();
+    RzRegItem *ri = rz_reg_get(getReg(), regName.toUtf8().constData(), -1);
+    if (!ri) {
+        return desc;
+    }
+    desc.name = ri->name;
+    ut64 value = rz_reg_get_value(getReg(), ri);
+    desc.value = RzAddressString(value);
+    desc.ref = rz_core_analysis_hasrefs(core, value, RZ_OUTPUT_MODE_STANDARD);
+    return desc;
 }
 
 QString CutterCore::getRegisterName(QString registerRole)

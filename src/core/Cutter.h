@@ -387,6 +387,11 @@ public:
     void applySignature(const QString &filepath);
     void createSignature(const QString &filepath);
 
+    /**
+     * @brief Check if the numeric value is a valid input for Rizin
+     */
+    bool isValidInputNumValue(const QString &expression);
+
     /* Math functions */
     ut64 math(const QString &expr);
     ut64 num(const QString &expr);
@@ -743,6 +748,11 @@ public:
     QList<RegisterRef> getRegisterRefs(int depth = 6);
     QVector<RegisterRefValueDescription> getRegisterRefValues();
     QList<VariableDescription> getVariables(RVA at);
+
+    /**
+     * @brief Get the value of the register ref
+     */
+    RegisterRefValueDescription getRegisterRefValue(const QString &regName);
     /**
      * @brief Fetches all the writes or reads to the specified local variable 'variableName'
      * in the function in which the specified offset is a part of.

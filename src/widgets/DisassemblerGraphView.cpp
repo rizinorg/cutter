@@ -171,6 +171,7 @@ DisassemblerGraphView::~DisassemblerGraphView()
 {
     qDeleteAll(shortcuts);
     shortcuts.clear();
+    delete highlight_token;
 }
 
 void DisassemblerGraphView::refreshView()
@@ -566,10 +567,19 @@ bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
 
             // Don't preview anything for a small scale
             if (getViewScale() >= 0.8) {
-                auto token = getToken(inst, pos.x());
+                auto bracketValue = DH::findBracketRange(
+                        inst->plainText, mFontMetrics->position(inst->plainText, pos.x()));
+
                 DH::TargetContext ctx;
                 ctx.offset = offsetFrom;
-                ctx.word = token ? token->content : QString();
+                if (bracketValue.found) {
+                    ctx.word = bracketValue.content;
+                } else if (auto token = getToken(inst, pos.x())) {
+                    ctx.word = token->content;
+                    delete token;
+                } else {
+                    ctx.word = QString();
+                }
                 ctx.line = inst->plainText;
                 ctx.arrow = getTruePathForOffset(offsetFrom);
                 if (DisassemblyPreview::showTooltip(this, helpEvent->globalPos(), ctx,
@@ -900,6 +910,7 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
 
     currentBlockAddress = block.entry;
 
+    delete highlight_token;
     highlight_token = getToken(instr, pos.x());
 
     RVA addr = instr->addr;
@@ -973,25 +984,35 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
     }
 
     DH::TargetContext ctx;
-    ctx.word = highlight_token ? highlight_token->content : QString();
+    auto bracketValue = DH::findBracketRange(instr->plainText, pos.x());
+
+    if (bracketValue.found) {
+        ctx.word = bracketValue.content;
+    } else if (highlight_token) {
+        ctx.word = highlight_token->content;
+    } else {
+        ctx.word = QString();
+    }
     ctx.line = instr->plainText;
     ctx.offset = getAddrForMouseEvent(block, &pos);
     ctx.arrow = getTruePathForOffset(ctx.offset);
 
-    DH::TargetAction ta = DH::resolveTarget(ctx);
+    DH::TargetAction ta = DH::resolveTarget(ctx, DH::TargetFilter::Standard);
     switch (ta.type) {
     case DH::TargetType::TypeName:
         Core()->showTypeInTypesWidget(ctx.word);
         break;
     case DH::TargetType::XRefComment:
-    case DH::TargetType::VariableName:
+    case DH::TargetType::VariableXRef:
     case DH::TargetType::Arrow:
-        if (ta.offset != RVA_INVALID) {
-            seekable->seek(ta.offset);
+        if (ta.value != RVA_INVALID) {
+            seekable->seek(ta.value);
         }
         break;
     case DH::TargetType::None:
         seekable->seekToReference(ctx.offset);
+        break;
+    default:
         break;
     }
 }

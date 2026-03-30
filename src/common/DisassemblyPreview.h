@@ -36,8 +36,9 @@ bool showDisasPreviewAt(QWidget *parent, const QPoint &pointOfEvent, const RVA o
  * @brief Show a QToolTip that shows the value of the highlighted register, variable, or memory
  * @return True if the tooltip is shown
  */
-bool showDebugValueTooltip(QWidget *parent, const QPoint &pointOfEvent, const QString &selectedText,
-                           const RVA offset);
+bool showDebugValueTooltip(QWidget *parent, const QPoint &pointOfEvent,
+                           const DisassemblyHelper::TargetAction &ta,
+                           const DisassemblyHelper::TargetContext &ctx);
 
 /**
  * @brief Displays a tooltip or preview window based on the item under the cursor

@@ -32,7 +32,7 @@
    <item>
     <widget class="QSplitter" name="splitter">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="handleWidth">
       <number>5</number>
@@ -50,12 +50,15 @@
         </widget>
        </item>
        <item>
+        <widget class="QuickFilterView" name="toQuickFilter" native="true"/>
+       </item>
+       <item>
         <widget class="AddressableItemList&lt;&gt;" name="toTreeWidget">
          <property name="frameShape">
-          <enum>QFrame::Box</enum>
+          <enum>QFrame::Shape::Box</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Plain</enum>
+          <enum>QFrame::Shadow::Plain</enum>
          </property>
          <property name="indentation">
           <number>5</number>
@@ -73,12 +76,15 @@
         </widget>
        </item>
        <item>
+        <widget class="QuickFilterView" name="fromQuickFilter" native="true"/>
+       </item>
+       <item>
         <widget class="AddressableItemList&lt;&gt;" name="fromTreeWidget">
          <property name="frameShape">
-          <enum>QFrame::Box</enum>
+          <enum>QFrame::Shape::Box</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Plain</enum>
+          <enum>QFrame::Shadow::Plain</enum>
          </property>
          <property name="indentation">
           <number>5</number>
@@ -102,16 +108,16 @@
        <item>
         <widget class="QPlainTextEdit" name="previewTextEdit">
          <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
+          <enum>QFrame::Shape::NoFrame</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Plain</enum>
+          <enum>QFrame::Shadow::Plain</enum>
          </property>
          <property name="lineWidth">
           <number>0</number>
          </property>
          <property name="lineWrapMode">
-          <enum>QPlainTextEdit::NoWrap</enum>
+          <enum>QPlainTextEdit::LineWrapMode::NoWrap</enum>
          </property>
          <property name="readOnly">
           <bool>true</bool>
@@ -120,7 +126,7 @@
           <string notr="true"/>
          </property>
          <property name="textInteractionFlags">
-          <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+          <set>Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -131,10 +137,10 @@
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Close</set>
+      <set>QDialogButtonBox::StandardButton::Close</set>
      </property>
     </widget>
    </item>
@@ -145,6 +151,13 @@
    <class>AddressableItemList&lt;&gt;</class>
    <extends>QTreeView</extends>
    <header>widgets/AddressableItemList.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QuickFilterView</class>
+   <extends>QWidget</extends>
+   <header>widgets/QuickFilterView.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -1,5 +1,22 @@
 #include "DisassemblyHelper.h"
 #include "Cutter.h"
+#include "rz_types_base.h"
+
+typedef struct mmio_lookup_context
+{
+    QString selected;
+    RVA mmio_address;
+} mmio_lookup_context_t;
+
+static bool lookup_mmio_addr_cb(void *user, const ut64 key, const void *value)
+{
+    mmio_lookup_context_t *ctx = (mmio_lookup_context_t *)user;
+    if (ctx->selected == (const char *)value) {
+        ctx->mmio_address = key;
+        return false;
+    }
+    return true;
+}
 
 DisassemblyTextBlockUserData::DisassemblyTextBlockUserData(const DisassemblyLine &line)
     : line { line }
@@ -53,12 +70,59 @@ RVA DisassemblyHelper::readDisassemblyArrow(QTextCursor tc)
     return userData->line.arrow;
 }
 
+DisassemblyHelper::BracketResult DisassemblyHelper::findBracketRange(const QString &line,
+                                                                     int posInLine)
+{
+    BracketResult res;
+    int openBracket = line.lastIndexOf('[', posInLine);
+    int closeBracket = line.indexOf(']', posInLine);
+
+    if (openBracket != -1 && closeBracket != -1) {
+        bool isInside = true;
+        for (int i = openBracket + 1; i < posInLine; ++i) {
+            if (line[i] == ']') {
+                isInside = false;
+                break;
+            }
+        }
+        if (isInside) {
+            for (int i = posInLine; i < closeBracket; ++i) {
+                if (line[i] == '[') {
+                    isInside = false;
+                    break;
+                }
+            }
+        }
+
+        if (isInside) {
+            res.found = true;
+            res.start = openBracket;
+            res.length = (closeBracket - openBracket) + 1;
+            res.content = line.mid(res.start, res.length);
+        }
+    }
+    return res;
+}
+
 DisassemblyHelper::TargetContext DisassemblyHelper::getContextFromCursor(QTextCursor tc)
 {
+    int originalPos = tc.position();
     tc.select(QTextCursor::WordUnderCursor);
+    QString word = tc.selectedText();
+    QString line = tc.block().text();
+    int lineStart = tc.block().position();
+    int posInLine = originalPos - lineStart;
+
+    auto bracketRes = findBracketRange(line, posInLine);
+    if (bracketRes.found) {
+        tc.setPosition(lineStart + bracketRes.start);
+        tc.setPosition(lineStart + bracketRes.start + bracketRes.length, QTextCursor::KeepAnchor);
+        word = bracketRes.content;
+    }
+
     TargetContext ctx;
-    ctx.word = tc.selectedText();
-    ctx.line = tc.block().text();
+    ctx.word = word;
+    ctx.line = line;
     ctx.offset = DisassemblyHelper::readDisassemblyOffset(tc);
     ctx.arrow = DisassemblyHelper::readDisassemblyArrow(tc);
     return ctx;
@@ -73,17 +137,35 @@ DisassemblyHelper::TargetAction DisassemblyHelper::resolveTarget(const TargetCon
     if (filter & TargetFilter::XRefComments) {
         bool showXRefComments = Core()->getConfigb("asm.xrefs");
         if (showXRefComments && isXRefFromComment(ctx.offset, ctx.line)) {
-            res.offset = getXRefFromWord(ctx.offset, ctx.word);
+            res.value = getXRefFromWord(ctx.offset, ctx.word);
             res.type = TargetType::XRefComment;
             return res;
         }
     }
 
-    if (filter & TargetFilter::Variables) {
+    if (filter & TargetFilter::VariableValues) {
+        QString inner = ctx.word;
+        if (inner.startsWith('[') && inner.endsWith(']')) {
+            inner = inner.mid(1, inner.length() - 2);
+        }
+
+        if (ctx.offset != RVA_INVALID) {
+            auto vars = Core()->getVariables(ctx.offset);
+            for (auto &var : vars) {
+                if (var.name == inner) {
+                    res.value = Core()->math(var.value);
+                    res.type = TargetType::VariableValue;
+                    return res;
+                }
+            }
+        }
+    }
+
+    if (filter & TargetFilter::VariableXrefs) {
         XrefDescription xref = Core()->getFirstXRefForVariable(ctx.word, ctx.offset);
         if (!xref.from_str.isEmpty() || !xref.to_str.isEmpty()) {
-            res.offset = xref.from;
-            res.type = TargetType::VariableName;
+            res.value = xref.from;
+            res.type = TargetType::VariableXRef;
             return res;
         }
     }
@@ -98,8 +180,48 @@ DisassemblyHelper::TargetAction DisassemblyHelper::resolveTarget(const TargetCon
     if (filter & TargetFilter::Arrows) {
         if (ctx.arrow != RVA_INVALID) {
             res.type = TargetType::Arrow;
-            res.offset = ctx.arrow;
+            res.value = ctx.arrow;
             return res;
+        }
+    }
+
+    if (!ctx.word.isEmpty()) {
+        if (filter & TargetFilter::Registers) {
+            const auto reg = Core()->getRegisterRefValue(ctx.word);
+            if (!reg.name.isEmpty()) {
+                res.type = TargetType::Register;
+                res.value = Core()->math(reg.value);
+                return res;
+            }
+        }
+
+        if (filter & TargetFilter::MMIO) {
+            mmio_lookup_context_t mmio_ctx;
+            mmio_ctx.selected = ctx.word;
+            mmio_ctx.mmio_address = RVA_INVALID;
+            auto core = Core()->lock();
+            RzPlatformTarget *arch_target = core->analysis->arch_target;
+            if (arch_target && arch_target->profile) {
+                ht_up_foreach(arch_target->profile->registers_mmio, lookup_mmio_addr_cb, &mmio_ctx);
+            }
+            if (mmio_ctx.mmio_address != RVA_INVALID) {
+                res.value = mmio_ctx.mmio_address;
+                res.type = TargetType::MMIO;
+                return res;
+            }
+        }
+
+        if (filter & TargetFilter::Memory) {
+            QString stripped = ctx.word;
+            if (stripped.startsWith('[') && stripped.endsWith(']')) {
+                stripped = stripped.mid(1, stripped.length() - 2);
+                if (Core()->isValidInputNumValue(stripped)
+                    || Core()->isValidInputNumValue(ctx.word)) {
+                    res.value = Core()->math(ctx.word);
+                    res.type = TargetType::Memory;
+                    return res;
+                }
+            }
         }
     }
 
