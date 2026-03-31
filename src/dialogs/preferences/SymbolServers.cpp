@@ -31,37 +31,7 @@ SymbolServers::SymbolServers(PreferencesDialog *parent)
     connect(ui->reanalyzeButton, &QPushButton::clicked, this, &SymbolServers::reanalyze);
 }
 
-void SymbolServers::reanalyze()
-{
-    saveConfig();
-    InitialOptions options;
-    auto *analysisTask = new AnalysisTask();
-    options.analysisCmd = { { "aaa", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Auto analysis") } };
-    analysisTask->setOptions(options);
-    AsyncTask::Ptr analysisTaskPtr(analysisTask);
-
-    auto *taskDialog = new AsyncTaskDialog(analysisTaskPtr);
-    taskDialog->setInterruptOnClose(true);
-    taskDialog->setAttribute(Qt::WA_DeleteOnClose);
-    taskDialog->show();
-    connect(analysisTask, &AnalysisTask::finished, mainWindow, &MainWindow::refreshAll);
-
-    Core()->getAsyncTaskManager()->start(analysisTaskPtr);
-}
-
 SymbolServers::~SymbolServers() {}
-
-void SymbolServers::updateDebuginfodLayout()
-{
-    ui->debuginfodLineEdit->setEnabled(ui->debuginfodCheckBox->isChecked());
-}
-
-void SymbolServers::saveConfig()
-{
-    Core()->setConfig("bin.dbginfo.debuginfod", ui->debuginfodCheckBox->isChecked());
-    Core()->setConfig("bin.dbginfo.debuginfod_urls", ui->debuginfodLineEdit->text());
-    Core()->setConfig("pdb.server", ui->pdbServerEdit->text());
-}
 
 void SymbolServers::pdbSelectButtonClicked()
 {
@@ -87,4 +57,34 @@ void SymbolServers::pdbSelectButtonClicked()
             mainWindow->refreshAll();
         }
     }
+}
+
+void SymbolServers::updateDebuginfodLayout()
+{
+    ui->debuginfodLineEdit->setEnabled(ui->debuginfodCheckBox->isChecked());
+}
+
+void SymbolServers::reanalyze()
+{
+    saveConfig();
+    InitialOptions options;
+    auto *analysisTask = new AnalysisTask();
+    options.analysisCmd = { { "aaa", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Auto analysis") } };
+    analysisTask->setOptions(options);
+    AsyncTask::Ptr analysisTaskPtr(analysisTask);
+
+    auto *taskDialog = new AsyncTaskDialog(analysisTaskPtr);
+    taskDialog->setInterruptOnClose(true);
+    taskDialog->setAttribute(Qt::WA_DeleteOnClose);
+    taskDialog->show();
+    connect(analysisTask, &AnalysisTask::finished, mainWindow, &MainWindow::refreshAll);
+
+    Core()->getAsyncTaskManager()->start(analysisTaskPtr);
+}
+
+void SymbolServers::saveConfig()
+{
+    Core()->setConfig("bin.dbginfo.debuginfod", ui->debuginfodCheckBox->isChecked());
+    Core()->setConfig("bin.dbginfo.debuginfod_urls", ui->debuginfodLineEdit->text());
+    Core()->setConfig("pdb.server", ui->pdbServerEdit->text());
 }
