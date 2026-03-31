@@ -26,10 +26,14 @@ namespace DisassemblyHelper {
  * @brief Identifies what kind of item was clicked or hovered
  */
 enum class TargetType {
-    VariableName,
+    VariableXRef,
+    VariableValue,
     TypeName,
     XRefComment,
     Arrow,
+    Register,
+    Memory,
+    MMIO,
     None,
 };
 
@@ -49,7 +53,7 @@ struct TargetContext
  */
 struct TargetAction
 {
-    RVA offset;
+    RVA value;
     TargetType type;
 };
 
@@ -58,14 +62,39 @@ struct TargetAction
  */
 enum TargetFilter {
     XRefComments = 1 << 0,
-    Variables = 1 << 1,
-    Types = 1 << 2,
-    Arrows = 1 << 3,
+    VariableXrefs = 1 << 1,
+    VariableValues = 1 << 2,
+    Types = 1 << 3,
+    Arrows = 1 << 4,
+    Registers = 1 << 5,
+    Memory = 1 << 6,
+    MMIO = 1 << 7,
 
-    All = XRefComments | Variables | Types | Arrows
+    Standard = XRefComments | VariableXrefs | Types | Arrows,
+    Debug = Registers | Memory | MMIO | VariableValues,
+    All = Standard | Debug
+};
+
+/**
+ * @brief Result of bracket detection
+ */
+struct BracketResult
+{
+    bool found = false;
+    int start = -1;
+    int length = 0;
+    QString content;
 };
 
 DisassemblyTextBlockUserData *getUserData(const QTextBlock &block);
+
+/**
+ * @brief Finds the range and content of a bracketed expression under a given position
+ * @param line The text line to search in
+ * @param posInLine The cursor position within the line
+ * @return BracketResult containing the found range and content
+ */
+BracketResult findBracketRange(const QString &line, int posInLine);
 
 /**
  * @brief Finds the source (from) address of an XRef based on the text word under the cursor

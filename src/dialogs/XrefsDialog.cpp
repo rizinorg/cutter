@@ -7,9 +7,18 @@
 #include "core/MainWindow.h"
 
 #include <QJsonArray>
+#include <QShortcut>
+#include "shortcuts/ShortcutManager.h"
+#include <QApplication>
 
 XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom)
-    : QDialog(parent), addr(0), toModel(this), fromModel(this), ui(new Ui::XrefsDialog)
+    : QDialog(parent),
+      addr(0),
+      toModel(this),
+      toProxyModel(&toModel),
+      fromModel(this),
+      fromProxyModel(&fromModel),
+      ui(new Ui::XrefsDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -17,8 +26,8 @@ XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom)
     ui->toTreeWidget->setMainWindow(parent);
     ui->fromTreeWidget->setMainWindow(parent);
 
-    ui->toTreeWidget->setModel(&toModel);
-    ui->fromTreeWidget->setModel(&fromModel);
+    ui->toTreeWidget->setModel(&toProxyModel);
+    ui->fromTreeWidget->setModel(&fromProxyModel);
 
     ui->toTreeWidget->getItemContextMenu()->toggleBreakpointAction(true);
     ui->fromTreeWidget->getItemContextMenu()->toggleBreakpointAction(true);
@@ -44,6 +53,34 @@ XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom)
             &XrefsDialog::onToTreeWidgetItemSelectionChanged);
     connect(ui->fromTreeWidget->selectionModel(), &QItemSelectionModel::selectionChanged, this,
             &XrefsDialog::onFromTreeWidgetItemSelectionChanged);
+    connect(ui->fromQuickFilter, &QuickFilterView::filterTextChanged, &fromProxyModel,
+            &QSortFilterProxyModel::setFilterWildcard);
+    connect(ui->toQuickFilter, &QuickFilterView::filterTextChanged, &toProxyModel,
+            &QSortFilterProxyModel::setFilterWildcard);
+
+    // SearchWidget shortcuts
+
+    QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", ui->toTreeWidget);
+    QShortcut *clearShortcut =
+            Shortcuts()->makeQShortcut("General.clearFilter", ui->fromQuickFilter);
+
+    connect(searchShortcut, &QShortcut::activated, this, [this]() {
+        QWidget *fw = QApplication::focusWidget();
+        if (ui->toTreeWidget->isAncestorOf(fw)) {
+            ui->toQuickFilter->showFilter();
+        } else if (ui->fromTreeWidget->isAncestorOf(fw)) {
+            ui->fromQuickFilter->showFilter();
+        }
+    });
+
+    connect(clearShortcut, &QShortcut::activated, [this]() {
+        QWidget *fw = QApplication::focusWidget();
+        if (ui->toQuickFilter->isAncestorOf(fw)) {
+            ui->toQuickFilter->clearFilter();
+        } else if (ui->fromQuickFilter->isAncestorOf(fw)) {
+            ui->fromQuickFilter->clearFilter();
+        }
+    });
 
     // Don't create recursive xref dialogs
     auto toContextMenu = ui->toTreeWidget->getItemContextMenu();
@@ -316,4 +353,47 @@ RVA XrefModel::address(const QModelIndex &index) const
 {
     const auto &xref = xrefs.at(index.row());
     return to ? xref.from : xref.to;
+}
+
+bool XrefModel::getTo() const
+{
+    return to;
+}
+
+const XrefDescription *XrefModel::description(const QModelIndex &index) const
+{
+    if (index.row() < xrefs.size()) {
+        return &xrefs.at(index.row());
+    }
+    return nullptr;
+}
+
+XrefFilterProxyModel::XrefFilterProxyModel(XrefModel *source_model, QObject *parent)
+    : AddressableFilterProxyModel(source_model, parent), to(source_model->getTo())
+{
+}
+
+bool XrefFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
+{
+    QModelIndex index = sourceModel()->index(row, 0, parent);
+    XrefDescription xref = index.data(XrefModel::FlagDescriptionRole).value<XrefDescription>();
+    return qhelpers::filterStringContains(to ? xref.to_str : xref.from_str, this);
+}
+
+bool XrefFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+{
+    auto source = static_cast<XrefModel *>(sourceModel());
+    auto left_item = source->description(left);
+    auto right_item = source->description(right);
+
+    switch (left.column()) {
+    case XrefModel::OFFSET:
+        return to ? left_item->to < right_item->to : left_item->from < right_item->from;
+
+    case XrefModel::TYPE:
+        return left_item->type < right_item->type;
+    default:
+        return sourceModel()->data(left, Qt::DisplayRole).toString()
+                < sourceModel()->data(right, Qt::DisplayRole).toString();
+    }
 }
