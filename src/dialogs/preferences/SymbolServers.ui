@@ -170,6 +170,19 @@
          </layout>
         </widget>
        </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
      </widget>
     </widget>
@@ -190,16 +203,9 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="save">
-       <property name="text">
-        <string>Save</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="reanalyzeButton">
        <property name="text">
-        <string>Reanalyze</string>
+        <string>Analyze Program</string>
        </property>
       </widget>
      </item>

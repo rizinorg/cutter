@@ -24,7 +24,6 @@ SymbolServers::SymbolServers(PreferencesDialog *parent)
     ui->debuginfodCheckBox->setChecked(Core()->getConfigb("bin.dbginfo.debuginfod"));
     ui->debuginfodLineEdit->setText(Core()->getConfig("bin.dbginfo.debuginfod_urls"));
     updateDebuginfodLayout();
-    connect(ui->save, &QPushButton::clicked, this, &SymbolServers::saveConfig);
     connect(ui->debuginfodCheckBox, &QCheckBox::stateChanged, this,
             &SymbolServers::updateDebuginfodLayout);
     connect(ui->pdbSelect, &QPushButton::clicked, this, &SymbolServers::pdbSelectButtonClicked);
@@ -48,15 +47,6 @@ void SymbolServers::pdbSelectButtonClicked()
     if (!fileName.isEmpty()) {
         ui->pdbLineEdit->setText(fileName);
     }
-
-    QUrl pdbFile = QUrl::fromUserInput(fileName);
-    if (pdbFile.isValid() && pdbFile.isLocalFile()) {
-        QFileInfo pdbFileInfo(pdbFile.toLocalFile());
-        if (pdbFileInfo.exists() && pdbFileInfo.isFile()) {
-            Core()->loadPDB(fileName);
-            mainWindow->refreshAll();
-        }
-    }
 }
 
 void SymbolServers::updateDebuginfodLayout()
@@ -66,25 +56,18 @@ void SymbolServers::updateDebuginfodLayout()
 
 void SymbolServers::reanalyze()
 {
-    saveConfig();
-    InitialOptions options;
-    auto *analysisTask = new AnalysisTask();
-    options.analysisCmd = { { "aaa", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Auto analysis") } };
-    analysisTask->setOptions(options);
-    AsyncTask::Ptr analysisTaskPtr(analysisTask);
-
-    auto *taskDialog = new AsyncTaskDialog(analysisTaskPtr);
-    taskDialog->setInterruptOnClose(true);
-    taskDialog->setAttribute(Qt::WA_DeleteOnClose);
-    taskDialog->show();
-    connect(analysisTask, &AnalysisTask::finished, mainWindow, &MainWindow::refreshAll);
-
-    Core()->getAsyncTaskManager()->start(analysisTaskPtr);
-}
-
-void SymbolServers::saveConfig()
-{
     Core()->setConfig("bin.dbginfo.debuginfod", ui->debuginfodCheckBox->isChecked());
     Core()->setConfig("bin.dbginfo.debuginfod_urls", ui->debuginfodLineEdit->text());
     Core()->setConfig("pdb.server", ui->pdbServerEdit->text());
+
+    mainWindow->on_actionAnalyze_triggered();
+    QUrl pdbFile = QUrl::fromUserInput(ui->pdbLineEdit->text());
+    if (pdbFile.isValid() && pdbFile.isLocalFile()) {
+        QFileInfo pdbFileInfo(pdbFile.toLocalFile());
+        if (pdbFileInfo.exists() && pdbFileInfo.isFile()) {
+            Core()->loadPDB(ui->pdbLineEdit->text());
+            mainWindow->refreshAll();
+            Core()->message(tr("%1 loaded.").arg(ui->pdbLineEdit->text()));
+        }
+    }
 }

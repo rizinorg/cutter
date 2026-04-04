@@ -30,7 +30,6 @@ private:
     std::unique_ptr<Ui::SymbolServers> ui;
     void updateDebuginfodLayout();
     void reanalyze();
-    void saveConfig();
 };
 
 #endif // SYMBOLSERVERS_H
