@@ -3057,16 +3057,17 @@ bool CutterCore::hasAssembler()
     }
 
     bool found = false;
-    CutterHtSP<RzAsmPlugin>(rz_asm_get_plugins(core->rasm)).ForEach([&](const char *k, const RzAsmPlugin *ap) {
-        if (!ap->arch || !ap->assemble || !(ap->bits & currBits)) {
-            return true;
-        }
-        if (QString(ap->arch) == archStr) {
-            found = true;
-            return false;
-        }
-        return true;
-    });
+    CutterHtSP<RzAsmPlugin>(rz_asm_get_plugins(core->rasm))
+            .ForEach([&](const char *k, const RzAsmPlugin *ap) {
+                if (!ap->arch || !ap->assemble || !(ap->bits & currBits)) {
+                    return true;
+                }
+                if (QString(ap->arch) == archStr) {
+                    found = true;
+                    return false;
+                }
+                return true;
+            });
     return found;
 }
 
