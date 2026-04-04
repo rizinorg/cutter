@@ -1,20 +1,17 @@
-#include "SymbolServers.h"
-#include "ui_SymbolServers.h"
+#include "SymbolsOptionsWidget.h"
+#include "ui_SymbolsOptionsWidget.h"
 #include <QFileDialog>
 #include <QCheckBox>
 #include <QPushButton>
 #include <QUrl>
 #include "core/Cutter.h"
 #include "core/MainWindow.h"
-#include "common/AnalysisTask.h"
-#include "common/AsyncTask.h"
-#include "dialogs/AsyncTaskDialog.h"
 #include "common/Configuration.h"
 #include "PreferencesDialog.h"
 #include "CutterApplication.h"
 
-SymbolServers::SymbolServers(PreferencesDialog *parent)
-    : QDialog(parent), mainWindow(parent->getMainWindow()), ui(new Ui::SymbolServers)
+SymbolsOptionsWidget::SymbolsOptionsWidget(PreferencesDialog *parent)
+    : QDialog(parent), mainWindow(parent->getMainWindow()), ui(new Ui::SymbolsOptionsWidget)
 {
     ui->setupUi(this);
 
@@ -24,15 +21,16 @@ SymbolServers::SymbolServers(PreferencesDialog *parent)
     ui->debuginfodCheckBox->setChecked(Core()->getConfigb("bin.dbginfo.debuginfod"));
     ui->debuginfodLineEdit->setText(Core()->getConfig("bin.dbginfo.debuginfod_urls"));
     updateDebuginfodLayout();
-    connect(ui->debuginfodCheckBox, &QCheckBox::stateChanged, this,
-            &SymbolServers::updateDebuginfodLayout);
-    connect(ui->pdbSelect, &QPushButton::clicked, this, &SymbolServers::pdbSelectButtonClicked);
-    connect(ui->reanalyzeButton, &QPushButton::clicked, this, &SymbolServers::reanalyze);
+    connect(ui->debuginfodCheckBox, &QCheckBox::checkStateChanged, this,
+            &SymbolsOptionsWidget::updateDebuginfodLayout);
+    connect(ui->pdbSelect, &QPushButton::clicked, this,
+            &SymbolsOptionsWidget::pdbSelectButtonClicked);
+    connect(ui->reanalyzeButton, &QPushButton::clicked, this, &SymbolsOptionsWidget::reanalyze);
 }
 
-SymbolServers::~SymbolServers() {}
+SymbolsOptionsWidget::~SymbolsOptionsWidget() {}
 
-void SymbolServers::pdbSelectButtonClicked()
+void SymbolsOptionsWidget::pdbSelectButtonClicked()
 {
     QFileDialog dialog(this);
     dialog.setWindowTitle(tr("Select PDB file"));
@@ -41,20 +39,19 @@ void SymbolServers::pdbSelectButtonClicked()
     if (!dialog.exec()) {
         return;
     }
-
-    const QString &fileName = QDir::toNativeSeparators(dialog.selectedFiles().first());
+    const QString fileName = QDir::toNativeSeparators(dialog.selectedFiles().first());
 
     if (!fileName.isEmpty()) {
         ui->pdbLineEdit->setText(fileName);
     }
 }
 
-void SymbolServers::updateDebuginfodLayout()
+void SymbolsOptionsWidget::updateDebuginfodLayout()
 {
     ui->debuginfodLineEdit->setEnabled(ui->debuginfodCheckBox->isChecked());
 }
 
-void SymbolServers::reanalyze()
+void SymbolsOptionsWidget::reanalyze()
 {
     Core()->setConfig("bin.dbginfo.debuginfod", ui->debuginfodCheckBox->isChecked());
     Core()->setConfig("bin.dbginfo.debuginfod_urls", ui->debuginfodLineEdit->text());
