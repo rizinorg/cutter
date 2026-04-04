@@ -185,9 +185,9 @@ public:
         return *this;
     }
     operator bool() { return rzIter && rzIter->cur; }
-    T &operator*() { return *reinterpret_cast<RzAnalysisBytes *>(rzIter->cur); }
-    T *get() { return reinterpret_cast<RzAnalysisBytes *>(rzIter->cur); }
-    T *operator->() { return reinterpret_cast<RzAnalysisBytes *>(rzIter->cur); }
+    T &operator*() { return *reinterpret_cast<RzCoreDecodedBytes *>(rzIter->cur); }
+    T *get() { return reinterpret_cast<RzCoreDecodedBytes *>(rzIter->cur); }
+    T *operator->() { return reinterpret_cast<RzCoreDecodedBytes *>(rzIter->cur); }
 };
 
 #define CutterHtDef(xx, XX, K, VB)                                                                 \

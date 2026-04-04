@@ -749,7 +749,7 @@ void CutterCore::delFlag(const QString &name)
     emit flagsChanged();
 }
 
-CutterRzIter<RzAnalysisBytes> CutterCore::getRzAnalysisBytesSingle(RVA addr)
+CutterRzIter<RzCoreDecodedBytes> CutterCore::getRzCoreDecodedBytesSingle(RVA addr)
 {
     CORE_LOCK();
     ut8 buf[128];
@@ -757,20 +757,20 @@ CutterRzIter<RzAnalysisBytes> CutterCore::getRzAnalysisBytesSingle(RVA addr)
 
     // Warning! only safe to use with stack buffer, due to instruction count being 1
     auto result =
-            CutterRzIter<RzAnalysisBytes>(rz_core_analysis_bytes(core, addr, buf, sizeof(buf), 1));
+            CutterRzIter<RzCoreDecodedBytes>(rz_core_analysis_bytes(core, addr, buf, sizeof(buf), 1));
     return result;
 }
 
 QString CutterCore::getInstructionBytes(RVA addr)
 {
-    auto ab = getRzAnalysisBytesSingle(addr);
-    return ab ? ab->bytes : "";
+    auto cdb = getRzCoreDecodedBytesSingle(addr);
+    return cdb ? cdb->bytes : "";
 }
 
 QString CutterCore::getInstructionOpcode(RVA addr)
 {
-    auto ab = getRzAnalysisBytesSingle(addr);
-    return ab ? ab->opcode : "";
+    auto cdb = getRzCoreDecodedBytesSingle(addr);
+    return cdb ? cdb->opcode : "";
 }
 
 void CutterCore::editInstruction(RVA addr, const QString &inst, bool fillWithNops)
@@ -1292,8 +1292,8 @@ QString CutterCore::disassemble(const QByteArray &data)
 
 QString CutterCore::disassembleSingleInstruction(RVA addr)
 {
-    auto ab = getRzAnalysisBytesSingle(addr);
-    return QString(ab->disasm).simplified();
+    auto cdb = getRzCoreDecodedBytesSingle(addr);
+    return QString(cdb->disasm).simplified();
 }
 
 RzAnalysisFunction *CutterCore::functionIn(ut64 addr)
@@ -1391,8 +1391,8 @@ void CutterCore::createFunctionAt(RVA addr, QString name)
 
 RVA CutterCore::getOffsetJump(RVA addr)
 {
-    auto ab = getRzAnalysisBytesSingle(addr);
-    return ab && ab->op ? ab->op->jump : RVA_INVALID;
+    auto cdb = getRzCoreDecodedBytesSingle(addr);
+    return cdb ? cdb->an_op.jump : RVA_INVALID;
 }
 
 QList<Decompiler *> CutterCore::getDecompilers()

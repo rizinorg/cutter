@@ -505,9 +505,9 @@ void DisassemblyContextMenu::setupRenaming()
 void DisassemblyContextMenu::aboutToShowSlot()
 {
     // check if set immediate base menu makes sense
-    auto ab = Core()->getRzAnalysisBytesSingle(offset);
+    auto cdb = Core()->getRzCoreDecodedBytesSingle(offset);
 
-    bool immBase = ab && ab->op && (ab->op->val || ab->op->ptr);
+    bool immBase = cdb && (cdb->an_op.val || cdb->an_op.ptr);
     setBaseMenu->menuAction()->setVisible(immBase);
     setBitsMenu->menuAction()->setVisible(true);
 
@@ -515,9 +515,9 @@ void DisassemblyContextMenu::aboutToShowSlot()
     QString memBaseReg; // Base register
     st64 memDisp = 0; // Displacement
 
-    if (ab && ab->op) {
+    if (cdb) {
         CutterJson operands =
-                Core()->parseJson("opex", rz_structured_data_to_json(ab->op->opex), nullptr);
+                Core()->parseJson("opex", rz_structured_data_to_json(cdb->an_op.opex), nullptr);
 
         // Loop through both the operands of the instruction
         for (const CutterJson operand : operands) {
@@ -665,11 +665,11 @@ void DisassemblyContextMenu::on_actionNopInstruction_triggered()
 void DisassemblyContextMenu::showReverseJmpQuery()
 {
     actionJmpReverse.setVisible(false);
-    auto ab = Core()->getRzAnalysisBytesSingle(offset);
-    if (!(ab && ab->op)) {
+    auto cdb = Core()->getRzCoreDecodedBytesSingle(offset);
+    if (!cdb) {
         return;
     }
-    if (ab->op->type == RZ_ANALYSIS_OP_TYPE_CJMP) {
+    if (cdb->an_op.type == RZ_ANALYSIS_OP_TYPE_CJMP) {
         actionJmpReverse.setVisible(true);
     }
 }
