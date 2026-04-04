@@ -1582,7 +1582,7 @@ AddrRefs CutterCore::getAddrRefs(RVA addr, int depth)
     }
 
     CORE_LOCK();
-    int bits = core->rasm->bits;
+    int bits = rz_asm_get_bits(core->rasm);
     QByteArray buf = QByteArray();
     ut64 type = rz_core_analysis_address(core, addr);
 
@@ -3026,7 +3026,7 @@ QStringList CutterCore::getAsmPluginNames()
 {
     CORE_LOCK();
     QStringList ret;
-    CutterHtSP<RzAsmPlugin>(core->rasm->plugins)
+    CutterHtSP<RzAsmPlugin>(rz_asm_get_plugins(core->rasm))
             .ForEach([&ret](const char *k, const RzAsmPlugin *ap) {
                 ret << ap->name;
                 return true;
@@ -3057,7 +3057,7 @@ bool CutterCore::hasAssembler()
     }
 
     bool found = false;
-    CutterHtSP<RzAsmPlugin>(core->rasm->plugins).ForEach([&](const char *k, const RzAsmPlugin *ap) {
+    CutterHtSP<RzAsmPlugin>(rz_asm_get_plugins(core->rasm)).ForEach([&](const char *k, const RzAsmPlugin *ap) {
         if (!ap->arch || !ap->assemble || !(ap->bits & currBits)) {
             return true;
         }
@@ -3140,7 +3140,7 @@ QList<RzAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
     CORE_LOCK();
     QList<RzAsmPluginDescription> ret;
 
-    CutterHtSP<RzAsmPlugin>(core->rasm->plugins)
+    CutterHtSP<RzAsmPlugin>(rz_asm_get_plugins(core->rasm))
             .ForEach([&ret](const char *k, const RzAsmPlugin *ap) {
                 RzAsmPluginDescription plugin;
 
