@@ -756,8 +756,8 @@ CutterRzIter<RzCoreDecodedBytes> CutterCore::getRzCoreDecodedBytesSingle(RVA add
     rz_io_read_at_mapped(core->io, addr, buf, sizeof(buf));
 
     // Warning! only safe to use with stack buffer, due to instruction count being 1
-    auto result =
-            CutterRzIter<RzCoreDecodedBytes>(rz_core_analysis_bytes(core, addr, buf, sizeof(buf), 1));
+    auto result = CutterRzIter<RzCoreDecodedBytes>(
+            rz_core_analysis_bytes(core, addr, buf, sizeof(buf), 1));
     return result;
 }
 
