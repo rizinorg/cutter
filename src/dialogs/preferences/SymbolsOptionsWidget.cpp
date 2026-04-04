@@ -6,9 +6,7 @@
 #include <QUrl>
 #include "core/Cutter.h"
 #include "core/MainWindow.h"
-#include "common/Configuration.h"
 #include "PreferencesDialog.h"
-#include "CutterApplication.h"
 
 SymbolsOptionsWidget::SymbolsOptionsWidget(PreferencesDialog *parent)
     : QDialog(parent), mainWindow(parent->getMainWindow()), ui(new Ui::SymbolsOptionsWidget)
@@ -32,17 +30,11 @@ SymbolsOptionsWidget::~SymbolsOptionsWidget() {}
 
 void SymbolsOptionsWidget::pdbSelectButtonClicked()
 {
-    QFileDialog dialog(this);
-    dialog.setWindowTitle(tr("Select PDB file"));
-    dialog.setNameFilters({ tr("PDB file (*.pdb)"), tr("All files (*)") });
-
-    if (!dialog.exec()) {
-        return;
-    }
-    const QString fileName = QDir::toNativeSeparators(dialog.selectedFiles().first());
+    const QString fileName = QFileDialog::getOpenFileName(this, tr("Select PDB file"), QString(),
+                                                          tr("PDB file (*.pdb);;All files (*)"));
 
     if (!fileName.isEmpty()) {
-        ui->pdbLineEdit->setText(fileName);
+        ui->pdbLineEdit->setText(QDir::toNativeSeparators(fileName));
     }
 }
 
