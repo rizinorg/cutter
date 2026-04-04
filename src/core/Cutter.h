@@ -32,6 +32,7 @@ class RizinTaskDialog;
 #include "common/BasicBlockHighlighter.h"
 #include "common/Helpers.h"
 
+#include <rz_heap_glibc.h>
 #include <rz_project.h>
 #include <memory>
 
