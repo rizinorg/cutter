@@ -11,7 +11,7 @@ class InterfaceOptionsWidget;
 class PreferencesDialog;
 
 /**
- * @brief Class containing options for interface related settings
+ * @brief Widget containing options for interface related settings
  *
  * Uses groupboxes to seperate options available for different widgets/views
  * Groupboxes must be in alphabetical order according to their titles
