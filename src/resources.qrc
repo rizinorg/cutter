@@ -126,5 +126,8 @@
         <file>img/icons/reset.svg</file>
         <file>img/icons/down_light.svg</file>
         <file>img/icons/delete_light.svg</file>
+        <file>img/icons/layout_white.svg</file>
+        <file>img/icons/layout.svg</file>
+        <file>img/icons/light/layout.svg</file>
     </qresource>
 </RCC>

@@ -9,6 +9,7 @@
 #include "InitializationFileEditor.h"
 #include "AnalysisOptionsWidget.h"
 #include "ShortcutOptionsWidget.h"
+#include "InterfaceOptionsWidget.h"
 
 #include "PreferenceCategory.h"
 
@@ -38,7 +39,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
         { tr("Initialization Script"), new InitializationFileEditor(this),
           QIcon(":/img/icons/initialization.svg") },
         { tr("Analysis"), new AnalysisOptionsWidget(this), QIcon(":/img/icons/cog_light.svg") },
-        { tr("Shortcuts"), new ShortcutOptionsWidget(this), QIcon(":/img/icons/edit_light.svg") }
+        { tr("Shortcuts"), new ShortcutOptionsWidget(this), QIcon(":/img/icons/edit_light.svg") },
+        { tr("Interface"), new InterfaceOptionsWidget(this), QIcon(":/img/icons/layout.svg") }
     };
 
     for (auto &c : prefs) {
@@ -98,6 +100,7 @@ void PreferencesDialog::chooseThemeIcons()
         { QStringLiteral("Plugins"), QStringLiteral("plugins.svg") },
         { QStringLiteral("Initialization Script"), QStringLiteral("initialization.svg") },
         { QStringLiteral("Analysis"), QStringLiteral("cog_light.svg") },
+        { QStringLiteral("Interface"), QStringLiteral("layout.svg") },
     };
     QList<QPair<void *, QString>> supportedIconsNames;
 

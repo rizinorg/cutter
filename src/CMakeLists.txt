@@ -170,6 +170,7 @@ set(SOURCES
     widgets/SearchableTextEdit.cpp
     widgets/ItemCountLineEdit.cpp
     widgets/AbstractFilterView.cpp
+    dialogs/preferences/InterfaceOptionsWidget.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -349,6 +350,7 @@ set(HEADER_FILES
     widgets/SearchableTextEdit.h
     widgets/ItemCountLineEdit.h
     widgets/AbstractFilterView.h
+    dialogs/preferences/InterfaceOptionsWidget.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -430,6 +432,7 @@ set(UI_FILES
     dialogs/RegisterProfileDialog.ui
     dialogs/EditRegProfileDialog.ui
     widgets/SearchBarWidget.ui
+    dialogs/preferences/InterfaceOptionsWidget.ui
 )
 set(QRC_FILES
     resources.qrc
