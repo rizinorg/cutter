@@ -9,6 +9,7 @@
 #include "InitializationFileEditor.h"
 #include "AnalysisOptionsWidget.h"
 #include "ShortcutOptionsWidget.h"
+#include "RizinOptionsWidget.h"
 
 #include "PreferenceCategory.h"
 
@@ -38,7 +39,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
         { tr("Initialization Script"), new InitializationFileEditor(this),
           QIcon(":/img/icons/initialization.svg") },
         { tr("Analysis"), new AnalysisOptionsWidget(this), QIcon(":/img/icons/cog_light.svg") },
-        { tr("Shortcuts"), new ShortcutOptionsWidget(this), QIcon(":/img/icons/edit_light.svg") }
+        { tr("Shortcuts"), new ShortcutOptionsWidget(this), QIcon(":/img/icons/edit_light.svg") },
+        { tr("Rizin"), new RizinOptionsWidget(this), QIcon(":/img/icons/rizin.svg") }
     };
 
     for (auto &c : prefs) {
