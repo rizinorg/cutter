@@ -648,6 +648,9 @@ bool MainWindow::openProject(const QString &file)
 
 void MainWindow::finalizeOpen()
 {
+    widgetHistoryList.clear();
+    widgetHistoryIndex = -1;
+
     core->getRegs();
     core->updateSeek();
     refreshAll();
@@ -690,17 +693,20 @@ void MainWindow::finalizeOpen()
             graphContainsFunc = !graphWidget->getGraphView()->getBlocks().empty();
             if (graphContainsFunc) {
                 dockWidget->raiseMemoryWidget();
+                recordFirstWidget(graphWidget);
                 break;
             }
         }
         auto disasmWidget = qobject_cast<DisassemblyWidget *>(dockWidget);
         if (disasmWidget && dockWidget->isVisibleToUser()) {
             disasmWidget->raiseMemoryWidget();
+            recordFirstWidget(disasmWidget);
             // continue looping in case there is a graph widget
         }
         auto decompilerWidget = qobject_cast<DecompilerWidget *>(dockWidget);
         if (decompilerWidget && dockWidget->isVisibleToUser()) {
             decompilerWidget->raiseMemoryWidget();
+            recordFirstWidget(decompilerWidget);
             // continue looping in case there is a graph widget
         }
     }
@@ -1109,17 +1115,25 @@ MemoryDockWidget *MainWindow::getLastMemoryWidget()
 
 void MainWindow::showAddress(RVA addr)
 {
-    AddressTypeHint addressType = core->getAddressType(addr);
-
     MemoryWidgetType targetType;
-    if (addressType == AddressTypeHint::Data) {
-        targetType = MemoryWidgetType::Hexdump;
-    } else if (addressType == AddressTypeHint::Function) {
-        targetType = MemoryWidgetType::Graph;
-    } else {
-        targetType = MemoryWidgetType::Disassembly;
-    }
+    if (lastMemoryWidget != nullptr && lastMemoryWidget->getType() == MemoryWidgetType::Graph) {
+        AddressTypeHint addressType = core->getAddressType(addr);
 
+        if (addressType == AddressTypeHint::Data) {
+            targetType = MemoryWidgetType::Hexdump;
+        } else if (addressType == AddressTypeHint::Function) {
+            targetType = MemoryWidgetType::Graph;
+        } else {
+            targetType = MemoryWidgetType::Disassembly;
+        }
+    } else {
+        targetType = lastMemoryWidget ? lastMemoryWidget->getType() : MemoryWidgetType::Disassembly;
+    }
+    showAddressWithTargetType(addr, targetType);
+}
+
+void MainWindow::showAddressWithTargetType(RVA addr, MemoryWidgetType targetType)
+{
     auto memoryWidget = getOrCreateMemoryWidget(targetType, addr, true);
     memoryWidget->tryRaiseMemoryWidget();
     setCurrentMemoryWidget(memoryWidget);
@@ -1315,11 +1329,8 @@ void MainWindow::addWidget(CutterDockWidget *widget)
 
 void MainWindow::addMemoryDockWidget(MemoryDockWidget *widget)
 {
-    connect(widget, &QDockWidget::visibilityChanged, this, [this, widget](bool visibility) {
-        if (visibility) {
-            setCurrentMemoryWidget(widget);
-        }
-    });
+    connect(widget, &CutterDockWidget::becameVisibleToUser, this,
+            [this, widget]() { setCurrentMemoryWidget(widget); });
 }
 
 void MainWindow::removeWidget(CutterDockWidget *widget)
@@ -1668,10 +1679,50 @@ void MainWindow::on_actionForward_triggered()
     core->seekNext();
 }
 
+void MainWindow::recordFirstWidget(MemoryDockWidget *widget)
+{
+    if (!widget) {
+        return;
+    }
+    if (widgetHistoryList.isEmpty()) {
+        widgetHistoryList.append(widget->getType());
+        widgetHistoryIndex = 0;
+    } else {
+        widgetHistoryList[0] = widget->getType();
+    }
+}
+
 void MainWindow::on_core_seekChanged(RVA addr, CutterCore::SeekHistoryType type)
 {
-    if (type == CutterCore::SeekHistoryType::Undo || type == CutterCore::SeekHistoryType::Redo) {
+    if (!widgetHistoryList.isEmpty() && type == CutterCore::SeekHistoryType::New) {
         this->showAddress(addr);
+
+        if (lastMemoryWidget != nullptr) {
+
+            MemoryWidgetType newType = lastMemoryWidget->getType();
+            // Drop redo history
+            if (widgetHistoryIndex >= 0 && widgetHistoryIndex < widgetHistoryList.size() - 1) {
+                widgetHistoryList.erase(widgetHistoryList.begin() + widgetHistoryIndex + 1,
+                                        widgetHistoryList.end());
+            }
+
+            widgetHistoryList.append(newType);
+            widgetHistoryIndex = widgetHistoryList.size() - 1;
+        }
+    } else if (type == CutterCore::SeekHistoryType::Undo) {
+        if (widgetHistoryIndex > 0) {
+            widgetHistoryIndex--;
+            this->showAddressWithTargetType(addr, widgetHistoryList[widgetHistoryIndex]);
+        } else {
+            this->showAddress(addr);
+        }
+    } else if (type == CutterCore::SeekHistoryType::Redo) {
+        if (widgetHistoryIndex >= 0 && widgetHistoryIndex < widgetHistoryList.size() - 1) {
+            widgetHistoryIndex++;
+            this->showAddressWithTargetType(addr, widgetHistoryList[widgetHistoryIndex]);
+        } else {
+            this->showAddress(addr);
+        }
     }
 }
 
