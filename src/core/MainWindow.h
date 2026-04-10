@@ -14,7 +14,6 @@
 
 #include <QMainWindow>
 #include <QList>
-#include <QStack>
 
 class CutterCore;
 class Omnibar;
@@ -136,7 +135,6 @@ public:
 public slots:
     void finalizeOpen();
     void showAddress(RVA addr);
-    void showAddressWithTargetType(RVA addr, MemoryWidgetType targetType);
 
     void refreshAll();
     void seekToFunctionLastInstruction();
@@ -315,8 +313,6 @@ private:
 
     void setOverviewData();
     bool isOverviewActive();
-
-    void recordFirstWidget(MemoryDockWidget *widget);
     /**
      * @brief Check if a widget is one of debug specific dock widgets.
      * @param dock
@@ -326,9 +322,6 @@ private:
     bool isExtraMemoryWidget(QDockWidget *dock) const;
 
     MemoryWidgetType getMemoryWidgetTypeToRestore();
-
-    QList<MemoryWidgetType> widgetHistoryList;
-    int widgetHistoryIndex = -1;
 
     /**
      * @brief Map from a widget type (e.g. DisassemblyWidget::getWidgetType()) to the respective

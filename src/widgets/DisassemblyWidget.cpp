@@ -710,10 +710,6 @@ QString DisassemblyWidget::getWindowTitle() const
 
 void DisassemblyWidget::on_seekChanged(RVA offset, CutterCore::SeekHistoryType type)
 {
-    if (!isVisibleToUser()) {
-        return;
-    }
-
     if (type == CutterCore::SeekHistoryType::New) {
         // Erase previous history past this point.
         if (topOffsetHistory.size() > topOffsetHistoryPos + 1) {
