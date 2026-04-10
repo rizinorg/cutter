@@ -1109,20 +1109,22 @@ MemoryDockWidget *MainWindow::getLastMemoryWidget()
 
 void MainWindow::showAddress(RVA addr)
 {
-    AddressTypeHint addressType = core->getAddressType(addr);
+    if (lastMemoryWidget && lastMemoryWidget->getType() == MemoryWidgetType::Graph) {
+        AddressTypeHint addressType = core->getAddressType(addr);
 
-    MemoryWidgetType targetType;
-    if (addressType == AddressTypeHint::Data) {
-        targetType = MemoryWidgetType::Hexdump;
-    } else if (addressType == AddressTypeHint::Function) {
-        targetType = MemoryWidgetType::Graph;
-    } else {
-        targetType = MemoryWidgetType::Disassembly;
+        MemoryWidgetType targetType;
+        if (addressType == AddressTypeHint::Data) {
+            targetType = MemoryWidgetType::Hexdump;
+        } else if (addressType == AddressTypeHint::Function) {
+            targetType = MemoryWidgetType::Graph;
+        } else {
+            targetType = MemoryWidgetType::Disassembly;
+        }
+
+        auto memoryWidget = getOrCreateMemoryWidget(targetType, addr, true);
+        memoryWidget->tryRaiseMemoryWidget();
+        setCurrentMemoryWidget(memoryWidget);
     }
-
-    auto memoryWidget = getOrCreateMemoryWidget(targetType, addr, true);
-    memoryWidget->tryRaiseMemoryWidget();
-    setCurrentMemoryWidget(memoryWidget);
 }
 
 MemoryDockWidget *MainWindow::addNewMemoryWidget(MemoryWidgetType type, RVA address,
@@ -1670,9 +1672,7 @@ void MainWindow::on_actionForward_triggered()
 
 void MainWindow::on_core_seekChanged(RVA addr, CutterCore::SeekHistoryType type)
 {
-    if (type == CutterCore::SeekHistoryType::Undo || type == CutterCore::SeekHistoryType::Redo) {
-        this->showAddress(addr);
-    }
+    this->showAddress(addr);
 }
 
 void MainWindow::on_actionDisasAdd_comment_triggered()
