@@ -1,6 +1,7 @@
 #ifndef DECOMPILERWIDGET_H
 #define DECOMPILERWIDGET_H
 
+#include <QHelpEvent>
 #include <QTextEdit>
 #include <memory>
 
@@ -254,6 +255,9 @@ private:
     void setCode(RzAnnotatedCode *code);
 
     void setHighlighter(bool annotationBasedHighlighter);
+
+    void showVariableTooltip(QHelpEvent *event, RzCodeAnnotation *annotation);
+    QString formatVarValue(RzAnalysisVar *var);
 };
 
 #endif // DECOMPILERWIDGET_H

@@ -20,6 +20,7 @@
 #include <QTextBlockUserData>
 #include <QScrollBar>
 #include <QAbstractSlider>
+#include <qtooltip.h>
 
 DecompilerWidget::DecompilerWidget(MainWindow *main)
     : MemoryDockWidget(MemoryWidgetType::Decompiler, main),
@@ -519,8 +520,92 @@ void DecompilerWidget::seekToReference()
     seekable->seekToReference(offsetForPosition(pos));
 }
 
+void DecompilerWidget::showVariableTooltip(QHelpEvent *event, RzCodeAnnotation *annotation)
+{
+    if (!annotation->variable.name) {
+        return;
+    }
+    RzCoreLocked core = Core()->lock();
+    RzAnalysisFunction *fcn = rz_analysis_get_function_at(core->analysis, decompiledFunctionAddr);
+    if (!fcn) {
+        return;
+    }
+    RzAnalysisVar *var = rz_analysis_function_get_var_byname(fcn, annotation->variable.name);
+    QString tooltipContent;
+    if (var) {
+        tooltipContent = formatVarValue(var);
+    }
+    QToolTip::showText(event->globalPos(), tooltipContent, ui->textEdit);
+}
+
+QString DecompilerWidget::formatVarValue(RzAnalysisVar *var)
+{
+    RzCoreLocked core = Core()->lock();
+    QString typeStr = "unknown data type";
+    if (var && var->type) {
+        char *type = rz_type_as_string(core->analysis->typedb, var->type);
+        if (type) {
+            typeStr = QString::fromUtf8(type);
+            rz_mem_free(type);
+        }
+    }
+    char *rawVal = rz_core_analysis_var_display(core, var, false);
+    QString displayValue = rawVal ? QString::fromUtf8(rawVal).trimmed() : "??";
+    rz_mem_free(rawVal);
+    if (typeStr.contains("*")) {
+        ut64 pointedAddr = 0;
+        const int bits = core->rasm->bits;
+        const int ptrSize = bits / 8;
+        if (var->storage.type == RZ_ANALYSIS_VAR_STORAGE_REG) {
+            auto reg = Core()->getRegisterRefValue(QString::fromUtf8(var->storage.reg));
+            if (!reg.name.isEmpty()) {
+                pointedAddr = Core()->math(reg.value);
+            }
+        } else if (var->storage.type == RZ_ANALYSIS_VAR_STORAGE_STACK) {
+            ut64 stackAddr = rz_core_analysis_var_addr(core, var);
+            ut8 ptrBuf[8];
+            if (rz_io_read_at_mapped(core->io, stackAddr, ptrBuf, ptrSize)) {
+                pointedAddr = rz_read_ble(ptrBuf, core->rasm->big_endian, bits);
+            }
+        }
+        if (pointedAddr) {
+            ut8 buf[256];
+            bool str_state = rz_io_read_at_mapped(core->io, pointedAddr, buf, sizeof(buf) - 1);
+            if (str_state) {
+                size_t len = strnlen((const char *)buf, sizeof(buf));
+                if (len > 0 && rz_str_is_printable((const char *)buf)) {
+                    QString str = QString::fromUtf8((const char *)buf, len).toHtmlEscaped();
+                    displayValue += QString("\nvalue: \"%1\"").arg(str);
+                }
+            }
+        }
+    }
+    return QString("%1 (%2)\nValue: %3")
+        .arg(QString::fromUtf8(var->name).toHtmlEscaped(), typeStr, displayValue);
+}
+
 bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
 {
+    if (event->type() == QEvent::ToolTip && Config()->getShowVarTooltips()
+        && (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
+        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+        QTextCursor cursor = ui->textEdit->cursorForPosition(helpEvent->pos());
+        size_t pos = cursor.position();
+        void *iter;
+        rz_vector_foreach(&this->code->annotations, iter)
+        {
+            RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
+            if (pos >= annotation->start && pos < annotation->end) {
+                if (annotation->type == RZ_CODE_ANNOTATION_TYPE_LOCAL_VARIABLE
+                    || annotation->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_PARAMETER) {
+                    showVariableTooltip(helpEvent, annotation);
+                    return true;
+                }
+            }
+        }
+        QToolTip::hideText();
+        return true;
+    }
     if (event->type() == QEvent::MouseButtonDblClick
         && (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
