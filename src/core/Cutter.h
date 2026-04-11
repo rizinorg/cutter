@@ -563,6 +563,12 @@ public:
     QList<RVA> getBreakpointsAddresses();
 
     /**
+     * @brief Get the section at the given address
+     * @param addr Address to get the section for
+     * @return SectionDescription of the section at the given address
+     */
+    SectionDescription getSectionAtAddress(RVA addr);
+    /**
      * @brief Sets the RzRun profile directives by writing them to a file
      * If a profile path is already set in 'dbg.profile', this method overwrites that file
      * If no path is set, it creates a temporary file and updates 'dbg.profile' to point to it
