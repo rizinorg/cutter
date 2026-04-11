@@ -1163,14 +1163,12 @@ AddressTypeHint CutterCore::getAddressType(RVA addr)
         return AddressTypeHint::Unknown;
     }
 
-    if (addr >= section.vaddr && addr < section.vaddr + section.vsize) {
-        if (section.perm.toLower().contains('x')) {
-            return AddressTypeHint::Code;
-        }
-        if (section.perm.toLower().contains('r') || section.perm.toLower().contains('w')) {
-            return AddressTypeHint::Data;
-        }
-        return AddressTypeHint::Unknown;
+    if (section.perm.contains('x', Qt::CaseInsensitive)) {
+        return AddressTypeHint::Code;
+    }
+    if (section.perm.contains('r', Qt::CaseInsensitive)
+        || section.perm.contains('w', Qt::CaseInsensitive)) {
+        return AddressTypeHint::Data;
     }
 
     return AddressTypeHint::Unknown;
