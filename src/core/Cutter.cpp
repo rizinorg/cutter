@@ -3540,7 +3540,7 @@ SectionDescription CutterCore::getSectionAtAddress(RVA addr)
     if (!o) {
         return {};
     }
-    RzBinSection *section = rz_bin_get_section_at(o, addr, 0);
+    RzBinSection *section = rz_bin_get_section_at(o, addr, true);
     if (!section) {
         return {};
     }
