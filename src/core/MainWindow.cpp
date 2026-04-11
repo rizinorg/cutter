@@ -1024,6 +1024,10 @@ void MainWindow::showMemoryWidget(MemoryWidgetType type)
 MemoryDockWidget *MainWindow::getOrCreateMemoryWidget(MemoryWidgetType type, RVA address,
                                                       bool synchronized)
 {
+    if (address == RVA_INVALID) {
+        address = Core()->getOffset();
+    }
+
     for (auto &dock : dockWidgets) {
         if (auto memoryWidget = qobject_cast<MemoryDockWidget *>(dock)) {
             if (memoryWidget->getType() == type
@@ -1036,9 +1040,6 @@ MemoryDockWidget *MainWindow::getOrCreateMemoryWidget(MemoryWidgetType type, RVA
         }
     }
 
-    if (address == RVA_INVALID) {
-        address = Core()->getOffset();
-    }
     return addNewMemoryWidget(type, address, synchronized);
 }
 
