@@ -216,9 +216,9 @@ void Dashboard::setRzBinInfo(const RzBinInfo *binInfo)
 {
     setPlainText(ui->vaEdit, binInfo ? setBoolText(binInfo->has_va) : "");
     setPlainText(ui->canaryEdit, binInfo ? setBoolText(binInfo->has_canary) : "");
-    setPlainText(ui->cryptoEdit, binInfo ? setBoolText(binInfo->has_crypto) : "");
+    setPlainText(ui->cryptoEdit, binInfo ? setBoolText(binInfo->is_encrypted) : "");
     setPlainText(ui->nxEdit, binInfo ? setBoolText(binInfo->has_nx) : "");
-    setPlainText(ui->picEdit, binInfo ? setBoolText(binInfo->has_pi) : "");
+    setPlainText(ui->picEdit, binInfo ? setBoolText(binInfo->has_pie) : "");
     setPlainText(ui->strippedEdit,
                  binInfo ? setBoolText(RZ_BIN_DBG_STRIPPED & binInfo->dbg_info) : "");
     setPlainText(ui->relocsEdit, binInfo ? setBoolText(RZ_BIN_DBG_RELOCS & binInfo->dbg_info) : "");
