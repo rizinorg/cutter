@@ -541,7 +541,8 @@ void DisassemblyContextMenu::aboutToShowSlot()
         structureOffsetMenu->clear();
 
         RzCoreLocked core(Core());
-        RzList *typeoffs = rz_type_db_get_by_offset(core->analysis->typedb, memDisp);
+        RzTypeDB *typedb = rz_analysis_get_type_db(core->analysis);
+        RzList *typeoffs = rz_type_db_get_by_offset(typedb, memDisp);
         if (typeoffs) {
             for (const auto &ty : CutterRzList<RzTypePath>(typeoffs)) {
                 if (RZ_STR_ISEMPTY(ty->path)) {
@@ -995,7 +996,7 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
 
             QByteArray newCC = dialog.getCallConSelected().toUtf8();
             if (!newCC.isEmpty() && rz_analysis_cc_exist(core->analysis, newCC.constData())) {
-                fcn->cc = rz_str_constpool_get(&core->analysis->constpool, newCC.constData());
+                fcn->cc = rz_str_constpool_get(rz_analysis_get_const_pool(core->analysis), newCC.constData());
             }
 
             emit Core()->functionsChanged();

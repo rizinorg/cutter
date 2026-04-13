@@ -211,7 +211,7 @@ void CutterCore::initialize(bool loadPlugins)
     coreBed = rz_cons_sleep_begin();
     CORE_LOCK();
 
-    rz_event_hook(core_->analysis->ev, RZ_EVENT_ALL, cutterREventCallback, this);
+    rz_event_hook(core_->ev, RZ_EVENT_ALL, cutterREventCallback, this);
 
     if (loadPlugins) {
         setConfig("cfg.plugins", true);
@@ -1516,11 +1516,11 @@ RzReg *CutterCore::getReg()
 {
     CORE_LOCK();
     if (currentlyDebugging && currentlyEmulating) {
-        return core->analysis->reg;
+        return rz_analysis_get_reg(core->analysis);
     } else if (currentlyDebugging) {
         return core->dbg->reg;
     }
-    return core->analysis->reg;
+    return rz_analysis_get_reg(core->analysis);
 }
 
 QList<RegisterRef> CutterCore::getRegisterRefs(int depth)
@@ -1561,7 +1561,7 @@ QList<AddrRefs> CutterCore::getStack(int size, int depth)
         return stack;
     }
 
-    int base = core->analysis->bits;
+    int base = rz_asm_get_bits(core->rasm);
     for (int i = 0; i < size; i += base / 8) {
         if ((base == 32 && addr + i >= UT32_MAX) || (base == 16 && addr + i >= UT16_MAX)) {
             break;
@@ -1835,7 +1835,7 @@ QList<VariableDescription> CutterCore::getVariables(RVA at)
             continue;
         }
         desc.name = QString::fromUtf8(var->name);
-        char *tn = rz_type_as_string(core->analysis->typedb, var->type);
+        char *tn = rz_type_as_string(rz_analysis_get_type_db(core->analysis), var->type);
         if (!tn) {
             continue;
         }
@@ -1860,18 +1860,21 @@ QList<GlobalDescription> CutterCore::getAllGlobals()
     QList<GlobalDescription> ret;
 
     RzAnalysisVarGlobal *glob;
-    if (core && core->analysis && core->analysis->typedb) {
-        const RzList *globals = rz_analysis_var_global_get_all(core->analysis);
-        CutterRzListForeach (globals, it, RzAnalysisVarGlobal, glob) {
-            const char *gtype = rz_type_as_string(core->analysis->typedb, glob->type);
-            if (!gtype) {
-                continue;
+    if (core && core->analysis) {
+        RzTypeDB *typedb = rz_analysis_get_type_db(core->analysis);
+        if (typedb) {
+            const RzList *globals = rz_analysis_var_global_get_all(core->analysis);
+            CutterRzListForeach (globals, it, RzAnalysisVarGlobal, glob) {
+                const char *gtype = rz_type_as_string(typedb, glob->type);
+                if (!gtype) {
+                    continue;
+                }
+                GlobalDescription global;
+                global.addr = glob->addr;
+                global.name = QString(glob->name);
+                global.type = QString(gtype);
+                ret << global;
             }
-            GlobalDescription global;
-            global.addr = glob->addr;
-            global.name = QString(glob->name);
-            global.type = QString(gtype);
-            ret << global;
         }
     }
 
@@ -3039,7 +3042,7 @@ QStringList CutterCore::getAnalysisPluginNames()
     CORE_LOCK();
     RzListIter *it;
     QStringList ret;
-    CutterHtSP<RzAnalysisPlugin>(core->analysis->plugins)
+    CutterHtSP<RzAnalysisPlugin>(rz_analysis_get_plugins(core->analysis))
             .ForEach([&ret](const char *k, const RzAnalysisPlugin *ap) {
                 ret << ap->name;
                 return true;
@@ -3164,12 +3167,13 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
 {
     CORE_LOCK();
 
+    RzList *fcns = rz_analysis_function_list(core->analysis);
     QList<FunctionDescription> funcList;
-    funcList.reserve(rz_list_length(core->analysis->fcns));
+    funcList.reserve(rz_list_length(fcns));
 
     RzListIter *iter;
     RzAnalysisFunction *fcn;
-    CutterRzListForeach (core->analysis->fcns, iter, RzAnalysisFunction, fcn) {
+    CutterRzListForeach (fcns, iter, RzAnalysisFunction, fcn) {
         FunctionDescription function;
         function.offset = fcn->addr;
         function.linearSize = rz_analysis_function_linear_size(fcn);
@@ -3372,8 +3376,9 @@ QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
     RzIntervalTreeIter it;
     void *pVoid;
     RzAnalysisMetaItem *item;
-    RzSpace *spaces = rz_spaces_current(&core->analysis->meta_spaces);
-    rz_interval_tree_foreach(&core->analysis->meta, it, pVoid)
+    RzSpace *spaces = rz_spaces_current(rz_analysis_get_meta_spaces(core->analysis));
+    RzIntervalTree *tmeta = rz_analysis_get_meta(core->analysis);
+    rz_interval_tree_foreach(tmeta, it, pVoid)
     {
         item = reinterpret_cast<RzAnalysisMetaItem *>(pVoid);
         if (item->type != RZ_META_TYPE_COMMENT) {
@@ -3951,7 +3956,8 @@ QList<TypeDescription> CutterCore::getBaseType(RzBaseTypeKind kind, const char *
     CORE_LOCK();
     QList<TypeDescription> types;
 
-    RzList *ts = rz_type_db_get_base_types_of_kind(core->analysis->typedb, kind);
+    RzTypeDB *typedb = rz_analysis_get_type_db(core->analysis);
+    RzList *ts = rz_type_db_get_base_types_of_kind(typedb, kind);
     RzBaseType *type;
     RzListIter *iter;
 
@@ -3959,8 +3965,8 @@ QList<TypeDescription> CutterCore::getBaseType(RzBaseTypeKind kind, const char *
         TypeDescription exp;
 
         exp.type = type->name;
-        exp.size = rz_type_db_base_get_bitsize(core->analysis->typedb, type);
-        exp.format = rz_base_type_as_format(core->analysis->typedb, type);
+        exp.size = rz_type_db_base_get_bitsize(typedb, type);
+        exp.format = rz_base_type_as_format(typedb, type);
         exp.category = tr(category);
         types << exp;
     }
@@ -4010,7 +4016,7 @@ QString CutterCore::getTypeAsC(QString name)
 bool CutterCore::typeExists(const QString &typeName)
 {
     CORE_LOCK();
-    return rz_type_exists(core->analysis->typedb, typeName.toUtf8().constData());
+    return rz_type_exists(rz_analysis_get_type_db(core->analysis), typeName.toUtf8().constData());
 }
 
 bool CutterCore::isAddressMapped(RVA addr)
@@ -4466,7 +4472,7 @@ void CutterCore::addGlobalVariable(RVA offset, QString name, QString typ)
     name = sanitizeStringForCommand(name);
     CORE_LOCK();
     char *errmsg = NULL;
-    RzType *globType = rz_type_parse_string_single(core->analysis->typedb->parser,
+    RzType *globType = rz_type_parse_string_single(rz_analysis_get_type_db(core->analysis)->parser,
                                                    typ.toStdString().c_str(), &errmsg);
     if (errmsg) {
         qWarning() << tr("Error parsing type: \"%1\" message: ").arg(typ) << errmsg;
@@ -4495,7 +4501,7 @@ void CutterCore::modifyGlobalVariable(RVA offset, QString name, QString typ)
         rz_analysis_var_global_rename(core->analysis, glob->name, name.toStdString().c_str());
     }
     char *errmsg = NULL;
-    RzType *globType = rz_type_parse_string_single(core->analysis->typedb->parser,
+    RzType *globType = rz_type_parse_string_single(rz_analysis_get_type_db(core->analysis)->parser,
                                                    typ.toStdString().c_str(), &errmsg);
     if (errmsg) {
         qWarning() << tr("Error parsing type: \"%1\" message: ").arg(typ) << errmsg;
@@ -4533,7 +4539,7 @@ QString CutterCore::getGlobalVariableType(QString name)
     if (!glob) {
         return QString("");
     }
-    const char *gtype = rz_type_as_string(core->analysis->typedb, glob->type);
+    const char *gtype = rz_type_as_string(rz_analysis_get_type_db(core->analysis), glob->type);
     if (!gtype) {
         return QString("");
     }
@@ -4547,7 +4553,7 @@ QString CutterCore::getGlobalVariableType(RVA offset)
     if (!glob) {
         return QString("");
     }
-    const char *gtype = rz_type_as_string(core->analysis->typedb, glob->type);
+    const char *gtype = rz_type_as_string(rz_analysis_get_type_db(core->analysis), glob->type);
     if (!gtype) {
         return QString("");
     }

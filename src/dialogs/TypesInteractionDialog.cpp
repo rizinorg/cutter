@@ -64,14 +64,15 @@ void TypesInteractionDialog::done(int r)
     if (r == QDialog::Accepted) {
         RzCoreLocked core(Core());
         bool success;
+        RzTypeDB *typedb = rz_analysis_get_type_db(core->analysis);
         if (!typeName.isEmpty()) {
             success = rz_type_db_edit_base_type(
-                    core->analysis->typedb, this->typeName.toUtf8().constData(),
+                    typedb, this->typeName.toUtf8().constData(),
                     ui->plainTextEdit->toPlainText().toUtf8().constData());
         } else {
             char *error_msg = NULL;
             success = rz_type_parse_string_stateless(
-                              core->analysis->typedb->parser,
+                              typedb->parser,
                               ui->plainTextEdit->toPlainText().toUtf8().constData(), &error_msg)
                     == 0;
             if (error_msg) {

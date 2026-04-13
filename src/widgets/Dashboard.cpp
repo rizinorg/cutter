@@ -114,7 +114,7 @@ void Dashboard::updateContents()
         }
     }
 
-    st64 fcns = rz_list_length(core->analysis->fcns);
+    st64 fcns = rz_list_length(rz_analysis_function_list(core->analysis));
     st64 strs = rz_flag_count(core->flags, "str.*");
     st64 syms = rz_flag_count(core->flags, "sym.*");
     st64 imps = rz_flag_count(core->flags, "sym.imp.*");
