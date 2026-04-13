@@ -58,7 +58,7 @@
      </rect>
     </property>
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
     <widget class="QMenu" name="menuSetMode">
      <property name="toolTip">
@@ -94,7 +94,7 @@
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>View</string>
+     <string>&amp;View</string>
     </property>
     <property name="tabsOnTop" stdset="0">
      <bool>false</bool>
@@ -130,13 +130,13 @@
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
-     <string>Tools</string>
+     <string>&amp;Tools</string>
     </property>
     <addaction name="actionBaseFind"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>Help</string>
+     <string>&amp;Help</string>
     </property>
     <addaction name="actionAbout"/>
     <addaction name="actionIssue"/>
@@ -144,7 +144,7 @@
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>Edit</string>
+     <string>&amp;Edit</string>
     </property>
     <addaction name="actionBackward"/>
     <addaction name="actionForward"/>
@@ -153,7 +153,7 @@
    </widget>
    <widget class="QMenu" name="menuWindows">
     <property name="title">
-     <string>Windows</string>
+     <string>&amp;Windows</string>
     </property>
     <widget class="QMenu" name="menuPlugins">
      <property name="title">
@@ -167,7 +167,7 @@
     </widget>
     <widget class="QMenu" name="menuAddDebugWidgets">
      <property name="title">
-      <string>Debug...</string>
+      <string>&amp;Debug...</string>
      </property>
     </widget>
     <addaction name="actionExtraDecompiler"/>
@@ -182,7 +182,7 @@
    </widget>
    <widget class="QMenu" name="menuDebug">
     <property name="title">
-     <string>Debug</string>
+     <string>&amp;Debug</string>
     </property>
    </widget>
    <addaction name="menuFile"/>
