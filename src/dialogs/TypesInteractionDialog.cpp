@@ -72,8 +72,8 @@ void TypesInteractionDialog::done(int r)
         } else {
             char *error_msg = NULL;
             success = rz_type_parse_string_stateless(
-                              typedb->parser,
-                              ui->plainTextEdit->toPlainText().toUtf8().constData(), &error_msg)
+                              typedb->parser, ui->plainTextEdit->toPlainText().toUtf8().constData(),
+                              &error_msg)
                     == 0;
             if (error_msg) {
                 RZ_LOG_ERROR("%s\n", error_msg);

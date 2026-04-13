@@ -996,7 +996,8 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
 
             QByteArray newCC = dialog.getCallConSelected().toUtf8();
             if (!newCC.isEmpty() && rz_analysis_cc_exist(core->analysis, newCC.constData())) {
-                fcn->cc = rz_str_constpool_get(rz_analysis_get_const_pool(core->analysis), newCC.constData());
+                fcn->cc = rz_str_constpool_get(rz_analysis_get_const_pool(core->analysis),
+                                               newCC.constData());
             }
 
             emit Core()->functionsChanged();
