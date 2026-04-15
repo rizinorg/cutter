@@ -115,7 +115,8 @@ void CallGraphView::loadCurrentGraph()
 
     auto core = Core()->lock();
     if (global) {
-        for (const auto &fcn : CutterRzList<RzAnalysisFunction>(core->analysis->fcns)) {
+        for (const auto &fcn :
+             CutterRzList<RzAnalysisFunction>(rz_analysis_function_list(core->analysis))) {
             if (!isBetween(from, fcn->addr, to)) {
                 continue;
             }

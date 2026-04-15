@@ -200,7 +200,7 @@ DisassemblyHelper::TargetAction DisassemblyHelper::resolveTarget(const TargetCon
             mmio_ctx.selected = ctx.word;
             mmio_ctx.mmio_address = RVA_INVALID;
             auto core = Core()->lock();
-            RzPlatformTarget *arch_target = core->analysis->arch_target;
+            RzPlatformTarget *arch_target = rz_analysis_get_arch_target(core->analysis);
             if (arch_target && arch_target->profile) {
                 ht_up_foreach(arch_target->profile->registers_mmio, lookup_mmio_addr_cb, &mmio_ctx);
             }

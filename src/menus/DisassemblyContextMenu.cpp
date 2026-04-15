@@ -505,9 +505,9 @@ void DisassemblyContextMenu::setupRenaming()
 void DisassemblyContextMenu::aboutToShowSlot()
 {
     // check if set immediate base menu makes sense
-    auto ab = Core()->getRzAnalysisBytesSingle(offset);
+    auto cdb = Core()->getRzCoreDecodedBytesSingle(offset);
 
-    bool immBase = ab && ab->op && (ab->op->val || ab->op->ptr);
+    bool immBase = cdb && (cdb->an_op.val || cdb->an_op.ptr);
     setBaseMenu->menuAction()->setVisible(immBase);
     setBitsMenu->menuAction()->setVisible(true);
 
@@ -515,9 +515,9 @@ void DisassemblyContextMenu::aboutToShowSlot()
     QString memBaseReg; // Base register
     st64 memDisp = 0; // Displacement
 
-    if (ab && ab->op) {
+    if (cdb) {
         CutterJson operands =
-                Core()->parseJson("opex", rz_structured_data_to_json(ab->op->opex), nullptr);
+                Core()->parseJson("opex", rz_structured_data_to_json(cdb->an_op.opex), nullptr);
 
         // Loop through both the operands of the instruction
         for (const CutterJson operand : operands) {
@@ -541,7 +541,8 @@ void DisassemblyContextMenu::aboutToShowSlot()
         structureOffsetMenu->clear();
 
         RzCoreLocked core(Core());
-        RzList *typeoffs = rz_type_db_get_by_offset(core->analysis->typedb, memDisp);
+        RzTypeDB *typedb = rz_analysis_get_type_db(core->analysis);
+        RzList *typeoffs = rz_type_db_get_by_offset(typedb, memDisp);
         if (typeoffs) {
             for (const auto &ty : CutterRzList<RzTypePath>(typeoffs)) {
                 if (RZ_STR_ISEMPTY(ty->path)) {
@@ -665,11 +666,11 @@ void DisassemblyContextMenu::on_actionNopInstruction_triggered()
 void DisassemblyContextMenu::showReverseJmpQuery()
 {
     actionJmpReverse.setVisible(false);
-    auto ab = Core()->getRzAnalysisBytesSingle(offset);
-    if (!(ab && ab->op)) {
+    auto cdb = Core()->getRzCoreDecodedBytesSingle(offset);
+    if (!cdb) {
         return;
     }
-    if (ab->op->type == RZ_ANALYSIS_OP_TYPE_CJMP) {
+    if (cdb->an_op.type == RZ_ANALYSIS_OP_TYPE_CJMP) {
         actionJmpReverse.setVisible(true);
     }
 }
@@ -995,7 +996,8 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
 
             QByteArray newCC = dialog.getCallConSelected().toUtf8();
             if (!newCC.isEmpty() && rz_analysis_cc_exist(core->analysis, newCC.constData())) {
-                fcn->cc = rz_str_constpool_get(&core->analysis->constpool, newCC.constData());
+                fcn->cc = rz_str_constpool_get(rz_analysis_get_const_pool(core->analysis),
+                                               newCC.constData());
             }
 
             emit Core()->functionsChanged();

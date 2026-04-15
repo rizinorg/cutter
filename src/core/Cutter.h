@@ -32,6 +32,7 @@ class RizinTaskDialog;
 #include "common/BasicBlockHighlighter.h"
 #include "common/Helpers.h"
 
+#include <rz_heap_glibc.h>
 #include <rz_project.h>
 #include <memory>
 
@@ -275,7 +276,7 @@ public:
     QString getGlobalVariableType(RVA offset);
 
     /* Edition functions */
-    CutterRzIter<RzAnalysisBytes> getRzAnalysisBytesSingle(RVA addr);
+    CutterRzIter<RzCoreDecodedBytes> getRzCoreDecodedBytesSingle(RVA addr);
     QString getInstructionBytes(RVA addr);
     QString getInstructionOpcode(RVA addr);
     void editInstruction(RVA addr, const QString &inst, bool fillWithNops = false);
