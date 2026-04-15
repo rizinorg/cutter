@@ -70,8 +70,8 @@ void EditVariablesDialog::applyFields()
 
     char *error_msg = NULL;
     RzType *v_type = rz_type_parse_string_single(
-            core->analysis->typedb->parser, ui->typeComboBox->currentText().toUtf8().constData(),
-            &error_msg);
+            rz_analysis_get_type_db(core->analysis)->parser,
+            ui->typeComboBox->currentText().toUtf8().constData(), &error_msg);
     if (!v_type || error_msg) {
         return;
     }

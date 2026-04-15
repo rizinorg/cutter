@@ -88,7 +88,8 @@ QVariant TypesModel::headerData(int section, Qt::Orientation, int role) const
 bool TypesModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     RzCoreLocked core(Core());
-    rz_type_db_del(core->analysis->typedb, types.at(row).type.toUtf8().constData());
+    rz_type_db_del(rz_analysis_get_type_db(core->analysis),
+                   types.at(row).type.toUtf8().constData());
     beginRemoveRows(parent, row, row + count - 1);
     while (count--) {
         types.removeAt(row);
