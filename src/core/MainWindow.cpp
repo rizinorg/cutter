@@ -203,6 +203,7 @@ void MainWindow::initUI()
 
     connect(core, &CutterCore::showMemoryWidgetRequested, this,
             static_cast<void (MainWindow::*)()>(&MainWindow::showMemoryWidget));
+    connect(core, &CutterCore::showAddressRequested, this, &MainWindow::showAddress);
 
     connect(core, &CutterCore::showTypeRequested, typesDock, [this](const QString &typeName) {
         typesDock->toggleDockWidget(true);
@@ -1020,6 +1021,28 @@ void MainWindow::showMemoryWidget(MemoryWidgetType type)
     memoryDockWidget->raiseMemoryWidget();
 }
 
+MemoryDockWidget *MainWindow::getOrCreateMemoryWidget(MemoryWidgetType type, RVA address,
+                                                      bool synchronized)
+{
+    if (address == RVA_INVALID) {
+        address = Core()->getOffset();
+    }
+
+    for (auto &dock : dockWidgets) {
+        if (auto memoryWidget = qobject_cast<MemoryDockWidget *>(dock)) {
+            if (memoryWidget->getType() == type
+                && memoryWidget->getSeekable()->isSynchronized() == synchronized) {
+                if (address != RVA_INVALID) {
+                    memoryWidget->getSeekable()->seek(address);
+                }
+                return memoryWidget;
+            }
+        }
+    }
+
+    return addNewMemoryWidget(type, address, synchronized);
+}
+
 QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address, AddressTypeHint addressType)
 {
     QMenu *menu = new QMenu(parent);
@@ -1082,6 +1105,26 @@ void MainWindow::setCurrentMemoryWidget(MemoryDockWidget *memoryWidget)
 MemoryDockWidget *MainWindow::getLastMemoryWidget()
 {
     return lastMemoryWidget;
+}
+
+void MainWindow::showAddress(RVA addr)
+{
+    if (lastMemoryWidget && lastMemoryWidget->getType() == MemoryWidgetType::Graph) {
+        AddressTypeHint addressType = core->getAddressType(addr);
+
+        MemoryWidgetType targetType;
+        if (addressType == AddressTypeHint::Data) {
+            targetType = MemoryWidgetType::Hexdump;
+        } else if (addressType == AddressTypeHint::Function) {
+            targetType = MemoryWidgetType::Graph;
+        } else {
+            targetType = MemoryWidgetType::Disassembly;
+        }
+
+        auto memoryWidget = getOrCreateMemoryWidget(targetType, addr, true);
+        memoryWidget->tryRaiseMemoryWidget();
+        setCurrentMemoryWidget(memoryWidget);
+    }
 }
 
 MemoryDockWidget *MainWindow::addNewMemoryWidget(MemoryWidgetType type, RVA address,
