@@ -19,8 +19,13 @@ SymbolsOptionsWidget::SymbolsOptionsWidget(PreferencesDialog *parent)
     ui->debuginfodCheckBox->setChecked(Core()->getConfigb("bin.dbginfo.debuginfod"));
     ui->debuginfodLineEdit->setText(Core()->getConfig("bin.dbginfo.debuginfod_urls"));
     updateDebuginfodLayout();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     connect(ui->debuginfodCheckBox, &QCheckBox::checkStateChanged, this,
             &SymbolsOptionsWidget::updateDebuginfodLayout);
+#else
+    connect(ui->debuginfodCheckBox, &QCheckBox::stateChanged, this,
+            &SymbolsOptionsWidget::updateDebuginfodLayout);
+#endif
     connect(ui->pdbSelect, &QPushButton::clicked, this,
             &SymbolsOptionsWidget::pdbSelectButtonClicked);
     connect(ui->reanalyzeButton, &QPushButton::clicked, this, &SymbolsOptionsWidget::reanalyze);
