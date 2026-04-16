@@ -252,9 +252,9 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             return {};
 
         QString toolTipContent =
-                QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: "
+                QString("<html><div style=\"font-family: '%1'; font-size: %2pt; white-space: "
                         "nowrap;\">")
-                        .arg(fnt.family())
+                        .arg(fnt.family().toHtmlEscaped())
                         .arg(qMax(6, fnt.pointSize() - 1)); // slightly decrease font size, to
                                                             // keep more text in the same box
 

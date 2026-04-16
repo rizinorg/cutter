@@ -58,8 +58,8 @@ RizinPluginsDialog::RizinPluginsDialog(QWidget *parent)
 
             const QFont &fnt = Config()->getFont();
             const QString tooltip =
-                    QString("<html><div style='font-family:%1;font-size:%2pt;'>%3</div></html>")
-                            .arg(fnt.family())
+                    QString("<html><div style='font-family:'%1';font-size:%2pt;'>%3</div></html>")
+                            .arg(fnt.family().toHtmlEscaped())
                             .arg(qMax(8, fnt.pointSize() - 1))
                             .arg(cpus.toHtmlEscaped());
 
