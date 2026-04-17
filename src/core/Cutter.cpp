@@ -3168,7 +3168,7 @@ QList<RzAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
     CORE_LOCK();
     QList<RzAsmPluginDescription> ret;
 
-    CutterHtSP<RzAsmPlugin>(core->rasm->plugins)
+    CutterHtSP<RzAsmPlugin>(rz_asm_get_plugins(core->rasm))
             .ForEach([&ret, &core, this](const char *k, const RzAsmPlugin *ap) {
                 RzAsmPluginDescription plugin;
 
@@ -3201,8 +3201,9 @@ QList<RzAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
                 caps += ap->disassemble ? "d" : "_";
 
                 bool foundAnalysis = false;
-                auto analysisPlugin = CutterHtSP<RzAnalysisPlugin>(core->analysis->plugins)
-                                              .Find(ap->name, &foundAnalysis);
+                auto analysisPlugin =
+                        CutterHtSP<RzAnalysisPlugin>(rz_analysis_get_plugins(core->analysis))
+                                .Find(ap->name, &foundAnalysis);
                 if (foundAnalysis && analysisPlugin) {
                     caps += "A";
                     caps += analysisPlugin->esil ? "e" : "_";
