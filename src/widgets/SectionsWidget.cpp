@@ -192,7 +192,6 @@ void SectionsWidget::initQuickFilter()
 void SectionsWidget::initAddrMapDocks()
 {
     QVBoxLayout *layout = ui->verticalLayout;
-    showCount(false);
 
     rawAddrDock = new RawAddrDock(sectionsModel, this);
     virtualAddrDock = new VirtualAddrDock(sectionsModel, this);

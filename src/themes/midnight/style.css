@@ -437,6 +437,7 @@ QPlainTextEdit {
 }
 
 QHeaderView::section {
+    min-height: 1em;
     background-color: #2a2b2f;
     color: #eff0f1;
     padding: 5px;

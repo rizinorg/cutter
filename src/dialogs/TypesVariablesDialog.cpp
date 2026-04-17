@@ -132,12 +132,10 @@ bool TypesVariablesProxyModel::lessThan(const QModelIndex &left, const QModelInd
 }
 
 TypesVariablesDialog::TypesVariablesDialog(QWidget *parent, const QString &typeName)
-    : QDialog(parent), ui(new Ui::TypesVariablesDialog), tree(new CutterTreeWidget(this))
+    : QDialog(parent), ui(new Ui::TypesVariablesDialog)
 {
     ui->setupUi(this);
     setWindowTitle(tr("Variables: %1").arg(typeName));
-
-    tree->addStatusBar(ui->verticalLayout);
 
     sourceModel = new TypesVariablesModel(this);
     proxyModel = new TypesVariablesProxyModel(this);
@@ -158,7 +156,7 @@ TypesVariablesDialog::TypesVariablesDialog(QWidget *parent, const QString &typeN
     scopeCombo->addItem(tr("Globals Only"), GLOBAL);
     scopeCombo->addItem(tr("Locals Only"), LOCAL);
 
-    auto updateCount = [this]() { tree->showItemsNumber(proxyModel->rowCount()); };
+    auto updateCount = [this]() { ui->quickFilterView->setItemCount(proxyModel->rowCount()); };
 
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, proxyModel,
             &TypesVariablesProxyModel::setFilterFixedString);
@@ -204,6 +202,10 @@ void TypesVariablesDialog::refreshModel(const QString &typeName)
     }
 
     sourceModel->updateVariables(newVariables);
+
+    // set the initial item count
+    ui->quickFilterView->setItemCount(proxyModel->rowCount());
+
     qhelpers::adjustColumns(ui->treeView, TypesVariablesModel::Column::COUNT, 0);
 }
 

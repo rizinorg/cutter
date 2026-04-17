@@ -8,48 +8,31 @@
 #include <QResizeEvent>
 #include <QShortcut>
 
-ListDockWidget::ListDockWidget(MainWindow *main, SearchBarPolicy searchBarPolicy)
-    : CutterDockWidget(main),
-      ui(new Ui::ListDockWidget),
-      tree(new CutterTreeWidget(this)),
-      searchBarPolicy(searchBarPolicy)
+ListDockWidget::ListDockWidget(MainWindow *main)
+    : CutterDockWidget(main), ui(new Ui::ListDockWidget)
 {
     ui->setupUi(this);
 
-    // Add Status Bar footer
-    tree->addStatusBar(ui->verticalLayout);
+    // Ctrl-F to show/hide the filter entry
+    QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
+    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
+            &QuickFilterView::showFilter);
+    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    if (searchBarPolicy != SearchBarPolicy::Hide) {
-        // Ctrl-F to show/hide the filter entry
-        QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
-        connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
-                &QuickFilterView::showFilter);
-        searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-        // Esc to clear the filter entry
-        QShortcut *clearShortcut = Shortcuts()->makeQShortcut("General.clearFilter", this);
-        connect(clearShortcut, &QShortcut::activated, [this]() {
-            ui->quickFilterView->clearFilter();
-            ui->treeView->setFocus();
-        });
-        clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    }
+    // Esc to clear the filter entry
+    QShortcut *clearShortcut = Shortcuts()->makeQShortcut("General.clearFilter", this);
+    connect(clearShortcut, &QShortcut::activated, [this]() {
+        ui->quickFilterView->clearFilter();
+        ui->treeView->setFocus();
+    });
+    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     qhelpers::setVerticalScrollMode(ui->treeView);
 
     ui->treeView->setMainWindow(mainWindow);
-
-    if (searchBarPolicy != SearchBarPolicy::ShowByDefault) {
-        ui->quickFilterView->closeFilter();
-    }
 }
 
 ListDockWidget::~ListDockWidget() {}
-
-void ListDockWidget::showCount(bool show)
-{
-    tree->showStatusBar(show);
-}
 
 void ListDockWidget::setModels(AddressableFilterProxyModel *objectFilterProxyModel)
 {
@@ -62,6 +45,7 @@ void ListDockWidget::setModels(AddressableFilterProxyModel *objectFilterProxyMod
     connect(ui->quickFilterView, &QuickFilterView::filterClosed, ui->treeView,
             static_cast<void (QWidget::*)()>(&QWidget::setFocus));
 
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
-            [this] { tree->showItemsNumber(this->objectFilterProxyModel->rowCount()); });
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        ui->quickFilterView->setItemCount(this->objectFilterProxyModel->rowCount());
+    });
 }

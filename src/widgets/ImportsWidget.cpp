@@ -190,4 +190,7 @@ void ImportsWidget::refreshImports()
 {
     importsModel->reload();
     qhelpers::adjustColumns(ui->treeView, 4, 0);
+
+    // set the initial item count
+    ui->quickFilterView->setItemCount(importsProxyModel->rowCount());
 }

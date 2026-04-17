@@ -27,7 +27,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QLineEdit" name="lineEdit">
+    <widget class="ItemCountLineEdit" name="lineEdit">
      <property name="placeholderText">
       <string>Quick Filter</string>
      </property>
@@ -45,6 +45,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ItemCountLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>ItemCountLineEdit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

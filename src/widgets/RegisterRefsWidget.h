@@ -4,7 +4,6 @@
 
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
-#include "CutterTreeWidget.h"
 #include "menus/AddressableItemContextMenu.h"
 
 #include <QAbstractListModel>
@@ -83,7 +82,6 @@ private:
 
     RegisterRefModel *registerRefModel;
     RegisterRefProxyModel *registerRefProxyModel;
-    CutterTreeWidget *tree;
     void setScrollMode();
 
     RefreshDeferrer *refreshDeferrer;

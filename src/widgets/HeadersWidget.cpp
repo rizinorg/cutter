@@ -122,13 +122,12 @@ HeadersWidget::HeadersWidget(MainWindow *main) : ListDockWidget(main)
     setModels(headersProxyModel);
     ui->treeView->sortByColumn(HeadersModel::OffsetColumn, Qt::AscendingOrder);
 
-    ui->quickFilterView->closeFilter();
-    showCount(false);
-
     connect(Core(), &CutterCore::codeRebased, this, &HeadersWidget::refreshHeaders);
     connect(Core(), &CutterCore::refreshAll, this, &HeadersWidget::refreshHeaders);
     connect(Core(), &CutterCore::commentsChanged, this,
             [this]() { qhelpers::emitColumnChanged(headersModel, HeadersModel::CommentColumn); });
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
+            [this] { ui->quickFilterView->setItemCount(headersProxyModel->rowCount()); });
 }
 
 HeadersWidget::~HeadersWidget() {}
@@ -141,4 +140,7 @@ void HeadersWidget::refreshHeaders()
 
     ui->treeView->resizeColumnToContents(0);
     ui->treeView->resizeColumnToContents(1);
+
+    // set the initial item count
+    ui->quickFilterView->setItemCount(headersProxyModel->rowCount());
 }

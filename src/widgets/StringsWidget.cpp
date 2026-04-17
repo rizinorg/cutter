@@ -151,14 +151,10 @@ bool StringsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     return leftStr->vaddr < rightStr->vaddr;
 }
 
-StringsWidget::StringsWidget(MainWindow *main)
-    : CutterDockWidget(main), ui(new Ui::StringsWidget), tree(new CutterTreeWidget(this))
+StringsWidget::StringsWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::StringsWidget)
 {
     ui->setupUi(this);
     ui->quickFilterView->setLabelText(tr("Section:"));
-
-    // Add Status Bar footer
-    tree->addStatusBar(ui->verticalLayout);
 
     qhelpers::setVerticalScrollMode(ui->stringsTreeView);
 
@@ -186,7 +182,7 @@ StringsWidget::StringsWidget(MainWindow *main)
             &QSortFilterProxyModel::setFilterWildcard);
 
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
-            [this] { tree->showItemsNumber(proxyModel->rowCount()); });
+            [this] { ui->quickFilterView->setItemCount(proxyModel->rowCount()); });
 
     QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
     connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
@@ -207,7 +203,7 @@ StringsWidget::StringsWidget(MainWindow *main)
 
     connect(ui->quickFilterView->comboBox(), &QComboBox::currentTextChanged, this, [this]() {
         proxyModel->setSelectedSection(ui->quickFilterView->comboBox()->currentData().toString());
-        tree->showItemsNumber(proxyModel->rowCount());
+        ui->quickFilterView->setItemCount(proxyModel->rowCount());
     });
 
     auto header = ui->stringsTreeView->header();
@@ -253,7 +249,8 @@ void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings
     model->strings = strings;
     model->endResetModel();
 
-    tree->showItemsNumber(proxyModel->rowCount());
+    // set the initial item count
+    ui->quickFilterView->setItemCount(proxyModel->rowCount());
 
     task.clear();
 }

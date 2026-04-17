@@ -129,5 +129,8 @@
         <file>img/icons/light/symbol_options.svg</file>
         <file>img/icons/light/edit.svg</file>
         <file>img/icons/edit.svg</file>
+        <file>img/icons/layout_white.svg</file>
+        <file>img/icons/layout.svg</file>
+        <file>img/icons/light/layout.svg</file>
     </qresource>
 </RCC>

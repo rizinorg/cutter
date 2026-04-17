@@ -70,6 +70,7 @@ private slots:
 
 private:
     SegmentsModel *segmentsModel;
+    SegmentsProxyModel *proxyModel;
 };
 
 #endif // SEGMENTSWIDGET_H

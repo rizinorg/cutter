@@ -116,15 +116,9 @@ bool RegisterRefProxyModel::lessThan(const QModelIndex &left, const QModelIndex 
 }
 
 RegisterRefsWidget::RegisterRefsWidget(MainWindow *main)
-    : CutterDockWidget(main),
-      ui(new Ui::RegisterRefsWidget),
-      tree(new CutterTreeWidget(this)),
-      addressableItemContextMenu(this, main)
+    : CutterDockWidget(main), ui(new Ui::RegisterRefsWidget), addressableItemContextMenu(this, main)
 {
     ui->setupUi(this);
-
-    // Add Status Bar footer
-    tree->addStatusBar(ui->verticalLayout);
 
     registerRefModel = new RegisterRefModel(this);
     registerRefProxyModel = new RegisterRefProxyModel(registerRefModel, this);
@@ -169,7 +163,7 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main)
             &RegisterRefsWidget::customMenuRequested);
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
-            [this] { tree->showItemsNumber(registerRefProxyModel->rowCount()); });
+            [this] { ui->quickFilterView->setItemCount(registerRefProxyModel->rowCount()); });
 }
 
 RegisterRefsWidget::~RegisterRefsWidget() = default;
@@ -199,7 +193,8 @@ void RegisterRefsWidget::refreshRegisterRef()
     ui->registerRefTreeView->resizeColumnToContents(1);
     ui->registerRefTreeView->resizeColumnToContents(2);
 
-    tree->showItemsNumber(registerRefProxyModel->rowCount());
+    // set the initial item count
+    ui->quickFilterView->setItemCount(registerRefProxyModel->rowCount());
 }
 
 void RegisterRefsWidget::setScrollMode()

@@ -99,8 +99,7 @@ RVA ResourcesModel::address(const QModelIndex &index) const
     return res.vaddr;
 }
 
-ResourcesWidget::ResourcesWidget(MainWindow *main)
-    : ListDockWidget(main, ListDockWidget::SearchBarPolicy::HideByDefault)
+ResourcesWidget::ResourcesWidget(MainWindow *main) : ListDockWidget(main)
 {
     setObjectName("ResourcesWidget");
 
@@ -111,14 +110,14 @@ ResourcesWidget::ResourcesWidget(MainWindow *main)
 
     ui->treeView->sortByColumn(0, Qt::AscendingOrder);
 
-    showCount(false);
-
     // Configure widget
     this->setWindowTitle(tr("Resources"));
 
     connect(Core(), &CutterCore::refreshAll, this, &ResourcesWidget::refreshResources);
     connect(Core(), &CutterCore::commentsChanged, this,
             [this]() { qhelpers::emitColumnChanged(model, ResourcesModel::COMMENT); });
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
+            [this] { ui->quickFilterView->setItemCount(filterModel->rowCount()); });
 }
 
 void ResourcesWidget::refreshResources()
@@ -126,4 +125,7 @@ void ResourcesWidget::refreshResources()
     model->beginResetModel();
     model->resources = Core()->getAllResources();
     model->endResetModel();
+
+    // set the initial item count
+    ui->quickFilterView->setItemCount(filterModel->rowCount());
 }

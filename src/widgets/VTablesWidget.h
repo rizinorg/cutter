@@ -8,7 +8,6 @@
 
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
-#include "CutterTreeWidget.h"
 
 namespace Ui {
 class VTablesWidget;
@@ -68,7 +67,6 @@ private:
 
     VTableModel *model;
     QSortFilterProxyModel *proxy;
-    CutterTreeWidget *tree;
     RefreshDeferrer *refreshDeferrer;
 };
 

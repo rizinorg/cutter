@@ -9,7 +9,6 @@
 #include "core/Cutter.h"
 #include "common/AddressableItemModel.h"
 #include "CutterDockWidget.h"
-#include "CutterTreeWidget.h"
 #include "menus/AddressableItemContextMenu.h"
 
 class MainWindow;
@@ -25,17 +24,8 @@ class CUTTER_EXPORT ListDockWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    enum class SearchBarPolicy {
-        ShowByDefault,
-        HideByDefault,
-        Hide,
-    };
-
-    explicit ListDockWidget(MainWindow *main,
-                            SearchBarPolicy searchBarPolicy = SearchBarPolicy::ShowByDefault);
+    explicit ListDockWidget(MainWindow *main);
     ~ListDockWidget() override;
-
-    void showCount(bool show);
 
 protected:
     void setModels(AddressableFilterProxyModel *objectFilterProxyModel);
@@ -44,8 +34,6 @@ protected:
 
 private:
     AddressableFilterProxyModel *objectFilterProxyModel = nullptr;
-    CutterTreeWidget *tree;
-    SearchBarPolicy searchBarPolicy;
 };
 
 #endif // LISTDOCKWIDGET_H

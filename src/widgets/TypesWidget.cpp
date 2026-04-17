@@ -146,14 +146,10 @@ bool TypesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIn
     return left_exp.size < right_exp.size;
 }
 
-TypesWidget::TypesWidget(MainWindow *main)
-    : CutterDockWidget(main), ui(new Ui::TypesWidget), tree(new CutterTreeWidget(this))
+TypesWidget::TypesWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::TypesWidget)
 {
     ui->setupUi(this);
     ui->quickFilterView->setLabelText(tr("Category"));
-
-    // Add status bar which displays the count
-    tree->addStatusBar(ui->verticalLayout);
 
     // Set single select mode
     ui->typesTreeView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -176,7 +172,7 @@ TypesWidget::TypesWidget(MainWindow *main)
             &QSortFilterProxyModel::setFilterWildcard);
 
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
-            [this] { tree->showItemsNumber(types_proxy_model->rowCount()); });
+            [this] { ui->quickFilterView->setItemCount(types_proxy_model->rowCount()); });
 
     QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
     connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
@@ -192,7 +188,7 @@ TypesWidget::TypesWidget(MainWindow *main)
 
     connect(ui->quickFilterView->comboBox(), &QComboBox::currentTextChanged, this, [this]() {
         types_proxy_model->setCategory(ui->quickFilterView->comboBox()->currentData().toString());
-        tree->showItemsNumber(types_proxy_model->rowCount());
+        ui->quickFilterView->setItemCount(types_proxy_model->rowCount());
     });
 
     actionViewType = new QAction(tr("View Type"), this);
@@ -221,6 +217,9 @@ void TypesWidget::refreshTypes()
     }
     categories.removeDuplicates();
     refreshCategoryCombo(categories);
+
+    // set the initial count
+    ui->quickFilterView->setItemCount(types_proxy_model->rowCount());
 
     qhelpers::adjustColumns(ui->typesTreeView, 4, 0);
 }
