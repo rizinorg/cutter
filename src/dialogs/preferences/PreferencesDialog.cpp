@@ -46,9 +46,7 @@ PreferencesDialog::PreferencesDialog(MainWindow *parent)
                   { tr("Symbols"), new SymbolsOptionsWidget(this),
                     QIcon(":/img/icons/symbol_options.svg") },
           } },
-        { tr("Shortcuts"), new ShortcutOptionsWidget(this), QIcon(":/img/icons/edit.svg") }
-        { tr("Analysis"), new AnalysisOptionsWidget(this), QIcon(":/img/icons/cog_light.svg") },
-        { tr("Shortcuts"), new ShortcutOptionsWidget(this), QIcon(":/img/icons/edit_light.svg") },
+        { tr("Shortcuts"), new ShortcutOptionsWidget(this), QIcon(":/img/icons/edit.svg") },
         { tr("Interface"), new InterfaceOptionsWidget(this), QIcon(":/img/icons/layout.svg") }
     };
 
