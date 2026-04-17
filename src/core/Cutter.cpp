@@ -1009,13 +1009,13 @@ void CutterCore::showMemoryWidget()
 void CutterCore::seekAndShow(ut64 offset)
 {
     seek(offset);
-    showMemoryWidget();
+    emit showAddressRequested(offset);
 }
 
 void CutterCore::seekAndShow(QString offset)
 {
     seek(offset);
-    showMemoryWidget();
+    emit showAddressRequested(math(offset));
 }
 
 void CutterCore::seek(QString thing)
@@ -1148,6 +1148,30 @@ void CutterCore::setConfig(const char *k, const QString &v)
 {
     CORE_LOCK();
     rz_config_set(core->config, k, v.toUtf8().constData());
+}
+
+AddressTypeHint CutterCore::getAddressType(RVA addr)
+{
+    CORE_LOCK();
+
+    if (functionIn(addr)) {
+        return AddressTypeHint::Function;
+    }
+
+    auto section = getSectionAtAddress(addr);
+    if (section.name.isEmpty()) {
+        return AddressTypeHint::Unknown;
+    }
+
+    if (section.perm.contains('x', Qt::CaseInsensitive)) {
+        return AddressTypeHint::Code;
+    }
+    if (section.perm.contains('r', Qt::CaseInsensitive)
+        || section.perm.contains('w', Qt::CaseInsensitive)) {
+        return AddressTypeHint::Data;
+    }
+
+    return AddressTypeHint::Unknown;
 }
 
 void CutterCore::setConfig(const char *k, int v)
@@ -3505,6 +3529,42 @@ QList<FlagDescription> CutterCore::getAllFlags(QString flagspace)
             },
             &flags);
     return flags;
+}
+
+SectionDescription CutterCore::getSectionAtAddress(RVA addr)
+{
+    CORE_LOCK();
+    RzBinObject *o = rz_bin_cur_object(core->bin);
+    if (!o) {
+        return {};
+    }
+    RzBinSection *section = rz_bin_get_section_at(o, addr, true);
+    if (!section) {
+        return {};
+    }
+    RzList *hashnames = rz_list_newf(free);
+    if (!hashnames) {
+        return {};
+    }
+    SectionDescription desc;
+    desc.vaddr = section->vaddr;
+    desc.paddr = section->paddr;
+    desc.size = section->size;
+    desc.name = section->name;
+    desc.vsize = section->vsize;
+    desc.perm = rz_str_rwx_i(section->perm);
+    if (desc.size > 0) {
+        HtSS *digests = rz_core_bin_create_digests(core, desc.paddr, desc.size, hashnames);
+        if (!digests) {
+            return {};
+        }
+
+        const char *entropy = (const char *)ht_ss_find(digests, "entropy", NULL);
+        desc.entropy = rz_str_get(entropy);
+        ht_ss_free(digests);
+    }
+
+    return desc;
 }
 
 QList<SectionDescription> CutterCore::getAllSections()

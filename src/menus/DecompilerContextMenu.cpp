@@ -575,7 +575,7 @@ void DecompilerContextMenu::updateTargetMenuActions()
         if (annotationHere->type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE
             || annotationHere->type == RZ_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
             menu = mainWindow->createShowInMenu(this, annotationHere->reference.offset,
-                                                MainWindow::AddressTypeHint::Data);
+                                                AddressTypeHint::Data);
             RVA var_addr = annotationHere->reference.offset;
             RzFlagItem *flagDetails = rz_flag_get_i(core->flags, var_addr);
             if (flagDetails) {
@@ -585,7 +585,7 @@ void DecompilerContextMenu::updateTargetMenuActions()
             }
         } else if (annotationHere->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
             menu = mainWindow->createShowInMenu(this, annotationHere->reference.offset,
-                                                MainWindow::AddressTypeHint::Function);
+                                                AddressTypeHint::Function);
             name = tr("%1 (%2)").arg(QString(annotationHere->reference.name),
                                      RzAddressString(annotationHere->reference.offset));
         }
