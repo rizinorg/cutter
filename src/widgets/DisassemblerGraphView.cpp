@@ -424,8 +424,6 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
         p.drawRect(blockRect);
     }
 
-    const int firstInstructionY = block.y + getInstructionOffset(db, 0).y();
-
     // Stop rendering text when it's too small
     auto transform = p.combinedTransform();
     QRect screenChar = transform.mapRect(QRect(0, 0, ACharWidth, charHeight));
@@ -435,45 +433,6 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
     }
 
     qreal indent = ACharWidth;
-
-    // Highlight selected tokens
-    if (interactive && highlight_token != nullptr) {
-        int y = firstInstructionY;
-        qreal tokenWidth = mFontMetrics->width(highlight_token->content);
-
-        for (const Instr &instr : db.instrs) {
-            int pos = -1;
-
-            while ((pos = instr.plainText.indexOf(highlight_token->content, pos + 1)) != -1) {
-                int tokenEnd = pos + highlight_token->content.length();
-
-                if ((pos > 0 && instr.plainText[pos - 1].isLetterOrNumber())
-                    || (tokenEnd < instr.plainText.length()
-                        && instr.plainText[tokenEnd].isLetterOrNumber())) {
-                    continue;
-                }
-
-                qreal widthBefore = mFontMetrics->width(instr.plainText.left(pos));
-                qreal textOffset = padding + indent;
-                if (textOffset + widthBefore > block.width - (10 + padding)) {
-                    continue;
-                }
-
-                qreal highlightWidth = tokenWidth;
-                if (textOffset + widthBefore + tokenWidth >= block.width - (10 + padding)) {
-                    highlightWidth = block.width - widthBefore - (10 + 2 * padding);
-                }
-
-                QColor selectionColor = ConfigColor("wordHighlight");
-
-                p.fillRect(
-                        QRectF(block.x + textOffset + widthBefore, y, highlightWidth, charHeight),
-                        selectionColor);
-            }
-
-            y += int(instr.text.lines.size()) * charHeight;
-        }
-    }
 
     // Render node text
     auto x = block.x + padding;
@@ -485,6 +444,8 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
     }
 
     auto bih = Core()->getBIHighlighter();
+    QColor selectionColor = ConfigColor("wordHighlight");
+
     for (const Instr &instr : db.instrs) {
         const QRect instrRect = QRect(static_cast<int>(block.x + indent), y,
                                       static_cast<int>(block.width - (10 + padding)),
@@ -507,8 +468,38 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
             p.fillRect(instrRect, disassemblySelectionColor);
         }
 
-        for (auto &line : instr.text.lines) {
+        // Highlight selected tokens
+        if (interactive && highlight_token != nullptr) {
+            int pos = -1;
+            qreal tokenWidth = mFontMetrics->width(highlight_token->content);
+            while ((pos = instr.plainText.indexOf(highlight_token->content, pos + 1)) != -1) {
+                int tokenEnd = pos + highlight_token->content.length();
 
+                if ((pos > 0 && instr.plainText[pos - 1].isLetterOrNumber())
+                    || (tokenEnd < instr.plainText.length()
+                        && instr.plainText[tokenEnd].isLetterOrNumber())) {
+                    continue;
+                }
+
+                qreal widthBefore = mFontMetrics->width(instr.plainText.left(pos));
+                qreal textOffset = padding + indent;
+
+                if (textOffset + widthBefore > block.width - (10 + padding)) {
+                    continue;
+                }
+
+                qreal highlightWidth = tokenWidth;
+                if (textOffset + widthBefore + tokenWidth >= block.width - (10 + padding)) {
+                    highlightWidth = block.width - widthBefore - (10 + 2 * padding);
+                }
+
+                p.fillRect(
+                        QRectF(block.x + textOffset + widthBefore, y, highlightWidth, charHeight),
+                        selectionColor);
+            }
+        }
+
+        for (auto &line : instr.text.lines) {
             RichTextPainter::paintRichText<qreal>(&p, x + indent, y, block.width - padding,
                                                   charHeight, 0, line, mFontMetrics.get());
             y += charHeight;

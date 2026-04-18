@@ -223,7 +223,6 @@ static void syncCustomThemes()
     // in config, unless changed by the user
     QHash<QString, QString> renames = {
         { "angui.navbar.str", "gui.navbar.str" },
-        { "wordHighlight", "wordHighlightBg" },
         { "gui.navbar.empty", "gui.navbar.unexplored" },
     };
     const QStringList forceDefaultKeys = { "gui.navbar.signature", "gui.navbar.data" };
