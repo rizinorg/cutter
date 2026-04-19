@@ -127,6 +127,8 @@ private:
     QAction actionUndefine;
     QAction actionHorizontal;
     QAction actionVertical;
+
+    int maxFunctionNameWidth;
 };
 
 #endif // FUNCTIONSWIDGET_H

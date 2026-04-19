@@ -428,6 +428,15 @@ struct MarkDescription
     QColor color;
 };
 
+struct BacktraceDescription
+{
+    QString functionName;
+    QString pc;
+    QString sp;
+    QString frameSize;
+    QString description;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -470,5 +479,6 @@ Q_DECLARE_METATYPE(VariableDescription)
 Q_DECLARE_METATYPE(BasefindCoreStatusDescription)
 Q_DECLARE_METATYPE(BasefindResultDescription)
 Q_DECLARE_METATYPE(MarkDescription)
+Q_DECLARE_METATYPE(BacktraceDescription)
 
 #endif // DESCRIPTIONS_H

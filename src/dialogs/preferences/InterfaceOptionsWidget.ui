@@ -45,44 +45,99 @@
       </property>
       <layout class="QVBoxLayout" name="scrollLayout">
        <item>
-         <widget class="QGroupBox" name="quickFilterGroupBox">
-     <property name="title">
-      <string>Quick FIlter</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <property name="topMargin">
-       <number>24</number>
-      </property>
-      <item>
-       <widget class="QCheckBox" name="quickFilterCheckBox">
-        <property name="text">
-         <string>Show Quick Filter by default</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="itemCountCheckBox">
-        <property name="text">
-         <string>Show Item Count in Quick Filter</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="hideItemCountCheckBox">
-        <property name="text">
-         <string>Hide Item Count on overflow</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+        <widget class="QGroupBox" name="fcnWidgetGroupBox">
+         <property name="title">
+          <string>Functions</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="topMargin">
+           <number>24</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" name="fcnTruncateLayout" stretch="0,0,0">
+            <item>
+             <widget class="QCheckBox" name="fcnTruncateCheckBox">
+              <property name="toolTip">
+               <string>Sets the default width for function name columns in widgets. In Functions widget the width is only applied if in Horizontal view</string>
+              </property>
+              <property name="text">
+               <string>Limit function name column width to</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="fcnTruncateSpinBox">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Sets the default width for function name columns in widgets. In Functions widget the width is only applied if in Horizontal view</string>
+              </property>
+              <property name="maximum">
+               <number>9999</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="quickFilterGroupBox">
+         <property name="title">
+          <string>Quick FIlter</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <property name="topMargin">
+           <number>24</number>
+          </property>
+          <item>
+           <widget class="QCheckBox" name="quickFilterCheckBox">
+            <property name="text">
+             <string>Show Quick Filter by default</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="itemCountCheckBox">
+            <property name="text">
+             <string>Show Item Count in Quick Filter</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="hideItemCountCheckBox">
+            <property name="text">
+             <string>Hide Item Count on overflow</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
        <item>
         <spacer name="verticalSpacer">
          <property name="orientation">

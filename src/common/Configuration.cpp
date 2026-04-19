@@ -948,7 +948,7 @@ bool Configuration::getNavBarLegendEnabled()
 void Configuration::setShowQuickFilter(bool show)
 {
     s.setValue("showQuickFilter", show);
-    emit quickFilterToggled(show);
+    emit quickFilterOptionsChanged();
 }
 
 bool Configuration::getShowQuickFilter() const
@@ -959,7 +959,7 @@ bool Configuration::getShowQuickFilter() const
 void Configuration::setItemCountVisible(bool visible)
 {
     s.setValue("itemCountVisible", visible);
-    emit itemCountToggled(visible);
+    emit itemCountOptionsChanged();
 }
 
 bool Configuration::getItemCountVisible() const
@@ -969,11 +969,33 @@ bool Configuration::getItemCountVisible() const
 
 void Configuration::setItemCountAutoHide(bool value)
 {
-    s.value("autoHideItemCount", value);
-    emit itemCountAutoHideToggled(value);
+    s.setValue("autoHideItemCount", value);
+    emit itemCountOptionsChanged();
 }
 
 bool Configuration::getItemCountAutoHide() const
 {
     return s.value("autoHideItemCount", false).toBool();
+}
+
+void Configuration::setTruncateFunctionNameCol(bool value)
+{
+    s.setValue("truncateFcnNameCol", value);
+    emit functionsOptionsChanged();
+}
+
+bool Configuration::getTruncateFunctionNameCol() const
+{
+    return s.value("truncateFcnNameCol", true).toBool();
+}
+
+void Configuration::setFunctionNameColWidth(int characters)
+{
+    s.setValue("fcnNameColWidth", characters);
+    emit functionsOptionsChanged();
+}
+
+int Configuration::getFunctionNameColWidth() const
+{
+    return s.value("fcnNameColWidth", 400).toInt();
 }

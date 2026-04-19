@@ -17,9 +17,10 @@ ItemCountLineEdit::ItemCountLineEdit(QWidget *parent)
     m_itemCountLabel->setStyleSheet("QLabel { background: transparent; }");
 
     connect(this, &QLineEdit::textChanged, this, &ItemCountLineEdit::updateLabelPosition);
-    connect(Config(), &Configuration::itemCountToggled, this, &ItemCountLineEdit::showItemCount);
-    connect(Config(), &Configuration::itemCountAutoHideToggled, this,
-            &ItemCountLineEdit::setItemCountAutoHide);
+    connect(Config(), &Configuration::itemCountOptionsChanged, this,
+            [this] { showItemCount(Config()->getItemCountVisible()); });
+    connect(Config(), &Configuration::itemCountOptionsChanged, this,
+            [this] { setItemCountAutoHide(Config()->getItemCountAutoHide()); });
 
     m_itemCountAutoHide = Config()->getItemCountAutoHide();
     m_itemCountVisible = Config()->getItemCountVisible();
