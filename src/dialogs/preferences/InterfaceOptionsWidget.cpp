@@ -27,8 +27,8 @@ void InterfaceOptionsWidget::setUpFunctions()
         Config()->setTruncateFunctionNameCol(checked);
     });
 
-    connect(ui->fcnTruncateSpinBox, &QSpinBox::valueChanged, Config(),
-            &Configuration::setFunctionNameColWidth);
+    connect<void (QSpinBox::*)(int)>(ui->fcnTruncateSpinBox, &QSpinBox::valueChanged, Config(),
+                                     &Configuration::setFunctionNameColWidth);
 }
 
 void InterfaceOptionsWidget::setUpQuickFilter()

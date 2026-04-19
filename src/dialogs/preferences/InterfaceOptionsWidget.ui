@@ -54,7 +54,7 @@
            <number>24</number>
           </property>
           <item>
-           <layout class="QHBoxLayout" name="fcnTruncateLayout" stretch="0,0,0">
+           <layout class="QHBoxLayout" name="fcnTruncateLayout" stretch="0,0">
             <item>
              <widget class="QCheckBox" name="fcnTruncateCheckBox">
               <property name="toolTip">
@@ -66,19 +66,6 @@
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Orientation::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
              <widget class="QSpinBox" name="fcnTruncateSpinBox">
               <property name="minimumSize">
                <size>
@@ -88,6 +75,9 @@
               </property>
               <property name="toolTip">
                <string>Sets the default width for function name columns in widgets. In Functions widget the width is only applied if in Horizontal view</string>
+              </property>
+              <property name="suffix">
+               <string>px</string>
               </property>
               <property name="maximum">
                <number>9999</number>
