@@ -18,7 +18,7 @@ static const QHash<QString, const char *> analysisBoundaries {
 };
 
 AnalysisOptionsWidget::AnalysisOptionsWidget(PreferencesDialog *dialog)
-    : QDialog(dialog), ui(new Ui::AnalysisOptionsWidget)
+    : QDialog(dialog), mainWindow(dialog->getMainWindow()), ui(new Ui::AnalysisOptionsWidget)
 {
     ui->setupUi(this);
 
@@ -42,7 +42,6 @@ AnalysisOptionsWidget::AnalysisOptionsWidget(PreferencesDialog *dialog)
     }
 
     ui->analyzePushButton->setToolTip(tr("Analyze the program using Rizin's \"aaa\" command"));
-    auto *mainWindow = new MainWindow(this);
     connect(ui->analyzePushButton, &QPushButton::clicked, mainWindow,
             &MainWindow::on_actionAnalyze_triggered);
     connect<void (QComboBox::*)(int)>(ui->analysisInComboBox, &QComboBox::currentIndexChanged, this,

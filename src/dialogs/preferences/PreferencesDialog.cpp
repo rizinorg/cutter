@@ -9,6 +9,7 @@
 #include "InitializationFileEditor.h"
 #include "AnalysisOptionsWidget.h"
 #include "ShortcutOptionsWidget.h"
+#include "SymbolsOptionsWidget.h"
 #include "InterfaceOptionsWidget.h"
 
 #include "PreferenceCategory.h"
@@ -18,8 +19,8 @@
 
 #include <QDialogButtonBox>
 
-PreferencesDialog::PreferencesDialog(QWidget *parent)
-    : QDialog(parent), ui(new Ui::PreferencesDialog)
+PreferencesDialog::PreferencesDialog(MainWindow *parent)
+    : QDialog(parent), ui(new Ui::PreferencesDialog), mainWindow(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
@@ -38,8 +39,14 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
         { tr("Plugins"), new PluginsOptionsWidget(this), QIcon(":/img/icons/plugins.svg") },
         { tr("Initialization Script"), new InitializationFileEditor(this),
           QIcon(":/img/icons/initialization.svg") },
-        { tr("Analysis"), new AnalysisOptionsWidget(this), QIcon(":/img/icons/cog_light.svg") },
-        { tr("Shortcuts"), new ShortcutOptionsWidget(this), QIcon(":/img/icons/edit_light.svg") },
+        { tr("Analysis"),
+          new AnalysisOptionsWidget(this),
+          QIcon(":/img/icons/cog_light.svg"),
+          {
+                  { tr("Symbols"), new SymbolsOptionsWidget(this),
+                    QIcon(":/img/icons/symbol_options.svg") },
+          } },
+        { tr("Shortcuts"), new ShortcutOptionsWidget(this), QIcon(":/img/icons/edit.svg") },
         { tr("Interface"), new InterfaceOptionsWidget(this), QIcon(":/img/icons/layout.svg") }
     };
 
@@ -100,6 +107,8 @@ void PreferencesDialog::chooseThemeIcons()
         { QStringLiteral("Plugins"), QStringLiteral("plugins.svg") },
         { QStringLiteral("Initialization Script"), QStringLiteral("initialization.svg") },
         { QStringLiteral("Analysis"), QStringLiteral("cog_light.svg") },
+        { QStringLiteral("Symbols"), QStringLiteral("symbol_options.svg") },
+        { QStringLiteral("Shortcuts"), QStringLiteral("edit.svg") },
         { QStringLiteral("Interface"), QStringLiteral("layout.svg") },
     };
     QList<QPair<void *, QString>> supportedIconsNames;
@@ -119,4 +128,9 @@ void PreferencesDialog::chooseThemeIcons()
         // the column in `setIcon` call
         static_cast<QTreeWidgetItem *>(obj)->setIcon(0, icon);
     });
+}
+
+MainWindow *PreferencesDialog::getMainWindow()
+{
+    return mainWindow;
 }

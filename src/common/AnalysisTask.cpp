@@ -73,6 +73,10 @@ void AnalysisTask::runTask()
         Core()->loadPDB(options.pdbFile);
     }
 
+    if (Core()->getConfigb("bin.dbginfo.debuginfod")) {
+        Core()->applyDwarf();
+    }
+
     if (isInterrupted()) {
         return;
     }

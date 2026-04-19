@@ -6,6 +6,7 @@
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/AsyncTaskDialog.h"
 #include "common/Helpers.h"
+#include "core/Cutter.h"
 
 #include <QSettings>
 #include <QFileInfo>
@@ -30,6 +31,8 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     ui->logoSvgWidget->load(Config()->getLogoFile());
+    ui->debuginfodCheckBox->setChecked(Core()->getConfigb("bin.dbginfo.debuginfod"));
+    ui->debuginfodLineEdit->setText(Core()->getConfig("bin.dbginfo.debuginfod_urls"));
 
     // Fill the plugins combo
     asmPlugins = core->getRAsmPluginDescriptions();
@@ -127,6 +130,7 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
     ui->analysisoptionsFrame->setVisible(false);
     ui->advancedAnlysisLine->setVisible(false);
 
+    updateDebuginfodLayout();
     updatePDBLayout();
 
     connect(ui->pdbCheckBox, &QCheckBox::stateChanged, this,
@@ -136,10 +140,17 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
 
     connect(ui->scriptCheckBox, &QCheckBox::stateChanged, this,
             &InitialOptionsDialog::updateScriptLayout);
+    connect(ui->debuginfodCheckBox, &QCheckBox::stateChanged, this,
+            &InitialOptionsDialog::updateDebuginfodLayout);
 
     connect(ui->cancelButton, &QPushButton::clicked, this, &InitialOptionsDialog::reject);
 
     ui->programLineEdit->setText(main->getFilename());
+}
+
+void InitialOptionsDialog::updateDebuginfodLayout()
+{
+    ui->debuginfodWidget->setEnabled(ui->debuginfodCheckBox->isChecked());
 }
 
 InitialOptionsDialog::~InitialOptionsDialog() {}
@@ -369,6 +380,10 @@ void InitialOptionsDialog::setupAndStartAnalysis()
     }
     if (ui->scriptCheckBox->isChecked()) {
         options.script = ui->scriptLineEdit->text();
+    }
+    if (ui->debuginfodCheckBox->isChecked()) {
+        Core()->setConfig("bin.dbginfo.debuginfod", true);
+        Core()->setConfig("bin.dbginfo.debuginfod_urls", ui->debuginfodLineEdit->text());
     }
 
     options.endian = getSelectedEndianness();

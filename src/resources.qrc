@@ -70,7 +70,6 @@
         <file>img/icons/cog_white.svg</file>
         <file>img/icons/new_light.svg</file>
         <file>img/icons/run_light.svg</file>
-        <file>img/icons/edit_light.svg</file>
         <file>img/icons/polar.svg</file>
         <file>img/icons/light/polar.svg</file>
         <file>img/icons/radar_light.svg</file>
@@ -126,6 +125,10 @@
         <file>img/icons/reset.svg</file>
         <file>img/icons/down_light.svg</file>
         <file>img/icons/delete_light.svg</file>
+        <file>img/icons/symbol_options.svg</file>
+        <file>img/icons/light/symbol_options.svg</file>
+        <file>img/icons/light/edit.svg</file>
+        <file>img/icons/edit.svg</file>
         <file>img/icons/layout_white.svg</file>
         <file>img/icons/layout.svg</file>
         <file>img/icons/light/layout.svg</file>

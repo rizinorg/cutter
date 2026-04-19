@@ -4821,6 +4821,12 @@ void CutterCore::loadPDB(const QString &file)
     rz_core_bin_pdb_load(core, file.toUtf8().constData());
 }
 
+void CutterCore::applyDwarf()
+{
+    CORE_LOCK();
+    rz_core_bin_apply_dwarf(core, rz_bin_cur(core->bin));
+}
+
 QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
 {
     CORE_LOCK();

@@ -6,6 +6,8 @@
 
 #include "core/Cutter.h"
 
+class MainWindow;
+
 class PreferencesDialog;
 
 namespace Ui {
@@ -28,6 +30,7 @@ private:
         QString config;
     };
     QList<ConfigCheckbox> checkboxes;
+    MainWindow *mainWindow;
 
     /**
      * @brief This function creates the list with the different options shown in the selector for

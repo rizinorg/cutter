@@ -3,9 +3,9 @@
 #define PREFERENCESDIALOG_H
 
 #include "core/Cutter.h"
+#include "core/MainWindow.h"
 
 #include <QDialog>
-
 #include <memory>
 
 class QTreeWidgetItem;
@@ -21,10 +21,11 @@ class PreferencesDialog : public QDialog
 public:
     enum class Section { Appearance, Disassembly };
 
-    explicit PreferencesDialog(QWidget *parent = nullptr);
+    explicit PreferencesDialog(MainWindow *parent = nullptr);
     ~PreferencesDialog();
 
     void showSection(Section section);
+    MainWindow *getMainWindow();
 
 public slots:
     void changePage(QTreeWidgetItem *current, QTreeWidgetItem *previous);
@@ -32,6 +33,7 @@ public slots:
 private:
     std::unique_ptr<Ui::PreferencesDialog> ui;
     void chooseThemeIcons();
+    MainWindow *mainWindow;
 };
 
 #endif // PREFERENCESDIALOG_H
