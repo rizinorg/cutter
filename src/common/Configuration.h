@@ -352,7 +352,7 @@ public:
      *
      * This is only used if @ref setTruncateFunctionNameCol is set to true
      */
-    void setFunctionNameColWidth(int characters);
+    void setFunctionNameColWidth(int width);
     int getFunctionNameColWidth() const;
 
 public slots:

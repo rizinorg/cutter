@@ -35,7 +35,7 @@ class QMouseEvent;
 namespace qhelpers {
 CUTTER_EXPORT QString formatBytecount(const uint64_t bytecount);
 CUTTER_EXPORT void adjustColumns(QTreeView *tv, int columnCount, int padding);
-CUTTER_EXPORT void adjustColumns(QTreeView *tw, int start, int end, int padding);
+CUTTER_EXPORT void adjustColumns(QTreeView *tw, int startIndex, int endIndex, int padding);
 CUTTER_EXPORT void adjustColumns(QTreeWidget *tw, int padding);
 /**
  * @brief Resize column to contents or speicifed width

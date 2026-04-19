@@ -567,6 +567,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
                                truncate ? maxFunctionNameWidth : -1);
     };
     connect(Config(), &Configuration::functionsOptionsChanged, this, updateNameColumnWidth);
+    maxFunctionNameWidth = Config()->getFunctionNameColWidth();
 }
 
 FunctionsWidget::~FunctionsWidget() {}
@@ -614,9 +615,8 @@ void FunctionsWidget::refreshTree()
 
                 // resize name column
                 qhelpers::adjustColumn(ui->treeView, FunctionModel::NameColumn,
-                                       Config()->getTruncateFunctionNameCol()
-                                               ? Config()->getFunctionNameColWidth()
-                                               : -1);
+                                       Config()->getTruncateFunctionNameCol() ? maxFunctionNameWidth
+                                                                              : -1);
             });
     Core()->getAsyncTaskManager()->start(task);
 }

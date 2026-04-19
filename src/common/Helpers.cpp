@@ -45,13 +45,13 @@ void adjustColumns(QTreeView *tv, int columnCount, int padding)
     adjustColumns(tv, 0, columnCount, padding);
 }
 
-void adjustColumns(QTreeView *tv, int start, int end, int padding)
+void adjustColumns(QTreeView *tv, int startIndex, int endIndex, int padding)
 {
     if (!tv) {
         return;
     }
 
-    for (int i = start; i < end; ++i) {
+    for (int i = startIndex; i < endIndex; ++i) {
         tv->resizeColumnToContents(i);
         if (padding > 0) {
             int width = tv->columnWidth(i);

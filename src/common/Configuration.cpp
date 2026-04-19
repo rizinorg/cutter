@@ -989,9 +989,9 @@ bool Configuration::getTruncateFunctionNameCol() const
     return s.value("truncateFcnNameCol", true).toBool();
 }
 
-void Configuration::setFunctionNameColWidth(int characters)
+void Configuration::setFunctionNameColWidth(int width)
 {
-    s.setValue("fcnNameColWidth", characters);
+    s.setValue("fcnNameColWidth", width);
     emit functionsOptionsChanged();
 }
 

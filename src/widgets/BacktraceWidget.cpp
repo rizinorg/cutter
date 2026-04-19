@@ -112,14 +112,14 @@ void BacktraceWidget::updateContents()
     adjustFunctionNameCol();
 }
 
-void BacktraceWidget::fontsUpdatedSlot()
-{
-    backtraceView->setFont(Config()->getFont());
-}
-
 void BacktraceWidget::adjustFunctionNameCol()
 {
     qhelpers::adjustColumn(
             backtraceView, BacktraceModel::Function,
             Config()->getTruncateFunctionNameCol() ? Config()->getFunctionNameColWidth() : -1);
+}
+
+void BacktraceWidget::fontsUpdatedSlot()
+{
+    backtraceView->setFont(Config()->getFont());
 }
