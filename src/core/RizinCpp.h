@@ -209,7 +209,11 @@ public:
         {                                                                                          \
             ht_##xx##_foreach(ht, ForEachCb<F>, &f);                                               \
         }                                                                                          \
-    }
+        const V *Find(K k, bool *found = nullptr)                                                  \
+        {                                                                                          \
+            return reinterpret_cast<const V *>(ht_##xx##_find(ht, k, found));                      \
+        }                                                                                          \
+    };
 
 CutterHtDef(sp, SP, const char *, void *);
 

@@ -49,10 +49,11 @@ bool DisassemblyPreview::showDisasPreviewAt(QWidget *parent, const QPoint &point
     QStringList disasmPreview = Core()->getDisassemblyPreview(offset, 10);
     if (!disasmPreview.isEmpty()) {
         const QFont &fnt = Config()->getFont();
-        QString tooltip = QString { "<html><div style=\"font-family: %1; font-size: %2pt; "
-                                    "white-space: nowrap;\"><div style=\"margin-bottom: "
-                                    "10px;\"><strong>Disassembly Preview</strong>:<br>%3<div>" }
-                                  .arg(fnt.family())
+        QString tooltip = QString("<html><div style=\"font-family: '%1'; font-size: %2pt; "
+                                  "white-space: nowrap;\"><div style=\"margin-bottom: "
+                                  "10px;\"><strong>Disassembly Preview</strong>:</div>"
+                                  "%3</div></html>")
+                                  .arg(fnt.family().toHtmlEscaped())
                                   .arg(qMax(8, fnt.pointSize() - 1))
                                   .arg(disasmPreview.join("<br>"));
 

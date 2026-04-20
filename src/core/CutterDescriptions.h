@@ -207,6 +207,8 @@ struct RzAsmPluginDescription
     QString cpus;
     QString description;
     QString license;
+    QString capabilities;
+    QString bits;
 };
 
 struct DisassemblyLine
