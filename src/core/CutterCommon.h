@@ -15,13 +15,25 @@
 #    undef max
 #endif // Q_OS_WIN
 
+// Follow Qt definitions for quint64 and friends.
+#undef PFMT64x
+#undef PFMT64X
+#undef PFMT64d
+#undef PFMT64u
+#undef PFMT64o
+#define PFMT64x "llx"
+#define PFMT64X "llX"
+#define PFMT64d "lld"
+#define PFMT64u "llu"
+#define PFMT64o "llo"
+
 // Global information for Cutter
 #define APPNAME "Cutter"
 
 /**
  * @brief Type to be used for all kinds of addresses/offsets in rizin address space.
  */
-typedef ut64 RVA;
+typedef quint64 RVA;
 
 /**
  * @brief Maximum value of RVA. Do NOT use this for specifying invalid values, use RVA_INVALID
