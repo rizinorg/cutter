@@ -39,7 +39,7 @@ QVariant RelocsModel::data(const QModelIndex &index, int role) const
     case RelocsModel::RelocDescriptionRole:
         return QVariant::fromValue(reloc);
     case RelocsModel::AddressRole:
-        return (quint64)reloc.vaddr;
+        return reloc.vaddr;
     default:
         break;
     }

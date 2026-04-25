@@ -64,9 +64,9 @@ QVariant ThreadModel::data(const QModelIndex &index, int role) const
         case ColumnIndex::COLUMN_PID:
             return thread.pid;
         case ColumnIndex::COLUMN_PC:
-            return (quint64)thread.pc;
+            return thread.pc;
         case ColumnIndex::COLUMN_TLS:
-            return (quint64)thread.tls;
+            return thread.tls;
         default:
             return data(index, Qt::DisplayRole);
         }

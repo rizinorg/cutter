@@ -37,12 +37,12 @@ bool HexdumpRangeDialog::empty()
     return emptyRange;
 }
 
-ut64 HexdumpRangeDialog::getStartAddress() const
+unsigned long long HexdumpRangeDialog::getStartAddress() const
 {
     return startAddress;
 }
 
-ut64 HexdumpRangeDialog::getEndAddress() const
+unsigned long long HexdumpRangeDialog::getEndAddress() const
 {
     return endAddress;
 }
