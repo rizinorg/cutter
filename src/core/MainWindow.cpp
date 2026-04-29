@@ -762,11 +762,6 @@ void MainWindow::showProjectSaveError(RzProjectErr err)
                           tr("Failed to save project: %1").arg(QString::fromUtf8(s)));
 }
 
-void MainWindow::refreshOmniBar(const QStringList &flags)
-{
-    omnibar->refresh(flags);
-}
-
 void MainWindow::setFilename(const QString &fn)
 {
     // Add file name to window title
