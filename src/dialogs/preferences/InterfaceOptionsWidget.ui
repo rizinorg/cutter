@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>633</width>
-    <height>361</height>
+    <width>678</width>
+    <height>417</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,8 +39,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>633</width>
-        <height>361</height>
+        <width>678</width>
+        <height>417</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="scrollLayout">
@@ -81,6 +81,75 @@
               </property>
               <property name="maximum">
                <number>9999</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="omnibarGroupBox">
+         <property name="title">
+          <string>Omnibar</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <property name="topMargin">
+           <number>24</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" name="itemCountLayout">
+            <item>
+             <widget class="QCheckBox" name="omnibarCountCheckBox">
+              <property name="toolTip">
+               <string>Only show the number of entries equal to set value when searching inside omnibar. If unchecked all entries will be shown</string>
+              </property>
+              <property name="text">
+               <string>Limit entries by default to</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="omnibarCountSpinBox">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>999999</number>
+              </property>
+              <property name="singleStep">
+               <number>10</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="itemCountIncrementLayout">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="omnibarIncrementLabel">
+              <property name="toolTip">
+               <string>Number of entries to add when clicking &quot;Show More&quot; inside omnibar</string>
+              </property>
+              <property name="text">
+               <string>On &quot;Show More&quot; increment entries by</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="omnibarIncrementSpinBox">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>999999</number>
+              </property>
+              <property name="singleStep">
+               <number>10</number>
               </property>
              </widget>
             </item>

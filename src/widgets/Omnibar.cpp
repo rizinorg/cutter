@@ -14,10 +14,6 @@
 #include <QEvent>
 #include <QKeyEvent>
 
-namespace {
-constexpr int DEFAULT_ITEM_COUNT = 100;
-}
-
 OmnibarCompleter::OmnibarCompleter(QObject *parent) : QCompleter(parent) {}
 
 QStringList OmnibarCompleter::splitPath(const QString &) const
@@ -50,7 +46,7 @@ Omnibar::Omnibar(MainWindow *main, QWidget *parent)
     this->setClearButtonEnabled(true);
 
     connect(this, &QLineEdit::textEdited, this, [this](const QString &text) {
-        m_maxShownItems = DEFAULT_ITEM_COUNT; // reset the entries count to 100
+        m_maxShownItems = Config()->getOmnibarEntriesCount(); // reset entries count to default
         handleSearch(text);
     });
 
@@ -176,7 +172,7 @@ void Omnibar::handleSearch(const QString &Text, bool append)
         m_completerModel->clear();
         m_lastIndex = 0;
     } else {
-        // remove "show more" and "show all" rows
+        // remove "show more" and "show all" rows (last two)
         m_completerModel->removeRows(m_completerModel->rowCount() - 2, 2);
     }
 
@@ -190,7 +186,8 @@ void Omnibar::handleSearch(const QString &Text, bool append)
     for (int i = 0; i < m_flags.size(); ++i) {
         const QString &flag = m_flags[i];
         if (flag.contains(Text, Qt::CaseInsensitive)) {
-            if (itemsInModel < m_maxShownItems) {
+            const bool showAll = !Config()->getOmnibarLimitEntries();
+            if ((itemsInModel < m_maxShownItems) || showAll) {
                 if (!append || i > m_lastIndex) {
                     QStandardItem *item = new QStandardItem(flag);
                     item->setData(ItemType::Standard, Qt::UserRole);
@@ -235,7 +232,8 @@ void Omnibar::handleShowMore(int currentRow)
     if (m_maxShownItems >= m_matchCount) {
         return;
     }
-    m_maxShownItems = std::min(m_maxShownItems + DEFAULT_ITEM_COUNT, m_matchCount);
+    m_maxShownItems =
+            std::min(m_maxShownItems + Config()->getOmnibarEntriesIncrement(), m_matchCount);
     handleSearch(m_searchedText, true);
     m_completer->popup()->setCurrentIndex(m_completerModel->index(currentRow, 0));
 }

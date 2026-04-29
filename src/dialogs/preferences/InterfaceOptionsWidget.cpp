@@ -10,6 +10,7 @@ InterfaceOptionsWidget::InterfaceOptionsWidget(PreferencesDialog *dialog)
     ui->setupUi(this);
 
     setUpQuickFilter();
+    setUpOmnibar();
     setUpFunctions();
 }
 
@@ -29,6 +30,30 @@ void InterfaceOptionsWidget::setUpFunctions()
 
     connect<void (QSpinBox::*)(int)>(ui->fcnTruncateSpinBox, &QSpinBox::valueChanged, Config(),
                                      &Configuration::setFunctionNameColWidth);
+}
+
+void InterfaceOptionsWidget::setUpOmnibar()
+{
+    const bool limitEntries = Config()->getOmnibarLimitEntries();
+    ui->omnibarCountCheckBox->setChecked(limitEntries);
+    ui->omnibarCountSpinBox->setValue(Config()->getOmnibarEntriesCount());
+
+    auto toggleWidgets = [this](bool enable) {
+        ui->omnibarCountSpinBox->setEnabled(enable);
+        ui->omnibarIncrementLabel->setEnabled(enable);
+        ui->omnibarIncrementSpinBox->setEnabled(enable);
+    };
+    toggleWidgets(limitEntries);
+    ui->omnibarIncrementSpinBox->setValue(Config()->getOmnibarEntriesIncrement());
+
+    connect(ui->omnibarCountCheckBox, &QCheckBox::toggled, this, [toggleWidgets](bool checked) {
+        Config()->setOmnibarLimitEntries(checked);
+        toggleWidgets(checked);
+    });
+    connect<void (QSpinBox::*)(int)>(ui->omnibarCountSpinBox, &QSpinBox::valueChanged, Config(),
+                                     &Configuration::setOmnibarEntriesCount);
+    connect<void (QSpinBox::*)(int)>(ui->omnibarIncrementSpinBox, &QSpinBox::valueChanged, Config(),
+                                     &Configuration::setOmnibarEntriesIncrement);
 }
 
 void InterfaceOptionsWidget::setUpQuickFilter()

@@ -999,3 +999,33 @@ int Configuration::getFunctionNameColWidth() const
 {
     return s.value("fcnNameColWidth", 400).toInt();
 }
+
+void Configuration::setOmnibarLimitEntries(bool value)
+{
+    s.setValue("omnibarLimitEntries", value);
+}
+
+bool Configuration::getOmnibarLimitEntries() const
+{
+    return s.value("omnibarLimitEntries", true).toBool();
+}
+
+void Configuration::setOmnibarEntriesCount(int count)
+{
+    s.setValue("omnibarEntriesCount", count);
+}
+
+int Configuration::getOmnibarEntriesCount() const
+{
+    return s.value("omnibarEntriesCount", 100).toInt();
+}
+
+void Configuration::setOmnibarEntriesIncrement(int count)
+{
+    s.setValue("omnibarEntriesIncrement", count);
+}
+
+int Configuration::getOmnibarEntriesIncrement() const
+{
+    return s.value("omnibarEntriesIncrement", 100).toInt();
+}

@@ -355,6 +355,29 @@ public:
     void setFunctionNameColWidth(int width);
     int getFunctionNameColWidth() const;
 
+    /**
+     * @brief Set whether to limit the number of entries when searching inside omnibar
+     *
+     * The limit is set through @ref setOmnibarEntriesCount
+     * @param value True to set limit, false otherwise
+     */
+    void setOmnibarLimitEntries(bool value);
+    bool getOmnibarLimitEntries() const;
+
+    /**
+     * @brief Set the default number of entries shown when searching inside omnibar
+     * @param count Number of entries to be shown inside omnibar
+     */
+    void setOmnibarEntriesCount(int count);
+    int getOmnibarEntriesCount() const;
+
+    /**
+     * @brief Number of entries to add to initial count when clicking on "Show More" inside omnibar
+     * @param count Number of entries to add
+     */
+    void setOmnibarEntriesIncrement(int count);
+    int getOmnibarEntriesIncrement() const;
+
 public slots:
     void refreshFont();
 signals:
