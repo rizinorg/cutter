@@ -433,8 +433,8 @@ struct MarkDescription
 struct BacktraceDescription
 {
     QString functionName;
-    QString pc;
-    QString sp;
+    RVA pc;
+    RVA sp;
     QString frameSize;
     QString description;
 };

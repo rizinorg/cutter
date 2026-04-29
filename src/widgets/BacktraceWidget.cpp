@@ -28,9 +28,9 @@ QVariant BacktraceModel::data(const QModelIndex &index, int role) const
         case Column::Function:
             return backtraces[index.row()].functionName;
         case Column::PC:
-            return backtraces[index.row()].pc;
+            return RzAddressString(backtraces[index.row()].pc);
         case Column::SP:
-            return backtraces[index.row()].sp;
+            return RzAddressString(backtraces[index.row()].sp);
         case Column::FrameSize:
             return backtraces[index.row()].frameSize;
         case Column::Description:

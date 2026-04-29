@@ -4042,8 +4042,8 @@ QList<BacktraceDescription> CutterCore::getAllBacktraces()
     CutterRzListForeach (list, iter, RzBacktrace, bt) {
         BacktraceDescription backtrace;
         backtrace.functionName = bt->fcn ? bt->fcn->name : "";
-        backtrace.pc = RzAddressString(bt->frame ? bt->frame->addr : 0);
-        backtrace.sp = RzAddressString(bt->frame ? bt->frame->sp : 0);
+        backtrace.pc = bt->frame ? bt->frame->addr : 0;
+        backtrace.sp = bt->frame ? bt->frame->sp : 0;
         backtrace.frameSize = QString::number(bt->frame ? bt->frame->size : 0);
         backtrace.description = bt->desc;
         backtraces.append(backtrace);
