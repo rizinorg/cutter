@@ -35,13 +35,13 @@ QVariant BaseFindResultsModel::data(const QModelIndex &index, int role) const
         case ScoreColumn:
             return QString::asprintf("%u", entry.score);
         case CandidateColumn:
-            return QString::asprintf("%#010llx", entry.candidate);
+            return QString::asprintf("%#010" PFMT64x, entry.candidate);
         default:
             return QVariant();
         }
 
     case Qt::ToolTipRole: {
-        return QString::asprintf("%#010llx", entry.candidate);
+        return QString::asprintf("%#010" PFMT64x, entry.candidate);
     }
 
     default:
@@ -106,7 +106,7 @@ void BaseFindResultsDialog::showItemContextMenu(const QPoint &pt)
     if (index.isValid()) {
         const BasefindResultDescription &entry = model->list.at(index.row());
         candidate = entry.candidate;
-        auto addr = QString::asprintf("%#010llx", candidate);
+        auto addr = QString::asprintf("%#010" PFMT64x, candidate);
         actionCopyCandidate->setText(tr("Copy %1").arg(addr));
         actionSetLoadAddr->setText(tr("Reopen Cutter with base address as %1").arg(addr));
         actionSetMapAddr->setText(tr("Reopen Cutter with map address as %1").arg(addr));
@@ -117,7 +117,7 @@ void BaseFindResultsDialog::showItemContextMenu(const QPoint &pt)
 void BaseFindResultsDialog::onActionCopyLine()
 {
     auto clipboard = QApplication::clipboard();
-    clipboard->setText(QString::asprintf("%#010llx", candidate));
+    clipboard->setText(QString::asprintf("%#010" PFMT64x, candidate));
 }
 
 void BaseFindResultsDialog::onActionSetLoadAddr()

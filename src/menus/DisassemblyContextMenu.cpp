@@ -760,7 +760,7 @@ void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
         if (pfx.isEmpty()) {
             pfx = QString("fcn");
         }
-        name = pfx + QString::asprintf(".%llx", offset);
+        name = pfx + QString::asprintf(".%" PFMT64x, offset);
     }
 
     // Create dialog

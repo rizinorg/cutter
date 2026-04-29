@@ -1209,7 +1209,8 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
         char *fname = NULL;
         if (f) {
             if (f->offset != undo->offset) {
-                fname = rz_str_newf("%s+%" PFMT64d, f->name, undo->offset - f->offset);
+                qint64 diff = undo->offset - f->offset;
+                fname = rz_str_newf("%s+%" PFMT64d, f->name, diff);
             } else {
                 fname = strdup(f->name);
             }

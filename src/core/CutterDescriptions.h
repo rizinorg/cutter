@@ -117,8 +117,8 @@ struct StringDescription
     QString string;
     QString type;
     QString section;
-    ut32 length;
-    ut32 size;
+    quint32 length;
+    quint32 size;
 };
 
 struct FlagspaceDescription
@@ -228,7 +228,7 @@ struct BinClassMethodDescription
 {
     QString name;
     RVA addr = RVA_INVALID;
-    st64 vtableOffset = -1;
+    qint64 vtableOffset = -1;
 };
 
 struct BinClassFieldDescription
@@ -252,7 +252,7 @@ struct AnalysisMethodDescription
     QString name;
     QString realName;
     RVA addr;
-    st64 vtableOffset;
+    qint64 vtableOffset;
 };
 
 struct AnalysisBaseClassDescription
@@ -265,17 +265,17 @@ struct AnalysisBaseClassDescription
 struct AnalysisVTableDescription
 {
     QString id;
-    ut64 offset;
-    ut64 addr;
+    quint64 offset;
+    quint64 addr;
 };
 
 struct ResourcesDescription
 {
     QString name;
     RVA vaddr;
-    ut64 index;
+    quint64 index;
     QString type;
-    ut64 size;
+    quint64 size;
     QString lang;
 };
 
@@ -295,7 +295,7 @@ struct BlockDescription
     int comments;
     int symbols;
     int strings;
-    ut8 rwx;
+    quint8 rwx;
 };
 
 struct BlockStatistics
@@ -325,7 +325,7 @@ struct BreakpointDescription
     };
 
     RVA addr = 0;
-    int64_t moduleDelta = 0;
+    qint64 moduleDelta = 0;
     int index = -1;
     PositionType type = Address;
     int size = 0;
@@ -357,8 +357,8 @@ struct ThreadDescription
     int ppid;
     RzDebugPidState status;
     QString path;
-    ut64 pc;
-    ut64 tls;
+    quint64 pc;
+    quint64 tls;
 };
 
 struct RefDescription
@@ -400,24 +400,24 @@ struct Arena
 {
     RVA offset;
     QString type;
-    ut64 top;
-    ut64 last_remainder;
-    ut64 next;
-    ut64 next_free;
-    ut64 system_mem;
-    ut64 max_system_mem;
+    quint64 top;
+    quint64 last_remainder;
+    quint64 next;
+    quint64 next_free;
+    quint64 system_mem;
+    quint64 max_system_mem;
 };
 
 struct BasefindCoreStatusDescription
 {
     size_t index;
-    ut32 percentage;
+    quint32 percentage;
 };
 
 struct BasefindResultDescription
 {
     RVA candidate;
-    ut32 score;
+    quint32 score;
 };
 
 struct MarkDescription
