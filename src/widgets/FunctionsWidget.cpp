@@ -533,7 +533,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     ui->treeView->addActions(itemContextMenu->actions());
 
     // Use a custom context menu on the dock title bar
-    if (Config()->getFunctionsWidgetLayout() == "horizontal") {
+    if (!functionModel->isNested()) {
         actionHorizontal.setChecked(true);
     } else {
         actionVertical.setChecked(true);
@@ -547,6 +547,27 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     connect(Core(), &CutterCore::refreshAll, this, &FunctionsWidget::refreshTree);
     connect(Core(), &CutterCore::commentsChanged, this,
             [this]() { qhelpers::emitColumnChanged(functionModel, FunctionModel::CommentColumn); });
+
+    // Save the width of function name column so it's preserved when
+    // switching from horizontal->vertical->horizontal layout
+    connect(ui->treeView->header(), &QHeaderView::sectionResized, this,
+            [this](int index, int, int newSize) {
+                if (index == FunctionModel::NameColumn && !functionModel->isNested()) {
+                    maxFunctionNameWidth = newSize;
+                }
+            });
+
+    auto updateNameColumnWidth = [this] {
+        bool truncate = Config()->getTruncateFunctionNameCol();
+        if (truncate) {
+            maxFunctionNameWidth = Config()->getFunctionNameColWidth();
+        }
+
+        qhelpers::adjustColumn(ui->treeView, FunctionModel::NameColumn,
+                               truncate ? maxFunctionNameWidth : -1);
+    };
+    connect(Config(), &Configuration::functionsOptionsChanged, this, updateNameColumnWidth);
+    maxFunctionNameWidth = Config()->getFunctionNameColWidth();
 }
 
 FunctionsWidget::~FunctionsWidget() {}
@@ -590,7 +611,12 @@ void FunctionsWidget::refreshTree()
                 ui->quickFilterView->setItemCount(functionProxyModel->rowCount());
 
                 // resize offset and size columns
-                qhelpers::adjustColumns(ui->treeView, 3, 0);
+                qhelpers::adjustColumns(ui->treeView, 1, 3, 0);
+
+                // resize name column
+                qhelpers::adjustColumn(ui->treeView, FunctionModel::NameColumn,
+                                       Config()->getTruncateFunctionNameCol() ? maxFunctionNameWidth
+                                                                              : -1);
             });
     Core()->getAsyncTaskManager()->start(task);
 }
@@ -646,6 +672,9 @@ void FunctionsWidget::onActionHorizontalToggled(bool enable)
         Config()->setFunctionsWidgetLayout("horizontal");
         functionModel->setNested(false);
         ui->treeView->setIndentation(8);
+
+        qhelpers::adjustColumn(ui->treeView, FunctionModel::NameColumn,
+                               Config()->getTruncateFunctionNameCol() ? maxFunctionNameWidth : -1);
     }
 }
 
@@ -655,6 +684,8 @@ void FunctionsWidget::onActionVerticalToggled(bool enable)
         Config()->setFunctionsWidgetLayout("vertical");
         functionModel->setNested(true);
         ui->treeView->setIndentation(20);
+
+        qhelpers::adjustColumn(ui->treeView, FunctionModel::NameColumn);
     }
 }
 

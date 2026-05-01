@@ -253,7 +253,7 @@ std::vector<ut64> GraphGridLayout::topoSort(LayoutState &state, ut64 entry)
 }
 
 void GraphGridLayout::assignRows(GraphGridLayout::LayoutState &state,
-                                 const std::vector<unsigned long long> &blockOrder)
+                                 const std::vector<ut64> &blockOrder)
 {
     for (auto it = blockOrder.rbegin(), end = blockOrder.rend(); it != end; it++) {
         auto &block = state.grid_blocks[*it];

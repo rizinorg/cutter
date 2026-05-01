@@ -338,15 +338,55 @@ public:
      */
     bool getItemCountAutoHide() const;
 
+    /**
+     * @brief Enable or Disable default width of function name column in widgets
+     *
+     * Prevents long function names from excessively stretching the UI.
+     * The default width is specified by @ref setFunctionNameColumnWidth
+     */
+    void setTruncateFunctionNameCol(bool value);
+    bool getTruncateFunctionNameCol() const;
+
+    /**
+     * @brief Set the function name column width in pixels
+     *
+     * This is only used if @ref setTruncateFunctionNameCol is set to true
+     */
+    void setFunctionNameColWidth(int width);
+    int getFunctionNameColWidth() const;
+
+    /**
+     * @brief Set whether to limit the number of entries when searching inside omnibar
+     *
+     * The limit is set through @ref setOmnibarEntriesCount
+     * @param value True to set limit, false otherwise
+     */
+    void setOmnibarLimitEntries(bool value);
+    bool getOmnibarLimitEntries() const;
+
+    /**
+     * @brief Set the default number of entries shown when searching inside omnibar
+     * @param count Number of entries to be shown inside omnibar
+     */
+    void setOmnibarEntriesCount(int count);
+    int getOmnibarEntriesCount() const;
+
+    /**
+     * @brief Number of entries to add to initial count when clicking on "Show More" inside omnibar
+     * @param count Number of entries to add
+     */
+    void setOmnibarEntriesIncrement(int count);
+    int getOmnibarEntriesIncrement() const;
+
 public slots:
     void refreshFont();
 signals:
     void fontsUpdated();
     void colorsUpdated();
     void interfaceThemeChanged();
-    void quickFilterToggled(bool show);
-    void itemCountToggled(bool visible);
-    void itemCountAutoHideToggled(bool value);
+    void itemCountOptionsChanged();
+    void quickFilterOptionsChanged();
+    void functionsOptionsChanged();
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
     void kSyntaxHighlightingThemeChanged();
 #endif

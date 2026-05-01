@@ -680,6 +680,7 @@ public:
     QList<BinClassDescription> getAllClassesFromFlags();
     QList<ResourcesDescription> getAllResources();
     QList<VTableDescription> getAllVTables();
+    QList<BacktraceDescription> getAllBacktraces();
 
     /**
      * @return all loaded types

@@ -762,11 +762,6 @@ void MainWindow::showProjectSaveError(RzProjectErr err)
                           tr("Failed to save project: %1").arg(QString::fromUtf8(s)));
 }
 
-void MainWindow::refreshOmniBar(const QStringList &flags)
-{
-    omnibar->refresh(flags);
-}
-
 void MainWindow::setFilename(const QString &fn)
 {
     // Add file name to window title
@@ -1209,7 +1204,8 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
         char *fname = NULL;
         if (f) {
             if (f->offset != undo->offset) {
-                fname = rz_str_newf("%s+%" PFMT64d, f->name, undo->offset - f->offset);
+                qint64 diff = undo->offset - f->offset;
+                fname = rz_str_newf("%s+%" PFMT64d, f->name, diff);
             } else {
                 fname = strdup(f->name);
             }

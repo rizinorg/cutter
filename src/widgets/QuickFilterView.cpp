@@ -15,8 +15,8 @@ QuickFilterView::QuickFilterView(QWidget *parent)
     connect(this, &QuickFilterView::customContextMenuRequested, this,
             &QuickFilterView::showCustomContextMenu);
 
-    connect(Config(), &Configuration::quickFilterToggled, this, [this](bool show) {
-        if (show) {
+    connect(Config(), &Configuration::quickFilterOptionsChanged, this, [this]() {
+        if (Config()->getShowQuickFilter()) {
             this->show();
         } else if (ui->filterLineEdit->text().isEmpty()) {
             this->hide();

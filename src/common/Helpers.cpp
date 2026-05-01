@@ -42,7 +42,16 @@ QString formatBytecount(const uint64_t bytecount)
 
 void adjustColumns(QTreeView *tv, int columnCount, int padding)
 {
-    for (int i = 0; i != columnCount; ++i) {
+    adjustColumns(tv, 0, columnCount, padding);
+}
+
+void adjustColumns(QTreeView *tv, int startIndex, int endIndex, int padding)
+{
+    if (!tv) {
+        return;
+    }
+
+    for (int i = startIndex; i < endIndex; ++i) {
         tv->resizeColumnToContents(i);
         if (padding > 0) {
             int width = tv->columnWidth(i);
@@ -54,6 +63,18 @@ void adjustColumns(QTreeView *tv, int columnCount, int padding)
 void adjustColumns(QTreeWidget *tw, int padding)
 {
     adjustColumns(tw, tw->columnCount(), padding);
+}
+
+void adjustColumn(QTreeView *tv, int columnIndex, int width)
+{
+    if (!tv) {
+        return;
+    }
+
+    tv->resizeColumnToContents(columnIndex);
+    if (width >= 0 && tv->columnWidth(columnIndex) > width) {
+        tv->setColumnWidth(columnIndex, width);
+    }
 }
 
 QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str, const QString &str2,

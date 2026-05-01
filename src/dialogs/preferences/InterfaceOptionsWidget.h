@@ -22,9 +22,14 @@ public:
     explicit InterfaceOptionsWidget(PreferencesDialog *dialog);
     ~InterfaceOptionsWidget();
 
+signals:
+    void interfaceOptionsChanged();
+
 private:
     std::unique_ptr<Ui::InterfaceOptionsWidget> ui;
 
+    void setUpFunctions();
+    void setUpOmnibar();
     void setUpQuickFilter();
 };
 

@@ -86,7 +86,6 @@ public:
     void readSettings();
     void saveSettings();
     void setFilename(const QString &fn);
-    void refreshOmniBar(const QStringList &flags);
 
     void addWidget(CutterDockWidget *widget);
     void addMemoryDockWidget(MemoryDockWidget *widget);

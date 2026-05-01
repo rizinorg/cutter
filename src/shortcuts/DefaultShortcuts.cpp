@@ -288,6 +288,14 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
           { { QKeySequence(Qt::Key_Escape) },
             QT_TRANSLATE_NOOP("Omnibar", "Clear Omnibar"),
             "Omnibar" } },
+        { "Omnibar.showMore",
+          { { QKeySequence(Qt::ControlModifier | Qt::Key_Return) },
+            QT_TRANSLATE_NOOP("Omnibar", "Show More Completions"),
+            "Omnibar" } },
+        { "Omnibar.showAll",
+          { { QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Return) },
+            QT_TRANSLATE_NOOP("Omnibar", "Show All Completions"),
+            "Omnibar" } },
 
         // Graph Overview
         { "Overview.zoomIn",
