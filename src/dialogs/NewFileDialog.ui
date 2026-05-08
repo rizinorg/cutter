@@ -146,7 +146,7 @@
           </property>
           <widget class="QWidget" name="filesTab">
            <attribute name="title">
-            <string>Open File</string>
+            <string>Open &amp;File</string>
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_4">
             <item>
@@ -179,7 +179,7 @@
                  </sizepolicy>
                 </property>
                 <property name="text">
-                 <string>Select</string>
+                 <string>S&amp;elect</string>
                 </property>
                </widget>
               </item>
@@ -293,14 +293,14 @@
               <item>
                <widget class="QCheckBox" name="checkBox_FilelessOpen">
                 <property name="text">
-                 <string>Don't open any file</string>
+                 <string>&amp;Don't open any file</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QPushButton" name="loadFileButton">
                 <property name="text">
-                 <string>Open</string>
+                 <string>&amp;Open</string>
                 </property>
                 <property name="default">
                  <bool>true</bool>
@@ -313,7 +313,7 @@
           </widget>
           <widget class="QWidget" name="shellcodeTab">
            <attribute name="title">
-            <string>Open Shellcode</string>
+            <string>Open &amp;Shellcode</string>
            </attribute>
            <layout class="QVBoxLayout" name="shellcodeLayout">
             <item>
@@ -357,7 +357,7 @@
               <item>
                <widget class="QPushButton" name="shellcodeButton">
                 <property name="text">
-                 <string>Open</string>
+                 <string>&amp;Open</string>
                 </property>
                </widget>
               </item>
@@ -367,7 +367,7 @@
           </widget>
           <widget class="QWidget" name="projectsTab">
            <attribute name="title">
-            <string>Projects</string>
+            <string>&amp;Projects</string>
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
@@ -387,7 +387,7 @@
                  </sizepolicy>
                 </property>
                 <property name="text">
-                 <string>Select</string>
+                 <string>S&amp;elect</string>
                 </property>
                </widget>
               </item>
@@ -498,7 +498,7 @@
               <item>
                <widget class="QPushButton" name="loadProjectButton">
                 <property name="text">
-                 <string>Open</string>
+                 <string>&amp;Open</string>
                 </property>
                </widget>
               </item>

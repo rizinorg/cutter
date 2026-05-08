@@ -101,7 +101,7 @@
     </property>
     <widget class="QMenu" name="menuZoom">
      <property name="title">
-      <string>Zoom</string>
+      <string>&amp;Zoom</string>
      </property>
      <addaction name="actionZoomIn"/>
      <addaction name="actionZoomOut"/>
@@ -257,7 +257,7 @@
   </action>
   <action name="actionNew">
    <property name="text">
-    <string>New Window</string>
+    <string>&amp;New Window</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
@@ -278,12 +278,12 @@
   </action>
   <action name="actionDocumentation">
    <property name="text">
-    <string>Documentation</string>
+    <string>&amp;Documentation</string>
    </property>
   </action>
   <action name="actionMap">
    <property name="text">
-    <string>Map File</string>
+    <string>&amp;Map File</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+M</string>
@@ -291,7 +291,7 @@
   </action>
   <action name="actionSave">
    <property name="text">
-    <string>Save Project</string>
+    <string>&amp;Save Project</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -657,12 +657,12 @@
   </action>
   <action name="actionRun_Script">
    <property name="text">
-    <string>Run Rizin script</string>
+    <string>&amp;Run Rizin script</string>
    </property>
   </action>
   <action name="actionReset_settings">
    <property name="text">
-    <string>Reset Settings</string>
+    <string>&amp;Reset Settings</string>
    </property>
    <property name="toolTip">
     <string>Reset settings</string>
@@ -670,7 +670,7 @@
   </action>
   <action name="actionQuit">
    <property name="text">
-    <string>Quit</string>
+    <string>&amp;Quit</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
@@ -689,7 +689,7 @@
   </action>
   <action name="actionRefresh_contents">
    <property name="text">
-    <string>Refresh Contents</string>
+    <string>&amp;Refresh Contents</string>
    </property>
    <property name="toolTip">
     <string>Refresh contents</string>
@@ -724,7 +724,7 @@
   </action>
   <action name="actionPreferences">
    <property name="text">
-    <string>Preferences</string>
+    <string>&amp;Preferences</string>
    </property>
   </action>
   <action name="actionSaveAs">
@@ -742,17 +742,17 @@
   </action>
   <action name="actionImportPDB">
    <property name="text">
-    <string>Import PDB</string>
+    <string>&amp;Import PDB</string>
    </property>
   </action>
   <action name="actionAnalyze">
    <property name="text">
-    <string>Analyze Program</string>
+    <string>&amp;Analyze Program</string>
    </property>
   </action>
   <action name="actionExport_as_code">
    <property name="text">
-    <string>Export as code</string>
+    <string>&amp;Export as code</string>
    </property>
   </action>
   <action name="actionApplySigFromFile">
@@ -762,27 +762,27 @@
   </action>
   <action name="actionCreateNewSig">
    <property name="text">
-    <string>Create New Signature File</string>
+    <string>&amp;Create New Signature File</string>
    </property>
   </action>
   <action name="actionExtraHexdump">
    <property name="text">
-    <string>Add Hexdump</string>
+    <string>Add &amp;Hexdump</string>
    </property>
   </action>
   <action name="actionExtraDecompiler">
    <property name="text">
-    <string>Add Decompiler</string>
+    <string>Add &amp;Decompiler</string>
    </property>
   </action>
   <action name="actionExtraDisassembly">
    <property name="text">
-    <string>Add Disassembly</string>
+    <string>&amp;Add Disassembly</string>
    </property>
   </action>
   <action name="actionExtraGraph">
    <property name="text">
-    <string>Add Graph</string>
+    <string>Add &amp;Graph</string>
    </property>
   </action>
   <action name="actionGrouped_dock_dragging">
@@ -874,7 +874,7 @@
   </action>
   <action name="actionManageLayouts">
    <property name="text">
-    <string>Manage layouts</string>
+    <string>&amp;Manage layouts</string>
    </property>
   </action>
  </widget>

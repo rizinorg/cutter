@@ -35,9 +35,9 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main),
     suspendIcon = QIcon(":/img/icons/media-suspend_light.svg");
 
     // define action labels
-    QString startEmulLabel = tr("Start emulation");
-    QString startAttachLabel = tr("Attach to process");
-    QString startRemoteLabel = tr("Connect to a remote debugger");
+    QString startEmulLabel = tr("Start &emulation");
+    QString startAttachLabel = tr("&Attach to process");
+    QString startRemoteLabel = tr("Connect to a &remote debugger");
     QString stopDebugLabel = tr("Stop debug");
     QString stopEmulLabel = tr("Stop emulation");
     QString restartEmulLabel = tr("Restart emulation");

@@ -105,7 +105,7 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
 
         // Debug
         { "Debug.start",
-          { { Qt::Key_F9 }, QT_TRANSLATE_NOOP("DebugActions", "Start debug"), "DebugActions" } },
+          { { Qt::Key_F9 }, QT_TRANSLATE_NOOP("DebugActions", "Start &debug"), "DebugActions" } },
         { "Debug.continue",
           { { Qt::Key_F5 }, QT_TRANSLATE_NOOP("DebugActions", "Continue"), "DebugActions" } },
         { "Debug.continueBack",
