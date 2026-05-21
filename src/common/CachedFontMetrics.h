@@ -82,6 +82,8 @@ public:
         return -1;
     }
 
+    T ascent() { return fontMetrics.ascent(); }
+
 private:
     typename Metrics<T>::FontMetrics fontMetrics;
     T charWidths[0x10000 - 0xE000 + 0xD800];
