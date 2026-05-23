@@ -168,7 +168,7 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main)
     connect(ui->registerRefTreeView, &QMenu::customContextMenuRequested, this,
             &RegisterRefsWidget::customMenuRequested);
 
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
+    connect(ui->quickFilterView, &QuickFilterView::filterChanged, this,
             [this] { ui->quickFilterView->setItemCount(registerRefProxyModel->rowCount()); });
 
     connect(ui->registerRefTreeView, &QTreeView::doubleClicked, this,

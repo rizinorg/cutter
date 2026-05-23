@@ -176,7 +176,7 @@ GlobalsWidget::GlobalsWidget(MainWindow *main)
                 qhelpers::applyFilter(globalsProxyModel, text, options);
             });
 
-    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
+    connect(ui->quickFilterView, &ComboQuickFilterView::filterChanged, this,
             [this] { ui->quickFilterView->setItemCount(globalsProxyModel->rowCount()); });
 
     QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);

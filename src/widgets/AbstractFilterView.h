@@ -28,7 +28,6 @@ public:
     virtual void closeFilter();
 
 signals:
-    void filterTextChanged(const QString &text);
     void filterChanged(const QString &text, int options);
     void filterClosed();
 

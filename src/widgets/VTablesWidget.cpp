@@ -159,7 +159,7 @@ VTablesWidget::VTablesWidget(MainWindow *main)
     connect(ui->quickFilterView, &QuickFilterView::filterClosed, ui->vTableTreeView,
             [this]() { ui->vTableTreeView->setFocus(); });
 
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
+    connect(ui->quickFilterView, &QuickFilterView::filterChanged, this,
             [this] { ui->quickFilterView->setItemCount(proxy->rowCount()); });
 
     connect(Core(), &CutterCore::codeRebased, this, &VTablesWidget::refreshVTables);

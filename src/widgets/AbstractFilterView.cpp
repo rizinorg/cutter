@@ -2,6 +2,7 @@
 
 #include "common/CutterSearchable.h"
 #include "common/Helpers.h"
+#include "common/Configuration.h"
 
 #include <QAction>
 #include <QIcon>
@@ -14,20 +15,26 @@ void AbstractFilterView::setupSharedConnections()
     auto *optionsMenu = new QMenu(this);
     caseSensitiveAction = optionsMenu->addAction(tr("&Case Sensitive"));
     caseSensitiveAction->setCheckable(true);
+    caseSensitiveAction->setChecked(Config()->getQuickFilterCaseSensitive());
 
-    wholeWordsAction = optionsMenu->addAction(tr("Exact Match"));
+    wholeWordsAction = optionsMenu->addAction(tr("&Exact Match"));
     wholeWordsAction->setCheckable(true);
+    wholeWordsAction->setChecked(Config()->getQuickFilterWholeWords());
 
-    regexAction = optionsMenu->addAction(tr("Regular Expression"));
+    regexAction = optionsMenu->addAction(tr("&Regular Expression"));
     regexAction->setCheckable(true);
+    regexAction->setChecked(Config()->getQuickFilterRegex());
 
-    auto emitFilterChanged = [this]() {
-        emit filterChanged(lineEdit()->text(), filterOptions());
-        emit filterTextChanged(lineEdit()->text());
-    };
-    connect(caseSensitiveAction, &QAction::triggered, this, emitFilterChanged);
-    connect(wholeWordsAction, &QAction::triggered, this, emitFilterChanged);
-    connect(regexAction, &QAction::triggered, this, emitFilterChanged);
+    auto emitFilterChanged = [this]() { emit filterChanged(lineEdit()->text(), filterOptions()); };
+
+    connect(caseSensitiveAction, &QAction::toggled, this, emitFilterChanged);
+    connect(Config(), &Configuration::quickFilterCaseSensitiveChanged, caseSensitiveAction, &QAction::setChecked);
+
+    connect(wholeWordsAction, &QAction::toggled, this, emitFilterChanged);
+    connect(Config(), &Configuration::quickFilterWholeWordsChanged, wholeWordsAction, &QAction::setChecked);
+
+    connect(regexAction, &QAction::toggled, this, emitFilterChanged);
+    connect(Config(), &Configuration::quickFilterRegexChanged, regexAction, &QAction::setChecked);
 
     auto *optionsAction = new QAction(this);
     const int lineEditHeight = lineEdit()->fontMetrics().height();
@@ -43,10 +50,8 @@ void AbstractFilterView::setupSharedConnections()
     debounceTimer = new QTimer(this);
     debounceTimer->setSingleShot(true);
 
-    connect(debounceTimer, &QTimer::timeout, this, [this]() {
-        emit filterChanged(lineEdit()->text(), filterOptions());
-        emit filterTextChanged(lineEdit()->text());
-    });
+    connect(debounceTimer, &QTimer::timeout, this,
+            [this]() { emit filterChanged(lineEdit()->text(), filterOptions()); });
 
     connect(lineEdit(), &QLineEdit::textChanged, this, [this]() { debounceTimer->start(150); });
 }

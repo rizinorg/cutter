@@ -187,7 +187,7 @@ TypesWidget::TypesWidget(MainWindow *main)
                 qhelpers::applyFilter(typesProxyModel, text, options);
             });
 
-    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
+    connect(ui->quickFilterView, &ComboQuickFilterView::filterChanged, this,
             [this] { ui->quickFilterView->setItemCount(typesProxyModel->rowCount()); });
 
     QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);

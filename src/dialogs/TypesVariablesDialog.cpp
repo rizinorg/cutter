@@ -173,7 +173,7 @@ TypesVariablesDialog::TypesVariablesDialog(QWidget *parent, const QString &typeN
             [this](const QString &text, int options) {
                 qhelpers::applyFilter(proxyModel, text, options);
             });
-    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this, updateCount);
+    connect(ui->quickFilterView, &ComboQuickFilterView::filterChanged, this, updateCount);
 
     connect(scopeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
             [this, scopeCombo, updateCount](int index) {

@@ -28,9 +28,10 @@ void ColorThemeComboBox::updateFromConfig(bool interfaceThemeChanged)
         }
     }
 
-    QString curTheme = interfaceThemeChanged ? Config()->getLastThemeOf(
-                               Configuration::cutterInterfaceThemesList()[curInterfaceThemeIndex])
-                                             : Config()->getColorTheme();
+    QString curTheme = interfaceThemeChanged
+            ? Config()->getLastThemeOf(
+                      Configuration::cutterInterfaceThemesList()[curInterfaceThemeIndex])
+            : Config()->getColorTheme();
     const int index = findText(curTheme);
 
     setCurrentIndex(index == -1 ? 0 : index);
