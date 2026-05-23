@@ -1,5 +1,6 @@
 #include "StringsWidget.h"
 
+#include "common/CutterSearchable.h"
 #include "common/Helpers.h"
 #include "core/MainWindow.h"
 #include "shortcuts/ShortcutManager.h"
@@ -198,8 +199,10 @@ StringsWidget::StringsWidget(MainWindow *main)
     auto menu = ui->stringsTreeView->getItemContextMenu();
     menu->addAction(ui->actionCopyString);
 
-    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, proxyModel,
-            &QSortFilterProxyModel::setFilterWildcard);
+    connect(ui->quickFilterView, &ComboQuickFilterView::filterChanged, this,
+            [this](const QString &text, int options) {
+                qhelpers::applyFilter(proxyModel, text, options);
+            });
 
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
             [this] { ui->quickFilterView->setItemCount(proxyModel->rowCount()); });

@@ -1,5 +1,6 @@
 #include "RegisterRefsWidget.h"
 
+#include "common/CutterSearchable.h"
 #include "common/Helpers.h"
 #include "core/MainWindow.h"
 #include "shortcuts/ShortcutManager.h"
@@ -147,8 +148,10 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main)
             &QuickFilterView::showFilter);
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, registerRefProxyModel,
-            &QSortFilterProxyModel::setFilterWildcard);
+    connect(ui->quickFilterView, &QuickFilterView::filterChanged, this,
+            [this](const QString &text, int options) {
+                qhelpers::applyFilter(registerRefProxyModel, text, options);
+            });
     connect(ui->quickFilterView, &QuickFilterView::filterClosed, ui->registerRefTreeView,
             [this]() { ui->registerRefTreeView->setFocus(); });
     setScrollMode();

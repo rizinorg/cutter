@@ -1,6 +1,7 @@
 #include "ProcessesWidget.h"
 
 #include "QuickFilterView.h"
+#include "common/CutterSearchable.h"
 #include "core/MainWindow.h"
 #include "shortcuts/ShortcutManager.h"
 #include "ui_ProcessesWidget.h"
@@ -51,8 +52,10 @@ ProcessesWidget::ProcessesWidget(MainWindow *main)
     });
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, modelFilter,
-            &ProcessesFilterModel::setFilterWildcard);
+    connect(ui->quickFilterView, &QuickFilterView::filterChanged, this,
+            [this](const QString &text, int options) {
+                qhelpers::applyFilter(modelFilter, text, options);
+            });
     connect(Core(), &CutterCore::refreshAll, this, &ProcessesWidget::updateContents);
     connect(Core(), &CutterCore::registersChanged, this, &ProcessesWidget::updateContents);
     connect(Core(), &CutterCore::debugTaskStateChanged, this, &ProcessesWidget::updateContents);

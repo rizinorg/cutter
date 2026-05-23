@@ -1,5 +1,6 @@
 #include "ListDockWidget.h"
 
+#include "common/CutterSearchable.h"
 #include "common/Helpers.h"
 #include "core/MainWindow.h"
 #include "shortcuts/ShortcutManager.h"
@@ -41,8 +42,10 @@ void ListDockWidget::setModels(AddressableFilterProxyModel *objectFilterProxyMod
 
     ui->treeView->setModel(static_cast<AddressableItemModelI *>(objectFilterProxyModel));
 
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, objectFilterProxyModel,
-            &QSortFilterProxyModel::setFilterWildcard);
+    connect(ui->quickFilterView, &QuickFilterView::filterChanged, this,
+            [=](const QString &text, int options) {
+                qhelpers::applyFilter(objectFilterProxyModel, text, options);
+            });
     connect(ui->quickFilterView, &QuickFilterView::filterClosed, ui->treeView,
             static_cast<void (QWidget::*)()>(&QWidget::setFocus));
 

@@ -3,6 +3,8 @@
 
 #include "ItemCountLineEdit.h"
 
+#include <QAction>
+#include <QPoint>
 #include <QTimer>
 #include <QWidget>
 
@@ -15,17 +17,19 @@ class AbstractFilterView : public QWidget
     Q_OBJECT
 public:
     explicit AbstractFilterView(QWidget *parent = nullptr);
+    virtual ~AbstractFilterView() = default;
 
     virtual void setItemCount(int count);
     virtual void showItemCount(bool show);
 
     void showFilter();
-    void clearFilter();
+    virtual void clearFilter();
 
     virtual void closeFilter();
 
 signals:
     void filterTextChanged(const QString &text);
+    void filterChanged(const QString &text, int options);
     void filterClosed();
 
 protected:
@@ -34,7 +38,13 @@ protected:
     void setupSharedConnections();
     void showCustomContextMenu(const QPoint &pos);
 
-    QTimer *debounceTimer;
+    int filterOptions() const;
+
+    QTimer *debounceTimer = nullptr;
+
+    QAction *caseSensitiveAction = nullptr;
+    QAction *wholeWordsAction = nullptr;
+    QAction *regexAction = nullptr;
 };
 
 #endif // ABSTRACTFILTERVIEW_H

@@ -1,6 +1,7 @@
 #include "common/Helpers.h"
 
 #include "Configuration.h"
+#include "CutterSearchable.h"
 
 #include <QAbstractButton>
 #include <QAbstractItemView>
@@ -10,6 +11,8 @@
 #include <QFileInfo>
 #include <QMenu>
 #include <QPlainTextEdit>
+#include <QRegularExpression>
+#include <QSortFilterProxyModel>
 #include <QString>
 #include <QTextEdit>
 #include <QTreeWidget>
@@ -294,6 +297,48 @@ bool filterStringContains(const QString &string, const QSortFilterProxyModel *mo
 #else
     return string.contains(model->filterRegularExpression());
 #endif
+}
+
+void applyFilter(QSortFilterProxyModel *proxyModel, const QString &filterText, int options)
+{
+    if (!proxyModel) {
+        return;
+    }
+
+    if (filterText.isEmpty()) {
+        proxyModel->setFilterFixedString(QString());
+        return;
+    }
+
+    QRegularExpression::PatternOptions patternOptions = QRegularExpression::NoPatternOption;
+    if (!(options & CaseSensitive)) {
+        patternOptions |= QRegularExpression::CaseInsensitiveOption;
+    }
+
+    if (options & RegExp) {
+        const QRegularExpression regExp(filterText, patternOptions);
+        if (regExp.isValid()) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+            proxyModel->setFilterRegularExpression(regExp);
+#else
+            proxyModel->setFilterRegExp(regExp.pattern());
+#endif
+        }
+    } else if (options & WholeWords) {
+        const QString pattern = QString("\\b%1\\b").arg(QRegularExpression::escape(filterText));
+        const QRegularExpression regExp(pattern, patternOptions);
+        if (regExp.isValid()) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+            proxyModel->setFilterRegularExpression(regExp);
+#else
+            proxyModel->setFilterRegExp(regExp.pattern());
+#endif
+        }
+    } else {
+        proxyModel->setFilterCaseSensitivity((options & CaseSensitive) ? Qt::CaseSensitive
+                                                                       : Qt::CaseInsensitive);
+        proxyModel->setFilterWildcard(filterText);
+    }
 }
 
 QPointF mouseEventPos(QMouseEvent *ev)

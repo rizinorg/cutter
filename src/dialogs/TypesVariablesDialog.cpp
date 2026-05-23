@@ -1,6 +1,7 @@
 #include "TypesVariablesDialog.h"
 
 #include "Cutter.h"
+#include "common/CutterSearchable.h"
 #include "ui_TypesVariablesDialog.h"
 
 QString toString(VariableScope scope)
@@ -168,8 +169,10 @@ TypesVariablesDialog::TypesVariablesDialog(QWidget *parent, const QString &typeN
 
     auto updateCount = [this]() { ui->quickFilterView->setItemCount(proxyModel->rowCount()); };
 
-    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, proxyModel,
-            &TypesVariablesProxyModel::setFilterFixedString);
+    connect(ui->quickFilterView, &ComboQuickFilterView::filterChanged, this,
+            [this](const QString &text, int options) {
+                qhelpers::applyFilter(proxyModel, text, options);
+            });
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this, updateCount);
 
     connect(scopeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
