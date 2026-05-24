@@ -253,9 +253,10 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
         tempConfig.set("asm.arch", arch).set("asm.bits", bits).set("cfg.bigendian", bigEndian);
 
         ui->hexDisasTextEdit->setPlainText(
-                selectedCommand != "" ? Core()->cmdRawAt(
-                        QString("%1 @! %2").arg(selectedCommand).arg(size), start_address)
-                                      : "");
+                selectedCommand != ""
+                        ? Core()->cmdRawAt(QString("%1 @! %2").arg(selectedCommand).arg(size),
+                                           start_address)
+                        : "");
     } else {
         // Fill the information tab hashes and entropy
         RzHashSize digestSize = 0;

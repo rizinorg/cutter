@@ -1,0 +1,46 @@
+---
+Checks: >
+  -*,
+  cppcoreguidelines-pro-type-cstyle-cast,
+  misc-const-correctness,
+  misc-unused-parameters,
+  modernize-loop-convert,
+  modernize-use-auto,
+  modernize-use-nullptr,
+  readability-braces-around-statements,
+  readability-identifier-naming,
+  readability-make-member-function-const,
+  performance-for-range-copy,
+  performance-enum-size,
+  performance-move-const-arg,
+  performance-no-automatic-move,
+  performance-noexcept-destructor,
+  performance-noexcept-move-constructor,
+  performance-noexcept-swap,
+  performance-unnecessary-copy-initialization,
+  performance-unnecessary-value-param,
+  performance-use-std-move,
+  performance-move-constructor-init
+HeaderFilterRegex: 'src/(?!.*autogen).*'
+WarningsAsErrors: '*'
+CheckOptions:
+  - key:    readability-identifier-naming.VariableCase
+    value:  camelBack
+  - key:    readability-identifier-naming.FunctionCase
+    value:  camelBack
+  - key:    readability-identifier-naming.ClassCase
+    value:  CamelCase
+  - key:    readability-identifier-naming.MemberCase
+    value:  camelBack
+  - key:   misc-const-correctness.TransformValues
+    value: 'true'
+  # required because using "-fix" puts "const" after the typename instead of before
+  - key:             misc-const-correctness.TransformValues
+    value:           'false'
+  - key:             misc-const-correctness.TransformReferences
+    value:           'false'
+  - key:             misc-const-correctness.TransformPointersAsValues
+    value:           'false'
+  - key:             misc-const-correctness.TransformPointersAsPointers
+    value:           'false'
+...

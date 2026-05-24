@@ -20,7 +20,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Cutter'
-copyright = '2020, The Cutter Developers'
+copyright = '2026, The Cutter Developers'
 author = 'The Cutter Developers'
 
 # The short X.Y version

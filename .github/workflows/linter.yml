@@ -31,7 +31,7 @@ jobs:
 
   clang-format:
     needs: changes
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: ${{ needs.changes.outputs.clang-format == 'true' }}
     steps:
     - name: Checkout repository
@@ -43,17 +43,63 @@ jobs:
     - name: Uninstall old conflicting packages
       run: sudo apt purge --assume-yes --auto-remove llvm python3-lldb-14 llvm-14
 
-    - name: Install automatic LLVM 16
-      run: wget https://apt.llvm.org/llvm.sh -O /tmp/llvm-install.sh; chmod +x /tmp/llvm-install.sh; sudo /tmp/llvm-install.sh 16
+    - name: Install automatic LLVM 20
+      run: wget https://apt.llvm.org/llvm.sh -O /tmp/llvm-install.sh; chmod +x /tmp/llvm-install.sh; sudo /tmp/llvm-install.sh 20
 
-    - name: Install clang-format-16
-      run: sudo apt --assume-yes install clang-format-16
+    - name: Install clang-format-20
+      run: sudo apt --assume-yes install clang-format-20
 
     - name: Install gitpython
       run: sudo pip install gitpython
 
     - name: Run clang-format
       run: |
-        sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-16 160
+        sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-20 200
         clang-format --version
         python scripts/clang-format.py --check --verbose
+
+  clang-tidy:
+    needs: changes
+    # if: ${{ needs.changes.outputs.code == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install Build Dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y \
+          build-essential cmake ninja-build meson \
+          qt6-base-dev qt6-tools-dev \
+          qt6-tools-dev-tools libqt6svg6-dev libqt6core5compat6-dev \
+          libqt6svgwidgets6 qt6-l10n-tools \
+          libgl1-mesa-dev libglu1-mesa-dev 
+
+    - name: Install automatic LLVM 20
+      run: wget https://apt.llvm.org/llvm.sh -O /tmp/llvm-install.sh; chmod +x /tmp/llvm-install.sh; sudo /tmp/llvm-install.sh 20
+
+    - name: Install clang-tidy-20
+      run: |
+        sudo apt --assume-yes install clang-tidy-20
+
+    - name: CMake Configuration
+      run: |
+        cmake -S . -B build \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCUTTER_QT=6 \
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+    - name: Run autogen
+      run: |
+        cmake --build build --target Cutter_autogen
+
+    - name: Run Clang-Tidy
+      run: |
+        sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-20 200
+        sudo update-alternatives --install /usr/bin/run-clang-tidy run-clang-tidy /usr/bin/run-clang-tidy-20 200
+        clang-tidy -version
+        python3 scripts/clang-tidy.py
