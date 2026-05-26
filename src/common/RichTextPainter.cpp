@@ -17,6 +17,10 @@ void RichTextPainter::paintRichText(QPainter *painter, T x, T y, T w, T h, T xin
     QPen pen;
     QPen highlightPen;
     QBrush brush(Qt::cyan);
+
+    T fontAscent = fontMetrics->ascent();
+    T baselineY = y + fontAscent;
+
     for (const CustomRichText &curRichText : richText) {
         T textWidth = fontMetrics->width(curRichText.text);
         T backgroundWidth = textWidth;
@@ -50,13 +54,9 @@ void RichTextPainter::paintRichText(QPainter *painter, T x, T y, T w, T h, T xin
             painter->setPen(pen);
             break;
         }
-        int flags = 0; // NOLINT
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        flags = Qt::TextBypassShaping;
-#endif
 
-        painter->drawText(typename Metrics<T>::Rect(x + xinc, y, w - xinc, h), flags,
-                          curRichText.text);
+        painter->drawText(QPointF(x + xinc, baselineY), curRichText.text);
+
         if (curRichText.highlight && curRichText.highlightColor.alpha()) {
             highlightPen.setColor(curRichText.highlightColor);
             highlightPen.setWidth(curRichText.highlightWidth);
