@@ -169,8 +169,7 @@ jobs:
       run: |
         python3 --version
         which python3
-        # https://github.com/rizinorg/cutter/runs/7170222817?check_suite_focus=true
-        python3 -m pip install meson # ==0.61.5
+        python3 -m pip install --no-cache-dir  meson
     - name: Prepare package id
       shell: bash
       run: |
@@ -441,9 +440,8 @@ jobs:
         brew install llvm@20 && brew link llvm@20
     - name: py dependencies
       run: |
-        #python3 -m pip install -U pip==21.3.1
-        pip install meson # ==0.61.5 # https://github.com/rizinorg/cutter/runs/7170222817?check_suite_focus=true
-        pip install setuptools
+        pip install --no-cache-dir meson
+        pip install --no-cache-dir setuptools
     - name: Prepare package id
       shell: bash
       run: |
