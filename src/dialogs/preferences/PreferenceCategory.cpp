@@ -34,6 +34,9 @@ void PreferenceCategory::addItem(QTreeWidget &tree, QStackedWidget &panel)
     w->setExpanded(true);
     w->setIcon(0, icon);
 
+    // have some space from top and bottom
+    w->setSizeHint(0, QSize(0, 22));
+
     if (widget) {
         panel.addWidget(widget);
         w->setData(0, Qt::UserRole, panel.count());

@@ -12,6 +12,7 @@
 #include <QMetaType>
 #include <QString>
 #include <QStringList>
+#include <QVariant>
 
 struct FunctionDescription
 {
@@ -440,6 +441,19 @@ struct BacktraceDescription
     QString description;
 };
 
+struct EvaluableVarDescription
+{
+    QString name;
+    QString description;
+    bool readOnly;
+
+    enum Type : ut8 { Bool = 0, Int, String, Interval, List };
+    Type type;
+
+    QVariant value; ///< Can be either QString, QStringList or RzInterval depending on type
+    QList<QString> options;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -483,5 +497,6 @@ Q_DECLARE_METATYPE(BasefindCoreStatusDescription)
 Q_DECLARE_METATYPE(BasefindResultDescription)
 Q_DECLARE_METATYPE(MarkDescription)
 Q_DECLARE_METATYPE(BacktraceDescription)
+Q_DECLARE_METATYPE(EvaluableVarDescription)
 
 #endif // DESCRIPTIONS_H

@@ -28,6 +28,8 @@ public:
 private slots:
     void pdbSelectButtonClicked();
 
+    void updateSymbolsOptions();
+
 private:
     MainWindow *mainWindow;
     std::unique_ptr<Ui::SymbolsOptionsWidget> ui;
