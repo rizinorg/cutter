@@ -3476,7 +3476,7 @@ QList<RelocDescription> CutterCore::getAllRelocs()
     return ret;
 }
 
-QList<StringDescription> CutterCore::getAllStrings()
+QList<StringDescription> CutterCore::getAllStrings(bool raw)
 {
     CORE_LOCK();
     RzBinFile *bf = rz_bin_cur(core->bin);
@@ -3488,7 +3488,13 @@ QList<StringDescription> CutterCore::getAllStrings()
         return {};
     }
 
-    const RzPVector *strings = rz_core_bin_whole_strings(core, bf);
+    const RzPVector *strings = nullptr;
+    if (raw) {
+        strings = rz_core_bin_whole_strings(core, bf);
+    } else if (auto *bf = rz_bin_cur(core->bin)) {
+        strings = rz_bin_object_get_strings(bf->o);
+    }
+
     if (!strings) {
         return {};
     }

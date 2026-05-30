@@ -745,7 +745,7 @@ public:
     QList<FlirtDescription> getSignaturesDB();
     QList<CommentDescription> getAllComments(const QString &filterType);
     QList<RelocDescription> getAllRelocs();
-    QList<StringDescription> getAllStrings();
+    QList<StringDescription> getAllStrings(bool raw);
     QList<FlagspaceDescription> getAllFlagspaces();
     QList<FlagDescription> getAllFlags(const QString &flagspace = QString());
     QList<SectionDescription> getAllSections();

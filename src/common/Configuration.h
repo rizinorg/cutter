@@ -245,6 +245,14 @@ public:
     void setPreviewValue(bool checked);
     bool getPreviewValue() const;
 
+    // Strings
+
+    /**
+     * @brief Show raw strings inside binary
+     */
+    void setShowRawStrings(bool enabled);
+    bool getShowRawStrings() const;
+
     // Tooltip
 
     /**
