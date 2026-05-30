@@ -248,7 +248,7 @@ public:
     // Strings
 
     /**
-     * @brief Show raw strings inside binary
+     * @brief Set whether to show raw strings in @ref StringsWidget
      */
     void setShowRawStrings(bool enabled);
     bool getShowRawStrings() const;

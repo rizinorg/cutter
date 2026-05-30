@@ -304,7 +304,7 @@ QVariant XrefModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case OFFSET:
-            return to ? xref.fromStr : xref.fromStr;
+            return to ? xref.fromStr : xref.toStr;
         case TYPE:
             return xrefTypeString(xref.type);
         case CODE:

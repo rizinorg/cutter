@@ -236,11 +236,6 @@ StringsWidget::StringsWidget(MainWindow *main)
     connect(ui->rawStringsCheckBox, &QCheckBox::stateChanged, this, showRawStringsChecked);
 #endif
 
-    // auto header = ui->stringsTreeView->header();
-    // header->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
-    // header->setSectionResizeMode(StringsModel::StringColumn, QHeaderView::ResizeMode::Stretch);
-    // header->setStretchLastSection(false);
-    // header->setResizeContentsPrecision(256);
 }
 
 StringsWidget::~StringsWidget() {}
