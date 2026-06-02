@@ -13,6 +13,7 @@ environment:
   ARCH: x64
   PYTHON: 'C:\Python312-x64'
   PACKAGE_NAME: cutter-git-x64.Windows
+  VCPKG_ROOT: C:\Tools\vcpkg
 
 install:
   - ps: $env:path = ($env:path -split ";").Where({!($_ -like "*Microsoft SQL Server*")}) -join ";"
@@ -27,6 +28,7 @@ install:
   - cmd: echo %PATH%
   - cmd: python -m pip install meson ninja
   - ps: choco install winflexbison3
+  - ps: vcpkg install zlib:x64-windows
   # Artifacts
   - cmd: set "ARTIFACT_PATH=build\%ARTIFACT_NAME%"
 
@@ -51,6 +53,7 @@ build_script:
        -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON
        -DCMAKE_PREFIX_PATH=%CUTTER_DEPS%\\pyside
        -DCPACK_PACKAGE_FILE_NAME=%PACKAGE_NAME%
+       -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\\scripts\\buildsystems\\vcpkg.cmake
        -G Ninja
        .."
   - cmd: cmake --build . --config Release
