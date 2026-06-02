@@ -235,7 +235,6 @@ StringsWidget::StringsWidget(MainWindow *main)
 #else
     connect(ui->rawStringsCheckBox, &QCheckBox::stateChanged, this, showRawStringsChecked);
 #endif
-
 }
 
 StringsWidget::~StringsWidget() {}
