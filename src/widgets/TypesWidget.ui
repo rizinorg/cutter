@@ -71,30 +71,6 @@
     </item>
    </layout>
   </widget>
-  <action name="actionExportTypes">
-   <property name="text">
-    <string>Export Types</string>
-   </property>
-   <property name="toolTip">
-    <string>Export Types</string>
-   </property>
-  </action>
-  <action name="actionLoadNewTypes">
-   <property name="text">
-    <string>Load New Types</string>
-   </property>
-   <property name="toolTip">
-    <string>Load New Types</string>
-   </property>
-  </action>
-  <action name="actionDeleteType">
-   <property name="text">
-    <string>Delete Type</string>
-   </property>
-   <property name="toolTip">
-    <string>Delete Type</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>

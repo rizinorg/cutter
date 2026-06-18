@@ -788,6 +788,11 @@ public:
     QList<TypeDescription> getAllTypedefs();
 
     /**
+     * @return all typeclasses
+     */
+    QList<QString> getAllTypeClasses();
+
+    /**
      * @brief Fetching the C representation of a given Type
      * @param name - the name or the type of the given Type
      * @return The type decleration as C output
@@ -806,6 +811,20 @@ public:
      * @param typeName The name of the type to be shown
      */
     void showTypeInTypesWidget(const QString &typeName);
+
+    /**
+     * @brief Renames type to @a newName and updates all of its references
+     * @param type The type to rename
+     * @param newName new name for @a type
+     */
+    void renameType(const QString &type, const QString &newName);
+
+    /**
+     * @brief Set the typeclass of a type
+     * @param type Type to set typeclass for
+     * @param typeClass Name of typeclass
+     */
+    void setTypeClass(const QString &type, const QString &typeClass);
 
     /**
      * @brief Checks if the given address is mapped to a region

@@ -1151,6 +1151,8 @@ void MainWindow::showAddress(RVA addr)
         auto memoryWidget = getOrCreateMemoryWidget(targetType, addr, true);
         memoryWidget->tryRaiseMemoryWidget();
         setCurrentMemoryWidget(memoryWidget);
+    } else {
+        Core()->showMemoryWidget();
     }
 }
 
