@@ -7,6 +7,7 @@
 #include "shortcuts/ShortcutManager.h"
 #include "ui_TypesWidget.h"
 
+#include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QIcon>
 #include <QMenu>
