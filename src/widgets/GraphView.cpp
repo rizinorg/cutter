@@ -358,7 +358,7 @@ void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale, b
             // Skips expensive polyline and arrow rendering if the edge's bounding box
             // is completely outside the current viewport. This significantly improves
             // rendering performance for large reverse-engineering control flow graphs.
-            if (!edge.polyline.boundingRect().intersects(windowF)) {
+            if (!edge.polyline.boundingRect().adjusted(-1, -1, 1, 1).intersects(windowF)) {
                 continue;
             }
             const QPolygonF polyline = edge.polyline;
