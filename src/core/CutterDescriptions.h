@@ -423,6 +423,21 @@ struct BasefindResultDescription
     quint32 score;
 };
 
+struct BinDiffMatchDescription
+{
+    FunctionDescription original;
+    FunctionDescription modified;
+    QString simtype;
+    double similarity;
+};
+
+struct BinDiffStatusDescription
+{
+    size_t total;
+    size_t nLeft;
+    size_t nMatch;
+};
+
 struct MarkDescription
 {
     RVA from;
@@ -496,6 +511,8 @@ Q_DECLARE_METATYPE(RefDescription)
 Q_DECLARE_METATYPE(VariableDescription)
 Q_DECLARE_METATYPE(BasefindCoreStatusDescription)
 Q_DECLARE_METATYPE(BasefindResultDescription)
+Q_DECLARE_METATYPE(BinDiffMatchDescription)
+Q_DECLARE_METATYPE(BinDiffStatusDescription)
 Q_DECLARE_METATYPE(MarkDescription)
 Q_DECLARE_METATYPE(BacktraceDescription)
 Q_DECLARE_METATYPE(EvaluableVarDescription)
