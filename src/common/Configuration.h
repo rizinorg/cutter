@@ -364,6 +364,9 @@ public:
     void setTruncateFunctionNameCol(bool value);
     bool getTruncateFunctionNameCol() const;
 
+    void setGlobalWidgetSwitchHistory(bool value);
+    bool getGlobalWidgetSwitchHistory() const;
+
     /**
      * @brief Set the function name column width in pixels
      *
