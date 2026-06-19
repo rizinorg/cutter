@@ -175,6 +175,12 @@ set(SOURCES
     dialogs/preferences/RizinConfigOptionsWidget.cpp
     dialogs/IntervalDialog.cpp
     dialogs/StringListDialog.cpp
+    tools/bindiff/DiffLoadDialog.cpp
+    core/BinDiff.cpp
+    core/CutterDiff.cpp
+    tools/bindiff/CutterDiffWindow.cpp
+    tools/bindiff/DiffWaitDialog.cpp
+    tools/bindiff/HexDiff.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -358,6 +364,12 @@ set(HEADER_FILES
     dialogs/preferences/RizinConfigOptionsWidget.h
     dialogs/IntervalDialog.h
     dialogs/StringListDialog.h
+    tools/bindiff/DiffLoadDialog.h
+    core/BinDiff.h
+    core/CutterDiff.h
+    tools/bindiff/CutterDiffWindow.h
+    tools/bindiff/DiffWaitDialog.h
+    tools/bindiff/HexDiff.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -442,6 +454,9 @@ set(UI_FILES
     dialogs/preferences/SymbolsOptionsWidget.ui
     dialogs/preferences/InterfaceOptionsWidget.ui
     dialogs/preferences/RizinConfigOptionsWidget.ui
+    tools/bindiff/DiffLoadDialog.ui
+    tools/bindiff/CutterDiffWindow.ui
+    tools/bindiff/DiffWaitDialog.ui
 )
 set(QRC_FILES
     resources.qrc
@@ -604,11 +619,11 @@ if (CUTTER_APPIMAGE_BUILD)
 endif()
 
 if (CUTTER_PACKAGE_JSDEC)
-	target_compile_definitions(Cutter PRIVATE CUTTER_BUNDLE_JSDEC)
+        target_compile_definitions(Cutter PRIVATE CUTTER_BUNDLE_JSDEC)
 endif()
 
 if(APPLE AND CUTTER_ENABLE_PACKAGING AND CUTTER_USE_BUNDLED_RIZIN)
-	target_compile_definitions(Cutter PRIVATE MACOS_RZ_BUNDLED)
+        target_compile_definitions(Cutter PRIVATE MACOS_RZ_BUNDLED)
 endif()
 
 if(CUTTER_ENABLE_PACKAGING)

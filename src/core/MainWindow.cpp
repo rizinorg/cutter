@@ -115,6 +115,7 @@
 
 // Tools
 #include "tools/basefind/BaseFindDialog.h"
+#include "tools/bindiff/DiffLoadDialog.h"
 
 template<class T>
 T *getNewInstance(MainWindow *m)
@@ -400,6 +401,8 @@ void MainWindow::initToolBar()
     connect(ui->actionResetSettings, &QAction::triggered, this,
             &MainWindow::onActionResetSettingsTriggered);
     connect(ui->actionTheme, &QAction::triggered, this, &MainWindow::chooseThemeIcons);
+    connect(ui->actionDiffFiles, &QAction::triggered, this,
+            &MainWindow::onActionDiffFilesTriggered);
 }
 
 void MainWindow::initDocks()
@@ -1745,6 +1748,12 @@ void MainWindow::documentationClicked()
 void MainWindow::onActionRefreshPanelsTriggered()
 {
     this->refreshAll();
+}
+
+void MainWindow::onActionDiffFilesTriggered()
+{
+    auto diffFilesDialog = new DiffLoadDialog(this);
+    diffFilesDialog->show();
 }
 
 void MainWindow::onActionAnalyzeTriggered() const
