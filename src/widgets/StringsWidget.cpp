@@ -187,7 +187,14 @@ StringsWidget::StringsWidget(MainWindow *main)
     ui->stringsTreeView->setModel(static_cast<AddressableItemModelI *>(proxyModel));
     ui->stringsTreeView->sortByColumn(-1, Qt::AscendingOrder);
 
-    //
+    ui->rawStringsCheckBox->setChecked(Config()->getShowRawStrings());
+    ui->rawStringsCheckBox->setStyleSheet("QCheckBox {"
+                                          "    padding-left: 10px;"
+                                          "    padding-right: 10px;"
+                                          "    padding-top: 5px;"
+                                          "    padding-bottom: 0px;"
+                                          "}");
+
     auto menu = ui->stringsTreeView->getItemContextMenu();
     menu->addAction(ui->actionCopyString);
 
@@ -219,11 +226,15 @@ StringsWidget::StringsWidget(MainWindow *main)
         ui->quickFilterView->setItemCount(proxyModel->rowCount());
     });
 
-    auto header = ui->stringsTreeView->header();
-    header->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
-    header->setSectionResizeMode(StringsModel::StringColumn, QHeaderView::ResizeMode::Stretch);
-    header->setStretchLastSection(false);
-    header->setResizeContentsPrecision(256);
+    auto showRawStringsChecked = [this](bool checked) {
+        Config()->setShowRawStrings(checked);
+        refreshStrings();
+    };
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    connect(ui->rawStringsCheckBox, &QCheckBox::checkStateChanged, this, showRawStringsChecked);
+#else
+    connect(ui->rawStringsCheckBox, &QCheckBox::stateChanged, this, showRawStringsChecked);
+#endif
 }
 
 StringsWidget::~StringsWidget() {}
@@ -234,7 +245,7 @@ void StringsWidget::refreshStrings()
         task->wait();
     }
 
-    task = std::shared_ptr<StringsTask>(new StringsTask());
+    task = std::shared_ptr<StringsTask>(new StringsTask(ui->rawStringsCheckBox->isChecked()));
     connect(task.get(), &StringsTask::stringSearchFinished, this,
             &StringsWidget::stringSearchFinished);
     Core()->getAsyncTaskManager()->start(task);
@@ -261,6 +272,8 @@ void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings
     model->beginResetModel();
     model->strings = strings;
     model->endResetModel();
+
+    qhelpers::adjustColumns(ui->stringsTreeView, StringsModel::ColumnCount, 0);
 
     // set the initial item count
     ui->quickFilterView->setItemCount(proxyModel->rowCount());
