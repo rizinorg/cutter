@@ -105,7 +105,6 @@ jobs:
       run: |
         # install needed packages
         apt-get -y install libgraphviz-dev \
-                           libzip-dev \ 
                            mesa-common-dev \
                            libxkbcommon-x11-dev \
                            ninja-build \
@@ -633,7 +632,6 @@ jobs:
       if: contains(matrix.name, 'linux')
       run: |
         sudo apt-get -y install libxcb1-dev \
-                    libzip-dev \
                     libxkbcommon-dev \
                     libxcb-*-dev \
                     libegl1 \
