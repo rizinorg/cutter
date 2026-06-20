@@ -57,10 +57,18 @@ void BinDiff::run()
     continueRun = true;
     maxTotal = 1; // maxTotal must be at least 1.
     mutex.unlock();
+<<<<<<< HEAD
 
     result = Core()->diffNewFile(file, level, compareLogic, threadCallback, this);
 
     Core()->diffData.setAnalysisMatchResult(result);
+=======
+    cutterDiff->initCores();
+    cutterDiff->openFiles(fileA,fileB);
+    cutterDiff->analyzeCores(level);
+    cutterDiff->syncConfig();
+    result = cutterDiff->matchFunctions(compareLogic, threadCallback, this);
+>>>>>>> 587a4b6e (Cutter Diff)
 
     mutex.lock();
     const bool canComplete = continueRun;

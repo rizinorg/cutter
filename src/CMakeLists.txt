@@ -532,7 +532,9 @@ endif()
 set(CUTTER_SOURCES ${OPTIONS} ${UI_FILES} ${QRC_FILES} ${PLATFORM_RESOURCES} ${SOURCES} ${HEADER_FILES})
 source_group(TREE "${CMAKE_CURRENT_LIST_DIR}" FILES ${CUTTER_SOURCES})
 
-add_executable(Cutter ${CUTTER_SOURCES} ${BINDINGS_SOURCE})
+add_executable(Cutter ${CUTTER_SOURCES} ${BINDINGS_SOURCE}
+    tools/bindiff/CutterDiffWindow.h tools/bindiff/CutterDiffWindow.cpp tools/bindiff/CutterDiffWindow.ui
+)
 set_target_properties(Cutter PROPERTIES
         OUTPUT_NAME cutter
         RUNTIME_OUTPUT_DIRECTORY ..
