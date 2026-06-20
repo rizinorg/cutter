@@ -18,6 +18,8 @@ if (CUTTER_ENABLE_PACKAGING)
     list(APPEND MESON_OPTIONS "-Dportable=true")
 endif()
 
+list(APPEND MESON_OPTIONS "-Duse_sys_libzip=enabled")
+git 
 if (CUTTER_ENABLE_SIGDB)
     list(APPEND MESON_OPTIONS "-Dinstall_sigdb=true")
 endif()
