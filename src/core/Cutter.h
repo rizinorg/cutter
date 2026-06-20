@@ -816,6 +816,7 @@ public:
      * @brief Renames type to @a newName and updates all of its references
      * @param from The type to rename
      * @param to New name for type
+     */
     void renameType(const QString &from, const QString &to);
 
     /**
