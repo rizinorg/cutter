@@ -10,9 +10,7 @@
 #include <utility>
 
 TypesInteractionDialog::TypesInteractionDialog(QWidget *parent, bool readOnly)
-    : QDialog(parent),
-      ui(new Ui::TypesInteractionDialog),
-      syntaxHighLighter(Config()->createSyntaxHighlighter(ui->plainTextEdit->document()))
+    : QDialog(parent), ui(new Ui::TypesInteractionDialog)
 {
     ui->setupUi(this);
     const QFont font = Config()->getBaseFont();
@@ -24,6 +22,8 @@ TypesInteractionDialog::TypesInteractionDialog(QWidget *parent, bool readOnly)
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     ui->plainTextEdit->setReadOnly(readOnly);
+
+    syntaxHighLighter = Config()->createSyntaxHighlighter(ui->plainTextEdit->document());
 
     connect(ui->selectFileButton, &QPushButton::clicked, this,
             &TypesInteractionDialog::onSelectFileButtonClicked);

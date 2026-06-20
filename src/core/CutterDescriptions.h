@@ -79,6 +79,7 @@ struct TypeDescription
     int size;
     QString format;
     QString category;
+    QString typeClass;
 };
 
 struct SearchDescription
