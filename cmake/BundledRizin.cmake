@@ -19,7 +19,7 @@ if (CUTTER_ENABLE_PACKAGING)
 endif()
 
 list(APPEND MESON_OPTIONS "-Duse_sys_libzip=enabled")
-git 
+
 if (CUTTER_ENABLE_SIGDB)
     list(APPEND MESON_OPTIONS "-Dinstall_sigdb=true")
 endif()
