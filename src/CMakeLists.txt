@@ -611,6 +611,12 @@ if(CUTTER_ENABLE_PYTHON)
     endif()
 endif()
 
+if(CUTTER_ASAN)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdiagnostics-color=always -fsanitize=address,undefined -fno-omit-frame-pointer -fsanitize-address-use-after-scope")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color=always -fsanitize=address,undefined -fno-omit-frame-pointer -fsanitize-address-use-after-scope")
+    set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fdiagnostics-color=always -fsanitize=address,undefined -fno-omit-frame-pointer -fsanitize-address-use-after-scope")
+endif()
+
 if(TARGET KF${CUTTER_QT}::SyntaxHighlighting)
     target_link_libraries(Cutter PRIVATE KF${CUTTER_QT}::SyntaxHighlighting)
     target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_KSYNTAXHIGHLIGHTING)

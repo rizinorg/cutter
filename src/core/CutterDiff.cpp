@@ -2,15 +2,28 @@
 
 #include "Configuration.h"
 
-CutterDiff::CutterDiff(QObject *parent) : QObject { parent } {}
+#include <QMutexLocker>
 
-CutterDiff::~CutterDiff(){
+#define LOCK() const QMutexLocker locker(&mutex)
+
+CutterDiff::CutterDiff(QObject *parent)
+    : QObject { parent }
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+      ,
+      mutex(QMutex::Recursive)
+#endif
+{
+}
+
+CutterDiff::~CutterDiff()
+{
     rz_core_free(coreA);
     rz_core_free(coreB);
 }
 
-bool CutterDiff::initCores(){
-    mutex.lock();
+bool CutterDiff::initCores()
+{
+    LOCK();
 
     rz_core_free(coreA);
     rz_core_free(coreB);
@@ -18,7 +31,7 @@ bool CutterDiff::initCores(){
     coreA = rz_core_new();
     coreB = rz_core_new();
 
-    if(!(coreA||coreB)){
+    if (!(coreA || coreB)) {
         goto fail;
     }
 
@@ -27,17 +40,17 @@ bool CutterDiff::initCores(){
 
     coreA->print->scr_prompt = false;
     coreB->print->scr_prompt = false;
-    mutex.unlock();
     return true;
 fail:
     rz_core_free(coreA);
     rz_core_free(coreB);
-    mutex.unlock();
     return false;
 }
 
-bool CutterDiff::openFiles(const QString &fileA, const QString &fileB){
-    mutex.lock();
+bool CutterDiff::openFiles(const QString &fileA, const QString &fileB)
+{
+
+    LOCK();
     // open core files
     if (!rz_core_file_open(coreA, fileA.toUtf8().constData(), RZ_PERM_RX, 0)) {
         qWarning() << tr("cannot open file %1").arg(fileA);
@@ -69,16 +82,15 @@ bool CutterDiff::openFiles(const QString &fileA, const QString &fileB){
         goto fail;
     }
     syncConfig();
-    mutex.unlock();
     return true;
 fail:
     rz_core_file_close_all_but(coreA);
     rz_core_file_close_all_but(coreB);
-    mutex.unlock();
     return false;
 }
 
-void CutterDiff::syncConfig(){
+void CutterDiff::syncConfig()
+{
     RzConfigEntry *var;
     RzConfigNode *node;
     RzCoreLocked core(Core());
@@ -96,8 +108,9 @@ void CutterDiff::syncConfig(){
     }
 }
 
-bool CutterDiff::analyzeCores(int level){
-    mutex.lock();
+bool CutterDiff::analyzeCores(int level)
+{
+    LOCK();
     if (!rz_core_analysis_all(coreA)) {
         qWarning() << tr("cannot perform basic analysis of the binary fileA");
         goto fail;
@@ -118,18 +131,17 @@ bool CutterDiff::analyzeCores(int level){
         qWarning() << tr("cannot perform complete analysis of the binaryB");
         goto fail;
     }
+    return true;
 fail:
-    mutex.unlock();
     return false;
 }
 
 QList<FunctionDescription> CutterDiff::getFunctionList(bool orig)
 {
-    mutex.lock();
+    LOCK();
     QList<FunctionDescription> list;
     const RzList *functions = rz_analysis_function_list(orig ? coreA->analysis : coreB->analysis);
     if (!functions) {
-        mutex.unlock();
         return list;
     }
     RzAnalysisFunction *func = nullptr;
@@ -147,17 +159,16 @@ QList<FunctionDescription> CutterDiff::getFunctionList(bool orig)
         desc.stackframe = func->maxstack;
         list.push_back(desc);
     }
-    mutex.unlock();
     return list;
 }
 
 #define IS_IMPORT(name)                                                                            \
-(name.startsWith("sym.imp.") || name.startsWith("loc.imp.") || name.startsWith("imp."))
+    (name.startsWith("sym.imp.") || name.startsWith("loc.imp.") || name.startsWith("imp."))
 #define IS_SYMBOL(name, pfx) (IS_IMPORT(name) || name.startsWith(pfx))
 
 RzList *CutterDiff::getFunctions(RzAnalysis *analysis, int compareLogic)
 {
-
+    LOCK();
     const RzList *functions = rz_analysis_function_list(analysis);
     if (!functions) {
         return nullptr;
@@ -191,11 +202,30 @@ RzList *CutterDiff::getFunctions(RzAnalysis *analysis, int compareLogic)
     return list;
 }
 
-
-
-RzAnalysisMatchResult *CutterDiff::matchFunctions(int compareLogic,RzAnalysisMatchThreadInfoCb callback, void *user)
+QByteArray CutterDiff::ioRead(RVA addr, int len, bool orig)
 {
-    mutex.lock();
+    LOCK();
+    const RzCore *core = orig ? coreA : coreB;
+    QByteArray array;
+
+    if (len <= 0) {
+        return array;
+    }
+
+    /* Zero-copy */
+    array.resize(len);
+    if (!core || !core->io
+        || !rz_io_read_at_mapped(core->io, addr, reinterpret_cast<ut8 *>(array.data()), len)) {
+        array.fill(0xff);
+    }
+
+    return array;
+}
+
+RzAnalysisMatchResult *CutterDiff::matchFunctions(int compareLogic,
+                                                  RzAnalysisMatchThreadInfoCb callback, void *user)
+{
+    LOCK();
     RzList *fcnsA = nullptr, *fcnsB = nullptr;
     RzAnalysisMatchResult *result = nullptr;
     RzAnalysisMatchOpt opts;
@@ -217,7 +247,7 @@ RzAnalysisMatchResult *CutterDiff::matchFunctions(int compareLogic,RzAnalysisMat
     opts.callback = callback;
     opts.user = user;
 
-           // calculate all the matches between the functions of the 2 different core files.
+    // calculate all the matches between the functions of the 2 different core files.
     result = rz_analysis_match_functions(fcnsA, fcnsB, &opts);
     if (!result) {
         qWarning() << tr("failed to perform the function matching operation or job was cancelled.");
@@ -234,4 +264,49 @@ fail:
     rz_list_free(fcnsB);
     // rz_core_file_close_all_but(diffCore);
     return nullptr;
+}
+
+QString CutterDiff::getCommentAt(RVA addr, bool orig)
+{
+    LOCK();
+    const RzCore *core = orig ? coreA : coreB;
+    if (!core->analysis) {
+        return "";
+    }
+    return rz_meta_get_string(core->analysis, RZ_META_TYPE_COMMENT, addr);
+}
+
+QString CutterDiff::listFlagsAsStringAt(RVA addr, bool orig)
+{
+    LOCK();
+    const RzCore *core = orig ? coreA : coreB;
+    if (!core || !core->flags) {
+        return "";
+    }
+    char *flagList = rz_flag_get_liststr(core->flags, addr);
+    QString result = fromOwnedCharPtr(flagList);
+    return result;
+}
+
+bool CutterDiff::cmpBytesAt(RVA addrA, RVA addrB, size_t len)
+{
+    LOCK();
+    if (len <= 0) {
+        return true;
+    }
+    if (!coreA || !coreB || !coreA->io || !coreB->io) {
+        qWarning() << "Cores not initialized";
+        return false;
+    }
+    QByteArray bufA;
+    bufA.resize(len);
+    QByteArray bufB;
+    bufB.resize(len);
+
+    if (!rz_io_read_at_mapped(coreA->io, addrA, reinterpret_cast<ut8 *>(bufA.data()), len)
+        || !rz_io_read_at_mapped(coreB->io, addrB, reinterpret_cast<ut8 *>(bufB.data()), len)) {
+        qWarning() << "Read failed";
+        return false;
+    };
+    return bufA.compare(bufB) == 0;
 }

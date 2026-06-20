@@ -35,7 +35,7 @@ constexpr int maxLineWidthBytes = 128 * 1024;
 constexpr int warningTimeMs = 500;
 }
 
-HexDiff::HexDiff(QWidget *parent)
+HexDiff::HexDiff(CutterDiff *cutterDiff, QWidget *parent)
     : QScrollArea(parent),
       cursorEnabled(true),
       cursorArea(DiffArea::ItemA),
@@ -52,7 +52,8 @@ HexDiff::HexDiff(QWidget *parent)
       showExHex(true),
       showExAddr(true),
       warningTimer(this),
-      vScrollBar(new AddressRangeScrollBar(this))
+      vScrollBar(new AddressRangeScrollBar(this)),
+      cutterDiff(cutterDiff)
 {
     setMouseTracking(true);
     setFocusPolicy(Qt::FocusPolicy::StrongFocus);
@@ -155,8 +156,8 @@ HexDiff::HexDiff(QWidget *parent)
 
     startAddress = 0ULL;
     cursor.address = 0ULL;
-    ctxA.data.reset(new MemoryData());
-    ctxB.data.reset(new MemoryData());
+    ctxA.data.reset(new MemoryDiffData(cutterDiff, true));
+    ctxB.data.reset(new MemoryDiffData(cutterDiff, false));
     ctxA.file = DiffFile::A;
     ctxB.file = DiffFile::B;
 
@@ -343,8 +344,15 @@ HexDiff::Selection HexDiff::getSelection()
     return Selection { selection.isEmpty(), selection.start(), selection.end() };
 }
 
-void HexDiff::seek(uint64_t address)
+void HexDiff::seek(uint64_t address, bool orig)
 {
+    if (!orig) {
+        if (relTranspose >= 0) {
+            address -= static_cast<uint64_t>(relTranspose);
+        } else {
+            address += static_cast<uint64_t>(-relTranspose);
+        }
+    }
     if (cursorArea > 1) {
         // when other widget causes seek to the middle of word
         // switch to ascii column which operates with byte positions
@@ -972,7 +980,7 @@ void HexDiff::drawAddrArea(QPainter &painter, DiffFileContext &ctx)
 
 uint64_t HexDiff::ctxAddr(uint64_t addrA, DiffFileContext &ctx)
 {
-    if (ctxA.file == DiffFile::A) {
+    if (ctx.file == DiffFile::A) {
         return getAddressB(addrA);
     }
     return addrA;
@@ -1024,16 +1032,30 @@ void HexDiff::drawItemArea(QPainter &painter, DiffFileContext &ctx)
                     itemColor = palette().highlightedText().color();
                 }
 
+                if (ctx.file == DiffFile::A && diffItemsAt(itemAddr)) {
+                    itemColor = warningColor;
+                }
+
+                if (ctx.file == DiffFile::B && diffItemsAt(getAddressA(itemAddr))) {
+                    itemColor = warningColor;
+                }
+
                 painter.setPen(itemColor);
                 painter.drawText(itemRect, Qt::AlignVCenter, itemString);
                 itemRect.translate(itemWidth(), 0);
-                if (ctx.file == DiffFile::A && itemAddr == cursor.address) {
-                    itemCursor.cachedChar = itemString.at(0);
-                    itemCursor.cachedColor = itemColor;
+
+                if (ctx.file == DiffFile::A) {
+                    if (itemAddr == cursor.address) {
+                        itemCursor.cachedChar = itemString.at(0);
+                        itemCursor.cachedColor = itemColor;
+                    }
                 }
-                if (ctx.file == DiffFile::B && itemAddr == getAddressB(cursor.address)) {
-                    itemCursor.cachedCharB = itemString.at(0);
-                    itemCursor.cachedColorB = itemColor;
+
+                if (ctx.file == DiffFile::B) {
+                    if (itemAddr == getAddressB(cursor.address)) {
+                        itemCursor.cachedCharB = itemString.at(0);
+                        itemCursor.cachedColorB = itemColor;
+                    }
                 }
             }
             itemRect.translate(columnSpacingWidth(), 0);
@@ -1065,6 +1087,13 @@ void HexDiff::drawAsciiArea(QPainter &painter, DiffFileContext &ctx)
             ascii = renderAscii(address - addr, ctx, &color);
             if (selection.contains(address) && cursorArea < 2) {
                 color = palette().highlightedText().color();
+            }
+            if (ctx.file == DiffFile::A && diffItemsAt(address)) {
+                color = warningColor;
+            }
+
+            if (ctx.file == DiffFile::B && diffItemsAt(getAddressA(address))) {
+                color = warningColor;
             }
             painter.setPen(color);
             /* Dots look ugly. Use fillRect() instead of drawText(). */
@@ -1596,10 +1625,10 @@ QChar HexDiff::renderAscii(int offset, DiffFileContext &ctx, QColor *color)
  */
 QString HexDiff::getFlagsAndComment(uint64_t address, DiffFileContext &ctx)
 { // Needs to be redefined using BinDiffClass so that it can be used for both cores
-    const QString flagNames = Core()->listFlagsAsStringAt(address);
+    const QString flagNames = cutterDiff->listFlagsAsStringAt(address, ctx.file == DiffFile::A);
     QString metaData = flagNames.isEmpty() ? "" : "Flags: " + flagNames.trimmed();
 
-    const QString comment = Core()->getCommentAt(address);
+    const QString comment = cutterDiff->getCommentAt(address, ctx.file == DiffFile::A);
     if (!comment.isEmpty()) {
         if (!metaData.isEmpty()) {
             metaData.append("\n");

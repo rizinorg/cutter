@@ -55,7 +55,6 @@ void DiffWaitDialog::show(QString original, QString modified, int level, int com
     timer.start(1000);
 
     bDiff->start();
-    qInfo() << "started";
     this->QDialog::show();
 }
 

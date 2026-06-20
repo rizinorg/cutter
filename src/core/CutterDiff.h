@@ -1,14 +1,12 @@
 #ifndef CUTTERDIFF_H
 #define CUTTERDIFF_H
 
-#include <QObject>
-#include <QMutex>
-
-
-#include "RizinCpp.h"
-#include "CutterCommon.h"
 #include "Cutter.h"
+#include "CutterCommon.h"
+#include "RizinCpp.h"
 
+#include <QMutex>
+#include <QObject>
 
 class RzDiffCoreLocked;
 
@@ -24,11 +22,7 @@ public:
     void syncConfig();
     RzAnalysisMatchResult *matchFunctions(int compareLogic, RzAnalysisMatchThreadInfoCb callback,
                                           void *user);
-    enum : ut8 {
-        AnalysisLevelSymbols,
-        AnalysisLevelAuto,
-        AnalysisLevelExperimental
-    };
+    enum : ut8 { AnalysisLevelSymbols, AnalysisLevelAuto, AnalysisLevelExperimental };
 
     enum : ut8 {
         CompareLogicDefault = 0, ///< Only symbols and functions (no imports)
@@ -36,13 +30,20 @@ public:
         CompareLogicSymbols, ///< Only symbols
     };
     QList<FunctionDescription> getFunctionList(bool orig = true);
+    QByteArray ioRead(RVA addr, int len, bool orig);
+    RzList *getFunctions(RzAnalysis *analysis, int compareLogic);
+    QString getCommentAt(RVA addr, bool orig);
+    QString listFlagsAsStringAt(RVA addr, bool orig);
+    bool cmpBytesAt(RVA addrA, RVA addrB, size_t len);
 
 private:
     RzCore *coreA = nullptr;
     RzCore *coreB = nullptr;
-    void storeFunctions();
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+    QMutex mutex;
+#else
     QRecursiveMutex mutex;
-    RzList *getFunctions(RzAnalysis *analysis, int compareLogic);
+#endif
 signals:
 };
 
