@@ -814,10 +814,10 @@ public:
 
     /**
      * @brief Renames type to @a newName and updates all of its references
-     * @param type The type to rename
-     * @param newName new name for @a type
+     * @param from The type to rename
+     * @param to new name for @a type
      */
-    void renameType(const QString &type, const QString &newName);
+    void renameType(const QString &from, const QString &to);
 
     /**
      * @brief Set the typeclass of a type

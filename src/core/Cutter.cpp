@@ -5361,42 +5361,11 @@ void CutterCore::showTypeInTypesWidget(const QString &typeName)
     emit showTypeRequested(typeName);
 }
 
-void CutterCore::renameType(const QString &type, const QString &newName)
+void CutterCore::renameType(const QString &from, const QString &to)
 {
     CORE_LOCK();
 
-    RzTypeDB *typedb = rz_analysis_get_type_db(core->analysis);
-
-    const QByteArray fromBytes = type.toUtf8();
-    const QByteArray toBytes = newName.toUtf8();
-
-    const char *from = fromBytes.constData();
-    const char *to = toBytes.constData();
-
-    if (!rz_type_db_rename_base_type(typedb, from, to)) {
-        return;
-    }
-
-    // Global variables (as reported by `avg`).
-    RzList *globals = rz_analysis_var_global_get_all(core->analysis);
-    if (globals) {
-        for (const auto &glob : CutterRzList<RzAnalysisVarGlobal>(globals)) {
-            rz_type_rename_references(glob->type, from, to);
-        }
-        rz_list_free(globals);
-    }
-
-    // Function signatures (return type and arguments) and local variables.
-    const RzList *fcns = rz_analysis_function_list(core->analysis);
-    for (const auto &fcn : CutterRzList<RzAnalysisFunction>(fcns)) {
-        rz_type_rename_references(fcn->ret_type, from, to);
-
-        for (const auto &var : CutterPVector<RzAnalysisVar>(&fcn->vars)) {
-            if (var) {
-                rz_type_rename_references(var->type, from, to);
-            }
-        }
-    }
+    rz_core_types_rename(core, from.toUtf8().constData(), to.toUtf8().constData());
 
     emit functionsChanged();
     emit globalVarsChanged();
