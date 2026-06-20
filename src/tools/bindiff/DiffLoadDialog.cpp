@@ -2,13 +2,16 @@
 
 #include "ui_DiffLoadDialog.h"
 
+#include <QDialogButtonBox>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QMessageBox>
 
 #include <core/Cutter.h>
 #include <rz_th.h>
 
-DiffLoadDialog::DiffLoadDialog(QWidget *parent) : QDialog(parent), ui(new Ui::DiffLoadDialog)
+DiffLoadDialog::DiffLoadDialog(BinDiff *bDiff, QWidget *parent)
+    : QDialog(parent), bDiff(bDiff), ui(new Ui::DiffLoadDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -32,6 +35,7 @@ DiffLoadDialog::DiffLoadDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Di
             &DiffLoadDialog::onButtonFileAOpenClicked);
     connect(ui->buttonFileBOpen, &QPushButton::clicked, this,
             &DiffLoadDialog::onButtonFileBOpenClicked);
+    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &DiffLoadDialog::onButtonBoxAccepted);
 
     auto index = ui->comboBoxAnalysis->findData(tr("Auto"), Qt::DisplayRole);
     ui->comboBoxAnalysis->setCurrentIndex(index);
@@ -75,6 +79,14 @@ void DiffLoadDialog::onButtonFileAOpenClicked()
         return;
     }
 
+    const QFileInfo info(fileName);
+
+    if (!info.exists() || !info.isFile()) {
+        QMessageBox::warning(this, tr("Invalid Path"),
+                             tr("Given file path for File A is not valid."));
+        return;
+    }
+
     ui->lineEditFileB->setText(fileName);
 }
 
@@ -93,13 +105,31 @@ void DiffLoadDialog::onButtonFileBOpenClicked()
     if (fileName.isEmpty()) {
         return;
     }
+    const QFileInfo info(fileName);
+
+    if (!info.exists() || !info.isFile()) {
+        QMessageBox::warning(this, tr("Invalid Path"),
+                             tr("Given file path for File B is not valid."));
+        return;
+    }
 
     ui->lineEditFileA->setText(fileName);
 }
 
 void DiffLoadDialog::onButtonBoxAccepted()
 {
-    // Check files exists
+    if (ui->lineEditFileA->text().isEmpty()) {
+        QMessageBox::warning(this, tr("Empty FileA"), tr("Select a file for diffing."));
+        return;
+    }
+    if (ui->lineEditFileB->text().isEmpty()) {
+        QMessageBox::warning(this, tr("Empty FileB"), tr("Select a file for diffing."));
+        return;
+    }
+    auto waitDialog = new DiffWaitDialog(bDiff, this);
+    waitDialog->show(ui->lineEditFileA->text(), ui->lineEditFileB->text(),
+                     ui->comboBoxAnalysis->currentIndex(), ui->comboBoxCompare->currentIndex());
+    printf("hello world");
     emit startDiffing();
 }
 

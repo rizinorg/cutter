@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CutterDiffWindow</class>
+ <widget class="QMainWindow" name="CutterDiffWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item>
+     <widget class="QSplitter" name="splitter_2">
+      <property name="minimumSize">
+       <size>
+        <width>300</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="baseSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Orientation::Horizontal</enum>
+      </property>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
+      <widget class="QSplitter" name="functionsMenu">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>200</height>
+        </size>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Orientation::Vertical</enum>
+       </property>
+       <widget class="QWidget" name="">
+        <layout class="QVBoxLayout" name="aVBox">
+         <item>
+          <widget class="QLabel" name="fcnsALabel">
+           <property name="text">
+            <string>Functions A</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="fcnsAContainer">
+           <item>
+            <widget class="CutterTreeView" name="treeViewFcnsA"/>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="">
+        <layout class="QVBoxLayout" name="bVBox">
+         <item>
+          <widget class="QLabel" name="fcnsBLabel">
+           <property name="text">
+            <string>Functions B</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="fcnsBContainer">
+           <item>
+            <widget class="CutterTreeView" name="treeViewFcnsB"/>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QTabWidget" name="tabWidget">
+       <property name="currentIndex">
+        <number>3</number>
+       </property>
+       <widget class="QWidget" name="tabMatches">
+        <attribute name="title">
+         <string>Match Results</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="CutterTreeView" name="treeViewMatches"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tabAdded">
+        <attribute name="title">
+         <string>Added</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="CutterTreeView" name="treeViewAdded"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tabRemoved">
+        <attribute name="title">
+         <string>Removed</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="CutterTreeView" name="treeViewRemoved"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab">
+        <attribute name="title">
+         <string>Page</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="HexDiff" name="hexDiffTextView" native="true"/>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionDiffNewFiles"/>
+   </widget>
+   <addaction name="menuFile"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionDiffNewFiles">
+   <property name="text">
+    <string>Diff New Files</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CutterTreeView</class>
+   <extends>QTreeView</extends>
+   <header>widgets/CutterTreeView.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>HexDiff</class>
+   <extends>QWidget</extends>
+   <header location="global">tools/bindiff/HexDiff.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,9 +1,12 @@
 #ifndef DIFF_LOAD_DIALOG_H
 #define DIFF_LOAD_DIALOG_H
 
+#include "DiffWaitDialog.h"
+
 #include <QDialog>
 #include <QListWidgetItem>
 
+#include <BinDiff.h>
 #include <core/Cutter.h>
 #include <memory>
 
@@ -16,7 +19,7 @@ class DiffLoadDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit DiffLoadDialog(QWidget *parent = nullptr);
+    explicit DiffLoadDialog(BinDiff *bDiff, QWidget *parent = nullptr);
     ~DiffLoadDialog();
 
     QString getFileA() const;
@@ -35,6 +38,7 @@ private slots:
 
 private:
     std::unique_ptr<Ui::DiffLoadDialog> ui;
+    BinDiff *bDiff;
 };
 
 #endif // DIFF_LOAD_DIALOG_H
