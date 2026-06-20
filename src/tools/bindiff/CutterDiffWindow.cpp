@@ -9,18 +9,33 @@ FunctionListModel::FunctionListModel(QList<FunctionDescription> *list, QObject *
     : list(list), AddressableItemModel<>(parent)
 {
 }
-QModelIndex FunctionListModel::index(int row, int column, const QModelIndex &) const
+QModelIndex FunctionListModel::index(int row, int column, const QModelIndex &parent) const
 {
-    return createIndex(row, column, (quintptr)0);
+    if (parent.isValid()) {
+        return QModelIndex();
+    }
+
+    if (row < 0 || row >= list->size()) {
+        return QModelIndex();
+    }
+
+    if (column < 0 || column >= ColumnCount) {
+        return QModelIndex();
+    }
+
+    return createIndex(row, column);
 }
 
 QModelIndex FunctionListModel::parent(const QModelIndex &) const
 {
-    return this->index(0, 0);
+    return QModelIndex();
 }
 
-int FunctionListModel::rowCount(const QModelIndex &) const
+int FunctionListModel::rowCount(const QModelIndex &parent) const
 {
+    if (parent.isValid()) {
+        return 0;
+    }
     return list->size();
 }
 
@@ -31,6 +46,14 @@ int FunctionListModel::columnCount(const QModelIndex &) const
 
 QVariant FunctionListModel::data(const QModelIndex &index, int role) const
 {
+    if (!index.isValid()) {
+        return QVariant();
+    }
+
+    if (index.row() < 0 || index.row() >= list->size()) {
+        return QVariant();
+    }
+
     switch (role) {
     case Qt::DisplayRole:
         switch (index.column()) {
@@ -92,9 +115,13 @@ DiffMatchModel::DiffMatchModel(QList<BinDiffMatchDescription> *list, QColor cPer
 {
 }
 
-int DiffMatchModel::rowCount(const QModelIndex &) const
+int DiffMatchModel::rowCount(const QModelIndex &parent) const
 {
-    return list->count();
+    if (parent.isValid()) {
+        return 0;
+    }
+
+    return list->size();
 }
 
 int DiffMatchModel::columnCount(const QModelIndex &) const
@@ -293,12 +320,15 @@ CutterDiffWindow::CutterDiffWindow(QWidget *parent)
       ui(new Ui::CutterDiffWindow)
 {
     ui->setupUi(this);
+    ui->splitter->setSizes({ 250, 750 });
+    ui->splitter->setStretchFactor(0, 1);
+    ui->splitter->setStretchFactor(1, 3);
     cutterDiff->initCores();
     connect(bDiff, &BinDiff::complete, this, &CutterDiffWindow::onBinDiffCompleted);
     connect(ui->actionDiffNewFiles, &QAction::triggered, this,
             &CutterDiffWindow::onActionDiffNewFile);
+    ui->tabWidget2->hide();
     setupFonts();
-    refreshHex(RVA_INVALID);
 }
 
 CutterDiffWindow::~CutterDiffWindow()
@@ -306,19 +336,15 @@ CutterDiffWindow::~CutterDiffWindow()
     delete ui;
 }
 
-void CutterDiffWindow::setupFonts()
-{
-    const QFont font = Config()->getFont();
-    ui->hexDiffTextView->setMonospaceFont(font);
-}
+void CutterDiffWindow::setupFonts() {}
 
 void CutterDiffWindow::refreshHex(RVA addr)
 {
-    if (addr != RVA_INVALID) {
-        ui->hexDiffTextView->seek(addr);
-    } else {
-        ui->hexDiffTextView->refresh();
-    }
+    // if (addr != RVA_INVALID) {
+    //     ui->hexDiffTextView->seek(addr);
+    // } else {
+    //     ui->hexDiffTextView->refresh();
+    // }
 }
 
 void CutterDiffWindow::onBinDiffCompleted()
@@ -350,17 +376,40 @@ void CutterDiffWindow::onBinDiffCompleted()
     ui->treeViewAdded->sortByColumn(DiffMismatchModel::FuncName, Qt::AscendingOrder);
     ui->treeViewAdded->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    // fcnsA = cutterDiff->getFunctionList(true);
-    // fcnsB = cutterDiff->getFunctionList(false);
-    // modelA = new FunctionListModel(&fcnsA,this);
-    // modelB = new FunctionListModel(&fcnsB,this);
+    fcnsA = cutterDiff->getFunctionList(true);
+    fcnsB = cutterDiff->getFunctionList(false);
+    modelA = new FunctionListModel(&fcnsA, this);
+    modelB = new FunctionListModel(&fcnsB, this);
 
-    // ui->treeViewFcnsA->setModel(modelA);
-    // ui->treeViewFcnsB->setModel(modelB);
+    ui->treeViewFcnsA->setModel(modelA);
+    ui->treeViewFcnsB->setModel(modelB);
+    addHexDiff();
+    connect(ui->treeViewFcnsA, &CutterTreeView::clicked, this,
+            [this](const QModelIndex &index) { hexDiff->seek(modelA->address(index), true); });
+    connect(ui->treeViewFcnsB, &CutterTreeView::clicked, this,
+            [this](const QModelIndex &index) { hexDiff->seek(modelB->address(index), false); });
+
+    // Transpose
+
+    connect(ui->shiftUpA, &QPushButton::clicked, this, [this]() { hexDiff->transpose(-1, 0); });
+    connect(ui->shiftDownA, &QPushButton::clicked, this, [this]() { hexDiff->transpose(1, 0); });
+    connect(ui->shiftUpB, &QPushButton::clicked, this, [this]() { hexDiff->transpose(0, -1); });
+    connect(ui->shiftDownB, &QPushButton::clicked, this, [this]() { hexDiff->transpose(0, 1); });
+    ui->tabWidget2->show();
 }
 
 void CutterDiffWindow::onActionDiffNewFile()
 {
     auto loadDiff = new DiffLoadDialog(bDiff, this);
     loadDiff->show();
+}
+
+void CutterDiffWindow::addHexDiff()
+{
+    if (!hexDiff) {
+        hexDiff = new HexDiff(cutterDiff, this);
+    }
+    ui->hexDiffContainer->layout()->addWidget(hexDiff);
+    const QFont font = Config()->getFont();
+    hexDiff->setMonospaceFont(font);
 }

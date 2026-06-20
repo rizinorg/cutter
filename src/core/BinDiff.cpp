@@ -64,7 +64,7 @@ void BinDiff::run()
     Core()->diffData.setAnalysisMatchResult(result);
 =======
     cutterDiff->initCores();
-    cutterDiff->openFiles(fileA,fileB);
+    cutterDiff->openFiles(fileA, fileB);
     cutterDiff->analyzeCores(level);
     cutterDiff->syncConfig();
     result = cutterDiff->matchFunctions(compareLogic, threadCallback, this);
@@ -85,6 +85,7 @@ void BinDiff::cancel()
     mutex.unlock();
 }
 
+<<<<<<< HEAD
 // static void setFunctionDescription(FunctionDescription *desc, const RzAnalysisFunction *func)
 // {
 //     desc->offset = func->addr;
@@ -97,6 +98,20 @@ void BinDiff::cancel()
 //     desc->edges = rz_analysis_function_count_edges(func, nullptr);
 //     desc->stackframe = func->maxstack;
 // }
+=======
+static void setFunctionDescription(FunctionDescription *desc, const RzAnalysisFunction *func)
+{
+    desc->offset = func->addr;
+    desc->linearSize = rz_analysis_function_linear_size(const_cast<RzAnalysisFunction *>(func));
+    desc->nargs = rz_analysis_arg_count(const_cast<RzAnalysisFunction *>(func));
+    desc->nlocals = rz_analysis_var_local_count(const_cast<RzAnalysisFunction *>(func));
+    desc->nbbs = rz_pvector_len(func->bbs);
+    desc->calltype = func->cc ? QString::fromUtf8(func->cc) : QString();
+    desc->name = func->name ? QString::fromUtf8(func->name) : QString();
+    desc->edges = rz_analysis_function_count_edges(func, nullptr);
+    desc->stackframe = func->maxstack;
+}
+>>>>>>> a8934965 (PR draft commit)
 
 // QList<BinDiffMatchDescription> BinDiff::matches()
 // {

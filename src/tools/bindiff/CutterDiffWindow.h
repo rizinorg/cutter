@@ -1,6 +1,8 @@
 #ifndef CUTTERDIFFWINDOW_H
 #define CUTTERDIFFWINDOW_H
 
+#include "HexDiff.h"
+
 #include <QAction>
 #include <QMainWindow>
 
@@ -121,17 +123,28 @@ public slots:
 private:
     Ui::CutterDiffWindow *ui;
     CutterDiff *cutterDiff;
+    // BinDiff thread which fetches basic analysis results and processing
     BinDiff *bDiff;
+    // model for matched functions of both binaries
     DiffMatchModel *matches;
+    // model for added functions
     DiffMismatchModel *added;
+    // model for removed functions
     DiffMismatchModel *removed;
+    // match results
     QList<BinDiffMatchDescription> listMatch;
+    // added function descriptions
     QList<FunctionDescription> listDel;
+    // removed function descriptions
     QList<FunctionDescription> listAdd;
+    // model a functions
     FunctionListModel *modelA;
+    // model b functions
     FunctionListModel *modelB;
     QList<FunctionDescription> fcnsA;
     QList<FunctionDescription> fcnsB;
+    HexDiff *hexDiff = nullptr;
+    void addHexDiff();
     void setupFonts();
     void refreshHex(RVA addr);
 };

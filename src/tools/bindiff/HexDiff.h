@@ -11,7 +11,74 @@
 #include <QScrollArea>
 #include <QTimer>
 
+#include <CutterDiff.h>
 #include <memory>
+
+class MemoryDiffData
+{
+public:
+    MemoryDiffData(CutterDiff *cutterDiff, bool orig) : cutterDiff(cutterDiff), orig(orig) {}
+    ~MemoryDiffData() {}
+    static constexpr size_t blockSize = 4096;
+
+    void fetch(uint64_t address, int length)
+    {
+        // FIXME: reuse data if possible
+        // Will be fixing this since for diffing the core files needs efficient cache management
+        const uint64_t blockSize = 0x1000ULL;
+        const uint64_t alignedAddr = address & ~(blockSize - 1);
+        const int offset = address - alignedAddr;
+        int len = (offset + length + (blockSize - 1)) & ~(blockSize - 1);
+        mFirstBlockAddr = alignedAddr;
+        mLastValidAddr = length ? alignedAddr + len - 1 : 0;
+        if (mLastValidAddr < mFirstBlockAddr) {
+            mLastValidAddr = -1;
+            len = mLastValidAddr - mFirstBlockAddr + 1;
+        }
+        mBlocks.clear();
+        uint64_t addr = alignedAddr;
+        for (ut64 i = 0; i < len / blockSize; ++i, addr += blockSize) {
+            mBlocks.append(cutterDiff->ioRead(addr, blockSize, orig));
+        }
+    }
+
+    bool copy(void *out, uint64_t addr, size_t len)
+    {
+        if (addr < mFirstBlockAddr
+            || addr > mLastValidAddr
+            /* do not merge with previous check to handle overflows */
+            || (mLastValidAddr - addr + 1) < len || mBlocks.isEmpty()) {
+            memset(out, 0xff, len);
+            return false;
+        }
+
+        const int totalOffset = addr - mFirstBlockAddr;
+        const int blockId = totalOffset / blockSize;
+        const int blockOffset = totalOffset % blockSize;
+        const size_t firstPart = blockSize - blockOffset;
+        if (firstPart >= len) {
+            memcpy(out, mBlocks.at(blockId).constData() + blockOffset, len);
+        } else {
+            memcpy(out, mBlocks.at(blockId).constData() + blockOffset, firstPart);
+            memcpy(static_cast<char *>(out) + firstPart, mBlocks.at(blockId + 1).constData(),
+                   len - firstPart);
+        }
+        return true;
+    }
+
+    bool write(const uint8_t, uint64_t, size_t) {}
+
+    uint64_t maxIndex() { return std::numeric_limits<uint64_t>::max(); }
+
+    uint64_t minIndex() { return mFirstBlockAddr; }
+
+private:
+    bool orig = true;
+    CutterDiff *cutterDiff;
+    QVector<QByteArray> mBlocks;
+    uint64_t mFirstBlockAddr = 0;
+    uint64_t mLastValidAddr = 0;
+};
 
 // Defining DiffFile Struct for encapsulation
 enum DiffFile : ut8 { A, B };
@@ -29,7 +96,7 @@ class DiffFileContext
 public:
     DiffFile file;
     uint64_t startAddress;
-    std::unique_ptr<AbstractData> data;
+    std::unique_ptr<MemoryDiffData> data;
     QRectF addrArea;
     QRectF itemArea;
     QRectF asciiArea;
@@ -41,7 +108,6 @@ public:
 struct BasicDiffCursor
 {
     uint64_t address;
-    uint64_t addressB;
     bool pastEnd;
     explicit BasicDiffCursor(uint64_t pos) : address(pos), pastEnd(false) {}
     BasicDiffCursor() : address(0), pastEnd(false) {}
@@ -190,7 +256,7 @@ class HexDiff : public QScrollArea
     Q_OBJECT
 
 public:
-    explicit HexDiff(QWidget *parent = nullptr);
+    explicit HexDiff(CutterDiff *cutterDiff, QWidget *parent = nullptr);
     ~HexDiff() override = default;
 
     void setMonospaceFont(const QFont &font);
@@ -246,7 +312,7 @@ public:
     };
     Selection getSelection();
 public slots:
-    void seek(uint64_t address);
+    void seek(uint64_t address, bool orig = true);
     void refresh();
     void updateColors();
 signals:
@@ -395,13 +461,21 @@ private:
      */
     void setStartAddress(RVA address);
 
-    uint64_t getAddressB(uint64_t addr) const
+    uint64_t getAddressB(uint64_t addrA) const
     {
         if (relTranspose < 0) {
-            return addr - qAbs(relTranspose);
+            return addrA - qAbs(relTranspose);
         }
-        return addr + relTranspose;
+        return addrA + relTranspose;
     }
+    uint64_t getAddressA(uint64_t addrB) const
+    {
+        if (relTranspose < 0) {
+            return addrB + qAbs(relTranspose);
+        }
+        return addrB - relTranspose;
+    }
+
     uint64_t getStartAddressB() const { return getAddressB(startAddress); }
 
     /**
@@ -487,6 +561,8 @@ private:
     bool warningRectVisible = false;
     QRectF warningRect;
     QTimer warningTimer;
+
+    CutterDiff *cutterDiff;
 
     AddressRangeScrollBar *vScrollBar;
 };
