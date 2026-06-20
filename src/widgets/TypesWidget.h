@@ -38,7 +38,7 @@ private:
     QVariant toolTipValue(const QModelIndex &index) const;
 
 public:
-    enum Columns : ut8 { TYPE = 0, SIZE, CATEGORY, FORMAT, COUNT };
+    enum Columns : ut8 { TYPE = 0, SIZE, CATEGORY, TYPE_CLASS, FORMAT, COUNT };
     static const int typeDescriptionRole = Qt::UserRole;
 
     TypesModel(QObject *parent = nullptr);
@@ -110,17 +110,22 @@ private slots:
     void onActionLoadNewTypesTriggered();
 
     /**
+     * @brief Executed on clicking the Delete Type option in the context menu
+     * Upon confirmation from the user, it will delete the selected type.
+     */
+    void onActionDeleteTypeTriggered();
+
+    /**
+     * @brief Shows a dialog for renaming selected type
+     */
+    void onActionRenameTypeTriggered();
+
+    /**
      * @brief Executed on clicking either the Edit Type or View Type options in the context menu
      * It will open the TypesInteractionDialog filled with the selected type. Depends on Edit or
      * View mode the text view would be read-only or not.
      */
     void viewType(bool readOnly = true);
-
-    /**
-     * @brief Executed on clicking the Delete Type option in the context menu
-     * Upon confirmation from the user, it will delete the selected type.
-     */
-    void onActionDeleteTypeTriggered();
 
     /**
      * @brief triggers when the user double-clicks an item. This will open
@@ -132,16 +137,21 @@ private slots:
      * @brief Opens a dialog that displays all global and local variables associated
      * with the selected type
      */
-    void showVariables();
+    void showUsages();
 
 private:
     std::unique_ptr<Ui::TypesWidget> ui;
 
     TypesModel *typesModel;
     TypesSortFilterProxyModel *typesProxyModel;
-    QAction *actionViewType;
+
+    QAction *actionDeleteType;
     QAction *actionEditType;
-    QAction *actionShowVariables;
+    QAction *actionExportTypes;
+    QAction *actionLoadNewTypes;
+    QAction *actionRenameType;
+    QAction *actionShowUsages;
+    QAction *actionViewType;
 
     void setScrollMode();
 

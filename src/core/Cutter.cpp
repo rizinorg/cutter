@@ -4079,6 +4079,7 @@ QList<TypeDescription> CutterCore::getBaseType(RzBaseTypeKind kind, const char *
         exp.type = type->name;
         exp.size = rz_type_db_base_get_bitsize(typedb, type);
         exp.format = rz_base_type_as_format(typedb, type);
+        exp.typeClass = rz_type_typeclass_as_string(rz_base_type_typeclass(typedb, type));
         exp.category = tr(category);
         types << exp;
     }
@@ -4110,6 +4111,21 @@ QList<TypeDescription> CutterCore::getAllEnums()
 QList<TypeDescription> CutterCore::getAllTypedefs()
 {
     return getBaseType(RZ_BASE_TYPE_KIND_TYPEDEF, "Typedef");
+}
+
+QList<QString> CutterCore::getAllTypeClasses()
+{
+    QList<QString> typeClasses;
+
+    // Starting loop from "NONE" instead of "Num" on purpose because typeclass for a type can be set
+    // to "NONE" in types widget. If we started the loop from "Num" here, then there would be
+    // no option to set typeclass to "NONE" through the context menu inside types widget
+    for (RzTypeTypeclass tc = RZ_TYPE_TYPECLASS_NONE; tc < RZ_TYPE_TYPECLASS_INVALID;
+         tc = static_cast<RzTypeTypeclass>(tc + 1)) {
+        typeClasses << rz_type_typeclass_as_string(tc);
+    }
+
+    return typeClasses;
 }
 
 QString CutterCore::getTypeAsC(const QString &name)
@@ -5343,4 +5359,34 @@ void CutterCore::writeGraphvizGraphToFile(const QString &path, const QString &fo
 void CutterCore::showTypeInTypesWidget(const QString &typeName)
 {
     emit showTypeRequested(typeName);
+}
+
+void CutterCore::renameType(const QString &from, const QString &to)
+{
+    CORE_LOCK();
+
+    rz_core_types_rename(core, from.toUtf8().constData(), to.toUtf8().constData());
+
+    emit functionsChanged();
+    emit globalVarsChanged();
+    emit varsChanged();
+}
+
+void CutterCore::setTypeClass(const QString &type, const QString &typeClass)
+{
+    CORE_LOCK();
+    const RzTypeDB *typedb = rz_analysis_get_type_db(core->analysis);
+    RzBaseType *btype = rz_type_db_get_base_type(typedb, type.toUtf8().constData());
+    if (!btype) {
+        return;
+    }
+
+    const QByteArray typeClassBytes = typeClass.toUtf8();
+    const char *typeClassChar = typeClassBytes.constData();
+    const RzTypeTypeclass typeclass = rz_type_typeclass_from_string(typeClassChar);
+
+    if (typeclass == RZ_TYPE_TYPECLASS_NONE && strcmp(typeClassChar, "None")) {
+        return;
+    }
+    rz_base_type_set_typeclass(btype, typeclass);
 }
