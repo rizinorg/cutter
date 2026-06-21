@@ -6,15 +6,55 @@
 #include "core/MainWindow.h"
 #include "ui_AnalysisOptionsWidget.h"
 
-static const QHash<QString, const char *> analysisBoundaries {
-    { "io.maps.x", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "All executable maps") },
-    { "io.maps", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "All maps") },
-    { "io.map", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Current map") },
-    { "raw", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Raw") },
-    { "bin.section", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Current mapped section") },
-    { "bin.sections", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "All mapped sections") },
-};
+namespace {
+const QHash<QString, const char *> analysisBoundaries {
+    // Range/Block
+    { "range", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Range") },
+    { "block", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Block") },
 
+    // Bin Segments
+    { "bin.segment", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Bin Segment") },
+    { "bin.segments", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "All Bin Segments") },
+    { "bin.segments.x", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Executable Bin Segments") },
+    { "bin.segments.r", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Readable Bin Segments") },
+
+    // Bin Sections
+    { "bin.section", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Current Bin Section") },
+    { "bin.sections", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "All Bin Sections") },
+    { "bin.sections.rwx", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "RWX Bin Sections") },
+    { "bin.sections.r", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Readable Bin Sections") },
+    { "bin.sections.rw", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "RW Bin Sections") },
+    { "bin.sections.rx", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "RX Bin Sections") },
+    { "bin.sections.wx", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "WX Bin Sections") },
+    { "bin.sections.x", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Executable Bin Sections") },
+
+    // IO Maps
+    { "io.map", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Current IO Map") },
+    { "io.maps", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "All IO Maps") },
+    { "io.maps.rwx", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "RWX IO Maps") },
+    { "io.maps.r", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Readable IO Maps") },
+    { "io.maps.rw", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "RW IO Maps") },
+    { "io.maps.rx", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "RX IO Maps") },
+    { "io.maps.wx", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "WX IO Maps") },
+    { "io.maps.x", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Executable IO Maps") },
+
+    // Debug
+    { "dbg.stack", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Debug Stack") },
+    { "dbg.heap", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Debug Heap") },
+    { "dbg.map", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Debug Map") },
+    { "dbg.maps", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Debug Maps") },
+    { "dbg.maps.rwx", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Debug Maps RWX") },
+    { "dbg.maps.r", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Debug Maps Readable") },
+    { "dbg.maps.rw", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Debug Maps RW") },
+    { "dbg.maps.rx", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Debug Maps RX") },
+    { "dbg.maps.wx", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Debug Maps WX") },
+    { "dbg.maps.x", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Debug Maps Executable") },
+
+    // Analysis
+    { "analysis.fcn", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Function") },
+    { "analysis.bb", QT_TRANSLATE_NOOP("AnalysisOptionsWidget", "Basic Block") }
+};
+}
 AnalysisOptionsWidget::AnalysisOptionsWidget(PreferencesDialog *dialog)
     : QDialog(dialog), ui(new Ui::AnalysisOptionsWidget), mainWindow(dialog->getMainWindow())
 {
@@ -37,10 +77,10 @@ AnalysisOptionsWidget::AnalysisOptionsWidget(PreferencesDialog *dialog)
         QCheckBox &cb = *confCheckbox.checkBox;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
         connect(confCheckbox.checkBox, &QCheckBox::checkStateChanged, this,
-                [val, &cb]() { checkboxEnabler(&cb, val); });
+                [val, &cb, this]() { checkboxEnabler(&cb, val); });
 #else
         connect(confCheckbox.checkBox, &QCheckBox::stateChanged, this,
-                [val, &cb]() { checkboxEnabler(&cb, val); });
+                [val, &cb, this]() { checkboxEnabler(&cb, val); });
 #endif
     }
 
@@ -53,6 +93,10 @@ AnalysisOptionsWidget::AnalysisOptionsWidget(PreferencesDialog *dialog)
                                      &AnalysisOptionsWidget::updateAnalysisPtrDepth);
     connect(ui->preludeLineEdit, &QLineEdit::textChanged, this,
             &AnalysisOptionsWidget::updateAnalysisPrelude);
+
+    connect(Core(), &CutterCore::analysisOptionsChanged, this,
+            &AnalysisOptionsWidget::updateAnalysisOptionsFromVars);
+
     updateAnalysisOptionsFromVars();
 }
 
@@ -61,11 +105,12 @@ AnalysisOptionsWidget::~AnalysisOptionsWidget() {}
 void AnalysisOptionsWidget::checkboxEnabler(QCheckBox *checkBox, const QString &config)
 {
     Config()->setConfig(config, checkBox->isChecked());
+    this->analysisOptionsChanged();
 }
 
 void AnalysisOptionsWidget::updateAnalysisOptionsFromVars()
 {
-    for (const ConfigCheckbox &confCheckbox : checkboxes) {
+    for (const ConfigCheckbox &confCheckbox : std::as_const(checkboxes)) {
         qhelpers::setCheckedWithoutSignals(confCheckbox.checkBox,
                                            Core()->getConfigb(confCheckbox.config));
     }
@@ -80,16 +125,19 @@ void AnalysisOptionsWidget::updateAnalysisOptionsFromVars()
 void AnalysisOptionsWidget::updateAnalysisIn(int index)
 {
     Config()->setConfig("analysis.in", ui->analysisInComboBox->itemData(index).toString());
+    this->analysisOptionsChanged();
 }
 
 void AnalysisOptionsWidget::updateAnalysisPtrDepth(int value)
 {
     Config()->setConfig("analysis.ptrdepth", value);
+    this->analysisOptionsChanged();
 }
 
 void AnalysisOptionsWidget::updateAnalysisPrelude(const QString &prelude)
 {
     Config()->setConfig("analysis.prelude", prelude);
+    this->analysisOptionsChanged();
 }
 
 void AnalysisOptionsWidget::createAnalysisInOptionsList()
@@ -101,4 +149,13 @@ void AnalysisOptionsWidget::createAnalysisInOptionsList()
         ui->analysisInComboBox->addItem(tr(mapIter.value()), mapIter.key());
     }
     ui->analysisInComboBox->blockSignals(false);
+}
+
+void AnalysisOptionsWidget::analysisOptionsChanged() const
+{
+    disconnect(Core(), &CutterCore::analysisOptionsChanged, this,
+               &AnalysisOptionsWidget::updateAnalysisOptionsFromVars);
+    Core()->triggerAnalysisOptionsChanged();
+    connect(Core(), &CutterCore::analysisOptionsChanged, this,
+            &AnalysisOptionsWidget::updateAnalysisOptionsFromVars);
 }

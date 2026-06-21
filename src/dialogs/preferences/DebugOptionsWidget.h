@@ -25,6 +25,7 @@ public:
 private:
     std::unique_ptr<Ui::DebugOptionsWidget> ui;
 
+    void debugOptionsChanged() const;
 private slots:
     void updateDebugPlugin();
     void updateStackAddr();
