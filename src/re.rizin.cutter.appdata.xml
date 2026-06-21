@@ -33,6 +33,8 @@
   <url type="vcs-browser">https://github.com/rizinorg/cutter</url>
 
   <releases>
+    <release version="2.5.0" date="2026-06-21" />
+    <release version="2.4.1" date="2025-05-11" />
     <release version="2.4.0" date="2024-04-28" />
     <release version="2.3.4" date="2024-03-04" />
     <release version="2.3.3" date="2024-02-24" />
