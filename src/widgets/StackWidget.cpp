@@ -1,17 +1,17 @@
 #include "StackWidget.h"
-#include "ui_StackWidget.h"
-#include "common/JsonModel.h"
-#include "common/Helpers.h"
-#include "dialogs/EditInstructionDialog.h"
 
-#include "core/MainWindow.h"
 #include "QHeaderView"
 #include "QMenu"
+#include "common/Helpers.h"
+#include "core/MainWindow.h"
+#include "dialogs/EditInstructionDialog.h"
+#include "ui_StackWidget.h"
 
 StackWidget::StackWidget(MainWindow *main)
     : CutterDockWidget(main),
       ui(new Ui::StackWidget),
       menuText(this),
+      refreshDeferrer(createRefreshDeferrer([this]() { updateContents(); })),
       addressableItemContextMenu(this, main)
 {
     ui->setupUi(this);
@@ -32,8 +32,6 @@ StackWidget::StackWidget(MainWindow *main)
 
     editAction = new QAction(tr("Edit stack value..."), this);
     viewStack->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    refreshDeferrer = createRefreshDeferrer([this]() { updateContents(); });
 
     connect(Core(), &CutterCore::refreshAll, this, &StackWidget::updateContents);
     connect(Core(), &CutterCore::registersChanged, this, &StackWidget::updateContents);
@@ -79,12 +77,13 @@ void StackWidget::fontsUpdatedSlot()
 
 void StackWidget::onDoubleClicked(const QModelIndex &index)
 {
-    if (!index.isValid())
+    if (!index.isValid()) {
         return;
+    }
     // Check if we are clicking on the offset or value columns and seek if it is the case
-    int column = index.column();
+    const int column = index.column();
     if (column <= StackModel::ValueColumn) {
-        QString item = index.data().toString();
+        const QString item = index.data().toString();
         Core()->seek(item);
         if (column == StackModel::OffsetColumn) {
             mainWindow->showMemoryWidget(MemoryWidgetType::Hexdump);
@@ -102,17 +101,17 @@ void StackWidget::customMenuRequested(QPoint pos)
 void StackWidget::editStack()
 {
     bool ok;
-    int row = viewStack->selectionModel()->currentIndex().row();
+    const int row = viewStack->selectionModel()->currentIndex().row();
     auto model = viewStack->model();
-    QString offset = model->index(row, StackModel::OffsetColumn).data().toString();
+    const QString offset = model->index(row, StackModel::OffsetColumn).data().toString();
     EditInstructionDialog e(EDIT_NONE, this);
     e.setWindowTitle(tr("Edit stack at %1").arg(offset));
 
-    QString oldBytes = model->index(row, StackModel::ValueColumn).data().toString();
+    const QString oldBytes = model->index(row, StackModel::ValueColumn).data().toString();
     e.setInstruction(oldBytes);
 
     if (e.exec()) {
-        QString bytes = e.getInstruction();
+        const QString bytes = e.getInstruction();
         if (bytes != oldBytes) {
             Core()->editBytesEndian(offset.toULongLong(&ok, 16), bytes);
         }
@@ -132,7 +131,7 @@ void StackWidget::onCurrentChanged(const QModelIndex &current, const QModelIndex
                 currentIndex.sibling(currentIndex.row(), StackModel::ValueColumn).data().toString();
     }
 
-    RVA offset = Core()->math(offsetString);
+    const RVA offset = Core()->math(offsetString);
     addressableItemContextMenu.setTarget(offset);
     if (currentIndex.column() == StackModel::OffsetColumn) {
         menuText.setText(tr("Stack position"));
@@ -145,7 +144,7 @@ StackModel::StackModel(QObject *parent) : QAbstractTableModel(parent) {}
 
 void StackModel::reload()
 {
-    QList<AddrRefs> stackItems = Core()->getStack();
+    const QList<AddrRefs> stackItems = Core()->getStack();
 
     beginResetModel();
     values.clear();
@@ -153,8 +152,8 @@ void StackModel::reload()
         Item item;
 
         item.offset = stackItem.addr;
-        item.value = RzAddressString(stackItem.value);
-        if (!stackItem.ref.isNull()) {
+        item.value = rzAddressString(stackItem.value);
+        if (stackItem.ref) {
             item.refDesc = Core()->formatRefDesc(stackItem.ref);
         }
 
@@ -175,8 +174,9 @@ int StackModel::columnCount(const QModelIndex &) const
 
 QVariant StackModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= values.count())
+    if (!index.isValid() || index.row() >= values.count()) {
         return QVariant();
+    }
 
     const auto &item = values.at(index.row());
 
@@ -184,7 +184,7 @@ QVariant StackModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case OffsetColumn:
-            return RzAddressString(item.offset);
+            return rzAddressString(item.offset);
         case ValueColumn:
             return item.value;
         case DescriptionColumn:

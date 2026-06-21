@@ -5,6 +5,10 @@
 #include <QFileDialog>
 #include <QVariant>
 
+/**
+ * @brief Save dialog that handles multiple file extensions and automatically updates file
+ * suffix based on the selected filter
+ */
 class MultitypeFileSaveDialog : public QFileDialog
 {
     Q_OBJECT
@@ -20,7 +24,7 @@ public:
     explicit MultitypeFileSaveDialog(QWidget *parent = nullptr, const QString &caption = QString(),
                                      const QString &directory = QString());
 
-    void setTypes(const QVector<TypeDescription> types, bool useDetection = true);
+    void setTypes(const QVector<TypeDescription> &types, bool useDetection = true);
     TypeDescription selectedType() const;
 
 protected:

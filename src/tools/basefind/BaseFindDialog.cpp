@@ -1,7 +1,7 @@
 #include "BaseFindDialog.h"
-#include "ui_BaseFindDialog.h"
 
 #include "BaseFindSearchDialog.h"
+#include "ui_BaseFindDialog.h"
 
 #include <core/Cutter.h>
 #include <rz_th.h>
@@ -12,10 +12,10 @@ BaseFindDialog::BaseFindDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Ba
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
     // Fill in N-thread Combo
-    RzThreadNCores n_cores = rz_th_physical_core_number();
+    const RzThreadNCores nCores = rz_th_physical_core_number();
     ui->nCoresCombo->clear();
-    for (size_t i = n_cores; i > 0; i--) {
-        if (n_cores == i) {
+    for (size_t i = nCores; i > 0; i--) {
+        if (nCores == i) {
             ui->nCoresCombo->addItem("All Cores");
             continue;
         }
@@ -28,42 +28,45 @@ BaseFindDialog::BaseFindDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Ba
     ui->minStrLenEdit->setValue(Core()->getConfigut64("basefind.min.string"));
     ui->minScoreEdit->setValue(Core()->getConfigut64("basefind.min.score"));
 
-    size_t selected_n_cores = Core()->getConfigut64("basefind.max.threads");
-    if (selected_n_cores < n_cores && selected_n_cores > 0) {
-        ui->nCoresCombo->setCurrentIndex(n_cores - selected_n_cores);
+    const size_t selectedNCores = Core()->getConfigut64("basefind.max.threads");
+    if (selectedNCores < nCores && selectedNCores > 0) {
+        ui->nCoresCombo->setCurrentIndex(nCores - selectedNCores);
     }
+
+    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &BaseFindDialog::onButtonBoxAccepted);
+    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &BaseFindDialog::onButtonBoxRejected);
 }
 
 BaseFindDialog::~BaseFindDialog() {}
 
 RzThreadNCores BaseFindDialog::getNCores() const
 {
-    RzThreadNCores n_cores = rz_th_physical_core_number();
-    return static_cast<RzThreadNCores>(n_cores - ui->nCoresCombo->currentIndex());
+    const RzThreadNCores nCores = rz_th_physical_core_number();
+    return static_cast<RzThreadNCores>(nCores - ui->nCoresCombo->currentIndex());
 }
 
 ut32 BaseFindDialog::getPointerSize() const
 {
     auto index = ui->pointerSizeCombo->currentIndex();
-    QString value = ui->pointerSizeCombo->itemText(index);
+    const QString value = ui->pointerSizeCombo->itemText(index);
     return value.toULong(nullptr, 0);
 }
 
 RVA BaseFindDialog::getStartAddress() const
 {
-    QString value = ui->startAddressEdit->text();
+    const QString value = ui->startAddressEdit->text();
     return value.toULongLong(nullptr, 0);
 }
 
 RVA BaseFindDialog::getEndAddress() const
 {
-    QString value = ui->endAddressEdit->text();
+    const QString value = ui->endAddressEdit->text();
     return value.toULongLong(nullptr, 0);
 }
 
 RVA BaseFindDialog::getAlignment() const
 {
-    QString value = ui->alignmentEdit->text();
+    const QString value = ui->alignmentEdit->text();
     return value.toULongLong(nullptr, 0);
 }
 
@@ -77,7 +80,7 @@ ut32 BaseFindDialog::getMinScore() const
     return ui->minScoreEdit->value();
 }
 
-void BaseFindDialog::on_buttonBox_accepted()
+void BaseFindDialog::onButtonBoxAccepted()
 {
     RzBaseFindOpt options = {};
     options.max_threads = getNCores();
@@ -90,8 +93,8 @@ void BaseFindDialog::on_buttonBox_accepted()
     options.callback = nullptr;
     options.user = nullptr;
 
-    BaseFindSearchDialog *bfs = new BaseFindSearchDialog(parentWidget());
+    auto *bfs = new BaseFindSearchDialog(parentWidget());
     bfs->show(&options);
 }
 
-void BaseFindDialog::on_buttonBox_rejected() {}
+void BaseFindDialog::onButtonBoxRejected() {}

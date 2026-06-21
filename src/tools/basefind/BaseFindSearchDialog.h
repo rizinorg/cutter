@@ -4,14 +4,19 @@
 #include <QDialog>
 #include <QListWidgetItem>
 #include <QProgressBar>
-#include <memory>
 
 #include <core/Cutter.h>
+#include <memory>
 
 namespace Ui {
 class BaseFindSearchDialog;
 }
 
+/**
+ * @brief Dialog displayed while searching in @ref BaseFindDialog
+ *
+ * Shows progress for each CPU core
+ */
 class BaseFindSearchDialog : public QDialog
 {
     Q_OBJECT
@@ -30,7 +35,7 @@ signals:
     void cancelSearch();
 
 private slots:
-    void on_buttonBox_rejected();
+    void onButtonBoxRejected();
 
 private:
     std::vector<QProgressBar *> bars;

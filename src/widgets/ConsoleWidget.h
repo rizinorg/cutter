@@ -1,14 +1,14 @@
 #ifndef CONSOLEWIDGET_H
 #define CONSOLEWIDGET_H
 
-#include "core/MainWindow.h"
 #include "CutterDockWidget.h"
+#include "SearchableDockWidget.h"
 #include "common/CommandTask.h"
-#include "common/DirectionalComboBox.h"
+#include "core/MainWindow.h"
 
-#include <QStringListModel>
-#include <QSocketNotifier>
 #include <QLocalSocket>
+#include <QSocketNotifier>
+#include <QStringListModel>
 
 #include <memory>
 
@@ -19,7 +19,10 @@ namespace Ui {
 class ConsoleWidget;
 }
 
-class ConsoleWidget : public CutterDockWidget
+/**
+ * @brief Widget for console to directly run rizin commands
+ */
+class ConsoleWidget : public SearchableDockWidget
 {
     Q_OBJECT
 
@@ -36,6 +39,15 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
     QWidget *widgetToFocusOnRaise() override;
 
+    // search related
+    void searchChanged(const QString &text, int options) override;
+    void findNext() override;
+    void findPrev() override;
+    void findLast() override;
+    void searchBarShown() override;
+    void searchBarHidden() override;
+    QWidget *searchableArea() const override;
+
 public slots:
     void focusInputLineEdit();
 
@@ -45,11 +57,11 @@ public slots:
 private slots:
     void setupFont();
 
-    void on_rzInputLineEdit_returnPressed();
-    void on_debugeeInputLineEdit_returnPressed();
+    void onRzInputLineEditReturnPressed();
+    void onDebugeeInputLineEditReturnPressed();
     void onIndexChange();
 
-    void on_execButton_clicked();
+    void onExecButtonClicked();
 
     void showCustomContextMenu(const QPoint &pt);
 
@@ -82,7 +94,7 @@ private:
      */
     void redirectOutput();
 
-    QSharedPointer<CommandTask> commandTask;
+    std::shared_ptr<CommandTask> commandTask;
 
     std::unique_ptr<Ui::ConsoleWidget> ui;
     QAction *actionWrapLines;

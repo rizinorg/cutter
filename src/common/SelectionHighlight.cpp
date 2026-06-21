@@ -1,21 +1,22 @@
-
 #include "SelectionHighlight.h"
+
+#include "Colors.h"
 #include "Configuration.h"
 
-#include <QList>
-#include <QTextEdit>
 #include <QColor>
-#include <QTextCursor>
+#include <QList>
 #include <QPlainTextEdit>
 #include <QRegularExpression>
+#include <QTextCursor>
+#include <QTextEdit>
 
 QList<QTextEdit::ExtraSelection> createSameWordsSelections(QPlainTextEdit *textEdit,
                                                            const QString &word)
 {
     QList<QTextEdit::ExtraSelection> selections;
     QTextEdit::ExtraSelection highlightSelection;
-    QTextDocument *document = textEdit->document();
-    QColor highlightWordColor = ConfigColor("wordHighlight");
+    const QTextDocument *document = textEdit->document();
+    const QColor highlightWordColor = ConfigColor("wordHighlight");
 
     if (word.isEmpty()) {
         return QList<QTextEdit::ExtraSelection>();
@@ -66,7 +67,6 @@ QList<QTextEdit::ExtraSelection> createSameWordsSelections(QPlainTextEdit *textE
 
         if (!highlightSelection.cursor.isNull()) {
             highlightSelection.format.setBackground(highlightWordColor);
-
             selections.append(highlightSelection);
         }
     }
@@ -85,18 +85,18 @@ QTextEdit::ExtraSelection createLineHighlight(const QTextCursor &cursor, QColor 
 
 QTextEdit::ExtraSelection createLineHighlightSelection(const QTextCursor &cursor)
 {
-    QColor highlightColor = ConfigColor("lineHighlight");
+    const QColor highlightColor = ConfigColor("lineHighlight");
     return createLineHighlight(cursor, highlightColor);
 }
 
 QTextEdit::ExtraSelection createLineHighlightPC(const QTextCursor &cursor)
 {
-    QColor highlightColor = ConfigColor("highlightPC");
+    const QColor highlightColor = ConfigColor("highlightPC");
     return createLineHighlight(cursor, highlightColor);
 }
 
 QTextEdit::ExtraSelection createLineHighlightBP(const QTextCursor &cursor)
 {
-    QColor highlightColor = ConfigColor("gui.breakpoint_background");
+    const QColor highlightColor = ConfigColor("gui.breakpoint_background");
     return createLineHighlight(cursor, highlightColor);
 }

@@ -1,8 +1,14 @@
-#ifndef COMMON_SETTINGS_UPGRADE_H
-#define COMMON_SETTINGS_UPGRADE_H
+#ifndef SETTINGS_UPGRADE_H
+#define SETTINGS_UPGRADE_H
 
 #include <QSettings>
+
 #include <core/Cutter.h>
+
+/**
+ * @file SettingsUpgrade.h
+ * @brief Logic for migrating and importing Cutter settings from older versions
+ */
 
 namespace Cutter {
 void initializeSettings();
@@ -21,4 +27,4 @@ void showSettingImportDialog(int &argc, char **argv);
 void migrateThemes();
 }
 
-#endif // COMMON_SETTINGS_UPGRADE_H
+#endif // SETTINGS_UPGRADE_H

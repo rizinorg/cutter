@@ -3,7 +3,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 
-static qreal GetDevicePixelRatio(qreal devicePixelRatio)
+static qreal getDevicePixelRatio(qreal devicePixelRatio)
 {
     if (devicePixelRatio > 0) {
         return devicePixelRatio;
@@ -16,8 +16,8 @@ static qreal GetDevicePixelRatio(qreal devicePixelRatio)
 }
 
 HighDpiPixmap::HighDpiPixmap(int width, int height, qreal devicePixelRatio)
-    : QPixmap(int(width * GetDevicePixelRatio(devicePixelRatio)),
-              int(height * GetDevicePixelRatio(devicePixelRatio)))
+    : QPixmap(int(width * getDevicePixelRatio(devicePixelRatio)),
+              int(height * getDevicePixelRatio(devicePixelRatio)))
 {
-    setDevicePixelRatio(GetDevicePixelRatio(devicePixelRatio));
+    setDevicePixelRatio(getDevicePixelRatio(devicePixelRatio));
 }

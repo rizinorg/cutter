@@ -8,7 +8,7 @@ EXTRA_CMAKE_OPTS="$2"
 cd "$SCRIPTPATH/.."
 
 if [[ ! -d rz-silhouette ]]; then
-	git clone https://github.com/rizinorg/rz-silhouette.git --depth 1 --branch "v0.8.0-beta3" rz-silhouette
+	git clone https://github.com/rizinorg/rz-silhouette.git --depth 1 rz-silhouette
 fi
 
 cd rz-silhouette

@@ -1,23 +1,25 @@
 #include "PreferencesDialog.h"
-#include "ui_PreferencesDialog.h"
 
+#include "AnalysisOptionsWidget.h"
 #include "AppearanceOptionsWidget.h"
 #include "AsmOptionsWidget.h"
-#include "GraphOptionsWidget.h"
 #include "DebugOptionsWidget.h"
-#include "PluginsOptionsWidget.h"
+#include "GraphOptionsWidget.h"
 #include "InitializationFileEditor.h"
-#include "AnalysisOptionsWidget.h"
-
+#include "InterfaceOptionsWidget.h"
+#include "PluginsOptionsWidget.h"
 #include "PreferenceCategory.h"
-
-#include "common/Helpers.h"
+#include "RizinConfigOptionsWidget.h"
+#include "ShortcutOptionsWidget.h"
+#include "SymbolsOptionsWidget.h"
 #include "common/Configuration.h"
+#include "common/Helpers.h"
+#include "ui_PreferencesDialog.h"
 
 #include <QDialogButtonBox>
 
-PreferencesDialog::PreferencesDialog(QWidget *parent)
-    : QDialog(parent), ui(new Ui::PreferencesDialog)
+PreferencesDialog::PreferencesDialog(MainWindow *parent)
+    : QDialog(parent), ui(new Ui::PreferencesDialog), mainWindow(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
@@ -29,14 +31,23 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
           new AsmOptionsWidget(this),
           QIcon(":/img/icons/disas.svg"),
           {
-                  { "Graph", new GraphOptionsWidget(this), QIcon(":/img/icons/graph.svg") },
+                  { tr("Graph"), new GraphOptionsWidget(this), QIcon(":/img/icons/graph.svg") },
           } },
         { tr("Debug"), new DebugOptionsWidget(this), QIcon(":/img/icons/bug.svg") },
         { tr("Appearance"), new AppearanceOptionsWidget(this), QIcon(":/img/icons/polar.svg") },
         { tr("Plugins"), new PluginsOptionsWidget(this), QIcon(":/img/icons/plugins.svg") },
         { tr("Initialization Script"), new InitializationFileEditor(this),
           QIcon(":/img/icons/initialization.svg") },
-        { tr("Analysis"), new AnalysisOptionsWidget(this), QIcon(":/img/icons/cog_light.svg") }
+        { tr("Analysis"),
+          new AnalysisOptionsWidget(this),
+          QIcon(":/img/icons/cog_light.svg"),
+          {
+                  { tr("Symbols"), new SymbolsOptionsWidget(this),
+                    QIcon(":/img/icons/symbol_options.svg") },
+          } },
+        { tr("Shortcuts"), new ShortcutOptionsWidget(this), QIcon(":/img/icons/edit.svg") },
+        { tr("Interface"), new InterfaceOptionsWidget(this), QIcon(":/img/icons/layout.svg") },
+        { tr("Rizin Config"), new RizinConfigOptionsWidget(this), QIcon(":/img/icons/rizin.svg") }
     };
 
     for (auto &c : prefs) {
@@ -76,13 +87,15 @@ void PreferencesDialog::showSection(PreferencesDialog::Section section)
 
 void PreferencesDialog::changePage(QTreeWidgetItem *current, QTreeWidgetItem *previous)
 {
-    if (!current)
+    if (!current) {
         current = previous;
+    }
 
-    int index = current->data(0, Qt::UserRole).toInt();
+    const int index = current->data(0, Qt::UserRole).toInt();
 
-    if (index)
+    if (index) {
         ui->configPanel->setCurrentIndex(index - 1);
+    }
 }
 
 void PreferencesDialog::chooseThemeIcons()
@@ -96,6 +109,10 @@ void PreferencesDialog::chooseThemeIcons()
         { QStringLiteral("Plugins"), QStringLiteral("plugins.svg") },
         { QStringLiteral("Initialization Script"), QStringLiteral("initialization.svg") },
         { QStringLiteral("Analysis"), QStringLiteral("cog_light.svg") },
+        { QStringLiteral("Symbols"), QStringLiteral("symbol_options.svg") },
+        { QStringLiteral("Shortcuts"), QStringLiteral("edit.svg") },
+        { QStringLiteral("Interface"), QStringLiteral("layout.svg") },
+        { QStringLiteral("Rizin Config"), QStringLiteral("rizin.svg") },
     };
     QList<QPair<void *, QString>> supportedIconsNames;
 
@@ -114,4 +131,9 @@ void PreferencesDialog::chooseThemeIcons()
         // the column in `setIcon` call
         static_cast<QTreeWidgetItem *>(obj)->setIcon(0, icon);
     });
+}
+
+MainWindow *PreferencesDialog::getMainWindow()
+{
+    return mainWindow;
 }

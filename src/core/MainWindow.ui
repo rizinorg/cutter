@@ -53,12 +53,12 @@
      <rect>
       <x>2024</x>
       <y>127</y>
-      <width>151</width>
-      <height>312</height>
+      <width>196</width>
+      <height>389</height>
      </rect>
     </property>
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
     <widget class="QMenu" name="menuSetMode">
      <property name="toolTip">
@@ -74,7 +74,7 @@
     <addaction name="actionNew"/>
     <addaction name="actionMap"/>
     <addaction name="separator"/>
-    <addaction name="actionImportPDB"/>
+    <addaction name="actionImportPdb"/>
     <addaction name="actionAnalyze"/>
     <addaction name="separator"/>
     <addaction name="actionApplySigFromFile"/>
@@ -85,16 +85,16 @@
     <addaction name="separator"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
-    <addaction name="actionExport_as_code"/>
+    <addaction name="actionExportAsCode"/>
     <addaction name="separator"/>
-    <addaction name="actionRun_Script"/>
+    <addaction name="actionRunScript"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>View</string>
+     <string>&amp;View</string>
     </property>
     <property name="tabsOnTop" stdset="0">
      <bool>false</bool>
@@ -113,14 +113,14 @@
       <string>Layouts</string>
      </property>
     </widget>
-    <addaction name="actionRefresh_contents"/>
+    <addaction name="actionRefreshContents"/>
     <addaction name="separator"/>
-    <addaction name="actionDefault"/>
-    <addaction name="actionReset_settings"/>
+    <addaction name="actionDefaultLayout"/>
+    <addaction name="actionResetSettings"/>
     <addaction name="separator"/>
     <addaction name="actionUnlock"/>
-    <addaction name="actionTabs_on_Top"/>
-    <addaction name="actionGrouped_dock_dragging"/>
+    <addaction name="actionTabsOnTop"/>
+    <addaction name="actionGroupedDockDragging"/>
     <addaction name="separator"/>
     <addaction name="menuZoom"/>
     <addaction name="separator"/>
@@ -130,13 +130,13 @@
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
-     <string>Tools</string>
+     <string>&amp;Tools</string>
     </property>
     <addaction name="actionBaseFind"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>Help</string>
+     <string>&amp;Help</string>
     </property>
     <addaction name="actionAbout"/>
     <addaction name="actionIssue"/>
@@ -144,7 +144,7 @@
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>Edit</string>
+     <string>&amp;Edit</string>
     </property>
     <addaction name="actionBackward"/>
     <addaction name="actionForward"/>
@@ -153,7 +153,7 @@
    </widget>
    <widget class="QMenu" name="menuWindows">
     <property name="title">
-     <string>Windows</string>
+     <string>&amp;Windows</string>
     </property>
     <widget class="QMenu" name="menuPlugins">
      <property name="title">
@@ -167,7 +167,7 @@
     </widget>
     <widget class="QMenu" name="menuAddDebugWidgets">
      <property name="title">
-      <string>Debug...</string>
+      <string>&amp;Debug...</string>
      </property>
     </widget>
     <addaction name="actionExtraDecompiler"/>
@@ -182,7 +182,7 @@
    </widget>
    <widget class="QMenu" name="menuDebug">
     <property name="title">
-     <string>Debug</string>
+     <string>&amp;Debug</string>
     </property>
    </widget>
    <addaction name="menuFile"/>
@@ -201,10 +201,10 @@
     </sizepolicy>
    </property>
    <property name="contextMenuPolicy">
-    <enum>Qt::DefaultContextMenu</enum>
+    <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
    </property>
    <property name="windowTitle">
-    <string notr="true">Main toolbar</string>
+    <string>Main toolbar</string>
    </property>
    <property name="movable">
     <bool>false</bool>
@@ -216,7 +216,7 @@
     </size>
    </property>
    <property name="toolButtonStyle">
-    <enum>Qt::ToolButtonIconOnly</enum>
+    <enum>Qt::ToolButtonStyle::ToolButtonIconOnly</enum>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -227,7 +227,7 @@
    <addaction name="actionBackward"/>
    <addaction name="actionForward"/>
   </widget>
-  <action name="actionDefault">
+  <action name="actionDefaultLayout">
    <property name="text">
     <string>Reset to default layout</string>
    </property>
@@ -268,7 +268,7 @@
     <string>Close</string>
    </property>
   </action>
-  <action name="actionSave_workspace">
+  <action name="actionSaveWorkspace">
    <property name="text">
     <string>Save layout</string>
    </property>
@@ -317,7 +317,7 @@
     <string>Delete</string>
    </property>
   </action>
-  <action name="actionSelect_all">
+  <action name="actionSelectAll">
    <property name="text">
     <string>Select all</string>
    </property>
@@ -330,7 +330,7 @@
     <string>Find</string>
    </property>
   </action>
-  <action name="actionFind_next">
+  <action name="actionFindNext">
    <property name="text">
     <string>Find next</string>
    </property>
@@ -338,7 +338,7 @@
     <string>Find next</string>
    </property>
   </action>
-  <action name="actionFind_previous">
+  <action name="actionFindPrevious">
    <property name="text">
     <string>Find previous</string>
    </property>
@@ -348,7 +348,7 @@
   </action>
   <action name="actionBackward">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources.qrc">
      <normaloff>:/img/icons/arrow_left.svg</normaloff>:/img/icons/arrow_left.svg</iconset>
    </property>
    <property name="text">
@@ -360,7 +360,7 @@
   </action>
   <action name="actionForward">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources.qrc">
      <normaloff>:/img/icons/arrow_right.svg</normaloff>:/img/icons/arrow_right.svg</iconset>
    </property>
    <property name="text">
@@ -374,15 +374,16 @@
    <property name="checked">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/lock</normaloff>
+     <normalon>:/unlock</normalon>:/lock</iconset>
+   </property>
    <property name="text">
     <string>Unlock Panels</string>
    </property>
    <property name="toolTip">
     <string>Toggle panel locks</string>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>:/lock</normaloff><normalon>:/unlock</normalon>:/unlock</iconset>
    </property>
    <property name="iconVisibleInMenu">
     <bool>false</bool>
@@ -393,7 +394,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources.qrc">
      <normaloff>:/img/icons/themes.svg</normaloff>:/img/icons/themes.svg</iconset>
    </property>
    <property name="text">
@@ -403,12 +404,12 @@
     <bool>false</bool>
    </property>
    <property name="menuRole">
-    <enum>QAction::PreferencesRole</enum>
+    <enum>QAction::MenuRole::PreferencesRole</enum>
    </property>
   </action>
   <action name="actionTabs">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources.qrc">
      <normaloff>:/img/icons/tabs.svg</normaloff>:/img/icons/tabs.svg</iconset>
    </property>
    <property name="text">
@@ -418,16 +419,16 @@
     <string>Tabs up/down</string>
    </property>
   </action>
-  <action name="actionRefresh_Panels">
+  <action name="actionRefreshPanels">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources.qrc">
      <normaloff>:/img/icons/spin.svg</normaloff>:/img/icons/spin.svg</iconset>
    </property>
    <property name="text">
     <string>Refresh</string>
    </property>
   </action>
-  <action name="actionTabs_on_Top">
+  <action name="actionTabsOnTop">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -438,12 +439,12 @@
     <string>Toggle tab position</string>
    </property>
   </action>
-  <action name="actionDark_Theme">
+  <action name="actionDarkTheme">
    <property name="text">
     <string>Dark Theme</string>
    </property>
   </action>
-  <action name="actionLoad_workspace">
+  <action name="actionLoadWorkspace">
    <property name="text">
     <string>Load layout</string>
    </property>
@@ -451,7 +452,7 @@
     <string>Load layout</string>
    </property>
   </action>
-  <action name="actionWhite_Theme">
+  <action name="actionWhiteTheme">
    <property name="text">
     <string>Default Theme</string>
    </property>
@@ -466,12 +467,12 @@
     <string>Analysis</string>
    </property>
   </action>
-  <action name="actionTest_menu">
+  <action name="actionTestMenu">
    <property name="text">
     <string>Test menu</string>
    </property>
   </action>
-  <action name="actionHexCopy_Hexpair">
+  <action name="actionHexCopyHexpair">
    <property name="text">
     <string>Copy hexpair</string>
    </property>
@@ -479,7 +480,7 @@
     <string>Copy hexpair</string>
    </property>
   </action>
-  <action name="actionHexCopy_Text">
+  <action name="actionHexCopyText">
    <property name="text">
     <string>Copy text</string>
    </property>
@@ -487,12 +488,12 @@
     <string>Copy text</string>
    </property>
   </action>
-  <action name="actionHexCopy_ASCII">
+  <action name="actionHexCopyAscii">
    <property name="text">
     <string>Copy ASCII</string>
    </property>
   </action>
-  <action name="actionHexInsert_String">
+  <action name="actionHexInsertString">
    <property name="text">
     <string>Insert string</string>
    </property>
@@ -500,7 +501,7 @@
     <string>Insert string</string>
    </property>
   </action>
-  <action name="actionHexInsert_Hex">
+  <action name="actionHexInsertHex">
    <property name="text">
     <string>Insert hex</string>
    </property>
@@ -518,17 +519,17 @@
     <string>Paste</string>
    </property>
   </action>
-  <action name="actionDisas_ShowHideBytes">
+  <action name="actionDisasShowHideBytes">
    <property name="text">
     <string>Show/Hide bytes</string>
    </property>
   </action>
-  <action name="actionDisasSwitch_case">
+  <action name="actionDisasSwitchCase">
    <property name="text">
     <string>Switch case</string>
    </property>
   </action>
-  <action name="actionDisasCopy_All">
+  <action name="actionDisasCopyAll">
    <property name="text">
     <string>Copy all</string>
    </property>
@@ -536,7 +537,7 @@
     <string>Copy all</string>
    </property>
   </action>
-  <action name="actionDisasCopy_Bytes">
+  <action name="actionDisasCopyBytes">
    <property name="text">
     <string>Copy bytes</string>
    </property>
@@ -544,7 +545,7 @@
     <string>Copy bytes</string>
    </property>
   </action>
-  <action name="actionDisasCopy_Disasm">
+  <action name="actionDisasCopyDisasm">
    <property name="text">
     <string>Copy disasm</string>
    </property>
@@ -560,12 +561,12 @@
     <string>Copy disasm</string>
    </property>
   </action>
-  <action name="actionStart_Web_Server">
+  <action name="actionStartWebServer">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources.qrc">
      <normaloff>:/img/icons/cloud.svg</normaloff>:/img/icons/cloud.svg</iconset>
    </property>
    <property name="text">
@@ -610,7 +611,7 @@
     <string>64</string>
    </property>
   </action>
-  <action name="actionSyntax_AT_T_Intel">
+  <action name="actionSyntaxATTIntel">
    <property name="text">
     <string>Syntax AT&amp;T/Intel</string>
    </property>
@@ -635,17 +636,17 @@
     <string>Undefine</string>
    </property>
   </action>
-  <action name="actionDisasAdd_comment">
+  <action name="actionDisasAddComment">
    <property name="text">
     <string>Add comment</string>
    </property>
   </action>
-  <action name="actionhide_bottomPannel">
+  <action name="actionhideBottomPannel">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources.qrc">
      <normaloff>:/img/icons/down.svg</normaloff>:/img/icons/down.svg</iconset>
    </property>
    <property name="text">
@@ -655,12 +656,12 @@
     <string>Show/Hide bottom panel</string>
    </property>
   </action>
-  <action name="actionRun_Script">
+  <action name="actionRunScript">
    <property name="text">
     <string>Run Rizin script</string>
    </property>
   </action>
-  <action name="actionReset_settings">
+  <action name="actionResetSettings">
    <property name="text">
     <string>Reset Settings</string>
    </property>
@@ -687,7 +688,7 @@
     <string>Show/Hide Exports panel</string>
    </property>
   </action>
-  <action name="actionRefresh_contents">
+  <action name="actionRefreshContents">
    <property name="text">
     <string>Refresh Contents</string>
    </property>
@@ -695,7 +696,7 @@
     <string>Refresh contents</string>
    </property>
   </action>
-  <action name="actionDisplay_Esil">
+  <action name="actionDisplayEsil">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -703,7 +704,7 @@
     <string>Show ESIL rather than assembly</string>
    </property>
   </action>
-  <action name="actionDisplay_Decompiler">
+  <action name="actionDisplayDecompiler">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -711,7 +712,7 @@
     <string>Show pseudocode rather than assembly</string>
    </property>
   </action>
-  <action name="actionDisplay_Offsets">
+  <action name="actionDisplayOffsets">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -740,7 +741,7 @@
     <string>Graph</string>
    </property>
   </action>
-  <action name="actionImportPDB">
+  <action name="actionImportPdb">
    <property name="text">
     <string>Import PDB</string>
    </property>
@@ -750,7 +751,7 @@
     <string>Analyze Program</string>
    </property>
   </action>
-  <action name="actionExport_as_code">
+  <action name="actionExportAsCode">
    <property name="text">
     <string>Export as code</string>
    </property>
@@ -785,7 +786,7 @@
     <string>Add Graph</string>
    </property>
   </action>
-  <action name="actionGrouped_dock_dragging">
+  <action name="actionGroupedDockDragging">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -804,7 +805,7 @@
     <string>Ctrl++</string>
    </property>
    <property name="shortcutContext">
-    <enum>Qt::ApplicationShortcut</enum>
+    <enum>Qt::ShortcutContext::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="actionZoomOut">
@@ -815,7 +816,7 @@
     <string>Ctrl+-</string>
    </property>
    <property name="shortcutContext">
-    <enum>Qt::ApplicationShortcut</enum>
+    <enum>Qt::ShortcutContext::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="actionZoomReset">
@@ -826,7 +827,7 @@
     <string>Ctrl+=</string>
    </property>
    <property name="shortcutContext">
-    <enum>Qt::ApplicationShortcut</enum>
+    <enum>Qt::ShortcutContext::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="actionCommitChanges">
@@ -880,7 +881,7 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="resources.qrc"/>
+  <include location="../resources.qrc"/>
  </resources>
  <connections/>
 </ui>

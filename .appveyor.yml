@@ -1,5 +1,5 @@
-version: '2.4.1-git-{build}'
-image: 'Visual Studio 2019'
+version: '2.4.0-git-{build}'
+image: 'Visual Studio 2022'
 clone_depth: 1
 
 # Build configuration
@@ -9,21 +9,26 @@ configuration:
 # Environment
 environment:
   NINJA_URL: https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-win.zip
-  VSVARSALLPATH: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat'
+  VSVARSALLPATH: 'C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat'
   ARCH: x64
-  PYTHON: 'C:\Python36-x64'
+  PYTHON: 'C:\Python312-x64'
   PACKAGE_NAME: cutter-git-x64.Windows
+  VCPKG_ROOT: C:\Tools\vcpkg
 
 install:
   - ps: $env:path = ($env:path -split ";").Where({!($_ -like "*Microsoft SQL Server*")}) -join ";"
   - cmd: C:\msys64\usr\bin\bash -lc "cd $APPVEYOR_BUILD_FOLDER && scripts/fetch_deps.sh"
   - cmd: set "CUTTER_DEPS=%APPVEYOR_BUILD_FOLDER%\cutter-deps"
+  - cmd: mklink /D "%CUTTER_DEPS%\pyside\typesystems" "%CUTTER_DEPS%\pyside\share\PySide6\typesystems"
+  - cmd: mklink /D "%CUTTER_DEPS%\pyside\glue" "%CUTTER_DEPS%\pyside\share\PySide6\glue"
+  - cmd: mklink /D "%CUTTER_DEPS%\pyside\doc" "%CUTTER_DEPS%\pyside\share\PySide6\doc"
   - cmd: set "PATH=%CD%;%PYTHON%;%PATH%"
   - cmd: call "%VSVARSALLPATH%" %ARCH%
   - cmd: set "PATH=%CUTTER_DEPS%\qt\bin;%PYTHON%\Scripts\;%PATH%"
   - cmd: echo %PATH%
   - cmd: python -m pip install meson ninja
   - ps: choco install winflexbison3
+  - ps: vcpkg install zlib:x64-windows
   # Artifacts
   - cmd: set "ARTIFACT_PATH=build\%ARTIFACT_NAME%"
 
@@ -48,6 +53,7 @@ build_script:
        -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON
        -DCMAKE_PREFIX_PATH=%CUTTER_DEPS%\\pyside
        -DCPACK_PACKAGE_FILE_NAME=%PACKAGE_NAME%
+       -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\\scripts\\buildsystems\\vcpkg.cmake
        -G Ninja
        .."
   - cmd: cmake --build . --config Release

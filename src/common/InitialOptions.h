@@ -1,8 +1,7 @@
-
 #ifndef CUTTER_INITIALOPTIONS_H
 #define CUTTER_INITIALOPTIONS_H
 
-#include "core/Cutter.h"
+#include "core/Cutter.h" // IWYU pragma: keep
 
 /**
  * @brief The CommandDescription struct is a pair of a Rizin command and its description
@@ -10,12 +9,17 @@
 struct CommandDescription
 {
     QString command;
-    QString description;
+    /// untranslated description, make sure to correctly use QT_TRANSLATE_NOOP
+    const char *description;
+    QString translatedDescription() const;
 };
 
+/**
+ * @brief Struct to hold the options set when opening a file/project
+ */
 struct InitialOptions
 {
-    enum class Endianness { Auto, Little, Big };
+    enum class Endianness : ut8 { Auto, Little, Big };
 
     QString filename;
     QString projectFile;
@@ -40,7 +44,9 @@ struct InitialOptions
     QString pdbFile;
     QString script;
 
-    QList<CommandDescription> analysisCmd = { { "aaa", "Auto analysis" } };
+    QList<CommandDescription> analysisCmd = {
+        { "aaa", QT_TRANSLATE_NOOP("InitialOptionsDialog", "Auto analysis") }
+    };
 
     QString shellcode;
 };

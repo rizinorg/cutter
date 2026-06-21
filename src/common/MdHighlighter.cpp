@@ -1,6 +1,6 @@
-#include <QtGui>
-
 #include "common/MdHighlighter.h"
+
+#include <QtGui>
 
 MdHighlighter::MdHighlighter(QTextDocument *parent) : QSyntaxHighlighter(parent)
 {
@@ -16,7 +16,7 @@ MdHighlighter::MdHighlighter(QTextDocument *parent) : QSyntaxHighlighter(parent)
                     << "\\_([^\\\\]+)\\_"
                     << "\\_\\_([^\\\\]+)\\_\\_";
 
-    for (const QString &pattern : keywordPatterns) {
+    for (const QString &pattern : std::as_const(keywordPatterns)) {
         rule.pattern.setPattern(pattern);
         rule.format = keywordFormat;
         highlightingRules.append(rule);
@@ -31,11 +31,11 @@ MdHighlighter::MdHighlighter(QTextDocument *parent) : QSyntaxHighlighter(parent)
 
 void MdHighlighter::highlightBlock(const QString &text)
 {
-    for (const HighlightingRule &rule : highlightingRules) {
-        QRegularExpression expression(rule.pattern);
+    for (const HighlightingRule &rule : std::as_const(highlightingRules)) {
+        const QRegularExpression expression(rule.pattern);
         int index = expression.match(text).capturedStart();
         while (index >= 0) {
-            int length = expression.match(text).capturedLength();
+            const int length = expression.match(text).capturedLength();
             setFormat(index, length, rule.format);
             index = expression.match(text.mid(index + length)).capturedStart();
         }

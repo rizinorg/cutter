@@ -5,7 +5,7 @@ set -e
 cd $(dirname "${BASH_SOURCE[0]}")/..
 mkdir -p cutter-deps && cd cutter-deps
 
-DEPS_BASE_URL=https://github.com/rizinorg/cutter-deps/releases/download/v16
+DEPS_BASE_URL=https://github.com/rizinorg/cutter-deps/releases/download/v18
 
 if [ "$CUTTER_QT" == "5" ]; then
 	DEPS_FILE_linux_x86_64=cutter-deps-q5-linux-x86_64.tar.gz
@@ -13,18 +13,18 @@ if [ "$CUTTER_QT" == "5" ]; then
 	DEPS_BASE_URL=https://github.com/rizinorg/cutter-deps/releases/download/qt5-v17
 else
 	DEPS_FILE_linux_x86_64=cutter-deps-linux-x86_64.tar.gz
-	DEPS_SHA256_linux_x86_64=f63c5af2d9872bc6538a94c839d6ef6645c7630c42cff30f1d9da8eefd9eb040
+	DEPS_SHA256_linux_x86_64=204683c44e4824df7cb9925f1939544f081e64b7a701fe95fd03f67125a165b4
 fi
 echo $DEPS_SHA256_linux_x86_64
 
 DEPS_FILE_macos_x86_64=cutter-deps-macos-x86_64.tar.gz
-DEPS_SHA256_macos_x86_64=bcdc214e34dc3fd720327ad42e03fe3ec996ca28a9987e99898f149a65299a8c
+DEPS_SHA256_macos_x86_64=a46c2dee12d4160410237da848075fc87c41c3850021f583d3b469a59c386650
 
 DEPS_FILE_macos_arm64=cutter-deps-macos-arm64.tar.gz
-DEPS_SHA256_macos_arm64=aa3f5ae91b93c5176d6bd4313af0888a2b6dcdaa2ef1750dd7e2f98156882e0f
+DEPS_SHA256_macos_arm64=1ca381b562d632a370e05a85b0fe60a591a261bba0f48d97a0e40b4307c2577a
 
 DEPS_FILE_win_x86_64=cutter-deps-win-x86_64.tar.gz
-DEPS_SHA256_win_x86_64=710e40cf8329205d09535cc56a9fb155a56ff1a1ca112145864382fb3d4e8160
+DEPS_SHA256_win_x86_64=95a3cf676178b8c58442d22ee8b21ce2530bfdae86f514901310490a8f28867a
 
 
 ARCH=x86_64

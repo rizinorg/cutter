@@ -1,11 +1,12 @@
 #include "BreakpointsDialog.h"
-#include "ui_BreakpointsDialog.h"
+
 #include "Cutter.h"
 #include "Helpers.h"
+#include "ui_BreakpointsDialog.h"
 
-#include <QPushButton>
-#include <QCompleter>
 #include <QCheckBox>
+#include <QCompleter>
+#include <QPushButton>
 
 BreakpointsDialog::BreakpointsDialog(bool editMode, QWidget *parent)
     : QDialog(parent), ui(new Ui::BreakpointsDialog), editMode(editMode)
@@ -67,7 +68,7 @@ BreakpointsDialog::BreakpointsDialog(const BreakpointDescription &breakpoint, QW
 {
     switch (breakpoint.type) {
     case BreakpointDescription::Address:
-        ui->breakpointPosition->setText(RzAddressString(breakpoint.addr));
+        ui->breakpointPosition->setText(rzAddressString(breakpoint.addr));
         break;
     case BreakpointDescription::Named:
         ui->breakpointPosition->setText(breakpoint.positionExpression);
@@ -102,7 +103,7 @@ BreakpointsDialog::BreakpointsDialog(RVA address, QWidget *parent)
     : BreakpointsDialog(false, parent)
 {
     if (address != RVA_INVALID) {
-        ui->breakpointPosition->setText(RzAddressString(address));
+        ui->breakpointPosition->setText(rzAddressString(address));
     }
     refreshOkButton();
 }
@@ -166,7 +167,8 @@ void BreakpointsDialog::refreshOkButton()
 
 void BreakpointsDialog::onTypeChanged()
 {
-    bool moduleEnabled = ui->positionType->currentData() == QVariant(BreakpointDescription::Module);
+    const bool moduleEnabled =
+            ui->positionType->currentData() == QVariant(BreakpointDescription::Module);
     ui->moduleLabel->setEnabled(moduleEnabled);
     ui->moduleName->setEnabled(moduleEnabled);
     ui->breakpointPosition->setPlaceholderText(

@@ -11,21 +11,19 @@
 
 #if CUTTER_UPDATE_WORKER_AVAILABLE
 #    include <QDir>
-#    include <QTimer>
 #    include <QObject>
-#    include <QtNetwork/QNetworkAccessManager>
-
+#    include <QTimer>
 #    include <QVersionNumber>
+#    include <QtNetwork/QNetworkAccessManager>
 #endif
 
 #if CUTTER_UPDATE_WORKER_AVAILABLE
 class QNetworkReply;
 
 /**
- * @class UpdateWorker
- * @brief The UpdateWorker class is a class providing API to check for current Cutter version.
+ * @brief The UpdateWorker class is a class providing API to check for current/latest Cutter
+ * version.
  */
-
 class UpdateWorker : public QObject
 {
     Q_OBJECT
@@ -43,7 +41,6 @@ public:
      *
      * @sa checkComplete(const QString& verson, const QString& errorMsg)
      */
-
     void checkCurrentVersion(time_t timeoutMs);
 
     /**

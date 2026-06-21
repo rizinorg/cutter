@@ -1,9 +1,7 @@
 #ifndef EXPORTSWIDGET_H
 #define EXPORTSWIDGET_H
 
-#include <memory>
-
-#include "core/Cutter.h"
+#include "CutterDescriptions.h"
 #include "CutterDockWidget.h"
 #include "widgets/ListDockWidget.h"
 
@@ -18,6 +16,9 @@ namespace Ui {
 class ExportsWidget;
 }
 
+/**
+ * @brief Source model for @ref ExportsWidget
+ */
 class ExportsModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
@@ -25,10 +26,10 @@ class ExportsModel : public AddressableItemModel<QAbstractListModel>
     friend ExportsWidget;
 
 private:
-    QList<ExportDescription> *exports;
+    QList<ExportDescription> exports;
 
 public:
-    enum Column {
+    enum Column : ut8 {
         OffsetColumn = 0,
         SizeColumn,
         TypeColumn,
@@ -36,9 +37,9 @@ public:
         CommentColumn,
         ColumnCount
     };
-    enum Role { ExportDescriptionRole = Qt::UserRole };
+    enum Role : ut16 { ExportDescriptionRole = Qt::UserRole };
 
-    ExportsModel(QList<ExportDescription> *exports, QObject *parent = nullptr);
+    ExportsModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -63,6 +64,9 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
+/**
+ * @brief Widget listing all exports inside the binary
+ */
 class ExportsWidget : public ListDockWidget
 {
     Q_OBJECT
@@ -77,7 +81,6 @@ private slots:
 private:
     ExportsModel *exportsModel;
     ExportsProxyModel *exportsProxyModel;
-    QList<ExportDescription> exports;
 };
 
 #endif // EXPORTSWIDGET_H

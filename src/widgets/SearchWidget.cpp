@@ -1,20 +1,19 @@
 #include "SearchWidget.h"
-#include "ui_SearchWidget.h"
-#include "core/MainWindow.h"
-#include "common/Helpers.h"
-#include "DisassemblyPreview.h"
 
-#include <QDockWidget>
-#include <QTreeWidget>
+#include "DisassemblyPreview.h"
+#include "common/Helpers.h"
+#include "core/MainWindow.h"
+#include "ui_SearchWidget.h"
+
 #include <QComboBox>
+#include <QDockWidget>
 #include <QShortcut>
+#include <QTreeWidget>
 
 namespace {
-
-static const int kMaxTooltipWidth = 500;
-static const int kMaxTooltipDisasmPreviewLines = 10;
-static const int kMaxTooltipHexdumpBytes = 64;
-
+const int kMaxTooltipWidth = 500;
+const int kMaxTooltipDisasmPreviewLines = 10;
+const int kMaxTooltipHexdumpBytes = 64;
 }
 
 static const QVector<std::pair<QString, const char *>> searchBoundaries {
@@ -89,14 +88,11 @@ static const SearchKindInfo &searchKindInfo(SearchKind kind)
     return searchKinds[1];
 }
 
-SearchModel::SearchModel(QList<SearchDescription> *search, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), search(search)
-{
-}
+SearchModel::SearchModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
 int SearchModel::rowCount(const QModelIndex &) const
 {
-    return search->count();
+    return search.count();
 }
 
 int SearchModel::columnCount(const QModelIndex &) const
@@ -106,10 +102,11 @@ int SearchModel::columnCount(const QModelIndex &) const
 
 QVariant SearchModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= search->count())
+    if (index.row() >= search.count()) {
         return QVariant();
+    }
 
-    const SearchDescription &exp = search->at(index.row());
+    const SearchDescription &exp = search.at(index.row());
 
     switch (role) {
     case Qt::FontRole: {
@@ -125,9 +122,9 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case OFFSET:
-            return RzAddressString(exp.offset);
+            return rzAddressString(exp.offset);
         case SIZE:
-            return RzSizeString(exp.size);
+            return rzSizeString(exp.size);
         case CODE:
             return exp.code;
         case DATA:
@@ -152,12 +149,12 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
         }
 
         const QFont &fnt = Config()->getBaseFont();
-        QFontMetrics fm { fnt };
+        const QFontMetrics fm { fnt };
 
         QString toolTipContent =
-                QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: "
+                QString("<html><div style=\"font-family: '%1'; font-size: %2pt; white-space: "
                         "nowrap;\">")
-                        .arg(fnt.family())
+                        .arg(fnt.family().toHtmlEscaped())
                         .arg(qMax(6, fnt.pointSize() - 1)); // slightly decrease font size, to keep
                                                             // more text in the same box
 
@@ -168,7 +165,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
         toolTipContent += "</div></html>";
         return toolTipContent;
     }
-    case SearchDescriptionRole:
+    case searchDescriptionRole:
         return QVariant::fromValue(exp);
     default:
         return QVariant();
@@ -200,7 +197,7 @@ QVariant SearchModel::headerData(int section, Qt::Orientation, int role) const
 
 RVA SearchModel::address(const QModelIndex &index) const
 {
-    const SearchDescription &exp = search->at(index.row());
+    const SearchDescription &exp = search.at(index.row());
     return exp.offset;
 }
 
@@ -211,47 +208,48 @@ SearchSortFilterProxyModel::SearchSortFilterProxyModel(SearchModel *source_model
 
 bool SearchSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
-    QModelIndex index = sourceModel()->index(row, 0, parent);
-    SearchDescription search =
-            index.data(SearchModel::SearchDescriptionRole).value<SearchDescription>();
+    const QModelIndex index = sourceModel()->index(row, 0, parent);
+    const auto search = index.data(SearchModel::searchDescriptionRole).value<SearchDescription>();
     return qhelpers::filterStringContains(search.code, this);
 }
 
 bool SearchSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    SearchDescription left_search =
-            left.data(SearchModel::SearchDescriptionRole).value<SearchDescription>();
-    SearchDescription right_search =
-            right.data(SearchModel::SearchDescriptionRole).value<SearchDescription>();
+    const auto leftSearch =
+            left.data(SearchModel::searchDescriptionRole).value<SearchDescription>();
+    const auto rightSearch =
+            right.data(SearchModel::searchDescriptionRole).value<SearchDescription>();
 
     switch (left.column()) {
     case SearchModel::SIZE:
-        return left_search.size < right_search.size;
+        return leftSearch.size < rightSearch.size;
     case SearchModel::OFFSET:
-        return left_search.offset < right_search.offset;
+        return leftSearch.offset < rightSearch.offset;
     case SearchModel::CODE:
-        return left_search.code < right_search.code;
+        return leftSearch.code < rightSearch.code;
     case SearchModel::DATA:
-        return left_search.data < right_search.data;
+        return leftSearch.data < rightSearch.data;
     case SearchModel::COMMENT:
-        return left_search.detail < right_search.detail;
+        return leftSearch.detail < rightSearch.detail;
     default:
         break;
     }
 
-    return left_search.offset < right_search.offset;
+    return leftSearch.offset < rightSearch.offset;
 }
 
-SearchWidget::SearchWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::SearchWidget)
+SearchWidget::SearchWidget(MainWindow *main)
+    : CutterDockWidget(main),
+      ui(new Ui::SearchWidget),
+      searchModel(new SearchModel(this)),
+      searchProxyModel(new SearchSortFilterProxyModel(searchModel, this))
 {
     ui->setupUi(this);
     setStyleSheet(QString("QToolTip { max-width: %1px; opacity: 230; }").arg(kMaxTooltipWidth));
 
     updateSearchBoundaries();
 
-    search_model = new SearchModel(&search, this);
-    search_proxy_model = new SearchSortFilterProxyModel(search_model, this);
-    ui->searchTreeView->setModel(search_proxy_model);
+    ui->searchTreeView->setModel(static_cast<AddressableItemModelI *>(searchProxyModel));
     ui->searchTreeView->setMainWindow(main);
     ui->searchTreeView->sortByColumn(SearchModel::OFFSET, Qt::AscendingOrder);
 
@@ -260,7 +258,7 @@ SearchWidget::SearchWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui
     connect(Core(), &CutterCore::toggleDebugView, this, &SearchWidget::updateSearchBoundaries);
     connect(Core(), &CutterCore::refreshAll, this, &SearchWidget::refreshSearchspaces);
     connect(Core(), &CutterCore::commentsChanged, this,
-            [this]() { qhelpers::emitColumnChanged(search_model, SearchModel::COMMENT); });
+            [this]() { qhelpers::emitColumnChanged(searchModel, SearchModel::COMMENT); });
 
     connect(ui->filterLineEdit, &QLineEdit::returnPressed, this, &SearchWidget::runSearch);
     connect(ui->searchButton, &QAbstractButton::clicked, this, &SearchWidget::runSearch);
@@ -289,7 +287,7 @@ void SearchWidget::updateSearchBoundaries()
 
     ui->searchInCombo->blockSignals(true);
     ui->searchInCombo->clear();
-    for (auto item : boundaries) {
+    for (const auto &item : boundaries) {
         ui->searchInCombo->addItem(tr(item.second), item.first);
     }
     ui->searchInCombo->blockSignals(false);
@@ -304,17 +302,19 @@ void SearchWidget::searchChanged()
 
 void SearchWidget::refreshSearchspaces()
 {
-    int cur_idx = ui->searchspaceCombo->currentIndex();
-    if (cur_idx < 0)
-        cur_idx = 0;
+    int curIdx = ui->searchspaceCombo->currentIndex();
+    if (curIdx < 0) {
+        curIdx = 0;
+    }
 
     ui->searchspaceCombo->clear();
     for (auto &kind : searchKinds) {
         ui->searchspaceCombo->addItem(tr(kind.name), static_cast<int>(kind.kind));
     }
 
-    if (cur_idx > 0)
-        ui->searchspaceCombo->setCurrentIndex(cur_idx);
+    if (curIdx > 0) {
+        ui->searchspaceCombo->setCurrentIndex(curIdx);
+    }
 
     refreshSearch();
 }
@@ -329,13 +329,13 @@ void SearchWidget::runSearch()
 
 void SearchWidget::refreshSearch()
 {
-    QString searchFor = ui->filterLineEdit->text();
+    const QString searchFor = ui->filterLineEdit->text();
     auto searchSpace = static_cast<SearchKind>(ui->searchspaceCombo->currentData().toInt());
-    QString searchIn = ui->searchInCombo->currentData().toString();
+    const QString searchIn = ui->searchInCombo->currentData().toString();
 
-    search_model->beginResetModel();
-    search = Core()->getAllSearch(searchFor, searchSpace, searchIn);
-    search_model->endResetModel();
+    searchModel->beginResetModel();
+    searchModel->search = Core()->getAllSearch(searchFor, searchSpace, searchIn);
+    searchModel->endResetModel();
 
     qhelpers::adjustColumns(ui->searchTreeView, 3, 0);
 }
@@ -344,10 +344,11 @@ void SearchWidget::refreshSearch()
 // Called by &QShortcut::activated and &QAbstractButton::clicked signals
 void SearchWidget::checkSearchResultEmpty()
 {
-    if (!search.isEmpty())
+    if (!searchModel->search.isEmpty()) {
         return;
+    }
 
-    QString searchFor = ui->filterLineEdit->text();
+    const QString searchFor = ui->filterLineEdit->text();
     auto searchSpace = static_cast<SearchKind>(ui->searchspaceCombo->currentData().toInt());
     if (searchFor.isEmpty() && !searchKindInfo(searchSpace).noInput) {
         return;

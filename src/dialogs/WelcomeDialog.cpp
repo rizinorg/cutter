@@ -1,16 +1,13 @@
-#include "core/MainWindow.h"
-#include "CutterConfig.h"
-
-#include "common/Helpers.h"
 #include "WelcomeDialog.h"
-#include "AboutDialog.h"
 
+#include "AboutDialog.h"
+#include "Configuration.h"
+#include "CutterConfig.h"
+#include "common/Helpers.h"
 #include "ui_WelcomeDialog.h"
 
-/**
- * @brief Constructs a WelcomeDialog object
- * @param parent
- */
+#include <QMessageBox>
+
 WelcomeDialog::WelcomeDialog(QWidget *parent) : QDialog(parent), ui(new Ui::WelcomeDialog)
 {
     ui->setupUi(this);
@@ -20,36 +17,60 @@ WelcomeDialog::WelcomeDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Welc
                               + "</font>");
     ui->themeComboBox->setCurrentIndex(Config()->getInterfaceTheme());
 
-    QSignalBlocker s(ui->updatesCheckBox);
+    const QSignalBlocker s(ui->updatesCheckBox);
     ui->updatesCheckBox->setChecked(Config()->getAutoUpdateEnabled());
 
-    QStringList langs = Config()->getAvailableTranslations();
-    ui->languageComboBox->addItems(langs);
-    QString curr = Config()->getCurrLocale().nativeLanguageName();
-    if (!langs.contains(curr)) {
-        curr = "English";
+    auto langs = Config()->getAvailableTranslations();
+    for (auto &lang : langs) {
+        ui->languageComboBox->addItem(lang.name, lang.locale);
     }
-    ui->languageComboBox->setCurrentText(curr);
+
+    auto matchingLang =
+            std::find_if(langs.begin(), langs.end(), [](const Configuration::LangInfo &v) {
+                return v.locale == Config()->getCurrLocale();
+            });
+    if (matchingLang == langs.end()) {
+        matchingLang =
+                std::find_if(langs.begin(), langs.end(), [](const Configuration::LangInfo &v) {
+                    return v.locale.language() == QLocale::English;
+                });
+    }
+    if (matchingLang != langs.end()) {
+        ui->languageComboBox->setCurrentIndex(matchingLang - langs.begin());
+    } else {
+        ui->languageComboBox->setCurrentText("English");
+    }
+
     connect(ui->languageComboBox,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
-            &WelcomeDialog::onLanguageComboBox_currentIndexChanged);
+            &WelcomeDialog::onLanguageCurrentIndexChanged);
 
+    connect(ui->languageComboBox,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
+            &WelcomeDialog::onLanguageCurrentIndexChanged);
+
+    connect(ui->themeComboBox,
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
+            &WelcomeDialog::onThemeComboBoxCurrentIndexChanged);
+
+    connect(ui->checkUpdateButton, &QPushButton::clicked, this,
+            &WelcomeDialog::onCheckUpdateButtonClicked);
+
+    connect(ui->continueButton, &QPushButton::clicked, this,
+            &WelcomeDialog::onContinueButtonClicked);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    connect(ui->updatesCheckBox, &QCheckBox::checkStateChanged, this,
+            &WelcomeDialog::onUpdatesCheckBoxStateChanged);
+#else
+    connect(ui->updatesCheckBox, &QCheckBox::stateChanged, this,
+            &WelcomeDialog::onUpdatesCheckBoxStateChanged);
+#endif
     Config()->adjustColorThemeDarkness();
 }
 
-/**
- * @brief Destroys the WelcomeDialog
- */
-WelcomeDialog::~WelcomeDialog()
-{
-    delete ui;
-}
+WelcomeDialog::~WelcomeDialog() {}
 
-/**
- * @brief change Cutter's QT Theme as selected by the user
- * @param index - a Slot being called after theme's value changes its index
- */
-void WelcomeDialog::on_themeComboBox_currentIndexChanged(int index)
+void WelcomeDialog::onThemeComboBoxCurrentIndexChanged(int index)
 {
     Config()->setInterfaceTheme(index);
 
@@ -57,14 +78,12 @@ void WelcomeDialog::on_themeComboBox_currentIndexChanged(int index)
     ui->logoSvgWidget->load(Config()->getLogoFile());
 }
 
-/**
- * @brief change Cutter's interface language as selected by the user
- * @param index - a Slot being called after language combo box value changes its index
- */
-void WelcomeDialog::onLanguageComboBox_currentIndexChanged(int index)
+void WelcomeDialog::onLanguageCurrentIndexChanged(int)
 {
-    QString language = ui->languageComboBox->itemText(index);
-    Config()->setLocaleByName(language);
+    const QVariant language = ui->languageComboBox->currentData();
+    if (language.canConvert<QLocale>()) {
+        Config()->setLocale(language.toLocale());
+    }
 
     QMessageBox mb(this);
     mb.setWindowTitle(tr("Language settings"));
@@ -74,25 +93,19 @@ void WelcomeDialog::onLanguageComboBox_currentIndexChanged(int index)
     mb.exec();
 }
 
-/**
- * @brief show Cutter's About dialog
- */
-void WelcomeDialog::on_checkUpdateButton_clicked()
+void WelcomeDialog::onCheckUpdateButtonClicked()
 {
-    AboutDialog *a = new AboutDialog(this);
+    auto *a = new AboutDialog(this);
     a->setAttribute(Qt::WA_DeleteOnClose);
     a->open();
 }
 
-/**
- * @brief accept user preferences, close the window and continue Cutter's execution
- */
-void WelcomeDialog::on_continueButton_clicked()
+void WelcomeDialog::onContinueButtonClicked()
 {
     accept();
 }
 
-void WelcomeDialog::on_updatesCheckBox_stateChanged(int)
+void WelcomeDialog::onUpdatesCheckBoxStateChanged(int)
 {
     Config()->setAutoUpdateEnabled(!Config()->getAutoUpdateEnabled());
 }

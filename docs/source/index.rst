@@ -35,6 +35,7 @@ Need help?
 
 You can contact the *Cutter* developers and community on:
 
+-  Mattermost: https://im.rizin.re
 -  Telegram: https://t.me/cutter_re
 -  #cutter on https://web.libera.chat
 -  Twitter: https://twitter.com/cutter_re

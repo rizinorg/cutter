@@ -1,8 +1,10 @@
+// clang-format off
 #include "PythonAPI.h"
 #include "QtResImporter.h"
+// clang-format on
 
-#include <QFile>
 #include <QDebug>
+#include <QFile>
 
 bool QtResExists(const char *name, QFile &file)
 {
@@ -19,7 +21,10 @@ PyObject *QtResGetCode(const char *name)
         return nullptr;
     }
 
-    moduleFile.open(QIODevice::ReadOnly);
+    if (!moduleFile.open(QIODevice::ReadOnly)) {
+        return nullptr;
+    }
+
     QByteArray data = moduleFile.readAll();
     moduleFile.close();
 
@@ -50,8 +55,9 @@ PyObject *qtres_exists(PyObject *self, PyObject *args)
     Q_UNUSED(self)
     char *name;
     QFile resFile;
-    if (!PyArg_ParseTuple(args, "s", &name))
+    if (!PyArg_ParseTuple(args, "s", &name)) {
         return NULL;
+    }
     return PyBool_FromLong(QtResExists(name, resFile));
 }
 
@@ -59,11 +65,13 @@ PyObject *qtres_get_code(PyObject *self, PyObject *args)
 {
     Q_UNUSED(self)
     char *name;
-    if (!PyArg_ParseTuple(args, "s", &name))
+    if (!PyArg_ParseTuple(args, "s", &name)) {
         return NULL;
+    }
     PyObject *ret = QtResGetCode(name);
-    if (ret)
+    if (ret) {
         return ret;
+    }
     Py_RETURN_NONE;
 }
 

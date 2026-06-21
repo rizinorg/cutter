@@ -79,10 +79,10 @@ AllowShortFunctionsOnASingleLine: Inline
 # separate categories with an empty line. It does not specify the order within
 # the categories. Since the SortInclude feature of clang-format does not
 # re-order includes separated by empty lines, the feature is not used.
-SortIncludes: false
+SortIncludes: true
 
 # macros for which the opening brace stays attached.
-ForEachMacros:   [ foreach, Q_FOREACH, BOOST_FOREACH, forever, Q_FOREVER, QBENCHMARK, QBENCHMARK_ONCE ]
+ForEachMacros:   [ foreach, Q_FOREACH, BOOST_FOREACH, forever, Q_FOREVER, QBENCHMARK, QBENCHMARK_ONCE, CutterRzListForeach ]
 
 # Break constructor initializers before the colon and after the commas.
 BreakConstructorInitializers: BeforeColon
@@ -92,3 +92,28 @@ BreakConstructorInitializers: BeforeColon
 
 # Align the assignment operators of consecutive lines
 AlignConsecutiveAssignments: false
+
+# Sort headers in the following groups in alphabetical order
+# Each group is seperated by an empty line
+# 1- Main header
+# 2- Local headers starting with ""
+# 3- Qt headers starting with <Q...> or <q...>
+# 4- Standard C++ headers or any others
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:           '^"([^"]*)"' 
+    Priority:        1
+  - Regex:           '^<[Qq]'     
+    Priority:        2
+  - Regex:           '.*'         
+    Priority:        3
+
+# Insert braces after conditional statements/loops even if they
+# contain a single statement
+InsertBraces: true
+
+# Insert space in empty braces
+SpaceInEmptyBlock: false
+
+# Removes the spaces around ->
+StatementAttributeLikeMacros: [emit]

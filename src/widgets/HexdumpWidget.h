@@ -1,22 +1,17 @@
 #ifndef HEXDUMPWIDGET_H
 #define HEXDUMPWIDGET_H
 
-#include <QDebug>
-#include <QTextEdit>
-#include <QMouseEvent>
-#include <QAction>
-
-#include <array>
-#include <memory>
-
-#include "core/Cutter.h"
+#include "Dashboard.h"
+#include "HexWidget.h"
 #include "MemoryDockWidget.h"
 #include "common/CutterSeekable.h"
-#include "common/Highlighter.h"
-#include "common/SvgIconEngine.h"
-#include "HexWidget.h"
 
-#include "Dashboard.h"
+#include <QAction>
+#include <QDebug>
+#include <QMouseEvent>
+#include <QTextEdit>
+
+#include <memory>
 
 namespace Ui {
 class HexdumpWidget;
@@ -25,13 +20,17 @@ class HexdumpWidget;
 class RefreshDeferrer;
 class QSyntaxHighlighter;
 
+/**
+ * @brief Hex dump widget containing a side panel for data parsing and hashing
+ *
+ * @see HexWidget
+ */
 class HexdumpWidget : public MemoryDockWidget
 {
     Q_OBJECT
 public:
     explicit HexdumpWidget(MainWindow *main);
     ~HexdumpWidget() override;
-    Highlighter *highlighter;
 
     static QString getWidgetType();
 
@@ -45,7 +44,7 @@ protected:
 private:
     std::unique_ptr<Ui::HexdumpWidget> ui;
 
-    bool sent_seek = false;
+    bool sentSeek = false;
 
     RefreshDeferrer *refreshDeferrer;
     QSyntaxHighlighter *syntaxHighLighter;
@@ -68,18 +67,18 @@ private slots:
 
     void selectionChanged(HexWidget::Selection selection);
 
-    void on_parseArchComboBox_currentTextChanged(const QString &arg1);
-    void on_parseBitsComboBox_currentTextChanged(const QString &arg1);
-    void on_parseTypeComboBox_currentTextChanged(const QString &arg1);
-    void on_parseEndianComboBox_currentTextChanged(const QString &arg1);
+    void onParseArchComboBoxCurrentTextChanged(const QString &arg1);
+    void onParseBitsComboBoxCurrentTextChanged(const QString &arg1);
+    void onParseTypeComboBoxCurrentTextChanged(const QString &arg1);
+    void onParseEndianComboBoxCurrentTextChanged(const QString &arg1);
 
     void fontsUpdated();
 
-    void on_hexSideTab_2_currentChanged(int index);
-    void on_copyMD5_clicked();
-    void on_copySHA1_clicked();
-    void on_copySHA256_clicked();
-    void on_copyCRC32_clicked();
+    void onHexSideTab2CurrentChanged(int index);
+    void onCopyMD5Clicked();
+    void onCopyShA1Clicked();
+    void onCopyShA256Clicked();
+    void onCopyCrC32Clicked();
 };
 
 #endif // HEXDUMPWIDGET_H

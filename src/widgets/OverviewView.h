@@ -1,12 +1,16 @@
 #ifndef OVERVIEWVIEW_H
 #define OVERVIEWVIEW_H
 
-#include <QWidget>
+#include "widgets/DisassemblerGraphView.h"
+#include "widgets/GraphView.h"
+
 #include <QPainter>
 #include <QRect>
-#include "widgets/GraphView.h"
-#include "widgets/DisassemblerGraphView.h"
+#include <QWidget>
 
+/**
+ * @brief A "minimap" widget that displays a scaled-down version of the function graph
+ */
 class OverviewView : public GraphView
 {
     Q_OBJECT

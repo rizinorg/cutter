@@ -1,22 +1,22 @@
 #include "StringsWidget.h"
-#include "ui_StringsWidget.h"
-#include "core/MainWindow.h"
+
 #include "common/Helpers.h"
-#include "WidgetShortcuts.h"
+#include "core/MainWindow.h"
+#include "shortcuts/ShortcutManager.h"
+#include "ui_StringsWidget.h"
 
 #include <QClipboard>
 #include <QMenu>
 #include <QModelIndex>
 #include <QShortcut>
 
-StringsModel::StringsModel(QList<StringDescription> *strings, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), strings(strings)
-{
-}
+#include <utility>
+
+StringsModel::StringsModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
 int StringsModel::rowCount(const QModelIndex &) const
 {
-    return strings->count();
+    return strings.count();
 }
 
 int StringsModel::columnCount(const QModelIndex &) const
@@ -26,16 +26,17 @@ int StringsModel::columnCount(const QModelIndex &) const
 
 QVariant StringsModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= strings->count())
+    if (index.row() >= strings.count()) {
         return QVariant();
+    }
 
-    const StringDescription &str = strings->at(index.row());
+    const StringDescription &str = strings.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
         switch (index.column()) {
         case StringsModel::OffsetColumn:
-            return RzAddressString(str.vaddr);
+            return rzAddressString(str.vaddr);
         case StringsModel::StringColumn:
             return str.string;
         case StringsModel::TypeColumn:
@@ -51,7 +52,7 @@ QVariant StringsModel::data(const QModelIndex &index, int role) const
         default:
             return QVariant();
         }
-    case StringDescriptionRole:
+    case stringDescriptionRole:
         return QVariant::fromValue(str);
     default:
         return QVariant();
@@ -87,13 +88,13 @@ QVariant StringsModel::headerData(int section, Qt::Orientation, int role) const
 
 RVA StringsModel::address(const QModelIndex &index) const
 {
-    const StringDescription &str = strings->at(index.row());
+    const StringDescription &str = strings.at(index.row());
     return str.vaddr;
 }
 
 const StringDescription *StringsModel::description(const QModelIndex &index) const
 {
-    return &strings->at(index.row());
+    return &strings.at(index.row());
 }
 
 StringsProxyModel::StringsProxyModel(StringsModel *sourceModel, QObject *parent)
@@ -105,19 +106,26 @@ StringsProxyModel::StringsProxyModel(StringsModel *sourceModel, QObject *parent)
 
 void StringsProxyModel::setSelectedSection(QString section)
 {
-    selectedSection = section;
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+#endif
+
+    selectedSection = std::move(section);
+
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     invalidateFilter();
-#else
+#elif QT_VERSION < QT_VERSION_CHECK(6, 9, 0)
     invalidateRowsFilter();
+#else
+    endFilterChange();
 #endif
 }
 
 bool StringsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
-    QModelIndex index = sourceModel()->index(row, 0, parent);
-    StringDescription str =
-            index.data(StringsModel::StringDescriptionRole).value<StringDescription>();
+    const QModelIndex index = sourceModel()->index(row, 0, parent);
+    const auto str = index.data(StringsModel::stringDescriptionRole).value<StringDescription>();
     if (selectedSection.isEmpty()) {
         return qhelpers::filterStringContains(str.string, this);
     } else {
@@ -155,48 +163,53 @@ bool StringsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
 }
 
 StringsWidget::StringsWidget(MainWindow *main)
-    : CutterDockWidget(main), ui(new Ui::StringsWidget), tree(new CutterTreeWidget(this))
+    : CutterDockWidget(main),
+      ui(new Ui::StringsWidget),
+      model(new StringsModel(this)),
+      proxyModel(new StringsProxyModel(model, this))
 {
     ui->setupUi(this);
     ui->quickFilterView->setLabelText(tr("Section:"));
 
-    // Add Status Bar footer
-    tree->addStatusBar(ui->verticalLayout);
-
     qhelpers::setVerticalScrollMode(ui->stringsTreeView);
 
     // Shift-F12 to toggle strings window
-    QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["StringsWidget"], main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [=]() { toggleDockWidget(true); });
+    const QShortcut *toggleShortcut = Shortcuts()->makeQShortcut("Strings.toggle", main);
+    connect(toggleShortcut, &QShortcut::activated, this, [=, this]() { toggleDockWidget(true); });
 
-    connect(ui->actionCopy_String, &QAction::triggered, this, &StringsWidget::on_actionCopy);
+    connect(ui->actionCopyString, &QAction::triggered, this, &StringsWidget::onActionCopy);
 
     ui->actionFilter->setShortcut(QKeySequence::Find);
 
     ui->stringsTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    model = new StringsModel(&strings, this);
-    proxyModel = new StringsProxyModel(model, this);
     ui->stringsTreeView->setMainWindow(main);
-    ui->stringsTreeView->setModel(proxyModel);
+    ui->stringsTreeView->setModel(static_cast<AddressableItemModelI *>(proxyModel));
     ui->stringsTreeView->sortByColumn(-1, Qt::AscendingOrder);
 
-    //
+    ui->rawStringsCheckBox->setChecked(Config()->getShowRawStrings());
+    ui->rawStringsCheckBox->setStyleSheet("QCheckBox {"
+                                          "    padding-left: 10px;"
+                                          "    padding-right: 10px;"
+                                          "    padding-top: 5px;"
+                                          "    padding-bottom: 0px;"
+                                          "}");
+
     auto menu = ui->stringsTreeView->getItemContextMenu();
-    menu->addAction(ui->actionCopy_String);
+    menu->addAction(ui->actionCopyString);
 
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, proxyModel,
             &QSortFilterProxyModel::setFilterWildcard);
 
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
-            [this] { tree->showItemsNumber(proxyModel->rowCount()); });
+            [this] { ui->quickFilterView->setItemCount(proxyModel->rowCount()); });
 
-    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
+    QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
     connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
             &ComboQuickFilterView::showFilter);
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    QShortcut *clearShortcut = Shortcuts()->makeQShortcut("General.clearFilter", this);
     connect(clearShortcut, &QShortcut::activated, this, [this]() {
         ui->quickFilterView->clearFilter();
         ui->stringsTreeView->setFocus();
@@ -210,14 +223,18 @@ StringsWidget::StringsWidget(MainWindow *main)
 
     connect(ui->quickFilterView->comboBox(), &QComboBox::currentTextChanged, this, [this]() {
         proxyModel->setSelectedSection(ui->quickFilterView->comboBox()->currentData().toString());
-        tree->showItemsNumber(proxyModel->rowCount());
+        ui->quickFilterView->setItemCount(proxyModel->rowCount());
     });
 
-    auto header = ui->stringsTreeView->header();
-    header->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
-    header->setSectionResizeMode(StringsModel::StringColumn, QHeaderView::ResizeMode::Stretch);
-    header->setStretchLastSection(false);
-    header->setResizeContentsPrecision(256);
+    auto showRawStringsChecked = [this](bool checked) {
+        Config()->setShowRawStrings(checked);
+        refreshStrings();
+    };
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    connect(ui->rawStringsCheckBox, &QCheckBox::checkStateChanged, this, showRawStringsChecked);
+#else
+    connect(ui->rawStringsCheckBox, &QCheckBox::stateChanged, this, showRawStringsChecked);
+#endif
 }
 
 StringsWidget::~StringsWidget() {}
@@ -228,8 +245,8 @@ void StringsWidget::refreshStrings()
         task->wait();
     }
 
-    task = QSharedPointer<StringsTask>(new StringsTask());
-    connect(task.data(), &StringsTask::stringSearchFinished, this,
+    task = std::shared_ptr<StringsTask>(new StringsTask(ui->rawStringsCheckBox->isChecked()));
+    connect(task.get(), &StringsTask::stringSearchFinished, this,
             &StringsWidget::stringSearchFinished);
     Core()->getAsyncTaskManager()->start(task);
 
@@ -253,18 +270,21 @@ void StringsWidget::refreshSectionCombo()
 void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings)
 {
     model->beginResetModel();
-    this->strings = strings;
+    model->strings = strings;
     model->endResetModel();
 
-    tree->showItemsNumber(proxyModel->rowCount());
+    qhelpers::adjustColumns(ui->stringsTreeView, StringsModel::ColumnCount, 0);
 
-    task.clear();
+    // set the initial item count
+    ui->quickFilterView->setItemCount(proxyModel->rowCount());
+
+    task.reset();
 }
 
-void StringsWidget::on_actionCopy()
+void StringsWidget::onActionCopy()
 {
-    QModelIndex current_item = ui->stringsTreeView->currentIndex();
-    int row = current_item.row();
+    const QModelIndex currentItem = ui->stringsTreeView->currentIndex();
+    const int row = currentItem.row();
 
     QModelIndex index;
 

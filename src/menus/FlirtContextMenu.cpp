@@ -1,12 +1,13 @@
 #include "FlirtContextMenu.h"
+
 #include "MainWindow.h"
 
-#include <QtCore>
-#include <QShortcut>
-#include <QJsonArray>
-#include <QClipboard>
 #include <QApplication>
+#include <QClipboard>
+#include <QJsonArray>
 #include <QPushButton>
+#include <QShortcut>
+#include <QtCore>
 
 FlirtContextMenu::FlirtContextMenu(QWidget *parent, MainWindow *mainWindow)
     : QMenu(parent), mainWindow(mainWindow)
@@ -38,18 +39,18 @@ void FlirtContextMenu::clearTarget()
     setHasTarget(false);
 }
 
-void FlirtContextMenu::onActionCopyLine()
+void FlirtContextMenu::onActionCopyLine() const
 {
     auto clipboard = QApplication::clipboard();
-    QString text = entry.bin_name + "\t" + entry.arch_name + "\t" + entry.arch_bits + "\t"
-            + entry.n_modules + "\t" + entry.base_name + "\t" + entry.details;
+    const QString text = entry.binName + "\t" + entry.archName + "\t" + entry.archBits + "\t"
+            + entry.nModules + "\t" + entry.baseName + "\t" + entry.details;
     clipboard->setText(text);
 }
 
-void FlirtContextMenu::onActionApplySignature()
+void FlirtContextMenu::onActionApplySignature() const
 {
     if (this->hasTarget) {
-        Core()->applySignature(entry.file_path);
+        Core()->applySignature(entry.filePath);
     }
 }
 

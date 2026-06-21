@@ -7,18 +7,19 @@
 #include "GraphHorizontalAdapter.h"
 #include "Helpers.h"
 
-#include <vector>
-#include <QPainter>
-#include <QMouseEvent>
 #include <QKeyEvent>
+#include <QMouseEvent>
+#include <QPainter>
 #include <QPropertyAnimation>
 #include <QSvgGenerator>
 
+#include <vector>
+
 #ifndef CUTTER_NO_OPENGL_GRAPH
 #    include <QOpenGLContext>
-#    include <QOpenGLWidget>
-#    include <QOpenGLPaintDevice>
 #    include <QOpenGLExtraFunctions>
+#    include <QOpenGLPaintDevice>
+#    include <QOpenGLWidget>
 #endif
 
 GraphView::GraphView(QWidget *parent)
@@ -120,7 +121,7 @@ void GraphView::contextMenuEvent(QContextMenuEvent *event)
 {
     event->ignore();
     if (event->reason() == QContextMenuEvent::Mouse) {
-        QPoint p = viewToLogicalCoordinates(event->pos());
+        const QPoint p = viewToLogicalCoordinates(event->pos());
         if (auto block = getBlockContaining(p)) {
             blockContextMenuRequested(*block, event, p);
         }
@@ -129,7 +130,7 @@ void GraphView::contextMenuEvent(QContextMenuEvent *event)
 
 void GraphView::computeGraphPlacement()
 {
-    graphLayoutSystem->CalculateLayout(blocks, entry, width, height);
+    graphLayoutSystem->calculateLayout(blocks, entry, width, height);
     setCacheDirty();
     clampViewOffset();
     viewport()->update();
@@ -141,13 +142,13 @@ void GraphView::cleanupEdges(GraphLayout::Graph &graph)
         auto &block = blockIt.second;
         auto outIt = block.edges.begin();
         std::unordered_set<ut64> seenEdges;
-        for (auto it = block.edges.begin(), end = block.edges.end(); it != end; ++it) {
+        for (auto &edge : block.edges) {
             // remove edges going  to different functions
             // and remove duplicate edges, common in switch statements
-            if (graph.find(it->target) != graph.end()
-                && seenEdges.find(it->target) == seenEdges.end()) {
-                *outIt++ = *it;
-                seenEdges.insert(it->target);
+            if (graph.find(edge.target) != graph.end()
+                && seenEdges.find(edge.target) == seenEdges.end()) {
+                *outIt++ = edge;
+                seenEdges.insert(edge.target);
             }
         }
         block.edges.erase(outIt, block.edges.end());
@@ -157,7 +158,7 @@ void GraphView::cleanupEdges(GraphLayout::Graph &graph)
 void GraphView::beginMouseDrag(QMouseEvent *event)
 {
     scrollBase = event->pos();
-    scroll_mode = true;
+    scrollMode = true;
     setCursor(Qt::ClosedHandCursor);
 }
 
@@ -168,7 +169,7 @@ void GraphView::setViewOffset(QPoint offset)
 
 void GraphView::setViewScale(qreal scale)
 {
-    this->current_scale = scale;
+    this->currentScale = scale;
     emit viewScaleChanged(scale);
 }
 
@@ -242,20 +243,21 @@ void GraphView::paintEvent(QPaintEvent *)
 void GraphView::clampViewOffset()
 {
     const qreal edgeFraction = 0.25;
-    qreal edgeX = edgeFraction * (viewport()->width() / current_scale);
-    qreal edgeY = edgeFraction * (viewport()->height() / current_scale);
+    const qreal edgeX = edgeFraction * (viewport()->width() / currentScale);
+    const qreal edgeY = edgeFraction * (viewport()->height() / currentScale);
     offset.rx() = std::max(std::min(qreal(offset.x()), width - edgeX),
-                           -viewport()->width() / current_scale + edgeX);
+                           -viewport()->width() / currentScale + edgeX);
     offset.ry() = std::max(std::min(qreal(offset.y()), height - edgeY),
-                           -viewport()->height() / current_scale + edgeY);
+                           -viewport()->height() / currentScale + edgeY);
 }
 
 void GraphView::setViewOffsetInternal(QPoint pos, bool emitSignal)
 {
     offset = pos;
     clampViewOffset();
-    if (emitSignal)
+    if (emitSignal) {
         emit viewOffsetChanged(offset);
+    }
 }
 
 void GraphView::addViewOffset(QPoint move, bool emitSignal)
@@ -274,7 +276,7 @@ void GraphView::paintGraphCache()
         auto gl = QOpenGLContext::currentContext()->functions();
 
         bool resizeTex = false;
-        QSize sizeNeed = getRequiredCacheSize();
+        const QSize sizeNeed = getRequiredCacheSize();
         if (!cacheTexture) {
             gl->glGenTextures(1, &cacheTexture);
             gl->glBindTexture(GL_TEXTURE_2D, cacheTexture);
@@ -316,29 +318,29 @@ void GraphView::paintGraphCache()
         p.setRenderHint(QPainter::Antialiasing);
         p.setViewport(this->viewport()->rect());
     }
-    paint(p, offset, this->viewport()->rect(), current_scale);
+    paint(p, offset, this->viewport()->rect(), currentScale);
 
     p.end();
 }
 
 void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale, bool interactive)
 {
-    QPointF offsetF(offset.x(), offset.y());
+    const QPointF offsetF(offset.x(), offset.y());
     p.setBrush(Qt::black);
 
-    int render_width = viewport.width();
-    int render_height = viewport.height();
+    const int renderWidth = viewport.width();
+    const int renderHeight = viewport.height();
 
     // window - rectangle in logical coordinates
-    QRect window =
-            QRect(offset, QSize(qRound(render_width / scale), qRound(render_height / scale)));
+    const QRect window =
+            QRect(offset, QSize(qRound(renderWidth / scale), qRound(renderHeight / scale)));
     p.setWindow(window);
-    QRectF windowF(window.x(), window.y(), window.width(), window.height());
+    const QRectF windowF(window.x(), window.y(), window.width(), window.height());
 
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
 
-        QRectF blockRect(block.x, block.y, block.width, block.height);
+        const QRectF blockRect(block.x, block.y, block.width, block.height);
 
         // Check if block is visible by checking if block intersects with view area
         if (blockRect.intersects(windowF)) {
@@ -354,13 +356,14 @@ void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale, b
             if (edge.polyline.empty()) {
                 continue;
             }
-            QPolygonF polyline = edge.polyline;
-            EdgeConfiguration ec = edgeConfiguration(block, &blocks[edge.target], interactive);
+            const QPolygonF polyline = edge.polyline;
+            const EdgeConfiguration ec =
+                    edgeConfiguration(block, &blocks[edge.target], interactive);
             QPen pen(ec.color);
             pen.setStyle(ec.lineStyle);
-            pen.setWidthF(pen.width() * ec.width_scale);
-            if (scale_thickness_multiplier && ec.width_scale > 1.01 && pen.widthF() * scale < 2) {
-                pen.setWidthF(ec.width_scale / scale);
+            pen.setWidthF(pen.width() * ec.widthScale);
+            if (scaleThicknessMultiplier && ec.widthScale > 1.01 && pen.widthF() * scale < 2) {
+                pen.setWidthF(ec.widthScale / scale);
             }
             if (pen.widthF() * scale < 2) {
                 pen.setWidth(0);
@@ -376,19 +379,19 @@ void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale, b
                 p.setPen(pen);
                 QPolygonF arrow;
                 arrow << tip;
-                QPointF dy(-dir.y(), dir.x());
-                QPointF base = tip - dir * 6;
+                const QPointF dy(-dir.y(), dir.x());
+                const QPointF base = tip - dir * 6;
                 arrow << base + 3 * dy;
                 arrow << base - 3 * dy;
                 p.drawConvexPolygon(arrow);
             };
 
             if (!polyline.empty()) {
-                if (ec.start_arrow) {
+                if (ec.startArrow) {
                     auto firstPt = edge.polyline.first();
                     drawArrow(firstPt, QPointF(0, 1));
                 }
-                if (ec.end_arrow) {
+                if (ec.endArrow) {
                     auto lastPt = edge.polyline.last();
                     QPointF dir(0, -1);
                     switch (edge.arrow) {
@@ -414,7 +417,8 @@ void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale, b
     }
 }
 
-void GraphView::saveAsBitmap(QString path, const char *format, double scaler, bool transparent)
+void GraphView::saveAsBitmap(const QString &path, const char *format, double scaler,
+                             bool transparent)
 {
     QImage image(width * scaler, height * scaler, QImage::Format_ARGB32);
     if (transparent) {
@@ -431,7 +435,7 @@ void GraphView::saveAsBitmap(QString path, const char *format, double scaler, bo
     }
 }
 
-void GraphView::saveAsSvg(QString path)
+void GraphView::saveAsSvg(const QString &path)
 {
     QSvgGenerator generator;
     generator.setFileName(path);
@@ -453,8 +457,8 @@ void GraphView::center()
 
 void GraphView::centerX(bool emitSignal)
 {
-    offset.rx() = -((viewport()->width() - width * current_scale) / 2);
-    offset.rx() /= current_scale;
+    offset.rx() = -((viewport()->width() - width * currentScale) / 2);
+    offset.rx() /= currentScale;
     clampViewOffset();
     if (emitSignal) {
         emit viewOffsetChanged(offset);
@@ -463,8 +467,8 @@ void GraphView::centerX(bool emitSignal)
 
 void GraphView::centerY(bool emitSignal)
 {
-    offset.ry() = -((viewport()->height() - height * current_scale) / 2);
-    offset.ry() /= current_scale;
+    offset.ry() = -((viewport()->height() - height * currentScale) / 2);
+    offset.ry() /= currentScale;
     clampViewOffset();
     if (emitSignal) {
         emit viewOffsetChanged(offset);
@@ -479,8 +483,8 @@ void GraphView::showBlock(GraphBlock &block, bool anywhere)
 
 void GraphView::showRectangle(const QRect &block, bool anywhere)
 {
-    QSizeF renderSize = QSizeF(viewport()->size()) / current_scale;
-    if (width * current_scale <= viewport()->width()) {
+    const QSizeF renderSize = QSizeF(viewport()->size()) / currentScale;
+    if (width * currentScale <= viewport()->width()) {
         centerX(false);
     } else {
         if (!anywhere || block.x() < offset.x()
@@ -488,14 +492,14 @@ void GraphView::showRectangle(const QRect &block, bool anywhere)
             offset.rx() = block.x() - ((renderSize.width() - block.width()) / 2);
         }
     }
-    if (height * current_scale <= viewport()->height()) {
+    if (height * currentScale <= viewport()->height()) {
         centerY(false);
     } else {
         if (!anywhere || block.y() < offset.y()
             || block.bottom() > offset.y() + renderSize.height()) {
             offset.ry() = block.y();
             // Leave some space at top if possible
-            const qreal topPadding = 10 / current_scale;
+            const qreal topPadding = 10 / currentScale;
             if (block.height() + topPadding < renderSize.height()) {
                 offset.ry() -= topPadding;
             }
@@ -512,7 +516,7 @@ GraphView::GraphBlock *GraphView::getBlockContaining(QPoint p)
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
 
-        QRect rec(block.x, block.y, block.width, block.height);
+        const QRect rec(block.x, block.y, block.width, block.height);
         if (rec.contains(p)) {
             return &block;
         }
@@ -522,12 +526,12 @@ GraphView::GraphBlock *GraphView::getBlockContaining(QPoint p)
 
 QPoint GraphView::viewToLogicalCoordinates(QPoint p)
 {
-    return p / current_scale + offset;
+    return p / currentScale + offset;
 }
 
 QPoint GraphView::logicalToViewCoordinates(QPoint p)
 {
-    return (p - offset) * current_scale;
+    return (p - offset) * currentScale;
 }
 
 void GraphView::setGraphLayout(std::unique_ptr<GraphLayout> layout)
@@ -546,7 +550,7 @@ void GraphView::setLayoutConfig(const GraphLayout::LayoutConfig &config)
 std::unique_ptr<GraphLayout> GraphView::makeGraphLayout(GraphView::Layout layout, bool horizontal)
 {
     std::unique_ptr<GraphLayout> result;
-    bool needAdapter = true;
+    bool needAdapter = true; // NOLINT
 
 #ifdef CUTTER_ENABLE_GRAPHVIZ
     auto makeGraphvizLayout = [&](GraphvizLayout::LayoutType type) {
@@ -574,7 +578,7 @@ std::unique_ptr<GraphLayout> GraphView::makeGraphLayout(GraphView::Layout layout
     case Layout::GridBAB:
     case Layout::GridBBA:
     case Layout::GridBBB: {
-        int options = static_cast<int>(layout) - static_cast<int>(Layout::GridAAA);
+        const int options = static_cast<int>(layout) - static_cast<int>(Layout::GridAAA);
         std::unique_ptr<GraphGridLayout> gridLayout(new GraphGridLayout());
         gridLayout->setTightSubtreePlacement((options & 1) == 0);
         gridLayout->setParentBetweenDirectChild((options & 2));
@@ -609,7 +613,7 @@ std::unique_ptr<GraphLayout> GraphView::makeGraphLayout(GraphView::Layout layout
     return result;
 }
 
-void GraphView::addBlock(GraphView::GraphBlock block)
+void GraphView::addBlock(const GraphView::GraphBlock &block)
 {
     blocks[block.entry] = block;
 }
@@ -621,11 +625,10 @@ void GraphView::setEntry(ut64 e)
 
 bool GraphView::checkPointClicked(QPointF &point, int x, int y, bool above_y)
 {
-    int half_target_size = 5;
-    if ((point.x() - half_target_size < x)
-        && (point.y() - (above_y ? (2 * half_target_size) : 0) < y)
-        && (x < point.x() + half_target_size)
-        && (y < point.y() + (above_y ? 0 : (3 * half_target_size)))) {
+    const int halfTargetSize = 5;
+    if ((point.x() - halfTargetSize < x) && (point.y() - (above_y ? (2 * halfTargetSize) : 0) < y)
+        && (x < point.x() + halfTargetSize)
+        && (y < point.y() + (above_y ? 0 : (3 * halfTargetSize)))) {
         return true;
     }
     return false;
@@ -639,7 +642,7 @@ void GraphView::mousePressEvent(QMouseEvent *event)
         return;
     }
 
-    QPoint pos = viewToLogicalCoordinates(event->pos());
+    const QPoint pos = viewToLogicalCoordinates(event->pos());
 
     // Check if a block was clicked
     if (auto block = getBlockContaining(pos)) {
@@ -685,8 +688,8 @@ void GraphView::mousePressEvent(QMouseEvent *event)
 
 void GraphView::mouseMoveEvent(QMouseEvent *event)
 {
-    if (scroll_mode) {
-        addViewOffset((scrollBase - event->pos()) / current_scale);
+    if (scrollMode) {
+        addViewOffset((scrollBase - event->pos()) / currentScale);
         scrollBase = event->pos();
         viewport()->update();
     }
@@ -703,9 +706,9 @@ void GraphView::mouseDoubleClickEvent(QMouseEvent *event)
 void GraphView::keyPressEvent(QKeyEvent *event)
 {
     // for scrolling with arrow keys
-    const int delta = static_cast<int>(30.0 / current_scale);
+    const int delta = static_cast<int>(30.0 / currentScale);
     // for scrolling with pgup/pgdown keys
-    const int delta2 = static_cast<int>(100.0 / current_scale);
+    const int delta2 = static_cast<int>(100.0 / currentScale);
     int dx = 0, dy = 0;
     switch (event->key()) {
     case Qt::Key_Up:
@@ -737,21 +740,21 @@ void GraphView::keyPressEvent(QKeyEvent *event)
 
 void GraphView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (scroll_mode && (event->buttons() & (Qt::LeftButton | Qt::MiddleButton)) == 0) {
-        scroll_mode = false;
+    if (scrollMode && (event->buttons() & (Qt::LeftButton | Qt::MiddleButton)) == 0) {
+        scrollMode = false;
         setCursor(Qt::ArrowCursor);
     }
 }
 
 void GraphView::wheelEvent(QWheelEvent *event)
 {
-    if (scroll_mode) {
+    if (scrollMode) {
         // With some mice it's easy to hit sideway scroll button while holding middle mouse.
         // That would result in unwanted scrolling while panning.
         return;
     }
     QPoint delta = -event->angleDelta();
-    delta /= current_scale;
+    delta /= currentScale;
     addViewOffset(delta);
     viewport()->update();
     event->accept();

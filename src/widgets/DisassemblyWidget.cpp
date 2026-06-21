@@ -1,48 +1,58 @@
 #include "DisassemblyWidget.h"
-#include "menus/DisassemblyContextMenu.h"
+
+#include "DisassemblyHelper.h"
+#include "common/BinaryTrees.h"
 #include "common/Configuration.h"
 #include "common/DisassemblyPreview.h"
 #include "common/Helpers.h"
-#include "common/TempConfig.h"
 #include "common/SelectionHighlight.h"
-#include "common/BinaryTrees.h"
+#include "common/TempConfig.h"
 #include "core/MainWindow.h"
+#include "menus/DisassemblyContextMenu.h"
+#include "shortcuts/ShortcutManager.h"
+#include "widgets/AddressRangeScrollBar.h"
 
 #include <QApplication>
-#include <QScrollBar>
 #include <QJsonArray>
 #include <QJsonObject>
-#include <QVBoxLayout>
-#include <QRegularExpression>
-#include <QtMath>
-#include <QTextBlockUserData>
 #include <QPainter>
 #include <QPainterPath>
+#include <QRegularExpression>
+#include <QScrollBar>
 #include <QSplitter>
+#include <QTextBlockUserData>
+#include <QVBoxLayout>
+#include <QtMath>
 
 #include <algorithm>
 #include <cmath>
 #include <cstring>
 
+namespace DH = DisassemblyHelper;
+
 DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     : MemoryDockWidget(MemoryWidgetType::Disassembly, main),
       mCtxMenu(new DisassemblyContextMenu(this, main)),
       mDisasScrollArea(new DisassemblyScrollArea(this)),
-      mDisasTextEdit(new DisassemblyTextEdit(this))
+      mDisasTextEdit(new DisassemblyTextEdit(this)),
+      leftPanel(new DisassemblyLeftPanel(this)),
+      maxLines(0),
+      cursorLineOffset(0),
+      cursorCharOffset(0),
+      seekFromCursor(false),
+      disasmRefresh(createReplacingRefreshDeferrer<RVA>(
+              false, [this](const RVA *offset) { refreshDisasm(offset ? *offset : RVA_INVALID); }))
 {
     setObjectName(main ? main->getUniqueObjectName(getWidgetType()) : getWidgetType());
     updateWindowTitle();
 
     topOffset = bottomOffset = RVA_INVALID;
-    cursorLineOffset = 0;
-    cursorCharOffset = 0;
-    seekFromCursor = false;
 
     // Instantiate the window layout
     auto *splitter = new QSplitter;
 
     // Setup the left frame that contains breakpoints and jumps
-    leftPanel = new DisassemblyLeftPanel(this);
+
     splitter->addWidget(leftPanel);
 
     // Setup the disassembly content
@@ -52,7 +62,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     mDisasScrollArea->viewport()->setLayout(layout);
     splitter->addWidget(mDisasScrollArea);
     connect(mDisasScrollArea->verticalScrollBar(), &QScrollBar::valueChanged, this,
-            [this](int) { refreshDisasm(mDisasScrollArea->currentVScrollAddr()); });
+            [this](int) { refreshDisasm(mDisasScrollArea->verticalScrollBar()->address()); });
     // Use stylesheet instead of QWidget::setFrameShape(QFrame::NoShape) to avoid
     // issues with dark and light interface themes
     mDisasScrollArea->setStyleSheet("QAbstractScrollArea { border: 0px transparent black; }");
@@ -66,8 +76,8 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
 
     // Behave like all widgets: highlight on focus and hover
     connect(qApp, &QApplication::focusChanged, this, [this](QWidget *, QWidget *now) {
-        QColor borderColor = this == now ? palette().color(QPalette::Highlight)
-                                         : palette().color(QPalette::WindowText).darker();
+        const QColor borderColor = this == now ? palette().color(QPalette::Highlight)
+                                               : palette().color(QPalette::WindowText).darker();
         widget()->setStyleSheet(QString("QSplitter { border: %1px solid %2 } \n"
                                         "QSplitter:hover { border: %1px solid %3 } \n")
                                         .arg(devicePixelRatio())
@@ -90,10 +100,6 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     setupFonts();
     setupColors();
 
-    disasmRefresh = createReplacingRefreshDeferrer<RVA>(
-            false, [this](const RVA *offset) { refreshDisasm(offset ? *offset : RVA_INVALID); });
-
-    maxLines = 0;
     updateMaxLines();
 
     mDisasTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -104,8 +110,8 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     mDisasTextEdit->setWordWrapMode(QTextOption::NoWrap);
 
     // Increase asm text edit margin
-    QTextDocument *asm_docu = mDisasTextEdit->document();
-    asm_docu->setDocumentMargin(10);
+    QTextDocument *asmDocu = mDisasTextEdit->document();
+    asmDocu->setDocumentMargin(10);
 
     // Event filter to intercept double clicks in the textbox
     // and showing tooltips when hovering above those offsets
@@ -120,24 +126,23 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
             &DisassemblyWidget::scrollInstructions);
     connect(mDisasScrollArea, &DisassemblyScrollArea::disassemblyResized, this,
             &DisassemblyWidget::updateMaxLines);
+    connect(mDisasScrollArea, &DisassemblyScrollArea::wheelEventTriggered, this,
+            &DisassemblyWidget::showTransientScrollBar);
 
     connectCursorPositionChanged(false);
-    connect(mDisasTextEdit->verticalScrollBar(), &QScrollBar::valueChanged, this, [=](int value) {
-        if (value != 0) {
-            mDisasTextEdit->verticalScrollBar()->setValue(0);
-        }
-    });
 
-    connect(Core(), &CutterCore::commentsChanged, this, [this]() { refreshDisasm(); });
-    connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshDisasm()));
-    connect(Core(), SIGNAL(globalVarsChanged()), this, SLOT(refreshDisasm()));
-    connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshDisasm()));
-    connect(Core(), &CutterCore::functionRenamed, this, [this]() { refreshDisasm(); });
-    connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshDisasm()));
-    connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshDisasm()));
+    // Avoids the "The slot requires more arguments than the signal provides" error
+    auto refresh = [this]() { refreshDisasm(); };
+    connect(Core(), &CutterCore::commentsChanged, this, refresh);
+    connect(Core(), &CutterCore::flagsChanged, this, refresh);
+    connect(Core(), &CutterCore::globalVarsChanged, this, refresh);
+    connect(Core(), &CutterCore::functionsChanged, this, refresh);
+    connect(Core(), &CutterCore::functionRenamed, this, refresh);
+    connect(Core(), &CutterCore::varsChanged, this, refresh);
+    connect(Core(), &CutterCore::asmOptionsChanged, this, refresh);
+    connect(Core(), &CutterCore::refreshCodeViews, this, refresh);
     connect(Core(), &CutterCore::instructionChanged, this, &DisassemblyWidget::instructionChanged);
     connect(Core(), &CutterCore::breakpointsChanged, this, &DisassemblyWidget::refreshIfInRange);
-    connect(Core(), SIGNAL(refreshCodeViews()), this, SLOT(refreshDisasm()));
 
     connect(Config(), &Configuration::fontsUpdated, this, &DisassemblyWidget::fontsUpdatedSlot);
     connect(Config(), &Configuration::colorsUpdated, this, &DisassemblyWidget::colorsUpdatedSlot);
@@ -151,36 +156,31 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     mCtxMenu->addSeparator();
     mCtxMenu->addAction(&syncAction);
     connect(seekable, &CutterSeekable::seekableSeekChanged, this,
-            &DisassemblyWidget::on_seekChanged);
+            &DisassemblyWidget::onSeekChanged);
 
     addActions(mCtxMenu->actions());
 
-#define ADD_ACTION(ksq, ctx, slot)                                                                 \
+#define ADD_ACTION(id, ctx, slot)                                                                  \
     {                                                                                              \
-        QAction *a = new QAction(this);                                                            \
-        a->setShortcut(ksq);                                                                       \
+        QAction *a = Shortcuts()->makeAction(id, this);                                            \
         a->setShortcutContext(ctx);                                                                \
         addAction(a);                                                                              \
         connect(a, &QAction::triggered, this, (slot));                                             \
     }
 
     // Space to switch to graph
-    ADD_ACTION(Qt::Key_Space, Qt::WidgetWithChildrenShortcut,
+    ADD_ACTION("Disassembly.switchToGraph", Qt::WidgetWithChildrenShortcut,
                [this] { mainWindow->showMemoryWidget(MemoryWidgetType::Graph); })
 
-    ADD_ACTION(Qt::Key_Escape, Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::seekPrev)
+    ADD_ACTION("General.seekPrev", Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::seekPrev)
 
-    ADD_ACTION(Qt::Key_J, Qt::WidgetWithChildrenShortcut,
+    ADD_ACTION("Disassembly.moveDown", Qt::WidgetWithChildrenShortcut,
                [this]() { moveCursorRelative(false, false); })
-    ADD_ACTION(QKeySequence::MoveToNextLine, Qt::WidgetWithChildrenShortcut,
-               [this]() { moveCursorRelative(false, false); })
-    ADD_ACTION(Qt::Key_K, Qt::WidgetWithChildrenShortcut,
+    ADD_ACTION("Disassembly.moveUp", Qt::WidgetWithChildrenShortcut,
                [this]() { moveCursorRelative(true, false); })
-    ADD_ACTION(QKeySequence::MoveToPreviousLine, Qt::WidgetWithChildrenShortcut,
-               [this]() { moveCursorRelative(true, false); })
-    ADD_ACTION(QKeySequence::MoveToNextPage, Qt::WidgetWithChildrenShortcut,
+    ADD_ACTION("Disassembly.pageDown", Qt::WidgetWithChildrenShortcut,
                [this]() { moveCursorRelative(false, true); })
-    ADD_ACTION(QKeySequence::MoveToPreviousPage, Qt::WidgetWithChildrenShortcut,
+    ADD_ACTION("Disassembly.pageUp", Qt::WidgetWithChildrenShortcut,
                [this]() { moveCursorRelative(true, true); })
 #undef ADD_ACTION
 }
@@ -222,6 +222,11 @@ QList<DisassemblyLine> DisassemblyWidget::getLines()
     return lines;
 }
 
+void DisassemblyWidget::showTransientScrollBar()
+{
+    mDisasScrollArea->verticalScrollBar()->showTransientScrollBar();
+}
+
 void DisassemblyWidget::refreshIfInRange(RVA offset)
 {
     if (offset >= topOffset && offset <= bottomOffset) {
@@ -257,7 +262,7 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
     }
 
     breakpoints = Core()->getBreakpointsAddresses();
-    int horizontalScrollValue = mDisasTextEdit->horizontalScrollBar()->value();
+    const int horizontalScrollValue = mDisasTextEdit->horizontalScrollBar()->value();
     mDisasTextEdit->setLockScroll(true); // avoid flicker
 
     // Retrieve disassembly lines
@@ -271,7 +276,7 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
 
     mDisasTextEdit->document()->clear();
     QTextCursor cursor(mDisasTextEdit->document());
-    QTextBlockFormat regular = cursor.blockFormat();
+    const QTextBlockFormat regular = cursor.blockFormat();
     for (const DisassemblyLine &line : lines) {
         if (line.offset < topOffset) { // overflow
             break;
@@ -311,13 +316,13 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
 
     mDisasTextEdit->setLockScroll(false);
     mDisasTextEdit->horizontalScrollBar()->setValue(horizontalScrollValue);
-    mDisasScrollArea->setVScrollPos(topOffset);
+    mDisasScrollArea->verticalScrollBar()->setPosition(topOffset);
 
     // Refresh the left panel (trigger paintEvent)
     leftPanel->update();
 }
 
-void DisassemblyWidget::scrollInstructions(int count)
+void DisassemblyWidget::scrollInstructions(int count, bool clampToScrollBarRange)
 {
     if (count == 0) {
         return;
@@ -336,13 +341,17 @@ void DisassemblyWidget::scrollInstructions(int count)
         }
     }
 
+    if (clampToScrollBarRange) {
+        offset = mDisasScrollArea->verticalScrollBar()->clampAddressToRange(offset);
+    }
+
     refreshDisasm(offset);
     topOffsetHistory[topOffsetHistoryPos] = offset;
 }
 
 bool DisassemblyWidget::updateMaxLines()
 {
-    int currentMaxLines = qhelpers::getMaxFullyDisplayedLines(mDisasTextEdit);
+    const int currentMaxLines = qhelpers::getMaxFullyDisplayedLines(mDisasTextEdit);
 
     if (currentMaxLines != maxLines) {
         maxLines = currentMaxLines;
@@ -356,7 +365,7 @@ bool DisassemblyWidget::updateMaxLines()
 void DisassemblyWidget::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
-    QColor highlightColor = ConfigColor("lineHighlight");
+    const QColor highlightColor = ConfigColor("lineHighlight");
 
     // Highlight the current word
     QTextCursor cursor = mDisasTextEdit->textCursor();
@@ -364,12 +373,12 @@ void DisassemblyWidget::highlightCurrentLine()
     // Select the line (BlockUnderCursor matches a line with current implementation)
     cursor.select(QTextCursor::BlockUnderCursor);
     // Remove any non-breakable space from the current line
-    QString searchString = cursor.selectedText().replace("\xc2\xa0", " ");
+    const QString searchString = cursor.selectedText().replace("\xc2\xa0", " ");
     // Cut the line in "tokens" that can be highlighted
     static const QRegularExpression tokenRegExp(R"(\b(?<!\.)([^\s]+)\b(?!\.))");
     QRegularExpressionMatchIterator i = tokenRegExp.globalMatch(searchString);
     while (i.hasNext()) {
-        QRegularExpressionMatch match = i.next();
+        const QRegularExpressionMatch match = i.next();
         // Current token is under our cursor, select this one
         if (match.capturedStart() <= clickedCharPos && match.capturedEnd() > clickedCharPos) {
             curHighlightedWord = match.captured();
@@ -382,7 +391,7 @@ void DisassemblyWidget::highlightCurrentLine()
     highlightSelection.cursor = cursor;
     highlightSelection.cursor.movePosition(QTextCursor::Start);
     while (true) {
-        RVA lineOffset = DisassemblyPreview::readDisassemblyOffset(highlightSelection.cursor);
+        const RVA lineOffset = DH::readDisassemblyOffset(highlightSelection.cursor);
         if (lineOffset == seekable->getOffset()) {
             highlightSelection.format.setBackground(highlightColor);
             highlightSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
@@ -407,23 +416,23 @@ void DisassemblyWidget::highlightCurrentLine()
 
 void DisassemblyWidget::highlightPCLine()
 {
-    RVA PCAddr = Core()->getProgramCounterValue();
+    const RVA pcAddr = Core()->getProgramCounterValue();
 
-    QColor highlightPCColor = ConfigColor("highlightPC");
+    const QColor highlightPCColor = ConfigColor("highlightPC");
 
     QList<QTextEdit::ExtraSelection> pcSelections;
     QTextEdit::ExtraSelection highlightSelection;
     highlightSelection.cursor = mDisasTextEdit->textCursor();
     highlightSelection.cursor.movePosition(QTextCursor::Start);
-    if (PCAddr != RVA_INVALID) {
+    if (pcAddr != RVA_INVALID) {
         while (true) {
-            RVA lineOffset = DisassemblyPreview::readDisassemblyOffset(highlightSelection.cursor);
-            if (lineOffset == PCAddr) {
+            const RVA lineOffset = DH::readDisassemblyOffset(highlightSelection.cursor);
+            if (lineOffset == pcAddr) {
                 highlightSelection.format.setBackground(highlightPCColor);
                 highlightSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
                 highlightSelection.cursor.clearSelection();
                 pcSelections.append(highlightSelection);
-            } else if (lineOffset != RVA_INVALID && lineOffset > PCAddr) {
+            } else if (lineOffset != RVA_INVALID && lineOffset > pcAddr) {
                 break;
             }
             highlightSelection.cursor.movePosition(QTextCursor::EndOfLine);
@@ -449,16 +458,16 @@ void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
 
 RVA DisassemblyWidget::readCurrentDisassemblyOffset()
 {
-    QTextCursor tc = mDisasTextEdit->textCursor();
-    return DisassemblyPreview::readDisassemblyOffset(tc);
+    const QTextCursor tc = mDisasTextEdit->textCursor();
+    return DH::readDisassemblyOffset(tc);
 }
 
 void DisassemblyWidget::updateCursorPosition()
 {
-    RVA offset = seekable->getOffset();
+    const RVA offset = seekable->getOffset();
 
     // already fine where it is?
-    RVA currentLineOffset = readCurrentDisassemblyOffset();
+    const RVA currentLineOffset = readCurrentDisassemblyOffset();
     if (currentLineOffset == offset) {
         return;
     }
@@ -470,14 +479,14 @@ void DisassemblyWidget::updateCursorPosition()
         mDisasTextEdit->setExtraSelections(
                 createSameWordsSelections(mDisasTextEdit, curHighlightedWord));
     } else {
-        RVA currentCursorOffset = readCurrentDisassemblyOffset();
-        QTextCursor originalCursor = mDisasTextEdit->textCursor();
+        const RVA currentCursorOffset = readCurrentDisassemblyOffset();
+        const QTextCursor originalCursor = mDisasTextEdit->textCursor();
 
         QTextCursor cursor = originalCursor;
         cursor.movePosition(QTextCursor::Start);
 
         while (true) {
-            RVA lineOffset = DisassemblyPreview::readDisassemblyOffset(cursor);
+            const RVA lineOffset = DH::readDisassemblyOffset(cursor);
             if (lineOffset == offset) {
                 if (cursorLineOffset > 0) {
                     cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor,
@@ -531,14 +540,14 @@ void DisassemblyWidget::connectCursorPositionChanged(bool disconnect)
 
 void DisassemblyWidget::cursorPositionChanged()
 {
-    RVA offset = readCurrentDisassemblyOffset();
+    const RVA offset = readCurrentDisassemblyOffset();
 
     cursorLineOffset = 0;
     QTextCursor c = mDisasTextEdit->textCursor();
     cursorCharOffset = c.positionInBlock();
     while (c.blockNumber() > 0) {
         c.movePosition(QTextCursor::PreviousBlock);
-        if (DisassemblyPreview::readDisassemblyOffset(c) != offset) {
+        if (DH::readDisassemblyOffset(c) != offset) {
             break;
         }
         cursorLineOffset++;
@@ -597,12 +606,12 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
         }
         refreshDisasm(offset);
     } else { // normal arrow keys
-        int blockCount = mDisasTextEdit->blockCount();
+        const int blockCount = mDisasTextEdit->blockCount();
         if (blockCount < 1) {
             return;
         }
 
-        int blockNumber = mDisasTextEdit->textCursor().blockNumber();
+        const int blockNumber = mDisasTextEdit->textCursor().blockNumber();
 
         if (blockNumber == blockCount - 1 && !up) {
             scrollInstructions(1);
@@ -613,7 +622,7 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
         mDisasTextEdit->moveCursor(up ? QTextCursor::Up : QTextCursor::Down);
 
         // handle cases where top instruction offsets change
-        RVA offset = readCurrentDisassemblyOffset();
+        const RVA offset = readCurrentDisassemblyOffset();
         if (offset != seekable->getOffset()) {
             seekable->seek(offset);
             highlightCurrentLine();
@@ -624,7 +633,7 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 
 void DisassemblyWidget::jumpToOffsetUnderCursor(const QTextCursor &cursor)
 {
-    RVA offset = DisassemblyPreview::readDisassemblyOffset(cursor);
+    const RVA offset = DH::readDisassemblyOffset(cursor);
     seekable->seekToReference(offset);
 }
 
@@ -632,31 +641,41 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonDblClick
         && (obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        const auto *mouseEvent = static_cast<QMouseEvent *>(event);
 
         if (mouseEvent->button() == Qt::LeftButton) {
-            const QTextCursor &cursor = mDisasTextEdit->cursorForPosition(mouseEvent->pos());
-            jumpToOffsetUnderCursor(cursor);
+            auto ctx =
+                    DH::getContextFromCursor(mDisasTextEdit->cursorForPosition(mouseEvent->pos()));
 
+            const DH::TargetAction ta =
+                    DH::resolveTarget(ctx, DisassemblyHelper::TargetFilter::Standard);
+            switch (ta.type) {
+            case DH::TargetType::TypeName:
+                Core()->showTypeInTypesWidget(ctx.word);
+                break;
+            case DH::TargetType::XRefComment:
+            case DH::TargetType::VariableXRef:
+            case DH::TargetType::Arrow:
+                if (ta.value != RVA_INVALID) {
+                    seekable->seek(ta.value);
+                }
+                break;
+            case DH::TargetType::None:
+                seekable->seekToReference(ctx.offset);
+                break;
+            default:
+                break;
+            }
             return true;
         }
     } else if ((Config()->getPreviewValue() || Config()->getShowVarTooltips())
                && event->type() == QEvent::ToolTip && obj == mDisasTextEdit->viewport()) {
-        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
-        auto cursorForWord = mDisasTextEdit->cursorForPosition(helpEvent->pos());
-        cursorForWord.select(QTextCursor::WordUnderCursor);
+        const auto *helpEvent = static_cast<QHelpEvent *>(event);
 
-        RVA offsetFrom = DisassemblyPreview::readDisassemblyOffset(cursorForWord);
+        auto ctx = DH::getContextFromCursor(mDisasTextEdit->cursorForPosition(helpEvent->pos()));
 
-        if (Config()->getPreviewValue()
-            && DisassemblyPreview::showDisasPreview(this, helpEvent->globalPos(), offsetFrom)) {
-            return true;
-        }
-        if (Config()->getShowVarTooltips()
-            && DisassemblyPreview::showDebugValueTooltip(
-                    this, helpEvent->globalPos(), cursorForWord.selectedText(), offsetFrom)) {
-            return true;
-        }
+        return DisassemblyPreview::showTooltip(this, helpEvent->globalPos(), ctx,
+                                               Config()->getPreviewValue());
     }
 
     return MemoryDockWidget::eventFilter(obj, event);
@@ -666,10 +685,26 @@ void DisassemblyWidget::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Return) {
         const QTextCursor cursor = mDisasTextEdit->textCursor();
-        jumpToOffsetUnderCursor(cursor);
+        auto ta = DH::resolveTarget(DH::getContextFromCursor(cursor), DH::TargetFilter::Arrows);
+        if (ta.type == DH::TargetType::Arrow) {
+            seekable->seek(ta.value);
+        } else {
+            jumpToOffsetUnderCursor(cursor);
+        }
     }
 
     MemoryDockWidget::keyPressEvent(event);
+}
+
+void DisassemblyWidget::contextMenuEvent(QContextMenuEvent *event)
+{
+    if (event->reason() == QContextMenuEvent::Keyboard) {
+        showDisasContextMenu(event->pos());
+        event->accept();
+        return;
+    }
+
+    MemoryDockWidget::contextMenuEvent(event);
 }
 
 QString DisassemblyWidget::getWindowTitle() const
@@ -677,7 +712,7 @@ QString DisassemblyWidget::getWindowTitle() const
     return tr("Disassembly");
 }
 
-void DisassemblyWidget::on_seekChanged(RVA offset, CutterCore::SeekHistoryType type)
+void DisassemblyWidget::onSeekChanged(RVA offset, CutterCore::SeekHistoryType type)
 {
     if (type == CutterCore::SeekHistoryType::New) {
         // Erase previous history past this point.
@@ -707,6 +742,8 @@ void DisassemblyWidget::on_seekChanged(RVA offset, CutterCore::SeekHistoryType t
         refreshDisasm(topOffsetHistory[topOffsetHistoryPos]);
     }
     mCtxMenu->setOffset(offset);
+    // after seek it will select curret instruction and updates renaming options
+    mCtxMenu->setCurHighlightedWord(curHighlightedWord);
 }
 
 void DisassemblyWidget::fontsUpdatedSlot()
@@ -739,161 +776,28 @@ void DisassemblyWidget::setupColors()
     setStyleSheet(DisassemblyPreview::getToolTipStyleSheet());
 }
 
-DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollArea(parent)
+DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent)
+    : QAbstractScrollArea(parent),
+      vScrollBar(new AddressRangeScrollBar(this)),
+      accumScrollWheelDeltaY(0)
 {
-    beginOffset = RVA_INVALID;
-    endOffset = RVA_INVALID;
-    accumScrollWheelDeltaY = 0;
-    verticalScrollBar()->setPageStep(40);
-    connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, [this](int action) {
-        QScrollBar *vScrollBar = verticalScrollBar();
-        int val = vScrollBar->value();
-        switch (action) {
-        case QAbstractSlider::SliderSingleStepAdd:
-            // Due to the way the QScrollBar::actionTriggered signal works,
-            // setting the slider pos to its current value here
-            // prevents it from moving, allowing us to basically
-            // override the scroll bar buttons' behavior
-            // See https://doc.qt.io/qt-6/qabstractslider.html#actionTriggered
-            // for more info.
-            vScrollBar->setSliderPosition(val);
-            if (val != vScrollBar->maximum()) {
-                emit scrollLines(1);
-            }
-            return;
-        case QAbstractSlider::SliderSingleStepSub:
-            // Same as above
-            vScrollBar->setSliderPosition(val);
-            if (val != vScrollBar->minimum()) {
-                emit scrollLines(-1);
-            }
-            return;
-        default:
-            break;
-        }
-    });
-    refreshVScrollbarRange();
-    connect(Core(), &CutterCore::refreshAll, this, &DisassemblyScrollArea::refreshVScrollbarRange);
+
+    setVerticalScrollBar(vScrollBar);
+
+    vScrollBar->setPageStep(40);
+    vScrollBar->setSingleStep(1);
+    connect(vScrollBar, &AddressRangeScrollBar::scrolled, this,
+            [this](int lines) { emit scrollLines(-lines, true); });
+    connect(vScrollBar, &AddressRangeScrollBar::hideScrollBar, this,
+            [this]() { setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff); });
+    connect(vScrollBar, &AddressRangeScrollBar::showScrollBar, this,
+            [this]() { setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn); });
+    vScrollBar->refreshRange();
 }
 
-RVA DisassemblyScrollArea::binSize()
+AddressRangeScrollBar *DisassemblyScrollArea::verticalScrollBar()
 {
-    return endOffset - beginOffset;
-}
-
-RVA DisassemblyScrollArea::currentVScrollAddr()
-{
-    int maximum = verticalScrollBar()->maximum();
-    if (!maximum || !binSize()) {
-        return beginOffset;
-    }
-    // Fallback formula for large files
-    if ((RVA_MAX / maximum) < binSize()) {
-        return verticalScrollBar()->value() * (binSize() / maximum)
-                + std::min<RVA>(verticalScrollBar()->value(), binSize() % maximum) + beginOffset;
-    }
-    return (verticalScrollBar()->value() * binSize()) / maximum + beginOffset;
-}
-
-void DisassemblyScrollArea::setVScrollPos(RVA address)
-{
-    const QSignalBlocker blocker(verticalScrollBar());
-    int maximum = verticalScrollBar()->maximum();
-    if (!maximum || !binSize()) {
-        setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
-        return;
-    }
-    int scrollBarPos = 0;
-    if (address < beginOffset) {
-        verticalScrollBar()->setValue(scrollBarPos);
-        return;
-    }
-    if (address > endOffset) {
-        verticalScrollBar()->setValue(verticalScrollBar()->maximum());
-        return;
-    }
-    auto offset = address - beginOffset;
-    if ((RVA_MAX / maximum) < binSize()) {
-        // Fallback formula for large files
-        uint64_t smallBox = binSize() / maximum;
-        uint64_t extra = binSize() % maximum;
-        auto bigBoxRange = (smallBox + 1) * extra;
-        if (offset < bigBoxRange) {
-            scrollBarPos = offset / (smallBox + 1);
-        } else {
-            scrollBarPos = extra + (offset - bigBoxRange) / smallBox;
-        }
-    } else {
-        scrollBarPos = (maximum * offset) / binSize();
-    }
-    if (address != beginOffset && scrollBarPos == 0) {
-        scrollBarPos = 1;
-    }
-    verticalScrollBar()->setValue(scrollBarPos);
-}
-
-void DisassemblyScrollArea::refreshVScrollbarRange()
-{
-    beginOffset = RVA_MAX;
-    endOffset = 0;
-    if (!Core()->currentlyEmulating && Core()->currentlyDebugging) {
-        QString currentlyOpenFile = Core()->getConfig("file.path");
-        QList<MemoryMapDescription> memoryMaps = Core()->getMemoryMap();
-        for (const MemoryMapDescription &map : memoryMaps) {
-            if (map.fileName == currentlyOpenFile) {
-                if (map.addrStart < beginOffset) {
-                    beginOffset = map.addrStart;
-                }
-                if (map.addrEnd > endOffset) {
-                    endOffset = map.addrEnd;
-                }
-            }
-        }
-    } else {
-        RzCoreLocked core(Core());
-        RzPVector *mapsPtr = rz_io_maps(core->io);
-        if (!mapsPtr) {
-            setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
-            return;
-        }
-        CutterPVector<RzIOMap> maps { mapsPtr };
-        for (const RzIOMap *const map : maps) {
-            // Skip the ESIL memory stack region
-            if (Core()->currentlyEmulating && std::strncmp(rz_str_get(map->name), "mem.", 4) == 0) {
-                continue;
-            }
-            ut64 b = rz_itv_begin(map->itv);
-            ut64 e = rz_itv_end(map->itv);
-            if (b < beginOffset) {
-                beginOffset = b;
-            }
-            if (e > endOffset) {
-                endOffset = e;
-            }
-        }
-    }
-    if (endOffset) {
-        --endOffset;
-    }
-    if (endOffset == 0) {
-        beginOffset = 0;
-    }
-    verticalScrollBar()->setMinimum(0);
-    // Increasing this value increases scroll bar accuracy for small files but
-    // decreases it for large files
-    // Sufficiently below 2^32 to avoid causing problems in calculations done by QScrollbar,
-    // otherwise as high as possible to maximize range in which address map 1:1 to scrollbar pos.
-    const int rangeMax = 512 * 1024 * 1024;
-    if (binSize() > rangeMax) {
-        verticalScrollBar()->setMaximum(rangeMax);
-    } else {
-        verticalScrollBar()->setMaximum(binSize());
-    }
-    if (binSize()) {
-        setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOn);
-    } else {
-        setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
-    }
+    return vScrollBar;
 }
 
 bool DisassemblyScrollArea::viewportEvent(QEvent *event)
@@ -911,16 +815,18 @@ void DisassemblyScrollArea::wheelEvent(QWheelEvent *event)
         QAbstractScrollArea::wheelEvent(event);
         return;
     }
+
     accumScrollWheelDeltaY += event->angleDelta().y();
     // Delta is reported in 1/8 of a degree
     // eg. 120 units * 1/8 = 15 degrees
     // Typical scroll speed is 1 line per 5 degrees
     const int lineDelta = 5 * 8;
     if (accumScrollWheelDeltaY >= lineDelta || accumScrollWheelDeltaY <= -lineDelta) {
-        int lineCount = accumScrollWheelDeltaY / lineDelta;
+        const int lineCount = accumScrollWheelDeltaY / lineDelta;
         accumScrollWheelDeltaY -= lineDelta * lineCount;
         emit scrollLines(-lineCount);
     }
+    emit wheelEventTriggered();
 }
 
 qreal DisassemblyTextEdit::textOffset() const
@@ -969,17 +875,19 @@ void DisassemblyWidget::seekPrev()
  * Left panel
  *********************/
 
-DisassemblyLeftPanel::DisassemblyLeftPanel(DisassemblyWidget *disas)
+DisassemblyLeftPanel::DisassemblyLeftPanel(DisassemblyWidget *disas) : disas(disas)
 {
-    this->disas = disas;
+
     arrows.reserve((arrowsSize * 3) / 2);
 }
 
 void DisassemblyLeftPanel::wheelEvent(QWheelEvent *event)
 {
+
     int count = -(event->angleDelta() / 15).y();
     count -= (count > 0 ? 5 : -5);
 
+    this->disas->showTransientScrollBar();
     this->disas->scrollInstructions(count);
 }
 
@@ -990,14 +898,14 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     constexpr int penSizePix = 1;
     constexpr int distanceBetweenLines = 10;
     constexpr int arrowWidth = 5;
-    int rightOffset = size().rwidth();
+    const int rightOffset = size().rwidth();
     auto tEdit = qobject_cast<DisassemblyTextEdit *>(disas->getTextWidget());
     int lineHeight = qCeil(disas->getFontMetrics().lineSpacing());
-    QColor arrowColorDown = ConfigColor("flow");
-    QColor arrowColorUp = ConfigColor("cflow");
+    const QColor arrowColorDown = ConfigColor("flow");
+    const QColor arrowColorUp = ConfigColor("cflow");
     QPainter p(this);
-    QPen penDown(arrowColorDown, penSizePix, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin);
-    QPen penUp(arrowColorUp, penSizePix, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin);
+    const QPen penDown(arrowColorDown, penSizePix, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin);
+    const QPen penUp(arrowColorUp, penSizePix, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin);
     // Fill background
     p.fillRect(event->rect(), Config()->getColor("gui.background").darker(115));
 
@@ -1028,10 +936,10 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
         maxViewOffset = std::max(maxViewOffset, lines[i].offset);
         if (lines[i].arrow != RVA_INVALID) {
             Arrow a { lines[i].offset, lines[i].arrow };
-            bool contains = std::find_if(std::begin(arrows), std::end(arrows),
-                                         [&](const Arrow &it) {
-                                             return it.min == a.min && it.max == a.max;
-                                         })
+            const bool contains = std::find_if(std::begin(arrows), std::end(arrows),
+                                               [&](const Arrow &it) {
+                                                   return it.min == a.min && it.max == a.max;
+                                               })
                     != std::end(arrows);
             if (!contains) {
                 arrows.emplace_back(lines[i].offset, lines[i].arrow);
@@ -1054,14 +962,15 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     }
     std::sort(lineOffsets.begin(), lineOffsets.end());
     lineOffsets.erase(std::unique(lineOffsets.begin(), lineOffsets.end()), lineOffsets.end());
-    size_t firstVisibleLine = std::find_if(lineOffsets.begin(), lineOffsets.end(),
-                                           [](const LineInfo &line) { return line.second == 0; })
+    const size_t firstVisibleLine =
+            std::find_if(lineOffsets.begin(), lineOffsets.end(),
+                         [](const LineInfo &line) { return line.second == 0; })
             - lineOffsets.begin();
     for (int i = int(firstVisibleLine) - 1; i >= 0; i--) {
         // -1 to ensure end of arrrow is drawn outside screen
         lineOffsets[i].second = i - firstVisibleLine - 1;
     }
-    size_t firstLineAfter =
+    const size_t firstLineAfter =
             std::find_if(lineOffsets.begin(), lineOffsets.end(),
                          [&](const LineInfo &line) { return line.first > maxViewOffset; })
             - lineOffsets.begin();
@@ -1089,7 +998,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     auto fitsInScreen = [&](const Arrow &a) { return maxViewOffset - minViewOffset < a.length(); };
 
     std::sort(std::begin(arrows), std::end(arrows), [&](const Arrow &l, const Arrow &r) {
-        int lScreen = fitsInScreen(l), rScreen = fitsInScreen(r);
+        const int lScreen = fitsInScreen(l), rScreen = fitsInScreen(r);
         if (lScreen != rScreen) {
             return lScreen < rScreen;
         }
@@ -1103,16 +1012,16 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
         it.level = 0;
     }
 
-    const int MAX_ARROW_LINES = 1 << 18;
+    const int maxArrowLines = 1 << 18;
     uint32_t maxLevel = 0;
-    if (!arrows.empty() && maxLine - minLine < MAX_ARROW_LINES) {
+    if (!arrows.empty() && maxLine - minLine < maxArrowLines) {
         // Limit maximum tree range to MAX_ARROW_LINES as sanity check, since the tree is designed
         // for dense ranges. Under normal conditions due to amount lines fitting screen and number
         // of arrows remembered should be few hundreds at most.
         MinMaxAccumulateTree<uint32_t> maxLevelTree(maxLine - minLine + 2);
         for (Arrow &arrow : arrows) {
-            int top = offsetToLine(arrow.min) - minLine;
-            int bottom = offsetToLine(arrow.max) - minLine + 1;
+            const int top = offsetToLine(arrow.min) - minLine;
+            const int bottom = offsetToLine(arrow.max) - minLine + 1;
             auto minMax = maxLevelTree.rangeMinMax(top, bottom);
             if (minMax.first > 1) {
                 arrow.level = 1; // place below existing lines
@@ -1132,7 +1041,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
         if (!visibleRange.intersects(arrow)) {
             continue;
         }
-        int lineOffset =
+        const int lineOffset =
                 int((distanceBetweenLines * arrow.level + distanceBetweenLines) * pixelRatio);
 
         p.setPen(arrow.up ? penUp : penDown);
@@ -1143,8 +1052,8 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
         }
 
         auto lineToPixels = [&](int i) {
-            int offset = int(arrow.up ? std::floor(pixelRatio) : -std::floor(pixelRatio));
-            int clampedLine = std::max(0, std::min(i, ((int)lineY.size()) - 1));
+            const int offset = int(arrow.up ? std::floor(pixelRatio) : -std::floor(pixelRatio));
+            const int clampedLine = std::max(0, std::min(i, ((int)lineY.size()) - 1));
             int pos0 = 0;
             if (lineY.size() > 0) {
                 pos0 = lineY[clampedLine];
@@ -1152,10 +1061,10 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
             return pos0 + (i - clampedLine) * lineHeight + lineHeight / 2 + offset;
         };
 
-        int lineStartNumber = offsetToLine(arrow.jmpFromOffset());
+        const int lineStartNumber = offsetToLine(arrow.jmpFromOffset());
         int currentLineYPos = lineToPixels(lineStartNumber);
 
-        int arrowLineNumber = offsetToLine(arrow.jmpToffset());
+        const int arrowLineNumber = offsetToLine(arrow.jmpToffset());
         int lineArrowY = lineToPixels(arrowLineNumber);
 
         if (lineStartNumber == arrowLineNumber) {

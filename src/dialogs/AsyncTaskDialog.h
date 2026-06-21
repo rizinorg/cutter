@@ -1,28 +1,30 @@
-
 #ifndef ASYNCTASKDIALOG_H
 #define ASYNCTASKDIALOG_H
 
-#include <memory>
+#include "common/AsyncTask.h"
 
 #include <QDialog>
 #include <QTimer>
 
-#include "common/AsyncTask.h"
+#include <memory>
 
 namespace Ui {
 class AsyncTaskDialog;
 }
 
+/**
+ * @brief Dialog for displaying progress, logs, and elapsed time @ref AsyncTask
+ */
 class AsyncTaskDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    AsyncTaskDialog(AsyncTask::Ptr task, QWidget *parent = nullptr);
+    AsyncTaskDialog(const AsyncTask::Ptr &task, QWidget *parent = nullptr);
     ~AsyncTaskDialog();
 
     void setInterruptOnClose(bool v) { interruptOnClose = v; }
-    bool getInterruptOnClose() { return interruptOnClose; }
+    bool getInterruptOnClose() const { return interruptOnClose; }
 
 public slots:
     void reject() override;

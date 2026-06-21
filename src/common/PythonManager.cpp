@@ -1,18 +1,20 @@
-#include <cassert>
-
+// clang-format off
 #include "PythonAPI.h"
 #include "PythonManager.h"
+// clang-format on
+
 #include "Cutter.h"
 
-#include <QDebug>
-#include <QFile>
-#include <QDebug>
 #include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
+#include <QFile>
+
+#include <cassert>
 
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
-#    include <shiboken.h>
 #    include <pyside.h>
+#    include <shiboken.h>
 #    ifdef HAVE_PYSIDECLEANUP
 // This header is introduced in PySide 6
 #        include <pysidecleanup.h>

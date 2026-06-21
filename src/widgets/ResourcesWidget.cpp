@@ -1,17 +1,18 @@
-#include "common/Helpers.h"
 #include "ResourcesWidget.h"
-#include "ui_ListDockWidget.h"
+
+#include "common/Helpers.h"
 #include "core/MainWindow.h"
+#include "ui_ListDockWidget.h"
+
 #include <QVBoxLayout>
 
-ResourcesModel::ResourcesModel(QList<ResourcesDescription> *resources, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), resources(resources)
+ResourcesModel::ResourcesModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent)
 {
 }
 
 int ResourcesModel::rowCount(const QModelIndex &) const
 {
-    return resources->count();
+    return resources.count();
 }
 
 int ResourcesModel::columnCount(const QModelIndex &) const
@@ -21,7 +22,7 @@ int ResourcesModel::columnCount(const QModelIndex &) const
 
 QVariant ResourcesModel::data(const QModelIndex &index, int role) const
 {
-    const ResourcesDescription &res = resources->at(index.row());
+    const ResourcesDescription &res = resources.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -29,13 +30,13 @@ QVariant ResourcesModel::data(const QModelIndex &index, int role) const
         case NAME:
             return res.name;
         case VADDR:
-            return RzAddressString(res.vaddr);
+            return rzAddressString(res.vaddr);
         case INDEX:
             return QString::number(res.index);
         case TYPE:
             return res.type;
         case SIZE:
-            return qhelpers::formatBytecount(res.size);
+            return qhelpers::formatByteCount(res.size);
         case LANG:
             return res.lang;
         case COMMENT:
@@ -48,13 +49,13 @@ QVariant ResourcesModel::data(const QModelIndex &index, int role) const
         case NAME:
             return res.name;
         case VADDR:
-            return res.vaddr;
+            return static_cast<quint64>(res.vaddr);
         case INDEX:
-            return res.index;
+            return static_cast<quint64>(res.index);
         case TYPE:
             return res.type;
         case SIZE:
-            return res.size;
+            return static_cast<quint64>(res.size);
         case LANG:
             return res.lang;
         default:
@@ -96,23 +97,21 @@ QVariant ResourcesModel::headerData(int section, Qt::Orientation, int role) cons
 
 RVA ResourcesModel::address(const QModelIndex &index) const
 {
-    const ResourcesDescription &res = resources->at(index.row());
+    const ResourcesDescription &res = resources.at(index.row());
     return res.vaddr;
 }
 
 ResourcesWidget::ResourcesWidget(MainWindow *main)
-    : ListDockWidget(main, ListDockWidget::SearchBarPolicy::HideByDefault)
+    : ListDockWidget(main),
+      model(new ResourcesModel(this)),
+      filterModel(new AddressableFilterProxyModel(model, this))
 {
     setObjectName("ResourcesWidget");
 
-    model = new ResourcesModel(&resources, this);
-    filterModel = new AddressableFilterProxyModel(model, this);
     filterModel->setSortRole(Qt::EditRole);
     setModels(filterModel);
 
     ui->treeView->sortByColumn(0, Qt::AscendingOrder);
-
-    showCount(false);
 
     // Configure widget
     this->setWindowTitle(tr("Resources"));
@@ -120,11 +119,16 @@ ResourcesWidget::ResourcesWidget(MainWindow *main)
     connect(Core(), &CutterCore::refreshAll, this, &ResourcesWidget::refreshResources);
     connect(Core(), &CutterCore::commentsChanged, this,
             [this]() { qhelpers::emitColumnChanged(model, ResourcesModel::COMMENT); });
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
+            [this] { ui->quickFilterView->setItemCount(filterModel->rowCount()); });
 }
 
 void ResourcesWidget::refreshResources()
 {
     model->beginResetModel();
-    resources = Core()->getAllResources();
+    model->resources = Core()->getAllResources();
     model->endResetModel();
+
+    // set the initial item count
+    ui->quickFilterView->setItemCount(filterModel->rowCount());
 }

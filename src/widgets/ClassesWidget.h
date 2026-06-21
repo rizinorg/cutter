@@ -1,14 +1,16 @@
 #ifndef CLASSESWIDGET_H
 #define CLASSESWIDGET_H
 
-#include <memory>
-
-#include "core/Cutter.h"
+#include "CutterCommon.h"
+#include "CutterDescriptions.h"
 #include "CutterDockWidget.h"
 #include "widgets/ListDockWidget.h"
 
 #include <QAbstractListModel>
+#include <QComboBox>
 #include <QSortFilterProxyModel>
+
+#include <memory>
 
 namespace Ui {
 class ClassesWidget;
@@ -21,24 +23,26 @@ class ClassesWidget;
 
 /**
  * @brief Common abstract base class for Bin and Anal classes models
+ *
+ * @see BinClassesModel, AnalysisClassesModel
  */
 class ClassesModel : public AddressableItemModel<>
 {
     Q_OBJECT
 public:
-    enum Columns { NAME = 0, REAL_NAME, TYPE, OFFSET, VTABLE, COUNT };
+    enum Columns : ut8 { NAME = 0, REAL_NAME, TYPE, OFFSET, VTABLE, COUNT };
 
     /**
      * @brief values for TypeRole data
      */
-    enum class RowType { Class = 0, Base, VTable, Method, Field };
+    enum class RowType : ut8 { Class = 0, Base, VTable, Method, Field };
 
     /**
      * @brief Offset role of data for QModelIndex
      *
      * will contain values of type RVA
      */
-    static const int OffsetRole = Qt::UserRole;
+    static const int offsetRole = Qt::UserRole;
 
     /**
      * @brief Name role of data for QModelIndex
@@ -46,14 +50,14 @@ public:
      * will contain values of QString, used for sorting,
      * as well as identifying classes and methods
      */
-    static const int NameRole = Qt::UserRole + 1;
+    static const int nameRole = Qt::UserRole + 1;
 
     /**
      * @brief Type role of data for QModelIndex
      *
      * will contain values of RowType
      */
-    static const int TypeRole = Qt::UserRole + 2;
+    static const int typeRole = Qt::UserRole + 2;
 
     /**
      * @brief VTable role of data for QModelIndex
@@ -61,7 +65,7 @@ public:
      * will contain values of type long long for sorting
      * by vtable offset
      */
-    static const int VTableRole = Qt::UserRole + 3;
+    static const int vTableRole = Qt::UserRole + 3;
 
     /**
      * @brief Real Name role of data for QModelIndex
@@ -69,7 +73,7 @@ public:
      * will contain values of QString, used for sorting,
      * as well as identifying classes and methods
      */
-    static const int RealNameRole = Qt::UserRole + 4;
+    static const int realNameRole = Qt::UserRole + 4;
 
     explicit ClassesModel(QObject *parent = nullptr) : AddressableItemModel(parent) {}
 
@@ -82,6 +86,9 @@ public:
 
 Q_DECLARE_METATYPE(ClassesModel::RowType)
 
+/**
+ * @brief Read-only model for class info found in the binary
+ */
 class BinClassesModel : public ClassesModel
 {
     Q_OBJECT
@@ -103,6 +110,9 @@ public:
     void setClasses(const QList<BinClassDescription> &classes);
 };
 
+/**
+ * @brief Editable model for classes created during analysis.
+ */
 class AnalysisClassesModel : public ClassesModel
 {
     Q_OBJECT
@@ -118,7 +128,7 @@ private:
      */
     struct Attribute
     {
-        enum class Type { VTable, Base, Method };
+        enum class Type : ut8 { VTable, Base, Method };
         Type type;
         QVariant data;
 
@@ -168,6 +178,9 @@ public slots:
     void classAttrsChanged(const QString &cls);
 };
 
+/**
+ * @brief Handles sorting and filtering for class lists
+ */
 class ClassesSortFilterProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
@@ -181,6 +194,9 @@ protected:
     bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
 };
 
+/**
+ * @brief Widget for browsing and managing classes
+ */
 class ClassesWidget : public ListDockWidget
 {
     Q_OBJECT
@@ -201,13 +217,13 @@ private slots:
     void updateActions();
 
 private:
-    enum class Source { BIN, ANALYSIS };
+    enum class Source : ut8 { BIN, ANALYSIS };
 
     Source getSource();
 
-    BinClassesModel *bin_model = nullptr;
-    AnalysisClassesModel *analysis_model = nullptr;
-    ClassesSortFilterProxyModel *proxy_model;
+    BinClassesModel *binModel = nullptr;
+    AnalysisClassesModel *analysisModel = nullptr;
+    ClassesSortFilterProxyModel *proxyModel;
 
     QComboBox *classSourceCombo;
 

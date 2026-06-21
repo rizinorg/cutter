@@ -1,19 +1,19 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "core/Cutter.h" // only needed for ut64
+// #include "core/Cutter.h" // only needed for ut64
 #include "dialogs/NewFileDialog.h"
-#include "dialogs/WelcomeDialog.h"
-#include "common/Configuration.h"
-#include "common/InitialOptions.h"
-#include "common/IOModesController.h"
-#include "common/CutterLayout.h"
+// #include "dialogs/WelcomeDialog.h"
 #include "MemoryDockWidget.h"
+#include "common/Configuration.h"
+#include "common/CutterLayout.h"
+#include "common/IOModesController.h"
+#include "common/InitialOptions.h"
+
+#include <QList>
+#include <QMainWindow>
 
 #include <memory>
-
-#include <QMainWindow>
-#include <QList>
 
 class CutterCore;
 class Omnibar;
@@ -61,6 +61,9 @@ namespace Ui {
 class MainWindow;
 }
 
+/**
+ * @brief Cutter main window
+ */
 class CUTTER_EXPORT MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -73,6 +76,11 @@ public:
 
     void openNewFile(InitialOptions &options, bool skipOptionsDialog = false);
     void displayNewFileDialog();
+    /**
+     * @brief displays the WelocmeDialog
+     * Upon first execution of Cutter, the WelcomeDialog would be showed to the user.
+     * The Welcome dialog would be showed after a reset of Cutter's preferences by the user.
+     */
     void displayWelcomeDialog();
     void closeNewFileDialog();
     bool openProject(const QString &project_name);
@@ -86,7 +94,6 @@ public:
     void readSettings();
     void saveSettings();
     void setFilename(const QString &fn);
-    void refreshOmniBar(const QStringList &flags);
 
     void addWidget(CutterDockWidget *widget);
     void addMemoryDockWidget(MemoryDockWidget *widget);
@@ -101,7 +108,7 @@ public:
         addPluginDockWidget(dockWidget);
     }
     void addPluginDockWidget(CutterDockWidget *dockWidget);
-    enum class MenuType { File, Edit, View, Windows, Debug, Help, Plugins };
+    enum class MenuType : ut8 { File, Edit, View, Windows, Debug, Help, Plugins };
     /**
      * @brief Getter for MainWindow's different menus
      * @param type The type which represents the desired menu
@@ -111,19 +118,24 @@ public:
     void addMenuFileAction(QAction *action);
 
     QString getFilename() const { return filename; }
-    void messageBoxWarning(QString title, QString message);
+    /**
+     * @brief Show a warning message box.
+     * This API can either be used in Cutter internals, or by Python plugins.
+     */
+    void messageBoxWarning(const QString &title, const QString &message);
 
     QString getUniqueObjectName(const QString &widgetType) const;
     void showMemoryWidget();
     void showMemoryWidget(MemoryWidgetType type);
-    enum class AddressTypeHint { Function, Data, Unknown };
     QMenu *createShowInMenu(QWidget *parent, RVA address,
                             AddressTypeHint addressType = AddressTypeHint::Unknown);
     void setCurrentMemoryWidget(MemoryDockWidget *memoryWidget);
     MemoryDockWidget *getLastMemoryWidget();
+    MemoryDockWidget *getOrCreateMemoryWidget(MemoryWidgetType type, RVA address = RVA_INVALID,
+                                              bool synchronized = true);
 
     /* Context menu plugins */
-    enum class ContextMenuType { Disassembly, Addressable };
+    enum class ContextMenuType : ut8 { Disassembly, Addressable };
     /**
      * @brief Fetches the pointer to a context menu extension of type
      * @param type - the type of the context menu
@@ -133,19 +145,23 @@ public:
 
 public slots:
     void finalizeOpen();
+    void showAddress(RVA addr);
 
     void refreshAll();
     void seekToFunctionLastInstruction();
     void seekToFunctionStart();
     void setTabLocation();
 
-    void on_actionTabs_triggered();
+    void onActionTabsTriggered();
 
-    void on_actionAnalyze_triggered();
+    /**
+     * @brief A signal that creates an AsyncTask to re-analyze the current file
+     */
+    void onActionAnalyzeTriggered() const;
 
     void lockDocks(bool lock);
 
-    void on_actionRun_Script_triggered();
+    void onActionRunScriptTriggered();
 
     void toggleResponsive(bool maybe);
 
@@ -153,50 +169,58 @@ public slots:
 
     void toggleOverview(bool visibility, GraphWidget *targetGraph);
 private slots:
-    void on_actionBaseFind_triggered();
-    void on_actionAbout_triggered();
-    void on_actionIssue_triggered();
+    void onActionBaseFindTriggered();
+    void onActionAboutTriggered();
+    void onActionIssueTriggered();
     void documentationClicked();
     void addExtraGraph();
     void addExtraHexdump();
     void addExtraDisassembly();
     void addExtraDecompiler();
 
-    void on_actionRefresh_Panels_triggered();
+    void onActionRefreshPanelsTriggered();
 
-    void on_actionDisasAdd_comment_triggered();
+    void onActionDisasAddCommentTriggered();
 
-    void on_actionDefault_triggered();
+    void onActionDefaultTriggered();
 
-    void on_actionNew_triggered();
+    /**
+     * @brief MainWindow::on_actionNew_triggered
+     * Open a new Cutter session.
+     */
+    void onActionNewTriggered();
 
-    void on_actionSave_triggered();
-    void on_actionSaveAs_triggered();
+    void onActionSaveTriggered();
+    void onActionSaveAsTriggered();
 
-    void on_actionBackward_triggered();
-    void on_actionForward_triggered();
+    void onActionBackwardTriggered();
+    void onActionForwardTriggered();
 
-    void on_actionMap_triggered();
+    /**
+     * @brief MainWindow::on_actionOpen_triggered
+     * Open a file as in "load (add) a file in current session".
+     */
+    void onActionMapTriggered();
 
-    void on_actionTabs_on_Top_triggered();
+    void onActionTabsOnTopTriggered();
 
-    void on_actionReset_settings_triggered();
+    void onActionResetSettingsTriggered();
 
-    void on_actionQuit_triggered();
+    void onActionQuitTriggered();
 
-    void on_actionRefresh_contents_triggered();
+    void onActionRefreshContentsTriggered();
 
-    void on_actionPreferences_triggered();
+    void onActionPreferencesTriggered();
 
-    void on_actionImportPDB_triggered();
+    void onActionImportPdbTriggered();
 
-    void on_actionExport_as_code_triggered();
+    void onActionExportAsCodeTriggered();
 
-    void on_actionApplySigFromFile_triggered();
+    void onActionApplySigFromFileTriggered();
 
-    void on_actionCreateNewSig_triggered();
+    void onActionCreateNewSigTriggered();
 
-    void on_actionGrouped_dock_dragging_triggered(bool checked);
+    void onActionGroupedDockDraggingTriggered(bool checked);
 
     void updateTasksIndicator();
 
@@ -204,6 +228,9 @@ private slots:
     bool eventFilter(QObject *object, QEvent *event) override;
     bool event(QEvent *event) override;
     void toggleDebugView();
+    /**
+     * @brief When theme changed, change icons which have a special version for the theme.
+     */
     void chooseThemeIcons();
 
     void onZoomIn();
@@ -300,7 +327,7 @@ private:
     void enableDebugWidgetsMenu(bool enable);
     /**
      * @brief Fill menu with seek history entries.
-     * @param menu
+     * @param menu Menu to update
      * @param redo set to false for undo history, true for redo.
      */
     void updateHistoryMenu(QMenu *menu, bool redo = false);
@@ -312,7 +339,7 @@ private:
     bool isOverviewActive();
     /**
      * @brief Check if a widget is one of debug specific dock widgets.
-     * @param dock
+     * @param dock DockWidget to check
      * @return true for debug specific widgets, false for all other including common dock widgets.
      */
     bool isDebugWidget(QDockWidget *dock) const;

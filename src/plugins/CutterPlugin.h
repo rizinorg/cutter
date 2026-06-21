@@ -5,6 +5,9 @@ class MainWindow;
 
 #include "widgets/CutterDockWidget.h"
 
+/**
+ * @brief Interface for defining any Cutter plugin
+ */
 class CUTTER_EXPORT CutterPlugin
 {
 public:

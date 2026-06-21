@@ -1,24 +1,25 @@
 #ifndef CUTTER_H
 #define CUTTER_H
 
+#include "RizinCpp.h"
+#include "common/BasicInstructionHighlighter.h"
+#include "core/Basefind.h"
 #include "core/CutterCommon.h"
 #include "core/CutterDescriptions.h"
 #include "core/CutterJson.h"
-#include "core/Basefind.h"
-#include "common/BasicInstructionHighlighter.h"
 
+#include <QDebug>
+#include <QDir>
+#include <QErrorMessage>
 #include <QMap>
 #include <QMenu>
-#include <QDebug>
-#include <QObject>
-#include <QSharedPointer>
-#include <QStringList>
 #include <QMessageBox>
-#include <QErrorMessage>
 #include <QMutex>
-#include <QDir>
+#include <QObject>
+#include <QStringList>
+
 #include <functional>
-#include <memory>
+// #include <memory>
 
 class AsyncTaskManager;
 class BasicInstructionHighlighter;
@@ -32,8 +33,9 @@ class RizinTaskDialog;
 #include "common/BasicBlockHighlighter.h"
 #include "common/Helpers.h"
 
-#include <rz_project.h>
 #include <memory>
+#include <rz_heap_glibc.h>
+#include <rz_project.h>
 
 #define Core() (CutterCore::instance())
 
@@ -47,12 +49,12 @@ struct CUTTER_EXPORT AddrRefs
     QString reg;
     QString fcn;
     QString type;
-    QString asm_op;
+    QString asmOp;
     QString perms;
     ut64 value;
-    bool has_value;
+    bool hasValue;
     QString string;
-    QSharedPointer<AddrRefs> ref;
+    std::shared_ptr<AddrRefs> ref;
 };
 
 struct CUTTER_EXPORT RegisterRef
@@ -62,7 +64,7 @@ struct CUTTER_EXPORT RegisterRef
     QString name;
 };
 
-enum class SearchKind {
+enum class SearchKind : ut8 {
     AsmCode,
     HexString,
     ROPGadgets,
@@ -78,6 +80,13 @@ enum class SearchKind {
     MagicSignature,
 };
 
+enum class AddressTypeHint : ut8 { Function, Code, Data, Unknown };
+
+/**
+ * @brief Core class that talks to rizin.
+ *
+ * Prefer the use of this class when functionality from rizin is needed
+ */
 class CUTTER_EXPORT CutterCore : public QObject
 {
     Q_OBJECT
@@ -98,7 +107,7 @@ public:
 
     AsyncTaskManager *getAsyncTaskManager() { return asyncTaskManager; }
 
-    RVA getOffset() const { return core_->offset; }
+    RVA getOffset() const { return rzCore->offset; }
 
     /* Core functions (commands) */
     /* Almost the same as core_cmd_raw,
@@ -120,7 +129,7 @@ public:
      * @param fcn the task you want to execute
      * @return execute successful?
      */
-    bool asyncTask(std::function<void *(RzCore *)> fcn, QSharedPointer<RizinTask> &task);
+    bool asyncTask(std::function<void *(RzCore *)> fcn, std::shared_ptr<RizinTask> &task);
     void functionTask(std::function<void *(RzCore *)> fcn);
 
     /**
@@ -171,7 +180,7 @@ public:
                 Core()->seekSilent(returnAddress);
             }
         }
-        SeekReturn(SeekReturn &&from)
+        SeekReturn(SeekReturn &&from) noexcept
         {
             if (this != &from) {
                 returnAddress = from.returnAddress;
@@ -188,7 +197,7 @@ public:
         return returner;
     }
 
-    enum class SeekHistoryType { New, Undo, Redo };
+    enum class SeekHistoryType : ut8 { New, Undo, Redo };
 
     CutterJson cmdj(const char *str);
     CutterJson cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
@@ -208,7 +217,7 @@ public:
     /* Functions methods */
     void renameFunction(const RVA offset, const QString &newName);
     void delFunction(RVA addr);
-    void renameFlag(QString old_name, QString new_name);
+    void renameFlag(const QString &old_name, const QString &new_name);
     /**
      * @brief Renames the specified local variable in the function specified by the
      * address given.
@@ -217,7 +226,8 @@ public:
      * @param oldName Specifies the current name of the function variable.
      * @param functionAddress Specifies the exact address of the function.
      */
-    void renameFunctionVariable(QString newName, QString oldName, RVA functionAddress);
+    void renameFunctionVariable(const QString &newName, const QString &oldName,
+                                RVA functionAddress);
 
     /**
      * @param addr
@@ -231,18 +241,45 @@ public:
      */
     RzAnalysisFunction *functionAt(ut64 addr);
 
+    /**
+     * @brief finds the start address of a function in a given address
+     * @param addr - an address which belongs to a function
+     * @returns if function exists, return its start address. Otherwise return RVA_INVALID
+     */
     RVA getFunctionStart(RVA addr);
+    /**
+     * @brief finds the end address of a function in a given address
+     * @param addr - an address which belongs to a function
+     * @returns if function exists, return its end address. Otherwise return RVA_INVALID
+     */
     RVA getFunctionEnd(RVA addr);
+    /**
+     * @brief finds the last instruction of a function in a given address
+     * @param addr - an address which belongs to a function
+     * @returns if function exists, return the address of its last instruction. Otherwise return
+     * RVA_INVALID
+     */
     RVA getLastFunctionInstruction(RVA addr);
-    QString flagAt(RVA addr);
+    QString flagAt(RVA addr, bool getClosestFlag = true);
+    AddressTypeHint getAddressType(RVA addr);
     void createFunctionAt(RVA addr);
     void createFunctionAt(RVA addr, QString name);
+    /**
+     * @brief get a compact disassembly preview for tooltips
+     * @param address - the address from which to print the disassembly
+     * @param num_of_lines - number of instructions to print
+     */
     QStringList getDisassemblyPreview(RVA address, int num_of_lines);
 
     /* Flags */
     void delFlag(RVA addr);
     void delFlag(const QString &name);
     void addFlag(RVA offset, QString name, RVA size);
+    /**
+     * @brief Gets all the flags present at a specific address
+     * @param addr The address to be checked
+     * @return String containing all the flags which are comma-separated
+     */
     QString listFlagsAsStringAt(RVA addr);
     /**
      * @brief Get nearest flag at or before offset.
@@ -253,16 +290,30 @@ public:
     QString nearestFlag(RVA offset, RVA *flagOffsetOut);
     void triggerFlagsChanged();
 
+    /* Marks */
+    void addMark(RVA from, RVA to, const QString &name, const QString &comment = {},
+                 QColor color = {});
+    void delMark(const QString &name);
+    QList<MarkDescription> getMarks();
+    QList<MarkDescription> getMarksAt(RVA addr);
+    /**
+     * @brief Compute the blended color of all marks containing a specific address.
+     * @param addr address to query
+     * @return resulting blended color, or invalid QColor if no marks are present at
+     * the specified address
+     */
+    QColor getBlendedMarksColorAt(RVA addr);
+
     /* Global Variables */
-    void addGlobalVariable(RVA offset, QString name, QString typ);
+    void addGlobalVariable(RVA offset, QString name, const QString &typ);
     void delGlobalVariable(QString name);
     void delGlobalVariable(RVA offset);
-    void modifyGlobalVariable(RVA offset, QString name, QString typ);
+    void modifyGlobalVariable(RVA offset, QString name, const QString &typ);
     QString getGlobalVariableType(QString name);
     QString getGlobalVariableType(RVA offset);
 
     /* Edition functions */
-    CutterRzIter<RzAnalysisBytes> getRzAnalysisBytesSingle(RVA addr);
+    CutterRzIter<RzCoreDecodedBytes> getRzCoreDecodedBytesSingle(RVA addr);
     QString getInstructionBytes(RVA addr);
     QString getInstructionOpcode(RVA addr);
     void editInstruction(RVA addr, const QString &inst, bool fillWithNops = false);
@@ -273,13 +324,13 @@ public:
 
     /* Code/Data */
     void setToCode(RVA addr);
-    enum class StringTypeFormats { None, ASCII_LATIN1, UTF8 };
+    enum class StringTypeFormats : ut8 { None, ASCII_LATIN1, UTF8 };
     /**
      * @brief Adds string at address
      * That function calls the 'Cs' command
-     * \param addr The address of the array where the string will be applied
-     * \param size The size of string
-     * \param type The type of string
+     * @param addr The address of the array where the string will be applied
+     * @param size The size of string
+     * @param type The type of string
      */
     void setAsString(RVA addr, int size = 0, StringTypeFormats type = StringTypeFormats::None);
     /**
@@ -291,14 +342,14 @@ public:
     /**
      * @brief Gets string at address
      * That function correspond the 'Cs.' command
-     * \param addr The address of the string
+     * @param addr The address of the string
      * @return string at requested address
      */
     QString getMetaString(RVA addr);
     /**
      * @brief Gets string at address
      * That function calls the 'ps' command
-     * \param addr The address of the first byte of the array
+     * @param addr The address of the first byte of the array
      * @return string at requested address
      */
     QString getString(RVA addr);
@@ -309,6 +360,11 @@ public:
     /* Comments */
     void setComment(RVA addr, const QString &cmt);
     void delComment(RVA addr);
+    /**
+     * @brief Gets the comment present at a specific address
+     * @param addr The address to be checked
+     * @return String containing comment
+     */
     QString getCommentAt(RVA addr);
     void setImmediateBase(const QString &rzBaseName, RVA offset = RVA_INVALID);
     void setCurrentBits(int bits, RVA offset = RVA_INVALID);
@@ -317,8 +373,8 @@ public:
      * @brief Changes immediate displacement to structure offset
      * This function makes use of the "aht" command of Rizin to apply structure
      * offset to the immediate displacement used in the given instruction
-     * \param structureOffset The name of struct which will be applied
-     * \param offset The address of the instruction where the struct will be applied
+     * @param structureOffset The name of struct which will be applied
+     * @param offset The address of the instruction where the struct will be applied
      */
     void applyStructureOffset(const QString &structureOffset, RVA offset = RVA_INVALID);
 
@@ -337,17 +393,41 @@ public:
     void setAnalysisMethod(const QString &cls, const AnalysisMethodDescription &meth);
 
     /* File related methods */
-    bool loadFile(QString path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = RZ_PERM_R,
+
+    /**
+     * @brief CutterCore::loadFile
+     * Load initial file.
+     * @param path File path
+     * @param baddr Base (RzBin) address
+     * @param mapaddr Map address
+     * @param perms
+     * @param va
+     * @param loadbin Load RzBin information
+     * @param forceBinPlugin
+     * @return
+     */
+    bool loadFile(const QString &path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = RZ_PERM_R,
                   int va = 0, bool loadbin = false, const QString &forceBinPlugin = QString());
-    bool tryFile(QString path, bool rw);
-    bool mapFile(QString path, RVA mapaddr);
+    bool tryFile(const QString &path, bool rw);
+    /**
+     * @brief Maps a file using Rizin API
+     * @param path Path to file
+     * @param mapaddr Map Address
+     * @return bool
+     */
+    bool mapFile(const QString &path, RVA mapaddr);
     void loadScript(const QString &scriptname);
+    /**
+     * @brief Check whether any file is loaded
+     * @return True if any file is loaded, false otherwise
+     */
+    bool isFileLoaded();
 
     /* Seek functions */
-    void seek(QString thing);
+    void seek(const QString &thing);
     void seek(ut64 offset);
     void seekSilent(ut64 offset);
-    void seekSilent(QString thing) { seekSilent(math(thing)); }
+    void seekSilent(const QString &thing) { seekSilent(math(thing)); }
     void seekPrev();
     void seekNext();
     void updateSeek(SeekHistoryType type = SeekHistoryType::New);
@@ -357,15 +437,15 @@ public:
      */
     void showMemoryWidget();
     /**
-     * @brief Seek to \p offset and raise a memory widget showing it.
+     * @brief Seek to @p offset and raise a memory widget showing it.
      * @param offset
      */
     void seekAndShow(ut64 offset);
     /**
-     * @brief \see CutterCore::show(ut64)
+     * @brief @see CutterCore::show(ut64)
      * @param thing - addressable expression
      */
-    void seekAndShow(QString thing);
+    void seekAndShow(const QString &thing);
     RVA getOffset();
     RVA prevOpAddr(RVA startAddr, int count);
     RVA nextOpAddr(RVA startAddr, int count);
@@ -373,6 +453,11 @@ public:
     /* SigDB / Flirt functions */
     void applySignature(const QString &filepath);
     void createSignature(const QString &filepath);
+
+    /**
+     * @brief Check if the numeric value is a valid input for Rizin
+     */
+    bool isValidInputNumValue(const QString &expression);
 
     /* Math functions */
     ut64 math(const QString &expr);
@@ -385,9 +470,21 @@ public:
     void setConfig(const char *k, const QString &v);
     void setConfig(const QString &k, const QString &v) { setConfig(k.toUtf8().constData(), v); }
     void setConfig(const char *k, int v);
+    void setConfig(const char *k, ut64 v);
+    void setConfig(const QString &k, ut64 v) { setConfig(k.toUtf8().constData(), v); }
     void setConfig(const QString &k, int v) { setConfig(k.toUtf8().constData(), v); }
     void setConfig(const char *k, bool v);
     void setConfig(const QString &k, bool v) { setConfig(k.toUtf8().constData(), v); }
+    void setConfig(const char *k, const RzInterval &itv);
+    void setConfig(const QString &k, const RzInterval &itv)
+    {
+        setConfig(k.toUtf8().constData(), itv);
+    }
+    void setConfig(const char *k, const QStringList &list);
+    void setConfig(const QString &k, const QStringList &list)
+    {
+        setConfig(k.toUtf8().constData(), list);
+    }
     void setConfig(const char *k, const QVariant &v);
     void setConfig(const QString &k, const QVariant &v) { setConfig(k.toUtf8().constData(), v); }
     int getConfigi(const char *k);
@@ -396,6 +493,10 @@ public:
     ut64 getConfigut64(const QString &k) { return getConfigut64(k.toUtf8().constData()); }
     bool getConfigb(const char *k);
     bool getConfigb(const QString &k) { return getConfigb(k.toUtf8().constData()); }
+    RzInterval getConfigItv(const char *k);
+    RzInterval getConfigItv(const QString &k) { return getConfigItv(k.toUtf8().constData()); }
+    QStringList getConfigList(const char *k);
+    QStringList getConfigList(const QString &k) { return getConfigList(k.toUtf8().constData()); }
     QString getConfig(const char *k);
     QString getConfig(const QString &k) { return getConfig(k.toUtf8().constData()); }
     QString getConfigDescription(const char *k);
@@ -404,7 +505,9 @@ public:
     QHash<QString, QColor> getTheme();
     QStringList getThemeKeys();
     bool setColor(const QString &key, const QString &color);
+    QString getColorNameFromOp(ut32 opType);
     QStringList getConfigVariableSpaces(const QString &key = "");
+    void resetConfig();
 
     /* Assembly\Hexdump related methods */
     QByteArray assemble(const QString &code);
@@ -414,23 +517,34 @@ public:
 
     static QByteArray hexStringToBytes(const QString &hex);
     static QString bytesToHexString(const QByteArray &bytes);
-    enum class HexdumpFormats { Normal, Half, Word, Quad, Signed, Octal };
+    enum class HexdumpFormats : ut8 { Normal, Half, Word, Quad, Signed, Octal };
+    /**
+     * @brief return hexdump of <size> from an <offset> by a given formats
+     * @param address - the address from which to print the hexdump
+     * @param size - number of bytes to print
+     * @param format - the type of hexdump (qwords, words. decimal, etc)
+     */
     QString hexdump(RVA offset, int size, HexdumpFormats format);
+    /**
+     * @brief get a compact hexdump preview for tooltips
+     * @param address - the address from which to print the hexdump
+     * @param size - number of bytes to print
+     */
     QString getHexdumpPreview(RVA offset, int size);
 
-    void setCPU(QString arch, QString cpu, int bits);
+    void setCPU(const QString &arch, const QString &cpu, int bits);
     void setEndianness(bool big);
 
     /* SDB */
-    QList<QString> sdbList(QString path);
-    QList<QString> sdbListKeys(QString path);
-    QString sdbGet(QString path, QString key);
-    bool sdbSet(QString path, QString key, QString val);
+    QList<QString> sdbList(const QString &path);
+    QList<QString> sdbListKeys(const QString &path);
+    QString sdbGet(const QString &path, const QString &key);
+    bool sdbSet(const QString &path, const QString &key, const QString &val);
 
     /* Debug */
-    QString getRegisterName(QString registerRole);
+    QString getRegisterName(const QString &registerRole);
     RVA getProgramCounterValue();
-    void setRegister(QString regName, QString regValue);
+    void setRegister(const QString &regName, const QString &regValue);
     void setCurrentDebugThread(int tid);
     /**
      * @brief Attach to a given pid from a debug session
@@ -453,7 +567,7 @@ public:
      * @brief return a RefDescription with a formatted ref string and configured colors
      * @param ref the "ref" JSON node from getAddrRefs
      */
-    RefDescription formatRefDesc(const QSharedPointer<AddrRefs> &ref);
+    RefDescription formatRefDesc(const std::shared_ptr<AddrRefs> &ref);
     /**
      * @brief Get a list of a given process's threads
      * @param pid The pid of the process, -1 for the currently debugged process
@@ -541,17 +655,50 @@ public:
     QList<RVA> getBreakpointsAddresses();
 
     /**
+     * @brief Get the section at the given address
+     * @param addr Address to get the section for
+     * @return SectionDescription of the section at the given address
+     */
+    SectionDescription getSectionAtAddress(RVA addr);
+    /**
+     * @brief Sets the RzRun profile directives by writing them to a file
+     * If a profile path is already set in 'dbg.profile', this method overwrites that file
+     * If no path is set, it creates a temporary file and updates 'dbg.profile' to point to it
+     * @param directives The raw string containing key=value profile directives
+     */
+    void setProfileDirectives(const QString &directives);
+
+    /**
+     * @brief Sets the register profile to the provided one
+     * @param profileData Raw profile string to be applied
+     */
+    void setRegisterProfile(const QString &profileData);
+
+    /**
+     * @brief Converts a GDB profile into Rizin format
+     * @param profilePath Path to the GDB profile
+     * @return Converted profile string
+     */
+    QString convertGdbProfile(const QString &profilePath);
+
+    /**
+     * @brief Retrieves the current register profile string
+     * @return The active register profile content
+     */
+    QString getRegisterProfile();
+
+    /**
      * @brief Get all breakpoinst that are belong to a functions at this address
      */
     QList<RVA> getBreakpointsInFunction(RVA funcAddr);
     QString getActiveDebugPlugin();
     QStringList getDebugPlugins();
-    void setDebugPlugin(QString plugin);
+    void setDebugPlugin(const QString &plugin);
     bool isDebugTaskInProgress();
     /**
      * @brief Check if we can use output/input redirection with the currently debugged process
      */
-    bool isRedirectableDebugee();
+    bool isRedirectableDebugee() const;
     bool currentlyDebugging = false;
     bool currentlyEmulating = false;
     bool currentlyTracing = false;
@@ -578,13 +725,14 @@ public:
     CutterJson getSignatureInfo();
     bool existsFileInfo();
     void setGraphEmpty(bool empty);
-    bool isGraphEmpty();
+    bool isGraphEmpty() const;
 
     void getRegs();
     QList<QString> regs;
     void setSettings();
 
     void loadPDB(const QString &file);
+    void applyDwarf();
 
     QByteArray ioRead(RVA addr, int len);
 
@@ -593,6 +741,12 @@ public:
     /* Plugins */
     QStringList getAsmPluginNames();
     QStringList getAnalysisPluginNames();
+
+    /**
+     * @brief Checks if an assembler is available for the current architecture.
+     * @return true if there is an assembler plugin for the current architecture, false otherwise.
+     */
+    bool hasAssembler();
 
     /* Widgets */
     QList<RzBinPluginDescription> getBinPluginDescriptions(bool bin = true, bool xtr = true);
@@ -608,9 +762,9 @@ public:
     QList<FlirtDescription> getSignaturesDB();
     QList<CommentDescription> getAllComments(const QString &filterType);
     QList<RelocDescription> getAllRelocs();
-    QList<StringDescription> getAllStrings();
+    QList<StringDescription> getAllStrings(bool raw);
     QList<FlagspaceDescription> getAllFlagspaces();
-    QList<FlagDescription> getAllFlags(QString flagspace = QString());
+    QList<FlagDescription> getAllFlags(const QString &flagspace = QString());
     QList<SectionDescription> getAllSections();
     QList<SegmentDescription> getAllSegments();
     QList<EntrypointDescription> getAllEntrypoint();
@@ -618,6 +772,9 @@ public:
     QList<BinClassDescription> getAllClassesFromFlags();
     QList<ResourcesDescription> getAllResources();
     QList<VTableDescription> getAllVTables();
+    QList<BacktraceDescription> getAllBacktraces();
+    QList<EvaluableVarDescription> getAllEvaluableVars();
+    QList<QString> getAllEvaluableVarSpaces();
 
     /**
      * @return all loaded types
@@ -650,11 +807,43 @@ public:
     QList<TypeDescription> getAllTypedefs();
 
     /**
+     * @return all typeclasses
+     */
+    QList<QString> getAllTypeClasses();
+
+    /**
      * @brief Fetching the C representation of a given Type
      * @param name - the name or the type of the given Type
      * @return The type decleration as C output
      */
-    QString getTypeAsC(QString name);
+    QString getTypeAsC(const QString &name);
+
+    /**
+     * @brief Check if a type exists using its name
+     * @param typeName Name of the type to validate
+     * @return true if the type exists, false otherwise
+     */
+    bool typeExists(const QString &typeName);
+
+    /**
+     * @brief Highlight a specific type in the Types widget
+     * @param typeName The name of the type to be shown
+     */
+    void showTypeInTypesWidget(const QString &typeName);
+
+    /**
+     * @brief Renames type to @a newName and updates all of its references
+     * @param from The type to rename
+     * @param to New name for type
+     */
+    void renameType(const QString &from, const QString &to);
+
+    /**
+     * @brief Set the typeclass of a type
+     * @param type Type to set typeclass for
+     * @param typeClass Name of typeclass
+     */
+    void setTypeClass(const QString &type, const QString &typeClass);
 
     /**
      * @brief Checks if the given address is mapped to a region
@@ -664,7 +853,7 @@ public:
     bool isAddressMapped(RVA addr);
 
     QList<MemoryMapDescription> getMemoryMap();
-    QList<SearchDescription> getAllSearch(QString searchFor, SearchKind kind, QString in);
+    QList<SearchDescription> getAllSearch(QString searchFor, SearchKind kind, const QString &in);
     QList<BreakpointDescription> getBreakpoints();
     /**
      * @brief Get list of processes attachable by debugger
@@ -684,6 +873,11 @@ public:
     QList<RegisterRef> getRegisterRefs(int depth = 6);
     QVector<RegisterRefValueDescription> getRegisterRefValues();
     QList<VariableDescription> getVariables(RVA at);
+
+    /**
+     * @brief Get the value of the register ref
+     */
+    RegisterRefValueDescription getRegisterRefValue(const QString &regName);
     /**
      * @brief Fetches all the writes or reads to the specified local variable 'variableName'
      * in the function in which the specified offset is a part of.
@@ -695,9 +889,23 @@ public:
      * @return A list of XrefDescriptions that contains details of all the writes or reads that
      * happen to the variable 'variableName'.
      */
-    QList<XrefDescription> getXRefsForVariable(QString variableName, bool findWrites, RVA offset);
+    QList<XrefDescription> getXRefsForVariable(const QString &variableName, bool findWrites,
+                                               RVA offset);
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString());
+    /**
+     * @brief Find the first read or write access to a local variable
+     * @param variableName Name of the local variable
+     * @param offset An address within the function containing the variable
+     * @return The first XrefDescription found, empty if none
+     */
+    XrefDescription getFirstXRefForVariable(const QString &variableName, RVA offset);
+
+    /**
+     * @brief Retrieves the auto-generated comment describing XRefs at a specific offset
+     * @return The XRef comment string, seperated by \n if it spans multiple lines
+     */
+    QString getXRefCommentAt(RVA offset);
 
     void handleREvent(int type, void *data);
 
@@ -707,11 +915,16 @@ public:
     void triggerRefreshAll();
     void triggerAsmOptionsChanged();
     void triggerGraphOptionsChanged();
+    void triggerDebugOptionsChanged();
+    void triggerAnalysisOptionsChanged();
+    void triggerSymbolsOptionsChanged();
 
     void message(const QString &msg, bool debug = false);
 
     QStringList getSectionList();
 
+    RzCoreLocked lock();
+    CUTTER_DEPRECATED("Use CutterCore::lock instead")
     RzCoreLocked core();
 
     static QString ansiEscapeToHtml(const QString &text);
@@ -754,6 +967,12 @@ public:
     bool isWriteModeEnabled();
 
     /**
+     * @brief Check if there are modified blocks in the IO cache that haven't been saved
+     * @return true if the cache contains "dirty" (unwritten) data, false otherwise.
+     */
+    bool hasUncommitedChanges();
+
+    /**
      * @brief   Returns the textual version of global or specific graph.
      * @param   type     Graph type, example RZ_CORE_GRAPH_TYPE_FUNCALL or RZ_CORE_GRAPH_TYPE_IMPORT
      * @param   format   Graph format, example RZ_CORE_GRAPH_FORMAT_DOT or RZ_CORE_GRAPH_FORMAT_GML
@@ -770,7 +989,8 @@ public:
      * RZ_CORE_GRAPH_TYPE_IMPORT
      * @param   address  The object address (if global set it to RVA_INVALID)
      */
-    void writeGraphvizGraphToFile(QString path, QString format, RzCoreGraphType type, RVA address);
+    void writeGraphvizGraphToFile(const QString &path, const QString &format, RzCoreGraphType type,
+                                  RVA address);
 
 signals:
     void refreshAll();
@@ -786,6 +1006,7 @@ signals:
     void breakpointsChanged(RVA offset);
     void refreshCodeViews();
     void stackChanged();
+    void marksChanged();
     /**
      * @brief update all the widgets that are affected by rebasing in debug mode
      */
@@ -826,11 +1047,26 @@ signals:
     void graphOptionsChanged();
 
     /**
-     * @brief seekChanged is emitted each time Rizin's seek value is modified
-     * @param offset
-     * @param historyType
+     * emitted when config regarding debug/esil changes
      */
-    void seekChanged(RVA offset, SeekHistoryType type = SeekHistoryType::New);
+    void debugOptionsChanged();
+
+    /**
+     * emitted when config regarding analysis changes
+     */
+    void analysisOptionsChanged();
+
+    /**
+     * emitted when config regarding symbols changes (bin.dbginfo / pdb)
+     */
+    void symbolsOptionsChanged();
+
+    /**
+     * @brief seekChanged is emitted each time Rizin's seek value is modified
+     * @param offset Offset to seek at
+     * @param historyType Type of seek history
+     */
+    void seekChanged(RVA offset, CutterCore::SeekHistoryType type = SeekHistoryType::New);
 
     void toggleDebugView();
 
@@ -838,13 +1074,19 @@ signals:
     void newDebugMessage(const QString &msg);
 
     void showMemoryWidgetRequested();
+    void showAddressRequested(RVA addr);
+
+    /**
+     * @brief emitted when a specific type is requested to be shown in the Types Widget
+     */
+    void showTypeRequested(const QString &typeName);
 
 private:
     /**
      * Internal reference to the RzCore.
      * NEVER use this directly! Always use the CORE_LOCK(); macro and access it like core->...
      */
-    RzCore *core_ = nullptr;
+    RzCore *rzCore = nullptr;
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
     QMutex coreMutex;
 #else
@@ -864,12 +1106,24 @@ private:
     bool iocache = false;
     BasicInstructionHighlighter biHighlighter;
 
-    QSharedPointer<RizinTask> debugTask;
+    std::shared_ptr<RizinTask> debugTask;
     RizinTaskDialog *debugTaskDialog;
 
     QVector<QString> getCutterRCFilePaths() const;
     QList<TypeDescription> getBaseType(RzBaseTypeKind kind, const char *category);
-    QList<SearchDescription> getAllSearchCommand(QString searchFor, SearchKind kind, QString in);
+    QList<SearchDescription> getAllSearchCommand(const QString &searchFor, SearchKind kind,
+                                                 const QString &in);
+    QList<MarkDescription> convertMarks(RzList *marks);
+    /**
+     * @brief Collect cross-references for the specified local variable
+     * @param variableName Name of the variable
+     * @param offset An address within the function containing the variable
+     * @param accessTypeMask Mask of access types (Read/Write) to include
+     * @param stopAtFirst Whether to return immediately after the first match
+     * @return List of matching XrefDescription objects
+     */
+    QList<XrefDescription> collectXRefsForVariable(const QString &variableName, RVA offset,
+                                                   int accessTypeMask, bool stopAtFirst);
 };
 
 class CUTTER_EXPORT RzCoreLocked
@@ -880,10 +1134,14 @@ public:
     explicit RzCoreLocked(CutterCore *core);
     RzCoreLocked(const RzCoreLocked &) = delete;
     RzCoreLocked &operator=(const RzCoreLocked &) = delete;
-    RzCoreLocked(RzCoreLocked &&);
+    RzCoreLocked(RzCoreLocked &&) noexcept;
     ~RzCoreLocked();
-    operator RzCore *() const;
-    RzCore *operator->() const;
+    operator RzCore *() &;
+    RzCore *operator->() &;
+    // Reduce chance of following misuse of Core()->lock()
+    // rizinStruct* foo = rizin_func(Core()->lock()->something, arg);
+    operator RzCore *() && = delete;
+    RzCore *operator->() && = delete;
 };
 
 #endif // CUTTER_H

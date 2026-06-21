@@ -1,16 +1,15 @@
 #ifndef LISTDOCKWIDGET_H
 #define LISTDOCKWIDGET_H
 
-#include <memory>
-#include <QAbstractItemModel>
-#include <QSortFilterProxyModel>
-#include <QMenu>
-
-#include "core/Cutter.h"
-#include "common/AddressableItemModel.h"
 #include "CutterDockWidget.h"
-#include "CutterTreeWidget.h"
+#include "common/AddressableItemModel.h"
 #include "menus/AddressableItemContextMenu.h"
+
+#include <QAbstractItemModel>
+#include <QMenu>
+#include <QSortFilterProxyModel>
+
+#include <memory>
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -20,22 +19,16 @@ namespace Ui {
 class ListDockWidget;
 }
 
+/**
+ * @brief A dockable widget that displays data in a searchable tree or list format
+ */
 class CUTTER_EXPORT ListDockWidget : public CutterDockWidget
 {
     Q_OBJECT
 
 public:
-    enum class SearchBarPolicy {
-        ShowByDefault,
-        HideByDefault,
-        Hide,
-    };
-
-    explicit ListDockWidget(MainWindow *main,
-                            SearchBarPolicy searchBarPolicy = SearchBarPolicy::ShowByDefault);
+    explicit ListDockWidget(MainWindow *main);
     ~ListDockWidget() override;
-
-    void showCount(bool show);
 
 protected:
     void setModels(AddressableFilterProxyModel *objectFilterProxyModel);
@@ -44,8 +37,6 @@ protected:
 
 private:
     AddressableFilterProxyModel *objectFilterProxyModel = nullptr;
-    CutterTreeWidget *tree;
-    SearchBarPolicy searchBarPolicy;
 };
 
 #endif // LISTDOCKWIDGET_H

@@ -2,6 +2,10 @@
 #define HIGHDPIPIXMAP_H
 
 #include <QPixmap>
+
+/**
+ * @brief A QPixmap wrapper that automatically scales for high density displays
+ */
 class HighDpiPixmap : public QPixmap
 {
 public:

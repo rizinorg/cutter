@@ -1,11 +1,12 @@
 #ifndef ENTRYPOINTWIDGET_H
 #define ENTRYPOINTWIDGET_H
 
-#include <memory>
+#include "CutterDockWidget.h"
+
 #include <QStyledItemDelegate>
 #include <QTreeWidgetItem>
 
-#include "CutterDockWidget.h"
+#include <memory>
 
 class MainWindow;
 class QTreeWidget;
@@ -14,6 +15,9 @@ namespace Ui {
 class EntrypointWidget;
 }
 
+/**
+ * @brief Widget that displays all entry points
+ */
 class EntrypointWidget : public CutterDockWidget
 {
     Q_OBJECT
@@ -23,7 +27,7 @@ public:
     ~EntrypointWidget();
 
 private slots:
-    void on_entrypointTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
+    void onEntrypointTreeWidgetItemDoubleClicked(QTreeWidgetItem *item, int column);
 
     void fillEntrypoint();
 

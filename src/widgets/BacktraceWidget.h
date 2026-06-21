@@ -1,18 +1,39 @@
-#pragma once
+#ifndef BACKTRACEWIDGET_H
+#define BACKTRACEWIDGET_H
+
+#include "CutterDescriptions.h"
+#include "CutterDockWidget.h"
 
 #include <QJsonObject>
-#include <memory>
 #include <QStandardItem>
 #include <QTableView>
+#include <QTreeView>
 
-#include "core/Cutter.h"
-#include "CutterDockWidget.h"
+#include <memory>
 
 class MainWindow;
 
 namespace Ui {
 class BacktraceWidget;
 }
+
+class BacktraceModel : public QAbstractListModel
+{
+public:
+    explicit BacktraceModel(QObject *parent = nullptr);
+
+    enum Column : ut8 { Function = 0, PC, SP, FrameSize, Description, Count };
+
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
+    QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+
+    void setBacktraces(const QList<BacktraceDescription> &backtraces);
+
+private:
+    QList<BacktraceDescription> backtraces;
+};
 
 class BacktraceWidget : public CutterDockWidget
 {
@@ -24,12 +45,15 @@ public:
 
 private slots:
     void updateContents();
-    void setBacktraceGrid();
     void fontsUpdatedSlot();
 
 private:
     std::unique_ptr<Ui::BacktraceWidget> ui;
-    QStandardItemModel *modelBacktrace = new QStandardItemModel(1, 5, this);
-    QTableView *viewBacktrace = new QTableView(this);
+    BacktraceModel *backtraceModel;
+    QTreeView *backtraceView;
     RefreshDeferrer *refreshDeferrer;
+
+    void adjustFunctionNameCol();
 };
+
+#endif // BACKTRACEWIDGET_H

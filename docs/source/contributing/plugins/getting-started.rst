@@ -193,7 +193,6 @@ This can be done like the following:
            self.setWidget(self._label)
 
            QObject.connect(cutter.core(), SIGNAL("seekChanged(RVA)"), self.update_contents)
-           self.update_contents()
 
        def update_contents(self):
            disasm = cutter.cmd("pd 1").strip()
@@ -221,7 +220,8 @@ Full Code
    import cutter
 
    from PySide6.QtCore import QObject, SIGNAL
-   from PySide6.QtWidgets import QAction, QLabel
+   from PySide6.QtWidgets import QLabel
+   from PySide6.QtGui import QAction
 
    class MyDockWidget(cutter.CutterDockWidget):
        def __init__(self, parent, action):
@@ -233,7 +233,6 @@ Full Code
            self.setWidget(self._label)
 
            QObject.connect(cutter.core(), SIGNAL("seekChanged(RVA)"), self.update_contents)
-           self.update_contents()
 
        def update_contents(self):
            disasm = cutter.cmd("pd 1").strip()

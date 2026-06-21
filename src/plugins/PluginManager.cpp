@@ -1,23 +1,24 @@
-
 #include <cassert>
 
+// clang-format off
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
 #    include <Python.h>
 #    include <cutterbindings_python.h>
 #    include "PythonManager.h"
 #endif
+// clang-format on
 
-#include "PluginManager.h"
-#include "CutterPlugin.h"
 #include "CutterConfig.h"
+#include "CutterPlugin.h"
+#include "PluginManager.h"
 #include "common/Helpers.h"
 #include "common/ResourcePaths.h"
 
-#include <QDir>
 #include <QCoreApplication>
+#include <QDebug>
+#include <QDir>
 #include <QPluginLoader>
 #include <QStandardPaths>
-#include <QDebug>
 
 Q_GLOBAL_STATIC(PluginManager, uniqueInstance)
 
@@ -39,7 +40,7 @@ void PluginManager::loadPlugins(bool enablePlugins)
         return;
     }
 
-    QString userPluginDir = getUserPluginsDirectory();
+    const QString userPluginDir = getUserPluginsDirectory();
     if (!userPluginDir.isEmpty()) {
         loadPluginsFromDir(QDir(userPluginDir), true);
     }
@@ -98,7 +99,7 @@ void PluginManager::destroyPlugins()
 QVector<QDir> PluginManager::getPluginDirectories() const
 {
     QVector<QDir> result;
-    QStringList locations = Cutter::standardLocations(QStandardPaths::AppDataLocation);
+    const QStringList locations = Cutter::standardLocations(QStandardPaths::AppDataLocation);
     for (auto &location : locations) {
         result.push_back(QDir(location).filePath("plugins"));
     }
@@ -106,10 +107,10 @@ QVector<QDir> PluginManager::getPluginDirectories() const
 #if QT_VERSION < QT_VERSION_CHECK(5, 6, 0) && defined(Q_OS_UNIX)
     QChar listSeparator = ':';
 #else
-    QChar listSeparator = QDir::listSeparator();
+    const QChar listSeparator = QDir::listSeparator();
 #endif
-    QString extra_plugin_dirs = CUTTER_EXTRA_PLUGIN_DIRS;
-    for (auto &path : extra_plugin_dirs.split(listSeparator, CUTTER_QT_SKIP_EMPTY_PARTS)) {
+    const QString extraPluginDirs = CUTTER_EXTRA_PLUGIN_DIRS;
+    for (auto &path : extraPluginDirs.split(listSeparator, CUTTER_QT_SKIP_EMPTY_PARTS)) {
         result.push_back(QDir(path));
     }
 
@@ -118,7 +119,7 @@ QVector<QDir> PluginManager::getPluginDirectories() const
 
 QString PluginManager::getUserPluginsDirectory() const
 {
-    QString location = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    const QString location = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     if (location.isEmpty()) {
         return QString();
     }
@@ -215,10 +216,12 @@ CutterPlugin *PluginManager::loadPythonPlugin(const char *moduleName)
     }
 
     PythonToCppFunc pythonToCpp = Shiboken::Conversions::isPythonToCppPointerConvertible(
-#    if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
+#    if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
             reinterpret_cast<SbkObjectType *>(SbkCutterBindingsTypes[SBK_CUTTERPLUGIN_IDX]),
+#    elif QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
+            reinterpret_cast<SbkObjectType *>(SbkCutterBindingsTypes[SBK_CutterPlugin_IDX]),
 #    else
-            reinterpret_cast<PyTypeObject **>(SbkCutterBindingsTypeStructs)[SBK_CUTTERPLUGIN_IDX],
+            reinterpret_cast<PyTypeObject **>(SbkCutterBindingsTypeStructs)[SBK_CutterPlugin_IDX],
 #    endif
             pluginObject);
     if (!pythonToCpp) {

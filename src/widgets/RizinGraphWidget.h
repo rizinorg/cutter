@@ -1,12 +1,11 @@
 #ifndef RZ_GRAPH_WIDGET_H
 #define RZ_GRAPH_WIDGET_H
 
-#include <memory>
-
-#include "core/Cutter.h"
 #include "CutterDockWidget.h"
-#include "widgets/SimpleTextGraphView.h"
 #include "common/RefreshDeferrer.h"
+#include "widgets/SimpleTextGraphView.h"
+
+#include <memory>
 
 class MainWindow;
 
@@ -51,6 +50,9 @@ private:
     QString lastShownCommand;
 };
 
+/**
+ * @brief Dock widget providing a menu to select and display graphs using Rizin commands
+ */
 class RizinGraphWidget : public CutterDockWidget
 {
     Q_OBJECT

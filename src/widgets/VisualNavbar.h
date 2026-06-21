@@ -1,28 +1,31 @@
 #ifndef VISUALNAVBAR_H
 #define VISUALNAVBAR_H
 
-#include <QToolBar>
-#include <QGraphicsScene>
+#include "CutterCommon.h"
+#include "RizinCpp.h"
 
-#include "core/Cutter.h"
+#include <QGraphicsScene>
+#include <QToolBar>
 
 #include <rz_core.h>
 
-#include <memory>
-
 class MainWindow;
 class QGraphicsView;
+class QGraphicsItemGroup;
 
+/**
+ * @brief Visual navigation bar at the top for quick navigation through the binary
+ */
 class VisualNavbar : public QToolBar
 {
     Q_OBJECT
 
     struct XToAddress
     {
-        double x_start;
-        double x_end;
-        RVA address_from;
-        RVA address_to;
+        double xStart;
+        double xEnd;
+        RVA addressFrom;
+        RVA addressTo;
     };
 
 public:
@@ -38,13 +41,15 @@ private slots:
     void drawSeekCursor();
     void drawPCCursor();
     void drawCursor(RVA addr, QColor color, QGraphicsRectItem *&graphicsItem);
-    void on_seekChanged(RVA addr);
+    void onSeekChanged(RVA addr);
+    void showLegendContextMenu(const QPoint &pos);
 
 private:
     QGraphicsView *graphicsView;
     QGraphicsScene *graphicsScene;
     QGraphicsRectItem *seekGraphicsItem;
-    QGraphicsRectItem *PCGraphicsItem;
+    QGraphicsRectItem *pcGraphicsItem;
+    QGraphicsItemGroup *legendItem;
     MainWindow *main;
 
     UniquePtrC<RzCoreAnalysisStats, &rz_core_analysis_stats_free> stats;
@@ -53,14 +58,15 @@ private:
 
     QList<XToAddress> xToAddress;
     bool blockTooltip;
+    bool isDraggable = true;
 
     RVA localXToAddress(double x);
     double addressToLocalX(RVA address);
     QList<QString> sectionsForAddress(RVA address);
     QString toolTipForAddress(RVA address);
 
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
+    void handleMouseAction(QMouseEvent *event, const QPoint &scenePos);
 };
 
 #endif // VISUALNAVBAR_H

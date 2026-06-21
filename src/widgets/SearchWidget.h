@@ -1,19 +1,21 @@
 #ifndef SEARCHWIDGET_H
 #define SEARCHWIDGET_H
 
-#include <memory>
+#include "AddressableItemList.h"
+#include "CutterDockWidget.h"
 
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
 
-#include "core/Cutter.h"
-#include "CutterDockWidget.h"
-#include "AddressableItemList.h"
+#include <memory>
 
 class MainWindow;
 class QTreeWidgetItem;
 class SearchWidget;
 
+/**
+ * @brief Souce model for @ref SearchWidget
+ */
 class SearchModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
@@ -21,13 +23,13 @@ class SearchModel : public AddressableItemModel<QAbstractListModel>
     friend SearchWidget;
 
 private:
-    QList<SearchDescription> *search;
+    QList<SearchDescription> search;
 
 public:
-    enum Columns { OFFSET = 0, SIZE, CODE, DATA, COMMENT, COUNT };
-    static const int SearchDescriptionRole = Qt::UserRole;
+    enum Columns : ut8 { OFFSET = 0, SIZE, CODE, DATA, COMMENT, COUNT };
+    static const int searchDescriptionRole = Qt::UserRole;
 
-    SearchModel(QList<SearchDescription> *search, QObject *parent = nullptr);
+    SearchModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -39,6 +41,9 @@ public:
     RVA address(const QModelIndex &index) const override;
 };
 
+/**
+ * @brief Sort and Filter proxy model for @ref SearchWidget
+ */
 class SearchSortFilterProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
@@ -55,6 +60,9 @@ namespace Ui {
 class SearchWidget;
 }
 
+/**
+ * @brief Widget for searching
+ */
 class SearchWidget : public CutterDockWidget
 {
     Q_OBJECT
@@ -73,9 +81,8 @@ private slots:
 private:
     std::unique_ptr<Ui::SearchWidget> ui;
 
-    SearchModel *search_model;
-    SearchSortFilterProxyModel *search_proxy_model;
-    QList<SearchDescription> search;
+    SearchModel *searchModel;
+    SearchSortFilterProxyModel *searchProxyModel;
 
     void refreshSearch();
     void checkSearchResultEmpty();

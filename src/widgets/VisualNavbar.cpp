@@ -1,31 +1,46 @@
 #include "VisualNavbar.h"
-#include "core/MainWindow.h"
-#include "common/TempConfig.h"
 
-#include <QGraphicsView>
+#include "core/Cutter.h"
+#include "core/MainWindow.h"
+
 #include <QComboBox>
-#include <QGraphicsScene>
 #include <QGraphicsRectItem>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
 #include <QJsonParseError>
-#include <QToolTip>
+#include <QLayout>
 #include <QMouseEvent>
+#include <QToolTip>
 
 #include <array>
 #include <cmath>
 
+namespace {
+const int navbarHeight = 15;
+const int legendHeight = 25;
+const int totalHeight = navbarHeight + legendHeight;
+
+const int legendBoxSize = 16;
+const int legendBoxYOffset = 7; // Relative to navbar bottom
+const int legendTextXOffset = 17;
+const int legendTextYOffset = -5;
+const int legendItemSpacing = 30;
+}
+
 VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent)
     : QToolBar(main),
       graphicsView(new QGraphicsView),
+      graphicsScene(new QGraphicsScene(this)),
       seekGraphicsItem(nullptr),
-      PCGraphicsItem(nullptr),
-      main(main)
+      pcGraphicsItem(nullptr),
+      legendItem(nullptr),
+      main(main),
+      blockTooltip(false)
 {
     Q_UNUSED(parent);
-
-    blockTooltip = false;
 
     setObjectName("visualNavbar");
     setWindowTitle(tr("Visual navigation bar"));
@@ -45,22 +60,24 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent)
     addWidget(this->graphicsView);
     // addWidget(addsCombo);
 
-    connect(Core(), &CutterCore::seekChanged, this, &VisualNavbar::on_seekChanged);
+    connect(Core(), &CutterCore::seekChanged, this, &VisualNavbar::onSeekChanged);
     connect(Core(), &CutterCore::registersChanged, this, &VisualNavbar::drawPCCursor);
     connect(Core(), &CutterCore::refreshAll, this, &VisualNavbar::fetchAndPaintData);
     connect(Core(), &CutterCore::functionsChanged, this, &VisualNavbar::fetchAndPaintData);
     connect(Core(), &CutterCore::flagsChanged, this, &VisualNavbar::fetchAndPaintData);
     connect(Core(), &CutterCore::globalVarsChanged, this, &VisualNavbar::fetchAndPaintData);
 
-    graphicsScene = new QGraphicsScene(this);
-
     const QBrush bg = QBrush(QColor(74, 74, 74));
 
     graphicsScene->setBackgroundBrush(bg);
 
     this->graphicsView->setAlignment(Qt::AlignLeft);
-    this->graphicsView->setMinimumHeight(15);
-    this->graphicsView->setMaximumHeight(15);
+
+    const bool legendEnabled = Config()->getNavBarLegendEnabled();
+    const int initialHeight = legendEnabled ? totalHeight : navbarHeight;
+    this->graphicsView->setMinimumHeight(initialHeight);
+    this->graphicsView->setMaximumHeight(initialHeight);
+
     this->graphicsView->setFrameShape(QFrame::NoFrame);
     this->graphicsView->setRenderHints({});
     this->graphicsView->setScene(graphicsScene);
@@ -69,8 +86,12 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent)
     this->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     // So the graphicsView doesn't intercept mouse events.
     this->graphicsView->setEnabled(false);
+    this->graphicsView->installEventFilter(this);
     this->graphicsView->setMouseTracking(true);
     setMouseTracking(true);
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, &QWidget::customContextMenuRequested, this, &VisualNavbar::showLegendContextMenu);
 }
 
 unsigned int nextPow2(unsigned int n)
@@ -87,7 +108,7 @@ void VisualNavbar::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
 
-    QPainter painter(this);
+    const QPainter painter(this);
 
     auto w = static_cast<unsigned int>(width());
     bool fetch = false;
@@ -129,8 +150,8 @@ void VisualNavbar::fetchStats()
     ut64 from = UT64_MAX;
     ut64 to = 0;
     CutterRzListForeach (list.get(), iter, RzIOMap, map) {
-        ut64 f = rz_itv_begin(map->itv);
-        ut64 t = rz_itv_end(map->itv);
+        const ut64 f = rz_itv_begin(map->itv);
+        const ut64 t = rz_itv_end(map->itv);
         if (f < from) {
             from = f;
         }
@@ -146,59 +167,72 @@ void VisualNavbar::fetchStats()
             rz_core_analysis_get_stats(core, from, to, RZ_MAX(1, (to + 1 - from) / blocksCount)));
 }
 
-enum class DataType : int { Empty, Code, String, Symbol, Count };
+enum class DataType : ut8 { Signature, Code, Data, String, Import, Symbol, Unexplored, Count };
 
 void VisualNavbar::updateGraphicsScene()
 {
+    const bool legendVisible = Config()->getNavBarLegendEnabled();
     graphicsScene->clear();
     xToAddress.clear();
     seekGraphicsItem = nullptr;
-    PCGraphicsItem = nullptr;
-    graphicsScene->setBackgroundBrush(QBrush(Config()->getColor("gui.navbar.empty")));
+    pcGraphicsItem = nullptr;
+    legendItem = nullptr;
+    graphicsScene->setBackgroundBrush(QBrush(Config()->getColor("gui.navbar.unexplored")));
 
     if (!stats) {
         return;
     }
 
-    int w = graphicsView->width();
-    int h = graphicsView->height();
+    const int w = graphicsView->width();
 
-    RVA totalSize = stats->to - stats->from + 1;
-    RVA beginAddr = stats->from;
+    const RVA totalSize = stats->to - stats->from + 1;
+    const RVA beginAddr = stats->from;
 
-    double widthPerByte = (double)w
+    const double widthPerByte = (double)w
             / (double)(totalSize ? totalSize : pow(2.0, 64.0)); // account for overflow on 2^64
     auto xFromAddr = [widthPerByte, beginAddr](RVA addr) -> double {
         return (addr - beginAddr) * widthPerByte;
     };
 
     std::array<QBrush, static_cast<int>(DataType::Count)> dataTypeBrushes;
+    dataTypeBrushes[static_cast<int>(DataType::Signature)] =
+            QBrush(Config()->getColor("gui.navbar.signature"));
     dataTypeBrushes[static_cast<int>(DataType::Code)] =
             QBrush(Config()->getColor("gui.navbar.code"));
+    dataTypeBrushes[static_cast<int>(DataType::Data)] =
+            QBrush(Config()->getColor("gui.navbar.data"));
     dataTypeBrushes[static_cast<int>(DataType::String)] =
             QBrush(Config()->getColor("gui.navbar.str"));
+    dataTypeBrushes[static_cast<int>(DataType::Import)] =
+            QBrush(Config()->getColor("gui.navbar.import"));
     dataTypeBrushes[static_cast<int>(DataType::Symbol)] =
             QBrush(Config()->getColor("gui.navbar.sym"));
+    dataTypeBrushes[static_cast<int>(DataType::Unexplored)] =
+            QBrush(Config()->getColor("gui.navbar.unexplored"));
 
-    DataType lastDataType = DataType::Empty;
+    DataType lastDataType = DataType::Unexplored;
     QGraphicsRectItem *dataItem = nullptr;
-    QRectF dataItemRect(0.0, 0.0, 0.0, h);
+    QRectF dataItemRect(0.0, 0.0, 0.0, (double)navbarHeight);
     for (size_t i = 0; i < rz_vector_len(&stats->blocks); i++) {
-        RzCoreAnalysisStatsItem *block =
+        const auto *block =
                 reinterpret_cast<RzCoreAnalysisStatsItem *>(rz_vector_index_ptr(&stats->blocks, i));
-        ut64 from = rz_core_analysis_stats_get_block_from(stats.get(), i);
-        ut64 to = rz_core_analysis_stats_get_block_to(stats.get(), i) + 1;
+        const ut64 from = rz_core_analysis_stats_get_block_from(stats.get(), i);
+        const ut64 to = rz_core_analysis_stats_get_block_to(stats.get(), i) + 1;
         // Keep track of where which memory segment is mapped so we are able to convert from
         // address to X coordinate and vice versa.
         XToAddress x2a;
-        x2a.x_start = xFromAddr(from);
-        x2a.x_end = xFromAddr(to);
-        x2a.address_from = from;
-        x2a.address_to = to;
+        x2a.xStart = xFromAddr(from);
+        x2a.xEnd = xFromAddr(to);
+        x2a.addressFrom = from;
+        x2a.addressTo = to;
         xToAddress.append(x2a);
 
         DataType dataType;
-        if (block->functions) {
+        if (block->signatures) {
+            dataType = DataType::Signature;
+        } else if (block->imports) {
+            dataType = DataType::Import;
+        } else if (block->functions) {
             dataType = DataType::Code;
         } else if (block->strings) {
             dataType = DataType::String;
@@ -206,13 +240,15 @@ void VisualNavbar::updateGraphicsScene()
             dataType = DataType::Symbol;
         } else if (block->in_functions) {
             dataType = DataType::Code;
+        } else if (block->perm & RZ_PERM_RW && !(block->perm & RZ_PERM_X)) {
+            dataType = DataType::Data;
         } else {
-            lastDataType = DataType::Empty;
+            lastDataType = DataType::Unexplored;
             continue;
         }
 
         if (dataType == lastDataType) {
-            double r = xFromAddr(to);
+            const double r = xFromAddr(to);
             if (r > dataItemRect.right()) {
                 dataItemRect.setRight(r);
                 dataItem->setRect(dataItemRect);
@@ -224,7 +260,7 @@ void VisualNavbar::updateGraphicsScene()
         dataItemRect.setX(xFromAddr(from));
         dataItemRect.setRight(xFromAddr(to));
 
-        dataItem = new QGraphicsRectItem();
+        dataItem = new QGraphicsRectItem(dataItemRect);
         dataItem->setPen(Qt::NoPen);
         dataItem->setBrush(dataTypeBrushes[static_cast<int>(dataType)]);
         graphicsScene->addItem(dataItem);
@@ -232,25 +268,65 @@ void VisualNavbar::updateGraphicsScene()
         lastDataType = dataType;
     }
 
-    // Update scene width
-    graphicsScene->setSceneRect(0, 0, w, h);
-
     drawSeekCursor();
+
+    legendItem = new QGraphicsItemGroup();
+
+    const QColor themeBg = Config()->windowColorIsDark() ? palette().color(QPalette::Window)
+                                                         : Config()->getColor("gui.background");
+
+    auto *lBg = new QGraphicsRectItem(0, navbarHeight, w, legendHeight);
+    lBg->setBrush(themeBg);
+    lBg->setPen(Qt::NoPen);
+    legendItem->addToGroup(lBg);
+
+    struct LegendPart
+    {
+        QString name;
+        QBrush brush;
+    };
+    const QList<LegendPart> parts = {
+        { tr("Signatures"), dataTypeBrushes[static_cast<int>(DataType::Signature)] },
+        { tr("Code"), dataTypeBrushes[static_cast<int>(DataType::Code)] },
+        { tr("Data"), dataTypeBrushes[static_cast<int>(DataType::Data)] },
+        { tr("Strings"), dataTypeBrushes[static_cast<int>(DataType::String)] },
+        { tr("Imports"), dataTypeBrushes[static_cast<int>(DataType::Import)] },
+        { tr("Symbols"), dataTypeBrushes[static_cast<int>(DataType::Symbol)] },
+        { tr("Unexplored"), dataTypeBrushes[static_cast<int>(DataType::Unexplored)] }
+    };
+
+    qreal curX = 10;
+    const qreal legY = navbarHeight + legendBoxYOffset;
+    for (const auto &p : parts) {
+        auto *r = new QGraphicsRectItem(curX, legY, legendBoxSize, legendBoxSize);
+        r->setBrush(p.brush);
+        r->setPen(QPen(Qt::black, 0.5));
+        legendItem->addToGroup(r);
+
+        auto *t = new QGraphicsTextItem(p.name);
+        t->setPos(curX + legendTextXOffset, legY + legendTextYOffset);
+        legendItem->addToGroup(t);
+        curX += t->boundingRect().width() + legendItemSpacing;
+    }
+
+    graphicsScene->addItem(legendItem);
+    legendItem->setVisible(legendVisible);
+    graphicsScene->setSceneRect(0, 0, w, legendVisible ? totalHeight : navbarHeight);
 }
 
 void VisualNavbar::drawCursor(RVA addr, QColor color, QGraphicsRectItem *&graphicsItem)
 {
-    double cursor_x = addressToLocalX(addr);
+    const double cursorX = addressToLocalX(addr);
     if (graphicsItem != nullptr) {
         graphicsScene->removeItem(graphicsItem);
         delete graphicsItem;
         graphicsItem = nullptr;
     }
-    if (std::isnan(cursor_x)) {
+    if (std::isnan(cursorX)) {
         return;
     }
-    int h = this->graphicsView->height();
-    graphicsItem = new QGraphicsRectItem(cursor_x, 0, 2, h);
+    // Subtract 1 so the 2px wide cursor is centered
+    graphicsItem = new QGraphicsRectItem(cursorX - 1, 0, 2, navbarHeight);
     graphicsItem->setPen(Qt::NoPen);
     graphicsItem->setBrush(QBrush(color));
     graphicsScene->addItem(graphicsItem);
@@ -259,7 +335,7 @@ void VisualNavbar::drawCursor(RVA addr, QColor color, QGraphicsRectItem *&graphi
 void VisualNavbar::drawPCCursor()
 {
     drawCursor(Core()->getProgramCounterValue(), Config()->getColor("gui.navbar.pc"),
-               PCGraphicsItem);
+               pcGraphicsItem);
 }
 
 void VisualNavbar::drawSeekCursor()
@@ -267,20 +343,55 @@ void VisualNavbar::drawSeekCursor()
     drawCursor(Core()->getOffset(), Config()->getColor("gui.navbar.seek"), seekGraphicsItem);
 }
 
-void VisualNavbar::on_seekChanged(RVA addr)
+void VisualNavbar::onSeekChanged(RVA addr)
 {
     Q_UNUSED(addr);
     // Update cursor
     this->drawSeekCursor();
 }
 
-void VisualNavbar::mousePressEvent(QMouseEvent *event)
+bool VisualNavbar::eventFilter(QObject *watched, QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::MouseButtonPress: {
+        auto *mouseEvent = static_cast<QMouseEvent *>(event);
+        const QPoint scenePos = mouseEvent->pos();
+
+        if (scenePos.y() <= navbarHeight) {
+            isDraggable = true;
+            handleMouseAction(mouseEvent, scenePos);
+            return true;
+        }
+        isDraggable = false;
+        break;
+    }
+    case QEvent::MouseMove: {
+        auto *mouseEvent = static_cast<QMouseEvent *>(event);
+        const QPoint scenePos = mouseEvent->pos();
+
+        if ((mouseEvent->buttons() & Qt::LeftButton && isDraggable)
+            || scenePos.y() <= navbarHeight) {
+            handleMouseAction(mouseEvent, scenePos);
+        } else {
+            QToolTip::hideText();
+        }
+        return true;
+    }
+    default:
+        break;
+    }
+
+    return QToolBar::eventFilter(watched, event);
+}
+
+void VisualNavbar::handleMouseAction(QMouseEvent *event, const QPoint &scenePos)
 {
     if (blockTooltip) {
         return;
     }
-    qreal x = qhelpers::mouseEventPos(event).x();
-    RVA address = localXToAddress(x);
+
+    const qreal x = scenePos.x();
+    const RVA address = localXToAddress(x);
     if (address != RVA_INVALID) {
         auto tooltipPos = qhelpers::mouseEventGlobalPos(event);
         blockTooltip = true; // on Haiku, the below call sometimes triggers another mouseMoveEvent,
@@ -294,19 +405,13 @@ void VisualNavbar::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void VisualNavbar::mouseMoveEvent(QMouseEvent *event)
-{
-    event->accept();
-    mousePressEvent(event);
-}
-
 RVA VisualNavbar::localXToAddress(double x)
 {
-    for (const XToAddress &x2a : xToAddress) {
-        if ((x2a.x_start <= x) && (x <= x2a.x_end)) {
-            double offset = (x - x2a.x_start) / (x2a.x_end - x2a.x_start);
-            double size = x2a.address_to - x2a.address_from;
-            return x2a.address_from + (offset * size);
+    for (const XToAddress &x2a : std::as_const(xToAddress)) {
+        if ((x2a.xStart <= x) && (x <= x2a.xEnd)) {
+            const double offset = (x - x2a.xStart) / (x2a.xEnd - x2a.xStart);
+            const double size = x2a.addressTo - x2a.addressFrom;
+            return x2a.addressFrom + (offset * size);
         }
     }
     return RVA_INVALID;
@@ -314,12 +419,12 @@ RVA VisualNavbar::localXToAddress(double x)
 
 double VisualNavbar::addressToLocalX(RVA address)
 {
-    for (const XToAddress &x2a : xToAddress) {
-        if ((x2a.address_from <= address) && (address < x2a.address_to)) {
-            double offset = (double)(address - x2a.address_from)
-                    / (double)(x2a.address_to - x2a.address_from);
-            double size = x2a.x_end - x2a.x_start;
-            return x2a.x_start + (offset * size);
+    for (const XToAddress &x2a : std::as_const(xToAddress)) {
+        if ((x2a.addressFrom <= address) && (address < x2a.addressTo)) {
+            const double offset =
+                    (double)(address - x2a.addressFrom) / (double)(x2a.addressTo - x2a.addressFrom);
+            const double size = x2a.xEnd - x2a.xStart;
+            return x2a.xStart + (offset * size);
         }
     }
     return nan("");
@@ -328,7 +433,7 @@ double VisualNavbar::addressToLocalX(RVA address)
 QList<QString> VisualNavbar::sectionsForAddress(RVA address)
 {
     QList<QString> ret;
-    QList<SectionDescription> sections = Core()->getAllSections();
+    const QList<SectionDescription> sections = Core()->getAllSections();
     for (const SectionDescription &section : sections) {
         if (address >= section.vaddr && address < section.vaddr + section.vsize) {
             ret << section.name;
@@ -339,7 +444,7 @@ QList<QString> VisualNavbar::sectionsForAddress(RVA address)
 
 QString VisualNavbar::toolTipForAddress(RVA address)
 {
-    QString ret = "Address: " + RzAddressString(address);
+    QString ret = tr("Address: %1").arg(rzAddressString(address));
 
     // Don't append sections when a debug task is in progress to avoid freezing the interface
     if (Core()->isDebugTaskInProgress()) {
@@ -348,9 +453,9 @@ QString VisualNavbar::toolTipForAddress(RVA address)
 
     auto sections = sectionsForAddress(address);
     if (sections.count()) {
-        ret += "\nSections: \n";
+        ret += "\n" + tr("Sections: \n");
         bool first = true;
-        for (const QString &section : sections) {
+        for (const QString &section : std::as_const(sections)) {
             if (!first) {
                 ret.append(QLatin1Char('\n'));
             } else {
@@ -360,4 +465,29 @@ QString VisualNavbar::toolTipForAddress(RVA address)
         }
     }
     return ret;
+}
+
+void VisualNavbar::showLegendContextMenu(const QPoint &pos)
+{
+    QMenu menu(this);
+    QAction *toggleLegend = menu.addAction(tr("Show Legend"));
+    toggleLegend->setCheckable(true);
+    toggleLegend->setChecked(Config()->getNavBarLegendEnabled());
+
+    if (menu.exec(mapToGlobal(pos))) {
+        const bool checked = toggleLegend->isChecked();
+        Config()->setNavBarLegendEnabled(checked);
+        const int h = checked ? totalHeight : navbarHeight;
+        this->graphicsView->setMinimumHeight(h);
+        this->graphicsView->setMaximumHeight(h);
+
+        // Force the layout to realize the height change
+        // Without this navbar jumps slightly down and then back up, when hiding legend
+        this->graphicsView->updateGeometry();
+        if (this->layout()) {
+            this->layout()->activate();
+        }
+
+        updateGraphicsScene();
+    }
 }

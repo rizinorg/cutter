@@ -2,13 +2,17 @@
 #define ABOUTDIALOG_H
 
 #include <QDialog>
-#include <memory>
 #include <QtNetwork/QNetworkReply>
+
+#include <memory>
 
 namespace Ui {
 class AboutDialog;
 }
 
+/**
+ * @brief Dialog that displays memory allocation details and offsets for a specific Arena.
+ */
 class AboutDialog : public QDialog
 {
     Q_OBJECT
@@ -18,24 +22,20 @@ public:
     ~AboutDialog();
 
 private slots:
-    void on_buttonBox_rejected();
-    void on_showVersionButton_clicked();
-    void on_showPluginsButton_clicked();
-    void on_Issue_clicked();
+    void onButtonBoxRejected();
+    void onShowVersionButtonClicked();
+    void onShowPluginsButtonClicked();
+    void onIssueClicked();
 
     /**
-     * @fn AboutDialog::on_checkForUpdatesButton_clicked()
-     *
      * @brief Initiates process of checking for updates.
      */
-    void on_checkForUpdatesButton_clicked();
+    void onCheckForUpdatesButtonClicked();
 
     /**
-     * @fn AboutDialog::on_updatesCheckBox_stateChanged(int state)
-     *
      * @brief Changes value of autoUpdateEnabled option in settings.
      */
-    void on_updatesCheckBox_stateChanged(int state);
+    void onUpdatesCheckBoxStateChanged(int state);
 
 private:
     std::unique_ptr<Ui::AboutDialog> ui;

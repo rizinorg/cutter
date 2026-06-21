@@ -4,6 +4,9 @@
 
 class MainWindow;
 
+/**
+ * @brief Class to synchronize seeks with other widgets
+ */
 class CUTTER_EXPORT CutterSeekable : public QObject
 {
     Q_OBJECT
@@ -39,19 +42,19 @@ public:
      * If it's not synchronized, it will return the seekable current seek.
      * @return the seekable current offset.
      */
-    RVA getOffset();
+    RVA getOffset() const;
 
     /**
      * @brief isSynchronized tells whether the seekable
      * is synchronized with Core or not.
-     * @return boolean
+     * @return true if synchronized, false otherwise
      */
-    bool isSynchronized();
+    bool isSynchronized() const;
 
     /**
      * @brief seekToReference will seek to the function or the object which is referenced in a given
      * offset
-     * @param offset - an address that contains a reference to jump to
+     * @param offset An address that contains a reference to jump to
      */
     void seekToReference(RVA offset);
 
@@ -62,15 +65,11 @@ public slots:
     void seekPrev();
 
     /**
-     * @brief toggleSyncWithCore toggles
-     * Core seek synchronization.
+     * @brief toggleSyncWithCore toggles Core seek synchronization.
      */
     void toggleSynchronization();
 
 private slots:
-    /**
-     * @brief onCoreSeekChanged
-     */
     void onCoreSeekChanged(RVA addr, CutterCore::SeekHistoryType type);
 
 private:

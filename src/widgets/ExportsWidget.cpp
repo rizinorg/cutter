@@ -1,19 +1,17 @@
 #include "ExportsWidget.h"
-#include "ui_ListDockWidget.h"
-#include "core/MainWindow.h"
+
 #include "common/Helpers.h"
-#include "WidgetShortcuts.h"
+#include "core/MainWindow.h"
+#include "shortcuts/ShortcutManager.h"
+#include "ui_ListDockWidget.h"
 
 #include <QShortcut>
 
-ExportsModel::ExportsModel(QList<ExportDescription> *exports, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), exports(exports)
-{
-}
+ExportsModel::ExportsModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
 int ExportsModel::rowCount(const QModelIndex &) const
 {
-    return exports->count();
+    return exports.count();
 }
 
 int ExportsModel::columnCount(const QModelIndex &) const
@@ -23,18 +21,19 @@ int ExportsModel::columnCount(const QModelIndex &) const
 
 QVariant ExportsModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= exports->count())
+    if (index.row() >= exports.count()) {
         return QVariant();
+    }
 
-    const ExportDescription &exp = exports->at(index.row());
+    const ExportDescription &exp = exports.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
         switch (index.column()) {
         case ExportsModel::OffsetColumn:
-            return RzAddressString(exp.vaddr);
+            return rzAddressString(exp.vaddr);
         case ExportsModel::SizeColumn:
-            return RzSizeString(exp.size);
+            return rzSizeString(exp.size);
         case ExportsModel::TypeColumn:
             return exp.type;
         case ExportsModel::NameColumn:
@@ -76,13 +75,13 @@ QVariant ExportsModel::headerData(int section, Qt::Orientation, int role) const
 
 RVA ExportsModel::address(const QModelIndex &index) const
 {
-    const ExportDescription &exp = exports->at(index.row());
+    const ExportDescription &exp = exports.at(index.row());
     return exp.vaddr;
 }
 
 QString ExportsModel::name(const QModelIndex &index) const
 {
-    const ExportDescription &exp = exports->at(index.row());
+    const ExportDescription &exp = exports.at(index.row());
     return exp.name;
 }
 
@@ -95,7 +94,7 @@ ExportsProxyModel::ExportsProxyModel(ExportsModel *source_model, QObject *parent
 
 bool ExportsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
-    QModelIndex index = sourceModel()->index(row, 0, parent);
+    const QModelIndex index = sourceModel()->index(row, 0, parent);
     auto exp = index.data(ExportsModel::ExportDescriptionRole).value<ExportDescription>();
 
     return qhelpers::filterStringContains(exp.name, this);
@@ -108,20 +107,24 @@ bool ExportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
 
     switch (left.column()) {
     case ExportsModel::SizeColumn:
-        if (leftExp.size != rightExp.size)
+        if (leftExp.size != rightExp.size) {
             return leftExp.size < rightExp.size;
+        }
     // fallthrough
     case ExportsModel::OffsetColumn:
-        if (leftExp.vaddr != rightExp.vaddr)
+        if (leftExp.vaddr != rightExp.vaddr) {
             return leftExp.vaddr < rightExp.vaddr;
+        }
     // fallthrough
     case ExportsModel::NameColumn:
-        if (leftExp.name != rightExp.name)
+        if (leftExp.name != rightExp.name) {
             return leftExp.name < rightExp.name;
+        }
     // fallthrough
     case ExportsModel::TypeColumn:
-        if (leftExp.type != rightExp.type)
+        if (leftExp.type != rightExp.type) {
             return leftExp.type < rightExp.type;
+        }
     // fallthrough
     case ExportsModel::CommentColumn:
         return Core()->getCommentAt(leftExp.vaddr) < Core()->getCommentAt(rightExp.vaddr);
@@ -133,18 +136,34 @@ bool ExportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     return leftExp.vaddr < rightExp.vaddr;
 }
 
-ExportsWidget::ExportsWidget(MainWindow *main) : ListDockWidget(main)
+ExportsWidget::ExportsWidget(MainWindow *main)
+    : ListDockWidget(main),
+      exportsModel(new ExportsModel(this)),
+      exportsProxyModel(new ExportsProxyModel(exportsModel, this))
 {
     setWindowTitle(tr("Exports"));
     setObjectName("ExportsWidget");
 
-    exportsModel = new ExportsModel(&exports, this);
-    exportsProxyModel = new ExportsProxyModel(exportsModel, this);
     setModels(exportsProxyModel);
-    ui->treeView->sortByColumn(ExportsModel::OffsetColumn, Qt::AscendingOrder);
 
-    QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ExportsWidget"], main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [=]() { toggleDockWidget(true); });
+    ui->treeView->sortByColumn(ExportsModel::OffsetColumn, Qt::AscendingOrder);
+    connect(ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, [this]() {
+        AddressableItemContextMenu *contextMenu = ui->treeView->getItemContextMenu();
+        const QModelIndex index = ui->treeView->selectionModel()->currentIndex();
+        if (index.isValid()) {
+            const QVariant variant =
+                    exportsProxyModel->data(index, ExportsModel::ExportDescriptionRole);
+            if (variant.canConvert<ExportDescription>()) {
+                auto exp = variant.value<ExportDescription>();
+                contextMenu->toggleBreakpointAction(exp.type == "FUNC");
+                return;
+            }
+        }
+        contextMenu->toggleBreakpointAction(false);
+    });
+
+    const QShortcut *toggleShortcut = Shortcuts()->makeQShortcut("Exports.toggle", main);
+    connect(toggleShortcut, &QShortcut::activated, this, [=, this]() { toggleDockWidget(true); });
 
     connect(Core(), &CutterCore::codeRebased, this, &ExportsWidget::refreshExports);
     connect(Core(), &CutterCore::refreshAll, this, &ExportsWidget::refreshExports);
@@ -157,7 +176,7 @@ ExportsWidget::~ExportsWidget() {}
 void ExportsWidget::refreshExports()
 {
     exportsModel->beginResetModel();
-    exports = Core()->getAllExports();
+    exportsModel->exports = Core()->getAllExports();
     exportsModel->endResetModel();
 
     qhelpers::adjustColumns(ui->treeView, 3, 0);

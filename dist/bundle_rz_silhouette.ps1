@@ -3,7 +3,7 @@ $cmake_opts = $args[1]
 $python = Split-Path((Get-Command python.exe).Path)
 
 if (-not (Test-Path -Path 'rz-silhouette' -PathType Container)) {
-    git clone https://github.com/rizinorg/rz-silhouette.git --depth 1 --branch "v0.8.0-beta3" rz-silhouette
+    git clone https://github.com/rizinorg/rz-silhouette.git --depth 1 rz-silhouette
 }
 cd rz-silhouette
 & meson.exe --buildtype=release --prefix=$dist build

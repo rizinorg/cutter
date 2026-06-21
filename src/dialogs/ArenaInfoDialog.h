@@ -2,7 +2,9 @@
 #define ARENAINFODIALOG_H
 
 #include <QDialog>
+
 #include <CutterDescriptions.h>
+#include <memory>
 
 namespace Ui {
 class ArenaInfoDialog;
@@ -18,7 +20,7 @@ public:
     void updateContents();
 
 private:
-    Ui::ArenaInfoDialog *ui;
+    std::unique_ptr<Ui::ArenaInfoDialog> ui;
     Arena arena;
 };
 

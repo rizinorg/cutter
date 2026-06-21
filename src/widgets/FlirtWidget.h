@@ -1,14 +1,13 @@
 #ifndef FLIRT_WIDGET_H
 #define FLIRT_WIDGET_H
 
-#include <memory>
-
-#include "core/Cutter.h"
 #include "CutterDockWidget.h"
 #include "menus/FlirtContextMenu.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
+
+#include <memory>
 
 class MainWindow;
 class QTreeWidget;
@@ -19,6 +18,9 @@ namespace Ui {
 class FlirtWidget;
 }
 
+/**
+ * @brief Source model for @ref FlirtWidget
+ */
 class FlirtModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -26,7 +28,7 @@ class FlirtModel : public QAbstractListModel
     friend FlirtWidget;
 
 public:
-    enum Column {
+    enum Column : ut8 {
         BinTypeColumn = 0,
         ArchNameColumn,
         ArchBitsColumn,
@@ -35,9 +37,9 @@ public:
         DetailsColumn,
         ColumnCount
     };
-    enum Role { FlirtDescriptionRole = Qt::UserRole };
+    enum Role : ut16 { FlirtDescriptionRole = Qt::UserRole };
 
-    FlirtModel(QList<FlirtDescription> *sigdb, QObject *parent = 0);
+    FlirtModel(QObject *parent = nullptr);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
@@ -46,9 +48,12 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
 private:
-    QList<FlirtDescription> *sigdb;
+    QList<FlirtDescription> sigdb;
 };
 
+/**
+ * @brief Proxy model for @ref FlirtWidget
+ */
 class FlirtProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
@@ -61,6 +66,9 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
+/**
+ * @brief Widget for browsing and applying FLIRT signatures to identify library functions
+ */
 class FlirtWidget : public CutterDockWidget
 {
     Q_OBJECT
@@ -79,7 +87,6 @@ private:
 
     FlirtModel *model;
     FlirtProxyModel *proxyModel;
-    QList<FlirtDescription> sigdb;
     FlirtContextMenu *blockMenu;
 
     void setScrollMode();

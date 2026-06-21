@@ -1,15 +1,14 @@
 #ifndef CUTTER_GRAPHVIEW_H
 #define CUTTER_GRAPHVIEW_H
 
-#include <QWidget>
-#include <QPainter>
-#include <QShortcut>
-#include <QLabel>
+#include "common/CachedFontMetrics.h"
+#include "widgets/GraphView.h"
 
 #include <QGestureEvent>
-
-#include "widgets/GraphView.h"
-#include "common/CachedFontMetrics.h"
+#include <QLabel>
+#include <QPainter>
+#include <QShortcut>
+#include <QWidget>
 
 /**
  * @brief Common Cutter specific graph functionality.
@@ -21,7 +20,7 @@ public:
     CutterGraphView(QWidget *parent);
     virtual bool event(QEvent *event) override;
 
-    enum class GraphExportType {
+    enum class GraphExportType : ut8 {
         Png,
         Jpeg,
         Svg,
@@ -44,7 +43,7 @@ public:
      * RZ_CORE_GRAPH_TYPE_IMPORT
      * @param address - object address (if global set it to RVA_INVALID)
      */
-    void exportGraph(QString filePath, GraphExportType exportType, RzCoreGraphType graphType,
+    void exportGraph(const QString &filePath, GraphExportType exportType, RzCoreGraphType graphType,
                      RVA address = RVA_INVALID);
 
     /**
@@ -54,7 +53,7 @@ public:
      * @param format - graph format, example RZ_CORE_GRAPH_FORMAT_DOT or RZ_CORE_GRAPH_FORMAT_GML
      * @param address - object address (if global set it to RVA_INVALID)
      */
-    void exportRzTextGraph(QString filePath, RzCoreGraphType type, RzCoreGraphFormat format,
+    void exportRzTextGraph(const QString &filePath, RzCoreGraphType type, RzCoreGraphFormat format,
                            RVA address);
     static bool graphIsBitamp(GraphExportType type);
     /**
@@ -63,7 +62,7 @@ public:
      * @param type - graph type, example RZ_CORE_GRAPH_TYPE_FUNCALL or RZ_CORE_GRAPH_TYPE_IMPORT
      * @param address - object address (if global set it to RVA_INVALID)
      */
-    void showExportGraphDialog(QString defaultName, RzCoreGraphType type,
+    void showExportGraphDialog(const QString &defaultName, RzCoreGraphType type,
                                RVA address = RVA_INVALID);
 
 public slots:
@@ -114,7 +113,7 @@ protected:
 
     // Font data
     std::unique_ptr<CachedFontMetrics<qreal>> mFontMetrics;
-    qreal ACharWidth; // width of character A
+    qreal charWidthA; // width of character A
     int charHeight;
     int charOffset;
     int baseline;
@@ -124,7 +123,7 @@ protected:
     QColor disassemblyBackgroundColor;
     QColor disassemblySelectedBackgroundColor;
     QColor disassemblySelectionColor;
-    QColor PCSelectionColor;
+    QColor pcSelectionColor;
     QColor jmpColor;
     QColor brtrueColor;
     QColor brfalseColor;

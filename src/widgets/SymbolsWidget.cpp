@@ -1,18 +1,16 @@
 #include "SymbolsWidget.h"
-#include "ui_ListDockWidget.h"
-#include "core/MainWindow.h"
+
 #include "common/Helpers.h"
+#include "core/MainWindow.h"
+#include "ui_ListDockWidget.h"
 
 #include <QShortcut>
 
-SymbolsModel::SymbolsModel(QList<SymbolDescription> *symbols, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), symbols(symbols)
-{
-}
+SymbolsModel::SymbolsModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
 int SymbolsModel::rowCount(const QModelIndex &) const
 {
-    return symbols->count();
+    return symbols.count();
 }
 
 int SymbolsModel::columnCount(const QModelIndex &) const
@@ -22,17 +20,17 @@ int SymbolsModel::columnCount(const QModelIndex &) const
 
 QVariant SymbolsModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= symbols->count()) {
+    if (index.row() >= symbols.count()) {
         return QVariant();
     }
 
-    const SymbolDescription &symbol = symbols->at(index.row());
+    const SymbolDescription &symbol = symbols.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
         switch (index.column()) {
         case SymbolsModel::AddressColumn:
-            return RzAddressString(symbol.vaddr);
+            return rzAddressString(symbol.vaddr);
         case SymbolsModel::TypeColumn:
             return QString("%1 %2").arg(symbol.bind, symbol.type).trimmed();
         case SymbolsModel::NameColumn:
@@ -72,13 +70,13 @@ QVariant SymbolsModel::headerData(int section, Qt::Orientation, int role) const
 
 RVA SymbolsModel::address(const QModelIndex &index) const
 {
-    const SymbolDescription &symbol = symbols->at(index.row());
+    const SymbolDescription &symbol = symbols.at(index.row());
     return symbol.vaddr;
 }
 
 QString SymbolsModel::name(const QModelIndex &index) const
 {
-    const SymbolDescription &symbol = symbols->at(index.row());
+    const SymbolDescription &symbol = symbols.at(index.row());
     return symbol.name;
 }
 
@@ -91,7 +89,7 @@ SymbolsProxyModel::SymbolsProxyModel(SymbolsModel *sourceModel, QObject *parent)
 
 bool SymbolsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
-    QModelIndex index = sourceModel()->index(row, 0, parent);
+    const QModelIndex index = sourceModel()->index(row, 0, parent);
     auto symbol = index.data(SymbolsModel::SymbolDescriptionRole).value<SymbolDescription>();
 
     return qhelpers::filterStringContains(symbol.name, this);
@@ -118,13 +116,14 @@ bool SymbolsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     return false;
 }
 
-SymbolsWidget::SymbolsWidget(MainWindow *main) : ListDockWidget(main)
+SymbolsWidget::SymbolsWidget(MainWindow *main)
+    : ListDockWidget(main),
+      symbolsModel(new SymbolsModel(this)),
+      symbolsProxyModel(new SymbolsProxyModel(symbolsModel, this))
 {
     setWindowTitle(tr("Symbols"));
     setObjectName("SymbolsWidget");
 
-    symbolsModel = new SymbolsModel(&symbols, this);
-    symbolsProxyModel = new SymbolsProxyModel(symbolsModel, this);
     setModels(symbolsProxyModel);
     ui->treeView->sortByColumn(SymbolsModel::AddressColumn, Qt::AscendingOrder);
 
@@ -139,7 +138,7 @@ SymbolsWidget::~SymbolsWidget() {}
 void SymbolsWidget::refreshSymbols()
 {
     symbolsModel->beginResetModel();
-    symbols = Core()->getAllSymbols();
+    symbolsModel->symbols = Core()->getAllSymbols();
     symbolsModel->endResetModel();
 
     qhelpers::adjustColumns(ui->treeView, SymbolsModel::ColumnCount, 0);

@@ -1,10 +1,10 @@
 #include "common/ResourcePaths.h"
 
-#include <QLibraryInfo>
-#include <QDir>
-#include <QFileInfo>
 #include <QApplication>
 #include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QLibraryInfo>
 #include <QStandardPaths>
 
 #ifdef APPIMAGE
@@ -30,7 +30,7 @@ static QString substitutePath(QString path)
 /**
  * @brief Substitute or filter paths returned by standardLocations based on Cutter package kind.
  * @param paths list of paths to process
- * @return
+ * @return List of substituted path strings
  */
 static QStringList substitutePaths(const QStringList &paths)
 {
@@ -50,8 +50,8 @@ QStringList Cutter::locateAll(QStandardPaths::StandardLocation type, const QStri
     // This function is reimplemented here instead of forwarded to Qt becauase existence check needs
     // to be done after substitutions
     QStringList result;
-    for (auto path : standardLocations(type)) {
-        QString filePath = path + QLatin1Char('/') + fileName;
+    for (const auto &path : standardLocations(type)) {
+        const QString filePath = path + QLatin1Char('/') + fileName;
         bool exists = false;
         if (options & QStandardPaths::LocateDirectory) {
             exists = QDir(filePath).exists();
@@ -79,6 +79,10 @@ QStringList Cutter::getTranslationsDirectories()
 {
     auto result = locateAll(QStandardPaths::AppDataLocation, "translations",
                             QStandardPaths::LocateDirectory);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    result << QLibraryInfo::path(QLibraryInfo::TranslationsPath);
+#else
     result << QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+#endif
     return result;
 }

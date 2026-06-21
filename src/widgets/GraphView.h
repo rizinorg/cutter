@@ -1,22 +1,22 @@
 #ifndef GRAPHVIEW_H
 #define GRAPHVIEW_H
 
-#include <QObject>
-#include <QPainter>
-#include <QWidget>
-#include <QAbstractScrollArea>
-#include <QScrollBar>
-#include <QElapsedTimer>
-#include <QHelpEvent>
-#include <QGestureEvent>
-
-#include <unordered_map>
-#include <unordered_set>
-#include <queue>
-#include <memory>
-
 #include "core/Cutter.h"
 #include "widgets/GraphLayout.h"
+
+#include <QAbstractScrollArea>
+#include <QElapsedTimer>
+#include <QGestureEvent>
+#include <QHelpEvent>
+#include <QObject>
+#include <QPainter>
+#include <QScrollBar>
+#include <QWidget>
+#include <queue>
+
+#include <memory>
+#include <unordered_map>
+#include <unordered_set>
 
 #if defined(QT_NO_OPENGL) || QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
 // QOpenGLExtraFunctions were introduced in 5.6
@@ -27,6 +27,11 @@
 class QOpenGLWidget;
 #endif
 
+/**
+ * @brief Base class for rendering and interacting with control-flow graphs
+ *
+ * Supports both QPainter and OpenGL rendering
+ */
 class GraphView : public QAbstractScrollArea
 {
     Q_OBJECT
@@ -39,7 +44,7 @@ public:
     using GraphBlock = GraphLayout::GraphBlock;
     using GraphEdge = GraphLayout::GraphEdge;
 
-    enum class Layout {
+    enum class Layout : ut8 {
         GridNarrow,
         GridMedium,
         GridWide,
@@ -66,9 +71,9 @@ public:
     struct EdgeConfiguration
     {
         QColor color = QColor(128, 128, 128);
-        bool start_arrow = false;
-        bool end_arrow = true;
-        qreal width_scale = 1.0;
+        bool startArrow = false;
+        bool endArrow = true;
+        qreal widthScale = 1.0;
         Qt::PenStyle lineStyle = Qt::PenStyle::SolidLine;
     };
 
@@ -97,9 +102,9 @@ public:
 
     void paint(QPainter &p, QPoint offset, QRect area, qreal scale = 1.0, bool interactive = true);
 
-    void saveAsBitmap(QString path, const char *format = nullptr, double scaler = 1.0,
+    void saveAsBitmap(const QString &path, const char *format = nullptr, double scaler = 1.0,
                       bool transparent = false);
-    void saveAsSvg(QString path);
+    void saveAsSvg(const QString &path);
 
     void computeGraphPlacement();
 
@@ -115,11 +120,11 @@ protected:
     QColor backgroundColor = QColor(Qt::white);
 
     // Padding inside the block
-    int block_padding = 16;
+    int blockPadding = 16;
 
     void setCacheDirty() { cacheDirty = true; }
 
-    void addBlock(GraphView::GraphBlock block);
+    void addBlock(const GraphView::GraphBlock &block);
     void setEntry(ut64 e);
 
     // Callbacks that should be overridden
@@ -166,7 +171,7 @@ protected:
 
     int width = 0;
     int height = 0;
-    bool scale_thickness_multiplier = false;
+    bool scaleThicknessMultiplier = false;
 
     void clampViewOffset();
     void setViewOffsetInternal(QPoint pos, bool emitSignal = true);
@@ -181,7 +186,7 @@ private:
     bool checkPointClicked(QPointF &point, int x, int y, bool above_y = false);
 
     // Zoom data
-    qreal current_scale = 1.0;
+    qreal currentScale = 1.0;
 
     QPoint offset = QPoint(0, 0);
 
@@ -190,7 +195,7 @@ private:
     std::unique_ptr<GraphLayout> graphLayoutSystem;
 
     QPoint scrollBase;
-    bool scroll_mode = false;
+    bool scrollMode = false;
 
     bool useGL;
 
@@ -220,7 +225,7 @@ private:
 public:
     QPoint getViewOffset() const { return offset; }
     void setViewOffset(QPoint offset);
-    qreal getViewScale() const { return current_scale; }
+    qreal getViewScale() const { return currentScale; }
     void setViewScale(qreal scale);
 
     void center();

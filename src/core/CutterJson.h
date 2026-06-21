@@ -3,29 +3,34 @@
 
 #include "core/CutterCommon.h"
 
-#include <QSharedPointer>
 #include <QString>
 #include <QStringList>
+
+#include <memory>
 #include <rz_project.h>
+#include <utility>
 
 class CutterJsonOwner;
 
+/**
+ * @brief Cutter wrapper for handling Json
+ */
 class CUTTER_EXPORT CutterJson
 {
 public:
-    class iterator
+    class Iterator
     {
     public:
-        iterator(const RzJson *value, QSharedPointer<CutterJsonOwner> owner)
-            : value(value), owner(owner)
+        Iterator(const RzJson *value, std::shared_ptr<CutterJsonOwner> owner)
+            : value(value), owner(std::move(owner))
         {
         }
 
         CutterJson operator*() const { return CutterJson(value, owner); }
 
-        bool operator!=(const iterator &other) const { return value != other.value; }
+        bool operator!=(const Iterator &other) const { return value != other.value; }
 
-        iterator &operator++()
+        Iterator &operator++()
         {
             value = value->next;
             return *this;
@@ -33,19 +38,19 @@ public:
 
     private:
         const RzJson *value;
-        QSharedPointer<CutterJsonOwner> owner;
+        std::shared_ptr<CutterJsonOwner> owner;
     };
 
-    CutterJson() : value(nullptr), owner(nullptr) {}
+    CutterJson() : value(nullptr) {}
 
-    CutterJson(const RzJson *value, QSharedPointer<CutterJsonOwner> owner)
-        : value(value), owner(owner)
+    CutterJson(const RzJson *value, std::shared_ptr<CutterJsonOwner> owner)
+        : value(value), owner(std::move(owner))
     {
     }
 
     CutterJson first() const
     {
-        return CutterJson(has_children() ? value->children.first : nullptr, owner);
+        return CutterJson(hasChildren() ? value->children.first : nullptr, owner);
     }
 
     CutterJson last() const;
@@ -62,12 +67,12 @@ public:
                 value && value->type == RZ_JSON_OBJECT ? rz_json_get(value, key) : nullptr, owner);
     }
 
-    iterator begin() const
+    Iterator begin() const
     {
-        return iterator(has_children() ? value->children.first : nullptr, owner);
+        return Iterator(hasChildren() ? value->children.first : nullptr, owner);
     }
 
-    iterator end() const { return iterator(nullptr, nullptr); }
+    Iterator end() const { return Iterator(nullptr, nullptr); }
 
     bool toBool() const { return value && value->type == RZ_JSON_BOOLEAN && value->num.u_value; }
     st64 toSt64() const { return value && value->type == RZ_JSON_INTEGER ? value->num.s_value : 0; }
@@ -85,19 +90,19 @@ public:
 
     QString key() const { return value ? value->key : QString(); }
     QStringList keys() const;
-    size_t size() const { return has_children() ? value->children.count : 0; }
+    size_t size() const { return hasChildren() ? value->children.count : 0; }
     RzJsonType type() const { return value ? value->type : RZ_JSON_NULL; }
     bool valid() const { return value ? true : false; }
     const RzJson *lowLevelValue() const { return value; }
 
 private:
-    bool has_children() const
+    bool hasChildren() const
     {
         return value && (value->type == RZ_JSON_OBJECT || value->type == RZ_JSON_ARRAY);
     }
 
     const RzJson *value;
-    QSharedPointer<CutterJsonOwner> owner;
+    std::shared_ptr<CutterJsonOwner> owner;
 };
 
 class CUTTER_EXPORT CutterJsonOwner

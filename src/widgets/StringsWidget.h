@@ -1,16 +1,15 @@
 #ifndef STRINGSWIDGET_H
 #define STRINGSWIDGET_H
 
-#include <memory>
-
-#include "core/Cutter.h"
+#include "AddressableItemModel.h"
+#include "CutterDescriptions.h"
 #include "CutterDockWidget.h"
 #include "common/StringsTask.h"
-#include "CutterTreeWidget.h"
-#include "AddressableItemModel.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
+
+#include <memory>
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -20,6 +19,9 @@ namespace Ui {
 class StringsWidget;
 }
 
+/**
+ * @brief Source model for @ref StringsWidget
+ */
 class StringsModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
@@ -27,10 +29,10 @@ class StringsModel : public AddressableItemModel<QAbstractListModel>
     friend StringsWidget;
 
 private:
-    QList<StringDescription> *strings;
+    QList<StringDescription> strings;
 
 public:
-    enum Column {
+    enum Column : ut8 {
         OffsetColumn = 0,
         StringColumn,
         TypeColumn,
@@ -40,9 +42,9 @@ public:
         CommentColumn,
         ColumnCount
     };
-    static const int StringDescriptionRole = Qt::UserRole;
+    static const int stringDescriptionRole = Qt::UserRole;
 
-    StringsModel(QList<StringDescription> *strings, QObject *parent = nullptr);
+    StringsModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -55,6 +57,9 @@ public:
     const StringDescription *description(const QModelIndex &index) const;
 };
 
+/**
+ * @brief Proxy model for @ref StringsWidget
+ */
 class StringsProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
@@ -70,6 +75,9 @@ protected:
     QString selectedSection;
 };
 
+/**
+ * @brief Widget listing all of the strings in binary
+ */
 class StringsWidget : public CutterDockWidget
 {
     Q_OBJECT
@@ -83,17 +91,15 @@ private slots:
     void stringSearchFinished(const QList<StringDescription> &strings);
     void refreshSectionCombo();
 
-    void on_actionCopy();
+    void onActionCopy();
 
 private:
     std::unique_ptr<Ui::StringsWidget> ui;
 
-    QSharedPointer<StringsTask> task;
+    std::shared_ptr<StringsTask> task;
 
     StringsModel *model;
     StringsProxyModel *proxyModel;
-    QList<StringDescription> strings;
-    CutterTreeWidget *tree;
 };
 
 #endif // STRINGSWIDGET_H

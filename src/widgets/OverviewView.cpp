@@ -1,11 +1,12 @@
 #include "OverviewView.h"
-#include <QPainter>
-#include <QMouseEvent>
 
-#include "core/Cutter.h"
-#include "common/Colors.h"
 #include "common/Configuration.h"
-#include "common/TempConfig.h"
+#include "core/Cutter.h"
+
+#include <QMouseEvent>
+#include <QPainter>
+
+#include <utility>
 
 OverviewView::OverviewView(QWidget *parent) : GraphView(parent)
 {
@@ -19,8 +20,8 @@ void OverviewView::setData(int baseWidth, int baseHeight,
 {
     width = baseWidth;
     height = baseHeight;
-    blocks = baseBlocks;
-    edgeConfigurations = baseEdgeConfigurations;
+    blocks = std::move(baseBlocks);
+    edgeConfigurations = std::move(baseEdgeConfigurations);
     scaleAndCenter();
     setCacheDirty();
     viewport()->update();
@@ -28,8 +29,8 @@ void OverviewView::setData(int baseWidth, int baseHeight,
 
 void OverviewView::centreRect()
 {
-    qreal w = rangeRect.width();
-    qreal h = rangeRect.height();
+    const qreal w = rangeRect.width();
+    const qreal h = rangeRect.height();
     initialDiff = QPointF(w / 2, h / 2);
 }
 
@@ -37,8 +38,8 @@ OverviewView::~OverviewView() {}
 
 void OverviewView::scaleAndCenter()
 {
-    qreal wScale = (qreal)viewport()->width() / width;
-    qreal hScale = (qreal)viewport()->height() / height;
+    const qreal wScale = (qreal)viewport()->width() / width;
+    const qreal hScale = (qreal)viewport()->height() / height;
     setViewScale(std::min(wScale, hScale));
     center();
 }
@@ -52,7 +53,7 @@ void OverviewView::refreshView()
 void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive)
 {
     Q_UNUSED(interactive)
-    QRectF blockRect(block.x, block.y, block.width, block.height);
+    const QRectF blockRect(block.x, block.y, block.width, block.height);
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
@@ -92,7 +93,7 @@ void OverviewView::mousePressEvent(QMouseEvent *event)
     if (rangeRect.contains(pos)) {
         initialDiff = pos - rangeRect.topLeft();
     } else {
-        QPointF size(rangeRect.width(), rangeRect.height());
+        const QPointF size(rangeRect.width(), rangeRect.height());
         initialDiff = size * 0.5;
         rangeRect.moveCenter(pos);
         viewport()->update();
@@ -111,7 +112,7 @@ void OverviewView::mouseMoveEvent(QMouseEvent *event)
     if (!mouseActive) {
         return;
     }
-    QPointF topLeft = qhelpers::mouseEventPos(event) - initialDiff;
+    const QPointF topLeft = qhelpers::mouseEventPos(event) - initialDiff;
     rangeRect.setTopLeft(topLeft);
     viewport()->update();
     emit mouseMoved();
@@ -129,9 +130,10 @@ GraphView::EdgeConfiguration OverviewView::edgeConfiguration(GraphView::GraphBlo
     Q_UNUSED(interactive)
     EdgeConfiguration ec;
     auto baseEcIt = edgeConfigurations.find({ from.entry, to->entry });
-    if (baseEcIt != edgeConfigurations.end())
+    if (baseEcIt != edgeConfigurations.end()) {
         ec = baseEcIt->second;
-    ec.width_scale = 1.0 / getViewScale();
+    }
+    ec.widthScale = 1.0 / getViewScale();
     return ec;
 }
 

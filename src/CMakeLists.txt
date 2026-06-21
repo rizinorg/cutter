@@ -24,7 +24,6 @@ set(SOURCES
     dialogs/XrefsDialog.cpp
     core/MainWindow.cpp
     common/Helpers.cpp
-    common/Highlighter.cpp
     common/MdHighlighter.cpp
     common/DirectionalComboBox.cpp
     dialogs/preferences/AsmOptionsWidget.cpp
@@ -73,10 +72,8 @@ set(SOURCES
     CutterApplication.cpp
     dialogs/RizinPluginsDialog.cpp
     widgets/CutterDockWidget.cpp
-    widgets/CutterTreeWidget.cpp
     widgets/GraphWidget.cpp
     widgets/OverviewWidget.cpp
-    common/JsonModel.cpp
     dialogs/VersionInfoDialog.cpp
     widgets/FlirtWidget.cpp
     common/AsyncTask.cpp
@@ -88,7 +85,7 @@ set(SOURCES
     widgets/BacktraceWidget.cpp
     dialogs/MapFileDialog.cpp
     common/CommandTask.cpp
-    common/ProgressIndicator.cpp
+    widgets/ProgressIndicator.cpp
     common/RizinTask.cpp
     dialogs/RizinTaskDialog.cpp
     widgets/DebugActions.cpp
@@ -111,6 +108,7 @@ set(SOURCES
     common/RunScriptTask.cpp
     dialogs/EditMethodDialog.cpp
     dialogs/TypesInteractionDialog.cpp
+    dialogs/TypesVariablesDialog.cpp
     widgets/SdbWidget.cpp
     plugins/PluginManager.cpp
     common/BasicBlockHighlighter.cpp
@@ -155,6 +153,27 @@ set(SOURCES
     tools/basefind/BaseFindDialog.cpp
     tools/basefind/BaseFindSearchDialog.cpp
     tools/basefind/BaseFindResultsDialog.cpp
+    widgets/AddressRangeScrollBar.cpp
+    dialogs/preferences/ShortcutOptionsWidget.cpp
+    shortcuts/ShortcutManager.cpp
+    shortcuts/DefaultShortcuts.cpp
+    dialogs/MarkDialog.cpp
+    dialogs/ProfileDirectivesDialog.cpp
+    dialogs/RegisterProfileDialog.cpp
+    dialogs/EditRegProfileDialog.cpp
+    common/DisassemblyHelper.cpp
+    widgets/SearchBarWidget.cpp
+    widgets/SearchableDockWidget.cpp
+    common/CutterSearchable.cpp
+    widgets/SearchableTextEdit.cpp
+    dialogs/preferences/SymbolsOptionsWidget.cpp
+    widgets/ItemCountLineEdit.cpp
+    widgets/AbstractFilterView.cpp
+    dialogs/preferences/InterfaceOptionsWidget.cpp
+    common/Json.cpp
+    dialogs/preferences/RizinConfigOptionsWidget.cpp
+    dialogs/IntervalDialog.cpp
+    dialogs/StringListDialog.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -180,7 +199,6 @@ set(HEADER_FILES
     dialogs/XrefsDialog.h
     common/Helpers.h
     core/MainWindow.h
-    common/Highlighter.h
     common/MdHighlighter.h
     common/DirectionalComboBox.h
     dialogs/InitialOptionsDialog.h
@@ -228,10 +246,8 @@ set(HEADER_FILES
     widgets/SearchWidget.h
     dialogs/RizinPluginsDialog.h
     widgets/CutterDockWidget.h
-    widgets/CutterTreeWidget.h
     widgets/GraphWidget.h
     widgets/OverviewWidget.h
-    common/JsonModel.h
     dialogs/VersionInfoDialog.h
     widgets/FlirtWidget.h
     common/AsyncTask.h
@@ -245,7 +261,7 @@ set(HEADER_FILES
     common/StringsTask.h
     common/FunctionsTask.h
     common/CommandTask.h
-    common/ProgressIndicator.h
+    widgets/ProgressIndicator.h
     plugins/CutterPlugin.h
     common/RizinTask.h
     dialogs/RizinTaskDialog.h
@@ -271,6 +287,7 @@ set(HEADER_FILES
     common/Json.h
     dialogs/EditMethodDialog.h
     dialogs/TypesInteractionDialog.h
+    dialogs/TypesVariablesDialog.h
     widgets/SdbWidget.h
     plugins/PluginManager.h
     common/BasicBlockHighlighter.h
@@ -319,6 +336,26 @@ set(HEADER_FILES
     tools/basefind/BaseFindDialog.h
     tools/basefind/BaseFindSearchDialog.h
     tools/basefind/BaseFindResultsDialog.h
+    widgets/AddressRangeScrollBar.h
+    dialogs/preferences/ShortcutOptionsWidget.h
+    shortcuts/ShortcutManager.h
+    shortcuts/DefaultShortcuts.h
+    dialogs/MarkDialog.h
+    dialogs/ProfileDirectivesDialog.h
+    dialogs/RegisterProfileDialog.h
+    dialogs/EditRegProfileDialog.h
+    common/DisassemblyHelper.h
+    widgets/SearchBarWidget.h
+    widgets/SearchableDockWidget.h
+    common/CutterSearchable.h
+    widgets/SearchableTextEdit.h
+    dialogs/preferences/SymbolsOptionsWidget.h
+    widgets/ItemCountLineEdit.h
+    widgets/AbstractFilterView.h
+    dialogs/preferences/InterfaceOptionsWidget.h
+    dialogs/preferences/RizinConfigOptionsWidget.h
+    dialogs/IntervalDialog.h
+    dialogs/StringListDialog.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -378,6 +415,7 @@ set(UI_FILES
     dialogs/WelcomeDialog.ui
     dialogs/EditMethodDialog.ui
     dialogs/TypesInteractionDialog.ui
+    dialogs/TypesVariablesDialog.ui
     widgets/SdbWidget.ui
     widgets/ColorPicker.ui
     dialogs/preferences/ColorThemeEditDialog.ui
@@ -393,6 +431,15 @@ set(UI_FILES
     tools/basefind/BaseFindDialog.ui
     tools/basefind/BaseFindSearchDialog.ui
     tools/basefind/BaseFindResultsDialog.ui
+    dialogs/preferences/ShortcutOptionsWidget.ui
+    dialogs/MarkDialog.ui
+    dialogs/ProfileDirectivesDialog.ui
+    dialogs/RegisterProfileDialog.ui
+    dialogs/EditRegProfileDialog.ui
+    widgets/SearchBarWidget.ui
+    dialogs/preferences/SymbolsOptionsWidget.ui
+    dialogs/preferences/InterfaceOptionsWidget.ui
+    dialogs/preferences/RizinConfigOptionsWidget.ui
 )
 set(QRC_FILES
     resources.qrc
@@ -500,23 +547,7 @@ endif()
 
 target_link_libraries(Cutter PUBLIC ${RIZIN_TARGET})
 if(CUTTER_ENABLE_PYTHON)
-    if(CMAKE_VERSION VERSION_LESS "3.12.0") 
-        # On windows some of the Python STABLE API functions are in seperate library
-        # which isn't added by CMake.
-        if (WIN32)
-            foreach(_PYTHON_LIBRARY ${PYTHON_LIBRARIES})
-                # Skip extra "optimized" and "debug" values that are only meant for passing to target_link_libraries()
-                if((NOT _PYTHON_LIBRARY STREQUAL "optimized") AND (NOT _PYTHON_LIBRARY STREQUAL "debug"))
-                    get_filename_component(_PYTHON_LIB_DIR ${_PYTHON_LIBRARY} DIRECTORY)
-                    message(STATUS "Add extra library dir for Python: ${_PYTHON_LIB_DIR}")
-                    target_link_directories(Cutter PRIVATE ${_PYTHON_LIB_DIR})
-                endif()
-            endforeach()
-        endif()
-        target_link_libraries(Cutter PRIVATE ${PYTHON_LIBRARIES})
-    else()
-        target_link_libraries(Cutter PRIVATE Python3::Python)
-    endif()
+    target_link_libraries(Cutter PRIVATE Python3::Python)
 
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
         target_link_libraries(Cutter PRIVATE ${CUTTER_PYSIDE_LIBS})

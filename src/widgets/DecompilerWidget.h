@@ -1,12 +1,13 @@
 #ifndef DECOMPILERWIDGET_H
 #define DECOMPILERWIDGET_H
 
-#include <QTextEdit>
-#include <memory>
-
-#include "core/Cutter.h"
-#include "MemoryDockWidget.h"
 #include "Decompiler.h"
+#include "MemoryDockWidget.h"
+#include "core/Cutter.h"
+
+#include <QTextEdit>
+
+#include <memory>
 
 namespace Ui {
 class DecompilerWidget;
@@ -18,6 +19,9 @@ class QTextCursor;
 class DecompilerContextMenu;
 struct DecompiledCodeTextLine;
 
+/**
+ * @brief Widget to display the decompiled output from plugins like RzGhidra, JsDec etc
+ */
 class DecompilerWidget : public MemoryDockWidget
 {
     Q_OBJECT
@@ -177,7 +181,7 @@ private:
      * @param extraSelection - an ExtraSelection object colored with the appropriate color
      * @return True on success, otherwise False
      */
-    bool colorLine(QTextEdit::ExtraSelection extraSelection);
+    bool colorLine(const QTextEdit::ExtraSelection &extraSelection);
 
     /**
      * @brief This function is responsible for highlighting all the breakpoints in the decompiler
@@ -249,7 +253,7 @@ private:
      * @param addr An offset in the binary.
      * @return True if the specified is a part of the decompiled function, False otherwise.
      */
-    bool addressInRange(RVA addr);
+    bool addressInRange(RVA addr) const;
 
     void setCode(RzAnnotatedCode *code);
 

@@ -14,13 +14,8 @@ if(WIN32)
 			if (CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
 				set(CPACK_INSTALL_SCRIPTS ${CMAKE_CURRENT_SOURCE_DIR}/WindowsBundlePython.cmake)
 			endif()
-			if(CMAKE_VERSION VERSION_LESS "3.12.0") 
-				find_package(PythonInterp REQUIRED)
-				install(DIRECTORY ${CUTTER_DEPS}/pyside/lib/site-packages DESTINATION "python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR}")
-			else()
-				find_package (Python3 ${CUTTER_PYTHON_MIN} REQUIRED COMPONENTS)
-				install(DIRECTORY ${CUTTER_DEPS}/pyside/lib/site-packages DESTINATION "python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
-			endif()
+			find_package (Python3 ${CUTTER_PYTHON_MIN} REQUIRED COMPONENTS)
+			install(DIRECTORY ${CUTTER_DEPS}/pyside/lib/site-packages DESTINATION "python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
 			install(FILES ${CUTTER_DEPS}/pyside/bin/shiboken6.abi3.dll ${CUTTER_DEPS}/pyside/bin/pyside6.abi3.dll DESTINATION .)
 		endif()
 		install(SCRIPT WindowsBundleQt.cmake)
@@ -206,9 +201,9 @@ if(CUTTER_PACKAGE_RZ_GHIDRA)
 		# installed Cutter.
 		ExternalProject_Add(rz-ghidra
 			GIT_REPOSITORY https://github.com/rizinorg/rz-ghidra
-			GIT_TAG v0.8.0
+			#GIT_TAG v0.3.0
 			#GIT_TAG c7a50a2e7c0a95cd52b167c9ee0fa1805223f08e
-			#GIT_TAG dev
+			GIT_TAG dev
 			#GIT_SHALLOW ON # disable this line when using commit hash
 			CONFIGURE_COMMAND ""
 			BUILD_COMMAND ""
@@ -229,6 +224,7 @@ if(CUTTER_PACKAGE_RZ_GHIDRA)
 			COMMAND \${CMAKE_COMMAND}
 							../rz-ghidra
 							-DCMAKE_BUILD_TYPE=Release
+              -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
 							\"-DCMAKE_PREFIX_PATH=\${CMAKE_INSTALL_PREFIX};\${CMAKE_INSTALL_PREFIX}/include/librz;\${CMAKE_INSTALL_PREFIX}/include/librz/sdb;${RZ_GHIDRA_PREFIX_PATH}\"
 							-DCMAKE_INSTALL_PREFIX=\${CMAKE_INSTALL_PREFIX}
 							${GHIDRA_OPTIONS}

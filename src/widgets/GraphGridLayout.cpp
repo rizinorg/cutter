@@ -1,13 +1,13 @@
 #include "GraphGridLayout.h"
 
-#include <unordered_set>
-#include <unordered_map>
-#include <queue>
-#include <stack>
-#include <cassert>
+#include "common/BinaryTrees.h"
+
 #include <queue>
 
-#include "common/BinaryTrees.h"
+#include <cassert>
+#include <map>
+#include <stack>
+#include <unordered_map>
 
 /** @class GraphGridLayout
 
@@ -56,7 +56,7 @@ be interpreted as every second row and column being reserved for edges. The row 
 using the first interpretation. To allow better centering of nodes one above other, each node is 2
 columns wide and 1 row high.
 
-\image html graph_grid.svg
+@image html graph_grid.svg
 
 # 1-2 Cycle removal and toposort
 
@@ -95,7 +95,7 @@ In compact mode two subtrees are placed side by side accounting for their shape.
 mode the bounding box of the shorter subtree is used instead of its exact shape. This gives slightly
 sparser layout without being too wide.
 
-\image html graph_parent_placement.svg
+@image html graph_parent_placement.svg
 
 # Edge routing
 Edge routing can be split into: main column selection, rough routing, and segment offset
@@ -150,7 +150,7 @@ tallest block within a row. One common case is a function-entry block being wide
 function name, causing wide horizontal space between branching blocks. Another case is rows in two
 parallel columns being aligned.
 
-\image html layout_compacting.svg
+@image html layout_compacting.svg
 
 Both problems are mitigated by squishing the graph. Compressing in each of the two direction is done
 separately. The process is defined as liner program. Each variable represents a position of edge
@@ -218,18 +218,18 @@ std::vector<ut64> GraphGridLayout::topoSort(LayoutState &state, ut64 entry)
         stack.push({ first, 0 });
         while (!stack.empty()) {
             auto v = stack.top().first;
-            auto edge_index = stack.top().second;
+            auto edgeIndex = stack.top().second;
             const auto &block = blocks[v];
-            if (edge_index < block.edges.size()) {
+            if (edgeIndex < block.edges.size()) {
                 ++stack.top().second;
-                auto target = block.edges[edge_index].target;
+                auto target = block.edges[edgeIndex].target;
                 auto &targetState = visited[target];
                 if (targetState == State::NotVisited) {
                     targetState = State::InStack;
                     stack.push({ target, 0 });
-                    state.grid_blocks[v].dag_edge.push_back(target);
+                    state.gridBlocks[v].dagEdge.push_back(target);
                 } else if (targetState == State::Visited) {
-                    state.grid_blocks[v].dag_edge.push_back(target);
+                    state.gridBlocks[v].dagEdge.push_back(target);
                 } // else {  targetState == 1 in stack, loop edge }
             } else {
                 stack.pop();
@@ -253,13 +253,13 @@ std::vector<ut64> GraphGridLayout::topoSort(LayoutState &state, ut64 entry)
 }
 
 void GraphGridLayout::assignRows(GraphGridLayout::LayoutState &state,
-                                 const std::vector<unsigned long long> &blockOrder)
+                                 const std::vector<ut64> &blockOrder)
 {
-    for (auto it = blockOrder.rbegin(), end = blockOrder.rend(); it != end; it++) {
-        auto &block = state.grid_blocks[*it];
-        int nextLevel = block.row + 1;
-        for (auto target : block.dag_edge) {
-            auto &targetBlock = state.grid_blocks[target];
+    for (auto it = blockOrder.rbegin(), end = blockOrder.rend(); it != end; it++) { // NOLINT
+        auto &block = state.gridBlocks[*it];
+        const int nextLevel = block.row + 1;
+        for (auto target : block.dagEdge) {
+            auto &targetBlock = state.gridBlocks[target];
             targetBlock.row = std::max(targetBlock.row, nextLevel);
         }
     }
@@ -267,19 +267,19 @@ void GraphGridLayout::assignRows(GraphGridLayout::LayoutState &state,
 
 void GraphGridLayout::selectTree(GraphGridLayout::LayoutState &state)
 {
-    for (auto &blockIt : state.grid_blocks) {
+    for (auto &blockIt : state.gridBlocks) {
         auto &block = blockIt.second;
-        for (auto targetId : block.dag_edge) {
-            auto &targetBlock = state.grid_blocks[targetId];
-            if (!targetBlock.has_parent && targetBlock.row == block.row + 1) {
-                block.tree_edge.push_back(targetId);
-                targetBlock.has_parent = true;
+        for (auto targetId : block.dagEdge) {
+            auto &targetBlock = state.gridBlocks[targetId];
+            if (!targetBlock.hasParent && targetBlock.row == block.row + 1) {
+                block.treeEdge.push_back(targetId);
+                targetBlock.hasParent = true;
             }
         }
     }
 }
 
-void GraphGridLayout::CalculateLayout(GraphLayout::Graph &blocks, ut64 entry, int &width,
+void GraphGridLayout::calculateLayout(GraphLayout::Graph &blocks, ut64 entry, int &width,
                                       int &height) const
 {
     LayoutState layoutState;
@@ -294,7 +294,7 @@ void GraphGridLayout::CalculateLayout(GraphLayout::Graph &blocks, ut64 entry, in
     for (auto &it : blocks) {
         GridBlock block;
         block.id = it.first;
-        layoutState.grid_blocks[it.first] = block;
+        layoutState.gridBlocks[it.first] = block;
     }
 
     auto blockOrder = topoSort(layoutState, entry);
@@ -308,17 +308,17 @@ void GraphGridLayout::CalculateLayout(GraphLayout::Graph &blocks, ut64 entry, in
         }
     }
     for (const auto &edgeList : layoutState.edge) {
-        auto &startBlock = layoutState.grid_blocks[edgeList.first];
+        auto &startBlock = layoutState.gridBlocks[edgeList.first];
         startBlock.outputCount = edgeList.second.size();
         for (auto &edge : edgeList.second) {
-            auto &targetBlock = layoutState.grid_blocks[edge.dest];
+            auto &targetBlock = layoutState.gridBlocks[edge.dest];
             targetBlock.inputCount++;
         }
     }
 
     layoutState.columns = 1;
     layoutState.rows = 1;
-    for (auto &node : layoutState.grid_blocks) {
+    for (auto &node : layoutState.gridBlocks) {
         // count is at least index + 1
         layoutState.rows = std::max(layoutState.rows, size_t(node.second.row) + 1);
         // block is 2 column wide
@@ -327,7 +327,7 @@ void GraphGridLayout::CalculateLayout(GraphLayout::Graph &blocks, ut64 entry, in
 
     layoutState.rowHeight.assign(layoutState.rows, 0);
     layoutState.columnWidth.assign(layoutState.columns, 0);
-    for (auto &node : layoutState.grid_blocks) {
+    for (auto &node : layoutState.gridBlocks) {
         const auto &inputBlock = blocks[node.first];
         layoutState.rowHeight[node.second.row] =
                 std::max(inputBlock.height, layoutState.rowHeight[node.second.row]);
@@ -348,33 +348,33 @@ void GraphGridLayout::CalculateLayout(GraphLayout::Graph &blocks, ut64 entry, in
 
 void GraphGridLayout::findMergePoints(GraphGridLayout::LayoutState &state) const
 {
-    for (auto &blockIt : state.grid_blocks) {
+    for (auto &blockIt : state.gridBlocks) {
         auto &block = blockIt.second;
-        GridBlock *mergeBlock = nullptr;
+        const GridBlock *mergeBlock = nullptr;
         int grandChildCount = 0;
-        for (auto edge : block.tree_edge) {
-            auto &targetBlock = state.grid_blocks[edge];
-            if (targetBlock.tree_edge.size()) {
-                mergeBlock = &state.grid_blocks[targetBlock.tree_edge[0]];
+        for (auto edge : block.treeEdge) {
+            auto &targetBlock = state.gridBlocks[edge];
+            if (targetBlock.treeEdge.size()) {
+                mergeBlock = &state.gridBlocks[targetBlock.treeEdge[0]];
             }
-            grandChildCount += targetBlock.tree_edge.size();
+            grandChildCount += targetBlock.treeEdge.size();
         }
         if (!mergeBlock || grandChildCount != 1) {
             continue;
         }
         int blocksGoingToMerge = 0;
         int blockWithTreeEdge = 0;
-        for (auto edge : block.tree_edge) {
-            auto &targetBlock = state.grid_blocks[edge];
+        for (auto edge : block.treeEdge) {
+            auto &targetBlock = state.gridBlocks[edge];
             bool goesToMerge = false;
-            for (auto secondEdgeTarget : targetBlock.dag_edge) {
+            for (auto secondEdgeTarget : targetBlock.dagEdge) {
                 if (secondEdgeTarget == mergeBlock->id) {
                     goesToMerge = true;
                     break;
                 }
             }
             if (goesToMerge) {
-                if (targetBlock.tree_edge.size() == 1) {
+                if (targetBlock.treeEdge.size() == 1) {
                     blockWithTreeEdge = blocksGoingToMerge;
                 }
                 blocksGoingToMerge++;
@@ -384,7 +384,7 @@ void GraphGridLayout::findMergePoints(GraphGridLayout::LayoutState &state) const
         }
         if (blocksGoingToMerge) {
             block.mergeBlock = mergeBlock->id;
-            state.grid_blocks[block.tree_edge[blockWithTreeEdge]].col =
+            state.gridBlocks[block.treeEdge[blockWithTreeEdge]].col =
                     blockWithTreeEdge * 2 - (blocksGoingToMerge - 1);
         }
     }
@@ -405,9 +405,9 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
     // Process nodes in the order from bottom to top. Ensures that all subtrees are processed before
     // parent node.
     for (auto blockId : blockOrder) {
-        auto &block = layoutState.grid_blocks[blockId];
-        if (block.tree_edge.size() == 0) {
-            block.row_count = 1;
+        auto &block = layoutState.gridBlocks[blockId];
+        if (block.treeEdge.size() == 0) {
+            block.rowCount = 1;
             block.col = 0;
             block.lastRowRight = 2;
             block.lastRowLeft = 0;
@@ -417,19 +417,19 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
             block.leftSideShape = sides.makeList(0);
             block.rightSideShape = sides.makeList(2);
         } else {
-            auto &firstChild = layoutState.grid_blocks[block.tree_edge[0]];
+            auto &firstChild = layoutState.gridBlocks[block.treeEdge[0]];
             auto leftSide =
                     firstChild
                             .leftSideShape; // left side of block children subtrees processed so far
             auto rightSide = firstChild.rightSideShape;
-            block.row_count = firstChild.row_count;
+            block.rowCount = firstChild.rowCount;
             block.lastRowRight = firstChild.lastRowRight;
             block.lastRowLeft = firstChild.lastRowLeft;
             block.leftPosition = firstChild.leftPosition;
             block.rightPosition = firstChild.rightPosition;
             // Place children subtrees side by side
-            for (size_t i = 1; i < block.tree_edge.size(); i++) {
-                auto &child = layoutState.grid_blocks[block.tree_edge[i]];
+            for (size_t i = 1; i < block.treeEdge.size(); i++) {
+                auto &child = layoutState.gridBlocks[block.treeEdge[i]];
                 int minPos = INT_MIN;
                 int leftPos = 0;
                 int rightPos = 0;
@@ -477,7 +477,7 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
                     rightSide = child.rightSideShape;
                 }
                 *sides.head(rightSide) += rightTreeOffset;
-                block.row_count = std::max(block.row_count, child.row_count);
+                block.rowCount = std::max(block.rowCount, child.rowCount);
                 block.leftPosition =
                         std::min(block.leftPosition, child.leftPosition + rightTreeOffset);
                 block.rightPosition =
@@ -488,20 +488,20 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
             // Calculate parent position
             if (parentBetweenDirectChild) {
                 // mode a) keep one child to the left, other to the right
-                for (auto target : block.tree_edge) {
-                    col += layoutState.grid_blocks[target].col;
+                for (auto target : block.treeEdge) {
+                    col += layoutState.gridBlocks[target].col;
                 }
-                col /= block.tree_edge.size();
+                col /= block.treeEdge.size();
             } else {
                 // mode b) somewhere between left most direct child and right most, preferably in
                 // the middle of horizontal dimensions. Results layout looks more like single
                 // vertical line.
                 col = (block.rightPosition + block.leftPosition) / 2 - 1;
-                col = std::max(col, layoutState.grid_blocks[block.tree_edge.front()].col - 1);
-                col = std::min(col, layoutState.grid_blocks[block.tree_edge.back()].col + 1);
+                col = std::max(col, layoutState.gridBlocks[block.treeEdge.front()].col - 1);
+                col = std::min(col, layoutState.gridBlocks[block.treeEdge.back()].col + 1);
             }
             block.col += col; // += instead of = to keep offset calculated in previous steps
-            block.row_count += 1;
+            block.rowCount += 1;
             block.leftPosition = std::min(block.leftPosition, block.col);
             block.rightPosition = std::max(block.rightPosition, block.col + 2);
 
@@ -512,8 +512,8 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
             block.rightSideShape = sides.append(sides.makeList(block.col + 2), rightSide);
 
             // Keep children positions relative to parent so that moving parent moves whole subtree
-            for (auto target : block.tree_edge) {
-                auto &targetBlock = layoutState.grid_blocks[target];
+            for (auto target : block.treeEdge) {
+                auto &targetBlock = layoutState.gridBlocks[target];
                 targetBlock.col -= block.col;
             }
         }
@@ -523,7 +523,7 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
     // entrypoint. There can be more of them in case of switch statement analysis failure,
     // unreahable basic blocks or using the algorithm for non control flow graphs.
     int nextEmptyColumn = 0;
-    for (auto &blockIt : layoutState.grid_blocks) {
+    for (auto &blockIt : layoutState.gridBlocks) {
         auto &block = blockIt.second;
         if (block.row == 0) { // place all the roots first
             auto offset = -block.leftPosition;
@@ -532,11 +532,11 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
         }
     }
     // Visit all nodes top to bottom, converting relative positions to absolute.
-    for (auto it = blockOrder.rbegin(), end = blockOrder.rend(); it != end; it++) {
-        auto &block = layoutState.grid_blocks[*it];
+    for (auto it = blockOrder.rbegin(), end = blockOrder.rend(); it != end; it++) { // NOLINT
+        auto &block = layoutState.gridBlocks[*it];
         assert(block.col >= 0);
-        for (auto childId : block.tree_edge) {
-            auto &childBlock = layoutState.grid_blocks[childId];
+        for (auto childId : block.treeEdge) {
+            auto &childBlock = layoutState.gridBlocks[childId];
             childBlock.col += block.col;
         }
     }
@@ -561,23 +561,23 @@ void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &stat
         ut64 blockId;
         size_t edgeId;
         int row;
-        enum Type { Edge = 0, Block = 1 } type;
+        enum Type : ut8 { Edge = 0, Block = 1 } type;
     };
     // create events
     std::vector<Event> events;
-    events.reserve(state.grid_blocks.size() * 2);
-    for (const auto &it : state.grid_blocks) {
+    events.reserve(state.gridBlocks.size() * 2);
+    for (const auto &it : state.gridBlocks) {
         events.push_back({ it.first, 0, it.second.row, Event::Block });
         const auto &inputBlock = (*state.blocks)[it.first];
-        int startRow = it.second.row + 1;
+        const int startRow = it.second.row + 1;
 
         auto gridEdges = state.edge[it.first];
         gridEdges.resize(inputBlock.edges.size());
         for (size_t i = 0; i < inputBlock.edges.size(); i++) {
             auto targetId = inputBlock.edges[i].target;
             gridEdges[i].dest = targetId;
-            const auto &targetGridBlock = state.grid_blocks[targetId];
-            int endRow = targetGridBlock.row;
+            const auto &targetGridBlock = state.gridBlocks[targetId];
+            const int endRow = targetGridBlock.row;
             events.push_back({ it.first, i, std::max(startRow, endRow), Event::Edge });
         }
     }
@@ -592,13 +592,13 @@ void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &stat
     PointSetMinTree blockedColumns(state.columns + 1, -1);
     for (const auto &event : events) {
         if (event.type == Event::Block) {
-            auto block = state.grid_blocks[event.blockId];
+            auto block = state.gridBlocks[event.blockId];
             blockedColumns.set(block.col + 1, event.row);
         } else {
-            auto block = state.grid_blocks[event.blockId];
-            int column = block.col + 1;
+            auto block = state.gridBlocks[event.blockId];
+            const int column = block.col + 1;
             auto &edge = state.edge[event.blockId][event.edgeId];
-            const auto &targetBlock = state.grid_blocks[edge.dest];
+            const auto &targetBlock = state.gridBlocks[edge.dest];
             auto topRow = std::min(block.row + 1, targetBlock.row);
             auto targetColumn = targetBlock.col + 1;
 
@@ -654,19 +654,18 @@ void GraphGridLayout::roughRouting(GraphGridLayout::LayoutState &state) const
         if (edgeCount == 0) {
             return 0;
         }
-        int maxSpacing = blockWidth / edgeCount;
+        const int maxSpacing = blockWidth / edgeCount;
         if (maxSpacing < layoutConfig.edgeHorizontalSpacing) {
             return std::max(maxSpacing, 1);
         }
         return 0;
     };
 
-    for (auto &blockIt : state.grid_blocks) {
+    for (auto &blockIt : state.gridBlocks) {
         auto &blockEdges = state.edge[blockIt.first];
-        for (size_t i = 0; i < blockEdges.size(); i++) {
-            auto &edge = blockEdges[i];
+        for (auto &edge : blockEdges) {
             const auto &start = blockIt.second;
-            const auto &target = state.grid_blocks[edge.dest];
+            const auto &target = state.gridBlocks[edge.dest];
 
             edge.addPoint(start.row + 1, start.col + 1);
             if (edge.mainColumn != start.col + 1) {
@@ -759,11 +758,11 @@ struct NodeSide
  * @param segmentSpacing The expected spacing between two segments in the same column. Actual
  * spacing may be smaller for nodes with many edges.
  */
-void calculateSegmentOffsets(std::vector<EdgeSegment> &segments, std::vector<int> &edgeOffsets,
-                             std::vector<int> &edgeColumnWidth,
-                             std::vector<NodeSide> &nodeRightSide,
-                             std::vector<NodeSide> &nodeLeftSide,
-                             const std::vector<int> &columnWidth, size_t H, int segmentSpacing)
+static void
+calculateSegmentOffsets(std::vector<EdgeSegment> &segments, std::vector<int> &edgeOffsets,
+                        std::vector<int> &edgeColumnWidth, std::vector<NodeSide> &nodeRightSide,
+                        std::vector<NodeSide> &nodeLeftSide, const std::vector<int> &columnWidth,
+                        size_t H, int segmentSpacing)
 {
     for (auto &segment : segments) {
         if (segment.y0 > segment.y1) {
@@ -772,10 +771,12 @@ void calculateSegmentOffsets(std::vector<EdgeSegment> &segments, std::vector<int
     }
 
     std::sort(segments.begin(), segments.end(), [](const EdgeSegment &a, const EdgeSegment &b) {
-        if (a.x != b.x)
+        if (a.x != b.x) {
             return a.x < b.x;
-        if (a.kind != b.kind)
+        }
+        if (a.kind != b.kind) {
             return a.kind < b.kind;
+        }
         auto aSize = a.y1 - a.y0;
         auto bSize = b.y1 - b.y0;
         if (aSize != bSize) {
@@ -802,7 +803,7 @@ void calculateSegmentOffsets(std::vector<EdgeSegment> &segments, std::vector<int
     auto rightSideIt = nodeRightSide.begin();
     auto leftSideIt = nodeLeftSide.begin();
     while (nextSegmentIt != segments.end()) {
-        int x = nextSegmentIt->x;
+        const int x = nextSegmentIt->x;
 
         int leftColumWidth = 0;
         if (x > 0) {
@@ -899,10 +900,12 @@ static void centerEdges(std::vector<int> &segmentOffsets, const std::vector<int>
         }
     }
     std::sort(events.begin(), events.end(), [](const Event &a, const Event &b) {
-        if (a.x != b.x)
+        if (a.x != b.x) {
             return a.x < b.x;
-        if (a.y != b.y)
+        }
+        if (a.y != b.y) {
             return a.y < b.y;
+        }
         // Process segment start events before end to ensure that activeSegmentCount doesn't go
         // negative and only reaches 0 at the end of chunk.
         return int(a.start) > int(b.start);
@@ -917,12 +920,12 @@ static void centerEdges(std::vector<int> &segmentOffsets, const std::vector<int>
 
         while (activeSegmentCount > 0) {
             activeSegmentCount += it->start ? 1 : -1;
-            int offset = segmentOffsets[it->index];
+            const int offset = segmentOffsets[it->index];
             left = std::min(left, offset);
             right = std::max(right, offset);
             it++;
         }
-        int spacing = (edgeColumnWidth[chunkStart->x] - (right - left)) / 2 - left;
+        const int spacing = (edgeColumnWidth[chunkStart->x] - (right - left)) / 2 - left;
         for (auto segment = chunkStart; segment != it; segment++) {
             if (segment->start) {
                 segmentOffsets[segment->index] += spacing;
@@ -958,7 +961,7 @@ static int compressCoordinates(std::vector<EdgeSegment> &segments, std::vector<N
     positions.erase(lastUnique, positions.end());
 
     auto positionToIndex = [&](int position) {
-        size_t index =
+        const size_t index =
                 std::lower_bound(positions.begin(), positions.end(), position) - positions.begin();
         assert(index < positions.size());
         return index;
@@ -1008,13 +1011,13 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
             }
         }
     }
-    for (auto &blockIt : state.grid_blocks) {
+    for (auto &blockIt : state.gridBlocks) {
         auto &node = blockIt.second;
         auto width = (*state.blocks)[blockIt.first].width;
         auto leftWidth = width / 2;
         // not the same as leftWidth, you would think that one pixel offset isn't visible, but it is
         auto rightWidth = width - leftWidth;
-        int row = node.row * 2 + 1; // blocks in odd rows
+        const int row = node.row * 2 + 1; // blocks in odd rows
         leftSides.push_back({ node.col, row, row, leftWidth });
         rightSides.push_back({ node.col + 1, row, row, rightWidth });
     }
@@ -1034,15 +1037,15 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
                 for (size_t j = col ? 1 : 2; j < edge.points.size(); j += 2) {
                     int offset = edgeOffsets[edgeIndex++];
                     if (col) {
-                        GraphBlock *block = nullptr;
+                        const GraphBlock *block = nullptr;
                         if (j == 1) {
                             block = &(*state.blocks)[edgeListIt.first];
                         } else if (j + 1 == edge.points.size()) {
                             block = &(*state.blocks)[edge.dest];
                         }
                         if (block) {
-                            int blockWidth = block->width;
-                            int edgeColumWidth = state.edgeColumnWidth[edge.points[j].col];
+                            const int blockWidth = block->width;
+                            const int edgeColumWidth = state.edgeColumnWidth[edge.points[j].col];
                             offset = std::max(-blockWidth / 2 + edgeColumWidth / 2, offset);
                             offset = std::min(edgeColumWidth / 2
                                                       + std::min(blockWidth, edgeColumWidth) / 2,
@@ -1080,23 +1083,25 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
     for (auto &edgeListIt : state.edge) {
         for (const auto &edge : edgeListIt.second) {
             for (size_t j = 2; j < edge.points.size(); j += 2) {
-                int y0 = state.edgeColumnOffset[edge.points[j - 1].col] + edge.points[j - 1].offset;
-                int y1 = state.edgeColumnOffset[edge.points[j + 1].col] + edge.points[j + 1].offset;
+                const int y0 =
+                        state.edgeColumnOffset[edge.points[j - 1].col] + edge.points[j - 1].offset;
+                const int y1 =
+                        state.edgeColumnOffset[edge.points[j + 1].col] + edge.points[j + 1].offset;
                 segments.push_back(
                         segmentFromPoint(edge.points[j], edge, y0, y1, edge.points[j].row));
             }
         }
     }
     edgeOffsets.resize(edgeIndex);
-    for (auto &blockIt : state.grid_blocks) {
+    for (auto &blockIt : state.gridBlocks) {
         auto &node = blockIt.second;
         auto blockWidth = (*state.blocks)[node.id].width;
-        int leftSide = state.edgeColumnOffset[node.col + 1]
+        const int leftSide = state.edgeColumnOffset[node.col + 1]
                 + state.edgeColumnWidth[node.col + 1] / 2 - blockWidth / 2;
-        int rightSide = leftSide + blockWidth;
+        const int rightSide = leftSide + blockWidth;
 
-        int h = (*state.blocks)[blockIt.first].height;
-        int freeSpace = state.rowHeight[node.row] - h;
+        const int h = (*state.blocks)[blockIt.first].height;
+        const int freeSpace = state.rowHeight[node.row] - h;
         int topProfile = state.rowHeight[node.row];
         int bottomProfile = h;
         if (verticalBlockAlignmentMiddle) {
@@ -1120,12 +1125,12 @@ void GraphGridLayout::adjustColumnWidths(GraphGridLayout::LayoutState &state) co
 {
     state.rowHeight.assign(state.rows, 0);
     state.columnWidth.assign(state.columns, 0);
-    for (auto &node : state.grid_blocks) {
+    for (auto &node : state.gridBlocks) {
         const auto &inputBlock = (*state.blocks)[node.first];
         state.rowHeight[node.second.row] =
                 std::max(inputBlock.height, state.rowHeight[node.second.row]);
-        int edgeWidth = state.edgeColumnWidth[node.second.col + 1];
-        int columnWidth = (inputBlock.width - edgeWidth) / 2;
+        const int edgeWidth = state.edgeColumnWidth[node.second.col + 1];
+        const int columnWidth = (inputBlock.width - edgeWidth) / 2;
         state.columnWidth[node.second.col] =
                 std::max(columnWidth, state.columnWidth[node.second.col]);
         state.columnWidth[node.second.col + 1] =
@@ -1164,7 +1169,7 @@ void GraphGridLayout::convertToPixelCoordinates(GraphGridLayout::LayoutState &st
 
     // block pixel positions
     for (auto &block : (*state.blocks)) {
-        const auto &gridBlock = state.grid_blocks[block.first];
+        const auto &gridBlock = state.gridBlocks[block.first];
 
         block.second.x = state.edgeColumnOffset[gridBlock.col + 1]
                 + state.edgeColumnWidth[gridBlock.col + 1] / 2 - block.second.width / 2;
@@ -1184,13 +1189,13 @@ void GraphGridLayout::convertToPixelCoordinates(GraphGridLayout::LayoutState &st
             const auto &edge = state.edge[it.first][i];
             for (size_t j = 1; j < edge.points.size(); j++) {
                 if (j & 1) { // vertical segment
-                    int column = edge.points[j].col;
-                    int x = state.edgeColumnOffset[column] + edge.points[j].offset;
+                    const int column = edge.points[j].col;
+                    const int x = state.edgeColumnOffset[column] + edge.points[j].offset;
                     resultEdge.polyline.back().setX(x);
                     resultEdge.polyline.push_back(QPointF(x, 0));
                 } else { // horizontal segment
-                    int row = edge.points[j].row;
-                    int y = state.edgeRowOffset[row] + edge.points[j].offset;
+                    const int row = edge.points[j].row;
+                    const int y = state.edgeRowOffset[row] + edge.points[j].offset;
                     resultEdge.polyline.back().setY(y);
                     resultEdge.polyline.push_back(QPointF(0, y));
                 }
@@ -1298,9 +1303,9 @@ static void optimizeLinearProgramPass(size_t n, std::vector<int> objectiveFuncti
     auto joinGroup = [&](int a, int b) { group[getGroup(b)] = getGroup(a); };
 
     for (auto &constraint : inequalities) {
-        int a = constraint.first.first;
-        int b = constraint.first.second;
-        size_t index = &constraint - &inequalities.front();
+        const int a = constraint.first.first;
+        const int b = constraint.first.second;
+        const size_t index = &constraint - &inequalities.front();
         edges[a] = edgePool.append(edges[a], edgePool.makeList(index));
         edges[b] = edgePool.append(edges[b], edgePool.makeList(index));
         edgeCount[a]++;
@@ -1323,7 +1328,7 @@ static void optimizeLinearProgramPass(size_t n, std::vector<int> objectiveFuncti
         // grouped
         for (auto it = edgePool.head(edges[b]); it; ++it) {
             auto &constraint = inequalities[*it];
-            int other = constraint.first.first + constraint.first.second - b;
+            const int other = constraint.first.first + constraint.first.second - b;
             if (getGroup(other)
                 == a) { // skip inequalities where both variables are now in the same group
                 internalEdgeCount++;
@@ -1332,7 +1337,7 @@ static void optimizeLinearProgramPass(size_t n, std::vector<int> objectiveFuncti
             *writeIt++ = *it;
             // Modify the inequalities for the group being attached relative to the main variable in
             // the group to which it is being attached.
-            int diff = solution[a] - solution[b];
+            const int diff = solution[a] - solution[b];
             if (b == constraint.first.first) {
                 constraint.first.first = a;
                 constraint.second += diff;
@@ -1382,13 +1387,13 @@ static void optimizeLinearProgramPass(size_t n, std::vector<int> objectiveFuncti
         }
     }
     while (!queue.empty()) {
-        int g = queue.top().second;
-        int size = queue.top().first;
+        const int g = queue.top().second;
+        const int size = queue.top().first;
         queue.pop();
         if ((size_t)size != edgeCount[g] || processed[g]) {
             continue;
         }
-        int direction = objectiveFunction[g];
+        const int direction = objectiveFunction[g];
         if (direction == 0) {
             continue;
         }
@@ -1403,11 +1408,11 @@ static void optimizeLinearProgramPass(size_t n, std::vector<int> objectiveFuncti
                 if (g == inequality.first.second) {
                     continue;
                 }
-                int other = inequality.first.second;
+                const int other = inequality.first.second;
                 if (getGroup(other) == g) {
                     continue;
                 }
-                int move = solution[other] + inequality.second - solution[g];
+                const int move = solution[other] + inequality.second - solution[g];
                 if (move < smallestMove) {
                     smallestMove = move;
                     limitingGroup = other;
@@ -1420,11 +1425,11 @@ static void optimizeLinearProgramPass(size_t n, std::vector<int> objectiveFuncti
                 if (g == inequality.first.first) {
                     continue;
                 }
-                int other = inequality.first.first;
+                const int other = inequality.first.first;
                 if (getGroup(other) == g) {
                     continue;
                 }
-                int move = solution[other] - inequality.second - solution[g];
+                const int move = solution[other] - inequality.second - solution[g];
                 if (move > smallestMove) {
                     smallestMove = move;
                     limitingGroup = other;
@@ -1450,7 +1455,7 @@ static void optimizeLinearProgramPass(size_t n, std::vector<int> objectiveFuncti
             equalities.push_back({ { g, limitingGroup }, solution[g] - solution[limitingGroup] });
         } // else do nothing if limited by variable >= 0
     }
-    for (auto it = equalities.rbegin(), end = equalities.rend(); it != end; ++it) {
+    for (auto it = equalities.rbegin(), end = equalities.rend(); it != end; ++it) { // NOLINT
         solution[it->first.first] = solution[it->first.second] + it->second;
     }
 }
@@ -1477,8 +1482,8 @@ static void optimizeLinearProgram(size_t n, const std::vector<int> &objectiveFun
             [](const Constraint &a, const Constraint &b) { return a.first == b.first; });
     inequalities.erase(uniqueEnd, inequalities.end());
 
-    static const int ITERATIONS = 1;
-    for (int i = 0; i < ITERATIONS; i++) {
+    static const int iterations = 1;
+    for (int i = 0; i < iterations; i++) {
         optimizeLinearProgramPass(n, objectiveFunction, inequalities, equalities, solution, true);
         // optimizeLinearProgramPass(n, objectiveFunction, inequalities, equalities, solution,
         // false);
@@ -1537,8 +1542,8 @@ static void createInequalitiesFromSegments(std::vector<Segment> segments,
         auto lastSegment = startPos->second;
         auto it = startPos;
         while (it != lastSegments.end() && it->first <= segment.y1) {
-            int prevSegmentVariable = it->second.first;
-            int prevSegmentPos = it->second.second;
+            const int prevSegmentVariable = it->second.first;
+            const int prevSegmentPos = it->second.second;
             if (prevSegmentVariable != -1) {
                 int minSpacing = segmentSpacing;
                 if (prevSegmentVariable < blockCount && segment.variableId < blockCount) {
@@ -1601,8 +1606,8 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
         inequalities.push_back(createInequality(a, posA, b, posB, minSpacing, solution));
     };
     auto addBlockSegmentEquality = [&](ut64 blockId, int edgeVariable, int edgeVariablePos) {
-        int blockPos = (*state.blocks)[blockId].x;
-        int blockVariable = blockMapping[blockId];
+        const int blockPos = (*state.blocks)[blockId].x;
+        const int blockVariable = blockMapping[blockId];
         equalities.push_back({ { blockVariable, edgeVariable }, blockPos - edgeVariablePos });
     };
     auto setFeasibleSolution = [&](size_t variable, int value) {
@@ -1621,7 +1626,7 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
             auto &block = blockIt.second;
             for (auto &edge : blockIt.second.edges) {
                 for (int i = 1 + int(horizontal); i < edge.polyline.size(); i += 2) {
-                    int x = solution[variableIndex++];
+                    const int x = solution[variableIndex++];
                     if (horizontal) {
                         edge.polyline[i].ry() = x;
                         edge.polyline[i - 1].ry() = x;
@@ -1631,7 +1636,7 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
                     }
                 }
             }
-            int blockVariable = blockMapping[blockIt.first];
+            const int blockVariable = blockMapping[blockIt.first];
             (horizontal ? block.y : block.x) = solution[blockVariable];
         }
     };
@@ -1645,11 +1650,11 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
     objectiveFunction.assign(blockMapping.size(), 1);
     for (auto &blockIt : *state.blocks) {
         auto &block = blockIt.second;
-        int blockVariable = blockMapping[blockIt.first];
+        const int blockVariable = blockMapping[blockIt.first];
         for (auto &edge : block.edges) {
             auto &targetBlock = (*state.blocks)[edge.target];
             if (block.y < targetBlock.y) {
-                int spacing = block.height + layoutConfig.blockVerticalSpacing;
+                const int spacing = block.height + layoutConfig.blockVerticalSpacing;
                 inequalities.push_back({ { blockVariable, blockMapping[edge.target] }, -spacing });
             }
             if (edge.polyline.size() < 3) {
@@ -1661,12 +1666,12 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
                 if (y0 > y1) {
                     std::swap(y0, y1);
                 }
-                int x = edge.polyline[i].y();
+                const int x = edge.polyline[i].y();
                 segments.push_back({ x, int(variableIndex), y0, y1 });
                 variableGroups.push_back(blockMapping.size() + edgeIndex);
                 setFeasibleSolution(variableIndex, x);
                 if (i > 2) {
-                    int prevX = edge.polyline[i - 2].y();
+                    const int prevX = edge.polyline[i - 2].y();
                     addObjective(variableIndex, x, variableIndex - 1, prevX);
                 }
                 variableIndex++;
@@ -1703,29 +1708,29 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
             if (edge.polyline.size() < 2) {
                 continue;
             }
-            size_t firstEdgeVariable = variableIndex;
+            const size_t firstEdgeVariable = variableIndex;
             for (int i = 1; i < edge.polyline.size(); i += 2) {
                 int y0 = edge.polyline[i - 1].y();
                 int y1 = edge.polyline[i].y();
                 if (y0 > y1) {
                     std::swap(y0, y1);
                 }
-                int x = edge.polyline[i].x();
+                const int x = edge.polyline[i].x();
                 segments.push_back({ x, int(variableIndex), y0, y1 });
                 variableGroups.push_back(blockMapping.size() + edgeIndex);
                 setFeasibleSolution(variableIndex, x);
                 if (i > 2) {
-                    int prevX = edge.polyline[i - 2].x();
+                    const int prevX = edge.polyline[i - 2].x();
                     addObjective(variableIndex, x, variableIndex - 1, prevX);
                 }
                 variableIndex++;
             }
-            size_t lastEdgeVariableIndex = variableIndex - 1;
+            const size_t lastEdgeVariableIndex = variableIndex - 1;
             addBlockSegmentEquality(blockIt.first, firstEdgeVariable, edge.polyline[1].x());
             addBlockSegmentEquality(edge.target, lastEdgeVariableIndex, segments.back().x);
             edgeIndex++;
         }
-        int blockVariable = blockMapping[blockIt.first];
+        const int blockVariable = blockMapping[blockIt.first];
         segments.push_back({ block.x, blockVariable, block.y, block.y + block.height });
         segments.push_back(
                 { block.x + block.width, blockVariable, block.y, block.y + block.height });
@@ -1740,7 +1745,7 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
     // horizontal centering constraints
     for (auto &blockIt : *state.blocks) {
         auto &block = blockIt.second;
-        int blockVariable = blockMapping[blockIt.first];
+        const int blockVariable = blockMapping[blockIt.first];
         if (block.edges.size() == 2) {
             auto &blockLeft = (*state.blocks)[block.edges[0].target];
             auto &blockRight = (*state.blocks)[block.edges[1].target];
@@ -1750,7 +1755,7 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
                               blockVariable, middle, layoutConfig.blockHorizontalSpacing / 2);
                 addInequality(blockVariable, middle, blockMapping[block.edges[1].target],
                               blockRight.x, layoutConfig.blockHorizontalSpacing / 2);
-                auto &gridBlock = state.grid_blocks[blockIt.first];
+                auto &gridBlock = state.gridBlocks[blockIt.first];
                 if (gridBlock.mergeBlock) {
                     auto &mergeBlock = (*state.blocks)[gridBlock.mergeBlock];
                     if (mergeBlock.x + mergeBlock.width / 2 == middle) {

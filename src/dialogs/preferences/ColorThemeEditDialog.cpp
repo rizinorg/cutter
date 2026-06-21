@@ -1,14 +1,13 @@
 #include "ColorThemeEditDialog.h"
-#include "ui_ColorThemeEditDialog.h"
 
 #include "common/ColorThemeWorker.h"
 #include "common/Configuration.h"
-
+#include "ui_ColorThemeEditDialog.h"
 #include "widgets/ColorThemeListView.h"
 #include "widgets/DisassemblyWidget.h"
 
-#include <QScreen>
 #include <QKeyEvent>
+#include <QScreen>
 #include <QSortFilterProxyModel>
 
 ColorThemeEditDialog::ColorThemeEditDialog(QWidget *parent)
@@ -16,14 +15,14 @@ ColorThemeEditDialog::ColorThemeEditDialog(QWidget *parent)
       ui(new Ui::ColorThemeEditDialog),
       configSignalBlocker(
               Config()), // Blocks signals from Config to avoid updating of widgets during editing
+      previewDisasmWidget(new DisassemblyWidget(nullptr)),
       colorTheme(Config()->getColorTheme())
 {
     showAlphaOptions = { "gui.overview.border", "gui.overview.fill", "wordHighlight",
-                         "lineHighlight" };
+                         "lineHighlight",       "searchCurrent",     "searchHighlight" };
     ui->setupUi(this);
     ui->colorComboBox->setShowOnlyCustom(true);
 
-    previewDisasmWidget = new DisassemblyWidget(nullptr);
     previewDisasmWidget->setObjectName("Preview Disasm");
     previewDisasmWidget->setPreviewMode(true);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
@@ -42,10 +41,10 @@ ColorThemeEditDialog::ColorThemeEditDialog(QWidget *parent)
     connect(ui->colorThemeListView, &ColorThemeListView::itemChanged, this,
             [this](const QColor &color) {
                 ui->colorPicker->updateColor(color);
-                QString optionName = ui->colorThemeListView->currentIndex()
-                                             .data(Qt::UserRole)
-                                             .value<ColorOption>()
-                                             .optionName;
+                const QString optionName = ui->colorThemeListView->currentIndex()
+                                                   .data(Qt::UserRole)
+                                                   .value<ColorOption>()
+                                                   .optionName;
                 ui->colorPicker->setAlphaEnabled(showAlphaOptions.contains(optionName));
             });
 
@@ -65,16 +64,15 @@ ColorThemeEditDialog::ColorThemeEditDialog(QWidget *parent)
 
 ColorThemeEditDialog::~ColorThemeEditDialog()
 {
-    delete ui;
     previewDisasmWidget->deleteLater();
 }
 
 void ColorThemeEditDialog::accept()
 {
     colorTheme = Config()->getColorTheme();
-    ColorThemeWorker::Theme sch = ui->colorThemeListView->colorSettingsModel()->getTheme();
+    const ColorThemeWorker::Theme sch = ui->colorThemeListView->colorSettingsModel()->getTheme();
     if (ThemeWorker().isCustomTheme(colorTheme)) {
-        QString err = ThemeWorker().save(sch, colorTheme);
+        const QString err = ThemeWorker().save(sch, colorTheme);
         if (!err.isEmpty()) {
             QMessageBox::critical(this, tr("Error"), err);
             return;
@@ -120,13 +118,13 @@ void ColorThemeEditDialog::keyPressEvent(QKeyEvent *event)
 
 void ColorThemeEditDialog::colorOptionChanged(const QColor &newColor)
 {
-    QModelIndex currIndex = ui->colorThemeListView->currentIndex();
+    const QModelIndex currIndex = ui->colorThemeListView->currentIndex();
 
     if (!currIndex.isValid()) {
         return;
     }
 
-    ColorOption currOption = currIndex.data(Qt::UserRole).value<ColorOption>();
+    auto currOption = currIndex.data(Qt::UserRole).value<ColorOption>();
     currOption.color = newColor;
     currOption.changed = true;
     ui->colorThemeListView->model()->setData(currIndex, QVariant::fromValue(currOption));
@@ -141,11 +139,11 @@ void ColorThemeEditDialog::colorOptionChanged(const QColor &newColor)
 void ColorThemeEditDialog::editThemeChanged(const QString &newTheme)
 {
     if (themeWasEdited(colorTheme)) {
-        int ret = QMessageBox::question(this, tr("Unsaved changes"),
-                                        tr("Are you sure you want to exit without saving? "
-                                           "All changes will be lost."));
+        const int ret = QMessageBox::question(this, tr("Unsaved changes"),
+                                              tr("Are you sure you want to exit without saving? "
+                                                 "All changes will be lost."));
         if (ret == QMessageBox::No) {
-            QSignalBlocker s(ui->colorComboBox); // avoid second call of this func
+            const QSignalBlocker s(ui->colorComboBox); // avoid second call of this func
             int index = ui->colorComboBox->findText(colorTheme);
             index = index == -1 ? 0 : index;
             ui->colorComboBox->setCurrentIndex(index);

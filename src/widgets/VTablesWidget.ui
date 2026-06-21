@@ -6,7 +6,7 @@
    <string notr="true"/>
   </property>
   <property name="windowTitle">
-   <string notr="true">&amp;VTable</string>
+   <string>&amp;VTable</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <property name="sizePolicy">

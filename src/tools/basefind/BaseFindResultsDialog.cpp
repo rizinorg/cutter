@@ -1,20 +1,22 @@
 #include "BaseFindResultsDialog.h"
+
 #include "ui_BaseFindResultsDialog.h"
 
 #include <QClipboard>
 #include <QMessageBox>
 
-#include <core/Cutter.h>
 #include <CutterApplication.h>
+#include <core/Cutter.h>
+#include <utility>
 
-BaseFindResultsModel::BaseFindResultsModel(QList<BasefindResultDescription> *list, QObject *parent)
-    : QAbstractListModel(parent), list(list)
+BaseFindResultsModel::BaseFindResultsModel(QList<BasefindResultDescription> list, QObject *parent)
+    : QAbstractListModel(parent), list(std::move(list))
 {
 }
 
 int BaseFindResultsModel::rowCount(const QModelIndex &) const
 {
-    return list->count();
+    return list.count();
 }
 
 int BaseFindResultsModel::columnCount(const QModelIndex &) const
@@ -24,10 +26,11 @@ int BaseFindResultsModel::columnCount(const QModelIndex &) const
 
 QVariant BaseFindResultsModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= list->count())
+    if (index.row() >= list.count()) {
         return QVariant();
+    }
 
-    const BasefindResultDescription &entry = list->at(index.row());
+    const BasefindResultDescription &entry = list.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -35,13 +38,13 @@ QVariant BaseFindResultsModel::data(const QModelIndex &index, int role) const
         case ScoreColumn:
             return QString::asprintf("%u", entry.score);
         case CandidateColumn:
-            return QString::asprintf("%#010llx", entry.candidate);
+            return QString::asprintf("%#010llx", static_cast<unsigned long long>(entry.candidate));
         default:
             return QVariant();
         }
 
     case Qt::ToolTipRole: {
-        return QString::asprintf("%#010llx", entry.candidate);
+        return QString::asprintf("%#010llx", static_cast<unsigned long long>(entry.candidate));
     }
 
     default:
@@ -68,19 +71,18 @@ QVariant BaseFindResultsModel::headerData(int section, Qt::Orientation, int role
 
 BaseFindResultsDialog::BaseFindResultsDialog(QList<BasefindResultDescription> results,
                                              QWidget *parent)
-    : QDialog(parent), list(results), ui(new Ui::BaseFindResultsDialog)
+    : QDialog(parent), ui(new Ui::BaseFindResultsDialog), blockMenu(new QMenu(this))
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
-    model = new BaseFindResultsModel(&list, this);
+    model = new BaseFindResultsModel(std::move(results), this);
     ui->tableView->setModel(model);
     ui->tableView->sortByColumn(BaseFindResultsModel::ScoreColumn, Qt::AscendingOrder);
     ui->tableView->verticalHeader()->hide();
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    blockMenu = new QMenu(this);
     actionCopyCandidate = new QAction(tr("Copy %1"), this);
     actionSetLoadAddr = new QAction(tr("Reopen Cutter with base address as %1"), this);
     actionSetMapAddr = new QAction(tr("Reopen Cutter with map address as %1"), this);
@@ -93,6 +95,8 @@ BaseFindResultsDialog::BaseFindResultsDialog(QList<BasefindResultDescription> re
             &BaseFindResultsDialog::onActionSetLoadAddr);
     connect(actionSetMapAddr, &QAction::triggered, this,
             &BaseFindResultsDialog::onActionSetMapAddr);
+    connect(ui->buttonBox, &QDialogButtonBox::rejected, this,
+            &BaseFindResultsDialog::onButtonBoxRejected);
 
     blockMenu->addAction(actionSetLoadAddr);
     blockMenu->addAction(actionSetMapAddr);
@@ -104,9 +108,9 @@ void BaseFindResultsDialog::showItemContextMenu(const QPoint &pt)
 {
     auto index = ui->tableView->currentIndex();
     if (index.isValid()) {
-        const BasefindResultDescription &entry = list.at(index.row());
+        const BasefindResultDescription &entry = model->list.at(index.row());
         candidate = entry.candidate;
-        auto addr = QString::asprintf("%#010llx", candidate);
+        auto addr = QString::asprintf("%#010llx", static_cast<unsigned long long>(candidate));
         actionCopyCandidate->setText(tr("Copy %1").arg(addr));
         actionSetLoadAddr->setText(tr("Reopen Cutter with base address as %1").arg(addr));
         actionSetMapAddr->setText(tr("Reopen Cutter with map address as %1").arg(addr));
@@ -114,13 +118,13 @@ void BaseFindResultsDialog::showItemContextMenu(const QPoint &pt)
     }
 }
 
-void BaseFindResultsDialog::onActionCopyLine()
+void BaseFindResultsDialog::onActionCopyLine() const
 {
     auto clipboard = QApplication::clipboard();
-    clipboard->setText(QString::asprintf("%#010llx", candidate));
+    clipboard->setText(QString::asprintf("%#010llx", static_cast<unsigned long long>(candidate)));
 }
 
-void BaseFindResultsDialog::onActionSetLoadAddr()
+void BaseFindResultsDialog::onActionSetLoadAddr() const
 {
     auto cutter = static_cast<CutterApplication *>(qApp);
     auto options = cutter->getInitialOptions();
@@ -138,7 +142,7 @@ void BaseFindResultsDialog::onActionSetLoadAddr()
     cutter->launchNewInstance(args);
 }
 
-void BaseFindResultsDialog::onActionSetMapAddr()
+void BaseFindResultsDialog::onActionSetMapAddr() const
 {
     auto cutter = static_cast<CutterApplication *>(qApp);
     auto options = cutter->getInitialOptions();
@@ -158,4 +162,4 @@ void BaseFindResultsDialog::onActionSetMapAddr()
 
 BaseFindResultsDialog::~BaseFindResultsDialog() {}
 
-void BaseFindResultsDialog::on_buttonBox_rejected() {}
+void BaseFindResultsDialog::onButtonBoxRejected() {}

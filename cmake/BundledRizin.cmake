@@ -22,10 +22,6 @@ if (CUTTER_ENABLE_SIGDB)
     list(APPEND MESON_OPTIONS "-Dinstall_sigdb=true")
 endif()
 
-if (CUTTER_PACKAGE_RZ_LIBSWIFT AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
-    list(APPEND MESON_OPTIONS "-Duse_swift_demangler=false")
-endif()
-
 find_program(MESON meson)
 if(NOT MESON)
     message(FATAL_ERROR "Failed to find meson, which is required to build bundled rizin")
@@ -57,10 +53,10 @@ endif()
 
 # TODO: This version number should be fetched automatically
 # instead of being hardcoded.
-set (Rizin_VERSION 0.8)
+set (Rizin_VERSION 0.9)
 
-set (RZ_LIBS rz_core rz_config rz_cons rz_io rz_util rz_flag rz_arch rz_debug
-        rz_hash rz_bin rz_lang rz_il rz_bp rz_egg rz_reg rz_search rz_syscall
+set (RZ_LIBS rz_core rz_config rz_cons rz_io rz_util rz_flag rz_mark rz_arch rz_debug
+        rz_hash rz_bin rz_lang rz_il rz_egg rz_reg rz_search rz_syscall
         rz_socket rz_magic rz_crypto rz_type rz_diff rz_sign rz_demangler)
 set (RZ_EXTRA_LIBS rz_main)
 set (RZ_BIN rz-bin rizin rz-diff rz-find rz-gg rz-hash rz-run rz-asm rz-ax rz-sign)

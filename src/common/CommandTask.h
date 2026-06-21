@@ -1,16 +1,17 @@
-
 #ifndef COMMANDTASK_H
 #define COMMANDTASK_H
 
 #include "common/AsyncTask.h"
-#include "core/Cutter.h"
 
+/**
+ * @brief Background task for running a command in rizin
+ */
 class CUTTER_EXPORT CommandTask : public AsyncTask
 {
     Q_OBJECT
 
 public:
-    enum ColorMode {
+    enum ColorMode : ut8 {
         DISABLED = COLOR_MODE_DISABLED,
         MODE_16 = COLOR_MODE_16,
         MODE_256 = COLOR_MODE_256,
@@ -19,7 +20,7 @@ public:
 
     CommandTask(const QString &cmd, ColorMode colorMode = ColorMode::DISABLED);
 
-    QString getTitle() override { return tr("Running Command"); }
+    QString getTitle() const override { return tr("Running Command"); }
 
 signals:
     void finished(const QString &result);

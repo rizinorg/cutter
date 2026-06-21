@@ -3,14 +3,17 @@
 
 #include <QDialog>
 #include <QListWidgetItem>
-#include <memory>
 
 #include <core/Cutter.h>
+#include <memory>
 
 namespace Ui {
 class BaseFindDialog;
 }
 
+/**
+ * @brief Dialog for configuring and launching the BaseFind analysis
+ */
 class BaseFindDialog : public QDialog
 {
     Q_OBJECT
@@ -28,8 +31,8 @@ public:
     ut32 getMinScore() const;
 
 private slots:
-    void on_buttonBox_accepted();
-    void on_buttonBox_rejected();
+    void onButtonBoxAccepted();
+    void onButtonBoxRejected();
 
 private:
     std::unique_ptr<Ui::BaseFindDialog> ui;

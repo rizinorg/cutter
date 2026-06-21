@@ -1,8 +1,7 @@
-#pragma once
+#ifndef MEMORYMAPWIDGET_H
+#define MEMORYMAPWIDGET_H
 
-#include <memory>
-
-#include "core/Cutter.h"
+#include "CutterDescriptions.h"
 #include "CutterDockWidget.h"
 #include "ListDockWidget.h"
 
@@ -20,6 +19,9 @@ class MemoryMapWidget;
 class MainWindow;
 class QTreeWidgetItem;
 
+/**
+ * @brief Source model for @ref MemoryMapWidget
+ */
 class MemoryMapModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
@@ -27,10 +29,10 @@ class MemoryMapModel : public AddressableItemModel<QAbstractListModel>
     friend MemoryMapWidget;
 
 private:
-    QList<MemoryMapDescription> *memoryMaps;
+    QList<MemoryMapDescription> memoryMaps;
 
 public:
-    enum Column {
+    enum Column : ut8 {
         AddrStartColumn = 0,
         AddrEndColumn,
         NameColumn,
@@ -38,9 +40,9 @@ public:
         CommentColumn,
         ColumnCount
     };
-    enum Role { MemoryDescriptionRole = Qt::UserRole };
+    enum Role : ut16 { MemoryDescriptionRole = Qt::UserRole };
 
-    MemoryMapModel(QList<MemoryMapDescription> *memoryMaps, QObject *parent = nullptr);
+    MemoryMapModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -52,6 +54,9 @@ public:
     RVA address(const QModelIndex &index) const override;
 };
 
+/**
+ * @brief Proxy model for @ref MemoryMapWidget
+ */
 class MemoryProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
@@ -64,6 +69,9 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
+/**
+ * @brief Widget for displaying list of memory segments
+ */
 class MemoryMapWidget : public ListDockWidget
 {
     Q_OBJECT
@@ -79,7 +87,8 @@ private slots:
 private:
     MemoryMapModel *memoryModel;
     MemoryProxyModel *memoryProxyModel;
-    QList<MemoryMapDescription> memoryMaps;
 
     RefreshDeferrer *refreshDeferrer;
 };
+
+#endif // MEMORYMAPWIDGET_H

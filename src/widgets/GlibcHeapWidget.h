@@ -1,34 +1,43 @@
 #ifndef GLIBCHEAPWIDGET_H
 #define GLIBCHEAPWIDGET_H
 
-#include <QDockWidget>
+#include "CutterDescriptions.h"
 #include "CutterDockWidget.h"
-#include "core/Cutter.h"
-#include <QTableView>
+
 #include <QComboBox>
+#include <QDockWidget>
+#include <QTableView>
+
 #include <AddressableItemContextMenu.h>
+#include <memory>
 
 namespace Ui {
 class GlibcHeapWidget;
 }
 
+/**
+ * @brief Source model for @ref GlibcHeapWidget
+ */
 class GlibcHeapModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
     explicit GlibcHeapModel(QObject *parent = nullptr);
-    enum Column { OffsetColumn = 0, SizeColumn, StatusColumn, ColumnCount };
+    enum Column : ut8 { OffsetColumn = 0, SizeColumn, StatusColumn, ColumnCount };
     void reload();
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-    RVA arena_addr = 0;
+    RVA arenaAddr = 0;
 
 private:
     QVector<Chunk> values;
 };
 
+/**
+ * @brief Widget listing glibc heap during debugging/emulation
+ */
 class GlibcHeapWidget : public QWidget
 {
     Q_OBJECT
@@ -49,7 +58,7 @@ private slots:
 private:
     void updateArenas();
     void updateChunks();
-    Ui::GlibcHeapWidget *ui;
+    std::unique_ptr<Ui::GlibcHeapWidget> ui;
     QTableView *viewHeap;
     QComboBox *arenaSelectorView;
     GlibcHeapModel *modelHeap = new GlibcHeapModel(this);

@@ -1,18 +1,20 @@
 #ifndef SYMBOLSWIDGET_H
 #define SYMBOLSWIDGET_H
 
-#include <memory>
-#include <QAbstractListModel>
-#include <QSortFilterProxyModel>
-
-#include "core/Cutter.h"
+#include "CutterDescriptions.h"
 #include "CutterDockWidget.h"
 #include "widgets/ListDockWidget.h"
+
+#include <QAbstractListModel>
+#include <QSortFilterProxyModel>
 
 class MainWindow;
 class QTreeWidgetItem;
 class SymbolsWidget;
 
+/**
+ * @brief Source model for @ref SymbolsWidget
+ */
 class SymbolsModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
@@ -20,13 +22,13 @@ class SymbolsModel : public AddressableItemModel<QAbstractListModel>
     friend SymbolsWidget;
 
 private:
-    QList<SymbolDescription> *symbols;
+    QList<SymbolDescription> symbols;
 
 public:
-    enum Column { AddressColumn = 0, TypeColumn, NameColumn, CommentColumn, ColumnCount };
-    enum Role { SymbolDescriptionRole = Qt::UserRole };
+    enum Column : ut8 { AddressColumn = 0, TypeColumn, NameColumn, CommentColumn, ColumnCount };
+    enum Role : ut16 { SymbolDescriptionRole = Qt::UserRole };
 
-    SymbolsModel(QList<SymbolDescription> *exports, QObject *parent = nullptr);
+    SymbolsModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -39,6 +41,9 @@ public:
     QString name(const QModelIndex &index) const override;
 };
 
+/**
+ * @brief Proxy model for @ref SymbolsWidget
+ */
 class SymbolsProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
@@ -51,6 +56,9 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
+/**
+ * @brief Widget listing all symbols in binary
+ */
 class SymbolsWidget : public ListDockWidget
 {
     Q_OBJECT
@@ -63,7 +71,6 @@ private slots:
     void refreshSymbols();
 
 private:
-    QList<SymbolDescription> symbols;
     SymbolsModel *symbolsModel;
     SymbolsProxyModel *symbolsProxyModel;
 };

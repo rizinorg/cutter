@@ -1,13 +1,18 @@
 #ifndef CUTTERWIDGET_H
 #define CUTTERWIDGET_H
 
-#include "core/CutterCommon.h"
 #include "common/RefreshDeferrer.h"
+#include "core/CutterCommon.h"
 
 #include <QDockWidget>
 
 class MainWindow;
 
+/**
+ * @brief QDockWidget wrapper for Cutter
+ *
+ * This should serve as a base class for all dock widgets in main window
+ */
 class CUTTER_EXPORT CutterDockWidget : public QDockWidget
 {
     Q_OBJECT
@@ -19,7 +24,7 @@ public:
     explicit CutterDockWidget(MainWindow *parent);
     ~CutterDockWidget() override;
     bool eventFilter(QObject *object, QEvent *event) override;
-    bool isVisibleToUser() { return isVisibleToUserCurrent; }
+    bool isVisibleToUser() const { return isVisibleToUserCurrent; }
 
     /**
      * @brief Set whether the Widget should be deleted after it is closed.
@@ -107,8 +112,13 @@ public slots:
 
 protected:
     virtual QWidget *widgetToFocusOnRaise();
-
     void closeEvent(QCloseEvent *event) override;
+
+    /**
+     * @brief On any event(targeting windowMove event) if the altmodifer is
+     * pressed then the dock will be non dockable.
+     */
+    bool event(QEvent *event) override;
     QString getDockNumber();
 
     MainWindow *mainWindow;

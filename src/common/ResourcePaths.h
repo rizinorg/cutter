@@ -4,7 +4,7 @@
 #include <QStandardPaths>
 
 /**
- * \file ResourcePaths.h
+ * @file ResourcePaths.h
  * Set of functions for obtaining various paths. Some of the functions are wrappers around
  * QStandardPaths functions having the same name but with modifications specific to way
  * Cutter is packaged.

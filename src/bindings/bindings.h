@@ -4,11 +4,11 @@
 
 #define QT_ANNOTATE_ACCESS_SPECIFIER(a) __attribute__((annotate(#a)))
 
-#include "../core/Cutter.h"
 #include "../common/Configuration.h"
+#include "../core/Cutter.h"
 #include "../core/MainWindow.h"
-#include "../widgets/CutterDockWidget.h"
-#include "../plugins/CutterPlugin.h"
 #include "../menus/AddressableItemContextMenu.h"
+#include "../plugins/CutterPlugin.h"
+#include "../widgets/CutterDockWidget.h"
 
 #endif // CUTTER_BINDINGS_H

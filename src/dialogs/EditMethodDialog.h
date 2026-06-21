@@ -1,16 +1,22 @@
 #ifndef EDITMETHODDIALOG_H
 #define EDITMETHODDIALOG_H
 
-#include <QDialog>
-#include <memory>
+#include "CutterDescriptions.h"
 
-#include "core/Cutter.h"
+#include <QDialog>
+#include <QLabel>
+
+#include <memory>
 
 namespace Ui {
 class EditMethodDialog;
 }
 
 class QComboBox;
+
+/**
+ * @brief Dialog for creating and editing class methods
+ */
 class EditMethodDialog : public QDialog
 {
     Q_OBJECT
@@ -54,8 +60,8 @@ public:
                            QWidget *parent = nullptr);
 
 private slots:
-    void on_buttonBox_accepted();
-    void on_buttonBox_rejected();
+    void onButtonBoxAccepted();
+    void onButtonBoxRejected();
 
     void updateVirtualUI();
     void validateInput();

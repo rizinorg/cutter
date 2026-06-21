@@ -1,13 +1,18 @@
 #pragma once
 
-#include <QDialog>
-#include <memory>
 #include "CutterDescriptions.h"
+
+#include <QDialog>
+
+#include <memory>
 
 namespace Ui {
 class BreakpointsDialog;
 }
 
+/**
+ * @brief Dialog for creating and editing software or hardware breakpoints
+ */
 class BreakpointsDialog : public QDialog
 {
     Q_OBJECT

@@ -1,12 +1,16 @@
 #ifndef ADDRESSABLEITEMCONTEXTMENU_H
 #define ADDRESSABLEITEMCONTEXTMENU_H
 
-#include "core/Cutter.h"
-#include <QMenu>
+#include "CutterCommon.h"
+
 #include <QKeySequence>
+#include <QMenu>
 
 class MainWindow;
 
+/**
+ * @brief Generic context menu for Addressable widgets
+ */
 class CUTTER_EXPORT AddressableItemContextMenu : public QMenu
 {
     Q_OBJECT
@@ -24,13 +28,15 @@ public slots:
     void setOffset(RVA offset);
     void setTarget(RVA offset, QString name = QString());
     void clearTarget();
+    void toggleBreakpointAction(bool enabled);
 signals:
     void xrefsTriggered();
 
 private:
-    void onActionCopyAddress();
+    void onActionCopyAddress() const;
     void onActionShowXrefs();
     void onActionAddComment();
+    void onActionToggleBreakpoint() const;
 
     virtual void aboutToShowSlot();
 
@@ -46,9 +52,11 @@ protected:
     QAction *actionShowInMenu;
     QAction *actionCopyAddress;
     QAction *actionShowXrefs;
-    QAction *actionAddcomment;
+    QAction *actionAddComment;
+    QAction *actionToggleBreakpoint;
 
     QString name;
     bool wholeFunction = false;
+    bool breakpointActionEnabled = false;
 };
 #endif // ADDRESSABLEITEMCONTEXTMENU_H

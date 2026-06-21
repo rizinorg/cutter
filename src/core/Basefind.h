@@ -1,21 +1,25 @@
-#ifndef CUTTER_BASEFIND_CORE_H
-#define CUTTER_BASEFIND_CORE_H
+#ifndef BASEFIND_H
+#define BASEFIND_H
 
-#include <QThread>
-#include <QMutex>
-
-#include "Cutter.h"
 #include "CutterDescriptions.h"
+
+#include <QMutex>
+#include <QThread>
+
 #include <rz_basefind.h>
 
 class CutterCore;
 
+/**
+ * @brief Threaded wrapper for Rizin's basefind functionality to identify the base address of a
+ * binary
+ */
 class Basefind : public QThread
 {
     Q_OBJECT
 
 public:
-    explicit Basefind(CutterCore *core);
+    explicit Basefind();
     virtual ~Basefind();
 
     void run();
@@ -30,9 +34,8 @@ signals:
     void complete();
 
 private:
-    CutterCore *const core;
     RzList *scores;
-    bool continue_run;
+    bool continueRun;
     RzBaseFindOpt options;
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
     QMutex mutex;
@@ -44,4 +47,4 @@ private:
     static bool threadCallback(const RzBaseFindThreadInfo *info, void *user);
 };
 
-#endif // CUTTER_BASEFIND_CORE_H
+#endif // BASEFIND_H

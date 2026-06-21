@@ -15,13 +15,13 @@
  * calls can be chained. If a command or Rizin method accepts arguments directly it is preferred to
  * use those instead of temporary modifying global configuration.
  *
- * \code
+ * @code
  * {
  *     TempConfig tempConfig;
  *     tempConfig.set("asm.arch", "x86").set("asm.comments", false);
  *     // config automatically restored at the end of scope
  * }
- * \endcode
+ * @endcode
  */
 class CUTTER_EXPORT TempConfig
 {

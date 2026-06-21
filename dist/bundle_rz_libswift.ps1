@@ -2,7 +2,7 @@ $dist = $args[0]
 $python = Split-Path((Get-Command python.exe).Path)
 
 if (-not (Test-Path -Path 'libswift' -PathType Container)) {
-    git clone https://github.com/rizinorg/rz-libswift.git --depth 1 --branch "v0.8.0" libswift
+    git clone https://github.com/rizinorg/rz-libswift.git --depth 1 libswift
 }
 cd libswift
 & meson.exe --buildtype=release --prefix=$dist build

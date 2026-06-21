@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string notr="true">Types</string>
+   <string>Types</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -46,7 +46,7 @@
 }</string>
       </property>
       <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
+       <enum>QFrame::Shape::NoFrame</enum>
       </property>
       <property name="lineWidth">
        <number>0</number>
@@ -71,30 +71,6 @@
     </item>
    </layout>
   </widget>
-  <action name="actionExport_Types">
-   <property name="text">
-    <string>Export Types</string>
-   </property>
-   <property name="toolTip">
-    <string>Export Types</string>
-   </property>
-  </action>
-  <action name="actionLoad_New_Types">
-   <property name="text">
-    <string>Load New Types</string>
-   </property>
-   <property name="toolTip">
-    <string>Load New Types</string>
-   </property>
-  </action>
-  <action name="actionDelete_Type">
-   <property name="text">
-    <string>Delete Type</string>
-   </property>
-   <property name="toolTip">
-    <string>Delete Type</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>

@@ -4,7 +4,7 @@ $plugin_path = "$dist\plugins\native\"
 $pathdll = "$plugin_path\jsdec_cutter.dll"
 
 if (-not (Test-Path -Path 'jsdec' -PathType Container)) {
-    git clone https://github.com/rizinorg/jsdec.git --depth 1 --branch "v0.8.0"
+    git clone https://github.com/rizinorg/jsdec.git --depth 1 --branch "dev"
 }
 cd jsdec
 $jsdecdir = (Get-Item .).FullName

@@ -1,17 +1,18 @@
 #include "MemoryMapWidget.h"
-#include "ui_ListDockWidget.h"
-#include "core/MainWindow.h"
+
 #include "common/Helpers.h"
+#include "core/MainWindow.h"
+#include "ui_ListDockWidget.h"
+
 #include <QShortcut>
 
-MemoryMapModel::MemoryMapModel(QList<MemoryMapDescription> *memoryMaps, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent), memoryMaps(memoryMaps)
+MemoryMapModel::MemoryMapModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent)
 {
 }
 
 int MemoryMapModel::rowCount(const QModelIndex &) const
 {
-    return memoryMaps->count();
+    return memoryMaps.count();
 }
 
 int MemoryMapModel::columnCount(const QModelIndex &) const
@@ -21,18 +22,19 @@ int MemoryMapModel::columnCount(const QModelIndex &) const
 
 QVariant MemoryMapModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= memoryMaps->count())
+    if (index.row() >= memoryMaps.count()) {
         return QVariant();
+    }
 
-    const MemoryMapDescription &memoryMap = memoryMaps->at(index.row());
+    const MemoryMapDescription &memoryMap = memoryMaps.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
         switch (index.column()) {
         case AddrStartColumn:
-            return RzAddressString(memoryMap.addrStart);
+            return rzAddressString(memoryMap.addrStart);
         case AddrEndColumn:
-            return RzAddressString(memoryMap.addrEnd);
+            return rzAddressString(memoryMap.addrEnd);
         case NameColumn:
             return memoryMap.name;
         case PermColumn:
@@ -74,7 +76,7 @@ QVariant MemoryMapModel::headerData(int section, Qt::Orientation, int role) cons
 
 RVA MemoryMapModel::address(const QModelIndex &index) const
 {
-    const MemoryMapDescription &memoryMap = memoryMaps->at(index.row());
+    const MemoryMapDescription &memoryMap = memoryMaps.at(index.row());
     return memoryMap.addrStart;
 }
 
@@ -85,17 +87,17 @@ MemoryProxyModel::MemoryProxyModel(MemoryMapModel *sourceModel, QObject *parent)
 
 bool MemoryProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
-    QModelIndex index = sourceModel()->index(row, 0, parent);
-    MemoryMapDescription item =
+    const QModelIndex index = sourceModel()->index(row, 0, parent);
+    const auto item =
             index.data(MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
     return qhelpers::filterStringContains(item.name, this);
 }
 
 bool MemoryProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    MemoryMapDescription leftMemMap =
+    const auto leftMemMap =
             left.data(MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
-    MemoryMapDescription rightMemMap =
+    const auto rightMemMap =
             right.data(MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
 
     switch (left.column()) {
@@ -118,24 +120,23 @@ bool MemoryProxyModel::lessThan(const QModelIndex &left, const QModelIndex &righ
 }
 
 MemoryMapWidget::MemoryMapWidget(MainWindow *main)
-    : ListDockWidget(main, ListDockWidget::SearchBarPolicy::HideByDefault)
+    : ListDockWidget(main),
+      memoryModel(new MemoryMapModel(this)),
+      memoryProxyModel(new MemoryProxyModel(memoryModel, this)),
+      refreshDeferrer(createRefreshDeferrer([this]() { refreshMemoryMap(); }))
 {
     setWindowTitle(tr("Memory Map"));
     setObjectName("MemoryMapWidget");
 
-    memoryModel = new MemoryMapModel(&memoryMaps, this);
-    memoryProxyModel = new MemoryProxyModel(memoryModel, this);
     setModels(memoryProxyModel);
     ui->treeView->sortByColumn(MemoryMapModel::AddrStartColumn, Qt::AscendingOrder);
-
-    refreshDeferrer = createRefreshDeferrer([this]() { refreshMemoryMap(); });
 
     connect(Core(), &CutterCore::refreshAll, this, &MemoryMapWidget::refreshMemoryMap);
     connect(Core(), &CutterCore::registersChanged, this, &MemoryMapWidget::refreshMemoryMap);
     connect(Core(), &CutterCore::commentsChanged, this,
             [this]() { qhelpers::emitColumnChanged(memoryModel, MemoryMapModel::CommentColumn); });
-
-    showCount(false);
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
+            [this] { ui->quickFilterView->setItemCount(memoryProxyModel->rowCount()); });
 }
 
 MemoryMapWidget::~MemoryMapWidget() = default;
@@ -150,10 +151,13 @@ void MemoryMapWidget::refreshMemoryMap()
         return;
     }
     memoryModel->beginResetModel();
-    memoryMaps = Core()->getMemoryMap();
+    memoryModel->memoryMaps = Core()->getMemoryMap();
     memoryModel->endResetModel();
 
     ui->treeView->resizeColumnToContents(0);
     ui->treeView->resizeColumnToContents(1);
     ui->treeView->resizeColumnToContents(2);
+
+    // set the initial item count
+    ui->quickFilterView->setItemCount(memoryProxyModel->rowCount());
 }

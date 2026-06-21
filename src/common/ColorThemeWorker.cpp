@@ -1,24 +1,43 @@
 #include "ColorThemeWorker.h"
 
-#include <QDir>
-#include <QFile>
-#include <QColor>
-#include <QJsonArray>
-#include <QStandardPaths>
-#include <QRegularExpression>
-#include <rz_util/rz_path.h>
-
 #include "common/Configuration.h"
 
+#include <QColor>
+#include <QDir>
+#include <QFile>
+#include <QJsonArray>
+#include <QRegularExpression>
+#include <QStandardPaths>
+
+#include <rz_util/rz_path.h>
+
 const QStringList ColorThemeWorker::cutterSpecificOptions = {
-    "wordHighlight",      "lineHighlight",       "gui.main",
-    "gui.imports",        "highlightPC",         "gui.navbar.err",
-    "gui.navbar.seek",    "gui.navbar.pc",       "gui.navbar.sym",
-    "gui.dataoffset",     "gui.navbar.code",     "gui.navbar.empty",
-    "angui.navbar.str",   "gui.disass_selected", "gui.breakpoint_background",
-    "gui.overview.node",  "gui.overview.fill",   "gui.overview.border",
-    "gui.border",         "gui.background",      "gui.alt_background",
-    "gui.disass_selected"
+    "wordHighlight",
+    "lineHighlight",
+    "searchCurrent",
+    "searchHighlight",
+    "gui.main",
+    "gui.imports",
+    "highlightPC",
+    "gui.navbar.err",
+    "gui.navbar.seek",
+    "gui.navbar.pc",
+    "gui.navbar.sym",
+    "gui.dataoffset",
+    "gui.navbar.code",
+    "gui.navbar.unexplored",
+    "gui.navbar.str",
+    "gui.navbar.import",
+    "gui.navbar.signature",
+    "gui.navbar.data",
+    "gui.breakpoint_background",
+    "gui.overview.node",
+    "gui.overview.fill",
+    "gui.overview.border",
+    "gui.border",
+    "gui.background",
+    "gui.alt_background",
+    "gui.disass_selected",
 };
 
 const QStringList ColorThemeWorker::rizinUnusedOptions = {
@@ -37,8 +56,9 @@ ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject(parent)
         QDir().mkpath(customRzThemesLocationPath);
     }
 
-    char *theme_dir = rz_path_prefix(RZ_THEMES);
-    QDir currDir { theme_dir };
+    RzPath *sysPath = rz_path_new();
+    const char *themeDir = rz_path_system(sysPath, RZ_THEMES);
+    const QDir currDir { themeDir };
     if (currDir.exists()) {
         standardRzThemesLocationPath = currDir.absolutePath();
     } else {
@@ -47,7 +67,7 @@ ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject(parent)
                                  "Most likely, Rizin is not properly installed.")
                                       .arg(currDir.path()));
     }
-    free(theme_dir);
+    rz_path_free(sysPath);
 }
 
 QColor ColorThemeWorker::mergeColors(const QColor &upper, const QColor &lower) const
@@ -109,14 +129,14 @@ bool ColorThemeWorker::isCustomTheme(const QString &themeName) const
 
 bool ColorThemeWorker::isThemeExist(const QString &name) const
 {
-    QStringList themes = Core()->getColorThemes();
+    const QStringList themes = Core()->getColorThemes();
     return themes.contains(name);
 }
 
 ColorThemeWorker::Theme ColorThemeWorker::getTheme(const QString &themeName) const
 {
     Theme theme;
-    QString curr = Config()->getColorTheme();
+    const QString curr = Config()->getColorTheme();
 
     if (themeName != curr) {
         RzCoreLocked core(Core());
@@ -187,13 +207,13 @@ QString ColorThemeWorker::deleteTheme(const QString &themeName) const
 
 QString ColorThemeWorker::importTheme(const QString &file) const
 {
-    QFileInfo src(file);
+    const QFileInfo src(file);
     if (!src.exists()) {
         return tr("File <b>%1</b> does not exist.").arg(file);
     }
 
     bool ok;
-    bool isTheme = isFileTheme(file, &ok);
+    const bool isTheme = isFileTheme(file, &ok);
     if (!ok) {
         return tr("File <b>%1</b> could not be opened. "
                   "Please make sure you have access to it and try again.")
@@ -202,7 +222,7 @@ QString ColorThemeWorker::importTheme(const QString &file) const
         return tr("File <b>%1</b> is not a Cutter color theme").arg(file);
     }
 
-    QString name = src.fileName();
+    const QString name = src.fileName();
     if (isThemeExist(name)) {
         return tr("A color theme named <b>%1</b> already exists.").arg(name);
     }
@@ -227,8 +247,8 @@ QString ColorThemeWorker::renameTheme(const QString &themeName, const QString &n
         return tr("You can not rename standard Rizin themes.");
     }
 
-    QDir dir = customRzThemesLocationPath;
-    bool ok = QFile::rename(dir.filePath(themeName), dir.filePath(newName));
+    const QDir dir = customRzThemesLocationPath;
+    const bool ok = QFile::rename(dir.filePath(themeName), dir.filePath(newName));
     if (!ok) {
         return tr("Something went wrong during renaming. "
                   "Please make sure you have access to the directory <b>\"%1\"</b>.")
@@ -246,13 +266,13 @@ bool ColorThemeWorker::isFileTheme(const QString &filePath, bool *ok) const
     }
 
     const QString colors = "black|red|white|green|magenta|yellow|cyan|blue|gray|none";
-    QString options =
+    const QString options =
             (Core()->getThemeKeys() << cutterSpecificOptions).join('|').replace(".", "\\.");
 
-    QString pattern =
+    const QString pattern =
             QString("((ec\\s+(%1)\\s+(((rgb:|#)[0-9a-fA-F]{3,8})|(%2))))\\s*").arg(options, colors);
     // The below construct mimics the behaviour of QRegexP::exactMatch(), which was here before
-    QRegularExpression regexp("\\A(?:" + pattern + ")\\z");
+    const QRegularExpression regexp("\\A(?:" + pattern + ")\\z");
 
     for (auto &line : QString(f.readAll()).split('\n', CUTTER_QT_SKIP_EMPTY_PARTS)) {
         line.replace("#~", "ec ");
@@ -268,11 +288,11 @@ bool ColorThemeWorker::isFileTheme(const QString &filePath, bool *ok) const
 
 QStringList ColorThemeWorker::customThemes() const
 {
-    QStringList themes = Core()->getColorThemes();
+    const QStringList themes = Core()->getColorThemes();
     QStringList ret;
-    for (int i = 0; i < themes.size(); i++) {
-        if (isCustomTheme(themes[i])) {
-            ret.push_back(themes[i]);
+    for (const auto &theme : themes) {
+        if (isCustomTheme(theme)) {
+            ret.push_back(theme);
         }
     }
     return ret;

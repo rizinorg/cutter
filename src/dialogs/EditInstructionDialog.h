@@ -1,15 +1,21 @@
 #ifndef EDITINSTRUCTIONDIALOG_H
 #define EDITINSTRUCTIONDIALOG_H
 
+#include "CutterDescriptions.h" // IWYU pragma: keep
+
 #include <QDialog>
+
 #include <memory>
 
 namespace Ui {
 class EditInstructionDialog;
 }
 
-enum InstructionEditMode { EDIT_NONE, EDIT_BYTES, EDIT_TEXT };
+enum InstructionEditMode : ut8 { EDIT_NONE, EDIT_BYTES, EDIT_TEXT };
 
+/**
+ * @brief Dialog for editing instructions
+ */
 class EditInstructionDialog : public QDialog
 {
     Q_OBJECT
@@ -23,8 +29,8 @@ public:
     bool needsNops() const;
 
 private slots:
-    void on_buttonBox_accepted();
-    void on_buttonBox_rejected();
+    void onButtonBoxAccepted();
+    void onButtonBoxRejected();
 
     void updatePreview(const QString &input);
 

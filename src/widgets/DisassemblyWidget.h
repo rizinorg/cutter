@@ -1,16 +1,15 @@
 #ifndef DISASSEMBLYWIDGET_H
 #define DISASSEMBLYWIDGET_H
 
-#include "core/Cutter.h"
 #include "MemoryDockWidget.h"
 #include "common/CutterSeekable.h"
 #include "common/RefreshDeferrer.h"
-#include "common/CachedFontMetrics.h"
+#include "core/Cutter.h"
 
-#include <QTextEdit>
+#include <QAction>
 #include <QPlainTextEdit>
 #include <QShortcut>
-#include <QAction>
+#include <QTextEdit>
 
 #include <vector>
 
@@ -18,7 +17,13 @@ class DisassemblyTextEdit;
 class DisassemblyScrollArea;
 class DisassemblyContextMenu;
 class DisassemblyLeftPanel;
+class AddressRangeScrollBar;
 
+/**
+ * @brief Main widget for showing disassembly of a binary
+ *
+ * @see DisassemblerGraphView
+ */
 class DisassemblyWidget : public MemoryDockWidget
 {
     Q_OBJECT
@@ -44,14 +49,18 @@ public slots:
     void showDisasContextMenu(const QPoint &pt);
     void fontsUpdatedSlot();
     void colorsUpdatedSlot();
-    void scrollInstructions(int count);
+    void scrollInstructions(int count, bool clampToScrollBarRange = false);
     void seekPrev();
     void setPreviewMode(bool previewMode);
     QFontMetricsF getFontMetrics();
     QList<DisassemblyLine> getLines();
 
+    /**
+     * @brief Forces the transient vertical scrollbar to appear on scroll
+     */
+    void showTransientScrollBar();
 protected slots:
-    void on_seekChanged(RVA offset, CutterCore::SeekHistoryType type);
+    void onSeekChanged(RVA offset, CutterCore::SeekHistoryType type);
     void refreshIfInRange(RVA offset);
     void instructionChanged(RVA offset);
     void refreshDisasm(RVA offset = RVA_INVALID);
@@ -86,6 +95,7 @@ private:
     RVA readCurrentDisassemblyOffset();
     bool eventFilter(QObject *obj, QEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
     QString getWindowTitle() const override;
 
     int topOffsetHistoryPos = 0;
@@ -111,21 +121,19 @@ class DisassemblyScrollArea : public QAbstractScrollArea
 
 public:
     explicit DisassemblyScrollArea(QWidget *parent = nullptr);
-    RVA currentVScrollAddr();
-    void setVScrollPos(RVA address);
+    AddressRangeScrollBar *verticalScrollBar();
 
 signals:
-    void scrollLines(int lines);
+    void scrollLines(int lines, bool clampToScrollBarRange = false);
     void disassemblyResized();
+    void wheelEventTriggered();
 
 protected:
     bool viewportEvent(QEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
 
 private:
-    void refreshVScrollbarRange();
-    RVA binSize();
-    RVA beginOffset, endOffset;
+    AddressRangeScrollBar *vScrollBar;
     int accumScrollWheelDeltaY;
 };
 

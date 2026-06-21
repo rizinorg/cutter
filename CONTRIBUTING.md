@@ -23,3 +23,37 @@ Check issues marked as "Documentation" on our issues [list](https://github.com/r
 ## Translations
 
 You can help Cutter by adding translations to the project! We use the [Crowdin](https://crowdin.com/project/cutter) platform to help us share translations. Feel free to contribute and add translations to the project. If you need to add a language, ask any rizinorg developer.
+
+## Usage of AI tools
+
+Following the widespread availability of large language models and generative AI, Rizin Organization has received a growing number of changes generated partially or entirely using such tools. Many of these are completely unusable in our codebase.
+While AI tools can help to draft changes, they must not replace human understanding and proper code modifications.
+
+If you use AI tools to help prepare a code change, you must:
+
+- **Disclose** which AI tools were used and specify what they were used for.
+- **Verify** that the code compiles, works and is not copyrighted by somebody else.
+- **Avoid** fabricated code, placeholder text, or references to non-existent code.
+
+Changes that appear to be unverified AI output will be closed without response.
+Repeated low-quality submissions may result in a ban.
+
+We align with similar policies adopted by other major open-source projects, which have described the flood of unverified AI-generated code changes as disruptive, counterproductive, and a drain on limited team resources.
+
+> [!IMPORTANT]
+> AI tools must not be used to fix issues labelled `good first issue`.
+> These issues are generally not urgent, and are intended to be learning opportunities for new contributors to get familiar with the codebase.
+> Whether you are a newcomer or not, fully automating the process of fixing this issue squanders the learning opportunity and doesn't add much value to the project.
+> **Using AI tools to fix issues labelled as "good first issues" is forbidden**.
+
+## Requirements for new contributors
+
+Due to the high number of AI-generated contributions,
+we raised the standard for new contributors.
+
+You must provide a "before" and "after" screenshot or video showing that the change fixed the issue.
+
+> [!IMPORTANT]
+> If this requirement is not met, we won't review the PR and will close it
+> if there are no visible attempts to meet it.
+

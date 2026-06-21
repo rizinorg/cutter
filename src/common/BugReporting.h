@@ -1,5 +1,5 @@
-#ifndef CRASHREPORTING_H
-#define CRASHREPORTING_H
+#ifndef BUGREPORTING_H
+#define BUGREPORTING_H
 
 /**
  * @brief Opens issue on Cutter's github page
@@ -7,4 +7,4 @@
  */
 void openIssue();
 
-#endif // CRASHREPORTING_H
+#endif // BUGREPORTING_H
