@@ -8,7 +8,7 @@ EXTRA_CMAKE_OPTS="$2"
 cd "$SCRIPTPATH/.."
 
 if [[ ! -d rz_libyara ]]; then
-    git clone https://github.com/rizinorg/rz-libyara.git --depth 1 --branch main rz_libyara
+    git clone https://github.com/rizinorg/rz-libyara.git --depth 1 --branch "v0.9.0" rz_libyara
     git -C rz_libyara submodule init
     git -C rz_libyara submodule update
 fi
