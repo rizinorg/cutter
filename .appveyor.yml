@@ -1,4 +1,4 @@
-version: '2.4.0-git-{build}'
+version: '2.5.0-git-{build}'
 image: 'Visual Studio 2022'
 clone_depth: 1
 
