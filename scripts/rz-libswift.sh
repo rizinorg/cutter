@@ -7,7 +7,7 @@ SCRIPTPATH=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
 cd "$SCRIPTPATH/.."
 
 if [[ ! -d libswift ]]; then
-	git clone https://github.com/rizinorg/rz-libswift.git --depth 1 libswift
+	git clone https://github.com/rizinorg/rz-libswift.git --depth 1 --branch "v0.9.0" libswift
 fi
 
 cd libswift
