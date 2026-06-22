@@ -625,7 +625,7 @@ jobs:
         pwd
 
     - name: Download cutter build
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: ${{ needs[matrix.artifact-job].outputs[matrix.artifact-output] || 'bad_id2' }}
     - name: build-linux
