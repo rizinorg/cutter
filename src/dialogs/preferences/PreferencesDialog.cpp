@@ -9,6 +9,7 @@
 #include "InterfaceOptionsWidget.h"
 #include "PluginsOptionsWidget.h"
 #include "PreferenceCategory.h"
+#include "RizinConfigOptionsWidget.h"
 #include "ShortcutOptionsWidget.h"
 #include "SymbolsOptionsWidget.h"
 #include "common/Configuration.h"
@@ -45,7 +46,8 @@ PreferencesDialog::PreferencesDialog(MainWindow *parent)
                     QIcon(":/img/icons/symbol_options.svg") },
           } },
         { tr("Shortcuts"), new ShortcutOptionsWidget(this), QIcon(":/img/icons/edit.svg") },
-        { tr("Interface"), new InterfaceOptionsWidget(this), QIcon(":/img/icons/layout.svg") }
+        { tr("Interface"), new InterfaceOptionsWidget(this), QIcon(":/img/icons/layout.svg") },
+        { tr("Rizin Config"), new RizinConfigOptionsWidget(this), QIcon(":/img/icons/rizin.svg") }
     };
 
     for (auto &c : prefs) {
@@ -110,6 +112,7 @@ void PreferencesDialog::chooseThemeIcons()
         { QStringLiteral("Symbols"), QStringLiteral("symbol_options.svg") },
         { QStringLiteral("Shortcuts"), QStringLiteral("edit.svg") },
         { QStringLiteral("Interface"), QStringLiteral("layout.svg") },
+        { QStringLiteral("Rizin Config"), QStringLiteral("rizin.svg") },
     };
     QList<QPair<void *, QString>> supportedIconsNames;
 

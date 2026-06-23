@@ -15,25 +15,59 @@ SymbolsOptionsWidget::SymbolsOptionsWidget(PreferencesDialog *parent)
 {
     ui->setupUi(this);
 
+    updateSymbolsOptions();
+
+    auto symbolOptionsChanged = [this] {
+        disconnect(Core(), &CutterCore::symbolsOptionsChanged, this,
+                   &SymbolsOptionsWidget::updateSymbolsOptions);
+        Core()->triggerSymbolsOptionsChanged();
+        connect(Core(), &CutterCore::symbolsOptionsChanged, this,
+                &SymbolsOptionsWidget::updateSymbolsOptions);
+    };
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    connect(ui->debuginfodCheckBox, &QCheckBox::checkStateChanged, this,
+            [this, symbolOptionsChanged](bool checked) {
+                updateDebuginfodLayout();
+                Core()->setConfig("bin.dbginfo.debuginfod", checked);
+                symbolOptionsChanged();
+            });
+#else
+    connect(ui->debuginfodCheckBox, &QCheckBox::stateChanged, this,
+            [this, symbolOptionsChanged](bool checked) {
+                updateDebuginfodLayout();
+                Core()->setConfig("bin.dbginfo.debuginfod", checked);
+                symbolOptionsChanged();
+            });
+#endif
+    connect(ui->pdbSelect, &QPushButton::clicked, this,
+            &SymbolsOptionsWidget::pdbSelectButtonClicked);
+    connect(ui->reanalyzeButton, &QPushButton::clicked, this, &SymbolsOptionsWidget::reanalyze);
+
+    connect(ui->debuginfodLineEdit, &QLineEdit::editingFinished, this,
+            [this, symbolOptionsChanged] {
+                Core()->setConfig("bin.dbginfo.debuginfod_urls", ui->debuginfodLineEdit->text());
+                symbolOptionsChanged();
+            });
+    connect(ui->pdbServerEdit, &QLineEdit::editingFinished, this, [this, symbolOptionsChanged] {
+        Core()->setConfig("pdb.server", ui->pdbServerEdit->text());
+        symbolOptionsChanged();
+    });
+    connect(Core(), &CutterCore::symbolsOptionsChanged, this,
+            &SymbolsOptionsWidget::updateSymbolsOptions);
+}
+
+SymbolsOptionsWidget::~SymbolsOptionsWidget() {}
+
+void SymbolsOptionsWidget::updateSymbolsOptions()
+{
     // pdbServer
     ui->pdbServerEdit->setText(Core()->getConfig("pdb.server"));
     // debuginfod
     ui->debuginfodCheckBox->setChecked(Core()->getConfigb("bin.dbginfo.debuginfod"));
     ui->debuginfodLineEdit->setText(Core()->getConfig("bin.dbginfo.debuginfod_urls"));
     updateDebuginfodLayout();
-#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
-    connect(ui->debuginfodCheckBox, &QCheckBox::checkStateChanged, this,
-            &SymbolsOptionsWidget::updateDebuginfodLayout);
-#else
-    connect(ui->debuginfodCheckBox, &QCheckBox::stateChanged, this,
-            &SymbolsOptionsWidget::updateDebuginfodLayout);
-#endif
-    connect(ui->pdbSelect, &QPushButton::clicked, this,
-            &SymbolsOptionsWidget::pdbSelectButtonClicked);
-    connect(ui->reanalyzeButton, &QPushButton::clicked, this, &SymbolsOptionsWidget::reanalyze);
 }
-
-SymbolsOptionsWidget::~SymbolsOptionsWidget() {}
 
 void SymbolsOptionsWidget::pdbSelectButtonClicked()
 {
@@ -52,10 +86,6 @@ void SymbolsOptionsWidget::updateDebuginfodLayout()
 
 void SymbolsOptionsWidget::reanalyze()
 {
-    Core()->setConfig("bin.dbginfo.debuginfod", ui->debuginfodCheckBox->isChecked());
-    Core()->setConfig("bin.dbginfo.debuginfod_urls", ui->debuginfodLineEdit->text());
-    Core()->setConfig("pdb.server", ui->pdbServerEdit->text());
-
     mainWindow->onActionAnalyzeTriggered();
     const QUrl pdbFile = QUrl::fromUserInput(ui->pdbLineEdit->text());
     if (pdbFile.isValid() && pdbFile.isLocalFile()) {

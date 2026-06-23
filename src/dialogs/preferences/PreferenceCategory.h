@@ -6,7 +6,7 @@
 #include <QTreeWidget>
 
 /**
- * @brief Main class for that divides the view into two sides in Preferences:
+ * @brief Main class that divides the view into two sides in Preferences:
  *
  * Left Side: Tree containing items for all options widget
  * Right Side: Content for selected item

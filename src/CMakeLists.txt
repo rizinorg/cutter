@@ -171,6 +171,9 @@ set(SOURCES
     widgets/AbstractFilterView.cpp
     dialogs/preferences/InterfaceOptionsWidget.cpp
     common/Json.cpp
+    dialogs/preferences/RizinConfigOptionsWidget.cpp
+    dialogs/IntervalDialog.cpp
+    dialogs/StringListDialog.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -350,6 +353,9 @@ set(HEADER_FILES
     widgets/ItemCountLineEdit.h
     widgets/AbstractFilterView.h
     dialogs/preferences/InterfaceOptionsWidget.h
+    dialogs/preferences/RizinConfigOptionsWidget.h
+    dialogs/IntervalDialog.h
+    dialogs/StringListDialog.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -433,6 +439,7 @@ set(UI_FILES
     widgets/SearchBarWidget.ui
     dialogs/preferences/SymbolsOptionsWidget.ui
     dialogs/preferences/InterfaceOptionsWidget.ui
+    dialogs/preferences/RizinConfigOptionsWidget.ui
 )
 set(QRC_FILES
     resources.qrc
