@@ -23,7 +23,7 @@ public:
     explicit DiffWaitDialog(BinDiff *bDiff, QWidget *parent = nullptr);
     ~DiffWaitDialog();
 
-    void show(QString original, QString modified, int level, int compare);
+    void show(const QString &original, const QString &modified, int level, int compare);
 
 public slots:
     void onProgress(BinDiffStatusDescription status);
@@ -38,8 +38,8 @@ private slots:
 
 private:
     QElapsedTimer eTimer;
-    QTimer timer;
     BinDiff *bDiff;
+    QTimer timer;
     std::unique_ptr<Ui::DiffWaitDialog> ui;
 };
 

@@ -25,8 +25,9 @@ bool CutterDiff::initCores()
 {
     LOCK();
 
-    rz_core_free(coreA);
-    rz_core_free(coreB);
+    if (coreA || coreB) {
+        qInfo() << "preInit";
+    }
 
     coreA = rz_core_new();
     coreB = rz_core_new();
@@ -42,6 +43,7 @@ bool CutterDiff::initCores()
     coreB->print->scr_prompt = false;
     return true;
 fail:
+    qWarning() << "Core initialization has failed undefined behaviour expected.";
     rz_core_free(coreA);
     rz_core_free(coreB);
     return false;
@@ -382,4 +384,36 @@ QString CutterDiff::cmdRaw(const char *cmd, bool orig)
 RVA CutterDiff::getOffset(bool orig)
 {
     return (orig ? coreA : coreB)->offset;
+}
+
+QString CutterDiff::ansiEscapeToHtml(const QString &text)
+{
+    int len;
+    QString r = text;
+    r.replace("\t", "        ");
+    char *html = rz_cons_html_filter(
+            r.toUtf8().constData(),
+            &len); // doesn't support background colors work has to be done in the rizin side
+    if (!html) {
+        return {};
+    }
+    r = QString::fromUtf8(html, len);
+    rz_mem_free(html);
+    return r;
+}
+
+QStringList CutterDiff::lineDiff(const char *lines1, const char *lines2)
+{
+    RzDiff *diff = rz_diff_lines_new(lines1, lines2, nullptr);
+    const char *results = rz_diff_unified_text(diff, "A", "B", false, true);
+    QStringList lines = QString::fromUtf8(results).split("\n");
+    for (QString &line : lines) {
+        line = ansiEscapeToHtml(line);
+    }
+    return lines;
+}
+
+QStringList CutterDiff::lineDiff(const QString &lines1, const QString &lines2)
+{
+    return lineDiff(lines1.toUtf8().constData(), lines2.toUtf8().constData());
 }

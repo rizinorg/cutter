@@ -66,21 +66,19 @@ public:
         return true;
     }
 
-    bool write(const uint8_t, uint64_t, size_t) {}
+    static uint64_t maxIndex() { return std::numeric_limits<uint64_t>::max(); }
 
-    uint64_t maxIndex() { return std::numeric_limits<uint64_t>::max(); }
-
-    uint64_t minIndex() { return mFirstBlockAddr; }
+    uint64_t minIndex() const { return mFirstBlockAddr; }
 
 private:
-    bool orig = true;
     CutterDiff *cutterDiff;
+    bool orig = true;
     QVector<QByteArray> mBlocks;
     uint64_t mFirstBlockAddr = 0;
     uint64_t mLastValidAddr = 0;
 };
 
-// Defining DiffFile Struct for encapsulation
+// Defining DiffFile Struct for encapsulation(in some external calls bool is used instead ex: seek)
 enum DiffFile : ut8 { A, B };
 
 enum DiffArea : ut8 {
@@ -91,6 +89,8 @@ enum DiffArea : ut8 {
 }; // used modulo and comparisons for getting areas for cursorArea and area in mouse press event
    // both need to be rewritten with a nullarea or no area pointer
 
+// Defining DiffFileContext sharing file specific elements in one unified struct
+// I think this shall be moved to the HexDiff class Itself
 class DiffFileContext
 {
 public:
@@ -102,6 +102,14 @@ public:
     QRectF asciiArea;
 };
 
+// Kept as it was in HexWidget didn't felt the need to change
+// The cursors main address space is that of file A. Any operations
+// let it be file reading, data loading, cursor moving it happens relative to
+// File A. The Corresponding File A address is translated to File B for File B operations
+// Ex: getAddressB, getStartAddressB etc.
+// Address specific Data variable only exists for A
+// I think we need a virtual address space which will make things more understandable
+// may be in future
 /**
  * @brief Tracks memory addresses while preventing 64-bit overflow
  */
@@ -165,7 +173,7 @@ struct HexDiffCursor
     bool isVisible;
     bool onAsciiArea;
     QTimer blinkTimer;
-    QRectF screenPos;
+    QRectF screenPos; // since it is a canvas item two rectangles were needed
     QRectF screenPosB;
     uint64_t address;
     QString cachedChar;
@@ -179,6 +187,7 @@ struct HexDiffCursor
     void stopBlinking() { blinkTimer.stop(); }
 };
 
+// As it was in HexWidget
 class HexDiffSelection
 {
 public:
@@ -278,7 +287,6 @@ public:
 
     enum class ColumnMode : ut8 { Fixed, PowerOf2 };
     enum class EditWordState : ut8 { Read, WriteNotStarted, WriteNotEdited, WriteEdited };
-    enum class HexNavigationMode : ut8 { Words, WordChar, AnyChar };
 
     void setItemSize(int nbytes);
     void setItemFormat(ItemFormat format);
@@ -301,9 +309,11 @@ public:
     void selectRange(RVA start, RVA end);
     void clearSelection();
 
-    void transpose(int transA = 0, int transB = 1);
+    // used to shift itemElements similar to shift in rz-diff
+    void transpose(int transA = 0, int transB = 1, bool reset = false);
     void shiftStartAddress(int shift);
 
+    // Selection needed address Variables for B since it is accessed by external widgets as well.
     struct Selection
     {
         bool empty;
@@ -343,6 +353,10 @@ private slots:
 private:
     void updateItemLength();
     void updateCounts();
+    // DiffFileContext was pased for each of these paint functions. Instead of two calls it has to
+    // be merged in a single function. ie a single function pains both A's and B's areas Functions
+    // such as rangePolygons and diffing will be easier and efficient if the paint events are
+    // coordinated
     void drawHeader(QPainter &painter, DiffFileContext &ctx);
     void drawCursor(QPainter &painter, bool shadow = false);
     void drawAddrArea(QPainter &painter, DiffFileContext &ctx);
@@ -354,11 +368,7 @@ private:
     void updateAreasHeight();
     enum class OverflowMove : ut8 { Clamp, Ignore };
     bool moveCursor(int offset, bool select = false,
-                    OverflowMove overflowMove =
-                            OverflowMove::Clamp); // The entire movecursor has to cursor shall be
-                                                  // moved in same direction in both do with
-                                                  // BasicDiffCursor and HexDiffSelection
-    void moveCursorKeepEditOffset(int byteOffset, bool select, OverflowMove overflowMove);
+                    OverflowMove overflowMove = OverflowMove::Clamp);
     void setCursorAddr(BasicDiffCursor addr, bool select = false);
     void updateCursorMeta();
     void setCursorOnAscii(bool ascii);
@@ -389,12 +399,7 @@ private:
     BasicDiffCursor asciiPosToAddrA(const QPoint &point, bool middle = false) const;
     BasicDiffCursor currentAreaPosToAddrA(const QPoint &point, bool middle = false) const;
     BasicDiffCursor mousePosToAddrA(const QPoint &point, bool middle = false) const;
-
-    BasicDiffCursor screenPosToAddrB(const QPoint &point, bool middle = false,
-                                     int *wordOffset = nullptr) const;
-    BasicDiffCursor asciiPosToAddrB(const QPoint &point, bool middle = false) const;
-    BasicDiffCursor currentAreaPosToAddrB(const QPoint &point, bool middle = false) const;
-    BasicDiffCursor mousePosToAddrB(const QPoint &point, bool middle = false) const;
+    // Converts the point to corresponding DiffArea
     DiffArea posToDiffArea(QPoint &point) const;
     /**
      * @brief Rectangle for single item in data area.
@@ -407,8 +412,12 @@ private:
      * @param offset relative to first byte on screen
      * @return
      */
-    QRectF asciiRectangle(int offset, DiffFileContext &ctx);
-    QVector<QPolygonF> rangePolygons(RVA start, RVA last, bool ascii, DiffFileContext &ctx);
+    QRectF
+    asciiRectangle(int offset,
+                   DiffFileContext &ctx); // selects the ascii rectangles based on the context
+    QVector<QPolygonF>
+    rangePolygons(RVA start, RVA last, bool ascii,
+                  DiffFileContext &ctx); // selects the item rectangles based on the context
     void updateWidth();
 
     inline qreal itemWidth() const { return itemCharLen * charWidth; }
@@ -447,8 +456,6 @@ private:
     const QRectF &screenPosToArea(const QPoint &point) const;
 
     bool isFixedWidth() const;
-
-    HexNavigationMode defaultNavigationMode();
 
     void updateViewport();
     void scrollLines(int lines, bool clampToScrollBarRange = false);
@@ -496,7 +503,7 @@ private:
     int itemColumns = 16; ///< Number of columns, single column consists of itemGroupSize items
     int itemCharLen = 2;
     int itemPrefixLen = 0;
-    int relTranspose = 0; ///< relative transpose between the files
+    int relTranspose = 0; ///< relative transpose between the files(shift)
     ColumnMode columnMode;
 
     ItemFormat itemFormat;
@@ -516,8 +523,7 @@ private:
     bool showExHex;
     bool showExAddr;
 
-    bool diffByteArrays(QByteArray &a, QByteArray &b);
-    bool diffItemsAt(uint64_t addr);
+    bool diffItemsAt(uint64_t addr) const;
 
     QColor borderColor;
     QColor backgroundColor;
@@ -528,7 +534,7 @@ private:
     QColor b0x7fColor;
     QColor b0xffColor;
     QColor printableColor;
-    QColor warningColor;
+    QColor warningColor; // warning Color is used instead of the actual Diff Color
 
     HexdumpRangeDialog rangeDialog;
 
@@ -550,14 +556,13 @@ private:
 
     DiffFileContext ctxA;
     DiffFileContext ctxB;
-    DiffFile getFileFromPos(QPoint &pos);
+    DiffFile getFileFromPos(QPoint &pos) const;
+    // Gives selection from particular context
     HexDiffSelection ctxSelection(DiffFileContext &ctx);
+    // Gives address at given context
     uint64_t ctxAddr(uint64_t addrA, DiffFileContext &ctx);
 
-    HexNavigationMode navigationMode = HexNavigationMode::Words;
-
     CutterDiff *cutterDiff;
-
     AddressRangeScrollBar *vScrollBar;
 };
 

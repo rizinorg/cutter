@@ -9,7 +9,11 @@
 #include <QThread>
 
 #include <rz_analysis.h>
-
+/**
+ * @brief The BinDiff class
+ * Thread run for processing the functional diffing and other large diffing processes.
+ * TODO: Move to common or tools/bindiff?
+ */
 class BinDiff : public QThread
 {
     Q_OBJECT

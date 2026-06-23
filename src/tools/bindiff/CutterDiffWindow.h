@@ -47,6 +47,8 @@ public:
 
     QColor gradientByRatio(const double ratio) const;
 
+    QPair<RVA, RVA> address(const QModelIndex &index) const;
+
 private:
     QList<BinDiffMatchDescription> *list;
 
@@ -104,6 +106,7 @@ public:
                         int role = Qt::DisplayRole) const override;
     RVA address(const QModelIndex &index) const override;
     void refreshModel();
+    bool highLightAddress();
 
 private:
     QList<FunctionDescription> *list;
@@ -130,6 +133,8 @@ private slots:
     void onCopyShA256BClicked();
     void onCopyCrC32BClicked();
     void selectionChanged(HexDiff::Selection selection);
+    void showContextMenuMatches(const QPoint &pos);
+    void selectFunction(const QModelIndex &index);
 
 private:
     Ui::CutterDiffWindow *ui;
@@ -157,8 +162,6 @@ private:
     HexDiff *hexDiff = nullptr;
     void addHexDiff();
     void setupFonts();
-    void refreshHex(RVA addr);
-    void initParsing();
     void clearParseWindow();
     void updateParseWindow(HexDiff::Selection selection);
     QSyntaxHighlighter *syntaxHighLighter;

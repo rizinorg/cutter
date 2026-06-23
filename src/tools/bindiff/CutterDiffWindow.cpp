@@ -9,7 +9,7 @@
 #include <Configuration.h>
 
 FunctionListModel::FunctionListModel(QList<FunctionDescription> *list, QObject *parent)
-    : list(list), AddressableItemModel<>(parent)
+    : AddressableItemModel<>(parent), list(list)
 {
 }
 QModelIndex FunctionListModel::index(int row, int column, const QModelIndex &parent) const
@@ -130,6 +130,12 @@ int DiffMatchModel::rowCount(const QModelIndex &parent) const
 int DiffMatchModel::columnCount(const QModelIndex &) const
 {
     return DiffMatchModel::ColumnCount;
+}
+
+QPair<RVA, RVA> DiffMatchModel::address(const QModelIndex &index) const
+{
+    return QPair<RVA, RVA>(list->at(index.row()).original.offset,
+                           list->at(index.row()).modified.offset);
 }
 
 QVariant DiffMatchModel::data(const QModelIndex &index, int role) const
@@ -318,18 +324,21 @@ QVariant DiffMismatchModel::headerData(int section, Qt::Orientation, int role) c
 
 CutterDiffWindow::CutterDiffWindow(QWidget *parent)
     : QMainWindow(parent),
+      ui(new Ui::CutterDiffWindow),
       cutterDiff(new CutterDiff),
-      bDiff(new BinDiff(cutterDiff)),
-      ui(new Ui::CutterDiffWindow)
+      bDiff(new BinDiff(cutterDiff))
 {
     ui->setupUi(this);
+    cutterDiff->initCores();
     ui->splitter->setSizes({ 250, 750 });
     ui->splitterHexView->setSizes({ 750, 250 });
-    cutterDiff->initCores();
+    ui->treeViewMatches->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->treeViewMatches, &CutterTreeView::customContextMenuRequested, this,
+            &CutterDiffWindow::showContextMenuMatches);
+    connect(ui->treeViewMatches, &CutterTreeView::clicked, this, &CutterDiffWindow::selectFunction);
     connect(bDiff, &BinDiff::complete, this, &CutterDiffWindow::onBinDiffCompleted);
     connect(ui->actionDiffNewFiles, &QAction::triggered, this,
             &CutterDiffWindow::onActionDiffNewFile);
-    syntaxHighLighter = Config()->createSyntaxHighlighter(ui->hexDisasTextEdit->document());
     ui->tabParsing->hide();
     setupFonts();
     showMaximized();
@@ -340,16 +349,50 @@ CutterDiffWindow::~CutterDiffWindow()
     delete ui;
 }
 
-void CutterDiffWindow::setupFonts() {}
+// Work incomplete
+void CutterDiffWindow::selectFunction(const QModelIndex &index) {}
 
-void CutterDiffWindow::refreshHex(RVA addr)
+void CutterDiffWindow::showContextMenuMatches(const QPoint &pos)
 {
-    // if (addr != RVA_INVALID) {
-    //     ui->hexDiffTextView->seek(addr);
-    // } else {
-    //     ui->hexDiffTextView->refresh();
-    // }
+    const QModelIndex index = ui->treeViewMatches->indexAt(pos);
+    auto addr = matches->address(index);
+
+    QMenu menu(this);
+
+    const QAction *seekTo = menu.addAction("Seek to");
+    const QAction *goToAndAlign = menu.addAction("Align HexDiff");
+    const QAction *diffFunctionLines = menu.addAction("Line Diff");
+    const QAction *copyAddress = menu.addAction("Copy Address");
+
+    const QAction *selected = menu.exec(ui->treeViewMatches->viewport()->mapToGlobal(pos));
+
+    if (selected == seekTo) {
+        if (index.column() < DiffMatchModel::AddressMod) {
+            hexDiff->seek(addr.first);
+        } else {
+            hexDiff->seek(addr.second, false);
+        }
+        ui->tabWidget->setCurrentIndex(3);
+    } else if (selected == goToAndAlign) {
+        if (addr.first > addr.second) {
+            hexDiff->transpose(0, -static_cast<int>(addr.first - addr.second), true);
+        } else {
+            hexDiff->transpose(0, static_cast<int>(addr.second - addr.first), true);
+        }
+        ui->tabWidget->setCurrentIndex(3);
+        hexDiff->seek(addr.first);
+    } else if (selected == diffFunctionLines) {
+        // once diffLineView is implemented
+    } else if (selected == copyAddress) {
+        if (index.column() < DiffMatchModel::AddressMod) {
+            QApplication::clipboard()->setText(QString::number(addr.first));
+        } else {
+            QApplication::clipboard()->setText(QString::number(addr.second));
+        }
+    }
 }
+
+void CutterDiffWindow::setupFonts() {}
 
 void CutterDiffWindow::onBinDiffCompleted()
 {
@@ -401,8 +444,6 @@ void CutterDiffWindow::onBinDiffCompleted()
     connect(ui->shiftDownB, &QPushButton::clicked, this, [this]() { hexDiff->transpose(0, 1); });
     ui->tabParsing->show();
 
-    initParsing();
-
     // Parsing
 
     // Info
@@ -425,7 +466,6 @@ void CutterDiffWindow::onBinDiffCompleted()
     ui->bytesSHA1A->setPlaceholderText(placeholder);
     ui->bytesSHA256A->setPlaceholderText(placeholder);
     ui->bytesCRC32A->setPlaceholderText(placeholder);
-    ui->hexDisasTextEdit->setPlaceholderText(placeholder);
 
     ui->bytesMD5B->setPlaceholderText(placeholder);
     ui->bytesEntropyB->setPlaceholderText(placeholder);
@@ -516,33 +556,6 @@ void CutterDiffWindow::updateParseWindow(HexDiff::Selection selection)
 {
     const int size = selection.endAddress - selection.startAddress + 1;
     if (ui->tabParsing->currentIndex() == 1) {
-        const CutterDiffLocked cutterDiff(this->cutterDiff);
-        // scope for TempConfig
-
-        // Get selected combos
-        const QString arch = ui->parseArchComboBox->currentText();
-        const QString bits = ui->parseBitsComboBox->currentText();
-        const QString selectedCommand = ui->parseTypeComboBox->currentData().toString();
-        const QString commandResult = "";
-        const bool bigEndian = ui->parseEndianComboBox->currentIndex() == 1;
-        const QString oldArch = cutterDiff->getCommonConfig("asm.arch");
-        const QString oldBits = cutterDiff->getCommonConfig("asm.bits");
-        const int oldEndian = cutterDiff->getCommonConfigi("ctf.bigendian");
-        cutterDiff->setCommonConfig("asm.arch", arch.toUtf8().constData());
-        cutterDiff->setCommonConfig("asm.bits", bits.toUtf8().constData());
-        cutterDiff->setCommonConfigi("ctf.bigendian", bigEndian);
-        ui->hexDisasTextEdit->setPlainText(
-                selectedCommand != "" ? cutterDiff->cmdRawAt(QString("%1 @! %2")
-                                                                     .arg(selectedCommand)
-                                                                     .arg(size)
-                                                                     .toUtf8()
-                                                                     .constData(),
-                                                             selection.startAddress, true)
-                                      : "");
-        cutterDiff->setCommonConfig("asm.arch", oldArch.toUtf8().constData());
-        cutterDiff->setCommonConfig("asm.bits", oldBits.toUtf8().constData());
-        cutterDiff->setCommonConfigi("ctf.bigendian", oldEndian);
-    } else if (ui->tabParsing->currentIndex() == 2) {
         RzHashSize digestSize = 0;
         const CutterDiffLocked cutterDiff(this->cutterDiff);
         const ut64 oldOffsetA = cutterDiff.coreA->offset;
@@ -614,29 +627,8 @@ void CutterDiffWindow::updateParseWindow(HexDiff::Selection selection)
     }
 }
 
-void CutterDiffWindow::initParsing()
-{
-    // Fill the plugins combo for the hexdump sidebar
-    ui->parseTypeComboBox->addItem(tr("Disassembly"), "pda");
-    ui->parseTypeComboBox->addItem(tr("String"), "pcs");
-    ui->parseTypeComboBox->addItem(tr("Assembler"), "pca");
-    ui->parseTypeComboBox->addItem(tr("C bytes"), "pc");
-    ui->parseTypeComboBox->addItem(tr("C half-words (2 byte)"), "pch");
-    ui->parseTypeComboBox->addItem(tr("C words (4 byte)"), "pcw");
-    ui->parseTypeComboBox->addItem(tr("C dwords (8 byte)"), "pcd");
-    ui->parseTypeComboBox->addItem(tr("Python"), "pcp");
-    ui->parseTypeComboBox->addItem(tr("JSON"), "pcj");
-    ui->parseTypeComboBox->addItem(tr("JavaScript"), "pcJ");
-    ui->parseTypeComboBox->addItem(tr("Yara"), "pcy");
-
-    ui->parseArchComboBox->insertItems(0, Core()->getAsmPluginNames());
-
-    ui->parseEndianComboBox->setCurrentIndex(Core()->getConfigb("cfg.bigendian") ? 1 : 0);
-}
-
 void CutterDiffWindow::clearParseWindow()
 {
-    ui->hexDisasTextEdit->setPlainText("");
     ui->bytesEntropyA->setText("");
     ui->bytesMD5A->setText("");
     ui->bytesSHA1A->setText("");
