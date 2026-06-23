@@ -97,6 +97,7 @@ resign_dmg() {
 	echo_step "Mounting temporary rw variant of ${TARGET} to Cutter-rw/"
 	rm -f Cutter-rw.dmg
 	ee hdiutil convert -format UDRW -o Cutter-rw.dmg "${TARGET}"
+	ee hdiutil resize -size 4G Cutter-rw.dmg # ensure enough space for temporary files during codesign
 	mkdir -p Cutter-rw
 	ee hdiutil attach Cutter-rw.dmg -mount required -mountpoint Cutter-rw
 	unmount() {
