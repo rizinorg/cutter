@@ -51,7 +51,6 @@ HexDiff::HexDiff(CutterDiff *cutterDiff, QWidget *parent)
       showAscii(true),
       showExHex(true),
       showExAddr(true),
-      warningTimer(this),
       vScrollBar(new AddressRangeScrollBar(this)),
       cutterDiff(cutterDiff)
 {
@@ -169,9 +168,6 @@ HexDiff::HexDiff(CutterDiff *cutterDiff, QWidget *parent)
     cursor.startBlinking();
 
     updateColors();
-
-    warningTimer.setSingleShot(true);
-    connect(&warningTimer, &QTimer::timeout, this, &HexDiff::hideWarningRect);
 }
 
 void HexDiff::setMonospaceFont(const QFont &font)
@@ -249,7 +245,7 @@ void HexDiff::updateCounts()
 {
     actionHexPairs->setEnabled(rowSizeBytes > 1 && itemByteLen == 1
                                && itemFormat == ItemFormat::ItemFormatHex);
-    actionHexPairs->setChecked(Core()->getConfigb("hex.pairs"));
+    actionHexPairs->setChecked(cutterDiff->getCommonConfigb("hex.pairs"));
     if (actionHexPairs->isChecked() && actionHexPairs->isEnabled()) {
         itemGroupSize = 2;
     } else {
@@ -341,7 +337,8 @@ void HexDiff::clearSelection()
 
 HexDiff::Selection HexDiff::getSelection()
 {
-    return Selection { selection.isEmpty(), selection.start(), selection.end() };
+    return Selection { selection.isEmpty(), selection.start(), selection.end(),
+                       getAddressB(selection.start()), getAddressB(selection.end()) };
 }
 
 void HexDiff::seek(uint64_t address, bool orig)
@@ -428,11 +425,6 @@ void HexDiff::paintEvent(QPaintEvent *event)
     drawAsciiArea(painter, ctxB);
     drawAddrArea(painter, ctxB);
 
-    if (warningRectVisible) {
-        painter.setPen(warningColor);
-        painter.drawRect(warningRect);
-    }
-
     if (!cursorEnabled) {
         return;
     }
@@ -500,23 +492,6 @@ void HexDiff::mouseMoveEvent(QMouseEvent *event)
             infoText = metaData.replace(",", ", ");
         }
 
-        const auto marks = Core()->getMarksAt(mouseAddr);
-        for (const auto &mark : marks) {
-            if (mark.realname.isEmpty()) {
-                continue;
-            }
-            if (!infoText.isEmpty()) {
-                infoText += "<br>";
-            }
-            const QColor c = mark.color;
-            infoText += QString("<span style='white-space:nowrap; color: rgba(%1, %2, %3, %4);'>● "
-                                "</span> %5")
-                                .arg(c.red())
-                                .arg(c.green())
-                                .arg(c.blue())
-                                .arg(markAlphaF)
-                                .arg(mark.realname.toHtmlEscaped());
-        }
         if (!infoText.isEmpty()) {
             // forces tooltip to follow cursor movement
             QToolTip::showText(mapToGlobal(event->pos()), infoText + " ", this);
@@ -665,7 +640,7 @@ bool HexDiff::event(QEvent *event)
 }
 
 void HexDiff::keyPressEvent(QKeyEvent *event)
-{
+{ // Navigation mode has to be rechecked
     bool select = false;
     auto moveOrSelect = [event, &select](QKeySequence::StandardKey moveSeq,
                                          QKeySequence::StandardKey selectSeq) -> bool {
@@ -792,7 +767,7 @@ void HexDiff::onCursorBlinked()
 void HexDiff::onHexPairsModeEnabled(bool enable)
 {
     // Sync configuration
-    Core()->setConfig("hex.pairs", enable);
+    cutterDiff->setCommonConfigb("hex.pairs", enable);
     if (enable) {
         setItemGroupSize(2);
     } else {
@@ -805,16 +780,33 @@ void HexDiff::copy()
     if (selection.isEmpty() || selection.size() > maxCopySize) {
         return;
     }
-
-    auto x = cursorArea < 2
-            ? Core()->getString(selection.start(), selection.size(), RZ_STRING_ENC_8BIT, true)
-            : Core()->ioRead(selection.start(), (int)selection.size()).toHex();
+    QString x;
+    qInfo() << cursorArea;
+    if (cursorArea < 2) {
+        if (cursorArea == DiffArea::AsciiA) {
+            x = QString::fromUtf8(
+                    cutterDiff->ioRead(selection.start(), (int)selection.size(), true));
+        } else {
+            x = QString::fromUtf8(cutterDiff->ioRead(getAddressB(selection.start()),
+                                                     (int)selection.size(), false));
+        }
+    } else {
+        if (cursorArea == DiffArea::ItemA) {
+            x = cutterDiff->ioRead(selection.start(), (int)selection.size(), true).toHex();
+        } else {
+            x = cutterDiff->ioRead(getAddressB(selection.start()), (int)selection.size(), false)
+                        .toHex();
+        }
+    }
     QApplication::clipboard()->setText(x);
 }
 
 void HexDiff::copyAddress()
 {
-    const uint64_t addr = getLocationAddress();
+    uint64_t addr = getLocationAddress();
+    if (cursorArea % 2) {
+        addr = getAddressB(addr);
+    }
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(rzAddressString(addr));
 }
@@ -1128,7 +1120,7 @@ void HexDiff::fillSelectionBackground(QPainter &painter, DiffFileContext &ctx, b
             rangePolygons(ctxSelection(ctx).start(), ctxSelection(ctx).end(), ascii, ctx);
     for (const auto &shape : parts) {
         const QColor highlightColor = palette().color(QPalette::Highlight);
-        if (ascii == cursorArea < 2) {
+        if (ascii == (cursorArea < 2)) {
             painter.setBrush(highlightColor);
             painter.drawPolygon(shape);
         } else {
@@ -1639,106 +1631,6 @@ QString HexDiff::getFlagsAndComment(uint64_t address, DiffFileContext &ctx)
     return metaData;
 }
 
-template<class T, class BigValue>
-static bool checkRange(BigValue v)
-{
-    return v >= std::numeric_limits<T>::min() && v <= std::numeric_limits<T>::max();
-}
-
-template<class T, class BigInteger>
-static bool checkAndWrite(BigInteger value, uint8_t *buf, bool littleEndian)
-{
-    if (!checkRange<T>(value)) {
-        return false;
-    }
-    if (littleEndian) {
-        qToLittleEndian((T)value, buf);
-    } else {
-        qToBigEndian((T)value, buf);
-    }
-    return true;
-}
-
-template<class UType, class SType>
-static bool checkAndWriteWithSign(const QVariant &value, uint8_t *buf, bool isSigned,
-                                  bool littleEndian)
-{
-    if (isSigned) {
-        return checkAndWrite<SType>(value.toLongLong(), buf, littleEndian);
-    } else {
-        return checkAndWrite<UType>(value.toULongLong(), buf, littleEndian);
-    }
-}
-
-bool HexDiff::parseWord(const QString &word, uint8_t *buf, size_t bufferSize) const
-{
-    bool parseOk = false;
-    if (bufferSize < size_t(itemByteLen)) {
-        return false;
-    }
-    if (itemFormat == ItemFormatFloat) {
-        if (itemByteLen == 4) {
-            const float value = word.toFloat(&parseOk);
-            if (!parseOk) {
-                return false;
-            }
-            if (itemBigEndian) {
-                rz_write_be_float(buf, value);
-            } else {
-                rz_write_le_float(buf, value);
-            }
-            return true;
-        } else if (itemByteLen == 8) {
-            const double value = word.toDouble(&parseOk);
-            if (!parseOk) {
-                return false;
-            }
-            if (itemBigEndian) {
-                rz_write_be_double(buf, value);
-            } else {
-                rz_write_le_double(buf, value);
-            }
-            return true;
-        }
-        return false;
-    } else {
-        QVariant value;
-        bool isSigned = false;
-        switch (itemFormat) {
-        case ItemFormatHex:
-            value = word.toULongLong(&parseOk, 16);
-            break;
-        case ItemFormatOct:
-            value = word.toULongLong(&parseOk, 8);
-            break;
-        case ItemFormatDec:
-            value = word.toULongLong(&parseOk, 10);
-            break;
-        case ItemFormatSignedDec:
-            isSigned = true;
-            value = word.toLongLong(&parseOk, 10);
-            break;
-        default:
-            break;
-        }
-        if (!parseOk) {
-            return false;
-        }
-
-        switch (itemByteLen) {
-        case 1:
-            return checkAndWriteWithSign<uint8_t, int8_t>(value, buf, isSigned, !itemBigEndian);
-        case 2:
-            return checkAndWriteWithSign<uint16_t, int16_t>(value, buf, isSigned, !itemBigEndian);
-        case 4:
-            return checkAndWriteWithSign<quint32, qint32>(value, buf, isSigned, !itemBigEndian);
-        case 8:
-            return checkAndWriteWithSign<quint64, qint64>(value, buf, isSigned, !itemBigEndian);
-        }
-    }
-    return false;
-}
-
 void HexDiff::fetchData()
 {
     ctxA.data->fetch(startAddress, bytesPerScreen());
@@ -1857,20 +1749,6 @@ QRectF HexDiff::asciiRectangle(int offset, DiffFileContext &ctx)
 RVA HexDiff::getLocationAddress()
 {
     return !selection.isEmpty() ? selection.start() : cursor.address;
-}
-
-void HexDiff::hideWarningRect()
-{
-    warningRectVisible = false;
-    updateViewport();
-}
-
-void HexDiff::showWarningRect(QRectF rect)
-{
-    warningRect = rect;
-    warningRectVisible = true;
-    warningTimer.start(warningTimeMs);
-    updateViewport();
 }
 
 void HexDiff::updateViewport()

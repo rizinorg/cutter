@@ -4,7 +4,7 @@
 
 #include <QMutexLocker>
 
-#define LOCK() const QMutexLocker locker(&mutex)
+#define LOCK() const CutterDiffLocked lock(this);
 
 CutterDiff::CutterDiff(QObject *parent)
     : QObject { parent }
@@ -308,5 +308,78 @@ bool CutterDiff::cmpBytesAt(RVA addrA, RVA addrB, size_t len)
         qWarning() << "Read failed";
         return false;
     };
-    return bufA.compare(bufB) == 0;
+    return bufA == bufB;
+}
+
+QString CutterDiff::getCommonConfig(const char *k)
+{
+    LOCK();
+    return { rz_config_get(coreA->config, k) };
+}
+
+void CutterDiff::setCommonConfig(const char *k, const char *v)
+{
+    LOCK();
+    rz_config_set(coreA->config, k, v);
+    rz_config_set(coreB->config, k, v);
+}
+
+int CutterDiff::getCommonConfigi(const char *k)
+{
+    LOCK();
+    return static_cast<int>(rz_config_get_i(coreA->config, k));
+}
+
+bool CutterDiff::getCommonConfigb(const char *k)
+{
+    LOCK();
+    return rz_config_get_b(coreA->config, k);
+}
+
+void CutterDiff::setCommonConfigb(const char *k, bool value)
+{
+    LOCK();
+    rz_config_set_b(coreA->config, k, value);
+    rz_config_set_b(coreB->config, k, value);
+}
+
+void CutterDiff::setCommonConfigi(const char *k, int v)
+{
+    LOCK();
+    rz_config_set_i(coreA->config, k, static_cast<ut64>(v));
+    rz_config_set_i(coreB->config, k, static_cast<ut64>(v));
+}
+
+void CutterDiff::seekSilent(ut64 offset, bool orig)
+{
+    LOCK();
+    if (offset == RVA_INVALID) {
+        return;
+    }
+    rz_core_seek(orig ? coreA : coreB, offset, true);
+}
+
+QString CutterDiff::cmdRawAt(const char *cmd, RVA address, bool orig)
+{
+    LOCK();
+    QString res;
+    const RVA oldOffset = getOffset(orig);
+    seekSilent(address, orig);
+
+    res = cmdRaw(cmd, orig);
+
+    seekSilent(oldOffset, orig);
+    return res;
+}
+
+QString CutterDiff::cmdRaw(const char *cmd, bool orig)
+{
+    LOCK();
+    const QString res;
+    return rz_core_cmd_str(orig ? coreA : coreB, cmd);
+}
+
+RVA CutterDiff::getOffset(bool orig)
+{
+    return (orig ? coreA : coreB)->offset;
 }

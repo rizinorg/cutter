@@ -309,6 +309,8 @@ public:
         bool empty;
         RVA startAddress;
         RVA endAddress;
+        RVA startAddressB;
+        RVA endAddressB;
     };
     Selection getSelection();
 public slots:
@@ -447,10 +449,6 @@ private:
     bool isFixedWidth() const;
 
     HexNavigationMode defaultNavigationMode();
-    bool parseWord(const QString &word, uint8_t *buf, size_t bufferSize) const;
-
-    void hideWarningRect();
-    void showWarningRect(QRectF rect);
 
     void updateViewport();
     void scrollLines(int lines, bool clampToScrollBarRange = false);
@@ -557,10 +555,6 @@ private:
     uint64_t ctxAddr(uint64_t addrA, DiffFileContext &ctx);
 
     HexNavigationMode navigationMode = HexNavigationMode::Words;
-
-    bool warningRectVisible = false;
-    QRectF warningRect;
-    QTimer warningTimer;
 
     CutterDiff *cutterDiff;
 
