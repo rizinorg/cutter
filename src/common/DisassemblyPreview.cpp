@@ -125,7 +125,8 @@ bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
             return true;
         }
 
-        if (ta.type == DisHlp::TargetType::Arrow && showDisasPreviewAt(parent, globalPos, ta.value)) {
+        if (ta.type == DisHlp::TargetType::Arrow
+            && showDisasPreviewAt(parent, globalPos, ta.value)) {
             return true;
         }
 
@@ -137,7 +138,8 @@ bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
     if (Config()->getShowVarTooltips() && (Core()->currentlyDebugging || Core()->currentlyEmulating)
         && !isWordEmpty) {
         auto ta = DisHlp::resolveTarget(ctx, DisHlp::Debug);
-        if (ta.type != DisHlp::TargetType::None && showDebugValueTooltip(parent, globalPos, ta, ctx)) {
+        if (ta.type != DisHlp::TargetType::None
+            && showDebugValueTooltip(parent, globalPos, ta, ctx)) {
             return true;
         }
     }

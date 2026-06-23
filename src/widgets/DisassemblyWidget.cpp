@@ -644,8 +644,8 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         const auto *mouseEvent = static_cast<QMouseEvent *>(event);
 
         if (mouseEvent->button() == Qt::LeftButton) {
-            auto ctx =
-                    DisHlp::getContextFromCursor(mDisasTextEdit->cursorForPosition(mouseEvent->pos()));
+            auto ctx = DisHlp::getContextFromCursor(
+                    mDisasTextEdit->cursorForPosition(mouseEvent->pos()));
 
             const DisHlp::TargetAction ta =
                     DisHlp::resolveTarget(ctx, DisassemblyHelper::TargetFilter::Standard);
@@ -672,7 +672,8 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
                && event->type() == QEvent::ToolTip && obj == mDisasTextEdit->viewport()) {
         const auto *helpEvent = static_cast<QHelpEvent *>(event);
 
-        auto ctx = DisHlp::getContextFromCursor(mDisasTextEdit->cursorForPosition(helpEvent->pos()));
+        auto ctx =
+                DisHlp::getContextFromCursor(mDisasTextEdit->cursorForPosition(helpEvent->pos()));
 
         return DisassemblyPreview::showTooltip(this, helpEvent->globalPos(), ctx,
                                                Config()->getPreviewValue());
@@ -685,7 +686,8 @@ void DisassemblyWidget::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Return) {
         const QTextCursor cursor = mDisasTextEdit->textCursor();
-        auto ta = DisHlp::resolveTarget(DisHlp::getContextFromCursor(cursor), DisHlp::TargetFilter::Arrows);
+        auto ta = DisHlp::resolveTarget(DisHlp::getContextFromCursor(cursor),
+                                        DisHlp::TargetFilter::Arrows);
         if (ta.type == DisHlp::TargetType::Arrow) {
             seekable->seek(ta.value);
         } else {
