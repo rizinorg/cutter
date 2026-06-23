@@ -145,7 +145,7 @@ public:
     /**
      * @brief a wrapper around cmdRaw(const char *cmd,).
      */
-    QString cmdRaw(const QString &cmd) { return cmdRaw(cmd.toUtf8().constData()); };
+    QString cmdRaw(const QString &cmd) { return cmdRaw(cmd.toUtf8().constData()); }
 
     /**
      * @brief Execute a Rizin command \a cmd at \a address. The function will preform a silent seek

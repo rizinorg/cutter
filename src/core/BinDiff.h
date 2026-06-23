@@ -3,6 +3,7 @@
 
 #include "Cutter.h"
 #include "CutterDescriptions.h"
+#include "CutterDiff.h"
 
 #include <QMutex>
 #include <QThread>
@@ -14,12 +15,13 @@ class BinDiff : public QThread
     Q_OBJECT
 
 public:
-    explicit BinDiff();
+    explicit BinDiff(CutterDiff *cutterDiff);
     virtual ~BinDiff();
 
     void run();
 
-    void setFile(QString filePth);
+    void setFileA(QString filePth);
+    void setFileB(QString filePth);
     void setAnalysisLevel(int aLevel);
     void setCompareLogic(int cLogic);
     bool hasData();
@@ -35,6 +37,7 @@ signals:
     void complete();
 
 private:
+    CutterDiff *cutterDiff;
     RzAnalysisMatchResult *result;
     bool continueRun;
     size_t maxTotal;
@@ -43,7 +46,8 @@ private:
 #else
     QRecursiveMutex mutex;
 #endif
-    QString file;
+    QString fileA;
+    QString fileB;
     int level;
     int compareLogic;
 

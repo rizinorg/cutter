@@ -5,6 +5,7 @@
 
 #include <QAction>
 #include <QMainWindow>
+#include <QSyntaxHighlighter>
 
 #include <AddressableItemModel.h>
 #include <CutterTreeView.h>
@@ -119,6 +120,16 @@ public:
 public slots:
     void onBinDiffCompleted();
     void onActionDiffNewFile();
+private slots:
+    void onCopyMD5AClicked();
+    void onCopyShA1AClicked();
+    void onCopyShA256AClicked();
+    void onCopyCrC32AClicked();
+    void onCopyMD5BClicked();
+    void onCopyShA1BClicked();
+    void onCopyShA256BClicked();
+    void onCopyCrC32BClicked();
+    void selectionChanged(HexDiff::Selection selection);
 
 private:
     Ui::CutterDiffWindow *ui;
@@ -147,6 +158,10 @@ private:
     void addHexDiff();
     void setupFonts();
     void refreshHex(RVA addr);
+    void initParsing();
+    void clearParseWindow();
+    void updateParseWindow(HexDiff::Selection selection);
+    QSyntaxHighlighter *syntaxHighLighter;
 };
 
 #endif // CUTTERDIFFWINDOW_H
