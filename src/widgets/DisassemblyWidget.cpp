@@ -28,7 +28,7 @@
 #include <cmath>
 #include <cstring>
 
-namespace DH = DisassemblyHelper;
+namespace DisHlp = DisassemblyHelper;
 
 DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     : MemoryDockWidget(MemoryWidgetType::Disassembly, main),
@@ -391,7 +391,7 @@ void DisassemblyWidget::highlightCurrentLine()
     highlightSelection.cursor = cursor;
     highlightSelection.cursor.movePosition(QTextCursor::Start);
     while (true) {
-        const RVA lineOffset = DH::readDisassemblyOffset(highlightSelection.cursor);
+        const RVA lineOffset = DisHlp::readDisassemblyOffset(highlightSelection.cursor);
         if (lineOffset == seekable->getOffset()) {
             highlightSelection.format.setBackground(highlightColor);
             highlightSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
@@ -426,7 +426,7 @@ void DisassemblyWidget::highlightPCLine()
     highlightSelection.cursor.movePosition(QTextCursor::Start);
     if (pcAddr != RVA_INVALID) {
         while (true) {
-            const RVA lineOffset = DH::readDisassemblyOffset(highlightSelection.cursor);
+            const RVA lineOffset = DisHlp::readDisassemblyOffset(highlightSelection.cursor);
             if (lineOffset == pcAddr) {
                 highlightSelection.format.setBackground(highlightPCColor);
                 highlightSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
@@ -459,7 +459,7 @@ void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
 RVA DisassemblyWidget::readCurrentDisassemblyOffset()
 {
     const QTextCursor tc = mDisasTextEdit->textCursor();
-    return DH::readDisassemblyOffset(tc);
+    return DisHlp::readDisassemblyOffset(tc);
 }
 
 void DisassemblyWidget::updateCursorPosition()
@@ -486,7 +486,7 @@ void DisassemblyWidget::updateCursorPosition()
         cursor.movePosition(QTextCursor::Start);
 
         while (true) {
-            const RVA lineOffset = DH::readDisassemblyOffset(cursor);
+            const RVA lineOffset = DisHlp::readDisassemblyOffset(cursor);
             if (lineOffset == offset) {
                 if (cursorLineOffset > 0) {
                     cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor,
@@ -547,7 +547,7 @@ void DisassemblyWidget::cursorPositionChanged()
     cursorCharOffset = c.positionInBlock();
     while (c.blockNumber() > 0) {
         c.movePosition(QTextCursor::PreviousBlock);
-        if (DH::readDisassemblyOffset(c) != offset) {
+        if (DisHlp::readDisassemblyOffset(c) != offset) {
             break;
         }
         cursorLineOffset++;
@@ -633,7 +633,7 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 
 void DisassemblyWidget::jumpToOffsetUnderCursor(const QTextCursor &cursor)
 {
-    const RVA offset = DH::readDisassemblyOffset(cursor);
+    const RVA offset = DisHlp::readDisassemblyOffset(cursor);
     seekable->seekToReference(offset);
 }
 
@@ -644,23 +644,23 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         const auto *mouseEvent = static_cast<QMouseEvent *>(event);
 
         if (mouseEvent->button() == Qt::LeftButton) {
-            auto ctx =
-                    DH::getContextFromCursor(mDisasTextEdit->cursorForPosition(mouseEvent->pos()));
+            auto ctx = DisHlp::getContextFromCursor(
+                    mDisasTextEdit->cursorForPosition(mouseEvent->pos()));
 
-            const DH::TargetAction ta =
-                    DH::resolveTarget(ctx, DisassemblyHelper::TargetFilter::Standard);
+            const DisHlp::TargetAction ta =
+                    DisHlp::resolveTarget(ctx, DisassemblyHelper::TargetFilter::Standard);
             switch (ta.type) {
-            case DH::TargetType::TypeName:
+            case DisHlp::TargetType::TypeName:
                 Core()->showTypeInTypesWidget(ctx.word);
                 break;
-            case DH::TargetType::XRefComment:
-            case DH::TargetType::VariableXRef:
-            case DH::TargetType::Arrow:
+            case DisHlp::TargetType::XRefComment:
+            case DisHlp::TargetType::VariableXRef:
+            case DisHlp::TargetType::Arrow:
                 if (ta.value != RVA_INVALID) {
                     seekable->seek(ta.value);
                 }
                 break;
-            case DH::TargetType::None:
+            case DisHlp::TargetType::None:
                 seekable->seekToReference(ctx.offset);
                 break;
             default:
@@ -672,7 +672,8 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
                && event->type() == QEvent::ToolTip && obj == mDisasTextEdit->viewport()) {
         const auto *helpEvent = static_cast<QHelpEvent *>(event);
 
-        auto ctx = DH::getContextFromCursor(mDisasTextEdit->cursorForPosition(helpEvent->pos()));
+        auto ctx =
+                DisHlp::getContextFromCursor(mDisasTextEdit->cursorForPosition(helpEvent->pos()));
 
         return DisassemblyPreview::showTooltip(this, helpEvent->globalPos(), ctx,
                                                Config()->getPreviewValue());
@@ -685,8 +686,9 @@ void DisassemblyWidget::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Return) {
         const QTextCursor cursor = mDisasTextEdit->textCursor();
-        auto ta = DH::resolveTarget(DH::getContextFromCursor(cursor), DH::TargetFilter::Arrows);
-        if (ta.type == DH::TargetType::Arrow) {
+        auto ta = DisHlp::resolveTarget(DisHlp::getContextFromCursor(cursor),
+                                        DisHlp::TargetFilter::Arrows);
+        if (ta.type == DisHlp::TargetType::Arrow) {
             seekable->seek(ta.value);
         } else {
             jumpToOffsetUnderCursor(cursor);
