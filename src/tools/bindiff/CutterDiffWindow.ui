@@ -102,7 +102,7 @@
         </sizepolicy>
        </property>
        <property name="currentIndex">
-        <number>3</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tabMatches">
         <attribute name="title">
@@ -176,7 +176,7 @@
                 </sizepolicy>
                </property>
                <property name="currentIndex">
-                <number>2</number>
+                <number>1</number>
                </property>
                <widget class="QWidget" name="tabDiffOptions">
                 <attribute name="title">
@@ -256,204 +256,6 @@
                     </size>
                    </property>
                   </spacer>
-                 </item>
-                </layout>
-               </widget>
-               <widget class="QWidget" name="tab">
-                <attribute name="title">
-                 <string>Parsing</string>
-                </attribute>
-                <layout class="QVBoxLayout" name="verticalLayout">
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_16">
-                   <property name="spacing">
-                    <number>5</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_17">
-                     <property name="topMargin">
-                      <number>0</number>
-                     </property>
-                     <item>
-                      <widget class="QComboBox" name="parseTypeComboBox">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLabel" name="label_6">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="text">
-                        <string>Endian</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QComboBox" name="parseEndianComboBox">
-                       <property name="sizeAdjustPolicy">
-                        <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
-                       </property>
-                       <item>
-                        <property name="text">
-                         <string>Little</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>Big</string>
-                        </property>
-                       </item>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <widget class="QFrame" name="hexSideFrame2">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>0</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="frameShape">
-                      <enum>QFrame::Shape::NoFrame</enum>
-                     </property>
-                     <property name="frameShadow">
-                      <enum>QFrame::Shadow::Plain</enum>
-                     </property>
-                     <property name="lineWidth">
-                      <number>0</number>
-                     </property>
-                     <layout class="QHBoxLayout" name="horizontalLayout_21">
-                      <property name="sizeConstraint">
-                       <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
-                      </property>
-                      <property name="leftMargin">
-                       <number>5</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>5</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>5</number>
-                      </property>
-                      <item>
-                       <widget class="QLabel" name="hexArchLabel2">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>Arch</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QComboBox" name="parseArchComboBox">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="sizeAdjustPolicy">
-                         <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
-                        </property>
-                        <property name="frame">
-                         <bool>false</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QLabel" name="hexBitsLabel2">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>Bits</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QComboBox" name="parseBitsComboBox">
-                        <property name="sizeAdjustPolicy">
-                         <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
-                        </property>
-                        <item>
-                         <property name="text">
-                          <string>16</string>
-                         </property>
-                        </item>
-                        <item>
-                         <property name="text">
-                          <string>32</string>
-                         </property>
-                        </item>
-                        <item>
-                         <property name="text">
-                          <string>64</string>
-                         </property>
-                        </item>
-                       </widget>
-                      </item>
-                     </layout>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPlainTextEdit" name="hexDisasTextEdit">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <family>Anonymous Pro</family>
-                       <pointsize>13</pointsize>
-                      </font>
-                     </property>
-                     <property name="frameShape">
-                      <enum>QFrame::Shape::NoFrame</enum>
-                     </property>
-                     <property name="lineWidth">
-                      <number>0</number>
-                     </property>
-                     <property name="readOnly">
-                      <bool>true</bool>
-                     </property>
-                     <property name="plainText">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
                  </item>
                 </layout>
                </widget>

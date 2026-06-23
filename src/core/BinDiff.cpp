@@ -7,10 +7,10 @@ bool BinDiff::threadCallback(const size_t nLeft, const size_t nMatch, void *user
 }
 
 BinDiff::BinDiff(CutterDiff *cutterDiff)
-    : result(nullptr),
+    : cutterDiff(cutterDiff),
+      result(nullptr),
       continueRun(true),
-      maxTotal(1),
-      cutterDiff(cutterDiff)
+      maxTotal(1)
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
       ,
       mutex(QMutex::Recursive)
@@ -31,14 +31,14 @@ bool BinDiff::hasData()
 void BinDiff::setFileA(QString filePath)
 {
     mutex.lock();
-    fileA = filePath;
+    fileA = std::move(filePath);
     mutex.unlock();
 }
 
 void BinDiff::setFileB(QString filePath)
 {
     mutex.lock();
-    fileB = filePath;
+    fileB = std::move(filePath);
     mutex.unlock();
 }
 
@@ -65,7 +65,6 @@ void BinDiff::run()
     continueRun = true;
     maxTotal = 1; // maxTotal must be at least 1.
     mutex.unlock();
-    cutterDiff->initCores();
     cutterDiff->openFiles(fileA, fileB);
     cutterDiff->analyzeCores(level);
     cutterDiff->syncConfig();

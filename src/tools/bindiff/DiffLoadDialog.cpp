@@ -11,7 +11,7 @@
 #include <rz_th.h>
 
 DiffLoadDialog::DiffLoadDialog(BinDiff *bDiff, QWidget *parent)
-    : QDialog(parent), bDiff(bDiff), ui(new Ui::DiffLoadDialog)
+    : QDialog(parent), ui(new Ui::DiffLoadDialog), bDiff(bDiff)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));

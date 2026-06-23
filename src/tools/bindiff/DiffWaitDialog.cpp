@@ -22,7 +22,7 @@ DiffWaitDialog::DiffWaitDialog(BinDiff *bDiff, QWidget *parent)
     ui->lineEditNFuncs->setText("0");
     ui->lineEditMatches->setText("0");
 
-    QTime zero(0, 0, 0, 0);
+    const QTime zero(0, 0, 0, 0);
     ui->lineEditElapsedTime->setText(zero.toString("hh:mm:ss"));
     ui->lineEditEstimatedTime->setText(zero.toString("hh:mm:ss"));
 }
@@ -36,7 +36,7 @@ DiffWaitDialog::~DiffWaitDialog()
     delete bDiff;
 }
 
-void DiffWaitDialog::show(QString original, QString modified, int level, int compare)
+void DiffWaitDialog::show(const QString &original, const QString &modified, int level, int compare)
 {
     connect(this, &DiffWaitDialog::cancelJob, bDiff, &BinDiff::cancel);
     connect(bDiff, &BinDiff::progress, this, &DiffWaitDialog::onProgress);
@@ -60,19 +60,19 @@ void DiffWaitDialog::show(QString original, QString modified, int level, int com
 
 void DiffWaitDialog::onProgress(BinDiffStatusDescription status)
 {
-    int partial = status.total - status.nLeft;
-    ut32 progress = (100 * partial) / status.total;
+    const int partial = status.total - status.nLeft;
+    const ut32 progress = (100 * partial) / status.total;
     ui->progressBar->setValue(progress);
     ui->lineEditNFuncs->setText(QString::asprintf("%lu", status.nLeft));
     ui->lineEditMatches->setText(QString::asprintf("%lu", status.nMatch));
 
-    double speed = ((double)partial) / ((double)eTimer.elapsed());
+    const double speed = ((double)partial) / ((double)eTimer.elapsed());
     ut64 seconds = (((double)status.nLeft) / speed) / 1000ull;
-    int hours = seconds / 3600;
+    const int hours = seconds / 3600;
     seconds -= (hours * 3600);
-    int minutes = seconds / 60;
+    const int minutes = seconds / 60;
     seconds = seconds % 60;
-    QTime estimated(hours, minutes, seconds, 0);
+    const QTime estimated(hours, minutes, seconds, 0);
     ui->lineEditEstimatedTime->setText(estimated.toString("hh:mm:ss"));
 }
 
@@ -80,23 +80,17 @@ void DiffWaitDialog::onCompletion()
 {
     timer.stop();
 
-    // if (bDiff->hasData()) {
-    //     auto results = new DiffWindow(bDiff, this);
-    //     bDiff = nullptr;
-    //     results->showMaximized();
-    // }
-
     close();
 }
 
 void DiffWaitDialog::updateElapsedTime()
 {
     ut64 seconds = eTimer.elapsed() / 1000ull;
-    int hours = seconds / 3600;
+    const int hours = seconds / 3600;
     seconds -= (hours * 3600);
-    int minutes = seconds / 60;
+    const int minutes = seconds / 60;
     seconds = seconds % 60;
-    QTime current(hours, minutes, seconds, 0);
+    const QTime current(hours, minutes, seconds, 0);
     ui->lineEditElapsedTime->setText(current.toString("hh:mm:ss"));
 }
 

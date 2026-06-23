@@ -51,8 +51,8 @@ HexDiff::HexDiff(CutterDiff *cutterDiff, QWidget *parent)
       showAscii(true),
       showExHex(true),
       showExAddr(true),
-      vScrollBar(new AddressRangeScrollBar(this)),
-      cutterDiff(cutterDiff)
+      cutterDiff(cutterDiff),
+      vScrollBar(new AddressRangeScrollBar(this))
 {
     setMouseTracking(true);
     setFocusPolicy(Qt::FocusPolicy::StrongFocus);
@@ -465,7 +465,7 @@ void HexDiff::resizeEvent(QResizeEvent *event)
     updateViewport();
 }
 
-DiffFile HexDiff::getFileFromPos(QPoint &pos)
+DiffFile HexDiff::getFileFromPos(QPoint &pos) const
 {
     if (ctxA.asciiArea.contains(pos) || ctxA.itemArea.contains(pos)) {
         return DiffFile::A;
@@ -555,18 +555,13 @@ DiffArea HexDiff::posToDiffArea(QPoint &point) const
     return DiffArea::ItemA;
 }
 
-bool HexDiff::diffItemsAt(uint64_t addrA)
+bool HexDiff::diffItemsAt(uint64_t addrA) const
 {
     quint8 a[8];
     quint8 b[8];
     ctxA.data->copy(a, addrA, static_cast<size_t>(itemByteLen));
     ctxB.data->copy(b, getAddressB(addrA), static_cast<size_t>(itemByteLen));
     return memcmp(a, b, itemByteLen);
-}
-
-bool HexDiff::diffByteArrays(QByteArray &a, QByteArray &b)
-{
-    return a == b;
 }
 
 void HexDiff::mousePressEvent(QMouseEvent *event)
@@ -617,11 +612,6 @@ void HexDiff::wheelEvent(QWheelEvent *event)
     vScrollBar->showTransientScrollBar();
 }
 
-HexDiff::HexNavigationMode HexDiff::defaultNavigationMode()
-{
-    return HexNavigationMode::Words;
-}
-
 bool HexDiff::event(QEvent *event)
 {
     // prefer treating keys like 's' 'g' '.' as typing input instead of global shortcuts
@@ -640,7 +630,8 @@ bool HexDiff::event(QEvent *event)
 }
 
 void HexDiff::keyPressEvent(QKeyEvent *event)
-{ // Navigation mode has to be rechecked
+{
+
     bool select = false;
     auto moveOrSelect = [event, &select](QKeySequence::StandardKey moveSeq,
                                          QKeySequence::StandardKey selectSeq) -> bool {
@@ -654,39 +645,34 @@ void HexDiff::keyPressEvent(QKeyEvent *event)
         return false;
     };
 
-    if (cursorArea < 2 || navigationMode == HexNavigationMode::Words
-        || navigationMode == HexNavigationMode::AnyChar) {
-        if (moveOrSelect(QKeySequence::MoveToNextPage, QKeySequence::SelectNextPage)) {
-            moveCursor(bytesPerScreen(), select);
-        } else if (moveOrSelect(QKeySequence::MoveToPreviousPage,
-                                QKeySequence::SelectPreviousPage)) {
-            moveCursor(-bytesPerScreen(), select);
-        } else if (moveOrSelect(QKeySequence::MoveToStartOfLine, QKeySequence::SelectStartOfLine)) {
-            const int linePos =
-                    int((cursor.address % itemRowByteLen()) - (startAddress % itemRowByteLen()));
-            moveCursor(-linePos, select);
-        } else if (moveOrSelect(QKeySequence::MoveToEndOfLine, QKeySequence::SelectEndOfLine)) {
-            const int linePos =
-                    int((cursor.address % itemRowByteLen()) - (startAddress % itemRowByteLen()));
-            moveCursor(itemRowByteLen() - linePos, select);
-        }
+    if (moveOrSelect(QKeySequence::MoveToNextPage, QKeySequence::SelectNextPage)) {
+        moveCursor(bytesPerScreen(), select);
+    } else if (moveOrSelect(QKeySequence::MoveToPreviousPage, QKeySequence::SelectPreviousPage)) {
+        moveCursor(-bytesPerScreen(), select);
+    } else if (moveOrSelect(QKeySequence::MoveToStartOfLine, QKeySequence::SelectStartOfLine)) {
+        const int linePos =
+                int((cursor.address % itemRowByteLen()) - (startAddress % itemRowByteLen()));
+        moveCursor(-linePos, select);
+    } else if (moveOrSelect(QKeySequence::MoveToEndOfLine, QKeySequence::SelectEndOfLine)) {
+        const int linePos =
+                int((cursor.address % itemRowByteLen()) - (startAddress % itemRowByteLen()));
+        moveCursor(itemRowByteLen() - linePos, select);
     }
 
-    if (navigationMode == HexNavigationMode::Words || cursorArea < 2) {
-        if (moveOrSelect(QKeySequence::MoveToNextLine, QKeySequence::SelectNextLine)) {
-            moveCursor(itemRowByteLen(), select, OverflowMove::Ignore);
-        } else if (moveOrSelect(QKeySequence::MoveToPreviousLine,
-                                QKeySequence::SelectPreviousLine)) {
-            moveCursor(-itemRowByteLen(), select, OverflowMove::Ignore);
-        } else if (moveOrSelect(QKeySequence::MoveToNextChar, QKeySequence::SelectNextChar)
-                   || moveOrSelect(QKeySequence::MoveToNextWord, QKeySequence::SelectNextWord)) {
-            moveCursor(cursorArea < 2 ? 1 : itemByteLen, select);
-        } else if (moveOrSelect(QKeySequence::MoveToPreviousChar, QKeySequence::SelectPreviousChar)
-                   || moveOrSelect(QKeySequence::MoveToPreviousWord,
-                                   QKeySequence::SelectPreviousWord)) {
-            moveCursor(cursorArea < 2 ? -1 : -itemByteLen, select);
-        }
-    } else if (navigationMode == HexNavigationMode::AnyChar && cursorArea < 1) {
+    if (moveOrSelect(QKeySequence::MoveToNextLine, QKeySequence::SelectNextLine)) {
+        moveCursor(itemRowByteLen(), select, OverflowMove::Ignore);
+    } else if (moveOrSelect(QKeySequence::MoveToPreviousLine, QKeySequence::SelectPreviousLine)) {
+        moveCursor(-itemRowByteLen(), select, OverflowMove::Ignore);
+    } else if (moveOrSelect(QKeySequence::MoveToNextChar, QKeySequence::SelectNextChar)
+               || moveOrSelect(QKeySequence::MoveToNextWord, QKeySequence::SelectNextWord)) {
+        moveCursor(cursorArea < DiffArea::ItemA ? 1 : itemByteLen, select);
+    } else if (moveOrSelect(QKeySequence::MoveToPreviousChar, QKeySequence::SelectPreviousChar)
+               || moveOrSelect(QKeySequence::MoveToPreviousWord,
+                               QKeySequence::SelectPreviousWord)) {
+        moveCursor(cursorArea < DiffArea::ItemA ? -1 : -itemByteLen, select);
+    }
+
+    if (cursorArea > DiffArea::AsciiB) {
         if (moveOrSelect(QKeySequence::MoveToNextChar, QKeySequence::SelectNextChar)) {
             if (select) {
                 moveCursor(itemByteLen, select);
@@ -776,7 +762,7 @@ void HexDiff::onHexPairsModeEnabled(bool enable)
 }
 
 void HexDiff::copy()
-{ // needs to be changed double cores
+{
     if (selection.isEmpty() || selection.size() > maxCopySize) {
         return;
     }
@@ -1278,6 +1264,7 @@ void HexDiff::updateAreasPosition()
 
     const qreal yOffset = showHeader ? lineHeight : 0;
 
+    // This feels soo reduntant will be fixing once cutter diff is done
     ctxA.addrArea.setTopLeft(QPointF(0, yOffset));
     ctxA.addrArea.setWidth((addrCharLen + (showExAddr ? 2 : 0)) * charWidth);
 
@@ -1454,7 +1441,7 @@ void HexDiff::setCursorOnArea(DiffArea area)
 QColor HexDiff::itemColor(uint8_t byte)
 {
     QColor color(defColor);
-
+    // don't think this is relevant for diffing but keeping it
     if (byte == 0x00) {
         color = b0x00Color;
     } else if (byte == 0x7f) {
@@ -1818,12 +1805,18 @@ void HexDiff::shiftStartAddress(int shift)
     setStartAddress(startAddress + shift);
 }
 
-void HexDiff::transpose(int transA, int transB)
-{
+void HexDiff::transpose(int transA, int transB, bool reset)
+{ // Number of bits
+    if (reset) {
+        relTranspose = 0;
+    }
+    transA /= itemByteLen;
+    transB /= itemByteLen;
     relTranspose += transB * itemByteLen - transA * itemByteLen;
     shiftStartAddress(transA * itemByteLen);
     clearSelection();
     moveCursor(-transB);
+    updateViewport();
 }
 
 void HexDiff::updateCursorStatus()
