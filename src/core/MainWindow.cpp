@@ -2067,6 +2067,20 @@ void MainWindow::setAvailableIOModeOptions()
     }
 }
 
+void MainWindow::forceShowMemoryWidget(MemoryWidgetType type)
+{
+    for (auto &dock : dockWidgets) {
+        if (auto memoryWidget = qobject_cast<MemoryDockWidget *>(dock)) {
+            if (memoryWidget->getType() == type && memoryWidget->getSeekable()->isSynchronized()) {
+                memoryWidget->raiseMemoryWidget();
+                return;
+            }
+        }
+    }
+    auto memoryDockWidget = addNewMemoryWidget(type, Core()->getOffset());
+    memoryDockWidget->raiseMemoryWidget();
+}
+
 void MainWindow::onSeekChanged(RVA /*offset*/, CutterCore::SeekHistoryType type)
 {
     if (type == CutterCore::SeekHistoryType::New) {
@@ -2075,7 +2089,7 @@ void MainWindow::onSeekChanged(RVA /*offset*/, CutterCore::SeekHistoryType type)
             widgetSwitchHistory.erase(widgetSwitchHistory.begin() + widgetSwitchHistoryPos + 1,
                                       widgetSwitchHistory.end());
         }
-        const MemoryWidgetType currentType =
+        MemoryWidgetType currentType =
                 lastMemoryWidget ? lastMemoryWidget->getType() : MemoryWidgetType::Disassembly;
         widgetSwitchHistory.push_back(currentType);
         widgetSwitchHistoryPos = widgetSwitchHistory.size() - 1;
@@ -2083,14 +2097,14 @@ void MainWindow::onSeekChanged(RVA /*offset*/, CutterCore::SeekHistoryType type)
         if (widgetSwitchHistoryPos > 0) {
             widgetSwitchHistoryPos--;
             if (Config()->getGlobalWidgetSwitchHistory()) {
-                showMemoryWidget(widgetSwitchHistory[widgetSwitchHistoryPos]);
+                forceShowMemoryWidget(widgetSwitchHistory[widgetSwitchHistoryPos]);
             }
         }
     } else if (type == CutterCore::SeekHistoryType::Redo) {
         if (widgetSwitchHistoryPos + 1 < widgetSwitchHistory.size()) {
             widgetSwitchHistoryPos++;
             if (Config()->getGlobalWidgetSwitchHistory()) {
-                showMemoryWidget(widgetSwitchHistory[widgetSwitchHistoryPos]);
+                forceShowMemoryWidget(widgetSwitchHistory[widgetSwitchHistoryPos]);
             }
         }
     }

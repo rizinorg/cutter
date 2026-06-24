@@ -147,6 +147,7 @@ public slots:
     void finalizeOpen();
     void showAddress(RVA addr);
     void onSeekChanged(RVA offset, CutterCore::SeekHistoryType type);
+    void forceShowMemoryWidget(MemoryWidgetType type);
 
     void refreshAll();
     void seekToFunctionLastInstruction();
