@@ -2089,7 +2089,7 @@ void MainWindow::onSeekChanged(RVA /*offset*/, CutterCore::SeekHistoryType type)
             widgetSwitchHistory.erase(widgetSwitchHistory.begin() + widgetSwitchHistoryPos + 1,
                                       widgetSwitchHistory.end());
         }
-        MemoryWidgetType currentType =
+        const MemoryWidgetType currentType =
                 lastMemoryWidget ? lastMemoryWidget->getType() : MemoryWidgetType::Disassembly;
         widgetSwitchHistory.push_back(currentType);
         widgetSwitchHistoryPos = widgetSwitchHistory.size() - 1;
