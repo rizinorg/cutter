@@ -288,22 +288,16 @@ jobs:
       with:
         name: ${{ env.PACKAGE_NAME }}
         path: ${{ env.PACKAGE_PATH }}
-    - name: Get release
-      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-      id: get_release
-      uses: rizinorg/gha-get-release@c8074dd5d13ddd0a194d8c9205a1466973c7dc0d
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Upload release assets
-      if: steps.get_release.outputs.upload_url != null && env.PACKAGE_NAME != null
-      uses: actions/upload-release-asset@v1.0.2
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') && env.PACKAGE_NAME != null
+      uses: softprops/action-gh-release@v3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ${{ env.PACKAGE_PATH }}
-          asset_name: ${{ env.PACKAGE_NAME }}
-          asset_content_type: ${{ env.UPLOAD_ASSET_TYPE }}
+        files: ${{ env.PACKAGE_PATH }}
+        draft: true
+
     - name: Set output
       id: output_setup
       if: ${{ matrix.name == 'linux-x86_64' }}
@@ -373,23 +367,15 @@ jobs:
       with:
         name: ${{ steps.build.outputs.PACKAGE_NAME }}
         path: ${{ steps.build.outputs.PACKAGE_PATH }}
-    - name: Get release
-      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-      id: get_release
-      uses: rizinorg/gha-get-release@c8074dd5d13ddd0a194d8c9205a1466973c7dc0d
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Upload release assets
-      if: steps.get_release.outputs.upload_url != null && env.PACKAGE_NAME != null
-      uses: actions/upload-release-asset@v1.0.2
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') && env.PACKAGE_NAME != null
+      uses: softprops/action-gh-release@v3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ${{ env.PACKAGE_PATH }}
-          asset_name: ${{ env.PACKAGE_NAME }}
-          asset_content_type: ${{ env.UPLOAD_ASSET_TYPE }}
-
+        files: ${{ env.PACKAGE_PATH }}
+        draft: true
 
   build:
     name: ${{ matrix.name }}
@@ -551,22 +537,15 @@ jobs:
       with:
         name: ${{ env.PACKAGE_NAME }}
         path: ${{ env.PACKAGE_PATH }}
-    - name: Get release
-      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-      id: get_release
-      uses: rizinorg/gha-get-release@c8074dd5d13ddd0a194d8c9205a1466973c7dc0d
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Upload release assets
-      if: steps.get_release.outputs.upload_url != null && env.PACKAGE_NAME != null
-      uses: actions/upload-release-asset@v1.0.2
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') && env.PACKAGE_NAME != null
+      uses: softprops/action-gh-release@v3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ${{ env.PACKAGE_PATH }}
-          asset_name: ${{ env.PACKAGE_NAME }}
-          asset_content_type: ${{ env.UPLOAD_ASSET_TYPE }}
+        files: ${{ env.PACKAGE_PATH }}
+        draft: true
 
     - name: Set output
       if: matrix.output-id != ''
