@@ -205,6 +205,7 @@ void XrefsDialog::hideXrefFromSection()
 {
     ui->labelXFrom->hide();
     ui->fromTreeWidget->hide();
+    ui->fromQuickFilter->hide();
 }
 
 void XrefsDialog::fillRefsForAddress(RVA addr, const QString &name, bool whole_function)
@@ -375,7 +376,7 @@ bool XrefFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) 
 {
     const QModelIndex index = sourceModel()->index(row, 0, parent);
     const auto xref = index.data(XrefModel::flagDescriptionRole).value<XrefDescription>();
-    return qhelpers::filterStringContains(to ? xref.toStr : xref.fromStr, this);
+    return qhelpers::filterStringContains(to ? xref.fromStr : xref.toStr, this);
 }
 
 bool XrefFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

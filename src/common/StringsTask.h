@@ -12,6 +12,7 @@ class StringsTask : public AsyncTask
     Q_OBJECT
 
 public:
+    explicit StringsTask(bool raw) : raw(raw) {}
     QString getTitle() const override { return tr("Searching for Strings"); }
 
 signals:
@@ -20,9 +21,12 @@ signals:
 protected:
     void runTask() override
     {
-        auto strings = Core()->getAllStrings();
+        auto strings = Core()->getAllStrings(raw);
         emit stringSearchFinished(strings);
     }
+
+private:
+    bool raw;
 };
 
 #endif // STRINGSTASK_H

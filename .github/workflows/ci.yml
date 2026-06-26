@@ -95,7 +95,7 @@ jobs:
         unset CMAKE_VERSION
         unset GIT_VERSION
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
         persist-credentials: false
@@ -341,7 +341,7 @@ jobs:
       # Prevent one job from pausing the rest
       fail-fast: false
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
         persist-credentials: false
@@ -422,7 +422,7 @@ jobs:
       # Prevent one job from pausing the rest
       fail-fast: false
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
         persist-credentials: false
@@ -538,7 +538,7 @@ jobs:
           -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON ^
           -DCMAKE_PREFIX_PATH="%CUTTER_DEPS%\pyside" ^
           -DCPACK_PACKAGE_FILE_NAME=%PACKAGE_NAME% ^
-          -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ^
+          -DCMAKE_TOOLCHAIN_FILE=%VCPKG_INSTALLATION_ROOT%/scripts/buildsystems/vcpkg.cmake ^
           -G Ninja ^
           ..
         cmake --build . --config Release
@@ -604,7 +604,7 @@ jobs:
             artifact-output: artifact_windows
       fail-fast: false
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         path: 'cutter-src-tmp'
         persist-credentials: false
@@ -625,7 +625,7 @@ jobs:
         pwd
 
     - name: Download cutter build
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: ${{ needs[matrix.artifact-job].outputs[matrix.artifact-output] || 'bad_id2' }}
     - name: build-linux
