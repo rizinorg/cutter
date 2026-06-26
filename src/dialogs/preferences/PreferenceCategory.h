@@ -1,10 +1,16 @@
 #ifndef PREFERENCECATEGORY_H
 #define PREFERENCECATEGORY_H
 
+#include <QStackedWidget>
 #include <QString>
 #include <QTreeWidget>
-#include <QStackedWidget>
 
+/**
+ * @brief Main class that divides the view into two sides in Preferences:
+ *
+ * Left Side: Tree containing items for all options widget
+ * Right Side: Content for selected item
+ */
 class PreferenceCategory
 {
 public:

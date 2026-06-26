@@ -1,16 +1,21 @@
 #ifndef FUNCTIONSWIDGET_H
 #define FUNCTIONSWIDGET_H
 
-#include <memory>
-
-#include "core/Cutter.h"
+#include "CutterDescriptions.h"
 #include "CutterDockWidget.h"
 #include "widgets/ListDockWidget.h"
+
+#include <QSet>
+
+#include <memory>
 
 class MainWindow;
 class FunctionsTask;
 class FunctionsWidget;
 
+/**
+ * @brief Source model for @ref FunctionsWidget
+ */
 class FunctionModel : public AddressableItemModel<>
 {
     Q_OBJECT
@@ -40,10 +45,10 @@ private:
     bool functionIsMain(ut64 addr) const;
 
 public:
-    static const int FunctionDescriptionRole = Qt::UserRole;
-    static const int IsImportRole = Qt::UserRole + 1;
+    static const int functionDescriptionRole = Qt::UserRole;
+    static const int isImportRole = Qt::UserRole + 1;
 
-    enum Column {
+    enum Column : ut8 {
         NameColumn = 0,
         SizeColumn,
         ImportColumn,
@@ -58,7 +63,8 @@ public:
         ColumnCount
     };
 
-    FunctionModel(bool nested, QFont defaultFont, QFont highlightFont, QObject *parent = nullptr);
+    FunctionModel(bool nested, const QFont &defaultFont, const QFont &highlightFont,
+                  QObject *parent = nullptr);
 
     QModelIndex index(int row, int column,
                       const QModelIndex &parent = QModelIndex()) const override;
@@ -77,7 +83,7 @@ public:
     bool updateCurrentIndex();
 
     void setNested(bool nested);
-    bool isNested() { return nested; }
+    bool isNested() const { return nested; }
 
     RVA address(const QModelIndex &index) const override;
     QString name(const QModelIndex &index) const override;
@@ -86,6 +92,9 @@ private slots:
     void functionRenamed(const RVA offset, const QString &new_name);
 };
 
+/**
+ * @brief Sort filter proxy model for @ref FunctionsWidget
+ */
 class FunctionSortFilterProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
@@ -98,6 +107,9 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
+/**
+ * @brief Widget for displaying all functions
+ */
 class FunctionsWidget : public ListDockWidget
 {
     Q_OBJECT
@@ -113,11 +125,14 @@ private slots:
     void onActionHorizontalToggled(bool enable);
     void onActionVerticalToggled(bool enable);
     void showTitleContextMenu(const QPoint &pt);
+    /**
+     * @brief a SLOT to set the stylesheet for a tooltip
+     */
     void setTooltipStylesheet();
     void refreshTree();
 
 private:
-    QSharedPointer<FunctionsTask> task;
+    std::shared_ptr<FunctionsTask> task;
     FunctionModel *functionModel;
     FunctionSortFilterProxyModel *functionProxyModel;
 
@@ -127,6 +142,8 @@ private:
     QAction actionUndefine;
     QAction actionHorizontal;
     QAction actionVertical;
+
+    int maxFunctionNameWidth;
 };
 
 #endif // FUNCTIONSWIDGET_H

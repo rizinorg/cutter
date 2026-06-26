@@ -1,19 +1,32 @@
+#ifndef JSON_H
+#define JSON_H
 
-#ifndef CUTTER_JSON_H
-#define CUTTER_JSON_H
-
-#include "core/Cutter.h"
+#include "CutterCommon.h"
 
 #include <QJsonValue>
+#include <QVariant>
 
-static inline RVA JsonValueGetRVA(const QJsonValue &value, RVA defaultValue = RVA_INVALID)
+class QTreeWidgetItem;
+class CutterJson;
+
+/**
+ * @file Json.h
+ * @brief Helpers for Json objects
+ */
+namespace Cutter {
+
+inline RVA jsonValueToRVA(const QJsonValue &value, RVA defaultValue = RVA_INVALID)
 {
     bool ok;
-    RVA ret = value.toVariant().toULongLong(&ok);
+    const RVA ret = value.toVariant().toULongLong(&ok);
     if (!ok) {
         return defaultValue;
     }
     return ret;
 }
 
-#endif // CUTTER_JSON_H
+QTreeWidgetItem *jsonTreeWidgetItem(const QString &key, const CutterJson &json);
+
+}
+
+#endif // JSON_H

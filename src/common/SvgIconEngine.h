@@ -1,10 +1,12 @@
-
 #ifndef SVGICONENGINE_H
 #define SVGICONENGINE_H
 
 #include <QIconEngine>
 #include <QPalette>
 
+/**
+ * @brief QIconEngine wrapper for rendering Svg's
+ */
 class SvgIconEngine : public QIconEngine
 {
 private:

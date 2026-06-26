@@ -1,6 +1,6 @@
-#pragma once
+#ifndef DEBUG_ACTIONS_H
+#define DEBUG_ACTIONS_H
 
-#include "core/Cutter.h"
 #include "dialogs/RemoteDebugDialog.h"
 
 #include <QAction>
@@ -79,5 +79,11 @@ private slots:
     void onAttachedRemoteDebugger(bool successfully);
     void setAllActionsVisible(bool visible);
     void setButtonVisibleIfMainExists();
+
+    /**
+     * @brief When theme changed, change icons which have a special version for the theme.
+     */
     void chooseThemeIcons();
 };
+
+#endif // DEBUG_ACTIONS_H

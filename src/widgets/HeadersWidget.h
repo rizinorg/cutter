@@ -1,9 +1,7 @@
 #ifndef HEADERSWIDGET_H
 #define HEADERSWIDGET_H
 
-#include <memory>
-
-#include "core/Cutter.h"
+#include "CutterDescriptions.h"
 #include "ListDockWidget.h"
 
 #include <QAbstractListModel>
@@ -20,6 +18,9 @@ class MainWindow;
 class QTreeWidgetItem;
 class HeadersWidget;
 
+/**
+ * @brief Source model for @ref HeadersWidget
+ */
 class HeadersModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
@@ -30,8 +31,8 @@ private:
     QList<HeaderDescription> headers;
 
 public:
-    enum Column { OffsetColumn = 0, NameColumn, ValueColumn, CommentColumn, ColumnCount };
-    enum Role { HeaderDescriptionRole = Qt::UserRole };
+    enum Column : ut8 { OffsetColumn = 0, NameColumn, ValueColumn, CommentColumn, ColumnCount };
+    enum Role : ut16 { HeaderDescriptionRole = Qt::UserRole };
 
     HeadersModel(QObject *parent = nullptr);
 
@@ -46,6 +47,9 @@ public:
     QString name(const QModelIndex &index) const override;
 };
 
+/**
+ * @brief Proxy model for @ref HeadersWidget
+ */
 class HeadersProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
@@ -58,6 +62,10 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
+/**
+ * @brief A dock widget that displays binary header information (e.g., ELF or PE fields) in a
+ * searchable list, allowing users to inspect offsets, names, and values
+ */
 class HeadersWidget : public ListDockWidget
 {
     Q_OBJECT

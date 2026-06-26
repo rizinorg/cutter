@@ -1,4 +1,5 @@
 #include "CutterTreeView.h"
+
 #include "ui_CutterTreeView.h"
 
 CutterTreeView::CutterTreeView(QWidget *parent) : QTreeView(parent), ui(new Ui::CutterTreeView())

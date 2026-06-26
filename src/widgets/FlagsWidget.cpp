@@ -1,15 +1,16 @@
 #include "FlagsWidget.h"
-#include "ui_FlagsWidget.h"
-#include "core/MainWindow.h"
+
 #include "common/Helpers.h"
+#include "core/MainWindow.h"
 #include "shortcuts/ShortcutManager.h"
+#include "ui_FlagsWidget.h"
 
 #include <QComboBox>
+#include <QInputDialog>
 #include <QMenu>
 #include <QShortcut>
-#include <QTreeWidget>
 #include <QStandardItemModel>
-#include <QInputDialog>
+#include <QTreeWidget>
 
 FlagsModel::FlagsModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
@@ -25,8 +26,9 @@ int FlagsModel::columnCount(const QModelIndex &) const
 
 QVariant FlagsModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= flags.count())
+    if (index.row() >= flags.count()) {
         return QVariant();
+    }
 
     const FlagDescription &flag = flags.at(index.row());
 
@@ -34,9 +36,9 @@ QVariant FlagsModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case SIZE:
-            return RzSizeString(flag.size);
+            return rzSizeString(flag.size);
         case OFFSET:
-            return RzAddressString(flag.offset);
+            return rzAddressString(flag.offset);
         case NAME:
             return flag.name;
         case REALNAME:
@@ -46,7 +48,7 @@ QVariant FlagsModel::data(const QModelIndex &index, int role) const
         default:
             return QVariant();
         }
-    case FlagDescriptionRole:
+    case flagDescriptionRole:
         return QVariant::fromValue(flag);
     default:
         return QVariant();
@@ -103,57 +105,58 @@ FlagsSortFilterProxyModel::FlagsSortFilterProxyModel(FlagsModel *source_model, Q
 
 bool FlagsSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
-    QModelIndex index = sourceModel()->index(row, 0, parent);
-    FlagDescription flag = index.data(FlagsModel::FlagDescriptionRole).value<FlagDescription>();
+    const QModelIndex index = sourceModel()->index(row, 0, parent);
+    const auto flag = index.data(FlagsModel::flagDescriptionRole).value<FlagDescription>();
     return qhelpers::filterStringContains(flag.name, this);
 }
 
 bool FlagsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
     auto source = static_cast<FlagsModel *>(sourceModel());
-    auto left_flag = source->description(left);
-    auto right_flag = source->description(right);
+    auto leftFlag = source->description(left);
+    auto rightFlag = source->description(right);
 
     switch (left.column()) {
     case FlagsModel::SIZE:
-        if (left_flag->size != right_flag->size)
-            return left_flag->size < right_flag->size;
+        if (leftFlag->size != rightFlag->size) {
+            return leftFlag->size < rightFlag->size;
+        }
     // fallthrough
     case FlagsModel::OFFSET:
-        if (left_flag->offset != right_flag->offset)
-            return left_flag->offset < right_flag->offset;
+        if (leftFlag->offset != rightFlag->offset) {
+            return leftFlag->offset < rightFlag->offset;
+        }
     // fallthrough
     case FlagsModel::NAME:
-        return left_flag->name < right_flag->name;
+        return leftFlag->name < rightFlag->name;
 
     case FlagsModel::REALNAME:
-        return left_flag->realname < right_flag->realname;
+        return leftFlag->realname < rightFlag->realname;
 
     case FlagsModel::COMMENT:
-        return Core()->getCommentAt(left_flag->offset) < Core()->getCommentAt(right_flag->offset);
+        return Core()->getCommentAt(leftFlag->offset) < Core()->getCommentAt(rightFlag->offset);
 
     default:
         break;
     }
 
     // fallback
-    return left_flag->offset < right_flag->offset;
+    return leftFlag->offset < rightFlag->offset;
 }
 
 FlagsWidget::FlagsWidget(MainWindow *main)
-    : CutterDockWidget(main), ui(new Ui::FlagsWidget), main(main), tree(new CutterTreeWidget(this))
+    : CutterDockWidget(main),
+      ui(new Ui::FlagsWidget),
+      main(main),
+      flagsModel(new FlagsModel(this)),
+      flagsProxyModel(new FlagsSortFilterProxyModel(flagsModel, this))
 {
     ui->setupUi(this);
 
-    // Add Status Bar footer
-    tree->addStatusBar(ui->verticalLayout);
-
-    flags_model = new FlagsModel(this);
-    flags_proxy_model = new FlagsSortFilterProxyModel(flags_model, this);
-    connect(ui->filterLineEdit, &QLineEdit::textChanged, flags_proxy_model,
+    connect(ui->filterLineEdit, &QLineEdit::textChanged, flagsProxyModel,
             &QSortFilterProxyModel::setFilterWildcard);
     ui->flagsTreeView->setMainWindow(mainWindow);
-    ui->flagsTreeView->setModel(flags_proxy_model);
+    ui->flagsTreeView->setModel(static_cast<AddressableItemModelI *>(flagsProxyModel));
     ui->flagsTreeView->sortByColumn(FlagsModel::OFFSET, Qt::AscendingOrder);
 
     // Ctrl-F to move the focus to the Filter search box
@@ -174,7 +177,7 @@ FlagsWidget::FlagsWidget(MainWindow *main)
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     connect(ui->filterLineEdit, &QLineEdit::textChanged, this,
-            [this] { tree->showItemsNumber(flags_proxy_model->rowCount()); });
+            [this] { ui->filterLineEdit->setItemCount(flagsProxyModel->rowCount()); });
 
     setScrollMode();
 
@@ -182,7 +185,7 @@ FlagsWidget::FlagsWidget(MainWindow *main)
     connect(Core(), &CutterCore::codeRebased, this, &FlagsWidget::flagsChanged);
     connect(Core(), &CutterCore::refreshAll, this, &FlagsWidget::refreshFlagspaces);
     connect(Core(), &CutterCore::commentsChanged, this,
-            [this]() { qhelpers::emitColumnChanged(flags_model, FlagsModel::COMMENT); });
+            [this]() { qhelpers::emitColumnChanged(flagsModel, FlagsModel::COMMENT); });
 
     auto menu = ui->flagsTreeView->getItemContextMenu();
     menu->addSeparator();
@@ -190,38 +193,44 @@ FlagsWidget::FlagsWidget(MainWindow *main)
     menu->addAction(ui->actionDelete);
     addAction(ui->actionRename);
     addAction(ui->actionDelete);
+
+    connect(ui->flagspaceCombo, &QComboBox::currentTextChanged, this,
+            &FlagsWidget::onFlagspaceComboCurrentTextChanged);
+    connect(ui->actionRename, &QAction::triggered, this, &FlagsWidget::onActionRenameTriggered);
+    connect(ui->actionDelete, &QAction::triggered, this, &FlagsWidget::onActionDeleteTriggered);
 }
 
 FlagsWidget::~FlagsWidget() {}
 
-void FlagsWidget::on_flagspaceCombo_currentTextChanged(const QString &arg1)
+void FlagsWidget::onFlagspaceComboCurrentTextChanged(const QString &arg1)
 {
     Q_UNUSED(arg1);
 
     refreshFlags();
 }
 
-void FlagsWidget::on_actionRename_triggered()
+void FlagsWidget::onActionRenameTriggered()
 {
-    FlagDescription flag = ui->flagsTreeView->selectionModel()
-                                   ->currentIndex()
-                                   .data(FlagsModel::FlagDescriptionRole)
-                                   .value<FlagDescription>();
+    const auto flag = ui->flagsTreeView->selectionModel()
+                              ->currentIndex()
+                              .data(FlagsModel::flagDescriptionRole)
+                              .value<FlagDescription>();
 
     bool ok;
-    QString newName = QInputDialog::getText(this, tr("Rename flag %1").arg(flag.name),
-                                            tr("Flag name:"), QLineEdit::Normal, flag.name, &ok);
+    const QString newName =
+            QInputDialog::getText(this, tr("Rename flag %1").arg(flag.name), tr("Flag name:"),
+                                  QLineEdit::Normal, flag.name, &ok);
     if (ok && !newName.isEmpty()) {
         Core()->renameFlag(flag.name, newName);
     }
 }
 
-void FlagsWidget::on_actionDelete_triggered()
+void FlagsWidget::onActionDeleteTriggered()
 {
-    FlagDescription flag = ui->flagsTreeView->selectionModel()
-                                   ->currentIndex()
-                                   .data(FlagsModel::FlagDescriptionRole)
-                                   .value<FlagDescription>();
+    const auto flag = ui->flagsTreeView->selectionModel()
+                              ->currentIndex()
+                              .data(FlagsModel::flagDescriptionRole)
+                              .value<FlagDescription>();
     Core()->delFlag(flag.name);
 }
 
@@ -232,9 +241,10 @@ void FlagsWidget::flagsChanged()
 
 void FlagsWidget::refreshFlagspaces()
 {
-    int cur_idx = ui->flagspaceCombo->currentIndex();
-    if (cur_idx < 0)
-        cur_idx = 0;
+    int curIdx = ui->flagspaceCombo->currentIndex();
+    if (curIdx < 0) {
+        curIdx = 0;
+    }
 
     disableFlagRefresh =
             true; // prevent duplicate flag refresh caused by flagspaceCombo modifications
@@ -245,8 +255,9 @@ void FlagsWidget::refreshFlagspaces()
         ui->flagspaceCombo->addItem(i.name, QVariant::fromValue(i));
     }
 
-    if (cur_idx > 0)
-        ui->flagspaceCombo->setCurrentIndex(cur_idx);
+    if (curIdx > 0) {
+        ui->flagspaceCombo->setCurrentIndex(curIdx);
+    }
     disableFlagRefresh = false;
 
     refreshFlags();
@@ -259,21 +270,17 @@ void FlagsWidget::refreshFlags()
     }
     QString flagspace;
 
-    QVariant flagspace_data = ui->flagspaceCombo->currentData();
-    if (flagspace_data.isValid())
-        flagspace = flagspace_data.value<FlagspaceDescription>().name;
+    const QVariant flagspaceData = ui->flagspaceCombo->currentData();
+    if (flagspaceData.isValid()) {
+        flagspace = flagspaceData.value<FlagspaceDescription>().name;
+    }
 
-    flags_model->beginResetModel();
-    flags_model->flags = Core()->getAllFlags(flagspace);
-    flags_model->endResetModel();
+    flagsModel->beginResetModel();
+    flagsModel->flags = Core()->getAllFlags(flagspace);
+    flagsModel->endResetModel();
 
-    tree->showItemsNumber(flags_proxy_model->rowCount());
-
-    // TODO: this is not a very good place for the following:
-    QStringList flagNames;
-    for (const FlagDescription &i : flags_model->flags)
-        flagNames.append(i.name);
-    main->refreshOmniBar(flagNames);
+    // set the initial item count
+    ui->filterLineEdit->setItemCount(flagsProxyModel->rowCount());
 }
 
 void FlagsWidget::setScrollMode()

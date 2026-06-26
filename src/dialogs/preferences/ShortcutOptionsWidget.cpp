@@ -1,6 +1,7 @@
 #include "ShortcutOptionsWidget.h"
-#include "ui_ShortcutOptionsWidget.h"
+
 #include "shortcuts/ShortcutManager.h"
+#include "ui_ShortcutOptionsWidget.h"
 
 ShortcutOptionsWidget::ShortcutOptionsWidget(QWidget *parent)
     : QDialog(parent), ui(new Ui::ShortcutOptionsWidget)
@@ -32,6 +33,7 @@ void ShortcutOptionsWidget::populateShortcutTree()
         { "Debug", tr("Debug") },           { "Functions", tr("Functions") },
         { "Omnibar", tr("Omnibar") },       { "Exports", tr("Exports") },
         { "Imports", tr("Imports") },       { "Overview", tr("Graph Overview") },
+        { "Docking", tr("Docking") },
     };
 
     QHash<QString, QTreeWidgetItem *> prefixToItem;
@@ -42,7 +44,7 @@ void ShortcutOptionsWidget::populateShortcutTree()
     const auto shortcuts = Shortcuts()->getAllShortcuts();
     for (auto it = shortcuts.cbegin(); it != shortcuts.cend(); ++it) {
         QString name = it.key();
-        Shortcut s = it.value();
+        const Shortcut &s = it.value();
         QTreeWidgetItem *parent = prefixToItem["General"];
 
         for (auto it = prefixToItem.cbegin(); it != prefixToItem.cend(); ++it) {
@@ -54,7 +56,7 @@ void ShortcutOptionsWidget::populateShortcutTree()
             }
         }
 
-        QTreeWidgetItem *item = new QTreeWidgetItem(parent);
+        auto *item = new QTreeWidgetItem(parent);
         item->setText(0, name);
 
         QStringList shortcutTexts;
@@ -70,7 +72,7 @@ void ShortcutOptionsWidget::populateShortcutTree()
 
 QTreeWidgetItem *ShortcutOptionsWidget::createCategoryItem(const QString &label)
 {
-    QTreeWidgetItem *item = new QTreeWidgetItem(ui->shortcutTree);
+    auto *item = new QTreeWidgetItem(ui->shortcutTree);
     QFont bold;
     bold.setBold(true);
     item->setText(0, label);
@@ -85,7 +87,7 @@ void ShortcutOptionsWidget::filterShortcutTree(const QString &input)
 
     for (int i = 0; i < ui->shortcutTree->topLevelItemCount(); ++i) {
         QTreeWidgetItem *category = ui->shortcutTree->topLevelItem(i);
-        bool categoryMatches = category->text(0).toLower().contains(filter);
+        const bool categoryMatches = category->text(0).toLower().contains(filter);
         bool hasVisibleChildren = false;
 
         for (int j = 0; j < category->childCount(); ++j) {
@@ -103,8 +105,9 @@ void ShortcutOptionsWidget::filterShortcutTree(const QString &input)
                 }
             }
             child->setHidden(!match);
-            if (match)
+            if (match) {
                 hasVisibleChildren = true;
+            }
         }
         category->setHidden(!(categoryMatches || hasVisibleChildren));
     }

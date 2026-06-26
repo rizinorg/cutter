@@ -1,17 +1,16 @@
-#include <Configuration.h>
-#include <dialogs/GlibcHeapInfoDialog.h>
 #include "HeapBinsGraphView.h"
 
+#include <Configuration.h>
+#include <dialogs/GlibcHeapInfoDialog.h>
+
 HeapBinsGraphView::HeapBinsGraphView(QWidget *parent, RzHeapBin *bin, MainWindow *main)
-    : SimpleTextGraphView(parent, main), heapBin(bin)
+    : SimpleTextGraphView(parent, main), heapBin(bin), bits(Core()->getArchBits())
 {
     chunkInfoAction = new QAction(tr("Detailed Chunk Info"), this);
     addressableItemContextMenu.addAction(chunkInfoAction);
     addAction(chunkInfoAction);
 
     connect(chunkInfoAction, &QAction::triggered, this, &HeapBinsGraphView::viewChunkInfo);
-
-    bits = Core()->getArchBits();
 
     enableAddresses(true);
 }
@@ -32,7 +31,7 @@ void HeapBinsGraphView::loadCurrentGraph()
     QVector<GraphHeapChunk> chunks;
 
     // if the bin is a fastbin or not
-    bool singleLinkedBin = QString(heapBin->type) == QString("Fast")
+    const bool singleLinkedBin = QString(heapBin->type) == QString("Fast")
             || QString(heapBin->type) == QString("Tcache");
 
     // store info about the chunks in a vector for easy access
@@ -43,12 +42,12 @@ void HeapBinsGraphView::loadCurrentGraph()
         if (!chunkInfo) {
             break;
         }
-        QString content = "Chunk @ " + RzAddressString(chunkInfo->addr) + "\nSize: "
-                + RzHexString(chunkInfo->size) + "\nFd: " + RzAddressString(chunkInfo->fd);
+        QString content = "Chunk @ " + rzAddressString(chunkInfo->addr) + "\nSize: "
+                + rzHexString(chunkInfo->size) + "\nFd: " + rzAddressString(chunkInfo->fd);
 
         // fastbins lack bk pointer
         if (!singleLinkedBin) {
-            content += "\nBk: " + RzAddressString(chunkInfo->bk);
+            content += "\nBk: " + rzAddressString(chunkInfo->bk);
         }
         graphHeapChunk.fd = chunkInfo->fd;
         graphHeapChunk.bk = chunkInfo->bk;
@@ -59,28 +58,28 @@ void HeapBinsGraphView::loadCurrentGraph()
 
     // fast and tcache bins have single linked list and other bins have double linked list
     if (singleLinkedBin) {
-        display_single_linked_list(chunks);
+        displaySingleLinkedList(chunks);
     } else {
-        display_double_linked_list(chunks);
+        displayDoubleLinkedList(chunks);
     }
 
     cleanupEdges(blocks);
     computeGraphPlacement();
 }
 
-void HeapBinsGraphView::display_single_linked_list(QVector<GraphHeapChunk> chunks)
+void HeapBinsGraphView::displaySingleLinkedList(QVector<GraphHeapChunk> chunks)
 {
-    bool tcache = QString(heapBin->type) == QString("Tcache");
-    int ptrSize = bits;
+    const bool tcache = QString(heapBin->type) == QString("Tcache");
+    const int ptrSize = bits;
     // add the graph block for the bin
     GraphLayout::GraphBlock gbBin;
     gbBin.entry = 1;
     gbBin.edges.emplace_back(heapBin->fd);
     QString content = tr(heapBin->type) + tr("bin ") + QString::number(heapBin->bin_num);
     if (tcache) {
-        content += "\nEntry: " + RzAddressString(heapBin->fd);
+        content += "\nEntry: " + rzAddressString(heapBin->fd);
     } else {
-        content += "\nFd: " + RzAddressString(heapBin->fd);
+        content += "\nFd: " + rzAddressString(heapBin->fd);
     }
     addBlock(gbBin, content);
 
@@ -111,7 +110,7 @@ void HeapBinsGraphView::display_single_linked_list(QVector<GraphHeapChunk> chunk
     }
 }
 
-void HeapBinsGraphView::display_double_linked_list(QVector<GraphHeapChunk> chunks)
+void HeapBinsGraphView::displayDoubleLinkedList(QVector<GraphHeapChunk> chunks)
 {
     // add the graph block for the bin
     GraphLayout::GraphBlock gbBin;
@@ -119,9 +118,9 @@ void HeapBinsGraphView::display_double_linked_list(QVector<GraphHeapChunk> chunk
     gbBin.edges.emplace_back(heapBin->fd);
     gbBin.edges.emplace_back(heapBin->bk);
     QString content = tr(heapBin->type) + tr("bin ") + QString::number(heapBin->bin_num) + tr(" @ ")
-            + RzAddressString(heapBin->addr);
-    content += "\nFd: " + RzAddressString(heapBin->fd);
-    content += "\nBk: " + RzAddressString(heapBin->bk);
+            + rzAddressString(heapBin->addr);
+    content += "\nFd: " + rzAddressString(heapBin->fd);
+    content += "\nBk: " + rzAddressString(heapBin->bk);
 
     addBlock(gbBin, content, heapBin->addr);
 
@@ -145,7 +144,7 @@ void HeapBinsGraphView::display_double_linked_list(QVector<GraphHeapChunk> chunk
 // most code is shared from that implementation
 void HeapBinsGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive)
 {
-    QRectF blockRect(block.x, block.y, block.width, block.height);
+    const QRectF blockRect(block.x, block.y, block.width, block.height);
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
@@ -159,7 +158,7 @@ void HeapBinsGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, boo
     p.setBrush(QColor(0, 0, 0, 100));
     p.setPen(QPen(graphNodeColor, 1));
 
-    bool blockSelected = interactive && (block.entry == selectedBlock);
+    const bool blockSelected = interactive && (block.entry == selectedBlock);
     if (blockSelected) {
         p.setBrush(disassemblySelectedBackgroundColor);
     } else {
@@ -170,7 +169,7 @@ void HeapBinsGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, boo
 
     // Stop rendering text when it's too small
     auto transform = p.combinedTransform();
-    QRect screenChar = transform.mapRect(QRect(0, 0, ACharWidth, charHeight));
+    const QRect screenChar = transform.mapRect(QRect(0, 0, charWidthA, charHeight));
 
     if (screenChar.width() < Config()->getGraphMinFontSize()) {
         return;
@@ -190,19 +189,19 @@ void HeapBinsGraphView::addBlock(GraphLayout::GraphBlock block, const QString &t
     content.text = text;
     content.address = address;
 
-    int height = 1;
+    const int height = 1;
     double width = 0;
 
     // split text into different lines
     auto lines = text.split("\n", CUTTER_QT_SKIP_EMPTY_PARTS);
 
     // width of the block is the maximum width of a line
-    for (QString &line : lines) {
+    for (const QString &line : std::as_const(lines)) {
         width = std::max(mFontMetrics->width(line), width);
     }
     block.width = static_cast<int>(width + padding);
     block.height = (height * charHeight) * lines.length() + padding;
-    GraphView::addBlock(std::move(block));
+    GraphView::addBlock(block);
 }
 
 // overriding to support detailed heap info action in context menu

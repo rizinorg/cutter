@@ -1,8 +1,9 @@
 #include "SearchableDockWidget.h"
+
 #include "SearchBarWidget.h"
 
-#include <QScrollBar>
 #include <QAbstractScrollArea>
+#include <QScrollBar>
 #include <QTimer>
 
 namespace {
@@ -11,9 +12,9 @@ constexpr int vPadding = 4;
 };
 
 SearchableDockWidget::SearchableDockWidget(MainWindow *parent)
-    : CutterDockWidget(parent), m_searchBar(new SearchBarWidget(this))
+    : CutterDockWidget(parent), searchBar(new SearchBarWidget(this))
 {
-    CutterSearchableHelper::setupConnections(this, m_searchBar);
+    CutterSearchableHelper::setupConnections(this, searchBar);
 }
 
 void SearchableDockWidget::resizeEvent(QResizeEvent *event)
@@ -24,7 +25,7 @@ void SearchableDockWidget::resizeEvent(QResizeEvent *event)
 
 void SearchableDockWidget::updateSearchBarPosition()
 {
-    CutterSearchableHelper::positionSearchBar(this, m_searchBar, searchableArea(), searchHPadding(),
+    CutterSearchableHelper::positionSearchBar(this, searchBar, searchableArea(), searchHPadding(),
                                               searchVPadding());
 }
 

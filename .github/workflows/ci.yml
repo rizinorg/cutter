@@ -45,14 +45,12 @@ jobs:
             cc-override: '/usr/bin/gcc-12'
             cxx-override: '/usr/bin/g++-12'
           - name: linux-x86_64 # main Appimage build
-            image: ubuntu:20.04
-            python-version: 3.6.x
+            image: ubuntu:22.04
             system-deps: false
             package: true
             tarball: false
           - name: tarball
-            python-version: 3.6.x
-            image: ubuntu:20.04
+            image: ubuntu:22.04
             system-deps: false
             package: false
             tarball: true
@@ -97,7 +95,7 @@ jobs:
         unset CMAKE_VERSION
         unset GIT_VERSION
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
         persist-credentials: false
@@ -126,20 +124,23 @@ jobs:
                              llvm-8
           ln -s /usr/bin/llvm-config-8 /usr/bin/llvm-config
         fi
-        if [ "${{ matrix.image }}" = "ubuntu:18.04" ] || [ "${{ matrix.image }}" = "ubuntu:20.04" ]; then
+        if [ "${{ matrix.image }}" = "ubuntu:18.04" ] || ([ "${{ matrix.image }}" = "ubuntu:22.04" ] && [ "${{ matrix.system-deps }}" = "false" ]); then
           # install additional packages needed for appimage
           apt-get -y install libxcb1-dev \
                              libxkbcommon-dev \
                              libxcb-*-dev \
                              libegl1
         fi
-        if [ "${{ matrix.image }}" = "ubuntu:20.04" ] && [ "${{ matrix.system-deps }}" = "false" ]; then
+        if [ "${{ matrix.image }}" = "ubuntu:22.04" ] && [ "${{ matrix.system-deps }}" = "false" ]; then
           # install additional packages needed for appimage
-          apt-get -y install libclang-12-dev \
-                             llvm-12 \
-                             libsm6 \
+          apt-get -y install libsm6 \
                              libwayland-dev  \
-                             libgl1-mesa-dev
+                             libgl1-mesa-dev \
+                             wget \
+                             software-properties-common \
+                             lsb-release \
+                             file
+          wget https://apt.llvm.org/llvm.sh -O /tmp/llvm-install.sh; chmod +x /tmp/llvm-install.sh; /tmp/llvm-install.sh 20
         fi
         if [ "${{ matrix.image }}" = "ubuntu:18.04" ] && [ "${{ matrix.system-deps }}" = "true" ]; then
           apt-get -y install qt5-default \
@@ -147,7 +148,7 @@ jobs:
                              qttools5-dev \
                              qttools5-dev-tools
         fi
-        if [ "${{ matrix.image }}" = "ubuntu:22.04" ]; then
+        if [ "${{ matrix.image }}" = "ubuntu:22.04" ] && [ "${{ matrix.system-deps }}" = "true" ]; then
           apt-get -y install libclang-12-dev \
                              llvm-12 \
                              qt6-base-dev \
@@ -160,7 +161,7 @@ jobs:
                              gcc-12 \
                              g++-12
         fi
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6
       if: matrix.system-deps == false
       with:
         python-version: ${{ matrix.python-version }}
@@ -168,8 +169,7 @@ jobs:
       run: |
         python3 --version
         which python3
-        # https://github.com/rizinorg/cutter/runs/7170222817?check_suite_focus=true
-        python3 -m pip install meson==0.61.5
+        python3 -m pip install --no-cache-dir  meson
     - name: Prepare package id
       shell: bash
       run: |
@@ -188,7 +188,7 @@ jobs:
         then
           CUTTER_QT="${{ matrix.qt-major }}" scripts/fetch_deps.sh
           . cutter-deps/env.sh
-          export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
+          ln -sf "$PWD/cutter-deps/pyside/share/PySide6/"* "$PWD/cutter-deps/pyside/"
         fi
         set -e #TODO: move to top once cutter-deps doesn't fail
         if [ "${{ matrix.cc-override }}" != "default" ]
@@ -283,7 +283,7 @@ jobs:
         echo PACKAGE_NAME=Cutter-${PACKAGE_ID}-src.tar.gz >> $GITHUB_ENV
         echo PACKAGE_PATH=Cutter-${PACKAGE_ID}-src.tar.gz >> $GITHUB_ENV
         echo UPLOAD_ASSET_TYPE=application/gzip >> $GITHUB_ENV
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: env.PACKAGE_NAME != null
       with:
         name: ${{ env.PACKAGE_NAME }}
@@ -341,7 +341,7 @@ jobs:
       # Prevent one job from pausing the rest
       fail-fast: false
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
         persist-credentials: false
@@ -368,7 +368,7 @@ jobs:
         qt-major: ${{ matrix.qt-major }}
         package: ${{ matrix.package }}
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: env.PACKAGE_NAME != null
       with:
         name: ${{ steps.build.outputs.PACKAGE_NAME }}
@@ -422,11 +422,11 @@ jobs:
       # Prevent one job from pausing the rest
       fail-fast: false
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
         persist-credentials: false
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
     - name: homebrew dependencies
@@ -437,11 +437,11 @@ jobs:
         brew bundle
         brew install pkg-config || brew link --overwrite pkgconf
         brew install kadwanev/brew/retry
+        brew install llvm@20 && brew link llvm@20
     - name: py dependencies
       run: |
-        #python3 -m pip install -U pip==21.3.1
-        pip install meson # ==0.61.5 # https://github.com/rizinorg/cutter/runs/7170222817?check_suite_focus=true
-        pip install setuptools
+        pip install --no-cache-dir meson
+        pip install --no-cache-dir setuptools
     - name: Prepare package id
       shell: bash
       run: |
@@ -459,8 +459,8 @@ jobs:
       run: |
         export MACOSX_DEPLOYMENT_TARGET=10.15
         scripts/fetch_deps.sh
-        install_name_tool -delete_rpath /Users/runner/work/cutter-deps/cutter-deps/qt/lib ./cutter-deps/pyside/lib/libpyside6.cpython-312-darwin.6.7.2.dylib #TODO: do this in cutter-deps
         source cutter-deps/env.sh
+        ln -sf "$PWD/cutter-deps/pyside/share/PySide6/"* "$PWD/cutter-deps/pyside/"
         set -euo pipefail
         export PATH=/usr/local/opt/llvm/bin:$PATH
         mkdir build
@@ -503,7 +503,9 @@ jobs:
       run: |
         pip install ninja
         scripts/fetch_deps.sh
+        ln -sf "$PWD/cutter-deps/pyside/share/PySide6/"* "$PWD/cutter-deps/pyside/"
         choco install winflexbison3
+        vcpkg install zlib:x64-windows
     - name: windows cmake
       if: contains(matrix.os, 'windows')
       shell: cmd
@@ -536,6 +538,7 @@ jobs:
           -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON ^
           -DCMAKE_PREFIX_PATH="%CUTTER_DEPS%\pyside" ^
           -DCPACK_PACKAGE_FILE_NAME=%PACKAGE_NAME% ^
+          -DCMAKE_TOOLCHAIN_FILE=%VCPKG_INSTALLATION_ROOT%/scripts/buildsystems/vcpkg.cmake ^
           -G Ninja ^
           ..
         cmake --build . --config Release
@@ -543,7 +546,7 @@ jobs:
         echo PACKAGE_NAME=%PACKAGE_NAME%.zip >> %GITHUB_ENV%
         echo PACKAGE_PATH=build/%PACKAGE_NAME%.zip >> %GITHUB_ENV%
         echo UPLOAD_ASSET_TYPE=application/zip >> %GITHUB_ENV%
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: env.PACKAGE_NAME != null
       with:
         name: ${{ env.PACKAGE_NAME }}
@@ -601,7 +604,7 @@ jobs:
             artifact-output: artifact_windows
       fail-fast: false
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         path: 'cutter-src-tmp'
         persist-credentials: false
@@ -622,7 +625,7 @@ jobs:
         pwd
 
     - name: Download cutter build
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: ${{ needs[matrix.artifact-job].outputs[matrix.artifact-output] || 'bad_id2' }}
     - name: build-linux

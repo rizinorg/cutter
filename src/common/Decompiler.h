@@ -2,14 +2,14 @@
 #define DECOMPILER_H
 
 #include "CutterCommon.h"
-#include "RizinTask.h"
+
+#include <QObject>
+#include <QString>
+
 #include <rz_util/rz_annotated_code.h>
 
-#include <QString>
-#include <QObject>
-
 /**
- * Implements a decompiler that can be registered using CutterCore::registerDecompiler()
+ * @brief Implements a decompiler that can be registered using CutterCore::registerDecompiler()
  */
 class CUTTER_EXPORT Decompiler : public QObject
 {
@@ -23,7 +23,7 @@ public:
     Decompiler(const QString &id, const QString &name, QObject *parent = nullptr);
     virtual ~Decompiler() = default;
 
-    static RzAnnotatedCode *makeWarning(QString warningMessage);
+    static RzAnnotatedCode *makeWarning(const QString &warningMessage);
 
     QString getId() const { return id; }
     QString getName() const { return name; }

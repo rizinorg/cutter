@@ -3,37 +3,50 @@
 
 #include <QDialog>
 
-namespace Ui {
+#include <memory>
 
-/**
- * @class WelcomeDialog
- * @brief The WelcomeDialog class will show the user the Welcome windows
- *  upon first execution of Cutter.
- *
- * Upon first execution of Cutter, the WelcomeDialog would be showed to the user.
- * The Welcome dialog would be showed after a reset of Cutter's preferences by the user.
- */
+namespace Ui {
 
 class WelcomeDialog;
 }
 
+/**
+ * @brief The WelcomeDialog class will show the user the Welcome windows
+ * upon first execution of Cutter.
+ *
+ * The Welcome dialog would also be showed after a reset of Cutter's preferences by the user.
+ */
 class WelcomeDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit WelcomeDialog(QWidget *parent = 0);
+    explicit WelcomeDialog(QWidget *parent = nullptr);
     ~WelcomeDialog();
 
 private slots:
-    void on_themeComboBox_currentIndexChanged(int index);
+    /**
+     * @brief change Cutter's QT Theme as selected by the user
+     * @param index - a Slot being called after theme's value changes its index
+     */
+    void onThemeComboBoxCurrentIndexChanged(int index);
+    /**
+     * @brief change Cutter's interface language as selected by the user
+     * @param index - a Slot being called after language combo box value changes its index
+     */
     void onLanguageCurrentIndexChanged(int index);
-    void on_checkUpdateButton_clicked();
-    void on_continueButton_clicked();
-    void on_updatesCheckBox_stateChanged(int state);
+    /**
+     * @brief show Cutter's About dialog
+     */
+    void onCheckUpdateButtonClicked();
+    /**
+     * @brief accept user preferences, close the window and continue Cutter's execution
+     */
+    void onContinueButtonClicked();
+    void onUpdatesCheckBoxStateChanged(int state);
 
 private:
-    Ui::WelcomeDialog *ui;
+    std::unique_ptr<Ui::WelcomeDialog> ui;
 };
 
 #endif // WELCOMEDIALOG_H

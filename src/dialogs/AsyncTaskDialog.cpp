@@ -1,21 +1,21 @@
 
 #include "AsyncTaskDialog.h"
-#include "common/AsyncTask.h"
 
+#include "common/AsyncTask.h"
 #include "ui_AsyncTaskDialog.h"
 
-AsyncTaskDialog::AsyncTaskDialog(AsyncTask::Ptr task, QWidget *parent)
+AsyncTaskDialog::AsyncTaskDialog(const AsyncTask::Ptr &task, QWidget *parent)
     : QDialog(parent), ui(new Ui::AsyncTaskDialog), task(task)
 {
     ui->setupUi(this);
 
-    QString title = task->getTitle();
+    const QString title = task->getTitle();
     if (!title.isNull()) {
         setWindowTitle(title);
     }
 
-    connect(task.data(), &AsyncTask::logChanged, this, &AsyncTaskDialog::updateLog);
-    connect(task.data(), &AsyncTask::finished, this, [this]() { close(); });
+    connect(task.get(), &AsyncTask::logChanged, this, &AsyncTaskDialog::updateLog);
+    connect(task.get(), &AsyncTask::finished, this, [this]() { close(); });
 
     updateLog(task->getLog());
 
@@ -36,9 +36,9 @@ void AsyncTaskDialog::updateLog(const QString &log)
 
 void AsyncTaskDialog::updateProgressTimer()
 {
-    int secondsElapsed = (task->getElapsedTime() + 500) / 1000;
-    int minutesElapsed = secondsElapsed / 60;
-    int hoursElapsed = minutesElapsed / 60;
+    const int secondsElapsed = (task->getElapsedTime() + 500) / 1000;
+    const int minutesElapsed = secondsElapsed / 60;
+    const int hoursElapsed = minutesElapsed / 60;
 
     QString label;
     if (hoursElapsed) {

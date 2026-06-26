@@ -1,16 +1,18 @@
 #include "HexdumpRangeDialog.h"
+
+#include "core/Cutter.h"
 #include "ui_HexdumpRangeDialog.h"
 
-#include <QRegularExpressionValidator>
 #include <QPushButton>
+#include <QRegularExpressionValidator>
+
 #include <cstdint>
-#include "core/Cutter.h"
 
 HexdumpRangeDialog::HexdumpRangeDialog(QWidget *parent, bool allowEmpty)
     : QDialog(parent), ui(new Ui::HexdumpRangeDialog), allowEmpty(allowEmpty)
 {
     ui->setupUi(this);
-    QRegularExpressionValidator *v =
+    const auto *v =
             new QRegularExpressionValidator(QRegularExpression("(?:0[xX])?[0-9a-fA-F]+"), this);
     ui->lengthLineEdit->setValidator(v);
     ui->startAddressLineEdit->setValidator(v);
@@ -22,27 +24,24 @@ HexdumpRangeDialog::HexdumpRangeDialog(QWidget *parent, bool allowEmpty)
     connect(ui->endAddressLineEdit, &QLineEdit::textEdited, this, &HexdumpRangeDialog::textEdited);
     connect(ui->lengthLineEdit, &QLineEdit::textEdited, this, &HexdumpRangeDialog::textEdited);
     connect(ui->endAddressRadioButton, &QRadioButton::clicked, this,
-            &HexdumpRangeDialog::on_radioButtonClicked);
+            &HexdumpRangeDialog::onRadioButtonClicked);
     connect(ui->lengthRadioButton, &QRadioButton::clicked, this,
-            &HexdumpRangeDialog::on_radioButtonClicked);
+            &HexdumpRangeDialog::onRadioButtonClicked);
 }
 
-HexdumpRangeDialog::~HexdumpRangeDialog()
-{
-    delete ui;
-}
+HexdumpRangeDialog::~HexdumpRangeDialog() {}
 
-bool HexdumpRangeDialog::empty()
+bool HexdumpRangeDialog::empty() const
 {
     return emptyRange;
 }
 
-unsigned long long HexdumpRangeDialog::getStartAddress() const
+RVA HexdumpRangeDialog::getStartAddress() const
 {
     return startAddress;
 }
 
-unsigned long long HexdumpRangeDialog::getEndAddress() const
+RVA HexdumpRangeDialog::getEndAddress() const
 {
     return endAddress;
 }
@@ -62,7 +61,7 @@ void HexdumpRangeDialog::setStartAddress(ut64 start)
     ui->startAddressLineEdit->setText(QString("0x%1").arg(start, 0, 16));
 }
 
-void HexdumpRangeDialog::open(ut64 start)
+void HexdumpRangeDialog::openAt(ut64 start)
 {
     setStartAddress(start);
     setModal(false);
@@ -123,11 +122,11 @@ bool HexdumpRangeDialog::validate()
 
 void HexdumpRangeDialog::textEdited()
 {
-    bool valid = validate();
+    const bool valid = validate();
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(valid);
 }
 
-void HexdumpRangeDialog::on_radioButtonClicked(bool checked)
+void HexdumpRangeDialog::onRadioButtonClicked(bool checked)
 {
     if (sender() == ui->endAddressRadioButton && checked == true) {
         ui->lengthLineEdit->setEnabled(false);

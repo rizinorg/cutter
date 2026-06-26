@@ -17,22 +17,22 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>4</number>
+      <number>1</number>
      </property>
-     <widget class="QWidget" name="RzBinTab">
+     <widget class="QWidget" name="rzBinTab">
       <attribute name="title">
        <string>RzBin</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QLabel" name="RzBinLabel">
+        <widget class="QLabel" name="rzBinLabel">
          <property name="text">
           <string>RzBin plugins</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QTreeWidget" name="RzBinTreeWidget">
+        <widget class="QTreeWidget" name="rzBinTreeWidget">
          <property name="sortingEnabled">
           <bool>true</bool>
          </property>
@@ -60,20 +60,20 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="RzIOTab">
+     <widget class="QWidget" name="rzIOTab">
       <attribute name="title">
        <string>RzIO</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QLabel" name="RzIOLabel">
+        <widget class="QLabel" name="rzIOLabel">
          <property name="text">
           <string>RzIO plugins</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QTreeWidget" name="RzIOTreeWidget">
+        <widget class="QTreeWidget" name="rzIOTreeWidget">
          <property name="sortingEnabled">
           <bool>true</bool>
          </property>
@@ -101,20 +101,20 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="RzCoreTab">
+     <widget class="QWidget" name="rzCoreTab">
       <attribute name="title">
        <string>RzCore</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="QLabel" name="RzCoreLabel">
+        <widget class="QLabel" name="rzCoreLabel">
          <property name="text">
           <string>RzCore plugins</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QTreeWidget" name="RzCoreTreeWidget">
+        <widget class="QTreeWidget" name="rzCoreTreeWidget">
          <property name="sortingEnabled">
           <bool>true</bool>
          </property>
@@ -137,20 +137,20 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="RzAsmTab">
+     <widget class="QWidget" name="rzAsmTab">
       <attribute name="title">
        <string>RzAsm</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QLabel" name="RzAsmLabel">
+        <widget class="QLabel" name="rzAsmLabel">
          <property name="text">
           <string>RzAsm plugins</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QTreeWidget" name="RzAsmTreeWidget">
+        <widget class="QTreeWidget" name="rzAsmTreeWidget">
          <property name="sortingEnabled">
           <bool>true</bool>
          </property>
@@ -189,6 +189,16 @@
            <string>Author</string>
           </property>
          </column>
+         <column>
+           <property name="text">
+            <string>Capabilities</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Bits</string>
+           </property>
+          </column>
         </widget>
        </item>
       </layout>
@@ -198,10 +208,10 @@
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::StandardButton::Ok</set>
      </property>
     </widget>
    </item>

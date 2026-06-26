@@ -2,14 +2,16 @@
 #define DECOMPILER_HIGHLIGHTER_H
 
 #include "CutterCommon.h"
-#include <rz_util/rz_annotated_code.h>
+
 #include <QSyntaxHighlighter>
-#include <QTextDocument>
 #include <QTextCharFormat>
+#include <QTextDocument>
+
 #include <array>
+#include <rz_util/rz_annotated_code.h>
 
 /**
- * \brief SyntaxHighlighter based on annotations from decompiled code.
+ * @brief SyntaxHighlighter based on annotations from decompiled code.
  * Can be only used in combination with DecompilerWidget.
  */
 class CUTTER_EXPORT DecompilerHighlighter : public QSyntaxHighlighter
@@ -36,8 +38,8 @@ protected:
 private:
     void setupTheme();
 
-    static const int HIGHLIGHT_COUNT = RZ_SYNTAX_HIGHLIGHT_TYPE_GLOBAL_VARIABLE + 1;
-    std::array<QTextCharFormat, HIGHLIGHT_COUNT> format;
+    static const int highlightCount = RZ_SYNTAX_HIGHLIGHT_TYPE_GLOBAL_VARIABLE + 1;
+    std::array<QTextCharFormat, highlightCount> format;
     RzAnnotatedCode *code = nullptr;
 };
 

@@ -1,14 +1,12 @@
-#include <stdexcept>
 #include "AddressableItemModel.h"
 
 #include <stdexcept>
 
 AddressableFilterProxyModel::AddressableFilterProxyModel(AddressableItemModelI *sourceModel,
                                                          QObject *parent)
-    : AddressableItemModel<QSortFilterProxyModel>(parent)
+    : AddressableItemModel<QSortFilterProxyModel>(parent), addressableSourceModel(sourceModel)
 {
     setSourceModel(sourceModel);
-    addressableSourceModel = sourceModel;
 }
 
 RVA AddressableFilterProxyModel::address(const QModelIndex &index) const

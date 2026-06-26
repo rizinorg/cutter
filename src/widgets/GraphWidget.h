@@ -2,11 +2,15 @@
 #define GRAPHWIDGET_H
 
 #include "MemoryDockWidget.h"
+
 #include <QLineEdit>
 
 class MainWindow;
 class DisassemblerGraphView;
 
+/**
+ * @brief Widget holding the main @ref DisassemblerGraphView
+ */
 class GraphWidget : public MemoryDockWidget
 {
     Q_OBJECT

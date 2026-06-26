@@ -288,6 +288,14 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
           { { QKeySequence(Qt::Key_Escape) },
             QT_TRANSLATE_NOOP("Omnibar", "Clear Omnibar"),
             "Omnibar" } },
+        { "Omnibar.showMore",
+          { { QKeySequence(Qt::ControlModifier | Qt::Key_Return) },
+            QT_TRANSLATE_NOOP("Omnibar", "Show More Completions"),
+            "Omnibar" } },
+        { "Omnibar.showAll",
+          { { QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Return) },
+            QT_TRANSLATE_NOOP("Omnibar", "Show All Completions"),
+            "Omnibar" } },
 
         // Graph Overview
         { "Overview.zoomIn",
@@ -328,6 +336,40 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
           { { Qt::CTRL | Qt::Key_O },
             QT_TRANSLATE_NOOP("SearchBarWidget", "Show Search Bar Options Menu"),
             "SearchBarWidget" } },
+
+        // Types
+        { "Types.delete",
+          { { Qt::SHIFT | Qt::Key_D },
+            QT_TRANSLATE_NOOP("TypesWidget", "Delete"),
+            "TypesWidget" } },
+        { "Types.edit",
+          { { Qt::SHIFT | Qt::Key_E }, QT_TRANSLATE_NOOP("TypesWidget", "Edit"), "TypesWidget" } },
+        { "Types.export",
+          { { Qt::SHIFT | Qt::Key_X },
+            QT_TRANSLATE_NOOP("TypesWidget", "Export Types"),
+            "TypesWidget" } },
+        { "Types.load",
+          { { Qt::SHIFT | Qt::Key_L },
+            QT_TRANSLATE_NOOP("TypesWidget", "Load New Types"),
+            "TypesWidget" } },
+        { "Types.rename",
+          { { Qt::SHIFT | Qt::Key_R },
+            QT_TRANSLATE_NOOP("TypesWidget", "Rename"),
+            "TypesWidget" } },
+        { "Types.showUsages",
+          { { Qt::SHIFT | Qt::Key_U },
+            QT_TRANSLATE_NOOP("TypesWidget", "Show Usages"),
+            "TypesWidget" } },
+        { "Types.view",
+          { { QKeySequence(Qt::Key_Return), QKeySequence(Qt::SHIFT | Qt::Key_V) },
+            QT_TRANSLATE_NOOP("TypesWidget", "View"),
+            "TypesWidget" } },
+
+        // Docking
+        { "Docking.toggle",
+          { { Qt::Key_Alt },
+            QT_TRANSLATE_NOOP("CutterDockWidget", "Enable/Disable Docking"),
+            "CutterDockWidget" } },
 
     };
     return defaultShortcuts;

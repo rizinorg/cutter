@@ -1,14 +1,19 @@
 #ifndef GLOBALVARIABLEDIALOG_H
 #define GLOBALVARIABLEDIALOG_H
 
-#include <QDialog>
-#include <memory>
 #include "core/CutterCommon.h"
+
+#include <QDialog>
+
+#include <memory>
 
 namespace Ui {
 class GlobalVariableDialog;
 }
 
+/**
+ * @brief Dialog for defining, modifying, or deleting global variables at a specific address
+ */
 class GlobalVariableDialog : public QDialog
 {
     Q_OBJECT

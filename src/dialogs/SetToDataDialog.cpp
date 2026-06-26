@@ -1,5 +1,7 @@
 #include "SetToDataDialog.h"
+
 #include "ui_SetToDataDialog.h"
+
 #include <QIntValidator>
 
 SetToDataDialog::SetToDataDialog(RVA startAddr, QWidget *parent)
@@ -10,14 +12,15 @@ SetToDataDialog::SetToDataDialog(RVA startAddr, QWidget *parent)
     validator->setBottom(1);
     ui->sizeEdit->setValidator(validator);
     ui->repeatEdit->setValidator(validator);
-    ui->startAddrLabel->setText(RzAddressString(startAddr));
+    ui->startAddrLabel->setText(rzAddressString(startAddr));
     updateEndAddress();
+
+    connect(ui->sizeEdit, &QLineEdit::textChanged, this, &SetToDataDialog::onSizeEditTextChanged);
+    connect(ui->repeatEdit, &QLineEdit::textChanged, this,
+            &SetToDataDialog::onRepeatEditTextChanged);
 }
 
-SetToDataDialog::~SetToDataDialog()
-{
-    delete ui;
-}
+SetToDataDialog::~SetToDataDialog() {}
 
 int SetToDataDialog::getItemSize()
 {
@@ -31,17 +34,17 @@ int SetToDataDialog::getItemCount()
 
 void SetToDataDialog::updateEndAddress()
 {
-    RVA endAddr = startAddress + (getItemSize() * getItemCount());
-    ui->endAddrLabel->setText(RzAddressString(endAddr));
+    const RVA endAddr = startAddress + (getItemSize() * getItemCount());
+    ui->endAddrLabel->setText(rzAddressString(endAddr));
 }
 
-void SetToDataDialog::on_sizeEdit_textChanged(const QString &arg1)
+void SetToDataDialog::onSizeEditTextChanged(const QString &arg1)
 {
     Q_UNUSED(arg1);
     updateEndAddress();
 }
 
-void SetToDataDialog::on_repeatEdit_textChanged(const QString &arg1)
+void SetToDataDialog::onRepeatEditTextChanged(const QString &arg1)
 {
     Q_UNUSED(arg1);
     updateEndAddress();

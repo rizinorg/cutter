@@ -1,7 +1,9 @@
-#include "common/Helpers.h"
 #include "ResourcesWidget.h"
-#include "ui_ListDockWidget.h"
+
+#include "common/Helpers.h"
 #include "core/MainWindow.h"
+#include "ui_ListDockWidget.h"
+
 #include <QVBoxLayout>
 
 ResourcesModel::ResourcesModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent)
@@ -28,13 +30,13 @@ QVariant ResourcesModel::data(const QModelIndex &index, int role) const
         case NAME:
             return res.name;
         case VADDR:
-            return RzAddressString(res.vaddr);
+            return rzAddressString(res.vaddr);
         case INDEX:
             return QString::number(res.index);
         case TYPE:
             return res.type;
         case SIZE:
-            return qhelpers::formatBytecount(res.size);
+            return qhelpers::formatByteCount(res.size);
         case LANG:
             return res.lang;
         case COMMENT:
@@ -47,13 +49,13 @@ QVariant ResourcesModel::data(const QModelIndex &index, int role) const
         case NAME:
             return res.name;
         case VADDR:
-            return res.vaddr;
+            return static_cast<quint64>(res.vaddr);
         case INDEX:
-            return res.index;
+            return static_cast<quint64>(res.index);
         case TYPE:
             return res.type;
         case SIZE:
-            return res.size;
+            return static_cast<quint64>(res.size);
         case LANG:
             return res.lang;
         default:
@@ -100,18 +102,16 @@ RVA ResourcesModel::address(const QModelIndex &index) const
 }
 
 ResourcesWidget::ResourcesWidget(MainWindow *main)
-    : ListDockWidget(main, ListDockWidget::SearchBarPolicy::HideByDefault)
+    : ListDockWidget(main),
+      model(new ResourcesModel(this)),
+      filterModel(new AddressableFilterProxyModel(model, this))
 {
     setObjectName("ResourcesWidget");
 
-    model = new ResourcesModel(this);
-    filterModel = new AddressableFilterProxyModel(model, this);
     filterModel->setSortRole(Qt::EditRole);
     setModels(filterModel);
 
     ui->treeView->sortByColumn(0, Qt::AscendingOrder);
-
-    showCount(false);
 
     // Configure widget
     this->setWindowTitle(tr("Resources"));
@@ -119,6 +119,8 @@ ResourcesWidget::ResourcesWidget(MainWindow *main)
     connect(Core(), &CutterCore::refreshAll, this, &ResourcesWidget::refreshResources);
     connect(Core(), &CutterCore::commentsChanged, this,
             [this]() { qhelpers::emitColumnChanged(model, ResourcesModel::COMMENT); });
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
+            [this] { ui->quickFilterView->setItemCount(filterModel->rowCount()); });
 }
 
 void ResourcesWidget::refreshResources()
@@ -126,4 +128,7 @@ void ResourcesWidget::refreshResources()
     model->beginResetModel();
     model->resources = Core()->getAllResources();
     model->endResetModel();
+
+    // set the initial item count
+    ui->quickFilterView->setItemCount(filterModel->rowCount());
 }

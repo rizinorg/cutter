@@ -1,18 +1,19 @@
 #include "ColorPicker.h"
-#include "ui_ColorPicker.h"
-#include "common/Helpers.h"
 
+#include "common/Helpers.h"
+#include "ui_ColorPicker.h"
+
+#include <QMouseEvent>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPainterPath>
-#include <QMouseEvent>
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #    include <QDesktopWidget>
 #else
 #    include <QWindow>
 #endif
-#include <QPixmap>
 #include <QCursor>
+#include <QPixmap>
 #include <QScreen>
 
 using namespace ColorPickerHelpers;
@@ -38,7 +39,7 @@ void ColorPickArea::paintEvent(QPaintEvent *event)
     }
 
     p.setPen(QPen(Qt::black, 3));
-    QPoint curr = colorToPoint(currColor);
+    const QPoint curr = colorToPoint(currColor);
     p.drawLine(curr - QPoint(0, 8), curr + QPoint(0, 8));
     p.drawLine(curr - QPoint(8, 0), curr + QPoint(8, 0));
 
@@ -50,8 +51,8 @@ void ColorPickArea::setColor(const QColor &c)
     if (c == currColor) {
         return;
     }
-    QPoint p1 = colorToPoint(currColor);
-    QPoint p2 = colorToPoint(c);
+    const QPoint p1 = colorToPoint(currColor);
+    const QPoint p2 = colorToPoint(c);
     currColor = c;
     repaint(QRect(p2 - QPoint(10, 10), p2 + QPoint(10, 10)));
     repaint(QRect(p1 - QPoint(10, 10), p1 + QPoint(10, 10)));
@@ -133,7 +134,7 @@ void ColorValueBar::paintEvent(QPaintEvent *event)
         p.drawLine(barRect.x(), y, barRect.right(), y);
     }
 
-    QRectF triangleRect =
+    const QRectF triangleRect =
             QRectF(barRect.right(), v * height() - triangleSize / 2, triangleSize, triangleSize);
 
     QPainterPath path;
@@ -212,12 +213,12 @@ void ColorPicker::setColor(const QColor &color)
 
 void ColorPicker::colorChannelChanged()
 {
-    QString txt = ui->hexLineEdit->text();
+    const QString txt = ui->hexLineEdit->text();
     // Regex pattern below mimics the behaviour of former RegExp::exactMatch()
     if (!QRegularExpression("\\A(?:#[0-9a-fA-F]{6})\\z").match(txt).hasMatch()) {
         return;
     }
-    QColor hexColor = txt;
+    const QColor hexColor = txt;
 
     int h, s, v;
     h = ui->hueSpinBox->value();
@@ -244,20 +245,20 @@ void ColorPicker::colorChannelChanged()
 
 void ColorPicker::updateColor(const QColor &color)
 {
-    QSignalBlocker s0(ui->redSpinBox);
-    QSignalBlocker s1(ui->blueSpinBox);
-    QSignalBlocker s2(ui->greenSpinBox);
+    const QSignalBlocker s0(ui->redSpinBox);
+    const QSignalBlocker s1(ui->blueSpinBox);
+    const QSignalBlocker s2(ui->greenSpinBox);
 
-    QSignalBlocker s3(ui->valSpinBox);
-    QSignalBlocker s4(ui->satSpinBox);
-    QSignalBlocker s5(ui->hueSpinBox);
+    const QSignalBlocker s3(ui->valSpinBox);
+    const QSignalBlocker s4(ui->satSpinBox);
+    const QSignalBlocker s5(ui->hueSpinBox);
 
-    QSignalBlocker s6(ui->hexLineEdit);
+    const QSignalBlocker s6(ui->hexLineEdit);
 
-    QSignalBlocker s7(ui->alphaChannelBar);
-    QSignalBlocker s8(ui->colorPickArea);
-    QSignalBlocker s9(ui->colorShow);
-    QSignalBlocker s10(ui->valuePickBar);
+    const QSignalBlocker s7(ui->alphaChannelBar);
+    const QSignalBlocker s8(ui->colorPickArea);
+    const QSignalBlocker s9(ui->colorShow);
+    const QSignalBlocker s10(ui->valuePickBar);
 
     currColor = color;
 
@@ -322,7 +323,7 @@ QColor ColorPicker::getColorAtMouse()
                     ->grabWindow(desktop->winId(), QCursor::pos().x(), QCursor::pos().y(), 1, 1);
     return QColor(pixmap.toImage().pixel(0, 0));
 #else
-    QPoint pos = QCursor::pos();
+    const QPoint pos = QCursor::pos();
     auto screen = QGuiApplication::screenAt(pos);
     if (!screen) {
         screen = QGuiApplication::primaryScreen();
@@ -420,7 +421,7 @@ void AlphaChannelBar::paintEvent(QPaintEvent *event)
         }
     }
 
-    QRectF triangleRect =
+    const QRectF triangleRect =
             QRectF(barRect.right(), a * height() - triangleSize / 2, triangleSize, triangleSize);
 
     QPainterPath path;

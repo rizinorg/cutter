@@ -1,9 +1,9 @@
 #ifndef SDBWIDGET_H
 #define SDBWIDGET_H
 
-#include <memory>
-
 #include "CutterDockWidget.h"
+
+#include <memory>
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -12,6 +12,9 @@ namespace Ui {
 class SdbWidget;
 }
 
+/**
+ * @brief SDB browser showing entries as key-value pairs
+ */
 class SdbWidget : public CutterDockWidget
 {
     Q_OBJECT
@@ -37,9 +40,9 @@ public:
     ~SdbWidget() override;
 
 private slots:
-    void on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
-    void on_lockButton_clicked();
-    void on_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
+    void onTreeWidgetItemDoubleClicked(QTreeWidgetItem *item, int column);
+    void onLockButtonClicked();
+    void onTreeWidgetItemChanged(QTreeWidgetItem *item, int column);
 
     void reload(QString _path = QString());
 

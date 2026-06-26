@@ -1,30 +1,32 @@
 #include "DebugActions.h"
+
+#include "common/Configuration.h"
+#include "common/Helpers.h"
 #include "core/MainWindow.h"
 #include "dialogs/AttachProcDialog.h"
 #include "dialogs/NativeDebugDialog.h"
-#include "common/Configuration.h"
-#include "common/Helpers.h"
 #include "shortcuts/ShortcutManager.h"
 
-#include <QPainter>
-#include <QMenu>
-#include <QList>
 #include <QFileInfo>
+#include <QList>
+#include <QMenu>
+#include <QPainter>
+#include <QSettings>
 #include <QToolBar>
 #include <QToolButton>
-#include <QSettings>
 
-DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main), main(main)
+DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main)
+    : QObject(main), continueUntilButton(new QToolButton), main(main)
 {
     setObjectName("DebugActions");
     // setIconSize(QSize(16, 16));
 
     // define icons
-    QIcon startEmulIcon = QIcon(":/img/icons/play_light_emul.svg");
-    QIcon startAttachIcon = QIcon(":/img/icons/play_light_attach.svg");
-    QIcon startRemoteIcon = QIcon(":/img/icons/play_light_remote.svg");
-    QIcon continueBackIcon = QIcon(":/img/icons/reverse_continue.svg");
-    QIcon stepBackIcon = QIcon(":/img/icons/reverse_step.svg");
+    const QIcon startEmulIcon = QIcon(":/img/icons/play_light_emul.svg");
+    const QIcon startAttachIcon = QIcon(":/img/icons/play_light_attach.svg");
+    const QIcon startRemoteIcon = QIcon(":/img/icons/play_light_remote.svg");
+    const QIcon continueBackIcon = QIcon(":/img/icons/reverse_continue.svg");
+    const QIcon stepBackIcon = QIcon(":/img/icons/reverse_step.svg");
     startTraceIcon = QIcon(":/img/icons/start_trace.svg");
     stopTraceIcon = QIcon(":/img/icons/stop_trace.svg");
     stopIcon = QIcon(":/img/icons/media-stop_light.svg");
@@ -35,15 +37,15 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main),
     suspendIcon = QIcon(":/img/icons/media-suspend_light.svg");
 
     // define action labels
-    QString startEmulLabel = tr("Start emulation");
-    QString startAttachLabel = tr("Attach to process");
-    QString startRemoteLabel = tr("Connect to a remote debugger");
-    QString stopDebugLabel = tr("Stop debug");
-    QString stopEmulLabel = tr("Stop emulation");
-    QString restartEmulLabel = tr("Restart emulation");
-    QString continueUMLabel = tr("Continue until main");
-    QString continueUCLabel = tr("Continue until call");
-    QString continueUSLabel = tr("Continue until syscall");
+    const QString startEmulLabel = tr("Start emulation");
+    const QString startAttachLabel = tr("Attach to process");
+    const QString startRemoteLabel = tr("Connect to a remote debugger");
+    const QString stopDebugLabel = tr("Stop debug");
+    const QString stopEmulLabel = tr("Stop emulation");
+    const QString restartEmulLabel = tr("Restart emulation");
+    const QString continueUMLabel = tr("Continue until main");
+    const QString continueUCLabel = tr("Continue until call");
+    const QString continueUSLabel = tr("Continue until syscall");
     startTraceLabel = tr("Start trace session");
     stopTraceLabel = tr("Stop trace session");
     suspendLabel = tr("Suspend the process");
@@ -73,10 +75,10 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main),
     actionContinueUntilSyscall = new QAction(continueUSLabel, this);
     actionTrace = new QAction(startTraceIcon, startTraceLabel, this);
 
-    QToolButton *startButton = new QToolButton;
+    auto *startButton = new QToolButton;
     startButton->setPopupMode(QToolButton::MenuButtonPopup);
     connect(startButton, &QToolButton::triggered, startButton, &QToolButton::setDefaultAction);
-    QMenu *startMenu = new QMenu(startButton);
+    auto *startMenu = new QMenu(startButton);
 
     startMenu->addAction(actionStart);
     startMenu->addAction(actionStartEmul);
@@ -85,11 +87,10 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main),
     startButton->setDefaultAction(actionStart);
     startButton->setMenu(startMenu);
 
-    continueUntilButton = new QToolButton;
     continueUntilButton->setPopupMode(QToolButton::MenuButtonPopup);
     connect(continueUntilButton, &QToolButton::triggered, continueUntilButton,
             &QToolButton::setDefaultAction);
-    QMenu *continueUntilMenu = new QMenu(continueUntilButton);
+    auto *continueUntilMenu = new QMenu(continueUntilButton);
     continueUntilMenu->addAction(actionContinueUntilMain);
     continueUntilMenu->addAction(actionContinueUntilCall);
     continueUntilMenu->addAction(actionContinueUntilSyscall);
@@ -142,10 +143,10 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main),
         msgBox.exec();
     });
 
-    connect(Core(), &CutterCore::debugTaskStateChanged, this, [=]() {
-        bool disableToolbar = Core()->isDebugTaskInProgress();
+    connect(Core(), &CutterCore::debugTaskStateChanged, this, [=, this]() {
+        const bool disableToolbar = Core()->isDebugTaskInProgress();
         if (Core()->currentlyDebugging) {
-            for (QAction *a : toggleActions) {
+            for (auto a : std::as_const(toggleActions)) {
                 a->setDisabled(disableToolbar);
             }
             // Suspend should only be available when other icons are disabled
@@ -156,19 +157,19 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main),
                 actionContinue->setText(continueLabel);
                 actionContinue->setIcon(continueIcon);
             }
-            for (QAction *a : reverseActions) {
+            for (auto a : std::as_const(reverseActions)) {
                 a->setVisible(Core()->currentlyTracing);
                 a->setDisabled(disableToolbar);
             }
         } else {
-            for (QAction *a : toggleConnectionActions) {
+            for (auto a : std::as_const(toggleConnectionActions)) {
                 a->setDisabled(disableToolbar);
             }
         }
     });
 
     connect(actionStop, &QAction::triggered, Core(), &CutterCore::stopDebug);
-    connect(actionStop, &QAction::triggered, [=]() {
+    connect(actionStop, &QAction::triggered, [=, this]() {
         actionStart->setVisible(true);
         actionStartEmul->setVisible(true);
         actionAttach->setVisible(true);
@@ -192,7 +193,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main),
     connect(actionStartRemote, &QAction::triggered, this, &DebugActions::attachRemoteDialog);
     connect(Core(), &CutterCore::attachedRemote, this, &DebugActions::onAttachedRemoteDebugger);
     connect(actionStartEmul, &QAction::triggered, Core(), &CutterCore::startEmulation);
-    connect(actionStartEmul, &QAction::triggered, [=]() {
+    connect(actionStartEmul, &QAction::triggered, [=, this]() {
         setAllActionsVisible(true);
         actionStart->setVisible(false);
         actionAttach->setVisible(false);
@@ -204,7 +205,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main),
         actionStartEmul->setIcon(restartIcon);
         actionStop->setText(stopEmulLabel);
         // Reverse debug actions aren't visible until we start tracing
-        for (QAction *a : reverseActions) {
+        for (auto a : std::as_const(reverseActions)) {
             a->setVisible(false);
         }
     });
@@ -224,7 +225,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) : QObject(main),
         }
     });
 
-    connect(actionTrace, &QAction::triggered, Core(), [=]() {
+    connect(actionTrace, &QAction::triggered, Core(), [=, this]() {
         // Check if a debug session was created to switch between start and stop
         if (!Core()->currentlyTracing) {
             Core()->startTraceSession();
@@ -266,20 +267,20 @@ void DebugActions::showDebugWarning()
 
 void DebugActions::continueUntilMain()
 {
-    RzCoreLocked core(Core()->lock());
-    RzFlagItem *main_flag = rz_flag_get(core->flags, "sym.main");
-    if (!main_flag) {
-        main_flag = rz_flag_get(core->flags, "main");
-        if (!main_flag) {
+    auto core = Core()->lock();
+    const RzFlagItem *mainFlag = rz_flag_get(core->flags, "sym.main");
+    if (!mainFlag) {
+        mainFlag = rz_flag_get(core->flags, "main");
+        if (!mainFlag) {
             return;
         }
     }
-    Core()->continueUntilDebug(main_flag->offset);
+    Core()->continueUntilDebug(mainFlag->offset);
 }
 
 void DebugActions::attachRemoteDebugger()
 {
-    QString stopAttachLabel = tr("Detach from process");
+    const QString stopAttachLabel = tr("Detach from process");
     // Hide unwanted buttons
     setAllActionsVisible(true);
     actionStart->setVisible(false);
@@ -291,8 +292,9 @@ void DebugActions::attachRemoteDebugger()
 void DebugActions::onAttachedRemoteDebugger(bool successfully)
 {
     // TODO(#2829): Investigate why this is happening
-    if (remoteDialog == nullptr)
+    if (remoteDialog == nullptr) {
         return;
+    }
 
     if (!successfully) {
         QMessageBox msgBox(main);
@@ -319,7 +321,7 @@ void DebugActions::attachRemoteDialog()
     if (!remoteDialog) {
         remoteDialog = new RemoteDebugDialog(main);
     }
-    QMessageBox msgBox(main);
+    const QMessageBox msgBox(main);
     bool success = false;
     while (!success) {
         success = true;
@@ -343,7 +345,7 @@ void DebugActions::attachProcessDialog()
     while (!success) {
         success = true;
         if (dialog.exec()) {
-            int pid = dialog.getPID();
+            const int pid = dialog.getPID();
             if (pid >= 0) {
                 attachProcess(pid);
             } else {
@@ -358,7 +360,7 @@ void DebugActions::attachProcessDialog()
 
 void DebugActions::attachProcess(int pid)
 {
-    QString stopAttachLabel = tr("Detach from process");
+    const QString stopAttachLabel = tr("Detach from process");
     // hide unwanted buttons
     setAllActionsVisible(true);
     actionStart->setVisible(false);
@@ -373,9 +375,9 @@ void DebugActions::attachProcess(int pid)
 void DebugActions::startDebug()
 {
     // check if file is executable before starting debug
-    QString filename = Core()->getConfig("file.path");
+    const QString filename = Core()->getConfig("file.path");
 
-    QFileInfo info(filename);
+    const QFileInfo info(filename);
     if (!Core()->currentlyDebugging && !info.isExecutable()) {
         QMessageBox msgBox(main);
         msgBox.setText(tr("File '%1' does not have executable permissions.").arg(filename));
@@ -419,7 +421,7 @@ void DebugActions::startDebug()
     setButtonVisibleIfMainExists();
 
     // Reverse debug actions aren't visible until we start tracing
-    for (QAction *a : reverseActions) {
+    for (auto a : std::as_const(reverseActions)) {
         a->setVisible(false);
     }
     actionTrace->setText(startTraceLabel);
@@ -430,14 +432,11 @@ void DebugActions::startDebug()
 
 void DebugActions::setAllActionsVisible(bool visible)
 {
-    for (QAction *action : allActions) {
+    for (auto action : std::as_const(allActions)) {
         action->setVisible(visible);
     }
 }
 
-/**
- * @brief When theme changed, change icons which have a special version for the theme.
- */
 void DebugActions::chooseThemeIcons()
 {
     // List of QActions which have alternative icons in different themes

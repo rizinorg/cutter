@@ -1,14 +1,17 @@
-
 #ifndef PLUGINMANAGER_H
 #define PLUGINMANAGER_H
 
-#include <QObject>
+#include "plugins/CutterPlugin.h"
+
 #include <QDir>
+#include <QObject>
+
 #include <memory>
 #include <vector>
 
-#include "plugins/CutterPlugin.h"
-
+/**
+ * @brief Main class for managing plugins
+ */
 class PluginManager : public QObject
 {
     Q_OBJECT

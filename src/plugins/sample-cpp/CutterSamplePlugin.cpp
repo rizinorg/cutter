@@ -1,13 +1,13 @@
-#include <QLabel>
-#include <QHBoxLayout>
-#include <QPushButton>
-#include <QAction>
-
 #include "CutterSamplePlugin.h"
 
-#include <common/TempConfig.h>
-#include <common/Configuration.h>
+#include <QAction>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+
 #include <MainWindow.h>
+#include <common/Configuration.h>
+#include <common/TempConfig.h>
 #include <rz_core.h>
 
 void CutterSamplePlugin::setupPlugin() {}

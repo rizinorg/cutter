@@ -1,7 +1,8 @@
 #include "SymbolsWidget.h"
-#include "ui_ListDockWidget.h"
-#include "core/MainWindow.h"
+
 #include "common/Helpers.h"
+#include "core/MainWindow.h"
+#include "ui_ListDockWidget.h"
 
 #include <QShortcut>
 
@@ -29,7 +30,7 @@ QVariant SymbolsModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case SymbolsModel::AddressColumn:
-            return RzAddressString(symbol.vaddr);
+            return rzAddressString(symbol.vaddr);
         case SymbolsModel::TypeColumn:
             return QString("%1 %2").arg(symbol.bind, symbol.type).trimmed();
         case SymbolsModel::NameColumn:
@@ -88,7 +89,7 @@ SymbolsProxyModel::SymbolsProxyModel(SymbolsModel *sourceModel, QObject *parent)
 
 bool SymbolsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
-    QModelIndex index = sourceModel()->index(row, 0, parent);
+    const QModelIndex index = sourceModel()->index(row, 0, parent);
     auto symbol = index.data(SymbolsModel::SymbolDescriptionRole).value<SymbolDescription>();
 
     return qhelpers::filterStringContains(symbol.name, this);
@@ -115,13 +116,14 @@ bool SymbolsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     return false;
 }
 
-SymbolsWidget::SymbolsWidget(MainWindow *main) : ListDockWidget(main)
+SymbolsWidget::SymbolsWidget(MainWindow *main)
+    : ListDockWidget(main),
+      symbolsModel(new SymbolsModel(this)),
+      symbolsProxyModel(new SymbolsProxyModel(symbolsModel, this))
 {
     setWindowTitle(tr("Symbols"));
     setObjectName("SymbolsWidget");
 
-    symbolsModel = new SymbolsModel(this);
-    symbolsProxyModel = new SymbolsProxyModel(symbolsModel, this);
     setModels(symbolsProxyModel);
     ui->treeView->sortByColumn(SymbolsModel::AddressColumn, Qt::AscendingOrder);
 

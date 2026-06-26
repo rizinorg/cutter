@@ -1,7 +1,6 @@
 #ifndef GRAPHGRIDLAYOUT_H
 #define GRAPHGRIDLAYOUT_H
 
-#include "core/Cutter.h"
 #include "GraphLayout.h"
 #include "common/LinkedListPool.h"
 
@@ -12,14 +11,14 @@
 class GraphGridLayout : public GraphLayout
 {
 public:
-    enum class LayoutType {
+    enum class LayoutType : ut8 {
         Medium,
         Wide,
         Narrow,
     };
 
     GraphGridLayout(LayoutType layoutType = LayoutType::Medium);
-    virtual void CalculateLayout(Graph &blocks, ut64 entry, int &width, int &height) const override;
+    virtual void calculateLayout(Graph &blocks, ut64 entry, int &width, int &height) const override;
     void setTightSubtreePlacement(bool enabled) { tightSubtreePlacement = enabled; }
     void setParentBetweenDirectChild(bool enabled) { parentBetweenDirectChild = enabled; }
     void setverticalBlockAlignmentMiddle(bool enabled) { verticalBlockAlignmentMiddle = enabled; }
@@ -37,14 +36,14 @@ private:
     struct GridBlock
     {
         ut64 id;
-        std::vector<ut64> tree_edge; //!< subset of outgoing edges that form a tree
-        std::vector<ut64> dag_edge; //!< subset of outgoing edges that form a dag
-        std::size_t has_parent = false;
+        std::vector<ut64> treeEdge; //!< subset of outgoing edges that form a tree
+        std::vector<ut64> dagEdge; //!< subset of outgoing edges that form a dag
+        std::size_t hasParent = false;
         int inputCount = 0;
         int outputCount = 0;
 
         /// Number of rows in subtree
-        int row_count = 0;
+        int rowCount = 0;
         /// Column in which the block is
         int col = 0;
         /// Row in which the block is
@@ -84,7 +83,7 @@ private:
 
     struct LayoutState
     {
-        std::unordered_map<ut64, GridBlock> grid_blocks;
+        std::unordered_map<ut64, GridBlock> gridBlocks;
         std::unordered_map<ut64, GraphBlock> *blocks = nullptr;
         std::unordered_map<ut64, std::vector<GridEdge>> edge;
         size_t rows = -1;

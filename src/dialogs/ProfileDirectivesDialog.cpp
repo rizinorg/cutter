@@ -1,18 +1,22 @@
 #include "ProfileDirectivesDialog.h"
+
 #include "ui_ProfileDirectivesDialog.h"
 
 #include <QPushButton>
 
 ProfileDirectivesDialog::ProfileDirectivesDialog(QWidget *parent)
-    : QDialog(parent), ui(new Ui::ProfileDirectivesDialog)
+    : QDialog(parent),
+      ui(new Ui::ProfileDirectivesDialog),
+      model(new QStandardItemModel(this)),
+      proxyModel(new QSortFilterProxyModel(this))
 {
     ui->setupUi(this);
 
     setWindowTitle(tr("Profile Directives"));
 
-    model = new QStandardItemModel(this);
     model->setHorizontalHeaderLabels({ tr("Key"), tr("Description") });
 
+    // TODO: there should be a rizin function to query this
     addDirective("arg[0-511]", tr("Set value for argument N passed to the program"));
     addDirective("aslr", tr("Enable or disable ASLR"));
     addDirective("bits", tr("Set 32 or 64 bit (if the architecture supports it)"));
@@ -64,7 +68,6 @@ ProfileDirectivesDialog::ProfileDirectivesDialog(QWidget *parent)
                  tr("Signal to use when killing the child because the timeout happens"));
     addDirective("unsetenv", tr("Unset one environment variable"));
 
-    proxyModel = new QSortFilterProxyModel(this);
     proxyModel->setSourceModel(model);
     proxyModel->setFilterKeyColumn(0);
     proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);

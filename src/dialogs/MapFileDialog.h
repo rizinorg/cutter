@@ -2,13 +2,17 @@
 #define MAPFILEDIALOG_H
 
 #include <QDialog>
+
 #include <memory>
-#include "core/Cutter.h"
 
 namespace Ui {
 class MapFileDialog;
 }
 
+/**
+ * @brief Dialog for mapping an external file into the current IO session at a specific memory
+ * address
+ */
 class MapFileDialog : public QDialog
 {
     Q_OBJECT
@@ -18,9 +22,9 @@ public:
     ~MapFileDialog();
 
 private slots:
-    void on_selectFileButton_clicked();
-    void on_buttonBox_accepted();
-    void on_buttonBox_rejected();
+    void onSelectFileButtonClicked();
+    void onButtonBoxAccepted();
+    void onButtonBoxRejected();
 
 private:
     std::unique_ptr<Ui::MapFileDialog> ui;

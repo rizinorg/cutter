@@ -1,11 +1,12 @@
 #include "NativeDebugDialog.h"
-#include "ui_NativeDebugDialog.h"
-#include "shortcuts/ShortcutManager.h"
-#include "ProfileDirectivesDialog.h"
 
+#include "ProfileDirectivesDialog.h"
+#include "shortcuts/ShortcutManager.h"
+#include "ui_NativeDebugDialog.h"
+
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QShortcut>
-#include <QFileDialog>
 #include <QTextStream>
 
 NativeDebugDialog::NativeDebugDialog(QWidget *parent)
@@ -82,7 +83,7 @@ DebugConfigMethod NativeDebugDialog::getSelectedMethod() const
 
 void NativeDebugDialog::profilePathBtnClicked()
 {
-    QString filePath =
+    const QString filePath =
             QFileDialog::getOpenFileName(this, tr("Open RzRun Profile"), QString(),
                                          tr("RzRun Profiles (*.rz *.rrz);;All Files (*)"));
     setFileContents(filePath);
@@ -99,7 +100,7 @@ void NativeDebugDialog::setFileContents(const QString &filePath)
     QFile file(filePath);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);
-        QString directives = in.readAll();
+        const QString directives = in.readAll();
 
         // These directives are loaded from the profile
         // If unmodified: 'dbg.profile' will point directly to the original file path

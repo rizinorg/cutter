@@ -1,10 +1,16 @@
 #ifndef DEFAULTSHORTCUTS_H
 #define DEFAULTSHORTCUTS_H
 
-#include <QString>
-#include <QKeySequence>
 #include <QHash>
+#include <QKeySequence>
 #include <QPair>
+#include <QString>
+
+/**
+ * @file DefaultShortcuts.h
+ * Contains all of the default shortcuts for Cutter
+ * Visually shown in @ref ShortcutOptionsWidget
+ */
 
 struct Shortcut
 {

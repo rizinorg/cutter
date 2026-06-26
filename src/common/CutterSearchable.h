@@ -1,11 +1,13 @@
 #ifndef CUTTERSEARCHABLE_H
 #define CUTTERSEARCHABLE_H
 
+#include "CutterCommon.h"
+
 class QString;
 class SearchBarWidget;
 class QWidget;
 
-enum SearchOption {
+enum SearchOption : ut8 {
     CaseSensitive = 1,
     WholeWords = 1 << 1,
     RegExp = 1 << 2,
@@ -15,10 +17,10 @@ enum SearchOption {
 /**
  * @brief Interface for any widget that needs a search bar
  */
-class CutterSearchable
+class CutterSearchableI
 {
 public:
-    virtual ~CutterSearchable() = default;
+    virtual ~CutterSearchableI() = default;
 
     /**
      * @brief Widget which the search bar will be shown relative to

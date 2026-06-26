@@ -1,9 +1,12 @@
 #ifndef EDITREGPROFILEDIALOG_H
 #define EDITREGPROFILEDIALOG_H
 
+#include "CutterDescriptions.h" // IWYU pragma: keep
+
 #include <QDialog>
 #include <QStandardItemModel>
 #include <QTableView>
+
 #include <memory>
 
 namespace Ui {
@@ -57,10 +60,10 @@ private slots:
     void showContextMenu(const QPoint &pos);
 
 private:
-    enum CustomRole { CommentRole = Qt::UserRole + 1 };
-    enum TabIndex { TAB_ALIASES, TAB_REGISTERS, TAB_RAW };
-    enum AliasCol { ALIAS_NAME = 0, ALIAS_REG, ALIAS_MAX_COL };
-    enum RegCol {
+    enum CustomRole : ut16 { CommentRole = Qt::UserRole + 1 };
+    enum TabIndex : ut8 { TAB_ALIASES, TAB_REGISTERS, TAB_RAW };
+    enum AliasCol : ut8 { ALIAS_NAME = 0, ALIAS_REG, ALIAS_MAX_COL };
+    enum RegCol : ut8 {
         REG_TYPE = 0,
         REG_NAME,
         REG_SIZE,

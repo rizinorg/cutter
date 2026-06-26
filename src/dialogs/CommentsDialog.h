@@ -1,15 +1,19 @@
 #ifndef COMMENTSDIALOG_H
 #define COMMENTSDIALOG_H
 
-#include <QDialog>
-#include <memory>
-
 #include "core/CutterCommon.h"
+
+#include <QDialog>
+
+#include <memory>
 
 namespace Ui {
 class CommentsDialog;
 }
 
+/**
+ * @brief Dialog for adding or editing code comments at a specific address
+ */
 class CommentsDialog : public QDialog
 {
     Q_OBJECT
@@ -23,9 +27,9 @@ public:
 
     static void addOrEditComment(RVA offset, QWidget *parent);
 private slots:
-    void on_buttonBox_accepted();
+    void onButtonBoxAccepted();
 
-    void on_buttonBox_rejected();
+    void onButtonBoxRejected();
 
 private:
     std::unique_ptr<Ui::CommentsDialog> ui;

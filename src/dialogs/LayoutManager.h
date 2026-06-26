@@ -1,15 +1,19 @@
 #ifndef LAYOUT_MANAGER_H
 #define LAYOUT_MANAGER_H
 
-#include <QDialog>
-#include <memory>
-#include "core/Cutter.h"
 #include "common/CutterLayout.h"
+
+#include <QDialog>
+
+#include <memory>
 
 namespace Ui {
 class LayoutManager;
 }
 
+/**
+ * @brief Dialog for managing custom UI layouts
+ */
 class LayoutManager : public QDialog
 {
     Q_OBJECT
@@ -19,7 +23,7 @@ public:
     ~LayoutManager();
 
 private:
-    void refreshNameList(QString selection = "");
+    void refreshNameList(const QString &selection = "");
     void renameCurrentLayout();
     void deleteLayout();
     void updateButtons();

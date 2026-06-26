@@ -1,28 +1,28 @@
 #include "DisassemblyPreview.h"
+
 #include "Configuration.h"
-#include "widgets/GraphView.h"
+#include "rz_types_base.h"
 
 #include <QCoreApplication>
-#include <QWidget>
-#include <QToolTip>
 #include <QProcessEnvironment>
+#include <QToolTip>
+#include <QWidget>
 
-namespace DH = DisassemblyHelper;
+namespace DisHlp = DisassemblyHelper;
 
 QString DisassemblyPreview::getToolTipStyleSheet()
 {
     return QString { "QToolTip { border-width: 1px; max-width: %1px;"
                      "opacity: 230; background-color: %2;"
                      "color: %3; border-color: %3;}" }
-            .arg(400)
-            .arg(Config()->getColor("gui.tooltip.background").name())
-            .arg(Config()->getColor("gui.tooltip.foreground").name());
+            .arg(QString::number(400), Config()->getColor("gui.tooltip.background").name(),
+                 Config()->getColor("gui.tooltip.foreground").name());
 }
 
 bool DisassemblyPreview::showDisasPreview(QWidget *parent, const QPoint &pointOfEvent,
                                           const RVA offsetFrom)
 {
-    QList<XrefDescription> refs = Core()->getXRefs(offsetFrom, false, false);
+    const QList<XrefDescription> refs = Core()->getXRefs(offsetFrom, false, false);
     if (refs.length()) {
         if (refs.length() > 1) {
             qWarning() << QObject::tr(
@@ -30,7 +30,7 @@ bool DisassemblyPreview::showDisasPreview(QWidget *parent, const QPoint &pointOf
                                   .arg(refs.length());
         }
 
-        RVA offsetTo = refs.at(0).to; // This is the offset we want to preview
+        const RVA offsetTo = refs.at(0).to; // This is the offset we want to preview
         /*
          * Only if the offset we point *to* is different from the one the cursor is currently
          * on *and* the former is a valid offset, we are allowed to get a preview of offsetTo
@@ -45,15 +45,15 @@ bool DisassemblyPreview::showDisasPreview(QWidget *parent, const QPoint &pointOf
 bool DisassemblyPreview::showDisasPreviewAt(QWidget *parent, const QPoint &pointOfEvent,
                                             const RVA offset)
 {
-    QStringList disasmPreview = Core()->getDisassemblyPreview(offset, 10);
+    const QStringList disasmPreview = Core()->getDisassemblyPreview(offset, 10);
     if (!disasmPreview.isEmpty()) {
         const QFont &fnt = Config()->getFont();
-        QString tooltip = QString { "<html><div style=\"font-family: %1; font-size: %2pt; "
-                                    "white-space: nowrap;\"><div style=\"margin-bottom: "
-                                    "10px;\"><strong>Disassembly Preview</strong>:<br>%3<div>" }
-                                  .arg(fnt.family())
-                                  .arg(qMax(8, fnt.pointSize() - 1))
-                                  .arg(disasmPreview.join("<br>"));
+        const QString tooltip = QString("<html><div style=\"font-family: %1; font-size: %2pt; "
+                                        "white-space: nowrap;\"><div style=\"margin-bottom: "
+                                        "10px;\"><strong>Disassembly Preview</strong>:<br>%3<div>")
+                                        .arg(fnt.family())
+                                        .arg(qMax(8, fnt.pointSize() - 1))
+                                        .arg(disasmPreview.join("<br>"));
 
         QToolTip::showText(pointOfEvent, tooltip, parent, QRect {}, 3500);
         return true;
@@ -62,88 +62,62 @@ bool DisassemblyPreview::showDisasPreviewAt(QWidget *parent, const QPoint &point
     return false;
 }
 
-typedef struct mmio_lookup_context
-{
-    QString selected;
-    RVA mmio_address;
-} mmio_lookup_context_t;
-
-static bool lookup_mmio_addr_cb(void *user, const ut64 key, const void *value)
-{
-    mmio_lookup_context_t *ctx = (mmio_lookup_context_t *)user;
-    if (ctx->selected == (const char *)value) {
-        ctx->mmio_address = key;
-        return false;
-    }
-    return true;
-}
-
 bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &pointOfEvent,
-                                               const QString &selectedText, const RVA offset)
+                                               const DisHlp::TargetAction &ta,
+                                               const DisHlp::TargetContext &ctx)
 {
-    if (selectedText.isEmpty())
-        return false;
-
-    if (selectedText.at(0).isLetter()) {
-        {
-            const auto registerRefs = Core()->getRegisterRefValues();
-            for (auto &reg : registerRefs) {
-                if (reg.name == selectedText) {
-                    auto msg = QString("reg %1 = %2").arg(reg.name, reg.value);
-                    QToolTip::showText(pointOfEvent, msg, parent);
-                    return true;
-                }
-            }
+    QString msg;
+    switch (ta.type) {
+    case DisHlp::TargetType::Register: {
+        msg = QString("reg %1 = 0x%2").arg(ctx.word).arg(ta.value, 0, 16);
+        auto fcn = Core()->functionIn(ta.value);
+        if (fcn) {
+            msg += QString(" (%1)").arg(fcn->name);
         }
-
-        if (offset != RVA_INVALID) {
-            auto vars = Core()->getVariables(offset);
-            for (auto &var : vars) {
-                if (var.name == selectedText) {
-                    auto msg = QString("var %1 = %2").arg(var.name, var.value);
-                    QToolTip::showText(pointOfEvent, msg, parent);
-                    return true;
-                }
-            }
-        }
-
-        {
-            // Lookup MMIO address
-            mmio_lookup_context_t ctx;
-            ctx.selected = selectedText;
-            ctx.mmio_address = RVA_INVALID;
-            auto core = Core()->lock();
-            RzPlatformTarget *arch_target = core->analysis->arch_target;
-            if (arch_target && arch_target->profile) {
-                ht_up_foreach(arch_target->profile->registers_mmio, lookup_mmio_addr_cb, &ctx);
-            }
-            if (ctx.mmio_address != RVA_INVALID) {
-                int len = 8; // TODO: Determine proper len of mmio address for the cpu
-                if (char *r = rz_core_print_hexdump_or_hexdiff_str(core, RZ_OUTPUT_MODE_STANDARD,
-                                                                   ctx.mmio_address, len, false)) {
-                    auto val = QString::fromUtf8(r).trimmed().split("\n").last();
-                    auto msg = QString("mmio %1 %2").arg(selectedText, val);
-                    free(r);
-                    QToolTip::showText(pointOfEvent, msg, parent);
-                    return true;
-                }
-            }
-        }
+        break;
     }
+    case DisHlp::TargetType::VariableValue: {
+        msg = QString("var %1 = 0x%2").arg(ctx.word).arg(ta.value, 0, 16);
+        break;
+    }
+    case DisHlp::TargetType::MMIO: {
+        const int len = 8; // TODO: Determine proper len of mmio address for the cpu
+        auto core = Core()->lock();
+        if (char *r = rz_core_print_hexdump_or_hexdiff_str(core, RZ_OUTPUT_MODE_STANDARD, ta.value,
+                                                           len, false)) {
+            msg = QString("mmio %1 %2").arg(ctx.word, QString::fromUtf8(r).trimmed());
+            free(r);
+        }
+        break;
+    }
+    case DisHlp::TargetType::Memory: {
+        const ut64 addr = Core()->math(ctx.word.mid(1, ctx.word.length() - 2));
+        msg = QString("%1 = 0x%2 -> 0x%3").arg(ctx.word).arg(addr, 0, 16).arg(ta.value, 0, 16);
+        break;
+    }
+    default:
+        return false;
+    }
+
+    if (!msg.isEmpty()) {
+        QToolTip::showText(pointOfEvent, msg, parent);
+        return true;
+    }
+
     // Else show preview for value?
     return false;
 }
 
 bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
-                                     const DH::TargetContext &ctx, bool hasPreview)
+                                     const DisHlp::TargetContext &ctx, bool hasPreview)
 {
-    bool isWordEmpty = ctx.word.isEmpty();
+    const bool isWordEmpty = ctx.word.isEmpty();
     if (hasPreview) {
-        auto ta = DH::resolveTarget(ctx, DH::XRefComments | DH::Arrows);
+        auto ta = DisHlp::resolveTarget(ctx, DisHlp::XRefComments | DisHlp::Arrows);
 
-        if (!isWordEmpty && ta.type == DH::TargetType::XRefComment) {
-            if (ta.offset != RVA_INVALID) {
-                showDisasPreviewAt(parent, globalPos, ta.offset);
+        if (!isWordEmpty && ta.type == DisHlp::TargetType::XRefComment) {
+            if (ta.value != RVA_INVALID) {
+                showDisasPreviewAt(parent, globalPos, ta.value);
             }
             // consume the event even if the text under cursor is not an address, this prevents
             // jumping to incorrect offset (offset pointed to by the next instruction line)
@@ -151,7 +125,8 @@ bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
             return true;
         }
 
-        if (ta.type == DH::TargetType::Arrow && showDisasPreviewAt(parent, globalPos, ta.offset)) {
+        if (ta.type == DisHlp::TargetType::Arrow
+            && showDisasPreviewAt(parent, globalPos, ta.value)) {
             return true;
         }
 
@@ -160,9 +135,13 @@ bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
         }
     }
 
-    if (Config()->getShowVarTooltips() && !isWordEmpty
-        && showDebugValueTooltip(parent, globalPos, ctx.word, ctx.offset)) {
-        return true;
+    if (Config()->getShowVarTooltips() && (Core()->currentlyDebugging || Core()->currentlyEmulating)
+        && !isWordEmpty) {
+        auto ta = DisHlp::resolveTarget(ctx, DisHlp::Debug);
+        if (ta.type != DisHlp::TargetType::None
+            && showDebugValueTooltip(parent, globalPos, ta, ctx)) {
+            return true;
+        }
     }
 
     return false;

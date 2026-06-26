@@ -2,8 +2,9 @@
 #define PROFILEDIRECTIVESDIALOG_H
 
 #include <QDialog>
-#include <QStandardItemModel>
 #include <QSortFilterProxyModel>
+#include <QStandardItemModel>
+
 #include <memory>
 
 namespace Ui {

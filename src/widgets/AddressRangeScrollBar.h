@@ -1,9 +1,14 @@
 #ifndef ADDRESS_RANGE_SCROLLBAR_H
 #define ADDRESS_RANGE_SCROLLBAR_H
 
-#include <QScrollBar>
 #include "CutterCommon.h"
 
+#include <QScrollBar>
+
+/**
+ * @brief Generic scrollbar class to be used by memory address based widgets (Disassembly, Hexdump
+ * etc)
+ */
 class AddressRangeScrollBar : public QScrollBar
 {
     Q_OBJECT
@@ -13,8 +18,8 @@ public:
     void setPosition(RVA address);
     RVA address();
 
-    RVA clampAddressToRange(RVA address);
-    RVA rangeSize();
+    RVA clampAddressToRange(RVA address) const;
+    RVA rangeSize() const;
 
     /**
      * @brief Sends fake wheelEvent to the parent QScrollBar

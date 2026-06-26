@@ -1,21 +1,23 @@
 #include "EditRegProfileDialog.h"
+
 #include "ui_EditRegProfileDialog.h"
 
+#include <QMenu>
+#include <QMessageBox>
 #include <QRegularExpression>
 #include <QTextStream>
-#include <QMessageBox>
-#include <QMenu>
 
 EditRegProfileDialog::EditRegProfileDialog(QWidget *parent)
-    : QDialog(parent), ui(new Ui::EditRegProfileDialog)
+    : QDialog(parent),
+      aliasModel(new QStandardItemModel(0, ALIAS_MAX_COL, this)),
+      regModel(new QStandardItemModel(0, REG_MAX_COL, this)),
+      ui(new Ui::EditRegProfileDialog)
 {
     ui->setupUi(this);
 
-    aliasModel = new QStandardItemModel(0, ALIAS_MAX_COL, this);
     aliasModel->setHorizontalHeaderLabels({ tr("Alias"), tr("Register") });
     ui->aliasTable->setModel(aliasModel);
 
-    regModel = new QStandardItemModel(0, REG_MAX_COL, this);
     regModel->setHorizontalHeaderLabels({ tr("Type"), tr("Name"), tr("Size"), tr("Offset"),
                                           tr("Packed"), tr("Flags/Comment") });
     ui->regTable->setModel(regModel);
@@ -74,7 +76,7 @@ void EditRegProfileDialog::parseToTables(const QString &data)
     bool parsingRegisters = false;
 
     for (const QString &line : lines) {
-        QString trimmed = line.trimmed();
+        const QString trimmed = line.trimmed();
         if (trimmed.isEmpty()) {
             continue;
         }
@@ -85,7 +87,7 @@ void EditRegProfileDialog::parseToTables(const QString &data)
 
         // handle comments
         if (trimmed.startsWith('#')) {
-            QStandardItem *commentItem = new QStandardItem(trimmed);
+            auto *commentItem = new QStandardItem(trimmed);
             commentItem->setData(true, CommentRole);
 
             if (parsingRegisters) {
@@ -93,12 +95,12 @@ void EditRegProfileDialog::parseToTables(const QString &data)
                 for (int i = 1; i < REG_MAX_COL; ++i) {
                     items << new QStandardItem("");
                 }
-                int rowIdx = regModel->rowCount();
+                const int rowIdx = regModel->rowCount();
                 regModel->appendRow(items);
                 ui->regTable->setSpan(rowIdx, 0, 1, REG_MAX_COL);
             } else {
-                QList<QStandardItem *> items = { commentItem, new QStandardItem("") };
-                int rowIdx = aliasModel->rowCount();
+                const QList<QStandardItem *> items = { commentItem, new QStandardItem("") };
+                const int rowIdx = aliasModel->rowCount();
                 aliasModel->appendRow(items);
                 ui->aliasTable->setSpan(rowIdx, 0, 1, ALIAS_MAX_COL);
             }
@@ -130,7 +132,7 @@ QString EditRegProfileDialog::tablesToText() const
 
     // Aliases
     for (int i = 0; i < aliasModel->rowCount(); ++i) {
-        QStandardItem *firstItem = aliasModel->item(i, 0);
+        const QStandardItem *firstItem = aliasModel->item(i, 0);
         if (firstItem && firstItem->data(CommentRole).toBool()) {
             ts << firstItem->text() << "\n";
         } else {
@@ -147,7 +149,7 @@ QString EditRegProfileDialog::tablesToText() const
 
     // Registers
     for (int i = 0; i < regModel->rowCount(); ++i) {
-        QStandardItem *firstItem = regModel->item(i, 0);
+        const QStandardItem *firstItem = regModel->item(i, 0);
         if (firstItem && firstItem->data(CommentRole).toBool()) {
             ts << firstItem->text() << "\n";
         } else {
@@ -165,24 +167,24 @@ QString EditRegProfileDialog::tablesToText() const
 
 void EditRegProfileDialog::onAddRow()
 {
-    TabContext tabCtx = getActiveTab();
+    const TabContext tabCtx = getActiveTab();
     auto model = tabCtx.model;
     auto view = tabCtx.view;
-    QModelIndex current = view->currentIndex();
-    int row = current.isValid() ? current.row() + 1 : model->rowCount();
+    const QModelIndex current = view->currentIndex();
+    const int row = current.isValid() ? current.row() + 1 : model->rowCount();
     model->insertRow(row);
 
-    QModelIndex newIdx = model->index(row, 0);
+    const QModelIndex newIdx = model->index(row, 0);
     view->setCurrentIndex(newIdx);
     view->edit(newIdx);
 }
 
 void EditRegProfileDialog::onRemoveRow()
 {
-    TabContext tabCtx = getActiveTab();
+    const TabContext tabCtx = getActiveTab();
     auto model = tabCtx.model;
     auto view = tabCtx.view;
-    QModelIndex current = view->currentIndex();
+    const QModelIndex current = view->currentIndex();
     if (current.isValid()) {
         model->removeRow(current.row());
     }
@@ -190,7 +192,7 @@ void EditRegProfileDialog::onRemoveRow()
 
 void EditRegProfileDialog::onTabChanged(int index)
 {
-    bool raw = (index == TAB_RAW);
+    const bool raw = (index == TAB_RAW);
     if (raw) {
         ui->rawProfileEdit->setPlainText(tablesToText());
     } else {
@@ -202,21 +204,21 @@ void EditRegProfileDialog::onTabChanged(int index)
 
 void EditRegProfileDialog::showContextMenu(const QPoint &pos)
 {
-    TabContext tabCtx = getActiveTab();
+    const TabContext tabCtx = getActiveTab();
     auto view = tabCtx.view;
     auto model = tabCtx.model;
 
-    QModelIndex index = view->indexAt(pos);
-    int row = index.isValid() ? index.row() : model->rowCount();
+    const QModelIndex index = view->indexAt(pos);
+    const int row = index.isValid() ? index.row() : model->rowCount();
 
     QMenu menu(this);
-    QAction *addAbove = menu.addAction(tr("Add Row Above"));
-    QAction *addBelow = menu.addAction(tr("Add Row Below"));
+    const QAction *addAbove = menu.addAction(tr("Add Row Above"));
+    const QAction *addBelow = menu.addAction(tr("Add Row Below"));
     menu.addSeparator();
     QAction *remove = menu.addAction(tr("Remove Row"));
 
     remove->setEnabled(index.isValid());
-    QAction *selected = menu.exec(view->viewport()->mapToGlobal(pos));
+    const QAction *selected = menu.exec(view->viewport()->mapToGlobal(pos));
 
     if (!selected) {
         return;

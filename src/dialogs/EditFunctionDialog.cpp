@@ -1,4 +1,5 @@
 #include "EditFunctionDialog.h"
+
 #include "ui_EditFunctionDialog.h"
 
 EditFunctionDialog::EditFunctionDialog(QWidget *parent)
@@ -6,6 +7,11 @@ EditFunctionDialog::EditFunctionDialog(QWidget *parent)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
+
+    connect(ui->buttonBox, &QDialogButtonBox::accepted, this,
+            &EditFunctionDialog::onButtonBoxAccepted);
+    connect(ui->buttonBox, &QDialogButtonBox::rejected, this,
+            &EditFunctionDialog::onButtonBoxRejected);
 }
 
 EditFunctionDialog::~EditFunctionDialog() {}
@@ -58,9 +64,9 @@ QString EditFunctionDialog::getCallConSelected()
     return ui->callConComboBox->currentText();
 }
 
-void EditFunctionDialog::on_buttonBox_accepted() {}
+void EditFunctionDialog::onButtonBoxAccepted() {}
 
-void EditFunctionDialog::on_buttonBox_rejected()
+void EditFunctionDialog::onButtonBoxRejected()
 {
     close();
 }

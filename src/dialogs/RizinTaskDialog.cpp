@@ -1,16 +1,16 @@
 #include "RizinTaskDialog.h"
+
 #include "common/RizinTask.h"
+#include "ui_RizinTaskDialog.h"
 
 #include <QCloseEvent>
 
-#include "ui_RizinTaskDialog.h"
-
-RizinTaskDialog::RizinTaskDialog(RizinTask::Ptr task, QWidget *parent)
+RizinTaskDialog::RizinTaskDialog(const RizinTask::Ptr &task, QWidget *parent)
     : QDialog(parent), ui(new Ui::RizinTaskDialog), task(task)
 {
     ui->setupUi(this);
 
-    connect(task.data(), &RizinTask::finished, this, [this]() { close(); });
+    connect(task.get(), &RizinTask::finished, this, [this]() { close(); });
 
     connect(&timer, &QTimer::timeout, this, &RizinTaskDialog::updateProgressTimer);
     timer.setInterval(1000);
@@ -25,9 +25,9 @@ RizinTaskDialog::~RizinTaskDialog() {}
 
 void RizinTaskDialog::updateProgressTimer()
 {
-    int secondsElapsed = elapsedTimer.elapsed() / 1000;
-    int minutesElapsed = secondsElapsed / 60;
-    int hoursElapsed = minutesElapsed / 60;
+    const int secondsElapsed = elapsedTimer.elapsed() / 1000;
+    const int minutesElapsed = secondsElapsed / 60;
+    const int hoursElapsed = minutesElapsed / 60;
 
     QString label;
     if (hoursElapsed) {

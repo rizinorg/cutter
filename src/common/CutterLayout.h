@@ -6,6 +6,9 @@
 #include <QString>
 #include <QVariantMap>
 
+/**
+ * @namespace Utilities related to cutter layout
+ */
 namespace Cutter {
 
 struct CutterLayout
@@ -15,8 +18,8 @@ struct CutterLayout
     QMap<QString, QVariantMap> viewProperties;
 };
 
-const QString LAYOUT_DEFAULT = "Default";
-const QString LAYOUT_DEBUG = "Debug";
+const QString layoutDefault = "Default";
+const QString layoutDebug = "Debug";
 
 bool isBuiltinLayoutName(const QString &name);
 

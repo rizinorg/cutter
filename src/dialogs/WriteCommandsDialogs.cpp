@@ -1,10 +1,10 @@
 #include "WriteCommandsDialogs.h"
-#include "ui_Base64EnDecodedWriteDialog.h"
-#include "ui_IncrementDecrementDialog.h"
-#include "ui_DuplicateFromOffsetDialog.h"
-#include "Cutter.h"
 
-#include <cmath>
+#include "Cutter.h"
+#include "ui_Base64EnDecodedWriteDialog.h"
+#include "ui_DuplicateFromOffsetDialog.h"
+#include "ui_IncrementDecrementDialog.h"
+
 #include <QFontDatabase>
 
 Base64EnDecodedWriteDialog::Base64EnDecodedWriteDialog(QWidget *parent)
@@ -13,6 +13,8 @@ Base64EnDecodedWriteDialog::Base64EnDecodedWriteDialog(QWidget *parent)
     ui->setupUi(this);
     ui->decodeRB->click();
 }
+
+Base64EnDecodedWriteDialog::~Base64EnDecodedWriteDialog() {}
 
 Base64EnDecodedWriteDialog::Mode Base64EnDecodedWriteDialog::getMode() const
 {
@@ -36,19 +38,21 @@ IncrementDecrementDialog::IncrementDecrementDialog(QWidget *parent)
             new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-Fx]{1,18}"), ui->valueLE));
 }
 
+IncrementDecrementDialog::~IncrementDecrementDialog() {}
+
 IncrementDecrementDialog::Mode IncrementDecrementDialog::getMode() const
 {
     return ui->incrementRB->isChecked() ? Increase : Decrease;
 }
 
-uint8_t IncrementDecrementDialog::getNBytes() const
+ut8 IncrementDecrementDialog::getNBytes() const
 {
     // Shift left to keep index powered by two
     // This is used to create the w1, w2, w4 and w8 commands based on the selected index.
-    return static_cast<uint8_t>(1 << ui->nBytesCB->currentIndex());
+    return static_cast<ut8>(1 << ui->nBytesCB->currentIndex());
 }
 
-uint64_t IncrementDecrementDialog::getValue() const
+ut64 IncrementDecrementDialog::getValue() const
 {
     return Core()->math(ui->valueLE->text());
 }
@@ -65,6 +69,8 @@ DuplicateFromOffsetDialog::DuplicateFromOffsetDialog(QWidget *parent)
             &DuplicateFromOffsetDialog::refresh);
 }
 
+DuplicateFromOffsetDialog::~DuplicateFromOffsetDialog() {}
+
 RVA DuplicateFromOffsetDialog::getOffset() const
 {
     return Core()->math(ui->offsetLE->text());
@@ -77,12 +83,11 @@ size_t DuplicateFromOffsetDialog::getNBytes() const
 
 void DuplicateFromOffsetDialog::refresh()
 {
-    QSignalBlocker sb(Core());
-    RzCoreLocked core(Core());
+    const QSignalBlocker sb(Core());
     auto buf = Core()->ioRead(getOffset(), (int)getNBytes());
 
     // Add space every two characters for word wrap in hex sequence
-    QRegularExpression re { "(.{2})" };
+    const QRegularExpression re { "(.{2})" };
     auto bytes = QString(buf).replace(re, "\\1 ").trimmed();
     ui->bytesLabel->setText(bytes);
 }

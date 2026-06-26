@@ -1,5 +1,6 @@
-#include "core/MainWindow.h"
 #include "CutterSeekable.h"
+
+#include "core/MainWindow.h"
 
 #include <QPlainTextEdit>
 
@@ -44,7 +45,7 @@ void CutterSeekable::seekPrev()
     }
 }
 
-RVA CutterSeekable::getOffset()
+RVA CutterSeekable::getOffset() const
 {
     return (synchronized) ? Core()->getOffset() : widgetOffset;
 }
@@ -54,7 +55,7 @@ void CutterSeekable::toggleSynchronization()
     setSynchronization(!synchronized);
 }
 
-bool CutterSeekable::isSynchronized()
+bool CutterSeekable::isSynchronized() const
 {
     return synchronized;
 }
@@ -65,7 +66,7 @@ void CutterSeekable::seekToReference(RVA offset)
         return;
     }
 
-    QList<XrefDescription> refs = Core()->getXRefs(offset, false, false);
+    const QList<XrefDescription> refs = Core()->getXRefs(offset, false, false);
 
     if (refs.length()) {
         if (refs.length() > 1) {
@@ -75,14 +76,14 @@ void CutterSeekable::seekToReference(RVA offset)
         // Try first call
         for (auto &ref : refs) {
             if (ref.to != RVA_INVALID && ref.type == "CALL") {
-                seek(ref.to);
+                Core()->seekAndShow(ref.to);
                 return;
             }
         }
         // Fallback to first valid, if any
         for (auto &ref : refs) {
             if (ref.to != RVA_INVALID) {
-                seek(ref.to);
+                Core()->seekAndShow(ref.to);
                 return;
             }
         }

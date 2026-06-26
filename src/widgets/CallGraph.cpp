@@ -2,9 +2,9 @@
 
 #include "MainWindow.h"
 
-#include <QJsonValue>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QJsonValue>
 
 CallGraphWidget::CallGraphWidget(MainWindow *main, bool global)
     : MemoryDockWidget(MemoryWidgetType::CallGraph, main),
@@ -54,7 +54,7 @@ void CallGraphView::showExportDialog()
     if (global) {
         defaultName = "global_callgraph";
     } else {
-        defaultName = QString("callgraph_%1").arg(RzAddressString(address));
+        defaultName = QString("callgraph_%1").arg(rzAddressString(address));
     }
     showExportGraphDialog(defaultName, RZ_CORE_GRAPH_TYPE_FUNCALL, global ? RVA_INVALID : address);
 }
@@ -93,7 +93,7 @@ void CallGraphView::loadCurrentGraph()
     const bool usenames = Core()->getConfigb("graph.json.usenames");
 
     auto edges = std::unordered_set<ut64> {};
-    auto addFunction = [&](RzAnalysisFunction *fcn) {
+    auto addFunction = [&](const RzAnalysisFunction *fcn) {
         GraphLayout::GraphBlock block;
         block.entry = fcn->addr;
 
@@ -109,13 +109,14 @@ void CallGraphView::loadCurrentGraph()
             edges.insert(x);
         }
 
-        QString name = usenames ? fcn->name : RzAddressString(fcn->addr);
+        const QString name = usenames ? fcn->name : rzAddressString(fcn->addr);
         addBlock(std::move(block), name, fcn->addr);
     };
 
     auto core = Core()->lock();
     if (global) {
-        for (const auto &fcn : CutterRzList<RzAnalysisFunction>(core->analysis->fcns)) {
+        for (const auto &fcn :
+             CutterRzList<RzAnalysisFunction>(rz_analysis_function_list(core->analysis))) {
             if (!isBetween(from, fcn->addr, to)) {
                 continue;
             }
@@ -134,14 +135,14 @@ void CallGraphView::loadCurrentGraph()
         }
         GraphLayout::GraphBlock block;
         block.entry = x;
-        QString flagName = Core()->flagAt(x);
-        QString name = usenames
-                ? (!flagName.isEmpty() ? flagName : QString("unk.%0").arg(RzAddressString(x)))
-                : RzAddressString(x);
+        const QString flagName = Core()->flagAt(x);
+        const QString name = usenames
+                ? (!flagName.isEmpty() ? flagName : QString("unk.%0").arg(rzAddressString(x)))
+                : rzAddressString(x);
         addBlock(std::move(block), name, x);
     }
     if (blockContent.empty() && !global) {
-        const auto name = RzAddressString(address);
+        const auto name = rzAddressString(address);
         addBlock({}, name, address);
     }
 
@@ -151,7 +152,7 @@ void CallGraphView::loadCurrentGraph()
 void CallGraphView::restoreCurrentBlock()
 {
     if (!global && lastLoadedAddress != address) {
-        selectedBlock = NO_BLOCK_SELECTED;
+        selectedBlock = noBlockSelected;
         lastLoadedAddress = address;
         center();
     } else {

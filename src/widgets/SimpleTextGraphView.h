@@ -3,15 +3,15 @@
 
 // Based on the DisassemblerGraphView from x64dbg
 
-#include <QWidget>
+#include "common/CutterSeekable.h"
+#include "common/RichTextPainter.h"
+#include "menus/AddressableItemContextMenu.h"
+#include "widgets/CutterGraphView.h"
+
+#include <QLabel>
 #include <QPainter>
 #include <QShortcut>
-#include <QLabel>
-
-#include "widgets/CutterGraphView.h"
-#include "menus/AddressableItemContextMenu.h"
-#include "common/RichTextPainter.h"
-#include "common/CutterSeekable.h"
+#include <QWidget>
 
 /**
  * @brief Graphview with nodes containing simple plaintext labels.
@@ -77,8 +77,8 @@ protected:
     AddressableItemContextMenu addressableItemContextMenu;
     QAction copyAction;
 
-    static const ut64 NO_BLOCK_SELECTED = RVA_INVALID;
-    ut64 selectedBlock = NO_BLOCK_SELECTED;
+    static const ut64 noBlockSelected = RVA_INVALID;
+    ut64 selectedBlock = noBlockSelected;
     bool enableBlockSelection = true;
     bool haveAddresses = false;
 

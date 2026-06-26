@@ -1,24 +1,24 @@
-
 #include "SimpleTextGraphView.h"
+
+#include "common/Configuration.h"
+#include "common/Helpers.h"
+#include "common/SyntaxHighlighter.h"
 #include "core/Cutter.h"
 #include "core/MainWindow.h"
-#include "common/Configuration.h"
-#include "common/SyntaxHighlighter.h"
-#include "common/Helpers.h"
 
-#include <QPainter>
-#include <QJsonObject>
+#include <QAction>
+#include <QApplication>
+#include <QClipboard>
 #include <QJsonArray>
+#include <QJsonObject>
 #include <QMouseEvent>
+#include <QPainter>
 #include <QPropertyAnimation>
 #include <QShortcut>
-#include <QToolTip>
-#include <QTextEdit>
-#include <QVBoxLayout>
 #include <QStandardPaths>
-#include <QClipboard>
-#include <QApplication>
-#include <QAction>
+#include <QTextEdit>
+#include <QToolTip>
+#include <QVBoxLayout>
 
 #include <cmath>
 
@@ -49,7 +49,7 @@ SimpleTextGraphView::SimpleTextGraphView(QWidget *parent, MainWindow *mainWindow
 
 SimpleTextGraphView::~SimpleTextGraphView()
 {
-    for (QShortcut *shortcut : shortcuts) {
+    for (const QShortcut *shortcut : shortcuts) {
         delete shortcut;
     }
 }
@@ -61,7 +61,7 @@ void SimpleTextGraphView::refreshView()
     saveCurrentBlock();
     loadCurrentGraph();
     if (blocks.find(selectedBlock) == blocks.end()) {
-        selectedBlock = NO_BLOCK_SELECTED;
+        selectedBlock = noBlockSelected;
     }
     restoreCurrentBlock();
     emit viewRefreshed();
@@ -80,13 +80,13 @@ void SimpleTextGraphView::selectBlockWithId(ut64 blockId)
         }
         viewport()->update();
     } else {
-        selectedBlock = NO_BLOCK_SELECTED;
+        selectedBlock = noBlockSelected;
     }
 }
 
 void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive)
 {
-    QRectF blockRect(block.x, block.y, block.width, block.height);
+    const QRectF blockRect(block.x, block.y, block.width, block.height);
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
@@ -100,7 +100,7 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
     p.setBrush(QColor(0, 0, 0, 100));
     p.setPen(QPen(graphNodeColor, 1));
 
-    bool blockSelected = interactive && (block.entry == selectedBlock);
+    const bool blockSelected = interactive && (block.entry == selectedBlock);
     if (blockSelected) {
         p.setBrush(disassemblySelectedBackgroundColor);
     } else {
@@ -111,7 +111,7 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
 
     // Stop rendering text when it's too small
     auto transform = p.combinedTransform();
-    QRect screenChar = transform.mapRect(QRect(0, 0, ACharWidth, charHeight));
+    const QRect screenChar = transform.mapRect(QRect(0, 0, charWidthA, charHeight));
 
     if (screenChar.width() < Config()->getGraphMinFontSize()) {
         return;
@@ -119,9 +119,9 @@ void SimpleTextGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, b
 
     p.setPen(palette().color(QPalette::WindowText));
     // Render node text
-    QFontMetrics fm = QFontMetrics(p.font());
+    const QFontMetrics fm = QFontMetrics(p.font());
     auto x = block.x + padding / 2;
-    int y = block.y + padding / 2 + fm.ascent();
+    const int y = block.y + padding / 2 + fm.ascent();
     p.drawText(QPoint(x, y), content.text);
 }
 
@@ -131,10 +131,10 @@ GraphView::EdgeConfiguration SimpleTextGraphView::edgeConfiguration(GraphView::G
 {
     EdgeConfiguration ec;
     ec.color = jmpColor;
-    ec.start_arrow = false;
-    ec.end_arrow = true;
+    ec.startArrow = false;
+    ec.endArrow = true;
     if (interactive && (selectedBlock == from.entry || selectedBlock == to->entry)) {
-        ec.width_scale = 2.0;
+        ec.widthScale = 2.0;
     }
     return ec;
 }
@@ -143,7 +143,7 @@ void SimpleTextGraphView::setBlockSelectionEnabled(bool value)
 {
     enableBlockSelection = value;
     if (!value) {
-        selectedBlock = NO_BLOCK_SELECTED;
+        selectedBlock = noBlockSelected;
     }
 }
 
@@ -153,11 +153,11 @@ void SimpleTextGraphView::addBlock(GraphLayout::GraphBlock block, const QString 
     content.text = text;
     content.address = address;
 
-    int height = 1;
-    int width = mFontMetrics->width(text);
+    const int height = 1;
+    const int width = mFontMetrics->width(text);
     block.width = static_cast<int>(width + padding);
     block.height = (height * charHeight) + padding;
-    GraphView::addBlock(std::move(block));
+    GraphView::addBlock(block);
 }
 
 void SimpleTextGraphView::enableAddresses(bool enabled)
@@ -187,7 +187,7 @@ void SimpleTextGraphView::contextMenuEvent(QContextMenuEvent *event)
 {
     GraphView::contextMenuEvent(event);
     if (!event->isAccepted() && event->reason() != QContextMenuEvent::Mouse && enableBlockSelection
-        && selectedBlock != NO_BLOCK_SELECTED) {
+        && selectedBlock != noBlockSelected) {
         auto blockIt = blocks.find(selectedBlock);
         if (blockIt != blocks.end()) {
             blockContextMenuRequested(blockIt->second, event, {});
@@ -223,7 +223,7 @@ void SimpleTextGraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEven
                                          QPoint /*pos*/)
 {
     if (haveAddresses) {
-        QToolTip::showText(event->globalPos(), RzAddressString(blockContent[block.entry].address));
+        QToolTip::showText(event->globalPos(), rzAddressString(blockContent[block.entry].address));
     }
 }
 

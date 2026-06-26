@@ -1,29 +1,31 @@
-#include "core/MainWindow.h"
-#include "shortcuts/ShortcutManager.h"
 #include "OverviewWidget.h"
+
 #include "GraphWidget.h"
 #include "OverviewView.h"
+#include "core/MainWindow.h"
+#include "shortcuts/ShortcutManager.h"
 
-OverviewWidget::OverviewWidget(MainWindow *main) : CutterDockWidget(main)
+OverviewWidget::OverviewWidget(MainWindow *main)
+    : CutterDockWidget(main),
+      graphView(new OverviewView(this)),
+      targetGraphWidget(nullptr),
+      graphDataRefreshDeferrer(createRefreshDeferrer([this]() { updateGraphData(); }))
 {
     setWindowTitle(tr("Graph Overview"));
     setObjectName("Graph Overview");
     setAllowedAreas(Qt::AllDockWidgetAreas);
-    graphView = new OverviewView(this);
+
     setWidget(graphView);
-    targetGraphWidget = nullptr;
 
     connect(graphView, &OverviewView::mouseMoved, this, &OverviewWidget::updateTargetView);
 
-    graphDataRefreshDeferrer = createRefreshDeferrer([this]() { updateGraphData(); });
-
     // Zoom shortcuts
-    QShortcut *shortcut_zoom_in = Shortcuts()->makeQShortcut("Overview.zoomIn", this);
-    shortcut_zoom_in->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(shortcut_zoom_in, &QShortcut::activated, this, [this]() { zoomTarget(1); });
-    QShortcut *shortcut_zoom_out = Shortcuts()->makeQShortcut("Overview.zoomOut", this);
-    shortcut_zoom_out->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(shortcut_zoom_out, &QShortcut::activated, this, [this]() { zoomTarget(-1); });
+    QShortcut *shortcutZoomIn = Shortcuts()->makeQShortcut("Overview.zoomIn", this);
+    shortcutZoomIn->setContext(Qt::WidgetWithChildrenShortcut);
+    connect(shortcutZoomIn, &QShortcut::activated, this, [this]() { zoomTarget(1); });
+    QShortcut *shortcutZoomOut = Shortcuts()->makeQShortcut("Overview.zoomOut", this);
+    shortcutZoomOut->setContext(Qt::WidgetWithChildrenShortcut);
+    connect(shortcutZoomOut, &QShortcut::activated, this, [this]() { zoomTarget(-1); });
 }
 
 OverviewWidget::~OverviewWidget() {}
@@ -129,14 +131,14 @@ void OverviewWidget::updateTargetView()
     if (!targetGraphWidget) {
         return;
     }
-    qreal curScale = graphView->getViewScale();
-    int rectx = graphView->getRangeRect().x();
-    int recty = graphView->getRangeRect().y();
-    int overview_offset_x = graphView->getViewOffset().x();
-    int overview_offset_y = graphView->getViewOffset().y();
+    const qreal curScale = graphView->getViewScale();
+    const int rectx = graphView->getRangeRect().x();
+    const int recty = graphView->getRangeRect().y();
+    const int overviewOffsetX = graphView->getViewOffset().x();
+    const int overviewOffsetY = graphView->getViewOffset().y();
     QPoint newOffset;
-    newOffset.rx() = rectx / curScale + overview_offset_x;
-    newOffset.ry() = recty / curScale + overview_offset_y;
+    newOffset.rx() = rectx / curScale + overviewOffsetX;
+    newOffset.ry() = recty / curScale + overviewOffsetY;
     targetGraphWidget->getGraphView()->setViewOffset(newOffset);
     targetGraphWidget->getGraphView()->viewport()->update();
 }
@@ -161,16 +163,18 @@ void OverviewWidget::updateGraphData()
 void OverviewWidget::updateRangeRect()
 {
     if (targetGraphWidget) {
-        qreal curScale = graphView->getViewScale();
-        qreal baseScale = targetGraphWidget->getGraphView()->getViewScale();
-        qreal w = targetGraphWidget->getGraphView()->viewport()->width() * curScale / baseScale;
-        qreal h = targetGraphWidget->getGraphView()->viewport()->height() * curScale / baseScale;
-        int graph_offset_x = targetGraphWidget->getGraphView()->getViewOffset().x();
-        int graph_offset_y = targetGraphWidget->getGraphView()->getViewOffset().y();
-        int overview_offset_x = graphView->getViewOffset().x();
-        int overview_offset_y = graphView->getViewOffset().y();
-        int rangeRectX = graph_offset_x * curScale - overview_offset_x * curScale;
-        int rangeRectY = graph_offset_y * curScale - overview_offset_y * curScale;
+        const qreal curScale = graphView->getViewScale();
+        const qreal baseScale = targetGraphWidget->getGraphView()->getViewScale();
+        const qreal w =
+                targetGraphWidget->getGraphView()->viewport()->width() * curScale / baseScale;
+        const qreal h =
+                targetGraphWidget->getGraphView()->viewport()->height() * curScale / baseScale;
+        const int graphOffsetX = targetGraphWidget->getGraphView()->getViewOffset().x();
+        const int graphOffsetY = targetGraphWidget->getGraphView()->getViewOffset().y();
+        const int overviewOffsetX = graphView->getViewOffset().x();
+        const int overviewOffsetY = graphView->getViewOffset().y();
+        const int rangeRectX = graphOffsetX * curScale - overviewOffsetX * curScale;
+        const int rangeRectY = graphOffsetY * curScale - overviewOffsetY * curScale;
         graphView->setRangeRect(QRectF(rangeRectX, rangeRectY, w, h));
     } else {
         graphView->setRangeRect(QRectF(0, 0, 0, 0));

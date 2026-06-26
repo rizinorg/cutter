@@ -1,14 +1,14 @@
 #ifndef CUTTERAPPLICATION_H
 #define CUTTERAPPLICATION_H
 
-#include <QEvent>
+#include "core/MainWindow.h"
+
 #include <QApplication>
+#include <QEvent>
 #include <QList>
 #include <QProxyStyle>
 
-#include "core/MainWindow.h"
-
-enum class AutomaticAnalysisLevel { Ask, None, AAA, AAAA };
+enum class AutomaticAnalysisLevel : ut8 { Ask, None, AAA, AAAA };
 
 struct CutterCommandLineOptions
 {
@@ -21,6 +21,9 @@ struct CutterCommandLineOptions
     bool enableRizinPlugins = true;
 };
 
+/**
+ * @brief Main application class for Cutter
+ */
 class CutterApplication : public QApplication
 {
     Q_OBJECT
@@ -53,7 +56,7 @@ private:
     bool parseCommandLineOptions();
 
 private:
-    bool m_FileAlreadyDropped;
+    bool fileAlreadyDropped;
     CutterCore core;
     MainWindow *mainWindow;
     CutterCommandLineOptions clOptions;

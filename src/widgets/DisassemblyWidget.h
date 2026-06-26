@@ -1,16 +1,15 @@
 #ifndef DISASSEMBLYWIDGET_H
 #define DISASSEMBLYWIDGET_H
 
-#include "core/Cutter.h"
 #include "MemoryDockWidget.h"
 #include "common/CutterSeekable.h"
 #include "common/RefreshDeferrer.h"
-#include "common/CachedFontMetrics.h"
+#include "core/Cutter.h"
 
-#include <QTextEdit>
+#include <QAction>
 #include <QPlainTextEdit>
 #include <QShortcut>
-#include <QAction>
+#include <QTextEdit>
 
 #include <vector>
 
@@ -20,6 +19,11 @@ class DisassemblyContextMenu;
 class DisassemblyLeftPanel;
 class AddressRangeScrollBar;
 
+/**
+ * @brief Main widget for showing disassembly of a binary
+ *
+ * @see DisassemblerGraphView
+ */
 class DisassemblyWidget : public MemoryDockWidget
 {
     Q_OBJECT
@@ -56,7 +60,7 @@ public slots:
      */
     void showTransientScrollBar();
 protected slots:
-    void on_seekChanged(RVA offset, CutterCore::SeekHistoryType type);
+    void onSeekChanged(RVA offset, CutterCore::SeekHistoryType type);
     void refreshIfInRange(RVA offset);
     void instructionChanged(RVA offset);
     void refreshDisasm(RVA offset = RVA_INVALID);

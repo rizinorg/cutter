@@ -1,14 +1,17 @@
 #ifndef NATIVEDEBUGDIALOG_H
 #define NATIVEDEBUGDIALOG_H
 
+#include "CutterCommon.h" // IWYU pragma: keep
+
 #include <QDialog>
+
 #include <memory>
 
 namespace Ui {
 class NativeDebugDialog;
 }
 
-enum class DebugConfigMethod { CommandLine, RzRunProfile, RzRunDirectives };
+enum class DebugConfigMethod : ut8 { CommandLine, RzRunProfile, RzRunDirectives };
 
 /**
  * @brief Dialog for connecting to native debug

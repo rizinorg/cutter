@@ -1,20 +1,19 @@
-#include "common/AsyncTask.h"
 #include "InitialOptionsDialog.h"
+
+#include "CutterApplication.h"
+#include "common/AnalysisTask.h"
+#include "common/AsyncTask.h"
+#include "common/Helpers.h"
+#include "core/Cutter.h"
+#include "core/MainWindow.h"
+#include "dialogs/AsyncTaskDialog.h"
+#include "dialogs/NewFileDialog.h"
 #include "ui_InitialOptionsDialog.h"
 
-#include "core/MainWindow.h"
-#include "dialogs/NewFileDialog.h"
-#include "dialogs/AsyncTaskDialog.h"
-#include "common/Helpers.h"
-
-#include <QSettings>
-#include <QFileInfo>
-#include <QFileDialog>
 #include <QCloseEvent>
-
-#include "core/Cutter.h"
-#include "common/AnalysisTask.h"
-#include "CutterApplication.h"
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QSettings>
 
 QString CommandDescription::translatedDescription() const
 {
@@ -24,16 +23,17 @@ QString CommandDescription::translatedDescription() const
 InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
     : QDialog(nullptr), // parent must not be main
       ui(new Ui::InitialOptionsDialog),
-      main(main),
-      core(Core())
+      main(main)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     ui->logoSvgWidget->load(Config()->getLogoFile());
+    ui->debuginfodCheckBox->setChecked(Core()->getConfigb("bin.dbginfo.debuginfod"));
+    ui->debuginfodLineEdit->setText(Core()->getConfig("bin.dbginfo.debuginfod_urls"));
 
     // Fill the plugins combo
-    asmPlugins = core->getRAsmPluginDescriptions();
-    for (const auto &plugin : asmPlugins) {
+    asmPlugins = Core()->getRAsmPluginDescriptions();
+    for (const auto &plugin : std::as_const(asmPlugins)) {
         ui->archComboBox->addItem(plugin.name, plugin.name);
     }
 
@@ -53,7 +53,7 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
     setTooltipWithConfigHelp(ui->kernelComboBox, "asm.os");
     setTooltipWithConfigHelp(ui->bitsComboBox, "asm.bits");
 
-    for (const auto &plugin : core->getBinPluginDescriptions(true, false)) {
+    for (const auto &plugin : Core()->getBinPluginDescriptions(true, false)) {
         ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
     }
 
@@ -120,33 +120,62 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main)
         item.checkbox->setText(item.commandDesc.translatedDescription());
         item.checkbox->setToolTip(item.commandDesc.command);
         item.checkbox->setChecked(item.checked);
-        ui->verticalLayout_7->addWidget(item.checkbox);
+        ui->verticalLayout7->addWidget(item.checkbox);
     }
 
     ui->hideFrame->setVisible(false);
     ui->analysisoptionsFrame->setVisible(false);
     ui->advancedAnlysisLine->setVisible(false);
 
+    updateDebuginfodLayout();
     updatePDBLayout();
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    connect(ui->pdbCheckBox, &QCheckBox::checkStateChanged, this,
+            &InitialOptionsDialog::updatePDBLayout);
+    connect(ui->scriptCheckBox, &QCheckBox::checkStateChanged, this,
+            &InitialOptionsDialog::updateScriptLayout);
+    connect(ui->debuginfodCheckBox, &QCheckBox::checkStateChanged, this,
+            &InitialOptionsDialog::updateDebuginfodLayout);
+#else
     connect(ui->pdbCheckBox, &QCheckBox::stateChanged, this,
             &InitialOptionsDialog::updatePDBLayout);
-
-    updateScriptLayout();
-
     connect(ui->scriptCheckBox, &QCheckBox::stateChanged, this,
             &InitialOptionsDialog::updateScriptLayout);
+    connect(ui->debuginfodCheckBox, &QCheckBox::stateChanged, this,
+            &InitialOptionsDialog::updateDebuginfodLayout);
+#endif
+    updateScriptLayout();
 
     connect(ui->cancelButton, &QPushButton::clicked, this, &InitialOptionsDialog::reject);
 
     ui->programLineEdit->setText(main->getFilename());
+
+    connect(ui->okButton, &QPushButton::clicked, this, &InitialOptionsDialog::onOkButtonClicked);
+    connect(ui->analysisSlider, &QSlider::valueChanged, this,
+            &InitialOptionsDialog::onAnalysisSliderValueChanged);
+    connect(ui->analysisCheckBox, &QCheckBox::clicked, this,
+            &InitialOptionsDialog::onAnalysisCheckBoxClicked);
+    connect(ui->advOptButton, &QToolButton::clicked, this,
+            &InitialOptionsDialog::onAdvOptButtonClicked);
+    connect(ui->archComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            &InitialOptionsDialog::onArchComboBoxCurrentIndexChanged);
+    connect(ui->pdbSelectButton, &QPushButton::clicked, this,
+            &InitialOptionsDialog::onPdbSelectButtonClicked);
+    connect(ui->scriptSelectButton, &QPushButton::clicked, this,
+            &InitialOptionsDialog::onScriptSelectButtonClicked);
+}
+
+void InitialOptionsDialog::updateDebuginfodLayout()
+{
+    ui->debuginfodWidget->setEnabled(ui->debuginfodCheckBox->isChecked());
 }
 
 InitialOptionsDialog::~InitialOptionsDialog() {}
 
 void InitialOptionsDialog::updateCPUComboBox()
 {
-    QString currentText = ui->cpuComboBox->lineEdit()->text();
+    const QString currentText = ui->cpuComboBox->lineEdit()->text();
     ui->cpuComboBox->clear();
 
     QString arch = getSelectedArch();
@@ -190,7 +219,7 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
     } else {
         analysisLevel = 3;
         AnalysisCommands item;
-        QList<QString> commands = getAnalysisCommands(options);
+        const QList<QString> commands = getAnalysisCommands(options);
         foreach (item, analysisCommands) {
             qInfo() << item.commandDesc.command;
             item.checkbox->setChecked(commands.contains(item.commandDesc.command));
@@ -217,11 +246,11 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
     }
 
     if (options.binLoadAddr != RVA_INVALID) {
-        ui->entry_loadOffset->setText(RzAddressString(options.binLoadAddr));
+        ui->entryLoadOffset->setText(rzAddressString(options.binLoadAddr));
     }
 
     if (options.mapAddr != RVA_INVALID) {
-        ui->entry_mapOffset->setText(RzAddressString(options.mapAddr));
+        ui->entryMapOffset->setText(rzAddressString(options.mapAddr));
     }
 
     ui->vaCheckBox->setChecked(options.useVA);
@@ -274,12 +303,12 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
 
 void InitialOptionsDialog::setTooltipWithConfigHelp(QWidget *w, const char *config)
 {
-    w->setToolTip(QString("%1 (%2)").arg(core->getConfigDescription(config)).arg(config));
+    w->setToolTip(QString("%1 (%2)").arg(Core()->getConfigDescription(config)).arg(config));
 }
 
 QString InitialOptionsDialog::getSelectedArch() const
 {
-    QVariant archValue = ui->archComboBox->currentData();
+    const QVariant archValue = ui->archComboBox->currentData();
     return archValue.isValid() ? archValue.toString() : nullptr;
 }
 
@@ -294,9 +323,9 @@ QString InitialOptionsDialog::getSelectedCPU() const
 
 int InitialOptionsDialog::getSelectedBits() const
 {
-    QString sel_bits = ui->bitsComboBox->currentText();
-    if (sel_bits != "Auto") { // TODO: #3187 using potentially trtanslated text for logic
-        return sel_bits.toInt();
+    const QString selBits = ui->bitsComboBox->currentText();
+    if (selBits != "Auto") { // TODO: #3187 using potentially trtanslated text for logic
+        return selBits.toInt();
     }
 
     return 0;
@@ -316,7 +345,7 @@ InitialOptions::Endianness InitialOptionsDialog::getSelectedEndianness() const
 
 QString InitialOptionsDialog::getSelectedOS() const
 {
-    QVariant os = ui->kernelComboBox->currentData();
+    const QVariant os = ui->kernelComboBox->currentData();
     return os.isValid() ? os.toString() : nullptr;
 }
 
@@ -345,12 +374,12 @@ void InitialOptionsDialog::setupAndStartAnalysis()
     options.shellcode = this->shellcode;
 
     // Where the bin header is located in the file (-B)
-    if (ui->entry_loadOffset->text().length() > 0) {
-        options.binLoadAddr = Core()->math(ui->entry_loadOffset->text());
+    if (ui->entryLoadOffset->text().length() > 0) {
+        options.binLoadAddr = Core()->math(ui->entryLoadOffset->text());
     }
 
     options.mapAddr =
-            Core()->math(ui->entry_mapOffset->text()); // Where to map the file once loaded (-m)
+            Core()->math(ui->entryMapOffset->text()); // Where to map the file once loaded (-m)
     options.arch = getSelectedArch();
     options.cpu = getSelectedCPU();
     options.bits = getSelectedBits();
@@ -358,9 +387,9 @@ void InitialOptionsDialog::setupAndStartAnalysis()
     options.writeEnabled = ui->writeCheckBox->isChecked();
     options.loadBinInfo = !ui->binCheckBox->isChecked();
     options.useVA = ui->vaCheckBox->isChecked();
-    QVariant forceBinPluginData = ui->formatComboBox->currentData();
+    const QVariant forceBinPluginData = ui->formatComboBox->currentData();
     if (!forceBinPluginData.isNull()) {
-        RzBinPluginDescription pluginDesc = forceBinPluginData.value<RzBinPluginDescription>();
+        const auto pluginDesc = forceBinPluginData.value<RzBinPluginDescription>();
         options.forceBinPlugin = pluginDesc.name;
     }
     options.demangle = ui->demangleCheckBox->isChecked();
@@ -370,10 +399,14 @@ void InitialOptionsDialog::setupAndStartAnalysis()
     if (ui->scriptCheckBox->isChecked()) {
         options.script = ui->scriptLineEdit->text();
     }
+    if (ui->debuginfodCheckBox->isChecked()) {
+        Core()->setConfig("bin.dbginfo.debuginfod", true);
+        Core()->setConfig("bin.dbginfo.debuginfod_urls", ui->debuginfodLineEdit->text());
+    }
 
     options.endian = getSelectedEndianness();
 
-    int level = ui->analysisSlider->value();
+    const int level = ui->analysisSlider->value();
     switch (level) {
     case 1:
         options.analysisCmd = { { "aaa",
@@ -392,7 +425,7 @@ void InitialOptionsDialog::setupAndStartAnalysis()
         break;
     }
 
-    AnalysisTask *analysisTask = new AnalysisTask();
+    auto *analysisTask = new AnalysisTask();
     analysisTask->setOptions(options);
 
     MainWindow *main = this->main;
@@ -404,9 +437,10 @@ void InitialOptionsDialog::setupAndStartAnalysis()
         main->finalizeOpen();
     });
 
-    AsyncTask::Ptr analysisTaskPtr(analysisTask);
+    const AsyncTask::Ptr analysisTaskPtr(analysisTask);
 
-    AsyncTaskDialog *taskDialog = new AsyncTaskDialog(analysisTaskPtr);
+    auto *taskDialog = new AsyncTaskDialog(analysisTaskPtr);
+
     taskDialog->setInterruptOnClose(true);
     taskDialog->setAttribute(Qt::WA_DeleteOnClose);
     taskDialog->show();
@@ -418,7 +452,7 @@ void InitialOptionsDialog::setupAndStartAnalysis()
     static_cast<CutterApplication *>(qApp)->setInitialOptions(options);
 }
 
-void InitialOptionsDialog::on_okButton_clicked()
+void InitialOptionsDialog::onOkButtonClicked()
 {
     ui->okButton->setEnabled(false);
     setupAndStartAnalysis();
@@ -446,7 +480,7 @@ QString InitialOptionsDialog::analysisDescription(int level)
     }
 }
 
-void InitialOptionsDialog::on_analysisSlider_valueChanged(int value)
+void InitialOptionsDialog::onAnalysisSliderValueChanged(int value)
 {
     ui->analDescription->setText(tr("Level") + QString(": %1").arg(analysisDescription(value)));
     if (value == 0) {
@@ -465,18 +499,18 @@ void InitialOptionsDialog::on_analysisSlider_valueChanged(int value)
     }
 }
 
-void InitialOptionsDialog::on_AdvOptButton_clicked()
+void InitialOptionsDialog::onAdvOptButtonClicked()
 {
-    if (ui->AdvOptButton->isChecked()) {
+    if (ui->advOptButton->isChecked()) {
         ui->hideFrame->setVisible(true);
-        ui->AdvOptButton->setArrowType(Qt::DownArrow);
+        ui->advOptButton->setArrowType(Qt::DownArrow);
     } else {
         ui->hideFrame->setVisible(false);
-        ui->AdvOptButton->setArrowType(Qt::RightArrow);
+        ui->advOptButton->setArrowType(Qt::RightArrow);
     }
 }
 
-void InitialOptionsDialog::on_analysisCheckBox_clicked(bool checked)
+void InitialOptionsDialog::onAnalysisCheckBoxClicked(bool checked)
 {
     if (!checked) {
         analysisLevel = ui->analysisSlider->value();
@@ -484,7 +518,7 @@ void InitialOptionsDialog::on_analysisCheckBox_clicked(bool checked)
     ui->analysisSlider->setValue(checked ? analysisLevel : 0);
 }
 
-void InitialOptionsDialog::on_archComboBox_currentIndexChanged(int)
+void InitialOptionsDialog::onArchComboBoxCurrentIndexChanged(int)
 {
     updateCPUComboBox();
 }
@@ -494,7 +528,7 @@ void InitialOptionsDialog::updatePDBLayout()
     ui->pdbWidget->setEnabled(ui->pdbCheckBox->isChecked());
 }
 
-void InitialOptionsDialog::on_pdbSelectButton_clicked()
+void InitialOptionsDialog::onPdbSelectButtonClicked()
 {
     QFileDialog dialog(this);
     dialog.setWindowTitle(tr("Select PDB file"));
@@ -504,7 +538,11 @@ void InitialOptionsDialog::on_pdbSelectButton_clicked()
         return;
     }
 
-    const QString &fileName = QDir::toNativeSeparators(dialog.selectedFiles().first());
+    const auto files = dialog.selectedFiles();
+    if (files.first().isEmpty()) {
+        return;
+    }
+    const QString &fileName = QDir::toNativeSeparators(files.first());
 
     if (!fileName.isEmpty()) {
         ui->pdbLineEdit->setText(fileName);
@@ -516,7 +554,7 @@ void InitialOptionsDialog::updateScriptLayout()
     ui->scriptWidget->setEnabled(ui->scriptCheckBox->isChecked());
 }
 
-void InitialOptionsDialog::on_scriptSelectButton_clicked()
+void InitialOptionsDialog::onScriptSelectButtonClicked()
 {
     QFileDialog dialog(this);
     dialog.setWindowTitle(tr("Select Rizin script file"));
@@ -526,7 +564,11 @@ void InitialOptionsDialog::on_scriptSelectButton_clicked()
         return;
     }
 
-    const QString &fileName = QDir::toNativeSeparators(dialog.selectedFiles().first());
+    const auto files = dialog.selectedFiles();
+    if (files.first().isEmpty()) {
+        return;
+    }
+    const QString &fileName = QDir::toNativeSeparators(files.first());
 
     if (!fileName.isEmpty()) {
         ui->scriptLineEdit->setText(fileName);

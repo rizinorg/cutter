@@ -1,8 +1,9 @@
 #include "GlobalVariableDialog.h"
+
+#include "core/Cutter.h"
 #include "ui_GlobalVariableDialog.h"
 
 #include <QIntValidator>
-#include "core/Cutter.h"
 
 GlobalVariableDialog::GlobalVariableDialog(RVA offset, QWidget *parent)
     : QDialog(parent),
@@ -15,7 +16,7 @@ GlobalVariableDialog::GlobalVariableDialog(RVA offset, QWidget *parent)
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     RzCoreLocked core = Core()->lock();
-    RzAnalysisVarGlobal *globalVariable =
+    const RzAnalysisVarGlobal *globalVariable =
             rz_analysis_var_global_get_byaddr_at(core->analysis, offset);
     if (globalVariable) {
         globalVariableName = QString(globalVariable->name);
@@ -24,11 +25,11 @@ GlobalVariableDialog::GlobalVariableDialog(RVA offset, QWidget *parent)
 
     if (globalVariable) {
         ui->nameEdit->setText(globalVariable->name);
-        QString globalVarType = Core()->getGlobalVariableType(globalVariable->name);
+        const QString globalVarType = Core()->getGlobalVariableType(globalVariable->name);
         ui->typeEdit->setText(globalVarType);
-        ui->labelAction->setText(tr("Edit global variable at %1").arg(RzAddressString(offset)));
+        ui->labelAction->setText(tr("Edit global variable at %1").arg(rzAddressString(offset)));
     } else {
-        ui->labelAction->setText(tr("Add global variable at %1").arg(RzAddressString(offset)));
+        ui->labelAction->setText(tr("Add global variable at %1").arg(rzAddressString(offset)));
     }
 
     // Connect slots
@@ -42,8 +43,8 @@ GlobalVariableDialog::~GlobalVariableDialog() {}
 
 void GlobalVariableDialog::buttonBoxAccepted()
 {
-    QString name = ui->nameEdit->text();
-    QString typ = ui->typeEdit->text();
+    const QString name = ui->nameEdit->text();
+    const QString typ = ui->typeEdit->text();
 
     if (name.isEmpty()) {
         if (globalVariableOffset != RVA_INVALID) {

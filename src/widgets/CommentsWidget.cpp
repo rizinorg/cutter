@@ -1,11 +1,12 @@
 #include "CommentsWidget.h"
-#include "ui_ListDockWidget.h"
-#include "core/MainWindow.h"
-#include "common/Helpers.h"
 
+#include "common/Helpers.h"
+#include "core/MainWindow.h"
+#include "ui_ListDockWidget.h"
+
+#include <QActionGroup>
 #include <QMenu>
 #include <QShortcut>
-#include <QActionGroup>
 
 CommentsModel::CommentsModel(QObject *parent) : AddressableItemModel<>(parent), nested(false) {}
 
@@ -56,8 +57,9 @@ QModelIndex CommentsModel::parent(const QModelIndex &index) const
 
 int CommentsModel::rowCount(const QModelIndex &parent) const
 {
-    if (!parent.isValid())
+    if (!parent.isValid()) {
         return (isNested() ? nestedComments.size() : comments.count());
+    }
 
     if (isNested() && parent.internalId() == 0) {
         return nestedComments.at(parent.row()).comments.size();
@@ -74,8 +76,9 @@ int CommentsModel::columnCount(const QModelIndex &) const
 
 QVariant CommentsModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || (index.internalId() != 0 && !index.parent().isValid()))
+    if (!index.isValid() || (index.internalId() != 0 && !index.parent().isValid())) {
         return QVariant();
+    }
 
     int commentIndex;
     bool isSubnode;
@@ -107,7 +110,7 @@ QVariant CommentsModel::data(const QModelIndex &index, int role) const
             if (isSubnode) {
                 switch (index.column()) {
                 case OffsetNestedColumn:
-                    return RzAddressString(comment.offset);
+                    return rzAddressString(comment.offset);
                 case CommentNestedColumn:
                     return comment.name;
                 default:
@@ -119,7 +122,7 @@ QVariant CommentsModel::data(const QModelIndex &index, int role) const
         } else {
             switch (index.column()) {
             case CommentsModel::OffsetColumn:
-                return RzAddressString(comment.offset);
+                return rzAddressString(comment.offset);
             case CommentsModel::FunctionColumn:
                 return Core()->flagAt(comment.offset);
             case CommentsModel::CommentColumn:
@@ -179,13 +182,13 @@ CommentsProxyModel::CommentsProxyModel(CommentsModel *sourceModel, QObject *pare
 
 bool CommentsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
-    CommentsModel *srcModel = static_cast<CommentsModel *>(sourceModel());
+    const auto *srcModel = static_cast<CommentsModel *>(sourceModel());
     if (srcModel->isNested()) {
         // Disable filtering
         return true;
     }
 
-    QModelIndex index = sourceModel()->index(row, 0, parent);
+    const QModelIndex index = sourceModel()->index(row, 0, parent);
     auto comment = index.data(CommentsModel::CommentDescriptionRole).value<CommentDescription>();
 
     return qhelpers::filterStringContains(comment.name, this);
@@ -193,17 +196,19 @@ bool CommentsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) co
 
 bool CommentsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    CommentsModel *srcModel = static_cast<CommentsModel *>(sourceModel());
+    const auto *srcModel = static_cast<CommentsModel *>(sourceModel());
     if (srcModel->isNested()) {
         // Disable sorting
         return false;
     }
 
-    if (!left.isValid() || !right.isValid())
+    if (!left.isValid() || !right.isValid()) {
         return false;
+    }
 
-    if (left.parent().isValid() || right.parent().isValid())
+    if (left.parent().isValid() || right.parent().isValid()) {
         return false;
+    }
 
     auto leftComment = left.data(CommentsModel::CommentDescriptionRole).value<CommentDescription>();
     auto rightComment =
@@ -225,18 +230,18 @@ bool CommentsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
 
 CommentsWidget::CommentsWidget(MainWindow *main)
     : ListDockWidget(main),
+      commentsModel(new CommentsModel(this)),
+      commentsProxyModel(new CommentsProxyModel(commentsModel, this)),
       actionHorizontal(tr("Horizontal"), this),
-      actionVertical(tr("Vertical"), this)
+      actionVertical(tr("Vertical"), this),
+      titleContextMenu(new QMenu(this))
 {
     setWindowTitle(tr("Comments"));
     setObjectName("CommentsWidget");
 
-    commentsModel = new CommentsModel(this);
-    commentsProxyModel = new CommentsProxyModel(commentsModel, this);
     setModels(commentsProxyModel);
     ui->treeView->sortByColumn(CommentsModel::CommentColumn, Qt::AscendingOrder);
 
-    titleContextMenu = new QMenu(this);
     auto viewTypeGroup = new QActionGroup(titleContextMenu);
     actionHorizontal.setCheckable(true);
     actionHorizontal.setActionGroup(viewTypeGroup);
@@ -288,7 +293,7 @@ void CommentsWidget::refreshTree()
     QMap<QString, size_t> nestedCommentMapping;
     for (const CommentDescription &comment : commentsModel->comments) {
         RVA offset = RVA_INVALID;
-        QString fcnName = Core()->nearestFlag(comment.offset, &offset);
+        const QString fcnName = Core()->nearestFlag(comment.offset, &offset);
         auto nestedCommentIt = nestedCommentMapping.find(fcnName);
         if (nestedCommentIt == nestedCommentMapping.end()) {
             nestedCommentMapping.insert(fcnName, commentsModel->nestedComments.size());

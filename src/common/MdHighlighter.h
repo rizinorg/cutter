@@ -1,14 +1,16 @@
 #ifndef MDHIGHLIGHTER_H
 #define MDHIGHLIGHTER_H
 
-#include <QSyntaxHighlighter>
-
 #include <QHash>
-#include <QTextCharFormat>
 #include <QRegularExpression>
+#include <QSyntaxHighlighter>
+#include <QTextCharFormat>
 
 class QTextDocument;
 
+/**
+ * @brief Wrapper of QSyntaxHighlighter for Markdown
+ */
 class MdHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT

@@ -1,13 +1,14 @@
-#pragma once
+#ifndef BREAKPOINTWIDGET_H
+#define BREAKPOINTWIDGET_H
 
-#include <memory>
-
-#include "core/Cutter.h"
-#include "CutterDockWidget.h"
 #include "AddressableItemModel.h"
+#include "CutterDockWidget.h"
+#include "core/Cutter.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
+
+#include <memory>
 
 class MainWindow;
 class QTreeWidget;
@@ -65,6 +66,9 @@ public:
     BreakpointProxyModel(BreakpointModel *sourceModel, QObject *parent = nullptr);
 };
 
+/**
+ * @brief Widget for seeing/editing all breakpoints
+ */
 class BreakpointWidget : public CutterDockWidget
 {
     Q_OBJECT
@@ -95,3 +99,5 @@ private:
     RefreshDeferrer *refreshDeferrer;
     bool editing = false;
 };
+
+#endif // BREAKPOINTWIDGET_H

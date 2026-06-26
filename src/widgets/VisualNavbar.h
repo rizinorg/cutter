@@ -1,29 +1,31 @@
 #ifndef VISUALNAVBAR_H
 #define VISUALNAVBAR_H
 
-#include <QToolBar>
-#include <QGraphicsScene>
+#include "CutterCommon.h"
+#include "RizinCpp.h"
 
-#include "core/Cutter.h"
+#include <QGraphicsScene>
+#include <QToolBar>
 
 #include <rz_core.h>
-
-#include <memory>
 
 class MainWindow;
 class QGraphicsView;
 class QGraphicsItemGroup;
 
+/**
+ * @brief Visual navigation bar at the top for quick navigation through the binary
+ */
 class VisualNavbar : public QToolBar
 {
     Q_OBJECT
 
     struct XToAddress
     {
-        double x_start;
-        double x_end;
-        RVA address_from;
-        RVA address_to;
+        double xStart;
+        double xEnd;
+        RVA addressFrom;
+        RVA addressTo;
     };
 
 public:
@@ -39,14 +41,14 @@ private slots:
     void drawSeekCursor();
     void drawPCCursor();
     void drawCursor(RVA addr, QColor color, QGraphicsRectItem *&graphicsItem);
-    void on_seekChanged(RVA addr);
+    void onSeekChanged(RVA addr);
     void showLegendContextMenu(const QPoint &pos);
 
 private:
     QGraphicsView *graphicsView;
     QGraphicsScene *graphicsScene;
     QGraphicsRectItem *seekGraphicsItem;
-    QGraphicsRectItem *PCGraphicsItem;
+    QGraphicsRectItem *pcGraphicsItem;
     QGraphicsItemGroup *legendItem;
     MainWindow *main;
 

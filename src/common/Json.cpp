@@ -1,4 +1,8 @@
-#include "JsonModel.h"
+#include "Json.h"
+
+#include "CutterJson.h"
+
+#include <QTreeWidgetItem>
 
 QTreeWidgetItem *Cutter::jsonTreeWidgetItem(const QString &key, const CutterJson &json)
 {

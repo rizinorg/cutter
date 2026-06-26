@@ -3,12 +3,17 @@
 
 #include <QDialog>
 
+#include <memory>
+
 class DisassemblyWidget;
 
 namespace Ui {
 class ColorThemeEditDialog;
 }
 
+/**
+ * @brief Dialog for editing color theme
+ */
 class ColorThemeEditDialog : public QDialog
 {
     Q_OBJECT
@@ -44,7 +49,7 @@ private:
 
 private:
     QList<QString> showAlphaOptions;
-    Ui::ColorThemeEditDialog *ui;
+    std::unique_ptr<Ui::ColorThemeEditDialog> ui;
     QSignalBlocker configSignalBlocker;
     DisassemblyWidget *previewDisasmWidget;
     QString colorTheme;

@@ -1,14 +1,18 @@
 #ifndef DECOMPILERCONTEXTMENU_H
 #define DECOMPILERCONTEXTMENU_H
 
-#include "core/Cutter.h"
-#include <QMenu>
+#include "CutterCommon.h"
+
 #include <QKeySequence>
+#include <QMenu>
 
 #include <rz_util/rz_annotated_code.h>
 
 class MainWindow;
 
+/**
+ * @brief Context menu for @ref DecompilerWidget
+ */
 class DecompilerContextMenu : public QMenu
 {
     Q_OBJECT
@@ -17,9 +21,9 @@ public:
     DecompilerContextMenu(QWidget *parent, MainWindow *mainWindow);
     ~DecompilerContextMenu();
 
-    bool getIsTogglingBreakpoints();
+    bool getIsTogglingBreakpoints() const;
     void setAnnotationHere(RzCodeAnnotation *annotation);
-    RVA getFirstOffsetInLine();
+    RVA getFirstOffsetInLine() const;
 
 signals:
     void copy();
@@ -36,11 +40,11 @@ private slots:
     void aboutToHideSlot();
 
     void actionCopyTriggered();
-    void actionCopyInstructionAddressTriggered();
+    void actionCopyInstructionAddressTriggered() const;
     void actionCopyReferenceAddressTriggered();
 
     void actionAddCommentTriggered();
-    void actionDeleteCommentTriggered();
+    void actionDeleteCommentTriggered() const;
 
     void actionRenameThingHereTriggered();
     void actionDeleteNameTriggered();
@@ -52,8 +56,8 @@ private slots:
     void actionToggleBreakpointTriggered();
     void actionAdvancedBreakpointTriggered();
 
-    void actionContinueUntilTriggered();
-    void actionSetPCTriggered();
+    void actionContinueUntilTriggered() const;
+    void actionSetPCTriggered() const;
 
 private:
     // Private variables

@@ -1,17 +1,18 @@
 #ifndef SEGMENTSWIDGET_H
 #define SEGMENTSWIDGET_H
 
-#include <memory>
+#include "CutterDescriptions.h"
+#include "widgets/ListDockWidget.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 
-#include "core/Cutter.h"
-#include "widgets/ListDockWidget.h"
-
 class QAbstractItemView;
 class SegmentsWidget;
 
+/**
+ * @brief Source model for @ref SegmentsWidget
+ */
 class SegmentsModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
@@ -22,7 +23,7 @@ private:
     QList<SegmentDescription> segments;
 
 public:
-    enum Column {
+    enum Column : ut8 {
         NameColumn = 0,
         SizeColumn,
         AddressColumn,
@@ -31,7 +32,7 @@ public:
         CommentColumn,
         ColumnCount
     };
-    enum Role { SegmentDescriptionRole = Qt::UserRole };
+    enum Role : ut16 { SegmentDescriptionRole = Qt::UserRole };
 
     SegmentsModel(QObject *parent = nullptr);
 
@@ -46,6 +47,9 @@ public:
     QString name(const QModelIndex &index) const override;
 };
 
+/**
+ * @brief Proxy model for @ref SegmentsWidget
+ */
 class SegmentsProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
@@ -57,6 +61,9 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
+/**
+ * @brief Widget showing list of all segments in a binary
+ */
 class SegmentsWidget : public ListDockWidget
 {
     Q_OBJECT
@@ -70,6 +77,7 @@ private slots:
 
 private:
     SegmentsModel *segmentsModel;
+    SegmentsProxyModel *proxyModel;
 };
 
 #endif // SEGMENTSWIDGET_H

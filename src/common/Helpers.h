@@ -3,9 +3,10 @@
 
 #include "core/CutterCommon.h"
 
-#include <QString>
 #include <QColor>
 #include <QSizePolicy>
+#include <QString>
+
 #include <functional>
 
 class QIcon;
@@ -32,10 +33,31 @@ class QMouseEvent;
 #    define CUTTER_QT_SKIP_EMPTY_PARTS Qt::SkipEmptyParts
 #endif
 
+/**
+ * @namespace Helpers for QT related objects
+ */
 namespace qhelpers {
-CUTTER_EXPORT QString formatBytecount(const uint64_t bytecount);
+CUTTER_EXPORT QString formatByteCount(ut64 bytecount);
 CUTTER_EXPORT void adjustColumns(QTreeView *tv, int columnCount, int padding);
+CUTTER_EXPORT void adjustColumns(QTreeView *tw, int startIndex, int endIndex, int padding);
 CUTTER_EXPORT void adjustColumns(QTreeWidget *tw, int padding);
+/**
+ * @brief Resize column to contents or speicifed width
+ *
+ * Width is only applied if it's non-negative and less than the width of
+ * specified columns contents
+ *
+ * @param tv TreeView which contains the column
+ * @param columnIndex The index of column to resize
+ * @param width Width in pixels for resizing the column
+ */
+CUTTER_EXPORT void adjustColumn(QTreeView *tv, int columnIndex, int width = -1);
+
+/**
+ * @brief Select first item of a QAbstractItemView if not empty
+ * @param itemView
+ * @return true if first item was selected
+ */
 CUTTER_EXPORT bool selectFirstItem(QAbstractItemView *itemView);
 CUTTER_EXPORT QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str,
                                          const QString &str2 = QString(),
@@ -53,8 +75,8 @@ struct CUTTER_EXPORT SizePolicyMinMax
     int min;
     int max;
 
-    void restoreWidth(QWidget *widget);
-    void restoreHeight(QWidget *widget);
+    void restoreWidth(QWidget *widget) const;
+    void restoreHeight(QWidget *widget) const;
 };
 
 CUTTER_EXPORT SizePolicyMinMax forceWidth(QWidget *widget, int width);
@@ -66,8 +88,16 @@ CUTTER_EXPORT int getMaxFullyDisplayedLines(QPlainTextEdit *plainTextEdit);
 CUTTER_EXPORT QByteArray applyColorToSvg(const QByteArray &data, QColor color);
 CUTTER_EXPORT QByteArray applyColorToSvg(const QString &filename, QColor color);
 
-CUTTER_EXPORT void setThemeIcons(QList<QPair<void *, QString>> supportedIconsNames,
-                                 std::function<void(void *, const QIcon &)> setter);
+/**
+ * @brief Finds the theme-specific icon path and calls `setter` functor providing a pointer of an
+ * object which has to be used and loaded icon
+ * @param supportedIconsNames list of <object ptr, icon name>
+ * @param setter functor which has to be called
+ *   for example we need to set an action icon, the functor can be just [](void* o, const QIcon
+ * &icon) { static_cast<QAction*>(o)->setIcon(icon); }
+ */
+CUTTER_EXPORT void setThemeIcons(const QList<QPair<void *, QString>> &supportedIconsNames,
+                                 const std::function<void(void *, const QIcon &)> &setter);
 
 CUTTER_EXPORT void prependQAction(QAction *action, QMenu *menu);
 CUTTER_EXPORT qreal devicePixelRatio(const QPaintDevice *p);
@@ -77,7 +107,8 @@ CUTTER_EXPORT qreal devicePixelRatio(const QPaintDevice *p);
  * @param data - value to search in combobox item data
  * @param defaultIndex - item to select in case no match
  */
-CUTTER_EXPORT void selectIndexByData(QComboBox *comboBox, QVariant data, int defaultIndex = -1);
+CUTTER_EXPORT void selectIndexByData(QComboBox *comboBox, const QVariant &data,
+                                     int defaultIndex = -1);
 /**
  * @brief Emit data change signal in a model's column (DisplayRole)
  * @param model - model containing data with changes

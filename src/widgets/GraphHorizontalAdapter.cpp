@@ -6,13 +6,13 @@ GraphHorizontalAdapter::GraphHorizontalAdapter(std::unique_ptr<GraphLayout> layo
     swapLayoutConfigDirection();
 }
 
-void GraphHorizontalAdapter::CalculateLayout(GraphLayout::Graph &blocks, unsigned long long entry,
-                                             int &width, int &height) const
+void GraphHorizontalAdapter::calculateLayout(GraphLayout::Graph &blocks, ut64 entry, int &width,
+                                             int &height) const
 {
     for (auto &block : blocks) {
         std::swap(block.second.width, block.second.height);
     }
-    layout->CalculateLayout(blocks, entry, height,
+    layout->calculateLayout(blocks, entry, height,
                             width); // intentionally swapping height and width
     for (auto &block : blocks) {
         std::swap(block.second.width, block.second.height);

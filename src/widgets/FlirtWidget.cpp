@@ -1,7 +1,8 @@
 #include "FlirtWidget.h"
-#include "ui_FlirtWidget.h"
-#include "core/MainWindow.h"
+
 #include "common/Helpers.h"
+#include "core/MainWindow.h"
+#include "ui_FlirtWidget.h"
 
 FlirtModel::FlirtModel(QObject *parent) : QAbstractListModel(parent) {}
 
@@ -17,8 +18,9 @@ int FlirtModel::columnCount(const QModelIndex &) const
 
 QVariant FlirtModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= sigdb.count())
+    if (index.row() >= sigdb.count()) {
         return QVariant();
+    }
 
     const FlirtDescription &entry = sigdb.at(index.row());
 
@@ -26,15 +28,15 @@ QVariant FlirtModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case BinTypeColumn:
-            return entry.bin_name;
+            return entry.binName;
         case ArchNameColumn:
-            return entry.arch_name;
+            return entry.archName;
         case ArchBitsColumn:
-            return entry.arch_bits;
+            return entry.archBits;
         case NumModulesColumn:
-            return entry.n_modules;
+            return entry.nModules;
         case NameColumn:
-            return entry.base_name;
+            return entry.baseName;
         case DetailsColumn:
             return entry.details;
         default:
@@ -45,7 +47,7 @@ QVariant FlirtModel::data(const QModelIndex &index, int role) const
         return QVariant::fromValue(entry);
 
     case Qt::ToolTipRole: {
-        return entry.short_path;
+        return entry.shortPath;
     }
 
     default:
@@ -86,47 +88,45 @@ FlirtProxyModel::FlirtProxyModel(FlirtModel *sourceModel, QObject *parent)
 
 bool FlirtProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
-    QModelIndex index = sourceModel()->index(row, 0, parent);
-    FlirtDescription entry = index.data(FlirtModel::FlirtDescriptionRole).value<FlirtDescription>();
-    return qhelpers::filterStringContains(entry.base_name, this);
+    const QModelIndex index = sourceModel()->index(row, 0, parent);
+    const auto entry = index.data(FlirtModel::FlirtDescriptionRole).value<FlirtDescription>();
+    return qhelpers::filterStringContains(entry.baseName, this);
 }
 
 bool FlirtProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    FlirtDescription leftEntry =
-            left.data(FlirtModel::FlirtDescriptionRole).value<FlirtDescription>();
-    FlirtDescription rightEntry =
-            right.data(FlirtModel::FlirtDescriptionRole).value<FlirtDescription>();
+    const auto leftEntry = left.data(FlirtModel::FlirtDescriptionRole).value<FlirtDescription>();
+    const auto rightEntry = right.data(FlirtModel::FlirtDescriptionRole).value<FlirtDescription>();
 
     switch (left.column()) {
     case FlirtModel::BinTypeColumn:
-        return leftEntry.bin_name < rightEntry.bin_name;
+        return leftEntry.binName < rightEntry.binName;
     case FlirtModel::ArchNameColumn:
-        return leftEntry.arch_name < rightEntry.arch_name;
+        return leftEntry.archName < rightEntry.archName;
     case FlirtModel::ArchBitsColumn:
-        return leftEntry.arch_bits.toULongLong() < rightEntry.arch_bits.toULongLong();
+        return leftEntry.archBits.toULongLong() < rightEntry.archBits.toULongLong();
     case FlirtModel::NumModulesColumn:
-        return leftEntry.n_modules.toULongLong() < rightEntry.n_modules.toULongLong();
+        return leftEntry.nModules.toULongLong() < rightEntry.nModules.toULongLong();
     case FlirtModel::NameColumn:
-        return leftEntry.base_name < rightEntry.base_name;
+        return leftEntry.baseName < rightEntry.baseName;
     case FlirtModel::DetailsColumn:
         return leftEntry.details < rightEntry.details;
     default:
         break;
     }
 
-    return leftEntry.bin_name < rightEntry.bin_name;
+    return leftEntry.binName < rightEntry.binName;
 }
 
 FlirtWidget::FlirtWidget(MainWindow *main)
     : CutterDockWidget(main),
       ui(new Ui::FlirtWidget),
+      model(new FlirtModel(this)),
+      proxyModel(new FlirtProxyModel(model, this)),
       blockMenu(new FlirtContextMenu(this, mainWindow))
 {
     ui->setupUi(this);
 
-    model = new FlirtModel(this);
-    proxyModel = new FlirtProxyModel(model, this);
     ui->flirtTreeView->setModel(proxyModel);
     ui->flirtTreeView->sortByColumn(FlirtModel::BinTypeColumn, Qt::AscendingOrder);
 

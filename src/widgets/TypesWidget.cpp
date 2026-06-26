@@ -1,21 +1,25 @@
 #include "TypesWidget.h"
-#include "ui_TypesWidget.h"
-#include "core/MainWindow.h"
+
 #include "common/Helpers.h"
+#include "core/MainWindow.h"
 #include "dialogs/TypesInteractionDialog.h"
 #include "dialogs/TypesVariablesDialog.h"
 #include "shortcuts/ShortcutManager.h"
+#include "ui_TypesWidget.h"
 
-#include <QMenu>
+#include <QDialogButtonBox>
 #include <QFileDialog>
-#include <QShortcut>
 #include <QIcon>
+#include <QMenu>
+#include <QShortcut>
+
+#include <utility>
 
 TypesModel::TypesModel(QObject *parent) : QAbstractListModel(parent) {}
 
 QVariant TypesModel::toolTipValue(const QModelIndex &index) const
 {
-    TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+    const auto t = index.data(TypesModel::typeDescriptionRole).value<TypeDescription>();
 
     if (t.category == "Primitive") {
         return QVariant();
@@ -36,8 +40,9 @@ int TypesModel::columnCount(const QModelIndex &) const
 
 QVariant TypesModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= types.count())
+    if (index.row() >= types.count()) {
         return QVariant();
+    }
 
     const TypeDescription &exp = types.at(index.row());
 
@@ -48,16 +53,18 @@ QVariant TypesModel::data(const QModelIndex &index, int role) const
             return exp.type;
         case SIZE:
             return exp.size ? exp.size : QVariant();
-        case FORMAT:
-            return exp.format;
         case CATEGORY:
             return exp.category;
+        case TYPE_CLASS:
+            return exp.typeClass == "None" ? QVariant() : exp.typeClass;
+        case FORMAT:
+            return exp.format;
         default:
             return QVariant();
         }
     case Qt::ToolTipRole:
         return toolTipValue(index);
-    case TypeDescriptionRole:
+    case typeDescriptionRole:
         return QVariant::fromValue(exp);
     default:
         return QVariant();
@@ -73,10 +80,12 @@ QVariant TypesModel::headerData(int section, Qt::Orientation, int role) const
             return tr("Type / Name");
         case SIZE:
             return tr("Size");
-        case FORMAT:
-            return tr("Format");
         case CATEGORY:
             return tr("Category");
+        case TYPE_CLASS:
+            return tr("Type Class");
+        case FORMAT:
+            return tr("Format");
         default:
             return QVariant();
         }
@@ -88,7 +97,8 @@ QVariant TypesModel::headerData(int section, Qt::Orientation, int role) const
 bool TypesModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     RzCoreLocked core(Core());
-    rz_type_db_del(core->analysis->typedb, types.at(row).type.toUtf8().constData());
+    rz_type_db_del(rz_analysis_get_type_db(core->analysis),
+                   types.at(row).type.toUtf8().constData());
     beginRemoveRows(parent, row, row + count - 1);
     while (count--) {
         types.removeAt(row);
@@ -105,18 +115,15 @@ TypesSortFilterProxyModel::TypesSortFilterProxyModel(TypesModel *source_model, Q
 
 void TypesSortFilterProxyModel::setCategory(QString category)
 {
-    selectedCategory = category;
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    invalidateFilter();
-#else
-    invalidateRowsFilter();
-#endif
+    beginResetModel();
+    selectedCategory = std::move(category);
+    endResetModel();
 }
 
 bool TypesSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
-    QModelIndex index = sourceModel()->index(row, 0, parent);
-    TypeDescription exp = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+    const QModelIndex index = sourceModel()->index(row, 0, parent);
+    const auto exp = index.data(TypesModel::typeDescriptionRole).value<TypeDescription>();
     if (!selectedCategory.isEmpty() && selectedCategory != exp.category) {
         return false;
     }
@@ -125,42 +132,45 @@ bool TypesSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &par
 
 bool TypesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    TypeDescription left_exp = left.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
-    TypeDescription right_exp =
-            right.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+    const auto leftExp = left.data(TypesModel::typeDescriptionRole).value<TypeDescription>();
+    const auto rightExp = right.data(TypesModel::typeDescriptionRole).value<TypeDescription>();
 
     switch (left.column()) {
     case TypesModel::TYPE:
-        return left_exp.type < right_exp.type;
+        return leftExp.type < rightExp.type;
     case TypesModel::SIZE:
-        return left_exp.size < right_exp.size;
+        return leftExp.size < rightExp.size;
     case TypesModel::FORMAT:
-        return left_exp.format < right_exp.format;
+        return leftExp.format < rightExp.format;
     case TypesModel::CATEGORY:
-        return left_exp.category < right_exp.category;
+        return leftExp.category < rightExp.category;
+    case TypesModel::TYPE_CLASS: {
+        const QString left = leftExp.typeClass == "None" ? "" : leftExp.typeClass;
+        const QString right = rightExp.typeClass == "None" ? "" : rightExp.typeClass;
+        return left < right;
+    }
     default:
         break;
     }
 
-    return left_exp.size < right_exp.size;
+    return leftExp.size < rightExp.size;
 }
 
 TypesWidget::TypesWidget(MainWindow *main)
-    : CutterDockWidget(main), ui(new Ui::TypesWidget), tree(new CutterTreeWidget(this))
+    : CutterDockWidget(main),
+      ui(new Ui::TypesWidget),
+      typesModel(new TypesModel(this)),
+      typesProxyModel(new TypesSortFilterProxyModel(typesModel, this))
 {
     ui->setupUi(this);
     ui->quickFilterView->setLabelText(tr("Category"));
-
-    // Add status bar which displays the count
-    tree->addStatusBar(ui->verticalLayout);
 
     // Set single select mode
     ui->typesTreeView->setSelectionMode(QAbstractItemView::SingleSelection);
 
     // Setup up the model and the proxy model
-    types_model = new TypesModel(this);
-    types_proxy_model = new TypesSortFilterProxyModel(types_model, this);
-    ui->typesTreeView->setModel(types_proxy_model);
+
+    ui->typesTreeView->setModel(typesProxyModel);
     ui->typesTreeView->sortByColumn(TypesModel::TYPE, Qt::AscendingOrder);
 
     setScrollMode();
@@ -171,11 +181,11 @@ TypesWidget::TypesWidget(MainWindow *main)
 
     ui->typesTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, types_proxy_model,
+    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, typesProxyModel,
             &QSortFilterProxyModel::setFilterWildcard);
 
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
-            [this] { tree->showItemsNumber(types_proxy_model->rowCount()); });
+            [this] { ui->quickFilterView->setItemCount(typesProxyModel->rowCount()); });
 
     QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
     connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
@@ -190,36 +200,69 @@ TypesWidget::TypesWidget(MainWindow *main)
     connect(Core(), &CutterCore::refreshAll, this, &TypesWidget::refreshTypes);
 
     connect(ui->quickFilterView->comboBox(), &QComboBox::currentTextChanged, this, [this]() {
-        types_proxy_model->setCategory(ui->quickFilterView->comboBox()->currentData().toString());
-        tree->showItemsNumber(types_proxy_model->rowCount());
+        typesProxyModel->setCategory(ui->quickFilterView->comboBox()->currentData().toString());
+        ui->quickFilterView->setItemCount(typesProxyModel->rowCount());
     });
 
-    actionViewType = new QAction(tr("View Type"), this);
-    actionEditType = new QAction(tr("Edit Type"), this);
-    actionShowVariables = new QAction(tr("Show Variables and Globals of this Type"), this);
+    actionDeleteType = Shortcuts()->makeAction("Types.delete", this);
+    actionDeleteType->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    this->addAction(actionDeleteType);
 
-    connect(actionViewType, &QAction::triggered, [this]() { viewType(true); });
+    actionEditType = Shortcuts()->makeAction("Types.edit", this);
+    actionEditType->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    this->addAction(actionEditType);
+
+    actionExportTypes = Shortcuts()->makeAction("Types.export", this);
+    actionExportTypes->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    this->addAction(actionExportTypes);
+
+    actionLoadNewTypes = Shortcuts()->makeAction("Types.load", this);
+    actionLoadNewTypes->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    this->addAction(actionLoadNewTypes);
+
+    actionRenameType = Shortcuts()->makeAction("Types.rename", this);
+    actionRenameType->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    this->addAction(actionRenameType);
+
+    actionShowUsages = Shortcuts()->makeAction("Types.showUsages", this);
+    actionShowUsages->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    this->addAction(actionShowUsages);
+
+    actionViewType = Shortcuts()->makeAction("Types.view", this);
+    actionViewType->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    this->addAction(actionViewType);
+
+    connect(actionDeleteType, &QAction::triggered, this, &TypesWidget::onActionDeleteTypeTriggered);
     connect(actionEditType, &QAction::triggered, [this]() { viewType(false); });
+    connect(actionExportTypes, &QAction::triggered, this,
+            &TypesWidget::onActionExportTypesTriggered);
+    connect(actionLoadNewTypes, &QAction::triggered, this,
+            &TypesWidget::onActionLoadNewTypesTriggered);
+    connect(actionRenameType, &QAction::triggered, this, &TypesWidget::onActionRenameTypeTriggered);
+    connect(actionShowUsages, &QAction::triggered, [this]() { showUsages(); });
+    connect(actionViewType, &QAction::triggered, [this]() { viewType(true); });
+
     connect(ui->typesTreeView, &QTreeView::doubleClicked, this,
             &TypesWidget::typeItemDoubleClicked);
-
-    connect(actionShowVariables, &QAction::triggered, [this]() { showVariables(); });
 }
 
 TypesWidget::~TypesWidget() {}
 
 void TypesWidget::refreshTypes()
 {
-    types_model->beginResetModel();
-    types_model->types = Core()->getAllTypes();
-    types_model->endResetModel();
+    typesModel->beginResetModel();
+    typesModel->types = Core()->getAllTypes();
+    typesModel->endResetModel();
 
     QStringList categories;
-    for (const TypeDescription &exp : types_model->types) {
+    for (const TypeDescription &exp : std::as_const(typesModel->types)) {
         categories << exp.category;
     }
     categories.removeDuplicates();
     refreshCategoryCombo(categories);
+
+    // set the initial count
+    ui->quickFilterView->setItemCount(typesProxyModel->rowCount());
 
     qhelpers::adjustColumns(ui->typesTreeView, 4, 0);
 }
@@ -235,7 +278,7 @@ void TypesWidget::refreshCategoryCombo(const QStringList &categories)
         combo->addItem(category, category);
     }
 
-    types_proxy_model->setCategory(QString());
+    typesProxyModel->setCategory(QString());
 }
 
 void TypesWidget::setScrollMode()
@@ -245,42 +288,71 @@ void TypesWidget::setScrollMode()
 
 void TypesWidget::showTypesContextMenu(const QPoint &pt)
 {
-    QModelIndex index = ui->typesTreeView->indexAt(pt);
+    const QModelIndex index = ui->typesTreeView->indexAt(pt);
 
     QMenu menu(ui->typesTreeView);
-    menu.addAction(ui->actionLoad_New_Types);
+
+    // Menu is separated like this:
+    // 1. Global actions
+    // 2. Item actions (view, rename..)
+    // 3. Destructive actions (delete)
+
+    menu.addAction(actionLoadNewTypes);
+    menu.addAction(actionExportTypes);
 
     if (index.isValid()) {
-        TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+        menu.addSeparator();
+        menu.addAction(actionRenameType);
+        auto t = index.data(TypesModel::typeDescriptionRole).value<TypeDescription>();
         if (t.category != "Primitive") {
             // Add "Link To Address" option
-            menu.addAction(actionViewType);
             menu.addAction(actionEditType);
-            menu.addAction(actionShowVariables);
+            menu.addAction(actionShowUsages);
+            menu.addAction(actionViewType);
+        }
+
+        auto *typeClassMenu = new QMenu(tr("Set Type Class"), this);
+        for (const auto &typeClass : Core()->getAllTypeClasses()) {
+            auto action = new QAction(typeClass, this);
+            connect(action, &QAction::triggered, this, [t, typeClass, index, this] {
+                const QModelIndex sourceIndex = typesProxyModel->mapToSource(index);
+                if (!sourceIndex.isValid() || t.typeClass == typeClass) {
+                    return;
+                }
+
+                Core()->setTypeClass(t.type, typeClass);
+                auto newType = t;
+                newType.typeClass = typeClass;
+                typesModel->types[sourceIndex.row()] = newType;
+                emit typesModel->dataChanged(index, index);
+            });
+            typeClassMenu->addAction(action);
+        }
+
+        if (!typeClassMenu->actions().isEmpty()) {
+            menu.addMenu(typeClassMenu);
         }
     }
 
-    menu.addAction(ui->actionExport_Types);
-
     if (index.isValid()) {
-        TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+        const auto t = index.data(TypesModel::typeDescriptionRole).value<TypeDescription>();
         if (t.category != "Typedef") {
             menu.addSeparator();
-            menu.addAction(ui->actionDelete_Type);
+            menu.addAction(actionDeleteType);
         }
     }
 
     menu.exec(ui->typesTreeView->mapToGlobal(pt));
 }
 
-void TypesWidget::on_actionExport_Types_triggered()
+void TypesWidget::onActionExportTypesTriggered()
 {
     auto core = Core()->lock();
     char *str = rz_core_types_as_c_all(core, true);
     if (!str) {
         return;
     }
-    QString filename =
+    const QString filename =
             QFileDialog::getSaveFileName(this, tr("Save File"), Config()->getRecentFolder());
     if (filename.isEmpty()) {
         return;
@@ -289,7 +361,7 @@ void TypesWidget::on_actionExport_Types_triggered()
     QFile file(filename);
     if (!file.open(QIODevice::WriteOnly)) {
         QMessageBox::critical(this, tr("Error"), file.errorString());
-        on_actionExport_Types_triggered();
+        onActionExportTypesTriggered();
         return;
     }
     QTextStream fileOut(&file);
@@ -298,14 +370,14 @@ void TypesWidget::on_actionExport_Types_triggered()
     file.close();
 }
 
-void TypesWidget::on_actionLoad_New_Types_triggered()
+void TypesWidget::onActionLoadNewTypesTriggered()
 {
-    QModelIndex index = ui->typesTreeView->currentIndex();
+    const QModelIndex index = ui->typesTreeView->currentIndex();
     if (!index.isValid()) {
         return;
     }
 
-    TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+    const auto t = index.data(TypesModel::typeDescriptionRole).value<TypeDescription>();
 
     TypesInteractionDialog dialog(this);
     connect(&dialog, &TypesInteractionDialog::newTypesLoaded, this, &TypesWidget::refreshTypes);
@@ -316,14 +388,14 @@ void TypesWidget::on_actionLoad_New_Types_triggered()
 void TypesWidget::viewType(bool readOnly)
 {
 
-    QModelIndex index = ui->typesTreeView->currentIndex();
+    const QModelIndex index = ui->typesTreeView->currentIndex();
 
     if (!index.isValid()) {
         return;
     }
 
     TypesInteractionDialog dialog(this, readOnly);
-    TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+    const auto t = index.data(TypesModel::typeDescriptionRole).value<TypeDescription>();
     if (!readOnly) {
         dialog.setWindowTitle(tr("Edit Type: ") + t.type);
         connect(&dialog, &TypesInteractionDialog::newTypesLoaded, this, &TypesWidget::refreshTypes);
@@ -335,22 +407,63 @@ void TypesWidget::viewType(bool readOnly)
     dialog.exec();
 }
 
-void TypesWidget::on_actionDelete_Type_triggered()
+void TypesWidget::onActionDeleteTypeTriggered()
 {
-    QModelIndex proxyIndex = ui->typesTreeView->currentIndex();
+    const QModelIndex proxyIndex = ui->typesTreeView->currentIndex();
     if (!proxyIndex.isValid()) {
         return;
     }
-    QModelIndex index = types_proxy_model->mapToSource(proxyIndex);
+    const QModelIndex index = typesProxyModel->mapToSource(proxyIndex);
     if (!index.isValid()) {
         return;
     }
 
-    TypeDescription exp = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
-    QMessageBox::StandardButton reply = QMessageBox::question(
+    const auto exp = index.data(TypesModel::typeDescriptionRole).value<TypeDescription>();
+    const QMessageBox::StandardButton reply = QMessageBox::question(
             this, tr("Cutter"), tr("Are you sure you want to delete \"%1\"?").arg(exp.type));
     if (reply == QMessageBox::Yes) {
-        types_model->removeRow(index.row());
+        typesModel->removeRow(index.row());
+    }
+}
+
+void TypesWidget::onActionRenameTypeTriggered()
+{
+    const QModelIndex proxyIndex = ui->typesTreeView->currentIndex();
+    if (!proxyIndex.isValid()) {
+        return;
+    }
+    const QModelIndex index = typesProxyModel->mapToSource(proxyIndex);
+    if (!index.isValid()) {
+        return;
+    }
+
+    auto exp = index.data(TypesModel::typeDescriptionRole).value<TypeDescription>();
+
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("Rename %1").arg(exp.type));
+
+    auto *lineEdit = new QLineEdit(&dialog);
+    lineEdit->setText(exp.type);
+    lineEdit->selectAll();
+    auto *buttonBox =
+            new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+    auto *layout = new QVBoxLayout(&dialog);
+    layout->addWidget(lineEdit);
+    layout->addWidget(buttonBox);
+    dialog.setFixedSize(350, dialog.sizeHint().height());
+
+    connect(buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+    if (dialog.exec() == QDialog::Accepted) {
+        const QString result = lineEdit->text();
+        if (result.isEmpty() || result == exp.type) {
+            return;
+        }
+        Core()->renameType(exp.type, result);
+        exp.type = result;
+        typesModel->types[index.row()] = exp;
+        emit typesModel->dataChanged(index, index);
     }
 }
 
@@ -361,7 +474,7 @@ void TypesWidget::typeItemDoubleClicked(const QModelIndex &index)
     }
 
     TypesInteractionDialog dialog(this, true);
-    TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+    const auto t = index.data(TypesModel::typeDescriptionRole).value<TypeDescription>();
     if (t.category == "Primitive") {
         return;
     }
@@ -371,14 +484,14 @@ void TypesWidget::typeItemDoubleClicked(const QModelIndex &index)
     dialog.exec();
 }
 
-void TypesWidget::showVariables()
+void TypesWidget::showUsages()
 {
-    QModelIndex index = ui->typesTreeView->currentIndex();
+    const QModelIndex index = ui->typesTreeView->currentIndex();
 
     if (!index.isValid()) {
         return;
     }
-    TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+    const auto t = index.data(TypesModel::typeDescriptionRole).value<TypeDescription>();
 
     TypesVariablesDialog tvd(this, t.type);
     tvd.exec();
@@ -390,32 +503,32 @@ void TypesWidget::selectTypeByName(const QString &typeName)
         return;
     }
 
-    QModelIndexList results = types_proxy_model->match(
-            types_proxy_model->index(0, 0), Qt::DisplayRole, typeName, 1, Qt::MatchExactly);
+    QModelIndexList results = typesProxyModel->match(typesProxyModel->index(0, 0), Qt::DisplayRole,
+                                                     typeName, 1, Qt::MatchExactly);
 
     // if results are empty, remove the filter and try again
     // avoids removing the filter unnecessarily
     bool isTextFilterEmpty;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    isTextFilterEmpty = types_proxy_model->filterRegExp().pattern().isEmpty();
+    isTextFilterEmpty = typesProxyModel->filterRegExp().pattern().isEmpty();
 #else
-    isTextFilterEmpty = types_proxy_model->filterRegularExpression().pattern().isEmpty();
+    isTextFilterEmpty = typesProxyModel->filterRegularExpression().pattern().isEmpty();
 #endif
     if (results.isEmpty()
         && (!isTextFilterEmpty || ui->quickFilterView->comboBox()->currentIndex() != 0)) {
 
         ui->quickFilterView->clearFilter();
         ui->quickFilterView->comboBox()->setCurrentIndex(0); // select (All)
-        types_proxy_model->setFilterFixedString("");
-        results = types_proxy_model->match(types_proxy_model->index(0, 0), Qt::DisplayRole,
-                                           typeName, 1, Qt::MatchExactly);
+        typesProxyModel->setFilterFixedString("");
+        results = typesProxyModel->match(typesProxyModel->index(0, 0), Qt::DisplayRole, typeName, 1,
+                                         Qt::MatchExactly);
     }
 
     if (results.isEmpty()) {
         return;
     }
 
-    QModelIndex index = results.first();
+    const QModelIndex index = results.first();
     ui->typesTreeView->setCurrentIndex(index);
     ui->typesTreeView->selectionModel()->select(
             index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);

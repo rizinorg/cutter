@@ -1,14 +1,18 @@
 #include "MarkDialog.h"
+
 #include "Cutter.h"
 #include "CutterCommon.h"
 #include "ui_MarkDialog.h"
+
 #include <QColorDialog>
 #include <QRegularExpressionValidator>
+
+#include <utility>
 
 MarkDialog::MarkDialog(RVA start, RVA end, QWidget *parent, QString name)
     : QDialog(parent),
       ui(new Ui::MarkDialog),
-      markName(name),
+      markName(std::move(name)),
       markFrom(start),
       markTo(end),
       markColor(Qt::black),
@@ -21,7 +25,7 @@ MarkDialog::MarkDialog(RVA start, RVA end, QWidget *parent, QString name)
         // Editing existing Mark
         setWindowTitle("Edit Mark");
         RzCoreLocked core(Core());
-        RzMarkItem *mark = rz_mark_get(core->marks, markName.toStdString().c_str());
+        const RzMarkItem *mark = rz_mark_get(core->marks, markName.toStdString().c_str());
         if (mark) {
             markFrom = mark->from;
             markTo = mark->to;
@@ -32,11 +36,11 @@ MarkDialog::MarkDialog(RVA start, RVA end, QWidget *parent, QString name)
     } else {
         // Creating new Mark
         setWindowTitle("Add Mark");
-        markName = QString("%1_%2").arg(RzAddressString(markFrom), RzAddressString(markTo));
+        markName = QString("%1_%2").arg(rzAddressString(markFrom), rzAddressString(markTo));
     }
 
-    ui->startAddressEdit->setText(RzAddressString(markFrom));
-    ui->endAddressEdit->setText(RzAddressString(markTo));
+    ui->startAddressEdit->setText(rzAddressString(markFrom));
+    ui->endAddressEdit->setText(rzAddressString(markTo));
     ui->nameEdit->setText(markName);
     ui->commentEdit->setText(markComment);
     ui->colorDisplay->setStyleSheet(colorToStyle(markColor));
@@ -72,7 +76,7 @@ void MarkDialog::accept()
         return;
     }
 
-    QString name = ui->nameEdit->text();
+    const QString name = ui->nameEdit->text();
     if (edit && !name.isEmpty() && name != markName) {
         Core()->delMark(markName); // Delete the old mark
     } else if (name.isEmpty()) {
@@ -91,7 +95,7 @@ MarkDialog::~MarkDialog() {}
 
 void MarkDialog::onPickColor()
 {
-    QColor c = QColorDialog::getColor(markColor, this, tr("Pick Background Color"));
+    const QColor c = QColorDialog::getColor(markColor, this, tr("Pick Background Color"));
     if (c.isValid()) {
         markColor = c;
         ui->colorDisplay->setStyleSheet(colorToStyle(markColor));
@@ -104,5 +108,5 @@ QString MarkDialog::colorToStyle(const QColor &color)
             .arg(color.red())
             .arg(color.green())
             .arg(color.blue())
-            .arg(MARK_ALPHA_F);
+            .arg(markAlphaF);
 }

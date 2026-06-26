@@ -1,13 +1,15 @@
 #include "BreakpointWidget.h"
-#include "ui_BreakpointWidget.h"
-#include "dialogs/BreakpointsDialog.h"
-#include "core/MainWindow.h"
+
 #include "common/Helpers.h"
-#include "widgets/BoolToggleDelegate.h"
+#include "core/MainWindow.h"
+#include "dialogs/BreakpointsDialog.h"
 #include "shortcuts/ShortcutManager.h"
+#include "ui_BreakpointWidget.h"
+#include "widgets/BoolToggleDelegate.h"
+
+#include <QCheckBox>
 #include <QMenu>
 #include <QStyledItemDelegate>
-#include <QCheckBox>
 
 BreakpointModel::BreakpointModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent)
 {
@@ -47,8 +49,9 @@ static QString formatHwBreakpoint(int permission)
 
 QVariant BreakpointModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= breakpoints.count())
+    if (index.row() >= breakpoints.count()) {
         return QVariant();
+    }
 
     const BreakpointDescription &breakpoint = breakpoints.at(index.row());
 
@@ -56,7 +59,7 @@ QVariant BreakpointModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case AddrColumn:
-            return RzAddressString(breakpoint.addr);
+            return rzAddressString(breakpoint.addr);
         case NameColumn:
             return breakpoint.name;
         case TypeColumn:
@@ -78,7 +81,7 @@ QVariant BreakpointModel::data(const QModelIndex &index, int role) const
     case Qt::EditRole:
         switch (index.column()) {
         case AddrColumn:
-            return breakpoint.addr;
+            return static_cast<quint64>(breakpoint.addr);
         case TraceColumn:
             return breakpoint.trace;
         case EnabledColumn:
@@ -120,8 +123,9 @@ QVariant BreakpointModel::headerData(int section, Qt::Orientation, int role) con
 
 bool BreakpointModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (index.row() >= breakpoints.count())
+    if (index.row() >= breakpoints.count()) {
         return false;
+    }
 
     BreakpointDescription &breakpoint = breakpoints[index.row()];
 
@@ -179,18 +183,19 @@ BreakpointProxyModel::BreakpointProxyModel(BreakpointModel *sourceModel, QObject
 }
 
 BreakpointWidget::BreakpointWidget(MainWindow *main)
-    : CutterDockWidget(main), ui(new Ui::BreakpointWidget)
+    : CutterDockWidget(main),
+      ui(new Ui::BreakpointWidget),
+      breakpointModel(new BreakpointModel(this)),
+      breakpointProxyModel(new BreakpointProxyModel(breakpointModel, this)),
+      refreshDeferrer(createRefreshDeferrer([this]() { refreshBreakpoint(); }))
 {
     ui->setupUi(this);
 
     ui->breakpointTreeView->setMainWindow(mainWindow);
-    breakpointModel = new BreakpointModel(this);
-    breakpointProxyModel = new BreakpointProxyModel(breakpointModel, this);
-    ui->breakpointTreeView->setModel(breakpointProxyModel);
-    ui->breakpointTreeView->sortByColumn(BreakpointModel::AddrColumn, Qt::AscendingOrder);
-    ui->breakpointTreeView->setItemDelegate(new BoolTogggleDelegate(this));
 
-    refreshDeferrer = createRefreshDeferrer([this]() { refreshBreakpoint(); });
+    ui->breakpointTreeView->setModel(static_cast<AddressableItemModelI *>(breakpointProxyModel));
+    ui->breakpointTreeView->sortByColumn(BreakpointModel::AddrColumn, Qt::AscendingOrder);
+    ui->breakpointTreeView->setItemDelegate(new BoolToggleDelegate(this));
 
     setScrollMode();
 

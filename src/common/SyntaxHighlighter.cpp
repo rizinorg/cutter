@@ -66,7 +66,7 @@ FallbackSyntaxHighlighter::FallbackSyntaxHighlighter(QTextDocument *parent)
     QTextCharFormat keywordFormat;
     keywordFormat.setForeground(QColor(80, 200, 215));
 
-    for (const auto &pattern : keywordPatterns) {
+    for (const auto &pattern : std::as_const(keywordPatterns)) {
         rule.pattern.setPattern(pattern);
         rule.format = keywordFormat;
         highlightingRules.append(rule);
@@ -99,7 +99,7 @@ FallbackSyntaxHighlighter::FallbackSyntaxHighlighter(QTextDocument *parent)
 
 void FallbackSyntaxHighlighter::highlightBlock(const QString &text)
 {
-    for (const auto &it : highlightingRules) {
+    for (const auto &it : std::as_const(highlightingRules)) {
         auto matchIterator = it.pattern.globalMatch(text);
         while (matchIterator.hasNext()) {
             const auto match = matchIterator.next();

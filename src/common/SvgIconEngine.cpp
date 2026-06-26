@@ -1,17 +1,17 @@
-
 #include "SvgIconEngine.h"
 
-#include <QSvgRenderer>
-#include <QPainter>
-#include <QFile>
-
 #include "Helpers.h"
+
+#include <QFile>
+#include <QPainter>
+#include <QSvgRenderer>
 
 SvgIconEngine::SvgIconEngine(const QString &filename)
 {
     QFile file(filename);
-    file.open(QFile::ReadOnly);
-    this->svgData = file.readAll();
+    if (file.open(QFile::ReadOnly)) {
+        this->svgData = file.readAll();
+    }
 }
 
 SvgIconEngine::SvgIconEngine(const QString &filename, const QColor &tintColor)
@@ -44,7 +44,7 @@ QPixmap SvgIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State 
     QPixmap pix = QPixmap::fromImage(img, Qt::NoFormatConversion);
     {
         QPainter painter(&pix);
-        QRect r(QPoint(0, 0), size);
+        const QRect r(QPoint(0, 0), size);
         this->paint(&painter, r, mode, state);
     }
     return pix;

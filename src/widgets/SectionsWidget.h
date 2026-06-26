@@ -1,19 +1,16 @@
 #ifndef SECTIONSWIDGET_H
 #define SECTIONSWIDGET_H
 
-#include <memory>
-#include <map>
-
-#include <QtWidgets/QToolButton>
-#include <QAbstractListModel>
-#include <QSortFilterProxyModel>
-#include <QGraphicsScene>
-#include <QLabel>
-#include <QHash>
-
-#include "core/Cutter.h"
+#include "CutterDescriptions.h"
 #include "CutterDockWidget.h"
 #include "widgets/ListDockWidget.h"
+
+#include <QAbstractListModel>
+#include <QGraphicsScene>
+#include <QHash>
+#include <QLabel>
+#include <QSortFilterProxyModel>
+#include <QtWidgets/QToolButton>
 
 class QAbstractItemView;
 class SectionsWidget;
@@ -26,6 +23,9 @@ class QuickFilterView;
 class QGraphicsView;
 class QGraphicsRectItem;
 
+/**
+ * @brief Source model for @ref SectionsWidget
+ */
 class SectionsModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
@@ -36,7 +36,7 @@ private:
     QList<SectionDescription> sections;
 
 public:
-    enum Column {
+    enum Column : ut8 {
         NameColumn = 0,
         SizeColumn,
         AddressColumn,
@@ -47,7 +47,7 @@ public:
         CommentColumn,
         ColumnCount
     };
-    enum Role { SectionDescriptionRole = Qt::UserRole };
+    enum Role : ut16 { SectionDescriptionRole = Qt::UserRole };
 
     SectionsModel(QObject *parent = nullptr);
 
@@ -62,6 +62,9 @@ public:
     QString name(const QModelIndex &index) const override;
 };
 
+/**
+ * @brief Proxy model for @ref SectionsWidget
+ */
 class SectionsProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
@@ -73,6 +76,9 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
+/**
+ * @brief Widget showing list of all sections in a binary
+ */
 class SectionsWidget : public ListDockWidget
 {
     Q_OBJECT
@@ -115,6 +121,12 @@ private:
     void updateToggle();
 };
 
+/**
+ * @brief A base class for visual address maps that uses a QGraphicsView to render binary segments.
+ *
+ * It defines the core geometry (offsets, widths, and scaling) and requires subclasses to implement
+ * specific logic for retrieving addresses and sizes.
+ */
 class AbstractAddrDock : public QDockWidget
 {
     Q_OBJECT
@@ -141,8 +153,8 @@ protected:
     QGraphicsView *graphicsView;
     SectionsProxyModel *proxyModel;
 
-    void addTextItem(QColor color, QPoint pos, QString string);
-    int getAdjustedSize(int size, int validMinSize);
+    void addTextItem(QColor color, QPoint pos, const QString &string);
+    int getAdjustedSize(int size, int validMinSize) const;
     int getRectWidth();
     int getIndicatorWidth();
     int getValidMinSize();
@@ -151,9 +163,13 @@ protected:
     virtual RVA getAddressOfSection(const SectionDescription &section) = 0;
 
 private:
-    void drawIndicator(QString name, float ratio);
+    void drawIndicator(const QString &name, float ratio);
 };
 
+/**
+ * @brief Graphics scene that translates mouse coordinates into memory addresses for navigation and
+ * "seek" interactions.
+ */
 class AddrDockScene : public QGraphicsScene
 {
     Q_OBJECT
@@ -179,6 +195,9 @@ private:
     RVA getAddrFromPos(int posY, bool seek);
 };
 
+/**
+ * @brief Visualizes the binary's physical layout using paddr
+ */
 class RawAddrDock : public AbstractAddrDock
 {
     Q_OBJECT
@@ -194,6 +213,9 @@ protected:
     RVA getAddressOfSection(const SectionDescription &section) override { return section.paddr; };
 };
 
+/**
+ * @brief Visualizes the binary's memory layout using virtual addresses (vaddr)
+ */
 class VirtualAddrDock : public AbstractAddrDock
 {
     Q_OBJECT

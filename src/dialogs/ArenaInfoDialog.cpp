@@ -1,25 +1,23 @@
 #include "ArenaInfoDialog.h"
+
 #include "ui_ArenaInfoDialog.h"
 
 ArenaInfoDialog::ArenaInfoDialog(Arena &arena, QWidget *parent)
     : QDialog(parent), ui(new Ui::ArenaInfoDialog), arena(arena)
 {
     ui->setupUi(this);
-    setWindowTitle("Arena @ " + RzAddressString(arena.offset));
+    setWindowTitle("Arena @ " + rzAddressString(arena.offset));
     updateContents();
 }
 
 void ArenaInfoDialog::updateContents()
 {
-    ui->lineEditTop->setText(RzAddressString(arena.top));
-    ui->lineEditLastRem->setText(RzAddressString(arena.last_remainder));
-    ui->lineEditNext->setText(RzAddressString(arena.next));
-    ui->lineEditNextfree->setText(RzAddressString(arena.next_free));
-    ui->lineEditSysMem->setText(RzAddressString(arena.system_mem));
-    ui->lineEditMaxMem->setText(RzAddressString(arena.max_system_mem));
+    ui->lineEditTop->setText(rzAddressString(arena.top));
+    ui->lineEditLastRem->setText(rzAddressString(arena.lastRemainder));
+    ui->lineEditNext->setText(rzAddressString(arena.next));
+    ui->lineEditNextfree->setText(rzAddressString(arena.nextFree));
+    ui->lineEditSysMem->setText(rzAddressString(arena.systemMem));
+    ui->lineEditMaxMem->setText(rzAddressString(arena.maxSystemMem));
 }
 
-ArenaInfoDialog::~ArenaInfoDialog()
-{
-    delete ui;
-}
+ArenaInfoDialog::~ArenaInfoDialog() {}

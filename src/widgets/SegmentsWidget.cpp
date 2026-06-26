@@ -1,10 +1,11 @@
 #include "SegmentsWidget.h"
-#include "core/MainWindow.h"
+
 #include "common/Helpers.h"
+#include "core/MainWindow.h"
 #include "ui_ListDockWidget.h"
 
-#include <QVBoxLayout>
 #include <QShortcut>
+#include <QVBoxLayout>
 
 SegmentsModel::SegmentsModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
@@ -22,21 +23,22 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
 {
     // TODO: create unique colors, e. g. use HSV color space and rotate in H for 360/size
     static const QList<QColor> colors = {
-        QColor("#1ABC9C"), // TURQUOISE
-        QColor("#2ECC71"), // EMERALD
-        QColor("#3498DB"), // PETER RIVER
-        QColor("#9B59B6"), // AMETHYST
-        QColor("#34495E"), // WET ASPHALT
-        QColor("#F1C40F"), // SUN FLOWER
-        QColor("#E67E22"), // CARROT
-        QColor("#E74C3C"), // ALIZARIN
-        QColor("#ECF0F1"), // CLOUDS
-        QColor("#BDC3C7"), // SILVER
-        QColor("#95A5A6") // COBCRETE
+        QColor(26, 188, 156), // TURQUOISE
+        QColor(46, 204, 113), // EMERALD
+        QColor(52, 152, 219), // PETER RIVER
+        QColor(155, 89, 182), // AMETHYST
+        QColor(52, 73, 94), // WET ASPHALT
+        QColor(241, 196, 15), // SUN FLOWER
+        QColor(230, 126, 34), // CARROT
+        QColor(231, 76, 60), // ALIZARIN
+        QColor(236, 240, 241), // CLOUDS
+        QColor(189, 195, 199), // SILVER
+        QColor(149, 165, 166) // CONCRETE
     };
 
-    if (index.row() >= segments.count())
+    if (index.row() >= segments.count()) {
         return QVariant();
+    }
 
     const SegmentDescription &segment = segments.at(index.row());
 
@@ -48,9 +50,9 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
         case SegmentsModel::SizeColumn:
             return QString::number(segment.size);
         case SegmentsModel::AddressColumn:
-            return RzAddressString(segment.vaddr);
+            return rzAddressString(segment.vaddr);
         case SegmentsModel::EndAddressColumn:
-            return RzAddressString(segment.vaddr + segment.size);
+            return rzAddressString(segment.vaddr + segment.size);
         case SegmentsModel::PermColumn:
             return segment.perm;
         case SegmentsModel::CommentColumn:
@@ -59,8 +61,9 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
             return QVariant();
         }
     case Qt::DecorationRole:
-        if (index.column() == 0)
+        if (index.column() == 0) {
             return colors[index.row() % colors.size()];
+        }
         return QVariant();
     case SegmentsModel::SegmentDescriptionRole:
         return QVariant::fromValue(segment);
@@ -134,24 +137,24 @@ bool SegmentsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
     return false;
 }
 
-SegmentsWidget::SegmentsWidget(MainWindow *main) : ListDockWidget(main)
+SegmentsWidget::SegmentsWidget(MainWindow *main)
+    : ListDockWidget(main),
+      segmentsModel(new SegmentsModel(this)),
+      proxyModel(new SegmentsProxyModel(segmentsModel, this))
 {
     setObjectName("SegmentsWidget");
     setWindowTitle(tr("Segments"));
 
-    segmentsModel = new SegmentsModel(this);
-    auto proxyModel = new SegmentsProxyModel(segmentsModel, this);
     setModels(proxyModel);
 
     ui->treeView->sortByColumn(SegmentsModel::NameColumn, Qt::AscendingOrder);
-
-    ui->quickFilterView->closeFilter();
-    showCount(false);
 
     connect(Core(), &CutterCore::refreshAll, this, &SegmentsWidget::refreshSegments);
     connect(Core(), &CutterCore::codeRebased, this, &SegmentsWidget::refreshSegments);
     connect(Core(), &CutterCore::commentsChanged, this,
             [this]() { qhelpers::emitColumnChanged(segmentsModel, SegmentsModel::CommentColumn); });
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
+            [this] { ui->quickFilterView->setItemCount(proxyModel->rowCount()); });
 }
 
 SegmentsWidget::~SegmentsWidget() {}
@@ -163,4 +166,7 @@ void SegmentsWidget::refreshSegments()
     segmentsModel->endResetModel();
 
     qhelpers::adjustColumns(ui->treeView, SegmentsModel::ColumnCount, 0);
+
+    // set the initial item count
+    ui->quickFilterView->setItemCount(proxyModel->rowCount());
 }

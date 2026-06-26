@@ -1,13 +1,14 @@
-
 #include "ProgressIndicator.h"
 
 #include <QPainter>
 
-static const int lineWidth = 3;
-static const int paddingOuter = lineWidth + 2;
-static const int paddingInner = 8;
-static const int arms = 12;
-static const int timerInterval = 50;
+namespace {
+const int lineWidth = 3;
+const int paddingOuter = lineWidth + 2;
+const int paddingInner = 8;
+const int arms = 12;
+const int timerInterval = 50;
+}
 
 ProgressIndicator::ProgressIndicator(QWidget *parent) : QWidget(parent)
 {
@@ -18,9 +19,9 @@ ProgressIndicator::~ProgressIndicator() {}
 
 void ProgressIndicator::setProgressIndicatorVisible(bool visible)
 {
-    bool change = progressIndicatorVisible != visible;
-    progressIndicatorVisible = visible;
+    const bool change = progressIndicatorVisible != visible;
     if (change) {
+        progressIndicatorVisible = visible;
         update();
     }
     updateAnimationTimer();
@@ -34,7 +35,7 @@ void ProgressIndicator::setAnimating(bool animating)
 
 void ProgressIndicator::updateAnimationTimer()
 {
-    bool shouldBeAnimating = animating && progressIndicatorVisible;
+    const bool shouldBeAnimating = animating && progressIndicatorVisible;
     if (shouldBeAnimating && !animationTimerId) {
         animationTimerId = startTimer(timerInterval);
     } else {
@@ -67,15 +68,15 @@ void ProgressIndicator::paintEvent(QPaintEvent *)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, true);
 
-    QPen pen(palette().windowText(), lineWidth, Qt::SolidLine, Qt::RoundCap);
+    const QPen pen(palette().windowText(), lineWidth, Qt::SolidLine, Qt::RoundCap);
     painter.setPen(pen);
 
-    QPointF origin(width() * 0.5, height() * 0.5);
-    QLineF line(paddingInner, 0.0, width() * 0.5 - paddingOuter, 0.0);
+    const QPointF origin(width() * 0.5, height() * 0.5);
+    const QLineF line(paddingInner, 0.0, width() * 0.5 - paddingOuter, 0.0);
 
-    qreal angle = 360.0 / arms;
+    const qreal angle = 360.0 / arms;
     for (int i = 0; i < arms; i++) {
-        int state = (i + (arms - animationState)) % arms;
+        const int state = (i + (arms - animationState)) % arms;
         painter.setOpacity((float)state / arms);
         painter.drawLine(line * QTransform().translate(origin.x(), origin.y()).rotate(angle * i));
     }

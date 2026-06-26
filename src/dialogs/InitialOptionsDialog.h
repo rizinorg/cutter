@@ -1,10 +1,12 @@
 #ifndef OPTIONSDIALOG_H
 #define OPTIONSDIALOG_H
 
-#include <QDialog>
-#include <QCheckBox>
-#include <memory>
 #include "common/InitialOptions.h"
+
+#include <QCheckBox>
+#include <QDialog>
+
+#include <memory>
 
 namespace Ui {
 class InitialOptionsDialog;
@@ -23,16 +25,17 @@ public:
     void setupAndStartAnalysis();
 
 private slots:
-    void on_okButton_clicked();
-    void on_analysisSlider_valueChanged(int value);
-    void on_AdvOptButton_clicked();
-    void on_analysisCheckBox_clicked(bool checked);
-    void on_archComboBox_currentIndexChanged(int index);
-    void on_pdbSelectButton_clicked();
-    void on_scriptSelectButton_clicked();
+    void onOkButtonClicked();
+    void onAnalysisSliderValueChanged(int value);
+    void onAdvOptButtonClicked();
+    void onAnalysisCheckBoxClicked(bool checked);
+    void onArchComboBoxCurrentIndexChanged(int index);
+    void onPdbSelectButtonClicked();
+    void onScriptSelectButtonClicked();
 
     void updatePDBLayout();
     void updateScriptLayout();
+    void updateDebuginfodLayout();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -41,7 +44,6 @@ private:
     std::unique_ptr<Ui::InitialOptionsDialog> ui;
 
     MainWindow *main;
-    CutterCore *core;
 
     QString analysisDescription(int level);
     QString shellcode;

@@ -1,13 +1,14 @@
 #ifndef GLOBALSWIDGET_H
 #define GLOBALSWIDGET_H
 
-#include <memory>
+#include "CutterDescriptions.h"
+#include "CutterDockWidget.h"
+#include "widgets/ListDockWidget.h"
+
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 
-#include "core/Cutter.h"
-#include "CutterDockWidget.h"
-#include "widgets/ListDockWidget.h"
+#include <memory>
 
 class MainWindow;
 class QTreeWidget;
@@ -20,6 +21,9 @@ class GlobalsWidget;
 class MainWindow;
 class QTreeWidgetItem;
 
+/**
+ * @brief Source model for @ref GlobalsWidget
+ */
 class GlobalsModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
@@ -30,8 +34,8 @@ private:
     QList<GlobalDescription> globals;
 
 public:
-    enum Column { AddressColumn = 0, TypeColumn, NameColumn, CommentColumn, ColumnCount };
-    enum Role { GlobalDescriptionRole = Qt::UserRole };
+    enum Column : ut8 { AddressColumn = 0, TypeColumn, NameColumn, CommentColumn, ColumnCount };
+    enum Role : ut16 { GlobalDescriptionRole = Qt::UserRole };
 
     GlobalsModel(QObject *parent = nullptr);
 
@@ -46,6 +50,9 @@ public:
     QString name(const QModelIndex &index) const override;
 };
 
+/**
+ * @brief Proxy model for @ref GlobalsWidget
+ */
 class GlobalsProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
@@ -58,6 +65,9 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
+/**
+ * @brief Widget for listing and editing info about global objects
+ */
 class GlobalsWidget : public CutterDockWidget
 {
     Q_OBJECT
@@ -77,7 +87,6 @@ private:
 
     GlobalsModel *globalsModel;
     GlobalsProxyModel *globalsProxyModel;
-    CutterTreeWidget *tree;
 
     QAction *actionEditGlobal;
     QAction *actionDeleteGlobal;

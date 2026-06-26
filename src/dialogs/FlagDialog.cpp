@@ -1,14 +1,17 @@
 #include "FlagDialog.h"
+
+#include "core/Cutter.h"
 #include "ui_FlagDialog.h"
 
 #include <QIntValidator>
-#include "core/Cutter.h"
+
+#include <utility>
 
 FlagDialog::FlagDialog(RVA offset, QWidget *parent, QString flagNameHint)
     : QDialog(parent),
       ui(new Ui::FlagDialog),
       offset(offset),
-      flagName(flagNameHint),
+      flagName(std::move(flagNameHint)),
       flagOffset(RVA_INVALID)
 {
     // Setup UI
@@ -18,21 +21,21 @@ FlagDialog::FlagDialog(RVA offset, QWidget *parent, QString flagNameHint)
         flagOffset = offset;
     } else {
         RzCoreLocked core(Core());
-        RzFlagItem *flag = rz_flag_get_i(core->flags, offset);
+        const RzFlagItem *flag = rz_flag_get_i(core->flags, offset);
         if (flag) {
             flagName = QString(flag->name);
             flagOffset = flag->offset;
         }
     }
 
-    auto size_validator = new QIntValidator(ui->sizeEdit);
-    size_validator->setBottom(1);
-    ui->sizeEdit->setValidator(size_validator);
+    auto sizeValidator = new QIntValidator(ui->sizeEdit);
+    sizeValidator->setBottom(1);
+    ui->sizeEdit->setValidator(sizeValidator);
     if (!flagName.isEmpty()) {
         ui->nameEdit->setText(flagName);
-        ui->labelAction->setText(tr("Edit flag at %1").arg(RzAddressString(offset)));
+        ui->labelAction->setText(tr("Edit flag at %1").arg(rzAddressString(offset)));
     } else {
-        ui->labelAction->setText(tr("Add flag at %1").arg(RzAddressString(offset)));
+        ui->labelAction->setText(tr("Add flag at %1").arg(rzAddressString(offset)));
     }
 
     // Connect slots
@@ -44,8 +47,8 @@ FlagDialog::~FlagDialog() {}
 
 void FlagDialog::buttonBoxAccepted()
 {
-    RVA size = ui->sizeEdit->text().toULongLong();
-    QString name = ui->nameEdit->text();
+    const RVA size = ui->sizeEdit->text().toULongLong();
+    const QString name = ui->nameEdit->text();
 
     if (name.isEmpty()) {
         if (flagOffset != RVA_INVALID) {

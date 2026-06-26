@@ -1,8 +1,9 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
-#include <QSettings>
 #include <QFont>
+#include <QSettings>
+
 #include <core/Cutter.h>
 
 #define Config() (Configuration::instance())
@@ -18,7 +19,7 @@ class Theme;
 class QSyntaxHighlighter;
 class QTextDocument;
 
-enum ColorFlags {
+enum ColorFlags : ut8 {
     LightFlag = 1,
     DarkFlag = 2,
     DualColor = LightFlag | DarkFlag,
@@ -41,13 +42,16 @@ struct RecentFileEntry
     }
 };
 
+/**
+ * @brief Singleton class to save and load all of the configuration values
+ */
 class CUTTER_EXPORT Configuration : public QObject
 {
     Q_OBJECT
 private:
     QPalette nativePalette;
     QSettings s;
-    static Configuration *mPtr;
+    static Configuration *ptr;
 
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
     KSyntaxHighlighting::Repository *kSyntaxHighlightingRepository;
@@ -91,6 +95,10 @@ public:
         QString name;
         QLocale locale;
     };
+    /**
+     * @brief this function will gather and return available translation for Cutter
+     * @return a list of locales and their names
+     */
     std::vector<LangInfo> getAvailableTranslations();
 
     // Fonts
@@ -147,6 +155,11 @@ public:
     void adjustColorThemeDarkness();
     int colorThemeDarkness(const QString &colorTheme) const;
 
+    /**
+     * @brief Configuration::setColor sets the local Cutter configuration color
+     * @param name Color Name
+     * @param color The color you want to set
+     */
     void setColor(const QString &name, const QColor &color);
     const QColor getColor(const QString &name) const;
 
@@ -232,11 +245,23 @@ public:
     void setPreviewValue(bool checked);
     bool getPreviewValue() const;
 
+    // Strings
+
+    /**
+     * @brief Set whether to show raw strings in @ref StringsWidget
+     */
+    void setShowRawStrings(bool enabled);
+    bool getShowRawStrings() const;
+
+    // Tooltip
+
     /**
      * @brief Show tooltips for known values of registers, variables, and memory when debugging
      */
     void setShowVarTooltips(bool enabled);
     bool getShowVarTooltips() const;
+
+    // Recent Items
 
     /**
      * @brief Recently opened binaries, as shown in NewFileDialog.
@@ -274,7 +299,7 @@ public:
      */
     void removeRecentRegProfile(const QString &profile);
 
-    // Functions Widget Layout
+    // Interface
 
     /**
      * @brief Get the layout of the Functions widget.
@@ -300,12 +325,93 @@ public:
      */
     bool getNavBarLegendEnabled();
 
+    /**
+     * @brief Enable or disable the display of the Quick Filter by default in views
+     * @param show Set to true to show the Quick Filter by default
+     */
+    void setShowQuickFilter(bool show);
+
+    /**
+     * @brief Check if the Quick Filter is set to be shown by default
+     * @return True if the Quick Filter is shown by default, false otherwise
+     */
+    bool getShowQuickFilter() const;
+
+    /**
+     * @brief Enable or disable the visibility of the item count label within the Quick Filter
+     * @param visible Set to true to show the item count, false to hide it
+     */
+    void setItemCountVisible(bool visible);
+
+    /**
+     * @brief Check if the item count label within the Quick Filter is set to be visible
+     * @return True if the item count is visible, false otherwise
+     */
+    bool getItemCountVisible() const;
+
+    /**
+     * @brief Enable or disable the item count label automatically hiding on overflow within the
+     * Quick Filter
+     * @param value Set to true to auto hide the item count, false otherwise
+     */
+    void setItemCountAutoHide(bool value);
+
+    /**
+     * @brief Check if the item count label within the Quick Filter is set to automatically hide on
+     * overflow
+     * @return True if the item count is set to auto hide, false otherwise
+     */
+    bool getItemCountAutoHide() const;
+
+    /**
+     * @brief Enable or Disable default width of function name column in widgets
+     *
+     * Prevents long function names from excessively stretching the UI.
+     * The default width is specified by @ref setFunctionNameColumnWidth
+     */
+    void setTruncateFunctionNameCol(bool value);
+    bool getTruncateFunctionNameCol() const;
+
+    /**
+     * @brief Set the function name column width in pixels
+     *
+     * This is only used if @ref setTruncateFunctionNameCol is set to true
+     */
+    void setFunctionNameColWidth(int width);
+    int getFunctionNameColWidth() const;
+
+    /**
+     * @brief Set whether to limit the number of entries when searching inside omnibar
+     *
+     * The limit is set through @ref setOmnibarEntriesCount
+     * @param value True to set limit, false otherwise
+     */
+    void setOmnibarLimitEntries(bool value);
+    bool getOmnibarLimitEntries() const;
+
+    /**
+     * @brief Set the default number of entries shown when searching inside omnibar
+     * @param count Number of entries to be shown inside omnibar
+     */
+    void setOmnibarEntriesCount(int count);
+    int getOmnibarEntriesCount() const;
+
+    /**
+     * @brief Number of entries to add to initial count when clicking on "Show More" inside omnibar
+     * @param count Number of entries to add
+     */
+    void setOmnibarEntriesIncrement(int count);
+    int getOmnibarEntriesIncrement() const;
+
 public slots:
     void refreshFont();
 signals:
     void fontsUpdated();
     void colorsUpdated();
     void interfaceThemeChanged();
+    void itemCountOptionsChanged();
+    void quickFilterOptionsChanged();
+    void functionsOptionsChanged();
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
     void kSyntaxHighlightingThemeChanged();
 #endif

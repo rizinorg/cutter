@@ -30,17 +30,17 @@
       </size>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Save</set>
+      <set>QDialogButtonBox::StandardButton::Save</set>
      </property>
     </widget>
    </item>
    <item row="0" column="0" colspan="3">
-    <widget class="QPlainTextEdit" name="ConfigFileEdit"/>
+    <widget class="QPlainTextEdit" name="configFileEdit"/>
    </item>
    <item row="1" column="1">
     <widget class="QDialogButtonBox" name="executeNow">
      <property name="standardButtons">
-      <set>QDialogButtonBox::Retry</set>
+      <set>QDialogButtonBox::StandardButton::Retry</set>
      </property>
      <property name="centerButtons">
       <bool>false</bool>

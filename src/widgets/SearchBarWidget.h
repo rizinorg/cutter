@@ -1,8 +1,9 @@
 #ifndef SEARCHBARWIDGET_H
 #define SEARCHBARWIDGET_H
 
-#include <QWidget>
 #include <QSizeGrip>
+#include <QWidget>
+
 #include <memory>
 
 namespace Ui {
@@ -66,13 +67,13 @@ signals:
 
 private:
     std::unique_ptr<Ui::SearchBarWidget> ui;
-    int m_index = 0;
-    int m_count = 0;
+    int index = 0;
+    int count = 0;
 
-    QAction *m_caseSensitiveAction;
-    QAction *m_wholeWordsAction;
-    QAction *m_regExpAction;
-    QAction *m_highlightMatchesAction;
+    QAction *caseSensitiveAction;
+    QAction *wholeWordsAction;
+    QAction *regExpAction;
+    QAction *highlightMatchesAction;
 };
 
 #endif // SEARCHBARWIDGET_H

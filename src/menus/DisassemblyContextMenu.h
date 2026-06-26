@@ -1,13 +1,16 @@
 #ifndef DISASSEMBLYCONTEXTMENU_H
 #define DISASSEMBLYCONTEXTMENU_H
 
-#include "core/Cutter.h"
 #include "common/IOModesController.h"
-#include <QMenu>
+
 #include <QKeySequence>
+#include <QMenu>
 
 class MainWindow;
 
+/**
+ * @brief Context menu for @ref DisassemblyWidget and @ref DisassemblerGraphView
+ */
 class CUTTER_EXPORT DisassemblyContextMenu : public QMenu
 {
     Q_OBJECT
@@ -33,47 +36,47 @@ private slots:
     void aboutToShowSlot();
     void aboutToHideSlot();
 
-    void on_actionEditFunction_triggered();
-    void on_actionEditInstruction_triggered();
-    void on_actionNopInstruction_triggered();
-    void on_actionJmpReverse_triggered();
-    void on_actionEditBytes_triggered();
+    void editFunctionTriggered();
+    void editInstructionTriggered();
+    void nopInstructionTriggered();
+    void jmpReverseTriggered();
+    void editBytesTriggered();
     void showReverseJmpQuery();
 
-    void on_actionCopy_triggered();
-    void on_actionCopyAddr_triggered();
-    void on_actionCopyInstrBytes_triggered();
-    void on_actionAddComment_triggered();
-    void on_actionAnalyzeFunction_triggered();
-    void on_actionRename_triggered();
-    void on_actionGlobalVar_triggered();
-    void on_actionSetFunctionVarTypes_triggered();
-    void on_actionXRefs_triggered();
-    void on_actionXRefsForVariables_triggered();
+    void copyTriggered();
+    void copyAddrTriggered() const;
+    void copyInstrBytesTriggered() const;
+    void addCommentTriggered();
+    void analyzeFunctionTriggered();
+    void renameTriggered();
+    void globalVarTriggered();
+    void setFunctionVarTypesTriggered();
+    void xRefsTriggered();
+    void xRefsForVariablesTriggered();
 
-    void on_actionDeleteComment_triggered();
-    void on_actionDeleteFlag_triggered();
-    void on_actionDeleteFunction_triggered();
+    void deleteCommentTriggered() const;
+    void deleteFlagTriggered() const;
+    void deleteFunctionTriggered() const;
 
-    void on_actionAddBreakpoint_triggered();
-    void on_actionAdvancedBreakpoint_triggered();
-    void on_actionContinueUntil_triggered();
-    void on_actionSetPC_triggered();
+    void addBreakpointTriggered() const;
+    void advancedBreakpointTriggered();
+    void continueUntilTriggered() const;
+    void setPCTriggered() const;
 
-    void on_actionSetToCode_triggered();
-    void on_actionSetAsString_triggered();
-    void on_actionSetAsStringRemove_triggered();
-    void on_actionSetAsStringAdvanced_triggered();
-    void on_actionSetToData_triggered();
-    void on_actionSetToDataEx_triggered();
+    void setToCodeTriggered() const;
+    void setAsStringTriggered() const;
+    void setAsStringRemoveTriggered() const;
+    void setAsStringAdvancedTriggered();
+    void setToDataTriggered();
+    void setToDataExTriggered();
 
     /**
      * @brief Executed on selecting an offset from the structureOffsetMenu
      * Uses the applyStructureOffset() function of CutterCore to apply the
      * structure offset
-     * \param action The action which trigered the event
+     * @param action The action which trigered the event
      */
-    void on_actionStructureOffsetMenu_triggered(QAction *action);
+    void structureOffsetMenuTriggered(QAction *action) const;
 
 private:
     RVA offset;
@@ -154,20 +157,26 @@ private:
     QAction *pluginActionMenuAction = nullptr;
 
     /**
-     * \return widget that should be used as parent for presenting dialogs
+     * @return widget that should be used as parent for presenting dialogs
      */
     QWidget *parentForDialog();
 
     // For creating anonymous entries (that are always visible)
-    QAction *addAnonymousAction(QString name, const char *slot, QKeySequence shortcut);
+    template<typename SlotFunc>
+    QAction *addAnonymousAction(QString name, SlotFunc slot, QKeySequence keySequence);
 
-    void initAction(QAction *action, QString name, const char *slot = nullptr);
-    void initAction(QAction *action, QString name, const char *slot, QKeySequence keySequence);
-    void initShortcutAction(QAction *action, const QString &id, const char *slot);
+    template<typename SlotFunc>
+    void initAction(QAction *action, const QString &name, SlotFunc slot);
 
-    void setBase(QString base);
-    void setToData(int size, int repeat = 1);
-    void setBits(int bits);
+    template<typename SlotFunc>
+    void initAction(QAction *action, QString name, SlotFunc slot, const QKeySequence &keySequence);
+
+    template<typename SlotFunc>
+    void initShortcutAction(QAction *action, const QString &id, SlotFunc slot);
+
+    void setBase(const QString &base) const;
+    void setToData(int size, int repeat = 1) const;
+    void setBits(int bits) const;
 
     void addSetBaseMenu();
     void addSetBitsMenu();
@@ -178,7 +187,7 @@ private:
     void addBreakpointMenu();
     void addDebugMenu();
 
-    enum DoRenameAction {
+    enum DoRenameAction : ut8 {
         RENAME_FUNCTION,
         RENAME_FLAG,
         RENAME_ADD_FLAG,
@@ -214,7 +223,7 @@ private:
     {
         QString name;
         RVA offset;
-        enum class Type { Var, Function, Flag, Address };
+        enum class Type : ut8 { Var, Function, Flag, Address };
         Type type;
     };
     QVector<ThingUsedHere> getThingUsedHere(RVA offset);

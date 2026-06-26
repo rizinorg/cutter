@@ -1,22 +1,24 @@
 #ifndef FLAGSWIDGET_H
 #define FLAGSWIDGET_H
 
-#include <memory>
+#include "AddressableItemList.h"
+#include "AddressableItemModel.h"
+#include "CutterDescriptions.h"
+#include "CutterDockWidget.h"
 
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 
-#include "core/Cutter.h"
-#include "CutterDockWidget.h"
-#include "CutterTreeWidget.h"
-#include "AddressableItemList.h"
-#include "AddressableItemModel.h"
+#include <memory>
 
 class MainWindow;
 class QTreeWidgetItem;
 class FlagsWidget;
 
+/**
+ * @brief Source model for @ref FlagsWidget
+ */
 class FlagsModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
@@ -26,8 +28,8 @@ private:
     QList<FlagDescription> flags;
 
 public:
-    enum Columns { OFFSET = 0, SIZE, NAME, REALNAME, COMMENT, COUNT };
-    static const int FlagDescriptionRole = Qt::UserRole;
+    enum Columns : ut8 { OFFSET = 0, SIZE, NAME, REALNAME, COMMENT, COUNT };
+    static const int flagDescriptionRole = Qt::UserRole;
 
     FlagsModel(QObject *parent = nullptr);
 
@@ -44,6 +46,9 @@ public:
     const FlagDescription *description(QModelIndex index) const;
 };
 
+/**
+ * @brief Sort and filter proxy model for @ref FlagsWidget
+ */
 class FlagsSortFilterProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
@@ -60,6 +65,9 @@ namespace Ui {
 class FlagsWidget;
 }
 
+/**
+ * @brief Widget for listing and modifying all flags
+ */
 class FlagsWidget : public CutterDockWidget
 {
     Q_OBJECT
@@ -69,10 +77,10 @@ public:
     ~FlagsWidget();
 
 private slots:
-    void on_flagspaceCombo_currentTextChanged(const QString &arg1);
+    void onFlagspaceComboCurrentTextChanged(const QString &arg1);
 
-    void on_actionRename_triggered();
-    void on_actionDelete_triggered();
+    void onActionRenameTriggered();
+    void onActionDeleteTriggered();
 
     void flagsChanged();
     void refreshFlagspaces();
@@ -82,9 +90,8 @@ private:
     MainWindow *main;
 
     bool disableFlagRefresh = false;
-    FlagsModel *flags_model;
-    FlagsSortFilterProxyModel *flags_proxy_model;
-    CutterTreeWidget *tree;
+    FlagsModel *flagsModel;
+    FlagsSortFilterProxyModel *flagsProxyModel;
 
     void refreshFlags();
     void setScrollMode();

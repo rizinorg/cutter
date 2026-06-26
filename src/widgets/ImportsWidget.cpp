@@ -1,8 +1,9 @@
 #include "ImportsWidget.h"
-#include "ui_ListDockWidget.h"
-#include "core/MainWindow.h"
+
 #include "common/Helpers.h"
+#include "core/MainWindow.h"
 #include "shortcuts/ShortcutManager.h"
+#include "ui_ListDockWidget.h"
 
 #include <QPainter>
 #include <QPen>
@@ -28,17 +29,19 @@ QVariant ImportsModel::data(const QModelIndex &index, int role) const
     case Qt::ForegroundRole:
         if (index.column() < ImportsModel::ColumnCount) {
             // Red color for unsafe functions
-            if (banned.match(import.name).hasMatch())
+            if (banned.match(import.name).hasMatch()) {
                 return Config()->getColor("gui.item_unsafe");
+            }
             // Grey color for symbols at offset 0 which can only be filled at runtime
-            if (import.plt == 0)
+            if (import.plt == 0) {
                 return Config()->getColor("gui.item_invalid");
+            }
         }
         break;
     case Qt::DisplayRole:
         switch (index.column()) {
         case ImportsModel::AddressColumn:
-            return RzAddressString(import.plt);
+            return rzAddressString(import.plt);
         case ImportsModel::TypeColumn:
             return import.type;
         case ImportsModel::SafetyColumn:
@@ -56,7 +59,7 @@ QVariant ImportsModel::data(const QModelIndex &index, int role) const
     case ImportsModel::ImportDescriptionRole:
         return QVariant::fromValue(import);
     case ImportsModel::AddressRole:
-        return import.plt;
+        return static_cast<quint64>(import.plt);
     default:
         break;
     }
@@ -120,7 +123,7 @@ ImportsProxyModel::ImportsProxyModel(ImportsModel *sourceModel, QObject *parent)
 
 bool ImportsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
-    QModelIndex index = sourceModel()->index(row, 0, parent);
+    const QModelIndex index = sourceModel()->index(row, 0, parent);
     auto import = index.data(ImportsModel::ImportDescriptionRole).value<ImportDescription>();
 
     return qhelpers::filterStringContains(import.name, this);
@@ -128,11 +131,13 @@ bool ImportsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) con
 
 bool ImportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    if (!left.isValid() || !right.isValid())
+    if (!left.isValid() || !right.isValid()) {
         return false;
+    }
 
-    if (left.parent().isValid() || right.parent().isValid())
+    if (left.parent().isValid() || right.parent().isValid()) {
         return false;
+    }
 
     auto leftImport = left.data(ImportsModel::ImportDescriptionRole).value<ImportDescription>();
     auto rightImport = right.data(ImportsModel::ImportDescriptionRole).value<ImportDescription>();
@@ -145,8 +150,9 @@ bool ImportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     case ImportsModel::SafetyColumn:
         break;
     case ImportsModel::LibraryColumn:
-        if (leftImport.libname != rightImport.libname)
+        if (leftImport.libname != rightImport.libname) {
             return leftImport.libname < rightImport.libname;
+        }
     // fallthrough
     case ImportsModel::NameColumn:
         return leftImport.name < rightImport.name;
@@ -175,8 +181,8 @@ ImportsWidget::ImportsWidget(MainWindow *main)
     setModels(importsProxyModel);
     // Sort by library name by default to create a solid context per each group of imports
     ui->treeView->sortByColumn(ImportsModel::LibraryColumn, Qt::AscendingOrder);
-    QShortcut *toggle_shortcut = Shortcuts()->makeQShortcut("Imports.toggle", main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [=]() { toggleDockWidget(true); });
+    const QShortcut *toggleShortcut = Shortcuts()->makeQShortcut("Imports.toggle", main);
+    connect(toggleShortcut, &QShortcut::activated, this, [=, this]() { toggleDockWidget(true); });
 
     connect(Core(), &CutterCore::codeRebased, this, &ImportsWidget::refreshImports);
     connect(Core(), &CutterCore::refreshAll, this, &ImportsWidget::refreshImports);
@@ -190,4 +196,7 @@ void ImportsWidget::refreshImports()
 {
     importsModel->reload();
     qhelpers::adjustColumns(ui->treeView, 4, 0);
+
+    // set the initial item count
+    ui->quickFilterView->setItemCount(importsProxyModel->rowCount());
 }

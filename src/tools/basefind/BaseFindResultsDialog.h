@@ -1,12 +1,12 @@
 #ifndef BASEFIND_RESULTS_DIALOG_H
 #define BASEFIND_RESULTS_DIALOG_H
 
-#include <QDialog>
 #include <QAbstractListModel>
+#include <QDialog>
 #include <QSortFilterProxyModel>
-#include <memory>
 
 #include <core/Cutter.h>
+#include <memory>
 
 class BaseFindResultsDialog;
 
@@ -14,6 +14,9 @@ namespace Ui {
 class BaseFindResultsDialog;
 }
 
+/**
+ * @brief Source model for @ref BaseFindResultsDialog
+ */
 class BaseFindResultsModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -21,7 +24,7 @@ class BaseFindResultsModel : public QAbstractListModel
     friend BaseFindResultsDialog;
 
 public:
-    enum Column { ScoreColumn = 0, CandidateColumn, ColumnCount };
+    enum Column : ut8 { ScoreColumn = 0, CandidateColumn, ColumnCount };
 
     BaseFindResultsModel(QList<BasefindResultDescription> list, QObject *parent = nullptr);
 
@@ -35,6 +38,11 @@ private:
     QList<BasefindResultDescription> list;
 };
 
+/**
+ * @brief Dialog to display BaseFind results
+ *
+ * Contains context menu with options to reopen Cutter with base or map address as selected address
+ */
 class BaseFindResultsDialog : public QDialog
 {
     Q_OBJECT
@@ -48,12 +56,12 @@ public slots:
     void showItemContextMenu(const QPoint &pt);
 
 private slots:
-    void on_buttonBox_rejected();
+    void onButtonBoxRejected();
 
 private:
-    void onActionCopyLine();
-    void onActionSetLoadAddr();
-    void onActionSetMapAddr();
+    void onActionCopyLine() const;
+    void onActionSetLoadAddr() const;
+    void onActionSetMapAddr() const;
 
     std::unique_ptr<Ui::BaseFindResultsDialog> ui;
     BaseFindResultsModel *model;

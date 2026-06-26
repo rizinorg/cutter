@@ -3,9 +3,11 @@
 
 #include <QWidget>
 
+#include <memory>
+
 /**
  * @namespace ColorPickerHelpers is a namespace that hides all classes needed for ColorPicker class,
- * because classes inherite QObject can not be declared in *.cpp files or inside of another class.
+ * because classes inherit QObject can not be declared in *.cpp files or inside of another class.
  */
 namespace ColorPickerHelpers {
 class ColorPickWidgetAbstract : public QWidget
@@ -77,7 +79,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
-    Ui::ColorPicker *ui;
+    std::unique_ptr<Ui::ColorPicker> ui;
     bool pickingFromScreen;
 
     QColor getColorAtMouse();
@@ -116,6 +118,9 @@ protected:
     virtual QPoint colorToPoint(const QColor &color) const = 0;
 };
 
+/**
+ * @brief Display widget to preview the currently selected color
+ */
 class ColorShowWidget : public ColorPickWidgetAbstract
 {
     Q_OBJECT
@@ -149,6 +154,9 @@ private:
     QPoint colorToPoint(const QColor &color) const override;
 };
 
+/**
+ * @brief Slider for adjusting the transparency (alpha) level of a color
+ */
 class AlphaChannelBar : public ColorPickerWidget
 {
     Q_OBJECT

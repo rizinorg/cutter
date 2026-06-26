@@ -1,18 +1,18 @@
 #include "SearchBarWidget.h"
-#include "ui_SearchBarWidget.h"
+
 #include "CutterSearchable.h"
 #include "shortcuts/ShortcutManager.h"
-#include "Configuration.h"
+#include "ui_SearchBarWidget.h"
 
+#include <QBitArray>
+#include <QGraphicsDropShadowEffect>
+#include <QKeyEvent>
+#include <QMenu>
+#include <QPainter>
+#include <QSizeGrip>
 #include <QStyle>
 #include <QStyleOption>
-#include <QPainter>
-#include <QGraphicsDropShadowEffect>
 #include <QTimer>
-#include <QBitArray>
-#include <QSizeGrip>
-#include <QMenu>
-#include <QKeyEvent>
 
 SearchBarSizeGrip::SearchBarSizeGrip(QWidget *parent) : QSizeGrip(parent)
 {
@@ -69,11 +69,14 @@ SearchBarWidget::SearchBarWidget(QWidget *parent) : QWidget(parent), ui(new Ui::
     connect(ui->hideButton, &QToolButton::clicked, this, &SearchBarWidget::hideSearchBar);
 
     // shortcuts
-    QShortcut *findNextShortcut = Shortcuts()->makeQShortcut("Search.findNext", ui->searchEdit);
-    QShortcut *findPrevShortcut = Shortcuts()->makeQShortcut("Search.findPrev", ui->searchEdit);
-    QShortcut *findLastShortcut = Shortcuts()->makeQShortcut("Search.findLast", ui->searchEdit);
+    const QShortcut *findNextShortcut =
+            Shortcuts()->makeQShortcut("Search.findNext", ui->searchEdit);
+    const QShortcut *findPrevShortcut =
+            Shortcuts()->makeQShortcut("Search.findPrev", ui->searchEdit);
+    const QShortcut *findLastShortcut =
+            Shortcuts()->makeQShortcut("Search.findLast", ui->searchEdit);
     QShortcut *hideShortcut = Shortcuts()->makeQShortcut("Search.hide", this);
-    QShortcut *optionsShortcut = Shortcuts()->makeQShortcut("Search.options", this);
+    const QShortcut *optionsShortcut = Shortcuts()->makeQShortcut("Search.options", this);
     hideShortcut->setContext(Qt::WidgetWithChildrenShortcut);
     connect(findNextShortcut, &QShortcut::activated, this, &SearchBarWidget::findNextTriggered);
     connect(findPrevShortcut, &QShortcut::activated, this, &SearchBarWidget::findPrevTriggered);
@@ -82,30 +85,30 @@ SearchBarWidget::SearchBarWidget(QWidget *parent) : QWidget(parent), ui(new Ui::
     connect(optionsShortcut, &QShortcut::activated, ui->menuButton, &QToolButton::click);
 
     // menu
-    QMenu *optionsMenu = new QMenu(this);
+    auto *optionsMenu = new QMenu(this);
     ui->menuButton->setMenu(optionsMenu);
 
     auto emitSearchChanged = [this] { emit searchChanged(text(), options()); };
 
-    m_caseSensitiveAction = optionsMenu->addAction(tr("&Case Sensitive"));
-    m_caseSensitiveAction->setCheckable(true);
-    connect(m_caseSensitiveAction, &QAction::triggered, this, emitSearchChanged);
+    caseSensitiveAction = optionsMenu->addAction(tr("&Case Sensitive"));
+    caseSensitiveAction->setCheckable(true);
+    connect(caseSensitiveAction, &QAction::triggered, this, emitSearchChanged);
 
-    m_wholeWordsAction = optionsMenu->addAction(tr("Match &Whole Words"));
-    m_wholeWordsAction->setCheckable(true);
-    connect(m_wholeWordsAction, &QAction::triggered, this, emitSearchChanged);
+    wholeWordsAction = optionsMenu->addAction(tr("Match &Whole Words"));
+    wholeWordsAction->setCheckable(true);
+    connect(wholeWordsAction, &QAction::triggered, this, emitSearchChanged);
 
-    m_regExpAction = optionsMenu->addAction(tr("Match &Regular Expression"));
-    m_regExpAction->setCheckable(true);
-    connect(m_regExpAction, &QAction::triggered, this, emitSearchChanged);
+    regExpAction = optionsMenu->addAction(tr("Match &Regular Expression"));
+    regExpAction->setCheckable(true);
+    connect(regExpAction, &QAction::triggered, this, emitSearchChanged);
 
-    m_highlightMatchesAction = optionsMenu->addAction(tr("&Highlight All Matches"));
-    m_highlightMatchesAction->setCheckable(true);
-    m_highlightMatchesAction->setChecked(true);
-    connect(m_highlightMatchesAction, &QAction::triggered, this, emitSearchChanged);
+    highlightMatchesAction = optionsMenu->addAction(tr("&Highlight All Matches"));
+    highlightMatchesAction->setCheckable(true);
+    highlightMatchesAction->setChecked(true);
+    connect(highlightMatchesAction, &QAction::triggered, this, emitSearchChanged);
 
     // debounce timer
-    QTimer *debounceTimer = new QTimer(this);
+    auto *debounceTimer = new QTimer(this);
     debounceTimer->setSingleShot(true);
     debounceTimer->setInterval(200);
     connect(debounceTimer, &QTimer::timeout, this,
@@ -115,7 +118,7 @@ SearchBarWidget::SearchBarWidget(QWidget *parent) : QWidget(parent), ui(new Ui::
 
     // size grip for resizing
     this->setWindowFlags(Qt::SubWindow);
-    SearchBarSizeGrip *sg = new SearchBarSizeGrip(this);
+    auto *sg = new SearchBarSizeGrip(this);
     ui->horizontalLayout->insertWidget(0, sg);
 
     setFocusProxy(ui->searchEdit);
@@ -129,35 +132,35 @@ SearchBarWidget::~SearchBarWidget() {}
 
 void SearchBarWidget::setCurrentIndex(int index)
 {
-    m_index = index;
+    this->index = index;
     updateLabel();
 }
 
 void SearchBarWidget::setTotalCount(int count)
 {
-    m_count = count;
+    this->count = count;
     updateLabel();
 }
 
 void SearchBarWidget::setRange(int index, int count)
 {
-    m_index = index;
-    m_count = count;
+    this->index = index;
+    this->count = count;
     updateLabel();
 }
 
 void SearchBarWidget::clear()
 {
-    m_index = 0;
-    m_count = 0;
+    index = 0;
+    count = 0;
     updateLabel();
 }
 
 void SearchBarWidget::updateLabel()
 {
     // indexes are 0-based
-    int index = std::min(m_index + 1, m_count);
-    ui->searchLabel->setText(tr("%1 of %2").arg(index).arg(m_count));
+    const int index = std::min(this->index + 1, count);
+    ui->searchLabel->setText(tr("%1 of %2").arg(index).arg(count));
 }
 
 void SearchBarWidget::showSearchBar()
@@ -181,12 +184,12 @@ void SearchBarWidget::selectText()
 
 int SearchBarWidget::totalCount() const
 {
-    return m_count;
+    return count;
 }
 
 int SearchBarWidget::currentIndex() const
 {
-    return m_index;
+    return index;
 }
 
 QString SearchBarWidget::text() const
@@ -197,10 +200,10 @@ QString SearchBarWidget::text() const
 int SearchBarWidget::options() const
 {
     int options = 0;
-    options = m_caseSensitiveAction->isChecked() ? (options | CaseSensitive) : options;
-    options = m_wholeWordsAction->isChecked() ? (options | WholeWords) : options;
-    options = m_regExpAction->isChecked() ? (options | RegExp) : options;
-    options = m_highlightMatchesAction->isChecked() ? (options | HighlightMatches) : options;
+    options = caseSensitiveAction->isChecked() ? (options | CaseSensitive) : options;
+    options = wholeWordsAction->isChecked() ? (options | WholeWords) : options;
+    options = regExpAction->isChecked() ? (options | RegExp) : options;
+    options = highlightMatchesAction->isChecked() ? (options | HighlightMatches) : options;
     return options;
 }
 

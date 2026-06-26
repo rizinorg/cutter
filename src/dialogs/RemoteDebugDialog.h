@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QListWidgetItem>
+
 #include <memory>
 
 namespace Ui {
@@ -27,8 +28,8 @@ public:
     bool validate();
 
 private slots:
-    void on_buttonBox_accepted();
-    void on_buttonBox_rejected();
+    void onButtonBoxAccepted();
+    void onButtonBoxRejected();
 
     /**
      * @brief Clears the list of recent connections.
@@ -66,7 +67,7 @@ private:
      * @brief Fills the remote debug dialog form from a given URI
      * Eg: gdb://127.0.0.1:8754 or windbg:///tmp/abcd
      */
-    void fillFormData(QString formdata);
+    void fillFormData(const QString &formdata);
 
     /**
      * @brief Checks if the recent connection list is empty or and hide/unhide the table view

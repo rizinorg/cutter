@@ -3,34 +3,42 @@
 
 #include "common/Metrics.h"
 
-#include <QObject>
 #include <QFont>
 #include <QFontMetrics>
+#include <QObject>
 
+/**
+ * @brief A cache class for font measurements
+ *
+ * Stores calculated widths in an array so when asking for a character's width
+ * second time, it is returned instantly without any calculation
+ *
+ * @tparam T The type used for dimensions, such as int or qreal
+ */
 template<typename T>
 class CachedFontMetrics
 {
 public:
-    explicit CachedFontMetrics(const QFont &font) : mFontMetrics(font)
+    explicit CachedFontMetrics(const QFont &font)
+        : fontMetrics(font), charWidths {}, fontHeight(fontMetrics.height())
     {
-        memset(mWidths, 0, sizeof(mWidths));
-        mHeight = mFontMetrics.height();
     }
 
     T width(const QChar &ch)
     {
-        // return mFontMetrics.width(ch);
         auto unicode = ch.unicode();
-        if (unicode >= 0xD800) {
-            if (unicode >= 0xE000)
+        if (unicode >= 0xD800) [[unlikely]] {
+            if (unicode >= 0xE000) {
                 unicode -= 0xE000 - 0xD800;
-            else
+            } else {
                 // is lonely surrogate
                 return fetchWidth(ch);
+            }
         }
-        if (!mWidths[unicode])
-            return mWidths[unicode] = fetchWidth(ch);
-        return mWidths[unicode];
+        if (!charWidths[unicode]) [[unlikely]] {
+            return charWidths[unicode] = fetchWidth(ch);
+        }
+        return charWidths[unicode];
     }
 
     T width(const QString &text)
@@ -38,17 +46,18 @@ public:
         T result = 0;
         QChar temp;
         for (const QChar &ch : text) {
-            if (ch.isHighSurrogate())
+            if (ch.isHighSurrogate()) [[unlikely]] {
                 temp = ch;
-            else if (ch.isLowSurrogate())
+            } else if (ch.isLowSurrogate()) [[unlikely]] {
                 result += fetchWidth(QString(temp) + ch);
-            else
+            } else [[likely]] {
                 result += width(ch);
+            }
         }
         return result;
     }
 
-    T height() { return mHeight; }
+    T height() { return fontHeight; }
 
     T position(const QString &text, T offset)
     {
@@ -56,15 +65,15 @@ public:
         QChar temp;
 
         for (int i = 0; i < text.length(); i++) {
-            QChar ch = text[i];
+            const QChar ch = text[i];
 
-            if (ch.isHighSurrogate())
+            if (ch.isHighSurrogate()) [[unlikely]] {
                 temp = ch;
-            else if (ch.isLowSurrogate())
+            } else if (ch.isLowSurrogate()) [[unlikely]] {
                 curWidth += fetchWidth(QString(temp) + ch);
-            else
+            } else [[likely]] {
                 curWidth += width(ch);
-
+            }
             if (curWidth >= offset) {
                 return i;
             }
@@ -73,26 +82,28 @@ public:
         return -1;
     }
 
+    T ascent() { return fontMetrics.ascent(); }
+
 private:
-    typename Metrics<T>::FontMetrics mFontMetrics;
-    T mWidths[0x10000 - 0xE000 + 0xD800];
-    T mHeight;
+    typename Metrics<T>::FontMetrics fontMetrics;
+    T charWidths[0x10000 - 0xE000 + 0xD800];
+    T fontHeight;
 
     T fetchWidth(QChar c)
     {
 #if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
-        return mFontMetrics.width(c);
+        return fontMetrics.width(c);
 #else
-        return mFontMetrics.horizontalAdvance(c);
+        return fontMetrics.horizontalAdvance(c);
 #endif
     }
 
     T fetchWidth(const QString &s)
     {
 #if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
-        return mFontMetrics.width(s);
+        return fontMetrics.width(s);
 #else
-        return mFontMetrics.horizontalAdvance(s);
+        return fontMetrics.horizontalAdvance(s);
 #endif
     }
 };

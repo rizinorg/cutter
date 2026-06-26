@@ -1,15 +1,18 @@
 #ifndef REGISTERPROFILEDIALOG_H
 #define REGISTERPROFILEDIALOG_H
 
+#include "CutterCommon.h" // IWYU pragma: keep
+
 #include <QDialog>
 #include <QListWidgetItem>
+
 #include <memory>
 
 namespace Ui {
 class RegisterProfileDialog;
 }
 
-enum class RegisterProfile {
+enum class RegisterProfile : ut8 {
     Default,
     Rizin,
     GDB,

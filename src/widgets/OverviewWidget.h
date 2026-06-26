@@ -7,6 +7,9 @@ class MainWindow;
 class OverviewView;
 class GraphWidget;
 
+/**
+ * @brief Dock widget that links the graph minimap to the main active graph view
+ */
 class OverviewWidget : public CutterDockWidget
 {
     Q_OBJECT

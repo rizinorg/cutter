@@ -1,22 +1,22 @@
-#include <QDebug>
-#include <QJsonObject>
-#include <QMap>
-#include <QPainter>
-#include <QPainterPath>
-#include <QFontMetrics>
-#include <QScreen>
-#include <QJsonArray>
-#include <QScrollBar>
-#include <QApplication>
-#include <QSvgRenderer>
-#include <QMouseEvent>
-#include <QSortFilterProxyModel>
+#include "widgets/ColorThemeListView.h"
 
-#include "common/Configuration.h"
 #include "common/ColorThemeWorker.h"
+#include "common/Configuration.h"
 #include "common/Helpers.h"
 
-#include "widgets/ColorThemeListView.h"
+#include <QApplication>
+#include <QDebug>
+#include <QFontMetrics>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QMap>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QPainterPath>
+#include <QScreen>
+#include <QScrollBar>
+#include <QSortFilterProxyModel>
+#include <QSvgRenderer>
 
 constexpr int allFieldsRole = Qt::UserRole + 2;
 
@@ -27,32 +27,28 @@ struct OptionInfo
 };
 
 namespace {
-extern const QMap<QString, OptionInfo> OPTION_INFO_MAP;
+extern const QMap<QString, OptionInfo> optionInfoMap;
 }
 
 ColorOptionDelegate::ColorOptionDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
     resetButtonPixmap = getPixmapFromSvg(":/img/icons/reset.svg", qApp->palette().text().color());
-    connect(qApp, &QGuiApplication::paletteChanged, this, [this]() {
-        resetButtonPixmap =
-                getPixmapFromSvg(":/img/icons/reset.svg", qApp->palette().text().color());
-    });
 }
 
 void ColorOptionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                                 const QModelIndex &index) const
 {
-    int margin = this->margin;
+    const int margin = this->margin;
     painter->save();
     painter->setFont(option.font);
     painter->setRenderHint(QPainter::Antialiasing);
 
-    ColorOption currCO = index.data(Qt::UserRole).value<ColorOption>();
+    const auto currCO = index.data(Qt::UserRole).value<ColorOption>();
 
-    QFontMetrics fm = QFontMetrics(painter->font());
-    int penWidth = painter->pen().width();
-    int fontHeight = fm.height();
-    QPoint tl = option.rect.topLeft();
+    const QFontMetrics fm = QFontMetrics(painter->font());
+    const int penWidth = painter->pen().width();
+    const int fontHeight = fm.height();
+    const QPoint tl = option.rect.topLeft();
 
     QRect optionNameRect;
     optionNameRect.setTopLeft(tl + QPoint(margin, penWidth));
@@ -96,7 +92,7 @@ void ColorOptionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
             }
         } else {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-            QColor placeholderColor = qApp->palette().placeholderText().color();
+            const QColor placeholderColor = qApp->palette().placeholderText().color();
 #else
             QColor placeholderColor = qApp->palette().text().color();
             placeholderColor.setAlphaF(0.5);
@@ -110,9 +106,9 @@ void ColorOptionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
         painter->fillRect(option.rect, br);
 
         painter->setPen(pen);
-        int pw = painter->pen().width() / 2;
-        QPoint top = option.rect.topLeft() + QPoint(pw, pw);
-        QPoint bottom = option.rect.bottomLeft() - QPoint(-pw, pw - 1);
+        const int pw = painter->pen().width() / 2;
+        const QPoint top = option.rect.topLeft() + QPoint(pw, pw);
+        const QPoint bottom = option.rect.bottomLeft() - QPoint(-pw, pw - 1);
         painter->drawLine(top, bottom);
     }
 
@@ -128,10 +124,10 @@ void ColorOptionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 
     painter->setPen(qApp->palette().text().color());
 
-    QFontMetrics fm2 = QFontMetrics(painter->font());
-    auto info = OPTION_INFO_MAP[currCO.optionName];
-    QString name = fm2.elidedText(QApplication::translate("ColorTheme", info.displayingtext),
-                                  Qt::ElideRight, optionNameRect.width());
+    const QFontMetrics fm2 = QFontMetrics(painter->font());
+    auto info = optionInfoMap[currCO.optionName];
+    const QString name = fm2.elidedText(QApplication::translate("ColorTheme", info.displayingtext),
+                                        Qt::ElideRight, optionNameRect.width());
     painter->drawText(optionNameRect, name);
 
     QPainterPath roundedOptionRect;
@@ -158,10 +154,10 @@ void ColorOptionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     painter->setPen(currCO.color);
     painter->fillPath(roundedColorRect, currCO.color);
 
-    QFontMetrics fm3 = QFontMetrics(painter->font());
-    QString desc = fm3.elidedText(currCO.optionName + ": "
-                                          + QApplication::translate("ColorTheme", info.info),
-                                  Qt::ElideRight, descTextRect.width());
+    const QFontMetrics fm3 = QFontMetrics(painter->font());
+    const QString desc = fm3.elidedText(currCO.optionName + ": "
+                                                + QApplication::translate("ColorTheme", info.info),
+                                        Qt::ElideRight, descTextRect.width());
     painter->setPen(qApp->palette().text().color());
     painter->setBrush(qApp->palette().text());
     painter->drawText(descTextRect, desc);
@@ -172,8 +168,8 @@ void ColorOptionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 QSize ColorOptionDelegate::sizeHint(const QStyleOptionViewItem &option,
                                     const QModelIndex &index) const
 {
-    qreal margin = this->margin;
-    qreal fontHeight = option.fontMetrics.height();
+    const qreal margin = this->margin;
+    const qreal fontHeight = option.fontMetrics.height();
     qreal h = QPen().width();
     h += fontHeight; // option name
     h += margin / 2; // margin between option rect and option name
@@ -191,6 +187,14 @@ QRect ColorOptionDelegate::getResetButtonRect() const
     return resetButtonRect;
 }
 
+void ColorOptionDelegate::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::ApplicationPaletteChange) {
+        resetButtonPixmap =
+                getPixmapFromSvg(":/img/icons/reset.svg", qApp->palette().text().color());
+    }
+}
+
 QPixmap ColorOptionDelegate::getPixmapFromSvg(const QString &fileName, const QColor &after) const
 {
     QFile file(fileName);
@@ -201,7 +205,7 @@ QPixmap ColorOptionDelegate::getPixmapFromSvg(const QString &fileName, const QCo
     data.replace(QRegularExpression("#[0-9a-fA-F]{6}"), QString("%1").arg(after.name()));
 
     QSvgRenderer svgRenderer(data.toUtf8());
-    QFontMetrics fm = QFontMetrics(qApp->font());
+    const QFontMetrics fm = QFontMetrics(qApp->font());
     QPixmap pix(QSize(fm.height(), fm.height()));
     pix.fill(Qt::transparent);
 
@@ -213,8 +217,8 @@ QPixmap ColorOptionDelegate::getPixmapFromSvg(const QString &fileName, const QCo
 
 ColorThemeListView::ColorThemeListView(QWidget *parent) : QListView(parent)
 {
-    QSortFilterProxyModel *proxy = new QSortFilterProxyModel(this);
-    ColorSettingsModel *model = new ColorSettingsModel(this);
+    auto *proxy = new QSortFilterProxyModel(this);
+    auto *model = new ColorSettingsModel(this);
     proxy->setSourceModel(model);
     model->updateTheme();
     setModel(proxy);
@@ -237,9 +241,9 @@ ColorThemeListView::ColorThemeListView(QWidget *parent) : QListView(parent)
 
 void ColorThemeListView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    ColorOption prev = previous.data(Qt::UserRole).value<ColorOption>();
+    const auto prev = previous.data(Qt::UserRole).value<ColorOption>();
     Config()->setColor(prev.optionName, prev.color);
-    bool isRizinOption = ThemeWorker().getRizinSpecificOptions().contains(prev.optionName);
+    const bool isRizinOption = ThemeWorker().getRizinSpecificOptions().contains(prev.optionName);
     if (isRizinOption) {
         Core()->setColor(prev.optionName, prev.color.name());
     }
@@ -257,7 +261,7 @@ void ColorThemeListView::currentChanged(const QModelIndex &current, const QModel
 void ColorThemeListView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                                      const QVector<int> &roles)
 {
-    ColorOption curr = topLeft.data(Qt::UserRole).value<ColorOption>();
+    const auto curr = topLeft.data(Qt::UserRole).value<ColorOption>();
     if (curr.optionName == "gui.background") {
         backgroundColor = curr.color;
     }
@@ -271,7 +275,7 @@ void ColorThemeListView::mouseReleaseEvent(QMouseEvent *e)
     if (qobject_cast<ColorOptionDelegate *>(itemDelegate())
                 ->getResetButtonRect()
                 .contains(e->pos())) {
-        ColorOption co = currentIndex().data(Qt::UserRole).value<ColorOption>();
+        auto co = currentIndex().data(Qt::UserRole).value<ColorOption>();
         co.changed = false;
         co.color = ThemeWorker().getTheme(Config()->getColorTheme())[co.optionName];
         model()->setData(currentIndex(), QVariant::fromValue(co));
@@ -304,7 +308,7 @@ ColorSettingsModel *ColorThemeListView::colorSettingsModel() const
 
 void ColorThemeListView::blinkTimeout()
 {
-    static enum { Normal, Invisible } state = Normal;
+    static enum : ut8 { Normal, Invisible } state = Normal;
     state = state == Normal ? Invisible : Normal;
     backgroundColor.setAlphaF(1);
 
@@ -315,7 +319,7 @@ void ColorThemeListView::blinkTimeout()
         }
     };
 
-    ColorOption curr = currentIndex().data(Qt::UserRole).value<ColorOption>();
+    const auto curr = currentIndex().data(Qt::UserRole).value<ColorOption>();
     switch (state) {
     case Normal:
         updateColor(curr.optionName, curr.color);
@@ -340,7 +344,7 @@ QVariant ColorSettingsModel::data(const QModelIndex &index, int role) const
     }
 
     const QString key = theme.at(index.row()).optionName;
-    auto info = OPTION_INFO_MAP[key];
+    auto info = optionInfoMap[key];
 
     if (role == Qt::DisplayRole) {
         return QVariant::fromValue(QApplication::translate("ColorTheme", info.displayingtext));
@@ -355,7 +359,7 @@ QVariant ColorSettingsModel::data(const QModelIndex &index, int role) const
     }
 
     if (role == allFieldsRole) {
-        const QString name = key;
+        const QString &name = key;
         return QVariant::fromValue(QApplication::translate("ColorTheme", info.displayingtext) + " "
                                    + QApplication::translate("ColorTheme", info.info) + " " + name);
     }
@@ -369,7 +373,7 @@ bool ColorSettingsModel::setData(const QModelIndex &index, const QVariant &value
         return false;
     }
 
-    ColorOption currOpt = value.value<ColorOption>();
+    const auto currOpt = value.value<ColorOption>();
     theme[index.row()] = currOpt;
     emit dataChanged(index, index);
     return true;
@@ -379,16 +383,16 @@ void ColorSettingsModel::updateTheme()
 {
     beginResetModel();
     theme.clear();
-    ColorThemeWorker::Theme obj = ThemeWorker().getTheme(Config()->getColorTheme());
+    const ColorThemeWorker::Theme obj = ThemeWorker().getTheme(Config()->getColorTheme());
 
     for (auto it = obj.constBegin(); it != obj.constEnd(); it++) {
         theme.push_back({ it.key(), it.value(), false });
     }
 
     std::sort(theme.begin(), theme.end(), [](const ColorOption &f, const ColorOption &s) {
-        QString s1 = f.optionName;
-        QString s2 = s.optionName;
-        int r = s1.compare(s2, Qt::CaseSensitivity::CaseInsensitive);
+        const QString s1 = f.optionName;
+        const QString s2 = s.optionName;
+        const int r = s1.compare(s2, Qt::CaseSensitivity::CaseInsensitive);
         return r < 0;
     });
     endResetModel();
@@ -403,8 +407,9 @@ ColorThemeWorker::Theme ColorSettingsModel::getTheme() const
     return th;
 }
 
+// TODO: these should be queried from rizin
 namespace {
-const QMap<QString, OptionInfo> OPTION_INFO_MAP = {
+const QMap<QString, OptionInfo> optionInfoMap = {
     { "comment",
       { QT_TRANSLATE_NOOP("ColorTheme", "Color for code comments"),
         QT_TRANSLATE_NOOP("ColorTheme", "Comment") } },
@@ -627,12 +632,9 @@ const QMap<QString, OptionInfo> OPTION_INFO_MAP = {
     { "lineHighlight",
       { QT_TRANSLATE_NOOP("ColorTheme", "Color for highlighted line"),
         QT_TRANSLATE_NOOP("ColorTheme", "Line Highlight") } },
-    { "wordHighlightBg",
+    { "wordHighlight",
       { QT_TRANSLATE_NOOP("ColorTheme", "Background color for highlighted word"),
         QT_TRANSLATE_NOOP("ColorTheme", "Word Highlight Background") } },
-    { "wordHighlightFg",
-      { QT_TRANSLATE_NOOP("ColorTheme", "Foreground color for highlighted word"),
-        QT_TRANSLATE_NOOP("ColorTheme", "Word Highlight Foreground") } },
     { "searchCurrent",
       { QT_TRANSLATE_NOOP("ColorTheme", "Background color for the currently selected search match"),
         QT_TRANSLATE_NOOP("ColorTheme", "Current Search Highlight") } },

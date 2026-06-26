@@ -1,23 +1,24 @@
 #include "ComboQuickFilterView.h"
+
 #include "ui_ComboQuickFilterView.h"
 
 ComboQuickFilterView::ComboQuickFilterView(QWidget *parent)
-    : QWidget(parent), ui(new Ui::ComboQuickFilterView)
+    : AbstractFilterView(parent), ui(new Ui::ComboQuickFilterView)
 {
     ui->setupUi(this);
 
-    debounceTimer = new QTimer(this);
-    debounceTimer->setSingleShot(true);
+    setupSharedConnections();
 
-    connect(debounceTimer, &QTimer::timeout, this,
-            [this]() { emit filterTextChanged(ui->lineEdit->text()); });
-
-    connect(ui->lineEdit, &QLineEdit::textChanged, this, [this]() { debounceTimer->start(150); });
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, &ComboQuickFilterView::customContextMenuRequested, this,
+            &ComboQuickFilterView::showCustomContextMenu);
 }
 
-ComboQuickFilterView::~ComboQuickFilterView()
+ComboQuickFilterView::~ComboQuickFilterView() {}
+
+ItemCountLineEdit *ComboQuickFilterView::lineEdit() const
 {
-    delete ui;
+    return ui->lineEdit;
 }
 
 void ComboQuickFilterView::setLabelText(const QString &text)
@@ -28,22 +29,4 @@ void ComboQuickFilterView::setLabelText(const QString &text)
 QComboBox *ComboQuickFilterView::comboBox()
 {
     return ui->comboBox;
-}
-
-void ComboQuickFilterView::showFilter()
-{
-    show();
-    ui->lineEdit->setFocus();
-}
-
-void ComboQuickFilterView::clearFilter()
-{
-    ui->lineEdit->setText("");
-}
-
-void ComboQuickFilterView::closeFilter()
-{
-    ui->lineEdit->setText("");
-    hide();
-    emit filterClosed();
 }

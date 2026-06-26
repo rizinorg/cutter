@@ -1,7 +1,7 @@
 #include "PythonAPI.h"
-#include "core/Cutter.h"
 
 #include "CutterConfig.h"
+#include "core/Cutter.h"
 
 #include <QFile>
 

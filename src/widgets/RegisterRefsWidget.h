@@ -1,14 +1,14 @@
-#pragma once
+#ifndef REGISTERREFSWIDGET_H
+#define REGISTERREFSWIDGET_H
 
-#include <memory>
-
-#include "core/Cutter.h"
 #include "CutterDockWidget.h"
-#include "CutterTreeWidget.h"
+#include "core/Cutter.h"
 #include "menus/AddressableItemContextMenu.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
+
+#include <memory>
 
 class MainWindow;
 class QTreeWidget;
@@ -29,6 +29,9 @@ struct RegisterRefDescription
 };
 Q_DECLARE_METATYPE(RegisterRefDescription)
 
+/**
+ * @brief Source model for @ref RegisterRefModel
+ */
 class RegisterRefModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -39,10 +42,10 @@ private:
     QList<RegisterRefDescription> registerRefs;
 
 public:
-    enum Column { RegColumn = 0, ValueColumn, RefColumn, CommentColumn, ColumnCount };
-    enum Role { RegisterRefDescriptionRole = Qt::UserRole };
+    enum Column : ut8 { RegColumn = 0, ValueColumn, RefColumn, CommentColumn, ColumnCount };
+    enum Role : ut16 { RegisterRefDescriptionRole = Qt::UserRole };
 
-    RegisterRefModel(QObject *parent = 0);
+    RegisterRefModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -51,6 +54,9 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 };
 
+/**
+ * @brief Sort and Filter proxy model for @ref RegisterRefModel
+ */
 class RegisterRefProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
@@ -63,6 +69,10 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
+/**
+ * @brief Widget that lists register values, updates them as the debugger runs, and allows users to
+ * "seek" (navigate) to referenced memory
+ */
 class RegisterRefsWidget : public CutterDockWidget
 {
     Q_OBJECT
@@ -72,7 +82,7 @@ public:
     ~RegisterRefsWidget();
 
 private slots:
-    void on_registerRefTreeView_doubleClicked(const QModelIndex &index);
+    void onRegisterRefTreeViewDoubleClicked(const QModelIndex &index);
     void refreshRegisterRef();
     void copyClip(int column);
     void customMenuRequested(QPoint pos);
@@ -83,7 +93,6 @@ private:
 
     RegisterRefModel *registerRefModel;
     RegisterRefProxyModel *registerRefProxyModel;
-    CutterTreeWidget *tree;
     void setScrollMode();
 
     RefreshDeferrer *refreshDeferrer;
@@ -92,3 +101,5 @@ private:
     QAction *actionCopyRef;
     AddressableItemContextMenu addressableItemContextMenu;
 };
+
+#endif // REGISTERREFSWIDGET_H

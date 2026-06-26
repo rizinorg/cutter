@@ -3,14 +3,14 @@
  <class>EditStringDialog</class>
  <widget class="QDialog" name="EditStringDialog">
   <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
+   <enum>Qt::WindowModality::WindowModal</enum>
   </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>243</width>
-    <height>109</height>
+    <width>286</width>
+    <height>139</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -32,7 +32,7 @@
       </sizepolicy>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
      </property>
     </widget>
    </item>
@@ -41,7 +41,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QLabel" name="label_size">
+        <widget class="QLabel" name="labelSize">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -54,14 +54,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_type">
+        <widget class="QLabel" name="labelType">
          <property name="text">
           <string>Type:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_address">
+        <widget class="QLabel" name="labelAddress">
          <property name="text">
           <string>Address:</string>
          </property>
@@ -72,7 +72,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QSpinBox" name="spinBox_size">
+        <widget class="QSpinBox" name="spinBoxSize">
          <property name="minimumSize">
           <size>
            <width>150</width>
@@ -82,10 +82,10 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox_type"/>
+        <widget class="QComboBox" name="comboBoxType"/>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit_address">
+        <widget class="QLineEdit" name="lineEditAddress">
          <property name="text">
           <string/>
          </property>
@@ -93,8 +93,8 @@
        </item>
       </layout>
      </item>
-     <item alignment="Qt::AlignTop">
-      <widget class="QCheckBox" name="checkBox_autoSize">
+     <item alignment="Qt::AlignmentFlag::AlignTop">
+      <widget class="QCheckBox" name="checkBoxAutoSize">
        <property name="text">
         <string>Auto</string>
        </property>
@@ -105,10 +105,10 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>spinBox_size</tabstop>
-  <tabstop>checkBox_autoSize</tabstop>
-  <tabstop>comboBox_type</tabstop>
-  <tabstop>lineEdit_address</tabstop>
+  <tabstop>spinBoxSize</tabstop>
+  <tabstop>checkBoxAutoSize</tabstop>
+  <tabstop>comboBoxType</tabstop>
+  <tabstop>lineEditAddress</tabstop>
   <tabstop>dialogButtonBox</tabstop>
  </tabstops>
  <resources/>

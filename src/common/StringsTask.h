@@ -1,16 +1,19 @@
-
-#ifndef STRINGSASYNCTASK_H
-#define STRINGSASYNCTASK_H
+#ifndef STRINGSTASK_H
+#define STRINGSTASK_H
 
 #include "common/AsyncTask.h"
 #include "core/Cutter.h"
 
+/**
+ * @brief AsyncTask for querying all strings in binary
+ */
 class StringsTask : public AsyncTask
 {
     Q_OBJECT
 
 public:
-    QString getTitle() override { return tr("Searching for Strings"); }
+    explicit StringsTask(bool raw) : raw(raw) {}
+    QString getTitle() const override { return tr("Searching for Strings"); }
 
 signals:
     void stringSearchFinished(const QList<StringDescription> &strings);
@@ -18,9 +21,12 @@ signals:
 protected:
     void runTask() override
     {
-        auto strings = Core()->getAllStrings();
+        auto strings = Core()->getAllStrings(raw);
         emit stringSearchFinished(strings);
     }
+
+private:
+    bool raw;
 };
 
-#endif // STRINGSASYNCTASK_H
+#endif // STRINGSTASK_H

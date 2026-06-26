@@ -1,15 +1,15 @@
 #include "GraphvizLayout.h"
 
-#include <unordered_set>
-#include <unordered_map>
-#include <queue>
-#include <stack>
-#include <cassert>
-#include <sstream>
-#include <iomanip>
-#include <set>
+#include <QPointF>
 
+#include <cassert>
 #include <gvc.h>
+#include <iomanip>
+#include <map>
+#include <set>
+#include <sstream>
+#include <stack>
+#include <unordered_map>
 
 GraphvizLayout::GraphvizLayout(LayoutType lineType, Direction direction)
     : GraphLayout({}), direction(direction), layoutType(lineType)
@@ -34,7 +34,7 @@ static GraphLayout::GraphEdge::ArrowDirection getArrowDirection(QPointF directio
     }
 }
 
-static std::set<std::pair<ut64, ut64>> SelectLoopEdges(const GraphLayout::Graph &graph, ut64 entry)
+static std::set<std::pair<ut64, ut64>> selectLoopEdges(const GraphLayout::Graph &graph, ut64 entry)
 {
     std::set<std::pair<ut64, ut64>> result;
     // Run DFS to select backwards/loop edges
@@ -49,15 +49,15 @@ static std::set<std::pair<ut64, ut64>> SelectLoopEdges(const GraphLayout::Graph 
         stack.push({ first, 0 });
         while (!stack.empty()) {
             auto v = stack.top().first;
-            auto edge_index = stack.top().second;
+            auto edgeIndex = stack.top().second;
             auto blockIt = graph.find(v);
             if (blockIt == graph.end()) {
                 continue;
             }
             const auto &block = blockIt->second;
-            if (edge_index < block.edges.size()) {
+            if (edgeIndex < block.edges.size()) {
                 ++stack.top().second;
-                auto target = block.edges[edge_index].target;
+                auto target = block.edges[edgeIndex].target;
                 auto &targetState = visited[target];
                 if (targetState == 0) {
                     targetState = 1;
@@ -82,7 +82,7 @@ static std::set<std::pair<ut64, ut64>> SelectLoopEdges(const GraphLayout::Graph 
     return result;
 }
 
-void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &blocks, ut64 entry,
+void GraphvizLayout::calculateLayout(std::unordered_map<ut64, GraphBlock> &blocks, ut64 entry,
                                      int &width, int &height) const
 {
     // https://gitlab.com/graphviz/graphviz/issues/1441
@@ -132,7 +132,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
         agxset(obj, sym, STR(str.c_str()));
     };
 
-    std::set<std::pair<ut64, ut64>> loopEdges = SelectLoopEdges(blocks, entry);
+    std::set<std::pair<ut64, ut64>> loopEdges = selectLoopEdges(blocks, entry);
 
     for (const auto &blockIt : blocks) {
         auto u = nodes[blockIt.first];
@@ -205,7 +205,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
                             last = edge.polyline.back();
                         }
                         if (bz.eflag) {
-                            QPointF tip = QPointF(bz.ep.x, bz.ep.y);
+                            const QPointF tip = QPointF(bz.ep.x, bz.ep.y);
                             edge.polyline.push_back(tip);
                         }
 

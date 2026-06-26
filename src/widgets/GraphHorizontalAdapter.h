@@ -1,7 +1,6 @@
 #ifndef GRAPH_HORIZONTAL_ADAPTER_H
 #define GRAPH_HORIZONTAL_ADAPTER_H
 
-#include "core/Cutter.h"
 #include "GraphLayout.h"
 
 #include <memory>
@@ -13,7 +12,7 @@ class GraphHorizontalAdapter : public GraphLayout
 {
 public:
     GraphHorizontalAdapter(std::unique_ptr<GraphLayout> layout);
-    virtual void CalculateLayout(GraphLayout::Graph &blocks, ut64 entry, int &width,
+    virtual void calculateLayout(GraphLayout::Graph &blocks, ut64 entry, int &width,
                                  int &height) const override;
     void setLayoutConfig(const LayoutConfig &config) override;
 

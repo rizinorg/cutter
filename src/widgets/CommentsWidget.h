@@ -1,15 +1,13 @@
 #ifndef COMMENTSWIDGET_H
 #define COMMENTSWIDGET_H
 
-#include <memory>
+#include "CutterDescriptions.h"
+#include "CutterDockWidget.h"
+#include "common/AddressableItemModel.h"
+#include "widgets/ListDockWidget.h"
+
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
-
-#include "core/Cutter.h"
-#include "common/AddressableItemModel.h"
-#include "CutterDockWidget.h"
-#include "CutterTreeWidget.h"
-#include "widgets/ListDockWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -34,9 +32,9 @@ private:
     bool nested;
 
 public:
-    enum Column { OffsetColumn = 0, FunctionColumn, CommentColumn, ColumnCount };
-    enum NestedColumn { OffsetNestedColumn = 0, CommentNestedColumn, NestedColumnCount };
-    enum Role { CommentDescriptionRole = Qt::UserRole, FunctionRole };
+    enum Column : ut8 { OffsetColumn = 0, FunctionColumn, CommentColumn, ColumnCount };
+    enum NestedColumn : ut8 { OffsetNestedColumn = 0, CommentNestedColumn, NestedColumnCount };
+    enum Role : ut16 { CommentDescriptionRole = Qt::UserRole, FunctionRole };
 
     CommentsModel(QObject *parent = nullptr);
 

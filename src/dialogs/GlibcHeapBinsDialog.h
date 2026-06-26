@@ -1,11 +1,11 @@
 #ifndef GLIBCHEAPBINSDIALOG_H
 #define GLIBCHEAPBINSDIALOG_H
 
-#include <QDialog>
 #include <QAbstractTableModel>
-#include "core/Cutter.h"
-#include <MainWindow.h>
+#include <QDialog>
+
 #include <HeapBinsGraphView.h>
+#include <memory>
 
 namespace Ui {
 class GlibcHeapBinsDialog;
@@ -16,7 +16,7 @@ class BinsModel : public QAbstractTableModel
     Q_OBJECT
 public:
     explicit BinsModel(RVA arena_addr, QObject *parent = nullptr);
-    enum Column {
+    enum Column : ut8 {
         TypeColumn = 0,
         BinNumColumn,
         FdColumn,
@@ -31,7 +31,7 @@ public:
     void clearData();
     QVariant data(const QModelIndex &index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-    RVA arena_addr = 0;
+    RVA arenaAddr = 0;
     RzList *getChunks(int index);
     QString getBinMessage(int index);
     QVector<RzHeapBin *> values;
@@ -39,6 +39,9 @@ public:
 private:
 };
 
+/**
+ * @brief Dialog for inspecting glibc heap bins
+ */
 class GlibcHeapBinsDialog : public QDialog
 {
     Q_OBJECT
@@ -53,8 +56,8 @@ private slots:
     void showHeapInfoDialog();
 
 private:
-    Ui::GlibcHeapBinsDialog *ui;
-    RVA m_state;
+    std::unique_ptr<Ui::GlibcHeapBinsDialog> ui;
+    RVA mState;
     BinsModel *binsModel {};
     HeapBinsGraphView *graphView;
     MainWindow *main;

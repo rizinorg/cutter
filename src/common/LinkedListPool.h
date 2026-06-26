@@ -1,9 +1,8 @@
 #ifndef LINKED_LIST_POOL_H
 #define LINKED_LIST_POOL_H
 
-#include <vector>
-#include <cstdint>
 #include <iterator>
+#include <vector>
 
 /**
  * @brief Pool of singly linked lists.
@@ -92,7 +91,7 @@ public:
     };
 
     /**
-     * @brief Create a linked list pool with capacity for \a initialCapacity list items.
+     * @brief Create a linked list pool with capacity for @a initialCapacity list items.
      * @param initialCapacity number of elements to preallocate.
      */
     LinkedListPool(size_t initialCapacity) : data(1)
@@ -110,7 +109,7 @@ public:
      */
     List makeList(const T &value)
     {
-        size_t position = data.size();
+        const size_t position = data.size();
         data.push_back(Item { 0, value });
         return { position, position };
     }
@@ -122,8 +121,8 @@ public:
      * items. Modifying them will affect both lists.
      *
      * @param list The list that needs to be split.
-     * @param head Iterator to the first item in new list. Needs to be within \a list .
-     * @return Returns suffix of \a list.
+     * @param head Iterator to the first item in new list. Needs to be within @a list .
+     * @return Returns suffix of @a list.
      */
     List splitTail(const List &list, const ListIterator &head)
     {
@@ -135,8 +134,8 @@ public:
      *
      * @param list The list that needs to be split.
      * @param end Iterator to the first item that should not be included in returned list. Needs to
-     * be within \a list .
-     * @return Returns prefix of \a list.
+     * be within @a list .
+     * @return Returns prefix of @a list.
      */
     List splitHead(const List &list, const ListIterator &end)
     {

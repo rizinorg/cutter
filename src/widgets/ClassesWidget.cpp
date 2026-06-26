@@ -1,16 +1,17 @@
 #include "ClassesWidget.h"
-#include "core/MainWindow.h"
-#include "ui_ListDockWidget.h"
+
 #include "common/Helpers.h"
 #include "common/SvgIconEngine.h"
+#include "core/MainWindow.h"
 #include "dialogs/EditMethodDialog.h"
+#include "ui_ListDockWidget.h"
 
+#include <QComboBox>
+#include <QInputDialog>
 #include <QList>
 #include <QMenu>
 #include <QMouseEvent>
-#include <QInputDialog>
 #include <QShortcut>
-#include <QComboBox>
 
 QVariant ClassesModel::headerData(int section, Qt::Orientation, int role) const
 {
@@ -37,13 +38,13 @@ QVariant ClassesModel::headerData(int section, Qt::Orientation, int role) const
 
 RVA ClassesModel::address(const QModelIndex &index) const
 {
-    QVariant v = data(index, OffsetRole);
+    const QVariant v = data(index, offsetRole);
     return v.isValid() ? v.toULongLong() : RVA_INVALID;
 }
 
 QString ClassesModel::name(const QModelIndex &index) const
 {
-    return data(index, NameRole).toString();
+    return data(index, nameRole).toString();
 }
 
 BinClassesModel::BinClassesModel(QObject *parent) : ClassesModel(parent) {}
@@ -135,17 +136,17 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
             case TYPE:
                 return tr("method");
             case OFFSET:
-                return meth->addr == RVA_INVALID ? QString() : RzAddressString(meth->addr);
+                return meth->addr == RVA_INVALID ? QString() : rzAddressString(meth->addr);
             case VTABLE:
                 return meth->vtableOffset < 0 ? QString() : QString("+%1").arg(meth->vtableOffset);
             default:
                 return QVariant();
             }
-        case OffsetRole:
+        case offsetRole:
             return QVariant::fromValue(meth->addr);
-        case NameRole:
+        case nameRole:
             return meth->name;
-        case TypeRole:
+        case typeRole:
             return QVariant::fromValue(RowType::Method);
         default:
             return QVariant();
@@ -159,15 +160,15 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
             case TYPE:
                 return tr("field");
             case OFFSET:
-                return field->addr == RVA_INVALID ? QString() : RzAddressString(field->addr);
+                return field->addr == RVA_INVALID ? QString() : rzAddressString(field->addr);
             default:
                 return QVariant();
             }
-        case OffsetRole:
+        case offsetRole:
             return QVariant::fromValue(field->addr);
-        case NameRole:
+        case nameRole:
             return field->name;
-        case TypeRole:
+        case typeRole:
             return QVariant::fromValue(RowType::Field);
         default:
             return QVariant();
@@ -185,9 +186,9 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
             default:
                 return QVariant();
             }
-        case NameRole:
+        case nameRole:
             return base->name;
-        case TypeRole:
+        case typeRole:
             return QVariant::fromValue(RowType::Base);
         default:
             return QVariant();
@@ -201,18 +202,18 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
             case TYPE:
                 return tr("class");
             case OFFSET:
-                return cls->addr == RVA_INVALID ? QString() : RzAddressString(cls->addr);
+                return cls->addr == RVA_INVALID ? QString() : rzAddressString(cls->addr);
             case VTABLE:
                 return cls->vtableAddr == RVA_INVALID ? QString()
-                                                      : RzAddressString(cls->vtableAddr);
+                                                      : rzAddressString(cls->vtableAddr);
             default:
                 return QVariant();
             }
-        case OffsetRole:
+        case offsetRole:
             return QVariant::fromValue(cls->addr);
-        case NameRole:
+        case nameRole:
             return cls->name;
-        case TypeRole:
+        case typeRole:
             return QVariant::fromValue(RowType::Class);
         default:
             return QVariant();
@@ -221,11 +222,12 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
 }
 
 AnalysisClassesModel::AnalysisClassesModel(CutterDockWidget *parent)
-    : ClassesModel(parent), attrs(new QMap<QString, QVector<Attribute>>)
+    : ClassesModel(parent),
+      refreshDeferrer(parent->createRefreshDeferrer([this]() { this->refreshAll(); })),
+      attrs(new QMap<QString, QVector<Attribute>>)
 {
     // Just use a simple refresh deferrer. If an event was triggered in the background, simply
     // refresh everything later.
-    refreshDeferrer = parent->createRefreshDeferrer([this]() { this->refreshAll(); });
 
     connect(Core(), &CutterCore::refreshAll, this, &AnalysisClassesModel::refreshAll);
     connect(Core(), &CutterCore::codeRebased, this, &AnalysisClassesModel::refreshAll);
@@ -257,7 +259,7 @@ void AnalysisClassesModel::classNew(const QString &cls)
 
     // find the destination position using binary search and add the row
     auto it = std::lower_bound(classes.begin(), classes.end(), cls);
-    int index = it - classes.begin();
+    const int index = it - classes.begin();
     beginInsertRows(QModelIndex(), index, index);
     classes.insert(it, cls);
     endInsertRows();
@@ -274,7 +276,7 @@ void AnalysisClassesModel::classDeleted(const QString &cls)
     if (it == classes.end() || *it != cls) {
         return;
     }
-    int index = it - classes.begin();
+    const int index = it - classes.begin();
     beginRemoveRows(QModelIndex(), index, index);
     classes.erase(it);
     endRemoveRows();
@@ -291,7 +293,7 @@ void AnalysisClassesModel::classRenamed(const QString &oldName, const QString &n
         return;
     }
     auto newIt = std::lower_bound(classes.begin(), classes.end(), newName);
-    int oldRow = oldIt - classes.begin();
+    const int oldRow = oldIt - classes.begin();
     int newRow = newIt - classes.begin();
     // oldRow == newRow means the name stayed the same.
     // oldRow == newRow - 1 means the name changed, but the row stays the same.
@@ -322,7 +324,8 @@ void AnalysisClassesModel::classAttrsChanged(const QString &cls)
     if (it == classes.end() || *it != cls) {
         return;
     }
-    QPersistentModelIndex persistentIndex = QPersistentModelIndex(index(it - classes.begin(), 0));
+    const QPersistentModelIndex persistentIndex =
+            QPersistentModelIndex(index(it - classes.begin(), 0));
     layoutAboutToBeChanged({ persistentIndex });
     attrs->remove(cls);
     layoutChanged({ persistentIndex });
@@ -337,9 +340,9 @@ AnalysisClassesModel::getAttrs(const QString &cls) const
     }
 
     QVector<AnalysisClassesModel::Attribute> clsAttrs;
-    QList<AnalysisBaseClassDescription> bases = Core()->getAnalysisClassBaseClasses(cls);
-    QList<AnalysisMethodDescription> meths = Core()->getAnalysisClassMethods(cls);
-    QList<AnalysisVTableDescription> vtables = Core()->getAnalysisClassVTables(cls);
+    const QList<AnalysisBaseClassDescription> bases = Core()->getAnalysisClassBaseClasses(cls);
+    const QList<AnalysisMethodDescription> meths = Core()->getAnalysisClassMethods(cls);
+    const QList<AnalysisVTableDescription> vtables = Core()->getAnalysisClassVTables(cls);
     clsAttrs.reserve(bases.size() + meths.size() + vtables.size());
 
     for (const AnalysisBaseClassDescription &base : bases) {
@@ -410,7 +413,7 @@ QVariant AnalysisClassesModel::data(const QModelIndex &index, int role) const
             return QVariant();
         }
 
-        QString cls = classes.at(index.row());
+        const QString cls = classes.at(index.row());
         switch (role) {
         case Qt::DisplayRole:
             switch (index.column()) {
@@ -421,20 +424,20 @@ QVariant AnalysisClassesModel::data(const QModelIndex &index, int role) const
             default:
                 return QVariant();
             }
-        case TypeRole:
+        case typeRole:
             return QVariant::fromValue(RowType::Class);
-        case NameRole:
+        case nameRole:
             return cls;
         default:
             return QVariant();
         }
     } else { // method/field/base row
-        QString cls = classes.at(static_cast<int>(index.internalId() - 1));
+        const QString cls = classes.at(static_cast<int>(index.internalId() - 1));
         const Attribute &attr = getAttrs(cls)[index.row()];
 
         switch (attr.type) {
         case Attribute::Type::Base: {
-            AnalysisBaseClassDescription base = attr.data.value<AnalysisBaseClassDescription>();
+            const auto base = attr.data.value<AnalysisBaseClassDescription>();
             switch (role) {
             case Qt::DisplayRole:
                 switch (index.column()) {
@@ -453,11 +456,11 @@ QVariant AnalysisClassesModel::data(const QModelIndex &index, int role) const
                                                    QPalette::WindowText));
                 }
                 return QVariant();
-            case VTableRole:
+            case vTableRole:
                 return -1;
-            case NameRole:
+            case nameRole:
                 return base.className;
-            case TypeRole:
+            case typeRole:
                 return QVariant::fromValue(RowType::Base);
             default:
                 return QVariant();
@@ -465,7 +468,7 @@ QVariant AnalysisClassesModel::data(const QModelIndex &index, int role) const
             break;
         }
         case Attribute::Type::Method: {
-            AnalysisMethodDescription meth = attr.data.value<AnalysisMethodDescription>();
+            const auto meth = attr.data.value<AnalysisMethodDescription>();
             switch (role) {
             case Qt::DisplayRole:
                 switch (index.column()) {
@@ -476,7 +479,7 @@ QVariant AnalysisClassesModel::data(const QModelIndex &index, int role) const
                 case TYPE:
                     return tr("method");
                 case OFFSET:
-                    return meth.addr == RVA_INVALID ? QString() : RzAddressString(meth.addr);
+                    return meth.addr == RVA_INVALID ? QString() : rzAddressString(meth.addr);
                 case VTABLE:
                     return meth.vtableOffset < 0 ? QString()
                                                  : QString("+%1").arg(meth.vtableOffset);
@@ -489,15 +492,15 @@ QVariant AnalysisClassesModel::data(const QModelIndex &index, int role) const
                                                    QPalette::WindowText));
                 }
                 return QVariant();
-            case VTableRole:
+            case vTableRole:
                 return QVariant::fromValue(meth.vtableOffset);
-            case OffsetRole:
+            case offsetRole:
                 return QVariant::fromValue(meth.addr);
-            case NameRole:
+            case nameRole:
                 return meth.name;
-            case RealNameRole:
+            case realNameRole:
                 return meth.realName;
-            case TypeRole:
+            case typeRole:
                 return QVariant::fromValue(RowType::Method);
             default:
                 return QVariant();
@@ -505,7 +508,7 @@ QVariant AnalysisClassesModel::data(const QModelIndex &index, int role) const
             break;
         }
         case Attribute::Type::VTable: {
-            AnalysisVTableDescription vtable = attr.data.value<AnalysisVTableDescription>();
+            const auto vtable = attr.data.value<AnalysisVTableDescription>();
             switch (role) {
             case Qt::DisplayRole:
                 switch (index.column()) {
@@ -514,7 +517,7 @@ QVariant AnalysisClassesModel::data(const QModelIndex &index, int role) const
                 case TYPE:
                     return tr("vtable");
                 case OFFSET:
-                    return RzAddressString(vtable.addr);
+                    return rzAddressString(vtable.addr);
                 default:
                     return QVariant();
                 }
@@ -524,9 +527,9 @@ QVariant AnalysisClassesModel::data(const QModelIndex &index, int role) const
                                                    QPalette::WindowText));
                 }
                 return QVariant();
-            case OffsetRole:
+            case offsetRole:
                 return QVariant::fromValue(vtable.addr);
-            case TypeRole:
+            case typeRole:
                 return QVariant::fromValue(RowType::VTable);
             default:
                 return QVariant();
@@ -547,45 +550,46 @@ ClassesSortFilterProxyModel::ClassesSortFilterProxyModel(QObject *parent)
 
 bool ClassesSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
-    if (parent.isValid())
+    if (parent.isValid()) {
         return true;
+    }
 
-    QModelIndex index = sourceModel()->index(row, 0, parent);
-    return qhelpers::filterStringContains(index.data(ClassesModel::NameRole).toString(), this);
+    const QModelIndex index = sourceModel()->index(row, 0, parent);
+    return qhelpers::filterStringContains(index.data(ClassesModel::nameRole).toString(), this);
 }
 
 bool ClassesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
     switch (left.column()) {
     case ClassesModel::OFFSET: {
-        RVA left_offset = left.data(ClassesModel::OffsetRole).toULongLong();
-        RVA right_offset = right.data(ClassesModel::OffsetRole).toULongLong();
-        if (left_offset != right_offset) {
-            return left_offset < right_offset;
+        const RVA leftOffset = left.data(ClassesModel::offsetRole).toULongLong();
+        const RVA rightOffset = right.data(ClassesModel::offsetRole).toULongLong();
+        if (leftOffset != rightOffset) {
+            return leftOffset < rightOffset;
         }
     }
     // fallthrough
     case ClassesModel::TYPE: {
-        auto left_type = left.data(ClassesModel::TypeRole).value<ClassesModel::RowType>();
-        auto right_type = right.data(ClassesModel::TypeRole).value<ClassesModel::RowType>();
-        if (left_type != right_type) {
-            return left_type < right_type;
+        auto leftType = left.data(ClassesModel::typeRole).value<ClassesModel::RowType>();
+        auto rightType = right.data(ClassesModel::typeRole).value<ClassesModel::RowType>();
+        if (leftType != rightType) {
+            return leftType < rightType;
         }
     }
     // fallthrough
     case ClassesModel::VTABLE: {
-        auto left_vtable = left.data(ClassesModel::VTableRole).toLongLong();
-        auto right_vtable = right.data(ClassesModel::VTableRole).toLongLong();
-        if (left_vtable != right_vtable) {
-            return left_vtable < right_vtable;
+        auto leftVtable = left.data(ClassesModel::vTableRole).toLongLong();
+        auto rightVtable = right.data(ClassesModel::vTableRole).toLongLong();
+        if (leftVtable != rightVtable) {
+            return leftVtable < rightVtable;
         }
     }
     // fallthrough
     case ClassesModel::NAME:
     default:
-        QString left_name = left.data(ClassesModel::NameRole).toString();
-        QString right_name = right.data(ClassesModel::NameRole).toString();
-        return QString::compare(left_name, right_name, Qt::CaseInsensitive) < 0;
+        const QString leftName = left.data(ClassesModel::nameRole).toString();
+        const QString rightName = right.data(ClassesModel::nameRole).toString();
+        return QString::compare(leftName, rightName, Qt::CaseInsensitive) < 0;
     }
 }
 
@@ -596,6 +600,8 @@ bool ClassesSortFilterProxyModel::hasChildren(const QModelIndex &parent) const
 
 ClassesWidget::ClassesWidget(MainWindow *main)
     : ListDockWidget(main),
+      proxyModel(new ClassesSortFilterProxyModel(this)),
+      classSourceCombo(new QComboBox(this)),
       seekToVTableAction(tr("Seek to VTable"), this),
       editMethodAction(tr("Edit Method"), this),
       addMethodAction(tr("Add Method"), this),
@@ -608,14 +614,12 @@ ClassesWidget::ClassesWidget(MainWindow *main)
 
     ui->treeView->setIconSize(QSize(10, 10));
 
-    proxy_model = new ClassesSortFilterProxyModel(this);
-    setModels(proxy_model);
+    setModels(proxyModel);
 
-    classSourceCombo = new QComboBox(this);
     // User an intermediate single-child layout to contain the combo box, otherwise
     // when the combo box is inserted directly, the entire vertical layout gets a
     // weird horizontal padding on macOS.
-    QBoxLayout *comboLayout = new QBoxLayout(QBoxLayout::Direction::LeftToRight, nullptr);
+    auto *comboLayout = new QBoxLayout(QBoxLayout::Direction::LeftToRight, nullptr);
     comboLayout->addWidget(classSourceCombo);
     ui->verticalLayout->insertLayout(ui->verticalLayout->indexOf(ui->quickFilterView), comboLayout);
     classSourceCombo->addItem(tr("Binary Info (Fixed)"));
@@ -671,42 +675,45 @@ void ClassesWidget::refreshClasses()
 {
     switch (getSource()) {
     case Source::BIN:
-        if (!bin_model) {
-            proxy_model->setSourceModel(static_cast<AddressableItemModelI *>(nullptr));
-            delete analysis_model;
-            analysis_model = nullptr;
-            bin_model = new BinClassesModel(this);
-            proxy_model->setSourceModel(static_cast<AddressableItemModelI *>(bin_model));
+        if (!binModel) {
+            proxyModel->setSourceModel(static_cast<AddressableItemModelI *>(nullptr));
+            delete analysisModel;
+            analysisModel = nullptr;
+            binModel = new BinClassesModel(this);
+            proxyModel->setSourceModel(static_cast<AddressableItemModelI *>(binModel));
         }
-        bin_model->setClasses(Core()->getAllClassesFromBin());
+        binModel->setClasses(Core()->getAllClassesFromBin());
         break;
     case Source::ANALYSIS:
-        if (!analysis_model) {
-            proxy_model->setSourceModel(static_cast<AddressableItemModelI *>(nullptr));
-            delete bin_model;
-            bin_model = nullptr;
-            analysis_model = new AnalysisClassesModel(this);
-            proxy_model->setSourceModel(static_cast<AddressableItemModelI *>(analysis_model));
+        if (!analysisModel) {
+            proxyModel->setSourceModel(static_cast<AddressableItemModelI *>(nullptr));
+            delete binModel;
+            binModel = nullptr;
+            analysisModel = new AnalysisClassesModel(this);
+            proxyModel->setSourceModel(static_cast<AddressableItemModelI *>(analysisModel));
         }
         break;
     }
 
     qhelpers::adjustColumns(ui->treeView, 3, 0);
 
+    // set the initial item count
+    ui->quickFilterView->setItemCount(proxyModel->rowCount());
+
     ui->treeView->setColumnWidth(0, 200);
 }
 
 void ClassesWidget::updateActions()
 {
-    bool isAnalysis = !!analysis_model;
+    const bool isAnalysis = !!analysisModel;
     newClassAction.setVisible(isAnalysis);
     addMethodAction.setVisible(isAnalysis);
 
     bool rowIsAnalysisClass = false;
     bool rowIsAnalysisMethod = false;
-    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
+    const QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     if (isAnalysis && index.isValid()) {
-        auto type = static_cast<ClassesModel::RowType>(index.data(ClassesModel::TypeRole).toInt());
+        auto type = static_cast<ClassesModel::RowType>(index.data(ClassesModel::typeRole).toInt());
         rowIsAnalysisClass = type == ClassesModel::RowType::Class;
         rowIsAnalysisMethod = type == ClassesModel::RowType::Method;
     }
@@ -719,8 +726,8 @@ void ClassesWidget::updateActions()
     editMethodAction.setVisible(rowIsAnalysisMethod);
     bool rowHasVTable = false;
     if (rowIsAnalysisMethod) {
-        QString className = index.parent().data(ClassesModel::NameRole).toString();
-        QString methodName = index.data(ClassesModel::NameRole).toString();
+        const QString className = index.parent().data(ClassesModel::nameRole).toString();
+        const QString methodName = index.data(ClassesModel::nameRole).toString();
         AnalysisMethodDescription desc;
         if (Core()->getAnalysisMethod(className, methodName, &desc)) {
             if (desc.vtableOffset >= 0) {
@@ -733,8 +740,8 @@ void ClassesWidget::updateActions()
 
 void ClassesWidget::seekToVTableActionTriggered()
 {
-    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
-    QString className = index.parent().data(ClassesModel::NameRole).toString();
+    const QModelIndex index = ui->treeView->selectionModel()->currentIndex();
+    const QString className = index.parent().data(ClassesModel::nameRole).toString();
 
     QList<AnalysisVTableDescription> vtables = Core()->getAnalysisClassVTables(className);
     if (vtables.isEmpty()) {
@@ -743,7 +750,7 @@ void ClassesWidget::seekToVTableActionTriggered()
         return;
     }
 
-    QString methodName = index.data(ClassesModel::NameRole).toString();
+    const QString methodName = index.data(ClassesModel::nameRole).toString();
     AnalysisMethodDescription desc;
     if (!Core()->getAnalysisMethod(className, methodName, &desc) || desc.vtableOffset < 0) {
         return;
@@ -754,17 +761,17 @@ void ClassesWidget::seekToVTableActionTriggered()
 
 void ClassesWidget::addMethodActionTriggered()
 {
-    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
+    const QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     if (!index.isValid()) {
         return;
     }
 
     QString className;
-    if (index.data(ClassesModel::TypeRole).toInt()
+    if (index.data(ClassesModel::typeRole).toInt()
         == static_cast<int>(ClassesModel::RowType::Class)) {
-        className = index.data(ClassesModel::NameRole).toString();
+        className = index.data(ClassesModel::nameRole).toString();
     } else {
-        className = index.parent().data(ClassesModel::NameRole).toString();
+        className = index.parent().data(ClassesModel::nameRole).toString();
     }
 
     EditMethodDialog::newMethod(className, QString(), this);
@@ -772,22 +779,22 @@ void ClassesWidget::addMethodActionTriggered()
 
 void ClassesWidget::editMethodActionTriggered()
 {
-    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
+    const QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     if (!index.isValid()
-        || index.data(ClassesModel::TypeRole).toInt()
+        || index.data(ClassesModel::typeRole).toInt()
                 != static_cast<int>(ClassesModel::RowType::Method)) {
         return;
     }
-    QString className = index.parent().data(ClassesModel::NameRole).toString();
-    QString methName = index.data(ClassesModel::NameRole).toString();
+    const QString className = index.parent().data(ClassesModel::nameRole).toString();
+    const QString methName = index.data(ClassesModel::nameRole).toString();
     EditMethodDialog::editMethod(className, methName, this);
 }
 
 void ClassesWidget::newClassActionTriggered()
 {
     bool ok;
-    QString name = QInputDialog::getText(this, tr("Create new Class"), tr("Class Name:"),
-                                         QLineEdit::Normal, QString(), &ok);
+    const QString name = QInputDialog::getText(this, tr("Create new Class"), tr("Class Name:"),
+                                               QLineEdit::Normal, QString(), &ok);
     if (ok && !name.isEmpty()) {
         Core()->createNewClass(name);
     }
@@ -795,13 +802,13 @@ void ClassesWidget::newClassActionTriggered()
 
 void ClassesWidget::deleteClassActionTriggered()
 {
-    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
+    const QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     if (!index.isValid()
-        || index.data(ClassesModel::TypeRole).toInt()
+        || index.data(ClassesModel::typeRole).toInt()
                 != static_cast<int>(ClassesModel::RowType::Class)) {
         return;
     }
-    QString className = index.data(ClassesModel::NameRole).toString();
+    const QString className = index.data(ClassesModel::nameRole).toString();
     if (QMessageBox::question(this, tr("Delete Class"),
                               tr("Are you sure you want to delete the class %1?").arg(className))
         != QMessageBox::StandardButton::Yes) {
@@ -812,16 +819,17 @@ void ClassesWidget::deleteClassActionTriggered()
 
 void ClassesWidget::renameClassActionTriggered()
 {
-    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
+    const QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     if (!index.isValid()
-        || index.data(ClassesModel::TypeRole).toInt()
+        || index.data(ClassesModel::typeRole).toInt()
                 != static_cast<int>(ClassesModel::RowType::Class)) {
         return;
     }
-    QString oldName = index.data(ClassesModel::NameRole).toString();
+    const QString oldName = index.data(ClassesModel::nameRole).toString();
     bool ok;
-    QString newName = QInputDialog::getText(this, tr("Rename Class %1").arg(oldName),
-                                            tr("Class name:"), QLineEdit::Normal, oldName, &ok);
+    const QString newName =
+            QInputDialog::getText(this, tr("Rename Class %1").arg(oldName), tr("Class name:"),
+                                  QLineEdit::Normal, oldName, &ok);
     if (ok && !newName.isEmpty()) {
         Core()->renameClass(oldName, newName);
     }

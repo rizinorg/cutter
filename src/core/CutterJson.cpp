@@ -2,7 +2,7 @@
 
 CutterJson CutterJson::last() const
 {
-    if (!has_children()) {
+    if (!hasChildren()) {
         return CutterJson();
     }
 

@@ -1,13 +1,17 @@
-#include <HeapBinsGraphView.h>
 #include "GlibcHeapBinsDialog.h"
-#include "ui_GlibcHeapBinsDialog.h"
-#include "GlibcHeapInfoDialog.h"
 
-GlibcHeapBinsDialog::GlibcHeapBinsDialog(RVA m_state, MainWindow *main, QWidget *parent)
+#include "Cutter.h"
+#include "GlibcHeapInfoDialog.h"
+#include "ui_GlibcHeapBinsDialog.h"
+
+#include <HeapBinsGraphView.h>
+
+GlibcHeapBinsDialog::GlibcHeapBinsDialog(RVA mState, MainWindow *main, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::GlibcHeapBinsDialog),
-      m_state(m_state),
-      binsModel(new BinsModel(m_state, this)),
+      mState(mState),
+      binsModel(new BinsModel(mState, this)),
+      graphView(nullptr),
       main(main)
 {
     ui->setupUi(this);
@@ -24,14 +28,11 @@ GlibcHeapBinsDialog::GlibcHeapBinsDialog(RVA m_state, MainWindow *main, QWidget 
 
     binsModel->reload();
     ui->viewBins->resizeColumnsToContents();
-    graphView = nullptr;
-    this->setWindowTitle(tr("Bins info for arena @ ") + RzAddressString(m_state));
+
+    this->setWindowTitle(tr("Bins info for arena @ ") + rzAddressString(mState));
 }
 
-GlibcHeapBinsDialog::~GlibcHeapBinsDialog()
-{
-    delete ui;
-}
+GlibcHeapBinsDialog::~GlibcHeapBinsDialog() {}
 
 void GlibcHeapBinsDialog::onCurrentChanged(const QModelIndex &current, const QModelIndex &prev)
 {
@@ -47,15 +48,15 @@ void GlibcHeapBinsDialog::setChainInfo(int index)
     // get chunks for the selected bin and construct chain info string
     RzListIter *iter;
     RzHeapChunkListItem *item;
-    RzList *chunks = binsModel->getChunks(index);
+    const RzList *chunks = binsModel->getChunks(index);
     QString chainInfo;
     CutterRzListForeach (chunks, iter, RzHeapChunkListItem, item) {
-        chainInfo += " → " + RzAddressString(item->addr);
+        chainInfo += " → " + rzAddressString(item->addr);
     }
 
     // Add bin message at the end of the list
     // responsible for messages like corrupted list, double free
-    QString message = binsModel->getBinMessage(index);
+    const QString message = binsModel->getBinMessage(index);
     if (!message.isEmpty()) {
         chainInfo += " " + message;
     }
@@ -65,10 +66,10 @@ void GlibcHeapBinsDialog::setChainInfo(int index)
 
 void GlibcHeapBinsDialog::showHeapInfoDialog()
 {
-    QString str = ui->lineEdit->text();
+    const QString str = ui->lineEdit->text();
     if (!str.isEmpty()) {
         // summon glibcHeapInfoDialog box with the offset entered
-        RVA offset = Core()->math(str);
+        const RVA offset = Core()->math(str);
         if (!offset) {
             ui->lineEdit->setText(QString());
             return;
@@ -91,7 +92,7 @@ void GlibcHeapBinsDialog::setGraphView(int index)
 }
 
 BinsModel::BinsModel(RVA arena_addr, QObject *parent)
-    : QAbstractTableModel(parent), arena_addr(arena_addr)
+    : QAbstractTableModel(parent), arenaAddr(arena_addr)
 {
 }
 
@@ -99,7 +100,7 @@ void BinsModel::reload()
 {
     beginResetModel();
     clearData();
-    values = Core()->getHeapBins(arena_addr);
+    values = Core()->getHeapBins(arenaAddr);
     endResetModel();
 }
 
@@ -115,8 +116,9 @@ int BinsModel::columnCount(const QModelIndex &) const
 
 QVariant BinsModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= values.count())
+    if (!index.isValid() || index.row() >= values.count()) {
         return QVariant();
+    }
 
     const auto &item = values.at(index.row());
 
@@ -126,15 +128,15 @@ QVariant BinsModel::data(const QModelIndex &index, int role) const
         case BinNumColumn:
             return item->bin_num;
         case FdColumn:
-            return (item->fd == 0) ? tr("N/A") : RzAddressString(item->fd);
+            return (item->fd == 0) ? tr("N/A") : rzAddressString(item->fd);
         case BkColumn:
-            return (item->bk == 0) ? tr("N/A") : RzAddressString(item->bk);
+            return (item->bk == 0) ? tr("N/A") : rzAddressString(item->bk);
         case TypeColumn:
             return tr(item->type);
         case CountColumn:
             return rz_list_length(item->chunks);
         case SizeColumn:
-            return (item->size == 0) ? tr("N/A") : RzHexString(item->size);
+            return (item->size == 0) ? tr("N/A") : rzHexString(item->size);
         default:
             return QVariant();
         }

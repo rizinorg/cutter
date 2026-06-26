@@ -1,15 +1,16 @@
 #include "RegisterProfileDialog.h"
-#include "ui_RegisterProfileDialog.h"
-#include "Cutter.h"
-#include "Configuration.h"
-#include "EditRegProfileDialog.h"
 
-#include <QFileDialog>
-#include <QPushButton>
-#include <QMessageBox>
+#include "Configuration.h"
+#include "Cutter.h"
+#include "EditRegProfileDialog.h"
+#include "ui_RegisterProfileDialog.h"
+
 #include <QFile>
-#include <QTextStream>
+#include <QFileDialog>
 #include <QMenu>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QTextStream>
 
 RegisterProfileDialog::RegisterProfileDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::RegisterProfileDialog)
@@ -35,7 +36,7 @@ RegisterProfileDialog::~RegisterProfileDialog() = default;
 
 void RegisterProfileDialog::showContextMenu(const QPoint &pos)
 {
-    QListWidgetItem *item = ui->recentProfilesList->itemAt(pos);
+    const QListWidgetItem *item = ui->recentProfilesList->itemAt(pos);
     QMenu menu(this);
     if (item) {
         menu.addAction(tr("Remove Item"), this, &RegisterProfileDialog::removeItem);
@@ -47,12 +48,12 @@ void RegisterProfileDialog::showContextMenu(const QPoint &pos)
 
 void RegisterProfileDialog::removeItem()
 {
-    QListWidgetItem *item = ui->recentProfilesList->currentItem();
+    const QListWidgetItem *item = ui->recentProfilesList->currentItem();
     if (!item) {
         return;
     }
 
-    QString serializedData = item->data(Qt::UserRole).toString();
+    const QString serializedData = item->data(Qt::UserRole).toString();
     Config()->removeRecentRegProfile(serializedData);
     delete ui->recentProfilesList->takeItem(ui->recentProfilesList->currentRow());
 }
@@ -68,15 +69,15 @@ void RegisterProfileDialog::fillProfilePaths(const QStringList &profilePaths)
     ui->recentProfilesList->clear();
 
     for (const QString &p : profilePaths) {
-        bool isGdb = p.startsWith("gdb::");
-        QString pathData = p.mid(p.indexOf("::") + 2);
+        const bool isGdb = p.startsWith("gdb::");
+        const QString pathData = p.mid(p.indexOf("::") + 2);
 
         // Visible format:
         // [Rizin/GDB] /path/to/file
         // easier for user to remember if the opened file was a GDB profile or Rizin
-        QString displayText = QString("[%1] %2").arg(isGdb ? "GDB" : "Rizin", pathData);
+        const QString displayText = QString("[%1] %2").arg(isGdb ? "GDB" : "Rizin", pathData);
 
-        QListWidgetItem *item = new QListWidgetItem(displayText);
+        auto *item = new QListWidgetItem(displayText);
         item->setData(Qt::UserRole, p);
         ui->recentProfilesList->addItem(item);
     }
@@ -84,8 +85,8 @@ void RegisterProfileDialog::fillProfilePaths(const QStringList &profilePaths)
 
 void RegisterProfileDialog::loadProfileBtnClicked()
 {
-    QString filePath = QFileDialog::getOpenFileName(this, tr("Open Register Profile"), QString(),
-                                                    tr("All Files (*)"));
+    const QString filePath = QFileDialog::getOpenFileName(this, tr("Open Register Profile"),
+                                                          QString(), tr("All Files (*)"));
     if (!filePath.isEmpty()) {
         setFileContents(filePath);
         loadedProfile = RegisterProfile::Rizin;
@@ -94,13 +95,13 @@ void RegisterProfileDialog::loadProfileBtnClicked()
 
 void RegisterProfileDialog::loadGDBBtnClicked()
 {
-    QString filePath = QFileDialog::getOpenFileName(this, tr("Open GDB Profile"), QString(),
-                                                    tr("All Files (*)"));
+    const QString filePath = QFileDialog::getOpenFileName(this, tr("Open GDB Profile"), QString(),
+                                                          tr("All Files (*)"));
     if (filePath.isEmpty()) {
         return;
     }
 
-    QString profile = Core()->convertGDBProfile(filePath);
+    const QString profile = Core()->convertGdbProfile(filePath);
     if (profile.isEmpty()) {
         return;
     }
@@ -119,7 +120,7 @@ void RegisterProfileDialog::setFileContents(const QString &filePath)
     QFile file(filePath);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);
-        QString data = in.readAll();
+        const QString data = in.readAll();
 
         setProfileData(data);
         setProfilePath(filePath);
@@ -169,7 +170,7 @@ QString RegisterProfileDialog::getSerializedProfilePath() const
     // Saving format:
     // rizin::/path/to/profile
     // gdb::/path/to/profile
-    QString path = ui->profilePathEdit->text();
+    const QString path = ui->profilePathEdit->text();
     if (path.isEmpty()) {
         return QString();
     }
@@ -182,8 +183,8 @@ void RegisterProfileDialog::itemClicked(QListWidgetItem *item)
         return;
     }
 
-    QString fullSerialized = item->data(Qt::UserRole).toString();
-    QString path = fullSerialized.mid(fullSerialized.indexOf("::") + 2);
+    const QString fullSerialized = item->data(Qt::UserRole).toString();
+    const QString path = fullSerialized.mid(fullSerialized.indexOf("::") + 2);
 
     loadedProfile =
             fullSerialized.startsWith("gdb::") ? RegisterProfile::GDB : RegisterProfile::Rizin;
@@ -198,8 +199,8 @@ void RegisterProfileDialog::exportProfileBtnClicked()
         return;
     }
 
-    QString filePath = QFileDialog::getSaveFileName(this, tr("Export Profile As"), QString(),
-                                                    tr("All Files (*)"));
+    const QString filePath = QFileDialog::getSaveFileName(this, tr("Export Profile As"), QString(),
+                                                          tr("All Files (*)"));
     if (filePath.isEmpty()) {
         return;
     }

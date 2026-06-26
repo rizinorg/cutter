@@ -1,24 +1,26 @@
-#include "common/PythonManager.h"
 #include "CutterApplication.h"
-#include "plugins/PluginManager.h"
+
 #include "CutterConfig.h"
-#include "common/Decompiler.h"
+#include "common/Decompiler.h" // IWYU pragma: keep
+#include "common/PythonManager.h" // IWYU pragma: keep
 #include "common/ResourcePaths.h"
+#include "core/Cutter.h"
+#include "plugins/PluginManager.h"
 
 #include <QApplication>
-#include <QFileOpenEvent>
+#include <QCommandLineParser>
+#include <QDir>
 #include <QEvent>
+#include <QFileOpenEvent>
+#include <QFontDatabase>
+#include <QLibraryInfo>
 #include <QMenu>
 #include <QMessageBox>
-#include <QCommandLineParser>
-#include <QTextCodec>
-#include <QStringList>
-#include <QProcess>
 #include <QPluginLoader>
-#include <QDir>
+#include <QProcess>
+#include <QStringList>
+#include <QTextCodec>
 #include <QTranslator>
-#include <QLibraryInfo>
-#include <QFontDatabase>
 #ifdef Q_OS_WIN
 #    include <QtNetwork/QtNetwork>
 #endif // Q_OS_WIN
@@ -88,8 +90,8 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     }
 
     // Check rizin version
-    QString rzversion = rz_core_version();
-    QString localVersion = CUTTER_COMPILE_TIME_RZ_VERSION;
+    const QString rzversion = rz_core_version();
+    const QString localVersion = CUTTER_COMPILE_TIME_RZ_VERSION;
     qDebug() << rzversion << localVersion;
     if (rzversion != localVersion) {
         QMessageBox msg;
@@ -147,7 +149,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         }
         mainWindow->displayNewFileDialog();
     } else { // filename specified as positional argument
-        bool askOptions = (clOptions.analysisLevel != AutomaticAnalysisLevel::Ask)
+        const bool askOptions = (clOptions.analysisLevel != AutomaticAnalysisLevel::Ask)
                 || !clOptions.fileOpenOptions.projectFile.isEmpty();
         mainWindow->openNewFile(clOptions.fileOpenOptions, askOptions);
     }
@@ -213,16 +215,16 @@ void CutterApplication::launchNewInstance(const QStringList &args)
 bool CutterApplication::event(QEvent *e)
 {
     if (e->type() == QEvent::FileOpen) {
-        QFileOpenEvent *openEvent = static_cast<QFileOpenEvent *>(e);
+        const auto *openEvent = static_cast<QFileOpenEvent *>(e);
         if (openEvent) {
-            if (m_FileAlreadyDropped) {
+            if (fileAlreadyDropped) {
                 // We already dropped a file in macOS, let's spawn another instance
                 // (Like the File -> Open)
-                QString fileName = openEvent->file();
+                const QString fileName = openEvent->file();
                 launchNewInstance({ fileName });
             } else {
-                QString fileName = openEvent->file();
-                m_FileAlreadyDropped = true;
+                const QString fileName = openEvent->file();
+                fileAlreadyDropped = true;
                 mainWindow->closeNewFileDialog();
                 InitialOptions options;
                 options.filename = fileName;
@@ -246,9 +248,9 @@ bool CutterApplication::loadTranslations()
         QApplication::setLayoutDirection(locale.textDirection());
         QLocale::setDefault(locale);
 
-        QTranslator *trCutter = new QTranslator;
-        QTranslator *trQtBase = new QTranslator;
-        QTranslator *trQt = new QTranslator;
+        auto *trCutter = new QTranslator;
+        auto *trQtBase = new QTranslator;
+        auto *trQt = new QTranslator;
 
         const QStringList &cutterTrPaths = Cutter::getTranslationsDirectories();
 
@@ -361,11 +363,11 @@ QStringList CutterApplication::getArgs() const
     }
     if (options.binLoadAddr != RVA_INVALID) {
         args.push_back("-B");
-        args.push_back(RzAddressString(options.binLoadAddr));
+        args.push_back(rzAddressString(options.binLoadAddr));
     }
     if (options.mapAddr != RVA_INVALID) {
         args.push_back("-m");
-        args.push_back(RzAddressString(options.mapAddr));
+        args.push_back(rzAddressString(options.mapAddr));
     }
     if (!options.filename.isEmpty()) {
         args.push_back(options.filename);
@@ -377,104 +379,104 @@ bool CutterApplication::parseCommandLineOptions()
 {
     // Keep this function in sync with documentation
 
-    QCommandLineParser cmd_parser;
-    cmd_parser.setApplicationDescription(
+    QCommandLineParser cmdParser;
+    cmdParser.setApplicationDescription(
             QObject::tr("A Qt and C++ GUI for rizin reverse engineering framework"));
-    cmd_parser.addHelpOption();
-    cmd_parser.addVersionOption();
-    cmd_parser.addPositionalArgument("filename", QObject::tr("Filename to open."));
+    cmdParser.addHelpOption();
+    cmdParser.addVersionOption();
+    cmdParser.addPositionalArgument("filename", QObject::tr("Filename to open."));
 
-    QCommandLineOption analOption(
+    const QCommandLineOption analOption(
             { "A", "analysis" },
             QObject::tr("Automatically open file and optionally start analysis. "
                         "Needs filename to be specified. May be a value between 0 and 2:"
                         " 0 = no analysis, 1 = aaa, 2 = aaaa (experimental)"),
             QObject::tr("level"));
-    cmd_parser.addOption(analOption);
+    cmdParser.addOption(analOption);
 
-    QCommandLineOption archOption({ "a", "arch" }, QObject::tr("Sets a specific architecture name"),
-                                  QObject::tr("arch"));
-    cmd_parser.addOption(archOption);
+    const QCommandLineOption archOption(
+            { "a", "arch" }, QObject::tr("Sets a specific architecture name"), QObject::tr("arch"));
+    cmdParser.addOption(archOption);
 
-    QCommandLineOption bitsOption({ "b", "bits" }, QObject::tr("Sets a specific architecture bits"),
-                                  QObject::tr("bits"));
-    cmd_parser.addOption(bitsOption);
+    const QCommandLineOption bitsOption(
+            { "b", "bits" }, QObject::tr("Sets a specific architecture bits"), QObject::tr("bits"));
+    cmdParser.addOption(bitsOption);
 
-    QCommandLineOption cpuOption({ "c", "cpu" }, QObject::tr("Sets a specific CPU"),
-                                 QObject::tr("cpu"));
-    cmd_parser.addOption(cpuOption);
+    const QCommandLineOption cpuOption({ "c", "cpu" }, QObject::tr("Sets a specific CPU"),
+                                       QObject::tr("cpu"));
+    cmdParser.addOption(cpuOption);
 
-    QCommandLineOption osOption({ "o", "os" }, QObject::tr("Sets a specific operating system"),
-                                QObject::tr("os"));
-    cmd_parser.addOption(osOption);
+    const QCommandLineOption osOption(
+            { "o", "os" }, QObject::tr("Sets a specific operating system"), QObject::tr("os"));
+    cmdParser.addOption(osOption);
 
-    QCommandLineOption endianOption({ "e", "endian" },
-                                    QObject::tr("Sets the endianness (big or little)"),
-                                    QObject::tr("big|little"));
-    cmd_parser.addOption(endianOption);
+    const QCommandLineOption endianOption({ "e", "endian" },
+                                          QObject::tr("Sets the endianness (big or little)"),
+                                          QObject::tr("big|little"));
+    cmdParser.addOption(endianOption);
 
-    QCommandLineOption formatOption({ "F", "format" },
-                                    QObject::tr("Force using a specific file format (bin plugin)"),
-                                    QObject::tr("name"));
-    cmd_parser.addOption(formatOption);
+    const QCommandLineOption formatOption(
+            { "F", "format" }, QObject::tr("Force using a specific file format (bin plugin)"),
+            QObject::tr("name"));
+    cmdParser.addOption(formatOption);
 
-    QCommandLineOption baddrOption({ "B", "base" },
-                                   QObject::tr("Load binary at a specific base address"),
-                                   QObject::tr("base address"));
-    cmd_parser.addOption(baddrOption);
+    const QCommandLineOption baddrOption({ "B", "base" },
+                                         QObject::tr("Load binary at a specific base address"),
+                                         QObject::tr("base address"));
+    cmdParser.addOption(baddrOption);
 
-    QCommandLineOption maddrOption({ "m", "map" },
-                                   QObject::tr("Map the binary at a specific address"),
-                                   QObject::tr("map address"));
-    cmd_parser.addOption(maddrOption);
+    const QCommandLineOption maddrOption({ "m", "map" },
+                                         QObject::tr("Map the binary at a specific address"),
+                                         QObject::tr("map address"));
+    cmdParser.addOption(maddrOption);
 
-    QCommandLineOption scriptOption("i", QObject::tr("Run script file"), QObject::tr("file"));
-    cmd_parser.addOption(scriptOption);
+    const QCommandLineOption scriptOption("i", QObject::tr("Run script file"), QObject::tr("file"));
+    cmdParser.addOption(scriptOption);
 
-    QCommandLineOption projectOption({ "p", "project" }, QObject::tr("Load project file"),
-                                     QObject::tr("project file"));
-    cmd_parser.addOption(projectOption);
+    const QCommandLineOption projectOption({ "p", "project" }, QObject::tr("Load project file"),
+                                           QObject::tr("project file"));
+    cmdParser.addOption(projectOption);
 
-    QCommandLineOption writeModeOption({ "w", "writemode" },
-                                       QObject::tr("Open file in write mode"));
-    cmd_parser.addOption(writeModeOption);
+    const QCommandLineOption writeModeOption({ "w", "writemode" },
+                                             QObject::tr("Open file in write mode"));
+    cmdParser.addOption(writeModeOption);
 
-    QCommandLineOption phyModeOption({ "P", "phymode" },
-                                     QObject::tr("Disables virtual addressing"));
-    cmd_parser.addOption(phyModeOption);
+    const QCommandLineOption phyModeOption({ "P", "phymode" },
+                                           QObject::tr("Disables virtual addressing"));
+    cmdParser.addOption(phyModeOption);
 
-    QCommandLineOption pythonHomeOption(
+    const QCommandLineOption pythonHomeOption(
             "pythonhome", QObject::tr("PYTHONHOME to use for embedded python interpreter"),
             "PYTHONHOME");
-    cmd_parser.addOption(pythonHomeOption);
+    cmdParser.addOption(pythonHomeOption);
 
-    QCommandLineOption disableRedirectOption(
+    const QCommandLineOption disableRedirectOption(
             "no-output-redirect",
             QObject::tr("Disable output redirection."
                         " Some of the output in console widget will not be visible."
                         " Use this option when debuging a crash or freeze and output "
                         " redirection is causing some messages to be lost."));
-    cmd_parser.addOption(disableRedirectOption);
+    cmdParser.addOption(disableRedirectOption);
 
-    QCommandLineOption disablePlugins("no-plugins", QObject::tr("Do not load plugins"));
-    cmd_parser.addOption(disablePlugins);
+    const QCommandLineOption disablePlugins("no-plugins", QObject::tr("Do not load plugins"));
+    cmdParser.addOption(disablePlugins);
 
-    QCommandLineOption disableCutterPlugins("no-cutter-plugins",
-                                            QObject::tr("Do not load Cutter plugins"));
-    cmd_parser.addOption(disableCutterPlugins);
+    const QCommandLineOption disableCutterPlugins("no-cutter-plugins",
+                                                  QObject::tr("Do not load Cutter plugins"));
+    cmdParser.addOption(disableCutterPlugins);
 
-    QCommandLineOption disableRizinPlugins("no-rizin-plugins",
-                                           QObject::tr("Do not load rizin plugins"));
-    cmd_parser.addOption(disableRizinPlugins);
+    const QCommandLineOption disableRizinPlugins("no-rizin-plugins",
+                                                 QObject::tr("Do not load rizin plugins"));
+    cmdParser.addOption(disableRizinPlugins);
 
-    cmd_parser.process(*this);
+    cmdParser.process(*this);
 
     CutterCommandLineOptions opts;
-    opts.args = cmd_parser.positionalArguments();
+    opts.args = cmdParser.positionalArguments();
 
-    if (cmd_parser.isSet(analOption)) {
+    if (cmdParser.isSet(analOption)) {
         bool analysisLevelSpecified = false;
-        int analysisLevel = cmd_parser.value(analOption).toInt(&analysisLevelSpecified);
+        const int analysisLevel = cmdParser.value(analOption).toInt(&analysisLevelSpecified);
 
         if (!analysisLevelSpecified || analysisLevel < 0 || analysisLevel > 2) {
             fprintf(stderr, "%s\n",
@@ -506,17 +508,17 @@ bool CutterApplication::parseCommandLineOptions()
 
     if (!opts.args.isEmpty()) {
         opts.fileOpenOptions.filename = opts.args[0];
-        opts.fileOpenOptions.forceBinPlugin = cmd_parser.value(formatOption);
-        if (cmd_parser.isSet(baddrOption)) {
+        opts.fileOpenOptions.forceBinPlugin = cmdParser.value(formatOption);
+        if (cmdParser.isSet(baddrOption)) {
             bool ok = false;
-            RVA baddr = cmd_parser.value(baddrOption).toULongLong(&ok, 0);
+            const RVA baddr = cmdParser.value(baddrOption).toULongLong(&ok, 0);
             if (ok) {
                 opts.fileOpenOptions.binLoadAddr = baddr;
             }
         }
-        if (cmd_parser.isSet(maddrOption)) {
+        if (cmdParser.isSet(maddrOption)) {
             bool ok = false;
-            RVA maddr = cmd_parser.value(maddrOption).toULongLong(&ok, 0);
+            const RVA maddr = cmdParser.value(maddrOption).toULongLong(&ok, 0);
             if (ok) {
                 opts.fileOpenOptions.mapAddr = maddr;
             }
@@ -539,19 +541,19 @@ bool CutterApplication::parseCommandLineOptions()
             };
             break;
         }
-        opts.fileOpenOptions.script = cmd_parser.value(scriptOption);
-        opts.fileOpenOptions.arch = cmd_parser.value(archOption);
-        opts.fileOpenOptions.cpu = cmd_parser.value(cpuOption);
-        opts.fileOpenOptions.os = cmd_parser.value(osOption);
-        if (cmd_parser.isSet(bitsOption)) {
+        opts.fileOpenOptions.script = cmdParser.value(scriptOption);
+        opts.fileOpenOptions.arch = cmdParser.value(archOption);
+        opts.fileOpenOptions.cpu = cmdParser.value(cpuOption);
+        opts.fileOpenOptions.os = cmdParser.value(osOption);
+        if (cmdParser.isSet(bitsOption)) {
             bool ok = false;
-            int bits = cmd_parser.value(bitsOption).toInt(&ok, 10);
+            const int bits = cmdParser.value(bitsOption).toInt(&ok, 10);
             if (ok && bits > 0) {
                 opts.fileOpenOptions.bits = bits;
             }
         }
-        if (cmd_parser.isSet(endianOption)) {
-            QString endian = cmd_parser.value(endianOption).toLower();
+        if (cmdParser.isSet(endianOption)) {
+            const QString endian = cmdParser.value(endianOption).toLower();
             opts.fileOpenOptions.endian = InitialOptions::Endianness::Auto;
             if (endian == "little") {
                 opts.fileOpenOptions.endian = InitialOptions::Endianness::Little;
@@ -568,27 +570,27 @@ bool CutterApplication::parseCommandLineOptions()
             opts.fileOpenOptions.endian = InitialOptions::Endianness::Auto;
         }
 
-        opts.fileOpenOptions.writeEnabled = cmd_parser.isSet(writeModeOption);
-        opts.fileOpenOptions.useVA = !cmd_parser.isSet(phyModeOption);
+        opts.fileOpenOptions.writeEnabled = cmdParser.isSet(writeModeOption);
+        opts.fileOpenOptions.useVA = !cmdParser.isSet(phyModeOption);
     }
 
-    opts.fileOpenOptions.projectFile = cmd_parser.value(projectOption);
+    opts.fileOpenOptions.projectFile = cmdParser.value(projectOption);
 
-    if (cmd_parser.isSet(pythonHomeOption)) {
-        opts.pythonHome = cmd_parser.value(pythonHomeOption);
+    if (cmdParser.isSet(pythonHomeOption)) {
+        opts.pythonHome = cmdParser.value(pythonHomeOption);
     }
 
-    opts.outputRedirectionEnabled = !cmd_parser.isSet(disableRedirectOption);
-    if (cmd_parser.isSet(disablePlugins)) {
+    opts.outputRedirectionEnabled = !cmdParser.isSet(disableRedirectOption);
+    if (cmdParser.isSet(disablePlugins)) {
         opts.enableCutterPlugins = false;
         opts.enableRizinPlugins = false;
     }
 
-    if (cmd_parser.isSet(disableCutterPlugins)) {
+    if (cmdParser.isSet(disableCutterPlugins)) {
         opts.enableCutterPlugins = false;
     }
 
-    if (cmd_parser.isSet(disableRizinPlugins)) {
+    if (cmdParser.isSet(disableRizinPlugins)) {
         opts.enableRizinPlugins = false;
     }
 

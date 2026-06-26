@@ -1,13 +1,14 @@
-
 #ifndef ADDRESSABLEITEMMODEL_H
 #define ADDRESSABLEITEMMODEL_H
 
-#include <QAbstractItemModel>
-#include <QSortFilterProxyModel>
-#include <QAbstractItemModel>
-
 #include "core/CutterCommon.h"
 
+#include <QAbstractItemModel>
+#include <QSortFilterProxyModel>
+
+/**
+ * @brief An interface for QAbstractItemModel containing an address field for each index
+ */
 class CUTTER_EXPORT AddressableItemModelI
 {
 public:
@@ -17,14 +18,13 @@ public:
      * @param index item intex
      * @return Item name or empty QString if item doesn't have short descriptive name.
      */
-    virtual QString name(const QModelIndex &index) const
-    {
-        Q_UNUSED(index)
-        return QString();
-    }
+    virtual QString name(const QModelIndex & /*index*/) const { return QString(); }
     virtual QAbstractItemModel *asItemModel() = 0;
 };
 
+/**
+ * @brief A wrapper class for QAbstractItemModel containing an address field for each index
+ */
 template<class ParentModel = QAbstractItemModel>
 class CUTTER_EXPORT AddressableItemModel : public ParentModel, public AddressableItemModelI
 {
@@ -37,6 +37,10 @@ public:
     QAbstractItemModel *asItemModel() { return this; }
 };
 
+/**
+ * @brief A wrapper class for QSortFilterProxyModel with @ref AddressableItemModelI as source
+ * model
+ */
 class CUTTER_EXPORT AddressableFilterProxyModel : public AddressableItemModel<QSortFilterProxyModel>
 {
     using ParentClass = AddressableItemModel<QSortFilterProxyModel>;

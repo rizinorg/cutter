@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QListWidgetItem>
+
 #include <memory>
 
 namespace Ui {
@@ -11,6 +12,9 @@ class NewFileDialog;
 
 class MainWindow;
 
+/**
+ * @brief Dialog for opening a new file or project
+ */
 class NewFileDialog : public QDialog
 {
     Q_OBJECT
@@ -20,29 +24,29 @@ public:
     ~NewFileDialog();
 
 private slots:
-    void on_loadFileButton_clicked();
-    void on_selectFileButton_clicked();
-    void on_selectProjectFileButton_clicked();
+    void onLoadFileButtonClicked();
+    void onSelectFileButtonClicked();
+    void onSelectProjectFileButtonClicked();
 
-    void on_loadProjectButton_clicked();
-    void on_shellcodeButton_clicked();
+    void onLoadProjectButtonClicked();
+    void onShellcodeButtonClicked();
 
-    void on_aboutButton_clicked();
+    void onAboutButtonClicked();
 
-    void on_recentsListWidget_itemClicked(QListWidgetItem *item);
-    void on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item);
-    void on_recentsListWidget_currentItemChanged(QListWidgetItem *current);
+    void onRecentsListWidgetItemClicked(QListWidgetItem *item);
+    void onRecentsListWidgetItemDoubleClicked(QListWidgetItem *item);
+    void onRecentsListWidgetCurrentItemChanged(QListWidgetItem *current);
 
-    void on_projectFileEdit_textChanged();
-    void on_projectsListWidget_itemClicked(QListWidgetItem *item);
-    void on_projectsListWidget_itemDoubleClicked(QListWidgetItem *item);
+    void onProjectFileEditTextChanged();
+    void onProjectsListWidgetItemClicked(QListWidgetItem *item);
+    void onProjectsListWidgetItemDoubleClicked(QListWidgetItem *item);
 
-    void on_actionRemove_item_triggered();
-    void on_actionClear_all_triggered();
-    void on_actionRemove_project_triggered();
-    void on_actionClearProjects_triggered();
+    void onActionRemoveItemTriggered();
+    void onActionClearAllTriggered();
+    void onActionRemoveProjectTriggered();
+    void onActionClearProjectsTriggered();
 
-    void on_tabWidget_currentChanged(int index);
+    void onTabWidgetCurrentChanged(int index);
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
@@ -77,7 +81,7 @@ private:
 
     bool eventFilter(QObject *obj, QEvent *event);
 
-    static const int MaxRecentFiles = 5;
+    static const int maxRecentFiles = 5;
 };
 
 #endif // NEWFILEDIALOG_H

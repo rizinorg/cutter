@@ -30,7 +30,7 @@
     <item>
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Orientation::Horizontal</enum>
       </property>
       <widget class="HexWidget" name="hexTextView">
        <property name="sizePolicy">
@@ -40,13 +40,13 @@
         </sizepolicy>
        </property>
        <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
+        <enum>QFrame::Shape::NoFrame</enum>
        </property>
        <property name="widgetResizable">
         <bool>true</bool>
        </property>
       </widget>
-      <widget class="QTabWidget" name="hexSideTab_2">
+      <widget class="QTabWidget" name="hexSideTab2">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -54,10 +54,10 @@
         </sizepolicy>
        </property>
        <property name="tabPosition">
-        <enum>QTabWidget::North</enum>
+        <enum>QTabWidget::TabPosition::North</enum>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <property name="usesScrollButtons">
         <bool>true</bool>
@@ -124,7 +124,7 @@
              <item>
               <widget class="QComboBox" name="parseEndianComboBox">
                <property name="sizeAdjustPolicy">
-                <enum>QComboBox::AdjustToContents</enum>
+                <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
                </property>
                <item>
                 <property name="text">
@@ -141,7 +141,7 @@
             </layout>
            </item>
            <item>
-            <widget class="QFrame" name="hexSideFrame_2">
+            <widget class="QFrame" name="hexSideFrame2">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -155,17 +155,17 @@
               </size>
              </property>
              <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
+              <enum>QFrame::Shape::NoFrame</enum>
              </property>
              <property name="frameShadow">
-              <enum>QFrame::Plain</enum>
+              <enum>QFrame::Shadow::Plain</enum>
              </property>
              <property name="lineWidth">
               <number>0</number>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_21">
               <property name="sizeConstraint">
-               <enum>QLayout::SetMinimumSize</enum>
+               <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
               </property>
               <property name="leftMargin">
                <number>5</number>
@@ -180,7 +180,7 @@
                <number>5</number>
               </property>
               <item>
-               <widget class="QLabel" name="hexArchLabel_2">
+               <widget class="QLabel" name="hexArchLabel2">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                   <horstretch>0</horstretch>
@@ -201,7 +201,7 @@
                  </sizepolicy>
                 </property>
                 <property name="sizeAdjustPolicy">
-                 <enum>QComboBox::AdjustToContents</enum>
+                 <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
                 </property>
                 <property name="frame">
                  <bool>false</bool>
@@ -209,7 +209,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="hexBitsLabel_2">
+               <widget class="QLabel" name="hexBitsLabel2">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                   <horstretch>0</horstretch>
@@ -224,7 +224,7 @@
               <item>
                <widget class="QComboBox" name="parseBitsComboBox">
                 <property name="sizeAdjustPolicy">
-                 <enum>QComboBox::AdjustToContents</enum>
+                 <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
                 </property>
                 <item>
                  <property name="text">
@@ -261,7 +261,7 @@
               </font>
              </property>
              <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
+              <enum>QFrame::Shape::NoFrame</enum>
              </property>
              <property name="lineWidth">
               <number>0</number>
@@ -292,7 +292,7 @@
          <item>
           <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0">
            <property name="sizeConstraint">
-            <enum>QLayout::SetDefaultConstraint</enum>
+            <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
            </property>
            <property name="rightMargin">
             <number>0</number>
@@ -331,7 +331,7 @@
               <bool>true</bool>
              </property>
              <property name="alignment">
-              <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+              <set>Qt::AlignmentFlag::AlignJustify|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
              <property name="readOnly">
               <bool>true</bool>
@@ -351,13 +351,13 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="2" alignment="Qt::AlignRight">
+           <item row="3" column="2" alignment="Qt::AlignmentFlag::AlignRight">
             <widget class="QToolButton" name="copySHA256">
              <property name="toolTip">
               <string>Copy SHA256</string>
              </property>
              <property name="layoutDirection">
-              <enum>Qt::RightToLeft</enum>
+              <enum>Qt::LayoutDirection::RightToLeft</enum>
              </property>
              <property name="text">
               <string notr="true"/>
@@ -370,7 +370,7 @@
               <string>Copy SHA1</string>
              </property>
              <property name="layoutDirection">
-              <enum>Qt::RightToLeft</enum>
+              <enum>Qt::LayoutDirection::RightToLeft</enum>
              </property>
              <property name="text">
               <string notr="true"/>
@@ -383,20 +383,20 @@
               <bool>true</bool>
              </property>
              <property name="alignment">
-              <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+              <set>Qt::AlignmentFlag::AlignJustify|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
              <property name="readOnly">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="4" column="2" alignment="Qt::AlignRight">
+           <item row="4" column="2" alignment="Qt::AlignmentFlag::AlignRight">
             <widget class="QToolButton" name="copyCRC32">
              <property name="toolTip">
               <string>Copy CRC32</string>
              </property>
              <property name="layoutDirection">
-              <enum>Qt::RightToLeft</enum>
+              <enum>Qt::LayoutDirection::RightToLeft</enum>
              </property>
              <property name="text">
               <string notr="true"/>
@@ -415,14 +415,14 @@
               <bool>true</bool>
              </property>
              <property name="alignment">
-              <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+              <set>Qt::AlignmentFlag::AlignJustify|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
              <property name="readOnly">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="5" column="0" alignment="Qt::AlignLeft">
+           <item row="5" column="0" alignment="Qt::AlignmentFlag::AlignLeft">
             <widget class="QLabel" name="labelEntropy">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -447,7 +447,7 @@
               <bool>true</bool>
              </property>
              <property name="alignment">
-              <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+              <set>Qt::AlignmentFlag::AlignJustify|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
              <property name="readOnly">
               <bool>true</bool>
@@ -486,7 +486,7 @@
               <string>Copy MD5</string>
              </property>
              <property name="layoutDirection">
-              <enum>Qt::RightToLeft</enum>
+              <enum>Qt::LayoutDirection::RightToLeft</enum>
              </property>
              <property name="text">
               <string notr="true"/>
@@ -499,7 +499,7 @@
               <bool>true</bool>
              </property>
              <property name="alignment">
-              <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+              <set>Qt::AlignmentFlag::AlignJustify|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
              <property name="readOnly">
               <bool>true</bool>
@@ -511,7 +511,7 @@
          <item>
           <spacer name="verticalSpacer">
            <property name="orientation">
-            <enum>Qt::Vertical</enum>
+            <enum>Qt::Orientation::Vertical</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -560,7 +560,7 @@
        <bool>true</bool>
       </property>
       <property name="arrowType">
-       <enum>Qt::NoArrow</enum>
+       <enum>Qt::ArrowType::NoArrow</enum>
       </property>
      </widget>
     </item>

@@ -58,7 +58,7 @@ private:
 
 public:
     /**
-     * \param Determines whether, if nullptr is passed, the current value should be replaced or
+     * @param Determines whether, if nullptr is passed, the current value should be replaced or
      * kept.
      */
     explicit ReplacingRefreshDeferrerAccumulator(bool replaceIfNull = true)

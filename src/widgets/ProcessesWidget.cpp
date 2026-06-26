@@ -1,22 +1,27 @@
-#include <QShortcut>
 #include "ProcessesWidget.h"
-#include "ui_ProcessesWidget.h"
-#include "common/JsonModel.h"
-#include "QuickFilterView.h"
-#include <rz_debug.h>
 
+#include "QuickFilterView.h"
 #include "core/MainWindow.h"
 #include "shortcuts/ShortcutManager.h"
+#include "ui_ProcessesWidget.h"
+
+#include <QShortcut>
+
+#include <rz_debug.h>
 
 #define DEBUGGED_PID (-1)
 
 ProcessesWidget::ProcessesWidget(MainWindow *main)
-    : CutterDockWidget(main), ui(new Ui::ProcessesWidget)
+    : CutterDockWidget(main),
+      ui(new Ui::ProcessesWidget),
+      modelProcesses(new QStandardItemModel(1, 4, this)),
+      modelFilter(new ProcessesFilterModel(this)),
+      refreshDeferrer(createRefreshDeferrer([this]() { updateContents(); }))
 {
     ui->setupUi(this);
 
     // Setup processes model
-    modelProcesses = new QStandardItemModel(1, 4, this);
+
     modelProcesses->setHorizontalHeaderItem(ProcessesWidget::COLUMN_PID,
                                             new QStandardItem(tr("PID")));
     modelProcesses->setHorizontalHeaderItem(ProcessesWidget::COLUMN_UID,
@@ -29,7 +34,6 @@ ProcessesWidget::ProcessesWidget(MainWindow *main)
     ui->viewProcesses->verticalHeader()->setVisible(false);
     ui->viewProcesses->setFont(Config()->getFont());
 
-    modelFilter = new ProcessesFilterModel(this);
     modelFilter->setSourceModel(modelProcesses);
     ui->viewProcesses->setModel(modelFilter);
 
@@ -46,8 +50,6 @@ ProcessesWidget::ProcessesWidget(MainWindow *main)
         ui->viewProcesses->setFocus();
     });
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    refreshDeferrer = createRefreshDeferrer([this]() { updateContents(); });
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, modelFilter,
             &ProcessesFilterModel::setFilterWildcard);
@@ -108,19 +110,19 @@ void ProcessesWidget::setProcessesGrid()
     QFont font;
 
     for (const auto &processesItem : Core()->getProcesses(DEBUGGED_PID)) {
-        st64 pid = processesItem.pid;
-        st64 uid = processesItem.uid;
-        QString status = translateStatus(processesItem.status);
-        QString path = processesItem.path;
-        bool current = processesItem.current;
+        const st64 pid = processesItem.pid;
+        const st64 uid = processesItem.uid;
+        const QString status = translateStatus(processesItem.status);
+        const QString path = processesItem.path;
+        const bool current = processesItem.current;
 
         // Use bold font to highlight active thread
         font.setBold(current);
 
-        QStandardItem *rowPid = new QStandardItem(QString::number(pid));
-        QStandardItem *rowUid = new QStandardItem(QString::number(uid));
-        QStandardItem *rowStatus = new QStandardItem(status);
-        QStandardItem *rowPath = new QStandardItem(path);
+        auto *rowPid = new QStandardItem(QString::number(pid));
+        auto *rowUid = new QStandardItem(QString::number(uid));
+        auto *rowStatus = new QStandardItem(status);
+        auto *rowPath = new QStandardItem(path);
 
         rowPid->setFont(font);
         rowUid->setFont(font);
@@ -150,10 +152,12 @@ void ProcessesWidget::fontsUpdatedSlot()
 
 void ProcessesWidget::onActivated(const QModelIndex &index)
 {
-    if (!index.isValid())
+    if (!index.isValid()) {
         return;
+    }
 
-    int pid = modelFilter->data(index.sibling(index.row(), ProcessesWidget::COLUMN_PID)).toInt();
+    const int pid =
+            modelFilter->data(index.sibling(index.row(), ProcessesWidget::COLUMN_PID)).toInt();
     // Verify that the selected pid is still in the processes list since dp= will
     // attach to any given id. If it isn't found simply update the UI.
     for (const auto &value : Core()->getProcesses(DEBUGGED_PID)) {
@@ -184,7 +188,7 @@ bool ProcessesFilterModel::filterAcceptsRow(int row, const QModelIndex &parent) 
 {
     // All columns are checked for a match
     for (int i = ProcessesWidget::COLUMN_PID; i <= ProcessesWidget::COLUMN_PATH; ++i) {
-        QModelIndex index = sourceModel()->index(row, i, parent);
+        const QModelIndex index = sourceModel()->index(row, i, parent);
         if (qhelpers::filterStringContains(sourceModel()->data(index).toString(), this)) {
             return true;
         }

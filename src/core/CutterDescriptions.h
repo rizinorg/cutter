@@ -1,16 +1,18 @@
-/** \file CutterDescriptions.h
+/** @file CutterDescriptions.h
  * This file contains every structure description that are used in widgets.
  * The descriptions are used for the Qt metatypes.
  */
 #ifndef DESCRIPTIONS_H
 #define DESCRIPTIONS_H
 
-#include <QString>
-#include <QList>
-#include <QStringList>
-#include <QMetaType>
-#include <QColor>
 #include "core/CutterCommon.h"
+
+#include <QColor>
+#include <QList>
+#include <QMetaType>
+#include <QString>
+#include <QStringList>
+#include <QVariant>
 
 struct FunctionDescription
 {
@@ -49,7 +51,7 @@ struct ExportDescription
     RVA size;
     QString type;
     QString name;
-    QString flag_name;
+    QString flagName;
 };
 
 struct HeaderDescription
@@ -62,14 +64,14 @@ struct HeaderDescription
 
 struct FlirtDescription
 {
-    QString bin_name;
-    QString arch_name;
-    QString arch_bits;
-    QString base_name;
-    QString short_path;
-    QString file_path;
+    QString binName;
+    QString archName;
+    QString archBits;
+    QString baseName;
+    QString shortPath;
+    QString filePath;
     QString details;
-    QString n_modules;
+    QString nModules;
 };
 
 struct TypeDescription
@@ -78,6 +80,7 @@ struct TypeDescription
     int size;
     QString format;
     QString category;
+    QString typeClass;
 };
 
 struct SearchDescription
@@ -117,8 +120,8 @@ struct StringDescription
     QString string;
     QString type;
     QString section;
-    ut32 length;
-    ut32 size;
+    quint32 length;
+    quint32 size;
 };
 
 struct FlagspaceDescription
@@ -168,9 +171,9 @@ struct EntrypointDescription
 struct XrefDescription
 {
     RVA from;
-    QString from_str;
+    QString fromStr;
     RVA to;
-    QString to_str;
+    QString toStr;
     QString type;
 };
 
@@ -207,6 +210,8 @@ struct RzAsmPluginDescription
     QString cpus;
     QString description;
     QString license;
+    QString capabilities;
+    QString bits;
 };
 
 struct DisassemblyLine
@@ -226,7 +231,7 @@ struct BinClassMethodDescription
 {
     QString name;
     RVA addr = RVA_INVALID;
-    st64 vtableOffset = -1;
+    qint64 vtableOffset = -1;
 };
 
 struct BinClassFieldDescription
@@ -250,7 +255,7 @@ struct AnalysisMethodDescription
     QString name;
     QString realName;
     RVA addr;
-    st64 vtableOffset;
+    qint64 vtableOffset;
 };
 
 struct AnalysisBaseClassDescription
@@ -263,17 +268,17 @@ struct AnalysisBaseClassDescription
 struct AnalysisVTableDescription
 {
     QString id;
-    ut64 offset;
-    ut64 addr;
+    quint64 offset;
+    quint64 addr;
 };
 
 struct ResourcesDescription
 {
     QString name;
     RVA vaddr;
-    ut64 index;
+    quint64 index;
     QString type;
-    ut64 size;
+    quint64 size;
     QString lang;
 };
 
@@ -293,7 +298,7 @@ struct BlockDescription
     int comments;
     int symbols;
     int strings;
-    ut8 rwx;
+    quint8 rwx;
 };
 
 struct BlockStatistics
@@ -316,14 +321,14 @@ struct MemoryMapDescription
 
 struct BreakpointDescription
 {
-    enum PositionType {
+    enum PositionType : ut8 {
         Address,
         Named,
         Module,
     };
 
     RVA addr = 0;
-    int64_t moduleDelta = 0;
+    qint64 moduleDelta = 0;
     int index = -1;
     PositionType type = Address;
     int size = 0;
@@ -355,8 +360,8 @@ struct ThreadDescription
     int ppid;
     RzDebugPidState status;
     QString path;
-    ut64 pc;
-    ut64 tls;
+    quint64 pc;
+    quint64 tls;
 };
 
 struct RefDescription
@@ -398,24 +403,24 @@ struct Arena
 {
     RVA offset;
     QString type;
-    ut64 top;
-    ut64 last_remainder;
-    ut64 next;
-    ut64 next_free;
-    ut64 system_mem;
-    ut64 max_system_mem;
+    quint64 top;
+    quint64 lastRemainder;
+    quint64 next;
+    quint64 nextFree;
+    quint64 systemMem;
+    quint64 maxSystemMem;
 };
 
 struct BasefindCoreStatusDescription
 {
     size_t index;
-    ut32 percentage;
+    quint32 percentage;
 };
 
 struct BasefindResultDescription
 {
     RVA candidate;
-    ut32 score;
+    quint32 score;
 };
 
 struct MarkDescription
@@ -426,6 +431,28 @@ struct MarkDescription
     QString realname;
     QString comment;
     QColor color;
+};
+
+struct BacktraceDescription
+{
+    QString functionName;
+    RVA pc;
+    RVA sp;
+    QString frameSize;
+    QString description;
+};
+
+struct EvaluableVarDescription
+{
+    QString name;
+    QString description;
+    bool readOnly;
+
+    enum Type : ut8 { Bool = 0, Int, String, Interval, List };
+    Type type;
+
+    QVariant value; ///< Can be either QString, QStringList or RzInterval depending on type
+    QList<QString> options;
 };
 
 Q_DECLARE_METATYPE(FunctionDescription)
@@ -470,5 +497,7 @@ Q_DECLARE_METATYPE(VariableDescription)
 Q_DECLARE_METATYPE(BasefindCoreStatusDescription)
 Q_DECLARE_METATYPE(BasefindResultDescription)
 Q_DECLARE_METATYPE(MarkDescription)
+Q_DECLARE_METATYPE(BacktraceDescription)
+Q_DECLARE_METATYPE(EvaluableVarDescription)
 
 #endif // DESCRIPTIONS_H

@@ -1,10 +1,12 @@
-#include <dialogs/GlibcHeapBinsDialog.h>
-#include <dialogs/ArenaInfoDialog.h>
 #include "GlibcHeapWidget.h"
-#include "ui_GlibcHeapWidget.h"
-#include "core/MainWindow.h"
+
 #include "QHeaderView"
+#include "core/MainWindow.h"
 #include "dialogs/GlibcHeapInfoDialog.h"
+#include "ui_GlibcHeapWidget.h"
+
+#include <dialogs/ArenaInfoDialog.h>
+#include <dialogs/GlibcHeapBinsDialog.h>
 
 GlibcHeapWidget::GlibcHeapWidget(MainWindow *main, QWidget *parent)
     : QWidget(parent),
@@ -49,10 +51,7 @@ GlibcHeapWidget::GlibcHeapWidget(MainWindow *main, QWidget *parent)
             [this]() { updateContents(); });
 }
 
-GlibcHeapWidget::~GlibcHeapWidget()
-{
-    delete ui;
-}
+GlibcHeapWidget::~GlibcHeapWidget() {}
 
 GlibcHeapModel::GlibcHeapModel(QObject *parent) : QAbstractTableModel(parent) {}
 
@@ -66,7 +65,7 @@ void GlibcHeapWidget::updateArenas()
 
     // add the new arenas to the arena selector
     for (auto &arena : arenas) {
-        arenaSelectorView->addItem(RzAddressString(arena.offset)
+        arenaSelectorView->addItem(rzAddressString(arena.offset)
                                    + QString(" (" + arena.type + " Arena)"));
     }
 
@@ -80,9 +79,9 @@ void GlibcHeapWidget::updateArenas()
 void GlibcHeapWidget::onArenaSelected(int index)
 {
     if (index == -1) {
-        modelHeap->arena_addr = 0;
+        modelHeap->arenaAddr = 0;
     } else {
-        modelHeap->arena_addr = arenas[index].offset;
+        modelHeap->arenaAddr = arenas[index].offset;
     }
 
     updateChunks();
@@ -113,7 +112,7 @@ void GlibcHeapModel::reload()
 {
     beginResetModel();
     values.clear();
-    values = Core()->getHeapChunks(arena_addr);
+    values = Core()->getHeapChunks(arenaAddr);
     endResetModel();
 }
 
@@ -129,8 +128,9 @@ int GlibcHeapModel::rowCount(const QModelIndex &) const
 
 QVariant GlibcHeapModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= values.count())
+    if (!index.isValid() || index.row() >= values.count()) {
         return QVariant();
+    }
 
     const auto &item = values.at(index.row());
 
@@ -138,9 +138,9 @@ QVariant GlibcHeapModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case OffsetColumn:
-            return RzAddressString(item.offset);
+            return rzAddressString(item.offset);
         case SizeColumn:
-            return RzHexString(item.size);
+            return rzHexString(item.size);
         case StatusColumn:
             return item.status;
         default:
@@ -177,9 +177,9 @@ void GlibcHeapWidget::onDoubleClicked(const QModelIndex &index)
         return;
     }
 
-    int column = index.column();
+    const int column = index.column();
     if (column == GlibcHeapModel::OffsetColumn) {
-        QString item = index.data().toString();
+        const QString item = index.data().toString();
         Core()->seek(item);
         main->showMemoryWidget(MemoryWidgetType::Hexdump);
     }
@@ -191,21 +191,23 @@ void GlibcHeapWidget::onCurrentChanged(const QModelIndex &current, const QModelI
     Q_UNUSED(prev)
 
     auto currentIndex = viewHeap->selectionModel()->currentIndex();
-    QString offsetString = currentIndex.sibling(currentIndex.row(), GlibcHeapModel::OffsetColumn)
-                                   .data()
-                                   .toString();
+    const QString offsetString =
+            currentIndex.sibling(currentIndex.row(), GlibcHeapModel::OffsetColumn)
+                    .data()
+                    .toString();
     addressableItemContextMenu.setTarget(Core()->math(offsetString));
 }
 
 void GlibcHeapWidget::viewChunkInfo()
 {
     auto currentIndex = viewHeap->selectionModel()->currentIndex();
-    QString offsetString = currentIndex.sibling(currentIndex.row(), GlibcHeapModel::OffsetColumn)
+    const QString offsetString =
+            currentIndex.sibling(currentIndex.row(), GlibcHeapModel::OffsetColumn)
+                    .data()
+                    .toString();
+    const QString status = currentIndex.sibling(currentIndex.row(), GlibcHeapModel::StatusColumn)
                                    .data()
                                    .toString();
-    QString status = currentIndex.sibling(currentIndex.row(), GlibcHeapModel::StatusColumn)
-                             .data()
-                             .toString();
 
     GlibcHeapInfoDialog heapInfoDialog(Core()->math(offsetString), status, this);
     heapInfoDialog.exec();
@@ -213,7 +215,7 @@ void GlibcHeapWidget::viewChunkInfo()
 
 void GlibcHeapWidget::viewBinInfo()
 {
-    GlibcHeapBinsDialog heapBinsDialog(modelHeap->arena_addr, main, this);
+    GlibcHeapBinsDialog heapBinsDialog(modelHeap->arenaAddr, main, this);
     heapBinsDialog.exec();
 }
 
@@ -222,7 +224,7 @@ void GlibcHeapWidget::viewArenaInfo()
     // find the active arena
     Arena currentArena;
     for (auto &arena : arenas) {
-        if (arena.offset == modelHeap->arena_addr) {
+        if (arena.offset == modelHeap->arenaAddr) {
             currentArena = arena;
             break;
         }

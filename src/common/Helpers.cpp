@@ -1,30 +1,25 @@
 #include "common/Helpers.h"
+
 #include "Configuration.h"
 
-#include <cmath>
-#include <QPlainTextEdit>
-#include <QTextEdit>
-#include <QFileInfo>
-#include <QtCore>
-#include <QCryptographicHash>
-#include <QTreeWidget>
-#include <QString>
-#include <QAbstractItemView>
 #include <QAbstractButton>
-#include <QDockWidget>
-#include <QMenu>
+#include <QAbstractItemView>
 #include <QComboBox>
+#include <QCryptographicHash>
+#include <QDockWidget>
+#include <QFileInfo>
+#include <QMenu>
+#include <QPlainTextEdit>
+#include <QString>
+#include <QTextEdit>
+#include <QTreeWidget>
+#include <QtCore>
 
-static QAbstractItemView::ScrollMode scrollMode()
-{
-    const bool use_scrollperpixel = true;
-    return use_scrollperpixel ? QAbstractItemView::ScrollPerPixel
-                              : QAbstractItemView::ScrollPerItem;
-}
+#include <cmath>
 
 namespace qhelpers {
 
-QString formatBytecount(const uint64_t bytecount)
+QString formatByteCount(ut64 bytecount)
 {
     if (bytecount == 0) {
         return "0";
@@ -42,10 +37,19 @@ QString formatBytecount(const uint64_t bytecount)
 
 void adjustColumns(QTreeView *tv, int columnCount, int padding)
 {
-    for (int i = 0; i != columnCount; ++i) {
+    adjustColumns(tv, 0, columnCount, padding);
+}
+
+void adjustColumns(QTreeView *tv, int startIndex, int endIndex, int padding)
+{
+    if (!tv) {
+        return;
+    }
+
+    for (int i = startIndex; i < endIndex; ++i) {
         tv->resizeColumnToContents(i);
         if (padding > 0) {
-            int width = tv->columnWidth(i);
+            const int width = tv->columnWidth(i);
             tv->setColumnWidth(i, width + padding);
         }
     }
@@ -56,32 +60,43 @@ void adjustColumns(QTreeWidget *tw, int padding)
     adjustColumns(tw, tw->columnCount(), padding);
 }
 
+void adjustColumn(QTreeView *tv, int columnIndex, int width)
+{
+    if (!tv) {
+        return;
+    }
+
+    tv->resizeColumnToContents(columnIndex);
+    if (width >= 0 && tv->columnWidth(columnIndex) > width) {
+        tv->setColumnWidth(columnIndex, width);
+    }
+}
+
 QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str, const QString &str2,
                            const QString &str3, const QString &str4, const QString &str5)
 {
-    QTreeWidgetItem *tempItem = new QTreeWidgetItem();
+    auto *tempItem = new QTreeWidgetItem();
     // Fill dummy hidden column
     tempItem->setText(0, "0");
     tempItem->setText(1, str);
-    if (!str2.isNull())
+    if (!str2.isNull()) {
         tempItem->setText(2, str2);
-    if (!str3.isNull())
+    }
+    if (!str3.isNull()) {
         tempItem->setText(3, str3);
-    if (!str4.isNull())
+    }
+    if (!str4.isNull()) {
         tempItem->setText(4, str4);
-    if (!str5.isNull())
+    }
+    if (!str5.isNull()) {
         tempItem->setText(5, str5);
+    }
 
     tw->insertTopLevelItem(0, tempItem);
 
     return tempItem;
 }
 
-/**
- * @brief Select first item of a QAbstractItemView if not empty
- * @param itemView
- * @return true if first item was selected
- */
 bool selectFirstItem(QAbstractItemView *itemView)
 {
     if (!itemView) {
@@ -100,12 +115,12 @@ bool selectFirstItem(QAbstractItemView *itemView)
 
 void setVerticalScrollMode(QAbstractItemView *tw)
 {
-    tw->setVerticalScrollMode(scrollMode());
+    tw->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 }
 
 void setCheckedWithoutSignals(QAbstractButton *button, bool checked)
 {
-    bool blocked = button->signalsBlocked();
+    const bool blocked = button->signalsBlocked();
     button->blockSignals(true);
     button->setChecked(checked);
     button->blockSignals(blocked);
@@ -143,14 +158,14 @@ SizePolicyMinMax forceHeight(QWidget *widget, int height)
     return r;
 }
 
-void SizePolicyMinMax::restoreWidth(QWidget *widget)
+void SizePolicyMinMax::restoreWidth(QWidget *widget) const
 {
     widget->setSizePolicy(sizePolicy.horizontalPolicy(), widget->sizePolicy().verticalPolicy());
     widget->setMinimumWidth(min);
     widget->setMaximumWidth(max);
 }
 
-void SizePolicyMinMax::restoreHeight(QWidget *widget)
+void SizePolicyMinMax::restoreHeight(QWidget *widget) const
 {
     widget->setSizePolicy(widget->sizePolicy().horizontalPolicy(), sizePolicy.verticalPolicy());
     widget->setMinimumHeight(min);
@@ -159,7 +174,7 @@ void SizePolicyMinMax::restoreHeight(QWidget *widget)
 
 int getMaxFullyDisplayedLines(QTextEdit *textEdit)
 {
-    QFontMetrics fontMetrics(textEdit->document()->defaultFont());
+    const QFontMetrics fontMetrics(textEdit->document()->defaultFont());
     return (textEdit->height()
             - (textEdit->contentsMargins().top() + textEdit->contentsMargins().bottom()
                + (int)(textEdit->document()->documentMargin() * 2)))
@@ -168,7 +183,7 @@ int getMaxFullyDisplayedLines(QTextEdit *textEdit)
 
 int getMaxFullyDisplayedLines(QPlainTextEdit *plainTextEdit)
 {
-    QFontMetrics fontMetrics(plainTextEdit->document()->defaultFont());
+    const QFontMetrics fontMetrics(plainTextEdit->document()->defaultFont());
     return (plainTextEdit->height()
             - (plainTextEdit->contentsMargins().top() + plainTextEdit->contentsMargins().bottom()
                + (int)(plainTextEdit->document()->documentMargin() * 2)))
@@ -180,19 +195,19 @@ QByteArray applyColorToSvg(const QByteArray &data, QColor color)
     static const QRegularExpression styleRegExp(
             "(?:style=\".*fill:(.*?);.*?\")|(?:fill=\"(.*?)\")");
 
-    QString replaceStr = QString("#%1").arg(color.rgb() & 0xffffff, 6, 16, QLatin1Char('0'));
-    int replaceStrLen = replaceStr.length();
+    const QString replaceStr = QString("#%1").arg(color.rgb() & 0xffffff, 6, 16, QLatin1Char('0'));
+    const int replaceStrLen = replaceStr.length();
 
     QString xml = QString::fromUtf8(data);
 
     int offset = 0;
     while (true) {
-        QRegularExpressionMatch match = styleRegExp.match(xml, offset);
+        const QRegularExpressionMatch match = styleRegExp.match(xml, offset);
         if (!match.hasMatch()) {
             break;
         }
 
-        int captureIndex = match.captured(1).isNull() ? 2 : 1;
+        const int captureIndex = match.captured(1).isNull() ? 2 : 1;
         xml.replace(match.capturedStart(captureIndex), match.capturedLength(captureIndex),
                     replaceStr);
         offset = match.capturedStart(captureIndex) + replaceStrLen;
@@ -204,21 +219,15 @@ QByteArray applyColorToSvg(const QByteArray &data, QColor color)
 QByteArray applyColorToSvg(const QString &filename, QColor color)
 {
     QFile file(filename);
-    file.open(QIODevice::ReadOnly);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return QByteArray();
+    }
 
     return applyColorToSvg(file.readAll(), color);
 }
 
-/**
- * @brief finds the theme-specific icon path and calls `setter` functor providing a pointer of an
- * object which has to be used and loaded icon
- * @param supportedIconsNames list of <object ptr, icon name>
- * @param setter functor which has to be called
- *   for example we need to set an action icon, the functor can be just [](void* o, const QIcon
- * &icon) { static_cast<QAction*>(o)->setIcon(icon); }
- */
-void setThemeIcons(QList<QPair<void *, QString>> supportedIconsNames,
-                   std::function<void(void *, const QIcon &)> setter)
+void setThemeIcons(const QList<QPair<void *, QString>> &supportedIconsNames,
+                   const std::function<void(void *, const QIcon &)> &setter)
 {
     if (supportedIconsNames.isEmpty() || !setter) {
         return;
@@ -259,7 +268,7 @@ qreal devicePixelRatio(const QPaintDevice *p)
 #endif
 }
 
-void selectIndexByData(QComboBox *widget, QVariant data, int defaultIndex)
+void selectIndexByData(QComboBox *widget, const QVariant &data, int defaultIndex)
 {
     for (int i = 0; i < widget->count(); i++) {
         if (widget->itemData(i) == data) {

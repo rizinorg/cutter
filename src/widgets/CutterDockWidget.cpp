@@ -1,6 +1,9 @@
 #include "CutterDockWidget.h"
-#include "core/MainWindow.h"
 
+#include "core/MainWindow.h"
+#include "shortcuts/ShortcutManager.h"
+
+#include <QApplication>
 #include <QEvent>
 #include <QShortcut>
 
@@ -12,6 +15,24 @@ CutterDockWidget::CutterDockWidget(MainWindow *parent) : QDockWidget(parent), ma
     installEventFilter(this);
     updateIsVisibleToUser();
     connect(toggleViewAction(), &QAction::triggered, this, &QWidget::raise);
+}
+
+bool CutterDockWidget::event(QEvent *event)
+{
+
+    if (event->type() == QEvent::Move || event->type() == QEvent::MouseMove) {
+
+        const Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
+        const Qt::KeyboardModifier mod =
+                Shortcuts()->convertKeyToModifer(Shortcuts()->getKeySequence("Docking.toggle"));
+
+        if (mods & mod) {
+            setAllowedAreas(Qt::NoDockWidgetArea);
+        } else {
+            setAllowedAreas(Qt::AllDockWidgetAreas);
+        }
+    }
+    return QDockWidget::event(event);
 }
 
 CutterDockWidget::~CutterDockWidget() = default;
@@ -64,7 +85,7 @@ QWidget *CutterDockWidget::widgetToFocusOnRaise()
 void CutterDockWidget::updateIsVisibleToUser()
 {
     // Check if the user can actually see the widget.
-    bool visibleToUser = isVisible() && !visibleRegion().isEmpty() && !ignoreVisibility;
+    const bool visibleToUser = isVisible() && !visibleRegion().isEmpty() && !ignoreVisibility;
     if (visibleToUser == isVisibleToUserCurrent) {
         return;
     }

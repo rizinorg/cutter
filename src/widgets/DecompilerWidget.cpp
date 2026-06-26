@@ -1,30 +1,30 @@
 #include "DecompilerWidget.h"
-#include "ui_DecompilerWidget.h"
-#include "menus/DecompilerContextMenu.h"
 
 #include "common/Configuration.h"
-#include "common/Helpers.h"
-#include "common/TempConfig.h"
-#include "common/SelectionHighlight.h"
-#include "common/Decompiler.h"
 #include "common/CutterSeekable.h"
-#include "core/MainWindow.h"
+#include "common/Decompiler.h"
 #include "common/DecompilerHighlighter.h"
+#include "common/Helpers.h"
+#include "common/SelectionHighlight.h"
+#include "core/MainWindow.h"
+#include "menus/DecompilerContextMenu.h"
 #include "shortcuts/ShortcutManager.h"
+#include "ui_DecompilerWidget.h"
 
-#include <QTextEdit>
-#include <QPlainTextEdit>
-#include <QTextBlock>
+#include <QAbstractSlider>
 #include <QClipboard>
 #include <QObject>
-#include <QTextBlockUserData>
+#include <QPlainTextEdit>
 #include <QScrollBar>
-#include <QAbstractSlider>
+#include <QTextBlock>
+#include <QTextBlockUserData>
+#include <QTextEdit>
 
 DecompilerWidget::DecompilerWidget(MainWindow *main)
     : MemoryDockWidget(MemoryWidgetType::Decompiler, main),
       mCtxMenu(new DecompilerContextMenu(this, main)),
       ui(new Ui::DecompilerWidget),
+      refreshDeferrer(createRefreshDeferrer([this]() { doRefresh(); })),
       decompilerBusy(false),
       seekFromCursor(false),
       historyPos(0),
@@ -49,15 +49,13 @@ DecompilerWidget::DecompilerWidget(MainWindow *main)
     connect(Core(), &CutterCore::registersChanged, this, &DecompilerWidget::highlightPC);
     connect(mCtxMenu, &DecompilerContextMenu::copy, this, &DecompilerWidget::copy);
 
-    refreshDeferrer = createRefreshDeferrer([this]() { doRefresh(); });
-
     auto decompilers = Core()->getDecompilers();
     QString selectedDecompilerId = Config()->getSelectedDecompiler();
     if (selectedDecompilerId.isEmpty()) {
         // If no decompiler was previously chosen. set rz-ghidra as default decompiler
         selectedDecompilerId = "ghidra";
     }
-    for (Decompiler *dec : decompilers) {
+    for (const Decompiler *dec : std::as_const(decompilers)) {
         ui->decompilerComboBox->addItem(dec->getName(), dec->getId());
         if (dec->getId() == selectedDecompilerId) {
             ui->decompilerComboBox->setCurrentIndex(ui->decompilerComboBox->count() - 1);
@@ -119,11 +117,9 @@ ut64 DecompilerWidget::findReference(size_t pos)
 {
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = RVA_INVALID;
-    void *iter;
-    rz_vector_foreach(&code->annotations, iter)
+    RzCodeAnnotation *annotation = nullptr;
+    CutterRzVectorForeach(&code->annotations, annotation, RzCodeAnnotation)
     {
-        RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
-
         if (!(annotation->type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE)
             || annotation->start > pos || annotation->end <= pos) {
             continue;
@@ -141,11 +137,9 @@ ut64 DecompilerWidget::offsetForPosition(size_t pos)
 {
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = mCtxMenu->getFirstOffsetInLine();
-    void *iter;
-    rz_vector_foreach(&code->annotations, iter)
+    RzCodeAnnotation *annotation;
+    CutterRzVectorForeach(&code->annotations, annotation, RzCodeAnnotation)
     {
-        RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
-
         if (!(annotation->type == RZ_CODE_ANNOTATION_TYPE_OFFSET) || annotation->start > pos
             || annotation->end <= pos) {
             continue;
@@ -163,10 +157,10 @@ size_t DecompilerWidget::positionForOffset(ut64 offset)
 {
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = UT64_MAX;
-    void *iter;
-    rz_vector_foreach(&code->annotations, iter)
+    RzCodeAnnotation *annotation = nullptr;
+
+    CutterRzVectorForeach(&code->annotations, annotation, RzCodeAnnotation)
     {
-        RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
         if (annotation->type != RZ_CODE_ANNOTATION_TYPE_OFFSET
             || annotation->offset.offset > offset) {
             continue;
@@ -204,9 +198,9 @@ void DecompilerWidget::setInfoForBreakpoints()
     // Get the range of the line
     QTextCursor cursorForLine = ui->textEdit->textCursor();
     cursorForLine.movePosition(QTextCursor::StartOfLine);
-    size_t startPos = cursorForLine.position();
+    const size_t startPos = cursorForLine.position();
     cursorForLine.movePosition(QTextCursor::EndOfLine);
-    size_t endPos = cursorForLine.position();
+    const size_t endPos = cursorForLine.position();
     gatherBreakpointInfo(*code, startPos, endPos);
 }
 
@@ -214,10 +208,9 @@ void DecompilerWidget::gatherBreakpointInfo(RzAnnotatedCode &codeDecompiled, siz
                                             size_t endPos)
 {
     RVA firstOffset = RVA_MAX;
-    void *iter;
-    rz_vector_foreach(&codeDecompiled.annotations, iter)
+    RzCodeAnnotation *annotation;
+    CutterRzVectorForeach(&codeDecompiled.annotations, annotation, RzCodeAnnotation)
     {
-        RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
         if (annotation->type != RZ_CODE_ANNOTATION_TYPE_OFFSET) {
             continue;
         }
@@ -228,10 +221,10 @@ void DecompilerWidget::gatherBreakpointInfo(RzAnnotatedCode &codeDecompiled, siz
         }
     }
     mCtxMenu->setFirstOffsetInLine(firstOffset);
-    QList<RVA> functionBreakpoints = Core()->getBreakpointsInFunction(decompiledFunctionAddr);
+    const QList<RVA> functionBreakpoints = Core()->getBreakpointsInFunction(decompiledFunctionAddr);
     QVector<RVA> offsetList;
-    for (RVA bpOffset : functionBreakpoints) {
-        size_t pos = positionForOffset(bpOffset);
+    for (const RVA bpOffset : functionBreakpoints) {
+        const size_t pos = positionForOffset(bpOffset);
         if (startPos <= pos && pos <= endPos) {
             offsetList.push_back(bpOffset);
         }
@@ -249,7 +242,7 @@ void DecompilerWidget::refreshIfChanged(RVA addr)
 
 void DecompilerWidget::doRefresh()
 {
-    RVA addr = seekable->getOffset();
+    const RVA addr = seekable->getOffset();
     if (!refreshDeferrer->attemptRefresh(nullptr)) {
         return;
     }
@@ -300,7 +293,7 @@ void DecompilerWidget::refreshDecompiler()
 
 QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
 {
-    size_t pos = positionForOffset(addr);
+    const size_t pos = positionForOffset(addr);
     if (pos == SIZE_MAX || pos == 0) {
         return QTextCursor();
     }
@@ -317,7 +310,7 @@ void DecompilerWidget::decompilationFinished(RzAnnotatedCode *codeDecompiled)
     mCtxMenu->setAnnotationHere(nullptr);
     setCode(codeDecompiled);
 
-    Decompiler *dec = getCurrentDecompiler();
+    const Decompiler *dec = getCurrentDecompiler();
     QObject::disconnect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
     decompilerBusy = false;
 
@@ -332,10 +325,9 @@ void DecompilerWidget::decompilationFinished(RzAnnotatedCode *codeDecompiled)
         highlightBreakpoints();
         lowestOffsetInCode = RVA_MAX;
         highestOffsetInCode = 0;
-        void *iter;
-        rz_vector_foreach(&code->annotations, iter)
+        RzCodeAnnotation *annotation;
+        CutterRzVectorForeach(&code->annotations, annotation, RzCodeAnnotation)
         {
-            RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
             if (annotation->type == RZ_CODE_ANNOTATION_TYPE_OFFSET) {
                 if (lowestOffsetInCode > annotation->offset.offset) {
                     lowestOffsetInCode = annotation->offset.offset;
@@ -356,10 +348,9 @@ void DecompilerWidget::decompilationFinished(RzAnnotatedCode *codeDecompiled)
 void DecompilerWidget::setAnnotationsAtCursor(size_t pos)
 {
     RzCodeAnnotation *annotationAtPos = nullptr;
-    void *iter;
-    rz_vector_foreach(&this->code->annotations, iter)
+    RzCodeAnnotation *annotation;
+    CutterRzVectorForeach(&this->code->annotations, annotation, RzCodeAnnotation)
     {
-        RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
         if (annotation->type == RZ_CODE_ANNOTATION_TYPE_OFFSET
             || annotation->type == RZ_CODE_ANNOTATION_TYPE_SYNTAX_HIGHLIGHT
             || annotation->start > pos || annotation->end <= pos) {
@@ -395,11 +386,11 @@ void DecompilerWidget::cursorPositionChanged()
         return;
     }
 
-    size_t pos = ui->textEdit->textCursor().position();
+    const size_t pos = ui->textEdit->textCursor().position();
     setAnnotationsAtCursor(pos);
     setInfoForBreakpoints();
 
-    RVA offset = offsetForPosition(pos);
+    const RVA offset = offsetForPosition(pos);
     if (offset != RVA_INVALID && offset != seekable->getOffset()) {
         seekFromCursor = true;
         seekable->seek(offset);
@@ -431,7 +422,7 @@ void DecompilerWidget::seekChanged(RVA /* addr */, CutterCore::SeekHistoryType t
     } else if (type == CutterCore::SeekHistoryType::Redo) {
         ++historyPos;
     }
-    RVA fcnAddr = Core()->getFunctionStart(seekable->getOffset());
+    const RVA fcnAddr = Core()->getFunctionStart(seekable->getOffset());
     if (fcnAddr == RVA_INVALID || fcnAddr != decompiledFunctionAddr) {
         doRefresh();
         return;
@@ -441,8 +432,8 @@ void DecompilerWidget::seekChanged(RVA /* addr */, CutterCore::SeekHistoryType t
 
 void DecompilerWidget::updateCursorPosition()
 {
-    RVA offset = seekable->getOffset();
-    size_t pos = positionForOffset(offset);
+    const RVA offset = seekable->getOffset();
+    const size_t pos = positionForOffset(offset);
     if (pos == SIZE_MAX) {
         return;
     }
@@ -470,7 +461,7 @@ void DecompilerWidget::updateSelection()
 
     // Highlight all the words in the document same as the current one
     cursor.select(QTextCursor::WordUnderCursor);
-    QString searchString = cursor.selectedText();
+    const QString searchString = cursor.selectedText();
     mCtxMenu->setCurHighlightedWord(searchString);
     extraSelections.append(createSameWordsSelections(ui->textEdit, searchString));
 
@@ -481,9 +472,9 @@ void DecompilerWidget::updateSelection()
 
 QString DecompilerWidget::getWindowTitle() const
 {
-    RzAnalysisFunction *fcn = Core()->functionAt(decompiledFunctionAddr);
+    const RzAnalysisFunction *fcn = Core()->functionAt(decompiledFunctionAddr);
     QString windowTitle;
-    if (fcn != NULL) {
+    if (fcn != nullptr) {
         windowTitle = tr("Decompiler (%1)").arg(fcn->name);
     } else {
         windowTitle = tr("Decompiler (Empty)");
@@ -498,7 +489,7 @@ void DecompilerWidget::fontsUpdatedSlot()
 
 void DecompilerWidget::colorsUpdatedSlot()
 {
-    bool useAnotationHiglighter = Config()->isDecompilerAnnotationHighlighterEnabled();
+    const bool useAnotationHiglighter = Config()->isDecompilerAnnotationHighlighterEnabled();
     if (useAnotationHiglighter != usingAnnotationBasedHighlighting) {
         setHighlighter(useAnotationHiglighter);
     }
@@ -511,8 +502,8 @@ void DecompilerWidget::showDecompilerContextMenu(const QPoint &pt)
 
 void DecompilerWidget::seekToReference()
 {
-    size_t pos = ui->textEdit->textCursor().position();
-    RVA offset = findReference(pos);
+    const size_t pos = ui->textEdit->textCursor().position();
+    const RVA offset = findReference(pos);
     if (offset != RVA_INVALID) {
         seekable->seek(offset);
     }
@@ -523,14 +514,14 @@ bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonDblClick
         && (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        const auto *mouseEvent = static_cast<QMouseEvent *>(event);
         ui->textEdit->setTextCursor(ui->textEdit->cursorForPosition(mouseEvent->pos()));
         seekToReference();
         return true;
     }
     if (event->type() == QEvent::MouseButtonPress
         && (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        const auto *mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->button() == Qt::RightButton && !ui->textEdit->textCursor().hasSelection()) {
             ui->textEdit->setTextCursor(ui->textEdit->cursorForPosition(mouseEvent->pos()));
             return true;
@@ -541,13 +532,13 @@ bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
 
 void DecompilerWidget::highlightPC()
 {
-    RVA PCAddress = Core()->getProgramCounterValue();
-    if (PCAddress == RVA_INVALID
-        || (Core()->getFunctionStart(PCAddress) != decompiledFunctionAddr)) {
+    const RVA pcAddress = Core()->getProgramCounterValue();
+    if (pcAddress == RVA_INVALID
+        || (Core()->getFunctionStart(pcAddress) != decompiledFunctionAddr)) {
         return;
     }
 
-    QTextCursor cursor = getCursorForAddress(PCAddress);
+    const QTextCursor cursor = getCursorForAddress(pcAddress);
     if (!cursor.isNull()) {
         colorLine(createLineHighlightPC(cursor));
     }
@@ -556,9 +547,9 @@ void DecompilerWidget::highlightPC()
 void DecompilerWidget::highlightBreakpoints()
 {
 
-    QList<RVA> functionBreakpoints = Core()->getBreakpointsInFunction(decompiledFunctionAddr);
+    const QList<RVA> functionBreakpoints = Core()->getBreakpointsInFunction(decompiledFunctionAddr);
     QTextCursor cursor;
-    for (RVA &bp : functionBreakpoints) {
+    for (const RVA &bp : functionBreakpoints) {
         if (bp == RVA_INVALID) {
             continue;
         }
@@ -573,7 +564,7 @@ void DecompilerWidget::highlightBreakpoints()
     }
 }
 
-bool DecompilerWidget::colorLine(QTextEdit::ExtraSelection extraSelection)
+bool DecompilerWidget::colorLine(const QTextEdit::ExtraSelection &extraSelection)
 {
     QList<QTextEdit::ExtraSelection> extraSelections = ui->textEdit->extraSelections();
     extraSelections.append(extraSelection);
@@ -598,7 +589,7 @@ void DecompilerWidget::copy()
     }
 }
 
-bool DecompilerWidget::addressInRange(RVA addr)
+bool DecompilerWidget::addressInRange(RVA addr) const
 {
     if (lowestOffsetInCode <= addr && addr <= highestOffsetInCode) {
         return true;
@@ -614,7 +605,7 @@ bool DecompilerWidget::addressInRange(RVA addr)
  */
 static QString remapAnnotationOffsetsToQString(RzAnnotatedCode &code)
 {
-    QByteArray bytes(code.code);
+    const QByteArray bytes(code.code);
     std::vector<size_t> offsets;
     offsets.reserve(bytes.size());
     char c;
@@ -632,10 +623,9 @@ static QString remapAnnotationOffsetsToQString(RzAnnotatedCode &code)
         return it - offsets.begin();
     };
 
-    void *iter;
-    rz_vector_foreach(&code.annotations, iter)
+    RzCodeAnnotation *annotation;
+    CutterRzVectorForeach(&code.annotations, annotation, RzCodeAnnotation)
     {
-        RzCodeAnnotation *annotation = (RzCodeAnnotation *)iter;
         annotation->start = mapPos(annotation->start);
         annotation->end = mapPos(annotation->end);
     }
@@ -649,7 +639,7 @@ void DecompilerWidget::setCode(RzAnnotatedCode *code)
         highlighter->setAnnotations(code);
     }
     this->code.reset(code);
-    QString text = remapAnnotationOffsetsToQString(*this->code);
+    const QString text = remapAnnotationOffsetsToQString(*this->code);
     this->ui->textEdit->setPlainText(text);
     connectCursorPositionChanged(true);
     syntaxHighlighter->rehighlight();

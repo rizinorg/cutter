@@ -1,9 +1,11 @@
-
 #ifndef PROGRESSINDICATOR_H
 #define PROGRESSINDICATOR_H
 
 #include <QWidget>
 
+/**
+ * @brief Widget for seeing visual progress of an async task
+ */
 class ProgressIndicator : public QWidget
 {
 public:

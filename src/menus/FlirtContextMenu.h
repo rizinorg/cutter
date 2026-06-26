@@ -1,12 +1,16 @@
 #ifndef FLIRT_CONTEXTMENU_H
 #define FLIRT_CONTEXTMENU_H
 
-#include "core/Cutter.h"
-#include <QMenu>
+#include "CutterDescriptions.h"
+
 #include <QKeySequence>
+#include <QMenu>
 
 class MainWindow;
 
+/**
+ * @brief Context menu for @ref FlirtWidget
+ */
 class CUTTER_EXPORT FlirtContextMenu : public QMenu
 {
     Q_OBJECT
@@ -20,8 +24,8 @@ public slots:
     void clearTarget();
 
 private:
-    void onActionCopyLine();
-    void onActionApplySignature();
+    void onActionCopyLine() const;
+    void onActionApplySignature() const;
 
     QMenu *pluginMenu;
     QAction *pluginMenuAction;

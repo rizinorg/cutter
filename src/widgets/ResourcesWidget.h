@@ -1,15 +1,17 @@
 #ifndef RESOURCESWIDGET_H
 #define RESOURCESWIDGET_H
 
-#include "core/Cutter.h"
+#include "CutterDescriptions.h"
 #include "CutterDockWidget.h"
-#include "CutterTreeView.h"
 #include "common/AddressableItemModel.h"
 #include "widgets/ListDockWidget.h"
 
 class MainWindow;
 class ResourcesWidget;
 
+/**
+ * @brief Source model for @ref ResourcesWidget
+ */
 class ResourcesModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
@@ -20,7 +22,7 @@ private:
     QList<ResourcesDescription> resources;
 
 public:
-    enum Columns { INDEX = 0, NAME, VADDR, TYPE, SIZE, LANG, COMMENT, COUNT };
+    enum Columns : ut8 { INDEX = 0, NAME, VADDR, TYPE, SIZE, LANG, COMMENT, COUNT };
     explicit ResourcesModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -33,6 +35,9 @@ public:
     RVA address(const QModelIndex &index) const override;
 };
 
+/**
+ * @brief Dock widget with list of all resources identified within the loaded binary
+ */
 class ResourcesWidget : public ListDockWidget
 {
     Q_OBJECT

@@ -1,4 +1,5 @@
 #include "HeapDockWidget.h"
+
 #include "ui_HeapDockWidget.h"
 #include "widgets/GlibcHeapWidget.h"
 
@@ -17,15 +18,13 @@ HeapDockWidget::HeapDockWidget(MainWindow *main)
     onAllocatorSelected(0);
 }
 
-HeapDockWidget::~HeapDockWidget()
-{
-    delete ui;
-}
+HeapDockWidget::~HeapDockWidget() {}
 
 void HeapDockWidget::onAllocatorSelected(int index)
 {
-    if (index >= AllocatorCount)
+    if (index >= AllocatorCount) {
         return;
+    }
 
     // remove the current heap widget from layout
     if (currentHeapWidget) {

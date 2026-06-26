@@ -2,6 +2,9 @@
 #define CUTTER_HEAPBINSGRAPHVIEW_H
 #include "SimpleTextGraphView.h"
 
+/**
+ * @brief Dock widget providing a container to switch between different heap allocator views
+ */
 class HeapBinsGraphView : public SimpleTextGraphView
 {
     Q_OBJECT
@@ -29,8 +32,8 @@ private slots:
 
 private:
     RzHeapBin *heapBin;
-    void display_single_linked_list(QVector<GraphHeapChunk>);
-    void display_double_linked_list(QVector<GraphHeapChunk>);
+    void displaySingleLinkedList(QVector<GraphHeapChunk>);
+    void displayDoubleLinkedList(QVector<GraphHeapChunk>);
     QAction *chunkInfoAction;
     RVA selectedBlock;
     int bits;

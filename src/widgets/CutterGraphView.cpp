@@ -1,17 +1,18 @@
 #include "CutterGraphView.h"
 
-#include "core/Cutter.h"
 #include "common/Configuration.h"
+#include "core/Cutter.h"
 #include "dialogs/MultitypeFileSaveDialog.h"
-#include "TempConfig.h"
 #include "shortcuts/ShortcutManager.h"
+
+#include <QActionGroup>
+#include <QStandardPaths>
 
 #include <cmath>
 
-#include <QStandardPaths>
-#include <QActionGroup>
-
-static const uint64_t BITMPA_EXPORT_WARNING_SIZE = 32 * 1024 * 1024;
+namespace {
+const uint64_t bitmapExportWarningSize = 32 * 1024 * 1024;
+}
 
 #ifndef NDEBUG
 #    define GRAPH_GRID_DEBUG_MODES true
@@ -38,7 +39,7 @@ CutterGraphView::CutterGraphView(QWidget *parent)
     horizontalLayoutAction = layoutMenu->addAction(tr("Horizontal"));
     horizontalLayoutAction->setCheckable(true);
 
-    static const std::pair<QString, GraphView::Layout> LAYOUT_CONFIG[] = {
+    static const std::pair<QString, GraphView::Layout> layoutConfig[] = {
         { tr("Grid narrow"), GraphView::Layout::GridNarrow },
         { tr("Grid medium"), GraphView::Layout::GridMedium },
         { tr("Grid wide"), GraphView::Layout::GridWide }
@@ -65,11 +66,11 @@ CutterGraphView::CutterGraphView(QWidget *parent)
     };
     layoutMenu->addSeparator();
     connect(horizontalLayoutAction, &QAction::toggled, this, &CutterGraphView::updateLayout);
-    QActionGroup *layoutGroup = new QActionGroup(layoutMenu);
-    for (auto &item : LAYOUT_CONFIG) {
+    auto *layoutGroup = new QActionGroup(layoutMenu);
+    for (auto &item : layoutConfig) {
         auto action = layoutGroup->addAction(item.first);
         action->setCheckable(true);
-        GraphView::Layout layout = item.second;
+        const GraphView::Layout layout = item.second;
         if (layout == this->graphLayout) {
             action->setChecked(true);
         }
@@ -91,14 +92,14 @@ QPoint CutterGraphView::getTextOffset(int line) const
 void CutterGraphView::initFont()
 {
     setFont(Config()->getFont());
-    QFontMetricsF metrics(font());
+    const QFontMetricsF metrics(font());
     baseline = int(metrics.ascent());
 #if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
-    ACharWidth = metrics.width('A');
+    charWidthA = metrics.width('A');
 #else
-    ACharWidth = metrics.horizontalAdvance('A');
+    charWidthA = metrics.horizontalAdvance('A');
 #endif
-    padding = ACharWidth;
+    padding = charWidthA;
     charHeight = static_cast<int>(metrics.height());
     charOffset = 0;
     mFontMetrics.reset(new CachedFontMetrics<qreal>(font()));
@@ -106,7 +107,7 @@ void CutterGraphView::initFont()
 
 void CutterGraphView::zoom(QPointF mouseRelativePos, double velocity)
 {
-    qreal newScale = getViewScale() * std::pow(1.25, velocity);
+    const qreal newScale = getViewScale() * std::pow(1.25, velocity);
     setZoom(mouseRelativePos, newScale);
 }
 
@@ -158,7 +159,7 @@ void CutterGraphView::updateColors()
     graphNodeColor = ConfigColor("gui.border");
     backgroundColor = ConfigColor("gui.background");
     disassemblySelectionColor = ConfigColor("lineHighlight");
-    PCSelectionColor = ConfigColor("highlightPC");
+    pcSelectionColor = ConfigColor("highlightPC");
 
     jmpColor = ConfigColor("graph.trufae");
     brtrueColor = ConfigColor("graph.true");
@@ -205,8 +206,8 @@ bool CutterGraphView::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::ShortcutOverride: {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        qhelpers::KeyComb key = Qt::Key(keyEvent->key()) | keyEvent->modifiers();
+        const auto *keyEvent = static_cast<QKeyEvent *>(event);
+        const qhelpers::KeyComb key = Qt::Key(keyEvent->key()) | keyEvent->modifiers();
         if (Shortcuts()->matchesKeySequence("General.zoomOut", key)
             || Shortcuts()->matchesKeySequence("General.zoomReset", key)
             || Shortcuts()->matchesKeySequence("General.zoomIn", key)) {
@@ -216,8 +217,8 @@ bool CutterGraphView::event(QEvent *event)
         break;
     }
     case QEvent::KeyPress: {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        qhelpers::KeyComb key = Qt::Key(keyEvent->key()) | keyEvent->modifiers();
+        const auto *keyEvent = static_cast<QKeyEvent *>(event);
+        const qhelpers::KeyComb key = Qt::Key(keyEvent->key()) | keyEvent->modifiers();
         if (Shortcuts()->matchesKeySequence("General.zoomIn", key)) {
             zoomIn();
             return true;
@@ -272,7 +273,7 @@ void CutterGraphView::wheelEvent(QWheelEvent *event)
     if (Qt::ControlModifier == event->modifiers()) {
         const QPoint numDegrees = event->angleDelta() / 8;
         if (!numDegrees.isNull()) {
-            int numSteps = numDegrees.y() / 15;
+            const int numSteps = numDegrees.y() / 15;
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
             QPointF relativeMousePos = event->pos();
@@ -314,11 +315,11 @@ void CutterGraphView::mouseMoveEvent(QMouseEvent *event)
     emit graphMoved();
 }
 
-void CutterGraphView::exportGraph(QString filePath, GraphExportType exportType,
+void CutterGraphView::exportGraph(const QString &filePath, GraphExportType exportType,
                                   RzCoreGraphType graphType, RVA address)
 {
-    bool graphTransparent = Config()->getBitmapTransparentState();
-    double graphScaleFactor = Config()->getBitmapExportScaleFactor();
+    const bool graphTransparent = Config()->getBitmapTransparentState();
+    const double graphScaleFactor = Config()->getBitmapExportScaleFactor();
     switch (exportType) {
     case GraphExportType::Png:
         this->saveAsBitmap(filePath, "png", graphScaleFactor, graphTransparent);
@@ -364,7 +365,7 @@ void CutterGraphView::exportGraph(QString filePath, GraphExportType exportType,
     }
 }
 
-void CutterGraphView::exportRzTextGraph(QString filePath, RzCoreGraphType type,
+void CutterGraphView::exportRzTextGraph(const QString &filePath, RzCoreGraphType type,
                                         RzCoreGraphFormat format, RVA address)
 {
     char *string = Core()->getTextualGraphAt(type, format, address);
@@ -398,9 +399,10 @@ bool CutterGraphView::graphIsBitamp(CutterGraphView::GraphExportType type)
 
 Q_DECLARE_METATYPE(CutterGraphView::GraphExportType);
 
-void CutterGraphView::showExportGraphDialog(QString defaultName, RzCoreGraphType type, RVA address)
+void CutterGraphView::showExportGraphDialog(const QString &defaultName, RzCoreGraphType type,
+                                            RVA address)
 {
-    qWarning() << defaultName << " - " << type << " addr " << RzAddressString(address);
+    qWarning() << defaultName << " - " << type << " addr " << rzAddressString(address);
     QVector<MultitypeFileSaveDialog::TypeDescription> types = {
         { tr("PNG (*.png)"), "png", QVariant::fromValue(GraphExportType::Png) },
         { tr("JPEG (*.jpg)"), "jpg", QVariant::fromValue(GraphExportType::Jpeg) },
@@ -414,7 +416,7 @@ void CutterGraphView::showExportGraphDialog(QString defaultName, RzCoreGraphType
             { tr("RZ JSON (*.json)"), "json", QVariant::fromValue(GraphExportType::RzJson) },
     });
 
-    bool hasGraphviz = !QStandardPaths::findExecutable("dot").isEmpty()
+    const bool hasGraphviz = !QStandardPaths::findExecutable("dot").isEmpty()
             || !QStandardPaths::findExecutable("xdot").isEmpty();
     if (hasGraphviz) {
         types.append({ { tr("Graphviz json (*.json)"), "json",
@@ -448,8 +450,8 @@ void CutterGraphView::showExportGraphDialog(QString defaultName, RzCoreGraphType
     auto exportType = selectedType.data.value<GraphExportType>();
 
     if (graphIsBitamp(exportType)) {
-        uint64_t bitmapSize = uint64_t(width) * uint64_t(height);
-        if (bitmapSize > BITMPA_EXPORT_WARNING_SIZE) {
+        const uint64_t bitmapSize = uint64_t(width) * uint64_t(height);
+        if (bitmapSize > bitmapExportWarningSize) {
             auto answer =
                     QMessageBox::question(this, tr("Graph Export"),
                                           tr("Do you really want to export %1 x %2 = %3 pixel "
@@ -463,6 +465,6 @@ void CutterGraphView::showExportGraphDialog(QString defaultName, RzCoreGraphType
         }
     }
 
-    QString filePath = dialog.selectedFiles().first();
+    const QString filePath = dialog.selectedFiles().first();
     exportGraph(filePath, exportType, type, address);
 }

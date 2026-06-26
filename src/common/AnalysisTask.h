@@ -1,14 +1,17 @@
-#ifndef ANALTHREAD_H
-#define ANALTHREAD_H
+#ifndef ANALYSISTASK_H
+#define ANALYSISTASK_H
 
 #include "common/AsyncTask.h"
-#include "core/Cutter.h"
 #include "common/InitialOptions.h"
+// #include "core/Cutter.h"
 
 class CutterCore;
 class MainWindow;
 class InitialOptionsDialog;
 
+/**
+ * @brief Background task for initial binary analysis and file loading
+ */
 class AnalysisTask : public AsyncTask
 {
     Q_OBJECT
@@ -17,13 +20,13 @@ public:
     explicit AnalysisTask();
     ~AnalysisTask();
 
-    QString getTitle() override;
+    QString getTitle() const override;
 
     void setOptions(const InitialOptions &options) { this->options = options; }
 
     void interrupt() override;
 
-    bool getOpenFileFailed() { return openFailed; }
+    bool getOpenFileFailed() const { return openFailed; }
 
 protected:
     void runTask() override;
@@ -37,4 +40,4 @@ private:
     bool openFailed = false;
 };
 
-#endif // ANALTHREAD_H
+#endif // ANALYSISTASK_H

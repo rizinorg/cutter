@@ -1,22 +1,22 @@
-#include "core/Cutter.h"
 #include "AboutDialog.h"
 
-#include "ui_AboutDialog.h"
+#include "CutterConfig.h"
 #include "RizinPluginsDialog.h"
-#include "common/Configuration.h"
 #include "common/BugReporting.h"
+#include "common/Configuration.h"
+#include "core/Cutter.h"
+#include "ui_AboutDialog.h"
 
-#include <QUrl>
-#include <QTimer>
 #include <QEventLoop>
 #include <QJsonObject>
 #include <QProgressBar>
 #include <QProgressDialog>
-#include <UpdateWorker.h>
-#include <QtNetwork/QNetworkRequest>
+#include <QTimer>
+#include <QUrl>
 #include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkRequest>
 
-#include "CutterConfig.h"
+#include <UpdateWorker.h>
 
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDialog)
 {
@@ -24,7 +24,7 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDia
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     ui->logoSvgWidget->load(Config()->getLogoFile());
 
-    QString aboutString(
+    const QString aboutString(
             tr("Version") + " " CUTTER_VERSION_FULL "<br/>" + tr("Using rizin ")
             + Core()->getRizinVersionReadable() + "<br/>" + buildQtVersionString() + "<p><b>"
             + tr("Optional Features:") + "</b><br/>"
@@ -55,23 +55,42 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDia
                  "page</a> for the full list of contributors."));
     ui->label->setText(aboutString);
 
-    QSignalBlocker s(ui->updatesCheckBox);
+    const QSignalBlocker s(ui->updatesCheckBox);
     ui->updatesCheckBox->setChecked(Config()->getAutoUpdateEnabled());
 
     if (!CUTTER_UPDATE_WORKER_AVAILABLE) {
         ui->updatesCheckBox->hide();
         ui->checkForUpdatesButton->hide();
     }
+
+    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &AboutDialog::onButtonBoxRejected);
+    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+
+    connect(ui->showVersionButton, &QPushButton::clicked, this,
+            &AboutDialog::onShowVersionButtonClicked);
+    connect(ui->showPluginsButton, &QPushButton::clicked, this,
+            &AboutDialog::onShowPluginsButtonClicked);
+    connect(ui->issueButton, &QPushButton::clicked, this, &AboutDialog::onIssueClicked);
+
+    connect(ui->checkForUpdatesButton, &QPushButton::clicked, this,
+            &AboutDialog::onCheckForUpdatesButtonClicked);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    connect(ui->updatesCheckBox, &QCheckBox::checkStateChanged, this,
+            &AboutDialog::onUpdatesCheckBoxStateChanged);
+#else
+    connect(ui->updatesCheckBox, &QCheckBox::stateChanged, this,
+            &AboutDialog::onUpdatesCheckBoxStateChanged);
+#endif
 }
 
 AboutDialog::~AboutDialog() {}
 
-void AboutDialog::on_buttonBox_rejected()
+void AboutDialog::onButtonBoxRejected()
 {
     close();
 }
 
-void AboutDialog::on_showVersionButton_clicked()
+void AboutDialog::onShowVersionButtonClicked()
 {
     QMessageBox popup(this);
     popup.setWindowTitle(tr("Rizin version information"));
@@ -81,17 +100,17 @@ void AboutDialog::on_showVersionButton_clicked()
     popup.exec();
 }
 
-void AboutDialog::on_showPluginsButton_clicked()
+void AboutDialog::onShowPluginsButtonClicked()
 {
     RizinPluginsDialog dialog(this);
     dialog.exec();
 }
-void AboutDialog::on_Issue_clicked()
+void AboutDialog::onIssueClicked()
 {
     openIssue();
 }
 
-void AboutDialog::on_checkForUpdatesButton_clicked()
+void AboutDialog::onCheckForUpdatesButtonClicked()
 {
 #if CUTTER_UPDATE_WORKER_AVAILABLE
     UpdateWorker updateWorker;
@@ -99,7 +118,7 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
     auto parentWindow = this;
 
     QProgressDialog waitDialog(parentWindow);
-    QProgressBar *bar = new QProgressBar(&waitDialog);
+    auto *bar = new QProgressBar(&waitDialog);
     bar->setMaximum(0);
 
     waitDialog.setBar(bar);
@@ -125,7 +144,7 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
 #endif
 }
 
-void AboutDialog::on_updatesCheckBox_stateChanged(int)
+void AboutDialog::onUpdatesCheckBoxStateChanged(int)
 {
     Config()->setAutoUpdateEnabled(!Config()->getAutoUpdateEnabled());
 }
@@ -133,7 +152,7 @@ void AboutDialog::on_updatesCheckBox_stateChanged(int)
 static QString compilerString()
 {
 #if defined(Q_CC_CLANG) // must be before GNU, because clang claims to be GNU too
-    QString isAppleString;
+    QString isAppleString; // NOLINT
 #    if defined(__apple_build_version__) // Apple clang has other version numbers
     isAppleString = QLatin1String(" (Apple)");
 #    endif
@@ -142,12 +161,15 @@ static QString compilerString()
 #elif defined(Q_CC_GNU)
     return QLatin1String("GCC ") + QLatin1String(__VERSION__);
 #elif defined(Q_CC_MSVC)
-    if (_MSC_VER > 1999)
+    if (_MSC_VER > 1999) {
         return QLatin1String("MSVC <unknown>");
-    if (_MSC_VER >= 1910)
+    }
+    if (_MSC_VER >= 1910) {
         return QLatin1String("MSVC 2017");
-    if (_MSC_VER >= 1900)
+    }
+    if (_MSC_VER >= 1900) {
         return QLatin1String("MSVC 2015");
+    }
 #endif
     return QLatin1String("<unknown compiler>");
 }

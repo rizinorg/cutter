@@ -1,9 +1,13 @@
-
 #ifndef RZTASK_H
 #define RZTASK_H
 
 #include "core/Cutter.h"
 
+#include <memory>
+
+/**
+ * @brief Base class for managing background tasks via the Rizin core task API
+ */
 class CUTTER_EXPORT RizinTask : public QObject
 {
     Q_OBJECT
@@ -15,7 +19,7 @@ protected:
     void taskFinished();
 
 public:
-    using Ptr = QSharedPointer<RizinTask>;
+    using Ptr = std::shared_ptr<RizinTask>;
 
     virtual ~RizinTask();
 
@@ -27,6 +31,9 @@ signals:
     void finished();
 };
 
+/**
+ * @brief AsyncTask for executing individual Rizin commands and fetching their output
+ */
 class CUTTER_EXPORT RizinCmdTask : public RizinTask
 {
     Q_OBJECT

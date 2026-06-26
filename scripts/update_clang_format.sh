@@ -5,9 +5,9 @@ set -euo pipefail
 cd $(dirname "${BASH_SOURCE[0]}")
 
 # Do not replace with newer without dicussing! Intentionally using older clang-format-version.
-tool=clang-format-8
+tool=clang-format-15
 # Using full config dumped with older clang format should produce more consistent result when some 
-# people have slightly newer clang-format. 8 chosen because it is newest version available in Ubuntu 16.04 official repository.
+# people have slightly newer clang-format. 15 chosen because it is newest version available in Ubuntu 22.04 official repository.
 output_file=../_clang-format
 
 

@@ -1,12 +1,16 @@
 #ifndef ADDRESSABLEITEMCONTEXTMENU_H
 #define ADDRESSABLEITEMCONTEXTMENU_H
 
-#include "core/Cutter.h"
-#include <QMenu>
+#include "CutterCommon.h"
+
 #include <QKeySequence>
+#include <QMenu>
 
 class MainWindow;
 
+/**
+ * @brief Generic context menu for Addressable widgets
+ */
 class CUTTER_EXPORT AddressableItemContextMenu : public QMenu
 {
     Q_OBJECT
@@ -29,10 +33,10 @@ signals:
     void xrefsTriggered();
 
 private:
-    void onActionCopyAddress();
+    void onActionCopyAddress() const;
     void onActionShowXrefs();
     void onActionAddComment();
-    void onActionToggleBreakpoint();
+    void onActionToggleBreakpoint() const;
 
     virtual void aboutToShowSlot();
 

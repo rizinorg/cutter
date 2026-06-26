@@ -1,13 +1,11 @@
-
 #include "CutterApplication.h"
-#include "core/MainWindow.h"
-#include "common/UpdateWorker.h"
 #include "CutterConfig.h"
 #include "common/SettingsUpgrade.h"
+#include "common/UpdateWorker.h"
+#include "core/MainWindow.h" // IWYU pragma: keep
 
-#include <QJsonObject>
 #include <QJsonArray>
-#include <iostream>
+#include <QJsonObject>
 
 /**
  * @brief Attempt to connect to a parent console and configure outputs.
@@ -85,13 +83,13 @@ int main(int argc, char *argv[])
 #    endif
 #endif
 
-    CutterApplication a(argc, argv);
+    const CutterApplication a(argc, argv);
 
     Cutter::migrateThemes();
 
     if (Config()->getAutoUpdateEnabled()) {
 #if CUTTER_UPDATE_WORKER_AVAILABLE
-        UpdateWorker *updateWorker = new UpdateWorker;
+        auto *updateWorker = new UpdateWorker;
         QObject::connect(updateWorker, &UpdateWorker::checkComplete,
                          [=](const QVersionNumber &version, const QString &error) {
                              if (error.isEmpty()
@@ -104,7 +102,7 @@ int main(int argc, char *argv[])
 #endif
     }
 
-    int ret = a.exec();
+    const int ret = a.exec();
 
     return ret;
 }

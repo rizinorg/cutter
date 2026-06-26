@@ -1,7 +1,10 @@
 #include "LayoutManager.h"
+
 #include "ui_LayoutManager.h"
-#include <QIntValidator>
+
 #include <QInputDialog>
+#include <QIntValidator>
+#include <QMessageBox>
 
 using namespace Cutter;
 
@@ -18,7 +21,7 @@ LayoutManager::LayoutManager(QMap<QString, Cutter::CutterLayout> &layouts, QWidg
 
 LayoutManager::~LayoutManager() {}
 
-void LayoutManager::refreshNameList(QString selection)
+void LayoutManager::refreshNameList(const QString &selection)
 {
     ui->layoutSelector->clear();
     for (auto it = layouts.begin(), end = layouts.end(); it != end; ++it) {
@@ -34,7 +37,7 @@ void LayoutManager::refreshNameList(QString selection)
 
 void LayoutManager::renameCurrentLayout()
 {
-    QString current = ui->layoutSelector->currentText();
+    const QString current = ui->layoutSelector->currentText();
     if (layouts.contains(current)) {
         QString newName;
         while (newName.isEmpty() || isBuiltinLayoutName(newName) || layouts.contains(newName)) {
@@ -67,7 +70,7 @@ void LayoutManager::deleteLayout()
 
 void LayoutManager::updateButtons()
 {
-    bool hasSelection = !ui->layoutSelector->currentText().isEmpty();
+    const bool hasSelection = !ui->layoutSelector->currentText().isEmpty();
     ui->renameButton->setEnabled(hasSelection);
     ui->deleteButton->setEnabled(hasSelection);
 }

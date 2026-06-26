@@ -1,20 +1,23 @@
-#include <QShortcut>
 #include "ThreadsWidget.h"
+
 #include "CutterCommon.h"
 #include "Helpers.h"
-#include "ui_ThreadsWidget.h"
 #include "QuickFilterView.h"
-#include <rz_debug.h>
-
 #include "core/MainWindow.h"
 #include "shortcuts/ShortcutManager.h"
+#include "ui_ThreadsWidget.h"
+
+#include <QShortcut>
+
+#include <rz_debug.h>
+#include <utility>
 
 ThreadModel::ThreadModel(QObject *parent) : QAbstractListModel(parent) {}
 
 void ThreadModel::setList(QList<ThreadDescription> data)
 {
     beginResetModel();
-    this->threads = data;
+    this->threads = std::move(data);
     endResetModel();
 }
 
@@ -30,8 +33,9 @@ int ThreadModel::columnCount(const QModelIndex &) const
 
 QVariant ThreadModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= threads.count())
+    if (index.row() >= threads.count()) {
         return QVariant();
+    }
 
     const ThreadDescription &thread = threads.at(index.row());
 
@@ -45,9 +49,9 @@ QVariant ThreadModel::data(const QModelIndex &index, int role) const
         case ColumnIndex::COLUMN_PATH:
             return thread.path;
         case ColumnIndex::COLUMN_PC:
-            return RzAddressString(thread.pc);
+            return rzAddressString(thread.pc);
         case ColumnIndex::COLUMN_TLS:
-            return RzAddressString(thread.tls);
+            return rzAddressString(thread.tls);
         default:
             return QVariant();
         }
@@ -102,19 +106,20 @@ QVariant ThreadModel::headerData(int section, Qt::Orientation, int role) const
 ThreadsWidget::ThreadsWidget(MainWindow *main)
     : CutterDockWidget(main),
       ui(new Ui::ThreadsWidget),
+      modelThreads(new ThreadModel(this)),
+      modelFilter(new QSortFilterProxyModel(this)),
+      refreshDeferrer(createRefreshDeferrer([this]() { updateContents(); })),
       menuText(this),
       addressableItemContextMenu(this, main)
 {
     ui->setupUi(this);
 
     // Setup threads model
-    modelThreads = new ThreadModel(this);
 
     ui->viewThreads->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     ui->viewThreads->verticalHeader()->setVisible(false);
     fontsUpdatedSlot();
 
-    modelFilter = new QSortFilterProxyModel(this);
     modelFilter->setSourceModel(modelThreads);
 
     modelFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -138,8 +143,6 @@ ThreadsWidget::ThreadsWidget(MainWindow *main)
         ui->viewThreads->setFocus();
     });
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    refreshDeferrer = createRefreshDeferrer([this]() { updateContents(); });
 
     menuText.setSeparator(true);
     qhelpers::prependQAction(&menuText, &addressableItemContextMenu);
@@ -216,11 +219,13 @@ void ThreadsWidget::fontsUpdatedSlot()
 
 void ThreadsWidget::onActivated(const QModelIndex &index)
 {
-    if (!index.isValid())
+    if (!index.isValid()) {
         return;
+    }
 
-    int tid = modelFilter->data(index.sibling(index.row(), ThreadModel::COLUMN_PID), Qt::EditRole)
-                      .toInt();
+    const int tid =
+            modelFilter->data(index.sibling(index.row(), ThreadModel::COLUMN_PID), Qt::EditRole)
+                    .toInt();
 
     // Verify that the selected tid is still in the threads list since dpt= will
     // attach to any given id. If it isn't found simply update the UI.
@@ -241,12 +246,12 @@ void ThreadsWidget::onCurrentChanged(const QModelIndex &current, const QModelInd
     RVA offset = 0;
     if (current.column() == ThreadModel::ColumnIndex::COLUMN_TLS) {
         offset = current.data(Qt::EditRole).toULongLong();
-        menuText.setText(tr("TLS (%0)").arg(RzAddressString(offset)));
+        menuText.setText(tr("TLS (%0)").arg(rzAddressString(offset)));
     } else {
         offset = current.sibling(current.row(), ThreadModel::ColumnIndex::COLUMN_PC)
                          .data(Qt::EditRole)
                          .toULongLong();
-        menuText.setText(tr("PC (%0)").arg(RzAddressString(offset)));
+        menuText.setText(tr("PC (%0)").arg(rzAddressString(offset)));
     }
 
     addressableItemContextMenu.setTarget(offset);

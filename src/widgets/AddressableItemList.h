@@ -1,26 +1,31 @@
 #ifndef ADDRESSABLE_ITEM_LIST_H
 #define ADDRESSABLE_ITEM_LIST_H
 
-#include <memory>
+#include "CutterDockWidget.h"
+#include "CutterTreeView.h"
+#include "common/AddressableItemModel.h"
+#include "core/Cutter.h"
+#include "menus/AddressableItemContextMenu.h"
+
 #include <QAbstractItemModel>
-#include <QSortFilterProxyModel>
 #include <QAbstractItemView>
 #include <QMenu>
-
-#include "core/Cutter.h"
-#include "common/AddressableItemModel.h"
-#include "CutterDockWidget.h"
-#include "CutterTreeWidget.h"
-#include "menus/AddressableItemContextMenu.h"
-#include "CutterTreeView.h"
+#include <QSortFilterProxyModel>
 
 class MainWindow;
 
+/**
+ * @brief A generic template class for list like widgets whose items correspond to specific memory
+ * addresses
+ */
 template<class BaseListWidget = CutterTreeView>
 class AddressableItemList : public BaseListWidget
 {
+    // To hide the "hides overloaded virtual function" warning
+    using BaseListWidget::setModel;
+
     static_assert(std::is_base_of<QAbstractItemView, BaseListWidget>::value,
-                  "ParentModel needs to inherit from QAbstractItemModel");
+                  "ParentModel needs to inherit from QAbstractItemView");
 
 public:
     explicit AddressableItemList(QWidget *parent = nullptr) : BaseListWidget(parent)
@@ -85,8 +90,9 @@ protected:
 
     virtual void onItemActivated(const QModelIndex &index)
     {
-        if (!index.isValid())
+        if (!index.isValid()) {
             return;
+        }
 
         auto offset = addressableModel->address(index);
         Core()->seekAndShow(offset);

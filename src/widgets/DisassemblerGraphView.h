@@ -3,19 +3,22 @@
 
 // Based on the DisassemblerGraphView from x64dbg
 
-#include <QWidget>
+#include "common/CutterSeekable.h"
+#include "common/RichTextPainter.h"
+#include "menus/DisassemblyContextMenu.h"
+#include "widgets/CutterGraphView.h"
+
+#include <QLabel>
 #include <QPainter>
 #include <QShortcut>
-#include <QLabel>
-
-#include "widgets/CutterGraphView.h"
-#include "menus/DisassemblyContextMenu.h"
-#include "common/RichTextPainter.h"
-#include "common/CutterSeekable.h"
+#include <QWidget>
 
 class QTextEdit;
 class FallbackSyntaxHighlighter;
 
+/**
+ * @brief Graph View widget for disassembly
+ */
 class DisassemblerGraphView : public CutterGraphView
 {
     Q_OBJECT
@@ -29,7 +32,7 @@ class DisassemblerGraphView : public CutterGraphView
         Text(const QString &text, QColor color, QColor background)
         {
             RichTextPainter::List richText;
-            RichTextPainter::CustomRichText_t rt;
+            RichTextPainter::CustomRichText rt;
             rt.highlight = false;
             rt.text = text;
             rt.textColor = color;
@@ -42,7 +45,7 @@ class DisassemblerGraphView : public CutterGraphView
 
         Text(const RichTextPainter::List &richText) { lines.push_back(richText); }
 
-        QString ToQString() const
+        QString toQString() const
         {
             QString result;
             for (const auto &line : lines) {
@@ -79,20 +82,20 @@ class DisassemblerGraphView : public CutterGraphView
 
     struct DisassemblyBlock
     {
-        Text header_text;
+        Text headerText;
         std::vector<Instr> instrs;
         ut64 entry = 0;
-        ut64 true_path = 0;
-        ut64 false_path = 0;
+        ut64 truePath = 0;
+        ut64 falsePath = 0;
         bool terminal = false;
         bool indirectcall = false;
     };
 
 public:
     DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable, MainWindow *mainWindow,
-                          QList<QAction *> additionalMenuAction);
+                          const QList<QAction *> &additionalMenuAction);
     ~DisassemblerGraphView() override;
-    std::unordered_map<ut64, DisassemblyBlock> disassembly_blocks;
+    std::unordered_map<ut64, DisassemblyBlock> disassemblyBlocks;
     virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive) override;
     virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event,
                               QPoint pos) override;
@@ -149,9 +152,9 @@ private slots:
     void setTooltipStylesheet();
 
 private:
-    bool transition_dont_seek = false;
+    bool transitionDontSeek = false;
 
-    Token *highlight_token;
+    Token *highlightToken;
     bool emptyGraph;
     ut64 currentBlockAddress = RVA_INVALID;
 
@@ -199,7 +202,7 @@ signals:
     void nameChanged(const QString &name);
 
 public:
-    bool isGraphEmpty() { return emptyGraph; }
+    bool isGraphEmpty() const { return emptyGraph; }
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H

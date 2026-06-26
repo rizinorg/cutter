@@ -1,10 +1,11 @@
 #include "BugReporting.h"
 
 #include "Cutter.h"
-#include <QUrl>
-#include <QJsonObject>
 #include "CutterConfig.h"
+
 #include <QDesktopServices>
+#include <QJsonObject>
+#include <QUrl>
 
 void openIssue()
 {
@@ -12,7 +13,7 @@ void openIssue()
     RzBinFile *bf = rz_bin_cur(core->bin);
     RzBinObject *bobj = rz_bin_cur_object(core->bin);
     const RzBinInfo *info = bobj ? rz_bin_object_get_info(bobj) : nullptr;
-    RzBinPlugin *plugin = rz_bin_file_cur_plugin(bf);
+    const RzBinPlugin *plugin = rz_bin_file_cur_plugin(bf);
 
     QString url, osInfo, format, arch, type;
     // Pull in info needed for git issue

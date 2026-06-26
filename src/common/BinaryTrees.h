@@ -1,15 +1,16 @@
 #ifndef BINARY_TREES_H
 #define BINARY_TREES_H
 
-/** \file BinaryTrees.h
- * \brief Utilities to simplify creation of specialized augmented binary trees.
+/**
+ * @file BinaryTrees.h
+ * @brief Utilities to simplify creation of specialized augmented binary trees.
  */
 
-#include <vector>
-#include <cstdlib>
+#include <algorithm>
 #include <climits>
 #include <cstdint>
-#include <algorithm>
+#include <cstdlib>
+#include <vector>
 
 /**
  * Not really a segment tree for storing segments as referred in academic literature. Can be
@@ -19,8 +20,8 @@
  * Child classes are expected to implement updateFromChildren(NodeType&parent, NodeType& left,
  * NodeType& right) method which calculates inner node values from children nodes.
  *
- * \tparam NodeTypeT type of each tree element
- * \tparam FinalType final child class used for curiously recurring template pattern
+ * @tparam NodeTypeT type of each tree element
+ * @tparam FinalType final child class used for curiously recurring template pattern
  */
 template<class NodeTypeT, class FinalType>
 class SegmentTreeBase
@@ -86,7 +87,7 @@ protected:
 };
 
 /**
- * \brief Tree for point modification and range queries.
+ * @brief Tree for point modification and range queries.
  */
 template<class NodeType, class FinalType>
 class PointSetSegmentTree : public SegmentTreeBase<NodeType, FinalType>
@@ -221,17 +222,17 @@ public:
 };
 
 /**
- * \brief Tree that supports lazily applying an operation to range.
+ * @brief Tree that supports lazily applying an operation to range.
  *
  * Each inner node has a promise value describing an operation that needs to be applied to
  * corresponding subtree.
  *
  * Child classes are expected to implement to pushDown(size_t nodePosition) method. Which applies
- * the applies the operation stored in \a promise for nodePosition to the direct children nodes.
+ * the applies the operation stored in @a promise for nodePosition to the direct children nodes.
  *
- * \tparam NodeType type of tree nodes
- * \tparam PromiseType type describing operation that needs to be applied to subtree
- * \tparam FinalType child class type for CRTP. See SegmentTreeBase
+ * @tparam NodeType type of tree nodes
+ * @tparam PromiseType type describing operation that needs to be applied to subtree
+ * @tparam FinalType child class type for CRTP. See SegmentTreeBase
  */
 template<class NodeType, class PromiseType, class FinalType>
 class LazySegmentTreeBase : public SegmentTreeBase<NodeType, FinalType>
@@ -244,9 +245,9 @@ public:
      * @param neutralPromise Promise value that doesn't modify tree nodes.
      */
     LazySegmentTreeBase(size_t size, const PromiseType &neutralPromise)
-        : BaseType(size), neutralPromiseElement(neutralPromise), promise(size, neutralPromise)
+        : BaseType(size), h(0), neutralPromiseElement(neutralPromise), promise(size, neutralPromise)
     {
-        h = 0;
+
         size_t v = size;
         while (v) {
             v >>= 1;
@@ -339,8 +340,8 @@ public:
     void pushDown(size_t parent)
     {
         if (promise[parent]) {
-            size_t left = (parent << 1);
-            size_t right = (parent << 1) | 1;
+            const size_t left = (parent << 1);
+            const size_t right = (parent << 1) | 1;
             nodes[left] = nodes[right] = nodes[parent];
             if (left < size) {
                 promise[left] = promise[parent];
@@ -428,46 +429,46 @@ class MinMaxAccumulateTree : public LazySegmentTreeBase<std::pair<IntegerType, I
     using NodeType = typename BaseType::NodeType;
     using NodePosition = typename BaseType::NodePosition;
 
-    static constexpr MinMax LIMITS()
+    static constexpr MinMax limits()
     {
         return { std::numeric_limits<IntegerType>::max(), std::numeric_limits<IntegerType>::min() };
     }
 
-    static MinMax Combine(const MinMax &a, const MinMax &b)
+    static MinMax combine(const MinMax &a, const MinMax &b)
     {
         return { std::min(a.first, b.first), std::max(a.second, b.second) };
     }
 
-    void UpdateNode(NodePosition nodePos, ValueType value)
+    void updateNode(NodePosition nodePos, ValueType value)
     {
-        this->nodes[nodePos] = Combine(this->nodes[nodePos], value);
+        this->nodes[nodePos] = combine(this->nodes[nodePos], value);
         if (!this->isLeave(nodePos)) {
-            this->promise[nodePos] = Combine(this->promise[nodePos], value);
+            this->promise[nodePos] = combine(this->promise[nodePos], value);
         }
     }
 
 public:
-    MinMaxAccumulateTree(size_t size, ValueType initialValue = LIMITS())
-        : BaseType(size, initialValue, LIMITS())
+    MinMaxAccumulateTree(size_t size, ValueType initialValue = limits())
+        : BaseType(size, initialValue, limits())
     {
     }
 
     void updateFromChildren(NodeType &parent, const NodeType &left, const NodeType &right)
     {
-        parent = Combine(left, right);
+        parent = combine(left, right);
     }
 
     void pushDown(NodePosition parent)
     {
-        size_t left = (parent << 1);
-        size_t right = (parent << 1) | 1;
-        this->UpdateNode(left, this->promise[parent]);
-        this->UpdateNode(right, this->promise[parent]);
+        const size_t left = (parent << 1);
+        const size_t right = (parent << 1) | 1;
+        this->updateNode(left, this->promise[parent]);
+        this->updateNode(right, this->promise[parent]);
         this->promise[parent] = this->neutralPromiseElement;
     }
 
     /**
-     * @brief Update min and max values in the range [\a left, \a right) with number \a value.
+     * @brief Update min and max values in the range [@a left, @a right) with number @a value.
      * @param left inclusive range left side
      * @param right exclusive right side of range
      * @param value number to be used for updating minimum and maximum
@@ -478,15 +479,15 @@ public:
         right = this->leaveIndexToPosition(right);
         this->pushDownFromRoot(left);
         this->pushDownFromRoot(right - 1);
-        MinMax pairValue { value, value };
+        const MinMax pairValue { value, value };
         for (size_t l = left, r = right; l < r; l >>= 1, r >>= 1) {
             if (l & 1) {
-                UpdateNode(l, pairValue);
+                updateNode(l, pairValue);
                 l += 1;
             }
             if (r & 1) {
                 r -= 1;
-                UpdateNode(r, pairValue);
+                updateNode(r, pairValue);
             }
         }
         this->updateUntilRoot(left);

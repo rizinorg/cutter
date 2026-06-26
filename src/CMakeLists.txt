@@ -24,7 +24,6 @@ set(SOURCES
     dialogs/XrefsDialog.cpp
     core/MainWindow.cpp
     common/Helpers.cpp
-    common/Highlighter.cpp
     common/MdHighlighter.cpp
     common/DirectionalComboBox.cpp
     dialogs/preferences/AsmOptionsWidget.cpp
@@ -73,10 +72,8 @@ set(SOURCES
     CutterApplication.cpp
     dialogs/RizinPluginsDialog.cpp
     widgets/CutterDockWidget.cpp
-    widgets/CutterTreeWidget.cpp
     widgets/GraphWidget.cpp
     widgets/OverviewWidget.cpp
-    common/JsonModel.cpp
     dialogs/VersionInfoDialog.cpp
     widgets/FlirtWidget.cpp
     common/AsyncTask.cpp
@@ -88,7 +85,7 @@ set(SOURCES
     widgets/BacktraceWidget.cpp
     dialogs/MapFileDialog.cpp
     common/CommandTask.cpp
-    common/ProgressIndicator.cpp
+    widgets/ProgressIndicator.cpp
     common/RizinTask.cpp
     dialogs/RizinTaskDialog.cpp
     widgets/DebugActions.cpp
@@ -169,6 +166,14 @@ set(SOURCES
     widgets/SearchableDockWidget.cpp
     common/CutterSearchable.cpp
     widgets/SearchableTextEdit.cpp
+    dialogs/preferences/SymbolsOptionsWidget.cpp
+    widgets/ItemCountLineEdit.cpp
+    widgets/AbstractFilterView.cpp
+    dialogs/preferences/InterfaceOptionsWidget.cpp
+    common/Json.cpp
+    dialogs/preferences/RizinConfigOptionsWidget.cpp
+    dialogs/IntervalDialog.cpp
+    dialogs/StringListDialog.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -194,7 +199,6 @@ set(HEADER_FILES
     dialogs/XrefsDialog.h
     common/Helpers.h
     core/MainWindow.h
-    common/Highlighter.h
     common/MdHighlighter.h
     common/DirectionalComboBox.h
     dialogs/InitialOptionsDialog.h
@@ -242,10 +246,8 @@ set(HEADER_FILES
     widgets/SearchWidget.h
     dialogs/RizinPluginsDialog.h
     widgets/CutterDockWidget.h
-    widgets/CutterTreeWidget.h
     widgets/GraphWidget.h
     widgets/OverviewWidget.h
-    common/JsonModel.h
     dialogs/VersionInfoDialog.h
     widgets/FlirtWidget.h
     common/AsyncTask.h
@@ -259,7 +261,7 @@ set(HEADER_FILES
     common/StringsTask.h
     common/FunctionsTask.h
     common/CommandTask.h
-    common/ProgressIndicator.h
+    widgets/ProgressIndicator.h
     plugins/CutterPlugin.h
     common/RizinTask.h
     dialogs/RizinTaskDialog.h
@@ -347,6 +349,13 @@ set(HEADER_FILES
     widgets/SearchableDockWidget.h
     common/CutterSearchable.h
     widgets/SearchableTextEdit.h
+    dialogs/preferences/SymbolsOptionsWidget.h
+    widgets/ItemCountLineEdit.h
+    widgets/AbstractFilterView.h
+    dialogs/preferences/InterfaceOptionsWidget.h
+    dialogs/preferences/RizinConfigOptionsWidget.h
+    dialogs/IntervalDialog.h
+    dialogs/StringListDialog.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -428,6 +437,9 @@ set(UI_FILES
     dialogs/RegisterProfileDialog.ui
     dialogs/EditRegProfileDialog.ui
     widgets/SearchBarWidget.ui
+    dialogs/preferences/SymbolsOptionsWidget.ui
+    dialogs/preferences/InterfaceOptionsWidget.ui
+    dialogs/preferences/RizinConfigOptionsWidget.ui
 )
 set(QRC_FILES
     resources.qrc
