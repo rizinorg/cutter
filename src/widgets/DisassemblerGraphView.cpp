@@ -28,7 +28,7 @@
 #include <QToolTip>
 #include <QVBoxLayout>
 
-namespace DH = DisassemblyHelper;
+namespace DisHlp = DisassemblyHelper;
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable,
                                              MainWindow *mainWindow,
@@ -559,10 +559,10 @@ bool DisassemblerGraphView::eventFilter(QObject *obj, QEvent *event)
 
             // Don't preview anything for a small scale
             if (getViewScale() >= 0.8) {
-                auto bracketValue = DH::findBracketRange(
+                auto bracketValue = DisHlp::findBracketRange(
                         inst->plainText, mFontMetrics->position(inst->plainText, pos.x()));
 
-                DH::TargetContext ctx;
+                DisHlp::TargetContext ctx;
                 ctx.offset = offsetFrom;
                 if (bracketValue.found) {
                     ctx.word = bracketValue.content;
@@ -976,8 +976,8 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
         return;
     }
 
-    DH::TargetContext ctx;
-    auto bracketValue = DH::findBracketRange(instr->plainText, pos.x());
+    DisHlp::TargetContext ctx;
+    auto bracketValue = DisHlp::findBracketRange(instr->plainText, pos.x());
 
     if (bracketValue.found) {
         ctx.word = bracketValue.content;
@@ -990,19 +990,19 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
     ctx.offset = getAddrForMouseEvent(block, &pos);
     ctx.arrow = getTruePathForOffset(ctx.offset);
 
-    const DH::TargetAction ta = DH::resolveTarget(ctx, DH::TargetFilter::Standard);
+    const DisHlp::TargetAction ta = DisHlp::resolveTarget(ctx, DisHlp::TargetFilter::Standard);
     switch (ta.type) {
-    case DH::TargetType::TypeName:
+    case DisHlp::TargetType::TypeName:
         Core()->showTypeInTypesWidget(ctx.word);
         break;
-    case DH::TargetType::XRefComment:
-    case DH::TargetType::VariableXRef:
-    case DH::TargetType::Arrow:
+    case DisHlp::TargetType::XRefComment:
+    case DisHlp::TargetType::VariableXRef:
+    case DisHlp::TargetType::Arrow:
         if (ta.value != RVA_INVALID) {
             seekable->seek(ta.value);
         }
         break;
-    case DH::TargetType::None:
+    case DisHlp::TargetType::None:
         seekable->seekToReference(ctx.offset);
         break;
     default:
