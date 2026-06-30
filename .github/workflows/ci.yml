@@ -397,7 +397,7 @@ jobs:
             python-version: 3.12.x
             output-id: artifact_windows
           - name: macos-x86_64
-            os: macos-14
+            os: macos-15-intel # Must be an x86_64 image: https://github.com/actions/runner-images#available-images
             arch: x86_64
             package: true
           - name: macos-arm64
