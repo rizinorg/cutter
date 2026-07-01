@@ -19,6 +19,7 @@ set(CUTTER_EXTRA_PLUGIN_DIRS "" CACHE STRING "List of addition plugin locations"
 option(CUTTER_ENABLE_DEPENDENCY_DOWNLOADS "Enable downloading of dependencies. Setting to OFF doesn't affect any downloads done by rizin build." OFF)
 option(CUTTER_ENABLE_PACKAGING "Enable building platform-specific packages for distributing" OFF)
 option(CUTTER_ENABLE_SIGDB "Downloads and installs sigdb (only available when CUTTER_USE_BUNDLED_RIZIN=ON)." OFF)
+option(CUTTER_ENABLE_TRANSLATIONS "Build and install translation files" ON)
 option(CUTTER_PACKAGE_DEPENDENCIES "During install step include the third party dependencies." OFF)
 option(CUTTER_PACKAGE_RZ_GHIDRA "Compile and install rz-ghidra during install step." OFF)
 option(CUTTER_PACKAGE_RZ_LIBSWIFT "Compile and install rz-libswift demangler during the install step." OFF)
