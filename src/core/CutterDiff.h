@@ -55,8 +55,8 @@ public:
     QString cmdRawAt(const char *cmd, RVA address, bool orig);
     QString cmdRaw(const char *cmd, bool orig);
     RVA getOffset(bool orig);
-    QStringList lineDiff(const char *lines1, const char *lines2);
-    QStringList lineDiff(const QString &lines1, const QString &lines2);
+    QString lineDiff(const char *lines1, const char *lines2);
+    QString lineDiff(const QString &lines1, const QString &lines2);
     QString ansiEscapeToHtml(const QString &text);
 
 private:

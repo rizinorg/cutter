@@ -431,6 +431,7 @@ void CutterDiffWindow::onBinDiffCompleted()
     ui->treeViewFcnsA->setModel(modelA);
     ui->treeViewFcnsB->setModel(modelB);
     addHexDiff();
+    addLineDiff();
     connect(ui->treeViewFcnsA, &CutterTreeView::clicked, this,
             [this](const QModelIndex &index) { hexDiff->seek(modelA->address(index), true); });
     connect(ui->treeViewFcnsB, &CutterTreeView::clicked, this,
@@ -491,6 +492,14 @@ void CutterDiffWindow::addHexDiff()
     ui->hexDiffContainer->layout()->addWidget(hexDiff);
     const QFont font = Config()->getFont();
     hexDiff->setMonospaceFont(font);
+}
+
+void CutterDiffWindow::addLineDiff()
+{
+    if (!lineDiff) {
+        lineDiff = new LineDiffWidget(cutterDiff, this);
+    }
+    ui->lineDiffContainer->layout()->addWidget(lineDiff);
 }
 
 void CutterDiffWindow::onCopyMD5AClicked()

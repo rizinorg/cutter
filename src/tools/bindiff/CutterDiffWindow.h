@@ -11,6 +11,7 @@
 #include <CutterTreeView.h>
 #include <core/BinDiff.h>
 #include <core/CutterDiff.h>
+#include "LineDiffWidget.h"
 
 namespace Ui {
 class CutterDiffWindow;
@@ -160,7 +161,9 @@ private:
     QList<FunctionDescription> fcnsA;
     QList<FunctionDescription> fcnsB;
     HexDiff *hexDiff = nullptr;
+    LineDiffWidget *lineDiff = nullptr;
     void addHexDiff();
+    void addLineDiff();
     void setupFonts();
     void clearParseWindow();
     void updateParseWindow(HexDiff::Selection selection);

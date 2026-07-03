@@ -402,18 +402,14 @@ QString CutterDiff::ansiEscapeToHtml(const QString &text)
     return r;
 }
 
-QStringList CutterDiff::lineDiff(const char *lines1, const char *lines2)
+QString CutterDiff::lineDiff(const char *lines1, const char *lines2)
 {
     RzDiff *diff = rz_diff_lines_new(lines1, lines2, nullptr);
-    const char *results = rz_diff_unified_text(diff, "A", "B", false, true);
-    QStringList lines = QString::fromUtf8(results).split("\n");
-    for (QString &line : lines) {
-        line = ansiEscapeToHtml(line);
-    }
-    return lines;
+    const char *results = rz_diff_unified_text(diff, "A", "B", false, false);
+    return QString::fromUtf8(results);
 }
 
-QStringList CutterDiff::lineDiff(const QString &lines1, const QString &lines2)
+QString CutterDiff::lineDiff(const QString &lines1, const QString &lines2)
 {
     return lineDiff(lines1.toUtf8().constData(), lines2.toUtf8().constData());
 }
