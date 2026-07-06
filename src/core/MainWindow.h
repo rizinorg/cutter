@@ -216,6 +216,8 @@ private slots:
 
     void onActionExportAsCodeTriggered();
 
+    void onActionExportDisassemblyTriggered();
+
     void onActionApplySigFromFileTriggered();
 
     void onActionCreateNewSigTriggered();

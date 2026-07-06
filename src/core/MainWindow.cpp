@@ -390,6 +390,8 @@ void MainWindow::initToolBar()
             &MainWindow::onActionImportPdbTriggered);
     connect(ui->actionExportAsCode, &QAction::triggered, this,
             &MainWindow::onActionExportAsCodeTriggered);
+    connect(ui->actionExportDisassembly, &QAction::triggered, this,
+            &MainWindow::onActionExportDisassemblyTriggered);
     connect(ui->actionApplySigFromFile, &QAction::triggered, this,
             &MainWindow::onActionApplySigFromFileTriggered);
     connect(ui->actionCreateNewSig, &QAction::triggered, this,
@@ -1781,6 +1783,38 @@ void MainWindow::onActionImportPdbTriggered()
         core->message(tr("%1 loaded.").arg(pdbFile));
         this->refreshAll();
     }
+}
+
+void MainWindow::onActionExportDisassemblyTriggered()
+{
+    const RVA funcStart = Core()->getFunctionStart(Core()->getOffset());
+    if (funcStart == RVA_INVALID) {
+        qWarning() << "No function at current offset.";
+        return;
+    }
+
+    QFileDialog dialog(this, tr("Export Disassembly"));
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setNameFilter(tr("Text file (*.txt)"));
+    dialog.setDefaultSuffix("txt");
+    if (!dialog.exec()) {
+        return;
+    }
+
+    QFile file(dialog.selectedFiles()[0]);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << tr("Can't open file");
+        return;
+    }
+
+    TempConfig tempConfig;
+    tempConfig.set("scr.color", 0);
+
+    const QString disassembly = Core()->cmdRawAt("pdf", funcStart);
+
+    QTextStream fileOut(&file);
+    fileOut << disassembly;
 }
 
 void MainWindow::onActionExportAsCodeTriggered()

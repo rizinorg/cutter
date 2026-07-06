@@ -1,6 +1,8 @@
 #include "DisassemblyContextMenu.h"
 
 #include "MainWindow.h"
+#include "common/CommandTask.h"
+#include "common/TempConfig.h"
 #include "dialogs/BreakpointsDialog.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/EditFunctionDialog.h"
@@ -15,6 +17,7 @@
 
 #include <QApplication>
 #include <QClipboard>
+#include <QFileDialog>
 #include <QInputDialog>
 #include <QJsonArray>
 #include <QPushButton>
@@ -35,6 +38,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
       copySeparator(addSeparator()),
       actionCopyAddr(this),
       actionCopyInstrBytes(this),
+      actionExportDisassembly(this),
       actionAddComment(this),
       actionAnalyzeFunction(this),
       actionEditFunction(this),
@@ -82,6 +86,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     initShortcutAction(&actionCopyInstrBytes, "Disassembly.copyInstructionBytes",
                        &DisassemblyContextMenu::copyInstrBytesTriggered);
     addAction(&actionCopyInstrBytes);
+
+    initAction(&actionExportDisassembly, tr("Export disassembly of current function"),
+               &DisassemblyContextMenu::exportDisassemblyTriggered);
+    addAction(&actionExportDisassembly);
 
     initAction(&showInSubmenu, tr("Show in"), nullptr);
     addAction(&showInSubmenu);
@@ -721,6 +729,38 @@ void DisassemblyContextMenu::copyInstrBytesTriggered() const
     clipboard->setText(Core()->getInstructionBytes(offset));
 }
 
+void DisassemblyContextMenu::exportDisassemblyTriggered()
+{
+    const RVA funcStart = Core()->getFunctionStart(offset);
+    if (funcStart == RVA_INVALID) {
+        qWarning() << "No function at current offset.";
+        return;
+    }
+
+    QFileDialog dialog(parentForDialog(), tr("Export Disassembly"));
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setNameFilter(tr("Text file (*.txt)"));
+    dialog.setDefaultSuffix("txt");
+    if (!dialog.exec()) {
+        return;
+    }
+
+    QFile file(dialog.selectedFiles()[0]);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << tr("Can't open file");
+        return;
+    }
+
+    TempConfig tempConfig;
+    tempConfig.set("scr.color", 0);
+
+    const QString disassembly = Core()->cmdRawAt("pdf", funcStart);
+
+    QTextStream fileOut(&file);
+    fileOut << disassembly;
+}
+
 void DisassemblyContextMenu::addBreakpointTriggered() const
 {
     Core()->toggleBreakpoint(offset);
@@ -1001,7 +1041,7 @@ void DisassemblyContextMenu::editFunctionTriggered()
                 rz_analysis_function_set_cc(core->analysis, fcn, newCC.constData());
             }
 
-            emit Core()->functionsChanged();
+            emit Core() -> functionsChanged();
         }
     }
 }
