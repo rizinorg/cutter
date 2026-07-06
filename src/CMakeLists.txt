@@ -613,7 +613,9 @@ if(CUTTER_ENABLE_PACKAGING)
     target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_PACKAGING)
 endif()
 
-include(Translations)
+if(CUTTER_ENABLE_TRANSLATIONS)
+    include(Translations)
+endif()
 
 # Install files
 install(TARGETS Cutter
