@@ -1,63 +1,391 @@
-<img width="150" height="150" align="left" style="float: left; margin: 0 10px 0 0;" alt="Cutter logo" src="https://raw.githubusercontent.com/rizinorg/cutter/dev/src/img/cutter.svg?sanitize=true">
+# Cutter MCP Server
 
-# Cutter
+Model Context Protocol (MCP) server integration for Cutter reverse engineering tool. This allows AI agents to interact with Cutter through a standardized protocol.
 
-Cutter is a free and open-source reverse engineering platform powered by [rizin](https://github.com/rizinorg/rizin). It aims at being an advanced and customizable reverse engineering platform while keeping the user experience in mind. Cutter is created by reverse engineers for reverse engineers.  
+## Features
 
-[![Cutter CI](https://github.com/rizinorg/cutter/workflows/Cutter%20CI/badge.svg)](https://github.com/rizinorg/cutter/actions?query=workflow%3A%22Cutter+CI%22)
-[![Build status](https://ci.appveyor.com/api/projects/status/tn7kttv55b8wf799/branch/dev?svg=true)](https://ci.appveyor.com/project/rizinorg/cutter/branch/dev)
+- **Project Management**: Open, save, and manage Cutter projects
+- **Function Analysis**: List, search, and rename functions
+- **Comment Management**: Add and manage comments at any address
+- **Graph Generation**: Generate call graphs and control flow graphs in DOT format
+- **Analysis Export**: Export comprehensive analysis reports in JSON, Markdown, or text format
+- **Multiple Transports**: Support for stdio, SSE, and HTTP transports
 
-![Screenshot](https://raw.githubusercontent.com/rizinorg/cutter/dev/docs/source/images/screenshot.png)
+## Installation
 
-## Learn more at [cutter.re](https://cutter.re).
+### Prerequisites
 
-## Getting Cutter
-### Download
+- Python 3.8+
+- Cutter with Python support enabled
+- Optional: `aiohttp` for SSE/HTTP transports
 
-Cutter release binaries for all major platforms (Linux, macOS, Windows) can be downloaded from [GitHub Releases](https://github.com/rizinorg/cutter/releases).
+### Install from source
 
-- **Linux**: If your distribution provides it, check for `cutter` package in your package manager (or `cutter-re` / `rz-cutter`). If not available there, we have setup repositories in [OBS](https://openbuildservice.org/) for some common distributions. Look at [https://software.opensuse.org/package/cutter-re](https://software.opensuse.org/download/package?package=cutter-re&project=home%3ARizinOrg) and follow the instructions there. Otherwise download the `.AppImage` file from our release, make it executable and run as below or use [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher).
+```bash
+cd ctf-mcp-repos/cutter
+pip install -e .
+```
 
-    `chmod +x Cutter*.AppImage; ./Cutter*.AppImage`
-- **macOS**: Download the `.dmg` file or use [Homebrew Cask](https://github.com/Homebrew/homebrew-cask):
+### Manual installation
 
-    `brew install --cask cutter`
-- **Windows**: Download the `.zip` archive, or use either [Chocolatey](https://chocolatey.org) or [Scoop](https://scoop.sh/):
+```bash
+# Install dependencies
+pip install mcp
 
-    `choco install cutter`
-    
-    `scoop bucket add extras` followed by `scoop install cutter`
+# For SSE/HTTP transport support
+pip install aiohttp
+```
 
-### Build from sources
+## Usage
 
-To build Cutter from sources, please check the [Building Docs](https://cutter.re/docs/building.html).
+### As a Cutter Plugin
 
-### Docker image
+The MCP server can be loaded as a Cutter plugin. Add the `src/mcp` directory to your Cutter plugins path.
 
-To deploy *cutter* using a pre-built `Dockerfile`, it's possible to use the [provided configuration](docker). The corresponding `README.md` file also contains instructions on how to get started using the docker image with minimal effort.
+### Standalone Server
 
-## Documentation
+```bash
+# Run with stdio transport (default)
+python -m src.mcp.server
 
-### [User Guide](https://cutter.re/docs/user-docs.html)
+# Run with SSE transport
+python -m src.mcp.server --transport sse --host localhost --port 8080
 
-### [Contribution Guidelines](https://cutter.re/docs/contributing.html)
+# Run with HTTP transport
+python -m src.mcp.server --transport http --host localhost --port 8080
+```
 
-### [Developers Docs](https://cutter.re/docs/contributing/code.html)
+### Python API
 
-## Plugins
-Cutter supports both Python and Native C++ plugins.
+```python
+from src.mcp.server import create_server
+import cutter
 
-Our community has built many plugins and useful scripts for Cutter such as the native integration of [Ghidra decompiler](https://github.com/rizinorg/rz-ghidra) or the plugin to visualize DynamoRIO code coverage. You can find a list of cutter plugins linked below. Feel free to extend it with your own plugins and scripts for Cutter.
+# Create server with Cutter core
+core = cutter.core()
+server = create_server(core, transport="stdio")
 
-**[Official & Community Plugins](https://github.com/rizinorg/cutter-plugins)**
+# Run server
+import asyncio
+asyncio.run(server.run())
+```
 
-**[Plugins Development Guide](https://cutter.re/docs/plugins.html)**
+## Available Tools
 
-## Getting Help
+### 1. open_project
 
-Please use the following channels to ask for help from Cutter developers and community:
+Open or create a Cutter project.
 
-- **Telegram:** https://t.me/cutter_re
-- **Mattermost:** https://im.rizin.re
-- **IRC:** #cutter on https://web.libera.chat/
-- **Twitter:** [@cutter_re](https://twitter.com/cutter_re)
+**Parameters:**
+- `path` (string, required): Project file path (.cutter) or binary file path
+- `binary` (string, optional): Binary file path (if path is a project file)
+
+**Example:**
+```json
+{
+  "name": "open_project",
+  "arguments": {
+    "path": "/path/to/binary"
+  }
+}
+```
+
+### 2. save_project
+
+Save the current project.
+
+**Parameters:**
+- `path` (string, optional): Save path (defaults to current project path)
+
+**Example:**
+```json
+{
+  "name": "save_project",
+  "arguments": {
+    "path": "/path/to/save.cutter"
+  }
+}
+```
+
+### 3. get_functions
+
+Get list of functions in the binary.
+
+**Parameters:**
+- `limit` (integer, optional): Maximum number of functions (default: 100)
+- `offset` (integer, optional): Starting offset (default: 0)
+
+**Example:**
+```json
+{
+  "name": "get_functions",
+  "arguments": {
+    "limit": 50,
+    "offset": 0
+  }
+}
+```
+
+### 4. rename_function
+
+Rename a function.
+
+**Parameters:**
+- `address` (string, required): Function address (hex or decimal)
+- `new_name` (string, required): New function name
+
+**Example:**
+```json
+{
+  "name": "rename_function",
+  "arguments": {
+    "address": "0x401000",
+    "new_name": "main_entry"
+  }
+}
+```
+
+### 5. add_comment
+
+Add a comment at an address.
+
+**Parameters:**
+- `address` (string, required): Address to comment (hex or decimal)
+- `content` (string, required): Comment content
+- `comment_type` (string, optional): Type (regular, code, function, variable)
+
+**Example:**
+```json
+{
+  "name": "add_comment",
+  "arguments": {
+    "address": "0x401000",
+    "content": "Entry point of the program",
+    "comment_type": "function"
+  }
+}
+```
+
+### 6. generate_callgraph
+
+Generate call graph in DOT format.
+
+**Parameters:**
+- `address` (string, optional): Function address (None for global)
+- `depth` (integer, optional): Graph depth (default: 2)
+
+**Example:**
+```json
+{
+  "name": "generate_callgraph",
+  "arguments": {
+    "address": "0x401000",
+    "depth": 3
+  }
+}
+```
+
+### 7. generate_cfg
+
+Generate control flow graph for a function.
+
+**Parameters:**
+- `address` (string, required): Function address (hex or decimal)
+
+**Example:**
+```json
+{
+  "name": "generate_cfg",
+  "arguments": {
+    "address": "0x401000"
+  }
+}
+```
+
+### 8. export_analysis
+
+Export analysis report.
+
+**Parameters:**
+- `output_path` (string, optional): Output file path
+- `format` (string, optional): Output format (json, markdown, text)
+
+**Example:**
+```json
+{
+  "name": "export_analysis",
+  "arguments": {
+    "output_path": "report.md",
+    "format": "markdown"
+  }
+}
+```
+
+## AI Agent Integration
+
+### Claude Integration
+
+```python
+import asyncio
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+
+async def analyze_binary():
+    server_params = StdioServerParameters(
+        command="python",
+        args=["-m", "src.mcp.server"]
+    )
+
+    async with stdio_client(server_params) as (read, write):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+
+            # Open binary
+            await session.call_tool("open_project", {
+                "path": "/path/to/target"
+            })
+
+            # Get functions
+            result = await session.call_tool("get_functions", {
+                "limit": 100
+            })
+
+            # Generate call graph
+            graph = await session.call_tool("generate_callgraph", {
+                "address": "0x401000"
+            })
+
+            # Export report
+            await session.call_tool("export_analysis", {
+                "output_path": "analysis.md",
+                "format": "markdown"
+            })
+
+asyncio.run(analyze_binary())
+```
+
+### Example: Automated Analysis Workflow
+
+```python
+async def automated_analysis(binary_path: str):
+    """Complete analysis workflow"""
+
+    # 1. Open binary
+    await session.call_tool("open_project", {"path": binary_path})
+
+    # 2. Get all functions
+    functions = await session.call_tool("get_functions", {"limit": 1000})
+
+    # 3. Rename suspicious functions
+    for func in functions['functions']:
+        if "crypto" in func['name'].lower():
+            await session.call_tool("rename_function", {
+                "address": func['address'],
+                "new_name": f"crypto_{func['name']}"
+            })
+
+    # 4. Add comments to key functions
+    await session.call_tool("add_comment", {
+        "address": "0x401000",
+        "content": "Main entry point - initializes crypto context"
+    })
+
+    # 5. Generate call graph
+    callgraph = await session.call_tool("generate_callgraph", {})
+
+    # 6. Export final report
+    await session.call_tool("export_analysis", {
+        "output_path": "final_report.md",
+        "format": "markdown"
+    })
+```
+
+## Testing
+
+Run the test suite:
+
+```bash
+# Install test dependencies
+pip install pytest pytest-asyncio
+
+# Run tests
+pytest tests/test_mcp_server.py -v
+
+# Run with coverage
+pytest tests/test_mcp_server.py --cov=src.mcp --cov-report=term-missing
+```
+
+## Architecture
+
+```
+src/mcp/
+├── __init__.py       # Package initialization
+├── models.py         # Data models (Project, Function, Graph, Comment)
+├── tools.py          # Cutter tools wrapper
+└── server.py         # MCP server implementation
+
+tests/
+└── test_mcp_server.py  # Comprehensive test suite
+```
+
+### Components
+
+- **models.py**: Data structures for projects, functions, graphs, and comments
+- **tools.py**: High-level API wrapping Cutter's Python API
+- **server.py**: MCP protocol server with stdio/SSE/HTTP transports
+
+## Development
+
+### Adding New Tools
+
+1. Add tool implementation in `tools.py`
+2. Add handler in `server.py`
+3. Add tool definition in `get_tool_definitions()`
+4. Add tests in `tests/test_mcp_server.py`
+
+### Code Style
+
+- Use type hints
+- Follow PEP 8
+- Write docstrings for all public functions
+- Add tests for new functionality
+
+## Troubleshooting
+
+### Cutter Python API not available
+
+If you see "Cutter not available" warning, ensure:
+- Cutter is built with Python support (`-DCUTTER_ENABLE_PYTHON=ON`)
+- Python bindings are in your Python path
+
+### Transport errors
+
+For SSE/HTTP transport errors:
+```bash
+pip install aiohttp
+```
+
+### Tests failing
+
+Ensure test dependencies are installed:
+```bash
+pip install pytest pytest-asyncio
+```
+
+## License
+
+This MCP server follows the same license as Cutter (GPLv3).
+
+## Contributing
+
+Contributions are welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Submit a pull request
+
+## Resources
+
+- [Cutter Documentation](https://cutter.re/docs/)
+- [MCP Protocol](https://modelcontextprotocol.io/)
+- [Rizin Documentation](https://rizin.re/docs/)
