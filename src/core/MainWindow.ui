@@ -51,10 +51,10 @@
    <widget class="QMenu" name="menuFile">
     <property name="geometry">
      <rect>
-      <x>337</x>
+      <x>340</x>
       <y>86</y>
       <width>206</width>
-      <height>414</height>
+      <height>389</height>
      </rect>
     </property>
     <property name="title">
@@ -91,7 +91,6 @@
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
     <addaction name="separator"/>
-    <addaction name="actionDiffFiles"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -134,6 +133,7 @@
      <string>&amp;Tools</string>
     </property>
     <addaction name="actionBaseFind"/>
+    <addaction name="actionDiffFiles"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">

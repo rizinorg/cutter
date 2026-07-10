@@ -6,9 +6,8 @@ bool BinDiff::threadCallback(const size_t nLeft, const size_t nMatch, void *user
     return bdiff->updateProgress(nLeft, nMatch);
 }
 
-BinDiff::BinDiff(CutterDiff *cutterDiff)
-    : cutterDiff(cutterDiff),
-      result(nullptr),
+BinDiff::BinDiff()
+    : result(nullptr),
       continueRun(true),
       maxTotal(1)
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
@@ -16,6 +15,7 @@ BinDiff::BinDiff(CutterDiff *cutterDiff)
       mutex(QMutex::Recursive)
 #endif
 {
+    cutterDiff.reset(new CutterDiff());
 }
 
 BinDiff::~BinDiff()
@@ -65,6 +65,7 @@ void BinDiff::run()
     continueRun = true;
     maxTotal = 1; // maxTotal must be at least 1.
     mutex.unlock();
+    cutterDiff->initCores();
     cutterDiff->openFiles(fileA, fileB);
     cutterDiff->analyzeCores(level);
     cutterDiff->syncConfig();

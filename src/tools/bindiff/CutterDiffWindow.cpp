@@ -12,6 +12,9 @@ FunctionListModel::FunctionListModel(QList<FunctionDescription> *list, QObject *
     : AddressableItemModel<>(parent), list(list)
 {
 }
+
+FunctionListModel::~FunctionListModel() {}
+
 QModelIndex FunctionListModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (parent.isValid()) {
@@ -117,6 +120,8 @@ DiffMatchModel::DiffMatchModel(QList<BinDiffMatchDescription> *list, QColor cPer
     : QAbstractListModel(parent), list(list), perfect(cPerf), partial(cPart)
 {
 }
+
+DiffMatchModel::~DiffMatchModel() {}
 
 int DiffMatchModel::rowCount(const QModelIndex &parent) const
 {
@@ -241,6 +246,8 @@ DiffMismatchModel::DiffMismatchModel(QList<FunctionDescription> *list, QObject *
 {
 }
 
+DiffMismatchModel::~DiffMismatchModel() {}
+
 int DiffMismatchModel::rowCount(const QModelIndex &) const
 {
     return list->count();
@@ -322,26 +329,27 @@ QVariant DiffMismatchModel::headerData(int section, Qt::Orientation, int role) c
     }
 }
 
-CutterDiffWindow::CutterDiffWindow(QWidget *parent)
+CutterDiffWindow::CutterDiffWindow(std::unique_ptr<BinDiff> bDiff, QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::CutterDiffWindow),
-      cutterDiff(new CutterDiff),
-      bDiff(new BinDiff(cutterDiff))
+      bDiff(std::move(bDiff)),
+      cutterDiff(bDiff->cutterDiff.get())
 {
     ui->setupUi(this);
-    cutterDiff->initCores();
     ui->splitter->setSizes({ 250, 750 });
     ui->splitterHexView->setSizes({ 750, 250 });
     ui->treeViewMatches->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeViewMatches, &CutterTreeView::customContextMenuRequested, this,
             &CutterDiffWindow::showContextMenuMatches);
     connect(ui->treeViewMatches, &CutterTreeView::clicked, this, &CutterDiffWindow::selectFunction);
-    connect(bDiff, &BinDiff::complete, this, &CutterDiffWindow::onBinDiffCompleted);
-    connect(ui->actionDiffNewFiles, &QAction::triggered, this,
-            &CutterDiffWindow::onActionDiffNewFile);
+    // connect(bDiff, &BinDiff::complete, this, &CutterDiffWindow::onBinDiffCompleted);
+    // connect(ui->actionDiffNewFiles, &QAction::triggered, this,
+    //         &CutterDiffWindow::onActionDiffNewFile);
     ui->tabParsing->hide();
     setupFonts();
     showMaximized();
+    addLineDiff();
+    showDiff();
 }
 
 CutterDiffWindow::~CutterDiffWindow()
@@ -382,7 +390,8 @@ void CutterDiffWindow::showContextMenuMatches(const QPoint &pos)
         ui->tabWidget->setCurrentIndex(3);
         hexDiff->seek(addr.first);
     } else if (selected == diffFunctionLines) {
-        // once diffLineView is implemented
+        lineDiff->fetchFunctionDisas(addr.first, addr.second);
+        ui->tabWidget->setCurrentIndex(4);
     } else if (selected == copyAddress) {
         if (index.column() < DiffMatchModel::AddressMod) {
             QApplication::clipboard()->setText(QString::number(addr.first));
@@ -394,13 +403,14 @@ void CutterDiffWindow::showContextMenuMatches(const QPoint &pos)
 
 void CutterDiffWindow::setupFonts() {}
 
-void CutterDiffWindow::onBinDiffCompleted()
+void CutterDiffWindow::showDiff()
 {
     if (!bDiff->hasData()) {
         return;
     }
 
-    const QColor perfect = Config()->getColor("gui.match.perfect");
+    const QColor perfect = Config()->getColor(
+            "gui.match.perfect"); // needs to be added to either cutter or in rizin
     const QColor partial = Config()->getColor("gui.match.partial");
 
     listMatch = bDiff->matches();
@@ -408,8 +418,8 @@ void CutterDiffWindow::onBinDiffCompleted()
     listAdd = bDiff->mismatch(false);
 
     matches = new DiffMatchModel(&listMatch, perfect, partial, this);
-    added = new DiffMismatchModel(&listDel, this);
-    removed = new DiffMismatchModel(&listAdd, this);
+    added = new DiffMismatchModel(&listAdd, this);
+    removed = new DiffMismatchModel(&listDel, this);
 
     ui->treeViewMatches->setModel(matches);
     ui->treeViewMatches->sortByColumn(DiffMatchModel::Similarity, Qt::AscendingOrder);
@@ -429,9 +439,10 @@ void CutterDiffWindow::onBinDiffCompleted()
     modelB = new FunctionListModel(&fcnsB, this);
 
     ui->treeViewFcnsA->setModel(modelA);
+    ui->fcnsALabel->setText(cutterDiff->getFileName(true));
     ui->treeViewFcnsB->setModel(modelB);
+    ui->fcnsBLabel->setText(cutterDiff->getFileName(false));
     addHexDiff();
-    addLineDiff();
     connect(ui->treeViewFcnsA, &CutterTreeView::clicked, this,
             [this](const QModelIndex &index) { hexDiff->seek(modelA->address(index), true); });
     connect(ui->treeViewFcnsB, &CutterTreeView::clicked, this,
@@ -478,11 +489,11 @@ void CutterDiffWindow::onBinDiffCompleted()
     connect(hexDiff, &HexDiff::selectionChanged, this, &CutterDiffWindow::selectionChanged);
 }
 
-void CutterDiffWindow::onActionDiffNewFile()
-{
-    auto loadDiff = new DiffLoadDialog(bDiff, this);
-    loadDiff->show();
-}
+// void CutterDiffWindow::onActionDiffNewFile()
+// {
+//     auto loadDiff = new DiffLoadDialog(bDiff, this);
+//     loadDiff->show();
+// }
 
 void CutterDiffWindow::addHexDiff()
 {

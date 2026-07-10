@@ -115,7 +115,7 @@
 
 // Tools
 #include "tools/basefind/BaseFindDialog.h"
-#include "tools/bindiff/CutterDiffWindow.h"
+#include "tools/bindiff/DiffLoadDialog.h"
 
 template<class T>
 T *getNewInstance(MainWindow *m)
@@ -1752,8 +1752,8 @@ void MainWindow::onActionRefreshPanelsTriggered()
 
 void MainWindow::onActionDiffFilesTriggered()
 {
-    auto cutterDiffWindow = new CutterDiffWindow();
-    cutterDiffWindow->show();
+    auto *diffLoad = new DiffLoadDialog(this);
+    diffLoad->show();
 }
 
 void MainWindow::onActionAnalyzeTriggered() const
