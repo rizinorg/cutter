@@ -1041,7 +1041,7 @@ void DisassemblyContextMenu::editFunctionTriggered()
                 rz_analysis_function_set_cc(core->analysis, fcn, newCC.constData());
             }
 
-            emit Core() -> functionsChanged();
+            emit Core()->functionsChanged();
         }
     }
 }
