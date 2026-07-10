@@ -55,19 +55,30 @@ public:
     QString cmdRawAt(const char *cmd, RVA address, bool orig);
     QString cmdRaw(const char *cmd, bool orig);
     RVA getOffset(bool orig);
-    QString lineDiff(const char *lines1, const char *lines2);
-    QString lineDiff(const QString &lines1, const QString &lines2);
+    RzDiff *lineDiff(const char *lines1, const char *lines2); // Own RzDiff
+    RzDiff *lineDiff(const QString &lines1, const QString &lines2); // Own RzDiff
+    RzDiff *diffFunctionDissas(RVA addrA, RVA addrB); // Own RzDiff
+    QString diffFunctionDecomp(RVA addrA, RVA addrB);
+    QString diffFunctionRzIL(RVA addrA, RVA addrB);
+    QString disassembleFunction(RVA addr, bool orig);
     QString ansiEscapeToHtml(const QString &text);
+    CutterRzList<RzList /*<RzDiffOp *>*/> lineDiffOpsGrouped(RzDiff *diff) const;
+    QString getFileName(bool orig = true) const { return orig ? fileNameA : fileNameB; }
+    QString getFilePath(bool orig = true) const { return orig ? filePathA : filePathB; }
 
 private:
     RzCore *coreA = nullptr;
     RzCore *coreB = nullptr;
+    QString fileNameA;
+    QString fileNameB;
+    QString filePathA;
+    QString filePathB;
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
     QMutex mutex;
 #else
     QRecursiveMutex mutex;
 #endif
-    RzList *getFunctions(RzAnalysis *analysis, int compareLogic);
+    RzList *getFunctions(RzAnalysis *analysis, int compareLogic); // Own RzList
 signals:
 };
 
@@ -87,6 +98,89 @@ public:
     CutterDiff *operator->() & { return diff; }
     CutterDiff *operator->() const & { return diff; }
     CutterDiff *operator->() && = delete;
+};
+
+class TempDiffConfig
+{
+public:
+    explicit TempDiffConfig(CutterDiff *cutterDiff, bool orig = true)
+        : cutterDiff(cutterDiff), orig(orig)
+    {
+    }
+
+    ~TempDiffConfig()
+    {
+        const CutterDiffLocked lock(cutterDiff);
+        const RzCore *const core = orig ? lock.coreA : lock.coreB;
+
+        for (auto it = iHash.cbegin(); it != iHash.cend(); ++it) {
+            const QByteArray key = it.key().toUtf8();
+            rz_config_set_i(core->config, key.constData(), it.value());
+        }
+
+        for (auto it = bHash.cbegin(); it != bHash.cend(); ++it) {
+            const QByteArray key = it.key().toUtf8();
+            rz_config_set_b(core->config, key.constData(), it.value());
+        }
+
+        for (auto it = cHash.cbegin(); it != cHash.cend(); ++it) {
+            const QByteArray key = it.key().toUtf8();
+            const QByteArray value = it.value().toUtf8();
+            rz_config_set(core->config, key.constData(), value.constData());
+        }
+    }
+
+    void setConfigi(const QString &config, ut64 val)
+    {
+        const CutterDiffLocked lock(cutterDiff);
+        const RzCore *const core = orig ? lock.coreA : lock.coreB;
+
+        const QByteArray key = config.toUtf8();
+
+        if (!iHash.contains(config)) {
+            iHash.insert(config, rz_config_get_i(core->config, key.constData()));
+        }
+
+        rz_config_set_i(core->config, key.constData(), val);
+    }
+
+    void setConfigb(const QString &config, bool val)
+    {
+        const CutterDiffLocked lock(cutterDiff);
+        const RzCore *const core = orig ? lock.coreA : lock.coreB;
+
+        const QByteArray key = config.toUtf8();
+
+        if (!bHash.contains(config)) {
+            bHash.insert(config, rz_config_get_b(core->config, key.constData()));
+        }
+
+        rz_config_set_b(core->config, key.constData(), val);
+    }
+
+    void setConfig(const QString &config, const QString &val)
+    {
+        const CutterDiffLocked lock(cutterDiff);
+        const RzCore *const core = orig ? lock.coreA : lock.coreB;
+
+        const QByteArray key = config.toUtf8();
+
+        if (!cHash.contains(config)) {
+            const char *oldValue = rz_config_get(core->config, key.constData());
+            cHash.insert(config, oldValue ? QString::fromUtf8(oldValue) : QString());
+        }
+
+        const QByteArray value = val.toUtf8();
+        rz_config_set(core->config, key.constData(), value.constData());
+    }
+
+private:
+    CutterDiff *cutterDiff;
+    const bool orig;
+
+    QHash<QString, ut64> iHash;
+    QHash<QString, bool> bHash;
+    QHash<QString, QString> cHash;
 };
 
 #endif // CUTTERDIFF_H

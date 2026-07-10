@@ -2,6 +2,7 @@
 #define CUTTERDIFFWINDOW_H
 
 #include "HexDiff.h"
+#include "LineDiffWidget.h"
 
 #include <QAction>
 #include <QMainWindow>
@@ -11,7 +12,6 @@
 #include <CutterTreeView.h>
 #include <core/BinDiff.h>
 #include <core/CutterDiff.h>
-#include "LineDiffWidget.h"
 
 namespace Ui {
 class CutterDiffWindow;
@@ -39,6 +39,7 @@ public:
 
     DiffMatchModel(QList<BinDiffMatchDescription> *list, QColor cPerf, QColor cPart,
                    QObject *parent = nullptr);
+    ~DiffMatchModel();
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
@@ -49,6 +50,9 @@ public:
     QColor gradientByRatio(const double ratio) const;
 
     QPair<RVA, RVA> address(const QModelIndex &index) const;
+
+    void diffNew(const QString &fileA, const QString &fileB, int compareLogic, int analysisLevel);
+    void clearDiff();
 
 private:
     QList<BinDiffMatchDescription> *list;
@@ -77,6 +81,7 @@ public:
     };
 
     DiffMismatchModel(QList<FunctionDescription> *list, QObject *parent = nullptr);
+    ~DiffMismatchModel();
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
@@ -93,7 +98,7 @@ class FunctionListModel : public AddressableItemModel<>
     Q_OBJECT
 public:
     FunctionListModel(QList<FunctionDescription> *list, QObject *parent = nullptr);
-    ~FunctionListModel() {}
+    ~FunctionListModel();
     enum Column : ut8 { Name, Offset, ColumnCount };
     QModelIndex index(int row, int column,
                       const QModelIndex &parent = QModelIndex()) const override;
@@ -118,12 +123,10 @@ class CutterDiffWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit CutterDiffWindow(QWidget *parent = nullptr);
+    explicit CutterDiffWindow(std::unique_ptr<BinDiff> bDiff, QWidget *parent = nullptr);
     ~CutterDiffWindow();
-
 public slots:
-    void onBinDiffCompleted();
-    void onActionDiffNewFile();
+    // void onBinDiffCompleted();
 private slots:
     void onCopyMD5AClicked();
     void onCopyShA1AClicked();
@@ -136,12 +139,13 @@ private slots:
     void selectionChanged(HexDiff::Selection selection);
     void showContextMenuMatches(const QPoint &pos);
     void selectFunction(const QModelIndex &index);
+    void showDiff();
 
 private:
     Ui::CutterDiffWindow *ui;
     CutterDiff *cutterDiff;
     // BinDiff thread which fetches basic analysis results and processing
-    BinDiff *bDiff;
+    std::unique_ptr<BinDiff> bDiff;
     // model for matched functions of both binaries
     DiffMatchModel *matches;
     // model for added functions
@@ -167,7 +171,6 @@ private:
     void setupFonts();
     void clearParseWindow();
     void updateParseWindow(HexDiff::Selection selection);
-    QSyntaxHighlighter *syntaxHighLighter;
 };
 
 #endif // CUTTERDIFFWINDOW_H

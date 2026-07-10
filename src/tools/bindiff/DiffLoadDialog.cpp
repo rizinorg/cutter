@@ -10,8 +10,7 @@
 #include <core/Cutter.h>
 #include <rz_th.h>
 
-DiffLoadDialog::DiffLoadDialog(BinDiff *bDiff, QWidget *parent)
-    : QDialog(parent), ui(new Ui::DiffLoadDialog), bDiff(bDiff)
+DiffLoadDialog::DiffLoadDialog(QWidget *parent) : QDialog(parent), ui(new Ui::DiffLoadDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -87,7 +86,7 @@ void DiffLoadDialog::onButtonFileAOpenClicked()
         return;
     }
 
-    ui->lineEditFileB->setText(fileName);
+    ui->lineEditFileA->setText(fileName);
 }
 
 void DiffLoadDialog::onButtonFileBOpenClicked()
@@ -113,7 +112,7 @@ void DiffLoadDialog::onButtonFileBOpenClicked()
         return;
     }
 
-    ui->lineEditFileA->setText(fileName);
+    ui->lineEditFileB->setText(fileName);
 }
 
 void DiffLoadDialog::onButtonBoxAccepted()
@@ -126,10 +125,9 @@ void DiffLoadDialog::onButtonBoxAccepted()
         QMessageBox::warning(this, tr("Empty FileB"), tr("Select a file for diffing."));
         return;
     }
-    auto waitDialog = new DiffWaitDialog(bDiff, this);
+    auto waitDialog = new DiffWaitDialog(parentWidget());
     waitDialog->show(ui->lineEditFileA->text(), ui->lineEditFileB->text(),
                      ui->comboBoxAnalysis->currentIndex(), ui->comboBoxCompare->currentIndex());
-    printf("hello world");
     emit startDiffing();
 }
 

@@ -9,6 +9,8 @@
 #include <QThread>
 
 #include <rz_analysis.h>
+
+class CutterDiffWindow;
 /**
  * @brief The BinDiff class
  * Thread run for processing the functional diffing and other large diffing processes.
@@ -17,9 +19,10 @@
 class BinDiff : public QThread
 {
     Q_OBJECT
+    friend class CutterDiffWindow;
 
 public:
-    explicit BinDiff(CutterDiff *cutterDiff);
+    explicit BinDiff();
     virtual ~BinDiff();
 
     void run();
@@ -41,7 +44,7 @@ signals:
     void complete();
 
 private:
-    CutterDiff *cutterDiff;
+    std::unique_ptr<CutterDiff> cutterDiff;
     RzAnalysisMatchResult *result;
     bool continueRun;
     size_t maxTotal;

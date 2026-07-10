@@ -30,7 +30,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QTextEdit" name="textEdit"/>
+    <layout class="QVBoxLayout" name="vBox1"/>
    </item>
   </layout>
  </widget>

@@ -83,6 +83,10 @@ bool CutterDiff::openFiles(const QString &fileA, const QString &fileB)
         qWarning() << tr("cannot set architecture with bits in fileB");
         goto fail;
     }
+    filePathA = fileA;
+    filePathB = fileB;
+    fileNameA = QFileInfo(filePathA).fileName();
+    fileNameB = QFileInfo(filePathB).fileName();
     syncConfig();
     return true;
 fail:
@@ -402,14 +406,73 @@ QString CutterDiff::ansiEscapeToHtml(const QString &text)
     return r;
 }
 
-QString CutterDiff::lineDiff(const char *lines1, const char *lines2)
+QString CutterDiff::disassembleFunction(RVA addr, bool orig)
 {
-    RzDiff *diff = rz_diff_lines_new(lines1, lines2, nullptr);
-    const char *results = rz_diff_unified_text(diff, "A", "B", false, false);
-    return QString::fromUtf8(results);
+    LOCK();
+    RzCore *core = orig ? coreA : coreB;
+    RzAnalysisFunction *function = rz_analysis_get_fcn_in(
+            core->analysis, addr, RZ_ANALYSIS_FCN_TYPE_FCN | RZ_ANALYSIS_FCN_TYPE_SYM);
+    if (!function) {
+        qWarning() << QString("Could not load function at %1").arg(QString::number(addr, 16));
+        return {};
+    }
+    auto vec = fromOwned(
+            rz_pvector_new(reinterpret_cast<RzPVectorFree>(rz_analysis_disasm_text_free)));
+    if (!vec) {
+        return {};
+    }
+    const uint64_t start = function->addr;
+    const uint64_t end = rz_analysis_function_max_addr(function);
+    if (start > end) {
+        qWarning() << "Start address is greater than end address of the function";
+        return {};
+    }
+    const uint64_t size = end - start;
+    QByteArray array;
+    array.resize(size);
+    rz_io_read_at_mapped(core->io, start, reinterpret_cast<ut8 *>(array.data()), size);
+    RzCoreDisasmOptions disasmOptions = { .cbytes = 1, .function = function, .vec = vec.get() };
+    TempDiffConfig config(this, orig);
+    config.setConfigi("scr.utf8", 0);
+    config.setConfigi("asm.offset", 0);
+    config.setConfigi("asm.lines", 0);
+    config.setConfigi("asm.cmt.right", 0);
+    config.setConfigi("asm.lines.fcn", 0);
+    config.setConfigi("asm.bytes", 0);
+    config.setConfigi("asm.comments", 0);
+    config.setConfigi("scr.color", COLOR_MODE_DISABLED);
+    rz_core_print_disasm(core, start, reinterpret_cast<ut8 *>(array.data()), size, size, nullptr,
+                         &disasmOptions);
+    QString r;
+    for (const auto &t : CutterPVector<RzAnalysisDisasmText>(vec.get())) {
+        const QString text = t->text;
+        r.append(text);
+        r.append("\n");
+    }
+    return r;
 }
 
-QString CutterDiff::lineDiff(const QString &lines1, const QString &lines2)
+RzDiff *CutterDiff::diffFunctionDissas(RVA addrA, RVA addrB)
+{
+    LOCK();
+    const QString disasA = disassembleFunction(addrA, true);
+    const QString disasB = disassembleFunction(addrB, false);
+    return lineDiff(disasA, disasB);
+}
+
+RzDiff *CutterDiff::lineDiff(const char *lines1, const char *lines2)
+{
+    RzDiff *diff = rz_diff_lines_new(lines1, lines2, nullptr);
+    return diff;
+}
+
+RzDiff *CutterDiff::lineDiff(const QString &lines1, const QString &lines2)
 {
     return lineDiff(lines1.toUtf8().constData(), lines2.toUtf8().constData());
+}
+
+CutterRzList<RzList /*<RzDiffOp*>*/> CutterDiff::lineDiffOpsGrouped(RzDiff *diff) const
+{
+    auto *groups = rz_diff_unified_text_grouped(diff);
+    return CutterRzList<RzList /*<RzDiffOp *>*/>(groups);
 }
