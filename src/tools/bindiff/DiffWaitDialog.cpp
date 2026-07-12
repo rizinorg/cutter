@@ -79,7 +79,8 @@ void DiffWaitDialog::onProgress(BinDiffStatusDescription status)
 void DiffWaitDialog::onCompletion()
 {
     timer.stop();
-    auto *diffWindow = new CutterDiffWindow(std::move(bDiff), parentWidget());
+    auto *diffWindow = new CutterDiffWindow(std::move(bDiff));
+    diffWindow->setAttribute(Qt::WA_DeleteOnClose);
     diffWindow->show();
     close();
 }

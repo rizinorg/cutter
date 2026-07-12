@@ -387,8 +387,7 @@ void HexDiff::updateColors()
     printableColor = Config()->getColor("ai.write");
     defColor = Config()->getColor("btext");
     addrColor = Config()->getColor("func_var_addr");
-    diffColor = Config()->getColor("graph.diff.unmatch");
-    warningColor = QColor("red");
+    diffColor = Config()->getColor("diff.unmatch");
 
     updateCursorMeta();
     updateViewport();
@@ -767,7 +766,6 @@ void HexDiff::copy()
         return;
     }
     QString x;
-    qInfo() << cursorArea;
     if (cursorArea < 2) {
         if (cursorArea == DiffArea::AsciiA) {
             x = QString::fromUtf8(
@@ -1011,11 +1009,11 @@ void HexDiff::drawItemArea(QPainter &painter, DiffFileContext &ctx)
                 }
 
                 if (ctx.file == DiffFile::A && diffItemsAt(itemAddr)) {
-                    itemColor = warningColor;
+                    itemColor = diffColor;
                 }
 
                 if (ctx.file == DiffFile::B && diffItemsAt(getAddressA(itemAddr))) {
-                    itemColor = warningColor;
+                    itemColor = diffColor;
                 }
 
                 painter.setPen(itemColor);
@@ -1067,11 +1065,11 @@ void HexDiff::drawAsciiArea(QPainter &painter, DiffFileContext &ctx)
                 color = palette().highlightedText().color();
             }
             if (ctx.file == DiffFile::A && diffItemsAt(address)) {
-                color = warningColor;
+                color = diffColor;
             }
 
             if (ctx.file == DiffFile::B && diffItemsAt(getAddressA(address))) {
-                color = warningColor;
+                color = diffColor;
             }
             painter.setPen(color);
             /* Dots look ugly. Use fillRect() instead of drawText(). */

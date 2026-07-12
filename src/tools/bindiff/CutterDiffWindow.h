@@ -60,7 +60,7 @@ private:
     QColor perfect, partial;
 };
 
-class DiffMismatchModel : public QAbstractListModel
+class DiffMismatchModel : public AddressableItemModel<>
 {
     Q_OBJECT
 
@@ -82,12 +82,16 @@ public:
 
     DiffMismatchModel(QList<FunctionDescription> *list, QObject *parent = nullptr);
     ~DiffMismatchModel();
+    QModelIndex index(int row, int column,
+                      const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &index) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    RVA address(const QModelIndex &index) const override;
 
 private:
     QList<FunctionDescription> *list;
@@ -125,8 +129,10 @@ class CutterDiffWindow : public QMainWindow
 public:
     explicit CutterDiffWindow(std::unique_ptr<BinDiff> bDiff, QWidget *parent = nullptr);
     ~CutterDiffWindow();
+    void seekAndShowHexDiff(QPair<RVA, RVA> addr);
 public slots:
     // void onBinDiffCompleted();
+    void onActionDiffNewFile();
 private slots:
     void onCopyMD5AClicked();
     void onCopyShA1AClicked();

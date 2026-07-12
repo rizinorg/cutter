@@ -34,6 +34,8 @@ private slots:
     void onButtonFileBOpenClicked();
     void onButtonBoxAccepted();
     void onButtonBoxRejected();
+    void onSetCurrentAChanged(Qt::CheckState state);
+    void onSetCurrentBChanged(Qt::CheckState state);
 
 private:
     std::unique_ptr<Ui::DiffLoadDialog> ui;

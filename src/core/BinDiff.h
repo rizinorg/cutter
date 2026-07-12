@@ -46,6 +46,10 @@ signals:
 private:
     std::unique_ptr<CutterDiff> cutterDiff;
     RzAnalysisMatchResult *result;
+    void sortFunctions();
+    QList<BinDiffMatchDescription> matchedList;
+    QSet<const RzAnalysisFunction *> removedSet;
+    QSet<const RzAnalysisFunction *> addedSet;
     bool continueRun;
     size_t maxTotal;
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)

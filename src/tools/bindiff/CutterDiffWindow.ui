@@ -102,7 +102,7 @@
         </sizepolicy>
        </property>
        <property name="currentIndex">
-        <number>4</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tabMatches">
         <attribute name="title">
@@ -110,7 +110,17 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="CutterTreeView" name="treeViewMatches"/>
+          <widget class="CutterTreeView" name="treeViewMatches">
+           <property name="indentation">
+            <number>0</number>
+           </property>
+           <property name="rootIsDecorated">
+            <bool>false</bool>
+           </property>
+           <property name="expandsOnDoubleClick">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -120,7 +130,17 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="CutterTreeView" name="treeViewAdded"/>
+          <widget class="CutterTreeView" name="treeViewAdded">
+           <property name="indentation">
+            <number>0</number>
+           </property>
+           <property name="rootIsDecorated">
+            <bool>false</bool>
+           </property>
+           <property name="expandsOnDoubleClick">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -130,7 +150,17 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <widget class="CutterTreeView" name="treeViewRemoved"/>
+          <widget class="CutterTreeView" name="treeViewRemoved">
+           <property name="indentation">
+            <number>0</number>
+           </property>
+           <property name="rootIsDecorated">
+            <bool>false</bool>
+           </property>
+           <property name="expandsOnDoubleClick">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -265,7 +295,7 @@
                 </attribute>
                 <layout class="QVBoxLayout" name="verticalLayout_5">
                  <item>
-                  <widget class="QLabel" name="label_4">
+                  <widget class="QLabel" name="labelInfoB">
                    <property name="text">
                     <string>INFO A</string>
                    </property>
@@ -491,7 +521,7 @@
                   </layout>
                  </item>
                  <item>
-                  <widget class="QLabel" name="label_3">
+                  <widget class="QLabel" name="labelInfoA">
                    <property name="text">
                     <string>INFO B</string>
                    </property>

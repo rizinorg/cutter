@@ -3,7 +3,7 @@
  <class>DiffWaitDialog</class>
  <widget class="QDialog" name="DiffWaitDialog">
   <property name="windowModality">
-   <enum>Qt::NonModal</enum>
+   <enum>Qt::WindowModality::NonModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -20,16 +20,16 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string notr="false">Performing binary diffing</string>
+   <string>Performing binary diffing</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="sizeConstraint">
-    <enum>QLayout::SetMinimumSize</enum>
+    <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
    </property>
    <item>
     <layout class="QVBoxLayout" name="mainVerticalLayout">
      <property name="sizeConstraint">
-      <enum>QLayout::SetMinimumSize</enum>
+      <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
      </property>
      <item>
       <widget class="QProgressBar" name="progressBar">
@@ -105,10 +105,10 @@
      <item>
       <widget class="QDialogButtonBox" name="buttonBox">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel</set>
+        <set>QDialogButtonBox::StandardButton::Cancel</set>
        </property>
       </widget>
      </item>
