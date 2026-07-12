@@ -31,52 +31,6 @@
      <property name="sizeConstraint">
       <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
      </property>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="lineEditFileB"/>
-     </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="buttonFileAOpen">
-       <property name="text">
-        <string>Select</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QPushButton" name="buttonFileBOpen">
-       <property name="text">
-        <string>Select</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="comboBoxAnalysis"/>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEditFileA"/>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="labelFileB">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can load a previous saved diff instead of performing a new diff scan.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="text">
-        <string>File 2(required)</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="labelAnalysisLevel">
-       <property name="text">
-        <string>Analysis Level</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="0">
       <widget class="QLabel" name="labelFileA">
        <property name="sizePolicy">
@@ -93,15 +47,75 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="lineEditFileB"/>
+     </item>
+     <item row="5" column="0">
       <widget class="QLabel" name="labelCompareLogic">
        <property name="text">
         <string>Compare Logic</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="5" column="1">
       <widget class="QComboBox" name="comboBoxCompare"/>
+     </item>
+     <item row="4" column="1">
+      <widget class="QComboBox" name="comboBoxAnalysis"/>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="labelAnalysisLevel">
+       <property name="text">
+        <string>Analysis Level</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QPushButton" name="buttonFileBOpen">
+       <property name="text">
+        <string>Select</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QCheckBox" name="setCurrentA">
+       <property name="text">
+        <string>Current file</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="labelFileB">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can load a previous saved diff instead of performing a new diff scan.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>File 2(required)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="buttonFileAOpen">
+       <property name="text">
+        <string>Select</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="lineEditFileA"/>
+     </item>
+     <item row="3" column="1">
+      <widget class="QCheckBox" name="setCurrentB">
+       <property name="text">
+        <string>Current file</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

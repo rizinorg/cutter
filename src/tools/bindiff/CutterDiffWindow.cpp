@@ -66,7 +66,7 @@ QVariant FunctionListModel::data(const QModelIndex &index, int role) const
         case Name:
             return list->at(index.row()).name;
         case Offset:
-            return list->at(index.row()).offset;
+            return rzAddressString(list->at(index.row()).offset);
         default:
             return "unknown";
         }
@@ -75,7 +75,7 @@ QVariant FunctionListModel::data(const QModelIndex &index, int role) const
         case Name:
             return list->at(index.row()).name;
         case Offset:
-            return list->at(index.row()).offset;
+            return rzAddressString(list->at(index.row()).offset);
         default:
             return "unknown";
         }
@@ -242,11 +242,33 @@ QColor DiffMatchModel::gradientByRatio(const double ratio) const
 }
 
 DiffMismatchModel::DiffMismatchModel(QList<FunctionDescription> *list, QObject *parent)
-    : QAbstractListModel(parent), list(list)
+    : AddressableItemModel(parent), list(list)
 {
 }
 
 DiffMismatchModel::~DiffMismatchModel() {}
+
+QModelIndex DiffMismatchModel::index(int row, int column, const QModelIndex &parent) const
+{
+    if (parent.isValid()) {
+        return QModelIndex();
+    }
+
+    if (row < 0 || row >= list->size()) {
+        return QModelIndex();
+    }
+
+    if (column < 0 || column >= ColumnCount) {
+        return QModelIndex();
+    }
+
+    return createIndex(row, column);
+}
+
+QModelIndex DiffMismatchModel::parent(const QModelIndex &) const
+{
+    return QModelIndex();
+}
 
 int DiffMismatchModel::rowCount(const QModelIndex &) const
 {
@@ -329,6 +351,11 @@ QVariant DiffMismatchModel::headerData(int section, Qt::Orientation, int role) c
     }
 }
 
+RVA DiffMismatchModel::address(const QModelIndex &index) const
+{
+    return list->at(index.row()).offset;
+}
+
 CutterDiffWindow::CutterDiffWindow(std::unique_ptr<BinDiff> bDiff, QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::CutterDiffWindow),
@@ -343,8 +370,8 @@ CutterDiffWindow::CutterDiffWindow(std::unique_ptr<BinDiff> bDiff, QWidget *pare
             &CutterDiffWindow::showContextMenuMatches);
     connect(ui->treeViewMatches, &CutterTreeView::clicked, this, &CutterDiffWindow::selectFunction);
     // connect(bDiff, &BinDiff::complete, this, &CutterDiffWindow::onBinDiffCompleted);
-    // connect(ui->actionDiffNewFiles, &QAction::triggered, this,
-    //         &CutterDiffWindow::onActionDiffNewFile);
+    connect(ui->actionDiffNewFiles, &QAction::triggered, this,
+            &CutterDiffWindow::onActionDiffNewFile);
     ui->tabParsing->hide();
     setupFonts();
     showMaximized();
@@ -376,28 +403,43 @@ void CutterDiffWindow::showContextMenuMatches(const QPoint &pos)
 
     if (selected == seekTo) {
         if (index.column() < DiffMatchModel::AddressMod) {
-            hexDiff->seek(addr.first);
+            seekAndShowHexDiff({ addr.first, RVA_INVALID });
         } else {
-            hexDiff->seek(addr.second, false);
+            seekAndShowHexDiff({ RVA_INVALID, addr.second });
         }
-        ui->tabWidget->setCurrentIndex(3);
     } else if (selected == goToAndAlign) {
-        if (addr.first > addr.second) {
-            hexDiff->transpose(0, -static_cast<int>(addr.first - addr.second), true);
-        } else {
-            hexDiff->transpose(0, static_cast<int>(addr.second - addr.first), true);
-        }
-        ui->tabWidget->setCurrentIndex(3);
-        hexDiff->seek(addr.first);
+        seekAndShowHexDiff(addr);
     } else if (selected == diffFunctionLines) {
         lineDiff->fetchFunctionDisas(addr.first, addr.second);
         ui->tabWidget->setCurrentIndex(4);
     } else if (selected == copyAddress) {
         if (index.column() < DiffMatchModel::AddressMod) {
-            QApplication::clipboard()->setText(QString::number(addr.first));
+            QApplication::clipboard()->setText(rzAddressString(addr.first));
         } else {
-            QApplication::clipboard()->setText(QString::number(addr.second));
+            QApplication::clipboard()->setText(rzAddressString(addr.second));
         }
+    }
+}
+
+void CutterDiffWindow::seekAndShowHexDiff(QPair<RVA, RVA> addr)
+{
+    if (!hexDiff) {
+        return;
+    }
+    ui->tabWidget->setCurrentIndex(3);
+    if (addr.first == RVA_INVALID && addr.second == RVA_INVALID) {
+        return;
+    }
+
+    if (addr.second == RVA_INVALID) {
+        hexDiff->seek(addr.first, true);
+    } else if (addr.first == RVA_INVALID) {
+        hexDiff->seek(addr.second, false);
+    } else {
+        const int transpose = addr.first > addr.second ? -static_cast<int>(addr.first - addr.second)
+                                                       : static_cast<int>(addr.second - addr.first);
+        hexDiff->transpose(0, transpose, true);
+        hexDiff->seek(addr.first);
     }
 }
 
@@ -438,15 +480,41 @@ void CutterDiffWindow::showDiff()
     modelA = new FunctionListModel(&fcnsA, this);
     modelB = new FunctionListModel(&fcnsB, this);
 
+    const QFontMetrics fm(ui->fcnsALabel->font());
     ui->treeViewFcnsA->setModel(modelA);
-    ui->fcnsALabel->setText(cutterDiff->getFileName(true));
+    ui->fcnsALabel->setText(
+            fm.elidedText(cutterDiff->getFileName(true), Qt::ElideRight, ui->fcnsALabel->width()));
+    ui->labelInfoA->setText(
+            fm.elidedText(cutterDiff->getFileName(true), Qt::ElideRight, ui->labelInfoA->width()));
     ui->treeViewFcnsB->setModel(modelB);
-    ui->fcnsBLabel->setText(cutterDiff->getFileName(false));
+    ui->fcnsBLabel->setText(
+            fm.elidedText(cutterDiff->getFileName(false), Qt::ElideRight, ui->fcnsBLabel->width()));
+    ui->labelInfoB->setText(
+            fm.elidedText(cutterDiff->getFileName(false), Qt::ElideRight, ui->labelInfoB->width()));
     addHexDiff();
-    connect(ui->treeViewFcnsA, &CutterTreeView::clicked, this,
-            [this](const QModelIndex &index) { hexDiff->seek(modelA->address(index), true); });
-    connect(ui->treeViewFcnsB, &CutterTreeView::clicked, this,
-            [this](const QModelIndex &index) { hexDiff->seek(modelB->address(index), false); });
+    connect(ui->treeViewFcnsA, &CutterTreeView::clicked, this, [this](const QModelIndex &index) {
+        seekAndShowHexDiff({ modelA->address(index), RVA_INVALID });
+    });
+    connect(ui->treeViewFcnsB, &CutterTreeView::clicked, this, [this](const QModelIndex &index) {
+        seekAndShowHexDiff({ RVA_INVALID, modelB->address(index) });
+    });
+    connect(ui->treeViewAdded, &CutterTreeView::doubleClicked, this,
+            [this](const QModelIndex &index) {
+                seekAndShowHexDiff({ RVA_INVALID, added->address(index) });
+            });
+    connect(ui->treeViewRemoved, &CutterTreeView::doubleClicked, this,
+            [this](const QModelIndex &index) {
+                seekAndShowHexDiff({ RVA_INVALID, removed->address(index) });
+            });
+    connect(ui->treeViewMatches, &CutterTreeView::doubleClicked, this,
+            [this](const QModelIndex &index) {
+                auto addr = matches->address(index);
+                if (index.column() < DiffMatchModel::AddressMod) {
+                    seekAndShowHexDiff({ addr.first, RVA_INVALID });
+                } else {
+                    seekAndShowHexDiff({ RVA_INVALID, addr.second });
+                }
+            });
 
     // Transpose
 
@@ -489,11 +557,12 @@ void CutterDiffWindow::showDiff()
     connect(hexDiff, &HexDiff::selectionChanged, this, &CutterDiffWindow::selectionChanged);
 }
 
-// void CutterDiffWindow::onActionDiffNewFile()
-// {
-//     auto loadDiff = new DiffLoadDialog(bDiff, this);
-//     loadDiff->show();
-// }
+void CutterDiffWindow::onActionDiffNewFile()
+{
+    auto loadDiff = new DiffLoadDialog(parentWidget());
+    loadDiff->show();
+    loadDiff->raise();
+}
 
 void CutterDiffWindow::addHexDiff()
 {

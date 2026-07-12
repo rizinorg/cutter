@@ -534,7 +534,6 @@ private:
     QColor b0x7fColor;
     QColor b0xffColor;
     QColor printableColor;
-    QColor warningColor; // warning Color is used instead of the actual Diff Color
 
     HexdumpRangeDialog rangeDialog;
 

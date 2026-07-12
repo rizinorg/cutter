@@ -66,11 +66,11 @@ void BinDiff::run()
     maxTotal = 1; // maxTotal must be at least 1.
     mutex.unlock();
     cutterDiff->initCores();
+    cutterDiff->syncConfig();
     cutterDiff->openFiles(fileA, fileB);
     cutterDiff->analyzeCores(level);
-    cutterDiff->syncConfig();
     result = cutterDiff->matchFunctions(compareLogic, threadCallback, this);
-
+    sortFunctions();
     mutex.lock();
     const bool canComplete = continueRun;
     mutex.unlock();
@@ -99,52 +99,71 @@ static void setFunctionDescription(FunctionDescription *desc, const RzAnalysisFu
     desc->stackframe = func->maxstack;
 }
 
-QList<BinDiffMatchDescription> BinDiff::matches()
+void BinDiff::sortFunctions()
 {
-    QList<BinDiffMatchDescription> pairs;
+    if (!result) {
+        return;
+    }
+    // Get similar pairs injectively
     const RzAnalysisMatchPair *pair = nullptr;
     const RzListIter *it = nullptr;
     const RzAnalysisFunction *fcnA = nullptr;
     const RzAnalysisFunction *fcnB = nullptr;
 
-    if (!result) {
-        return pairs;
-    }
+    QHash<const RzAnalysisFunction *, int> matchedHash;
 
     CutterRzListForeach (result->matches, it, RzAnalysisMatchPair, pair) {
         BinDiffMatchDescription desc;
         fcnA = static_cast<const RzAnalysisFunction *>(pair->pair_a);
         fcnB = static_cast<const RzAnalysisFunction *>(pair->pair_b);
+        auto it = matchedHash.find(fcnB);
+        if (it == matchedHash.end()) {
+            setFunctionDescription(&desc.original, fcnA);
+            setFunctionDescription(&desc.modified, fcnB);
 
-        setFunctionDescription(&desc.original, fcnA);
-        setFunctionDescription(&desc.modified, fcnB);
+            desc.simtype = RZ_ANALYSIS_SIMILARITY_TYPE_STR(pair->similarity);
+            desc.similarity = pair->similarity;
 
-        desc.simtype = RZ_ANALYSIS_SIMILARITY_TYPE_STR(pair->similarity);
-        desc.similarity = pair->similarity;
-
-        pairs.push_back(desc);
+            matchedList.push_back(desc);
+            matchedHash[fcnB] = matchedList.size() - 1;
+            if (removedSet.contains(fcnA)) {
+                removedSet.remove(fcnA);
+            }
+        } else {
+            if (matchedList[it.value()].similarity < pair->similarity) {
+                setFunctionDescription(&matchedList[it.value()].original, fcnA);
+                matchedList[it.value()].simtype = RZ_ANALYSIS_SIMILARITY_TYPE_STR(pair->similarity);
+                matchedList[it.value()].similarity = pair->similarity;
+                removedSet.insert(it.key());
+                matchedHash.remove(it.key());
+            } else {
+                removedSet.insert(fcnA);
+            }
+        }
     }
+    const RzAnalysisFunction *func = nullptr;
 
-    return pairs;
+    CutterRzListForeach (result->unmatch_a, it, RzAnalysisFunction, func) {
+        removedSet.insert(func);
+    }
+    CutterRzListForeach (result->unmatch_b, it, RzAnalysisFunction, func) {
+        addedSet.insert(func);
+    }
+}
+
+QList<BinDiffMatchDescription> BinDiff::matches()
+{
+    return matchedList;
 }
 
 QList<FunctionDescription> BinDiff::mismatch(bool originalFile)
 {
     QList<FunctionDescription> list;
-    if (!result) {
-        return list;
-    }
-
-    const RzAnalysisFunction *func = nullptr;
-    const RzList *unmatch = originalFile ? result->unmatch_a : result->unmatch_b;
-    const RzListIter *it = nullptr;
-
-    CutterRzListForeach (unmatch, it, RzAnalysisFunction, func) {
+    for (const RzAnalysisFunction *func : (originalFile ? removedSet : addedSet)) {
         FunctionDescription desc;
         setFunctionDescription(&desc, func);
         list.push_back(desc);
     }
-
     return list;
 }
 

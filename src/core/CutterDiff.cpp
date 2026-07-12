@@ -32,6 +32,15 @@ bool CutterDiff::initCores()
     coreA = rz_core_new();
     coreB = rz_core_new();
 
+    // reassigning console to the main cutter core till the context based console is ready
+    {
+        RzCoreLocked core(Core());
+        core->cons->line->user = core;
+        core->cons->line->cb_fkey = core->cons->cb_fkey;
+        core->cons->user_fgets_user = core;
+        rz_core_bind_cons(core);
+    }
+
     if (!(coreA || coreB)) {
         goto fail;
     }
@@ -41,6 +50,7 @@ bool CutterDiff::initCores()
 
     coreA->print->scr_prompt = false;
     coreB->print->scr_prompt = false;
+
     return true;
 fail:
     qWarning() << "Core initialization has failed undefined behaviour expected.";
@@ -87,7 +97,6 @@ bool CutterDiff::openFiles(const QString &fileA, const QString &fileB)
     filePathB = fileB;
     fileNameA = QFileInfo(filePathA).fileName();
     fileNameB = QFileInfo(filePathB).fileName();
-    syncConfig();
     return true;
 fail:
     rz_core_file_close_all_but(coreA);
