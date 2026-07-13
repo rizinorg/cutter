@@ -104,20 +104,25 @@ void BinDiff::sortFunctions()
     if (!result) {
         return;
     }
+    struct MatchEntry
+    {
+        const RzAnalysisFunction *fcnA;
+        long long int index;
+    };
     // Get similar pairs injectively
     const RzAnalysisMatchPair *pair = nullptr;
     const RzListIter *it = nullptr;
     const RzAnalysisFunction *fcnA = nullptr;
     const RzAnalysisFunction *fcnB = nullptr;
 
-    QHash<const RzAnalysisFunction *, int> matchedHash;
+    QHash<const RzAnalysisFunction *, MatchEntry> matchesByB;
 
     CutterRzListForeach (result->matches, it, RzAnalysisMatchPair, pair) {
         BinDiffMatchDescription desc;
         fcnA = static_cast<const RzAnalysisFunction *>(pair->pair_a);
         fcnB = static_cast<const RzAnalysisFunction *>(pair->pair_b);
-        auto it = matchedHash.find(fcnB);
-        if (it == matchedHash.end()) {
+        auto it = matchesByB.find(fcnB);
+        if (it == matchesByB.end()) {
             setFunctionDescription(&desc.original, fcnA);
             setFunctionDescription(&desc.modified, fcnB);
 
@@ -125,17 +130,18 @@ void BinDiff::sortFunctions()
             desc.similarity = pair->similarity;
 
             matchedList.push_back(desc);
-            matchedHash[fcnB] = matchedList.size() - 1;
+            matchesByB[fcnB] = MatchEntry { fcnA, matchedList.size() - 1 };
             if (removedSet.contains(fcnA)) {
                 removedSet.remove(fcnA);
             }
         } else {
-            if (matchedList[it.value()].similarity < pair->similarity) {
-                setFunctionDescription(&matchedList[it.value()].original, fcnA);
-                matchedList[it.value()].simtype = RZ_ANALYSIS_SIMILARITY_TYPE_STR(pair->similarity);
-                matchedList[it.value()].similarity = pair->similarity;
-                removedSet.insert(it.key());
-                matchedHash.remove(it.key());
+            if (matchedList[it.value().index].similarity < pair->similarity) {
+                setFunctionDescription(&matchedList[it.value().index].original, fcnA);
+                matchedList[it.value().index].simtype =
+                        RZ_ANALYSIS_SIMILARITY_TYPE_STR(pair->similarity);
+                matchedList[it.value().index].similarity = pair->similarity;
+                removedSet.insert(it.value().fcnA);
+                matchesByB.remove(it.value().fcnA);
             } else {
                 removedSet.insert(fcnA);
             }
