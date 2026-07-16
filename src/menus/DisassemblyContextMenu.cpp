@@ -740,8 +740,8 @@ void DisassemblyContextMenu::exportDisassemblyTriggered()
     QFileDialog dialog(parentForDialog(), tr("Export Disassembly"));
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setNameFilter(tr("Text file (*.txt)"));
-    dialog.setDefaultSuffix("txt");
+    dialog.setNameFilters({ tr("Assembly (*.asm *.S)"), tr("All files (*)") });
+    dialog.setDefaultSuffix("asm");
     if (!dialog.exec()) {
         return;
     }
@@ -755,7 +755,8 @@ void DisassemblyContextMenu::exportDisassemblyTriggered()
     TempConfig tempConfig;
     tempConfig.set("scr.color", 0);
 
-    const QString disassembly = Core()->cmdRawAt("pdf", funcStart);
+    const ut64 size = Core()->getFunctionSize(funcStart);
+    const QString disassembly = Core()->cmdRawAt(QString("pD %1").arg(size), funcStart);
 
     QTextStream fileOut(&file);
     fileOut << disassembly;
@@ -1041,7 +1042,7 @@ void DisassemblyContextMenu::editFunctionTriggered()
                 rz_analysis_function_set_cc(core->analysis, fcn, newCC.constData());
             }
 
-            emit Core()->functionsChanged();
+            emit Core() -> functionsChanged();
         }
     }
 }

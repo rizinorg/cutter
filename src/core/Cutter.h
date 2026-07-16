@@ -254,6 +254,12 @@ public:
      */
     RVA getFunctionEnd(RVA addr);
     /**
+     * @brief gets the linear size of a function at a given address
+     * @param addr - an address which belongs to a function
+     * @returns if function exists, return its linear size in bytes. Otherwise return 0
+     */
+    ut64 getFunctionSize(RVA addr);
+    /**
      * @brief finds the last instruction of a function in a given address
      * @param addr - an address which belongs to a function
      * @returns if function exists, return the address of its last instruction. Otherwise return
