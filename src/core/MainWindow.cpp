@@ -1785,9 +1785,8 @@ void MainWindow::onActionImportPdbTriggered()
     }
 }
 
-void MainWindow::onActionExportDisassemblyTriggered()
+void MainWindow::exportDisassembly(RVA funcStart)
 {
-    const RVA funcStart = Core()->getFunctionStart(Core()->getOffset());
     if (funcStart == RVA_INVALID) {
         qWarning() << "No function at current offset.";
         return;
@@ -1808,14 +1807,34 @@ void MainWindow::onActionExportDisassemblyTriggered()
         return;
     }
 
-    TempConfig tempConfig;
-    tempConfig.set("scr.color", 0);
-
     const ut64 size = Core()->getFunctionSize(funcStart);
-    const QString disassembly = Core()->cmdRawAt(QString("pD %1").arg(size), funcStart);
+    if (size == 0) {
+        qWarning() << "Function size is 0.";
+        return;
+    }
+
+    const QString disassembly = Core()->getFunctionExecOut(
+            [size](RzCore *core) {
+                ut8 *buf = static_cast<ut8 *>(malloc(size));
+                if (!buf) {
+                    return false;
+                }
+                rz_io_read_at_mapped(core->io, core->offset, buf, size);
+                RzCoreDisasmOptions options = {};
+                options.cbytes = 1;
+                rz_core_print_disasm(core, core->offset, buf, size, 0, nullptr, &options);
+                free(buf);
+                return true;
+            },
+            funcStart);
 
     QTextStream fileOut(&file);
     fileOut << disassembly;
+}
+
+void MainWindow::onActionExportDisassemblyTriggered()
+{
+    exportDisassembly(Core()->getFunctionStart(Core()->getOffset()));
 }
 
 void MainWindow::onActionExportAsCodeTriggered()

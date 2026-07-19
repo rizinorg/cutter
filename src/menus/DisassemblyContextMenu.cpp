@@ -737,29 +737,9 @@ void DisassemblyContextMenu::exportDisassemblyTriggered()
         return;
     }
 
-    QFileDialog dialog(parentForDialog(), tr("Export Disassembly"));
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setNameFilters({ tr("Assembly (*.asm *.S)"), tr("All files (*)") });
-    dialog.setDefaultSuffix("asm");
-    if (!dialog.exec()) {
-        return;
+    if (mainWindow) {
+        mainWindow->exportDisassembly(funcStart);
     }
-
-    QFile file(dialog.selectedFiles()[0]);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qWarning() << tr("Can't open file");
-        return;
-    }
-
-    TempConfig tempConfig;
-    tempConfig.set("scr.color", 0);
-
-    const ut64 size = Core()->getFunctionSize(funcStart);
-    const QString disassembly = Core()->cmdRawAt(QString("pD %1").arg(size), funcStart);
-
-    QTextStream fileOut(&file);
-    fileOut << disassembly;
 }
 
 void DisassemblyContextMenu::addBreakpointTriggered() const
