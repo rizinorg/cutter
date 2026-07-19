@@ -1814,15 +1814,15 @@ void MainWindow::exportDisassembly(RVA funcStart)
     }
 
     const QString disassembly = Core()->getFunctionExecOut(
-            [size](RzCore *core) {
+            [funcStart, size](RzCore *core) {
                 ut8 *buf = static_cast<ut8 *>(malloc(size));
                 if (!buf) {
                     return false;
                 }
-                rz_io_read_at_mapped(core->io, core->offset, buf, size);
+                rz_io_read_at_mapped(core->io, funcStart, buf, size);
                 RzCoreDisasmOptions options = {};
                 options.cbytes = 1;
-                rz_core_print_disasm(core, core->offset, buf, size, 0, nullptr, &options);
+                rz_core_print_disasm(core, funcStart, buf, size, 0, nullptr, &options);
                 free(buf);
                 return true;
             },
