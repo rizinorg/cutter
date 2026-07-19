@@ -19,6 +19,8 @@ class DisassemblyContextMenu;
 class DisassemblyLeftPanel;
 class AddressRangeScrollBar;
 
+enum class RefreshMode : ut8 { Append, Prepend, Reset, Keep, None };
+
 /**
  * @brief Main widget for showing disassembly of a binary
  *
@@ -33,48 +35,67 @@ public:
 
     static QString getWidgetType();
 
+    QFontMetricsF getFontMetrics();
+    QList<DisassemblyLine> getLines();
+
+    int getStartIndex() const;
+    int getEndIndex() const;
+
+    /**
+     * @brief Updates the offset and character position where the cursor selection ends
+     */
+    void updateSelectionPos(const QTextCursor &cursor);
+
+    /**
+     * @brief Updates the offset and character position where the cursor selection starts
+     */
+    void updateSelectionAnchor(const QTextCursor &cursor);
+
 public slots:
     /**
      * @brief Highlights the currently selected line and updates the
      * highlighting of the same words under the cursor in the visible screen.
-     * This overrides all previous highlighting.
+     * @return List of selections to be highlighted
      */
-    void highlightCurrentLine();
+    QList<QTextEdit::ExtraSelection> highlightCurrentLine();
     /**
      * @brief Adds the PC line highlighting to the other current highlighting.
-     * This should be called after highlightCurrentLine since that function
-     * overrides all previous highlighting.
+     * This is generally called after highlightCurrentLine
+     * @return List of selections to be highlighted
      */
-    void highlightPCLine();
+    QList<QTextEdit::ExtraSelection> highlightPCLine();
     void showDisasContextMenu(const QPoint &pt);
     void fontsUpdatedSlot();
     void colorsUpdatedSlot();
     void scrollInstructions(int count, bool clampToScrollBarRange = false);
     void seekPrev();
     void setPreviewMode(bool previewMode);
-    QFontMetricsF getFontMetrics();
-    QList<DisassemblyLine> getLines();
 
     /**
      * @brief Forces the transient vertical scrollbar to appear on scroll
      */
     void showTransientScrollBar();
+
+    void refreshDisasm(RVA offset = RVA_INVALID, RefreshMode mode = RefreshMode::Reset);
+
 protected slots:
     void onSeekChanged(RVA offset, CutterCore::SeekHistoryType type);
     void refreshIfInRange(RVA offset);
     void instructionChanged(RVA offset);
-    void refreshDisasm(RVA offset = RVA_INVALID);
 
     bool updateMaxLines();
 
     void cursorPositionChanged();
+    /**
+     * @brief Copies the currently highlighted disassembly text to the system clipboard
+     */
+    void copySelection();
 
 protected:
     DisassemblyContextMenu *mCtxMenu;
     DisassemblyScrollArea *mDisasScrollArea;
     DisassemblyTextEdit *mDisasTextEdit;
     DisassemblyLeftPanel *leftPanel;
-    QList<DisassemblyLine> lines;
 
 private:
     RVA topOffset;
@@ -101,7 +122,31 @@ private:
     int topOffsetHistoryPos = 0;
     QList<RVA> topOffsetHistory;
 
+    int startIndex = 0;
+    int endIndex = 0;
+    QList<DisassemblyLine> lines;
+
+    // Cursor selection related
+    RVA selectionAnchorRVA = RVA_INVALID;
+    /**
+     * @brief metadata lines attached to instruction have the same offset as the instruction itself,
+     * this keeps track of which metdata line the cursor was at inside the offset block
+     */
+    int selectionAnchorSubIndex = 0;
+    int selectionAnchorChar = 0;
+    RVA selectionPosRVA = RVA_INVALID;
+    /**
+     * @brief same use-case as @ref selectionAnchorSubIndex but for cursor position instead if
+     * anchor
+     */
+    int selectionPosSubIndex = 0;
+    int selectionPosChar = 0;
+
     QList<RVA> breakpoints;
+    /**
+     * @brief Set whenever breakpoints have been updated or the screen has been manually refreshed
+     */
+    bool breakpointsDirty = true;
 
     void setupFonts();
     void setupColors();
@@ -110,9 +155,53 @@ private:
 
     void connectCursorPositionChanged(bool disconnect);
 
-    void moveCursorRelative(bool up, bool page);
+    void moveCursorRelative(QTextCursor::MoveOperation op, bool page);
 
     void jumpToOffsetUnderCursor(const QTextCursor &);
+
+    /**
+     * @brief Visually highlights the text on screen between the selection start (anchor) and the
+     * current cursor position
+     */
+    void updateSelection();
+    void updateContextMenuSelection(bool hasSelection);
+
+    /**
+     * @brief Finds the visual line number in the current view for a specific offset
+     * @param offset The memory address (RVA) to look for
+     * @param offsetSubIndex The specific sub-line to target if the instructions has metadata
+     * attached to it
+     * @return The index of the line, or -1 if not found
+     *
+     * @see DisassemblyHelper::getIndexInOffsetGroup()
+     */
+    int getLineIndex(RVA offset, int offsetSubIndex) const;
+    /**
+     * @brief Refreshes the background colors in the disassembly view.
+     * It applies highlights to both the line currently under the user's cursor and the Program
+     * Counter (PC) line.
+     */
+    void updateLineHighlights();
+    /**
+     * @brief Clears the current text selection so nothing is highlighted as selected
+     */
+    void invalidateCursorSelection();
+
+    /**
+     * @brief Metadata lines attached to an instruction have the same offset saved with it as the
+     * instruction, This function returns the index of the current line within that offset
+     * group/block
+     *      * e.g:
+     *      * @code
+     * ; a comment
+     * ; another comment     <------ assume cursor is here
+     * ; void func1()
+     * 0x1000 mov rax, rax
+     * @endcode
+     *
+     * Then the returned index is "1"
+     */
+    int getIndexInOffsetGroup(const QTextCursor &cursor) const;
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea
@@ -142,23 +231,30 @@ class DisassemblyTextEdit : public QPlainTextEdit
     Q_OBJECT
 
 public:
-    explicit DisassemblyTextEdit(QWidget *parent = nullptr)
-        : QPlainTextEdit(parent), lockScroll(false)
-    {
-    }
+    explicit DisassemblyTextEdit(DisassemblyWidget *disasmWidget = nullptr);
 
     void setLockScroll(bool lock) { this->lockScroll = lock; }
 
     qreal textOffset() const;
+
+    void setCursorVisible(bool visible);
 
 protected:
     bool viewportEvent(QEvent *event) override;
     void scrollContentsBy(int dx, int dy) override;
     void keyPressEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
+
+    void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
     bool lockScroll;
+    QTimer *blinkTimer;
+    bool cursorVisible = true;
+    QColor cursorColor;
+
+    DisassemblyWidget *disasmWidget = nullptr;
 };
 
 /**

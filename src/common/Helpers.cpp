@@ -4,18 +4,54 @@
 
 #include <QAbstractButton>
 #include <QAbstractItemView>
+#include <QAbstractTextDocumentLayout>
 #include <QComboBox>
 #include <QCryptographicHash>
 #include <QDockWidget>
 #include <QFileInfo>
+#include <QFontMetricsF>
 #include <QMenu>
 #include <QPlainTextEdit>
 #include <QString>
+#include <QTextBlock>
 #include <QTextEdit>
 #include <QTreeWidget>
 #include <QtCore>
 
 #include <cmath>
+
+namespace {
+template<typename TextEditType>
+int calculateMaxDisplayedLines(TextEditType *textEdit)
+{
+    qreal lineHeight = 0;
+    const QTextBlock firstBlock = textEdit->document()->begin();
+    if (firstBlock.isValid()) {
+        lineHeight = textEdit->document()->documentLayout()->blockBoundingRect(firstBlock).height();
+    }
+
+    if (lineHeight <= 0) {
+        const QFontMetricsF fm(textEdit->font());
+        lineHeight = fm.lineSpacing();
+    }
+
+    qreal availableHeight = textEdit->viewport()->height();
+    const qreal margin = textEdit->document()->documentMargin();
+    availableHeight -= margin;
+
+    const qreal exactLines = availableHeight / lineHeight;
+    const qreal floorValue = std::floor(exactLines);
+    const qreal fractionalPart = exactLines - floorValue;
+
+    // If the last line is more than 15% visible then count it, otherwise leave it
+    // avoids the issue where there is empty space at the bottom of a textedit widget
+    if (fractionalPart >= 0.15) {
+        return std::ceil(availableHeight / lineHeight);
+    }
+
+    return floorValue;
+}
+}
 
 namespace qhelpers {
 
@@ -174,20 +210,12 @@ void SizePolicyMinMax::restoreHeight(QWidget *widget) const
 
 int getMaxFullyDisplayedLines(QTextEdit *textEdit)
 {
-    const QFontMetrics fontMetrics(textEdit->document()->defaultFont());
-    return (textEdit->height()
-            - (textEdit->contentsMargins().top() + textEdit->contentsMargins().bottom()
-               + (int)(textEdit->document()->documentMargin() * 2)))
-            / fontMetrics.lineSpacing();
+    return calculateMaxDisplayedLines(textEdit);
 }
 
 int getMaxFullyDisplayedLines(QPlainTextEdit *plainTextEdit)
 {
-    const QFontMetrics fontMetrics(plainTextEdit->document()->defaultFont());
-    return (plainTextEdit->height()
-            - (plainTextEdit->contentsMargins().top() + plainTextEdit->contentsMargins().bottom()
-               + (int)(plainTextEdit->document()->documentMargin() * 2)))
-            / fontMetrics.lineSpacing();
+    return calculateMaxDisplayedLines(plainTextEdit);
 }
 
 QByteArray applyColorToSvg(const QByteArray &data, QColor color)

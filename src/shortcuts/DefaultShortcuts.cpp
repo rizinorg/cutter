@@ -215,6 +215,10 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
           { { Qt::Key_Space },
             QT_TRANSLATE_NOOP("DisassemblyWidget", "Switch to Graph"),
             "DisassemblyWidget" } },
+        { "Disassembly.moveLeft",
+          { QList<QKeySequence> { Qt::Key_H }
+                    + QKeySequence::keyBindings(QKeySequence::MoveToPreviousChar),
+            QT_TRANSLATE_NOOP("DisassemblyWidget", "Move Cursor Down"), "DisassemblyWidget" } },
         { "Disassembly.moveDown",
           { QList<QKeySequence> { Qt::Key_J }
                     + QKeySequence::keyBindings(QKeySequence::MoveToNextLine),
@@ -222,6 +226,10 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
         { "Disassembly.moveUp",
           { QList<QKeySequence> { Qt::Key_K }
                     + QKeySequence::keyBindings(QKeySequence::MoveToPreviousLine),
+            QT_TRANSLATE_NOOP("DisassemblyWidget", "Move Cursor Up"), "DisassemblyWidget" } },
+        { "Disassembly.moveRight",
+          { QList<QKeySequence> { Qt::Key_L }
+                    + QKeySequence::keyBindings(QKeySequence::MoveToNextChar),
             QT_TRANSLATE_NOOP("DisassemblyWidget", "Move Cursor Up"), "DisassemblyWidget" } },
         { "Disassembly.pageDown",
           { QKeySequence::keyBindings(QKeySequence::MoveToNextPage),
