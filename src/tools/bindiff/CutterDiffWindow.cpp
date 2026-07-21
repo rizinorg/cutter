@@ -410,7 +410,7 @@ void CutterDiffWindow::showContextMenuMatches(const QPoint &pos)
     } else if (selected == goToAndAlign) {
         seekAndShowHexDiff(addr);
     } else if (selected == diffFunctionLines) {
-        lineDiff->fetchFunctionDisas(addr.first, addr.second);
+        lineDiff->fetchFunctionDisasSplit(addr.first, addr.second);
         ui->tabWidget->setCurrentIndex(4);
     } else if (selected == copyAddress) {
         if (index.column() < DiffMatchModel::AddressMod) {

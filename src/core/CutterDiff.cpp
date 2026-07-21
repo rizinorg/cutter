@@ -482,6 +482,25 @@ RzDiff *CutterDiff::lineDiff(const QString &lines1, const QString &lines2)
 
 CutterRzList<RzList /*<RzDiffOp*>*/> CutterDiff::lineDiffOpsGrouped(RzDiff *diff) const
 {
-    auto *groups = rz_diff_unified_text_grouped(diff);
+    auto *groups = rz_diff_opcodes_grouped_new(diff, 2);
     return CutterRzList<RzList /*<RzDiffOp *>*/>(groups);
+}
+
+Bound CutterDiff::getLineDiffBounds(const QString &line1, const QString &line2)
+{
+    if (line1.size() != line2.size()) {
+        return { 0, 0 };
+    }
+
+    int first = 0;
+    while (first < line1.size() && line1[first] == line2[first]) {
+        ++first;
+    }
+
+    int last = line1.size() - 1;
+    while (last >= first && line1[last] == line2[last]) {
+        --last;
+    }
+
+    return { first, last - first + 1 };
 }
