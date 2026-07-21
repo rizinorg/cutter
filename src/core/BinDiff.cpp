@@ -99,54 +99,69 @@ static void setFunctionDescription(FunctionDescription *desc, const RzAnalysisFu
     desc->stackframe = func->maxstack;
 }
 
+struct MatchEntry
+{
+    const RzAnalysisFunction *fcnA;
+    const RzAnalysisFunction *fcnB;
+    double similarity;
+};
+
 void BinDiff::sortFunctions()
 {
     if (!result) {
         return;
     }
-    struct MatchEntry
-    {
-        const RzAnalysisFunction *fcnA;
-        long long int index;
-    };
-    // Get similar pairs injectively
+
+    matchedList.clear();
+    removedSet.clear();
+    addedSet.clear();
+
+    QHash<const RzAnalysisFunction *, MatchEntry> bestMatches;
+    QSet<const RzAnalysisFunction *> discardedA;
+
     const RzAnalysisMatchPair *pair = nullptr;
     const RzListIter *it = nullptr;
-    const RzAnalysisFunction *fcnA = nullptr;
-    const RzAnalysisFunction *fcnB = nullptr;
-
-    QHash<const RzAnalysisFunction *, MatchEntry> matchesByB;
 
     CutterRzListForeach (result->matches, it, RzAnalysisMatchPair, pair) {
-        BinDiffMatchDescription desc;
-        fcnA = static_cast<const RzAnalysisFunction *>(pair->pair_a);
-        fcnB = static_cast<const RzAnalysisFunction *>(pair->pair_b);
-        auto it = matchesByB.find(fcnB);
-        if (it == matchesByB.end()) {
-            setFunctionDescription(&desc.original, fcnA);
-            setFunctionDescription(&desc.modified, fcnB);
 
-            desc.simtype = RZ_ANALYSIS_SIMILARITY_TYPE_STR(pair->similarity);
-            desc.similarity = pair->similarity;
+        auto *fcnA = static_cast<const RzAnalysisFunction *>(pair->pair_a);
+        auto *fcnB = static_cast<const RzAnalysisFunction *>(pair->pair_b);
 
-            matchedList.push_back(desc);
-            matchesByB[fcnB] = MatchEntry { fcnA, matchedList.size() - 1 };
-            if (removedSet.contains(fcnA)) {
-                removedSet.remove(fcnA);
-            }
+        auto hashIt = bestMatches.find(fcnB);
+
+        if (hashIt == bestMatches.end()) {
+            bestMatches.insert(fcnB, { fcnA, fcnB, pair->similarity });
+            continue;
+        }
+
+        if (pair->similarity > hashIt->similarity) {
+
+            discardedA.insert(hashIt->fcnA);
+
+            discardedA.remove(fcnA);
+
+            hashIt->fcnA = fcnA;
+            hashIt->similarity = pair->similarity;
         } else {
-            if (matchedList[it.value().index].similarity < pair->similarity) {
-                setFunctionDescription(&matchedList[it.value().index].original, fcnA);
-                matchedList[it.value().index].simtype =
-                        RZ_ANALYSIS_SIMILARITY_TYPE_STR(pair->similarity);
-                matchedList[it.value().index].similarity = pair->similarity;
-                removedSet.insert(it.value().fcnA);
-                matchesByB.remove(it.value().fcnA);
-            } else {
-                removedSet.insert(fcnA);
-            }
+
+            discardedA.insert(fcnA);
         }
     }
+
+    for (const auto &entry : std::as_const(bestMatches)) {
+
+        BinDiffMatchDescription desc;
+
+        setFunctionDescription(&desc.original, entry.fcnA);
+        setFunctionDescription(&desc.modified, entry.fcnB);
+
+        desc.similarity = entry.similarity;
+        desc.simtype = RZ_ANALYSIS_SIMILARITY_TYPE_STR(entry.similarity);
+
+        matchedList.push_back(std::move(desc));
+    }
+    removedSet = std::move(discardedA);
+
     const RzAnalysisFunction *func = nullptr;
 
     CutterRzListForeach (result->unmatch_a, it, RzAnalysisFunction, func) {

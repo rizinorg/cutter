@@ -11,6 +11,12 @@
 
 class CutterDiffLocked;
 
+struct Bound
+{
+    int pos;
+    int size;
+};
+
 class CUTTER_EXPORT CutterDiff : public QObject
 {
     Q_OBJECT
@@ -65,6 +71,7 @@ public:
     CutterRzList<RzList /*<RzDiffOp *>*/> lineDiffOpsGrouped(RzDiff *diff) const;
     QString getFileName(bool orig = true) const { return orig ? fileNameA : fileNameB; }
     QString getFilePath(bool orig = true) const { return orig ? filePathA : filePathB; }
+    Bound getLineDiffBounds(const QString &line1, const QString &line2);
 
 private:
     RzCore *coreA = nullptr;

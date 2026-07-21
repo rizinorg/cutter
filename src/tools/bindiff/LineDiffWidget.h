@@ -1,7 +1,11 @@
 #ifndef LINEDIFFWIDGET_H
 #define LINEDIFFWIDGET_H
 
+#include <QAction>
+#include <QComboBox>
 #include <QPlainTextEdit>
+#include <QSplitter>
+#include <QTextBlock>
 #include <QWidget>
 
 #include <CutterDiff.h>
@@ -16,13 +20,21 @@ class LineDiffWidget : public QWidget
 public:
     explicit LineDiffWidget(CutterDiff *cutterDiff, QWidget *parent = nullptr);
     ~LineDiffWidget();
-    void fetchFunctionDisas(RVA addrA, RVA addrB);
+    void fetchFunctionDisasSplit(RVA addrA, RVA addrB);
+    void balanceLines();
+    void setUpFonts();
 
 protected:
+private slots:
+    void onViewModeChanged();
+
 private:
     CutterDiff *cutterDiff;
     DiffTextEdit *leftEdit;
     DiffTextEdit *rightEdit;
+    DiffTextEdit *unifiedEdit;
+    QComboBox *viewSelector;
+    QSplitter *splitViewSplitter;
 };
 
 class DiffTextEdit : public QPlainTextEdit
@@ -34,7 +46,9 @@ public:
     ~DiffTextEdit();
     int lineNumberAreaWidth() const;
     void lineNumberAreaPaintEvent(QPaintEvent *event);
-    void insertFormatted(const QString &text, const QColor &color);
+    void insertFormatted(const QString &text, const QColor &color = QColor());
+    void insertBounded(const QString &text, const QColor &color, const Bound bound);
+    void setUpFont(const QFont &font);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -44,6 +58,8 @@ private slots:
 private:
     LineNumberArea *lineNumberArea;
     void highlightCurrentLine();
+    const QTextCharFormat defaultFormat = textCursor().charFormat();
+    QTextBlock highlightedBlock;
 };
 
 class LineNumberArea : public QWidget
