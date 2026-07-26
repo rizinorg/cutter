@@ -731,14 +731,14 @@ void DisassemblyContextMenu::copyInstrBytesTriggered() const
 
 void DisassemblyContextMenu::exportDisassemblyTriggered()
 {
-    const RVA funcStart = Core()->getFunctionStart(offset);
-    if (funcStart == RVA_INVALID) {
+    const RVA funcMinAddr = Core()->getFunctionMinAddr(offset);
+    if (funcMinAddr == RVA_INVALID) {
         qWarning() << "No function at current offset.";
         return;
     }
 
     if (mainWindow) {
-        mainWindow->exportDisassembly(funcStart);
+        mainWindow->exportDisassembly(funcMinAddr);
     }
 }
 

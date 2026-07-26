@@ -73,7 +73,7 @@ public:
 
     explicit MainWindow(QWidget *parent = nullptr);
 
-    void exportDisassembly(RVA funcStart);
+    void exportDisassembly(RVA funcMinAddr);
     ~MainWindow() override;
 
     void openNewFile(InitialOptions &options, bool skipOptionsDialog = false);
