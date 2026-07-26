@@ -282,6 +282,12 @@ void DecompilerWidget::doRefresh()
     mCtxMenu->setDecompiledFunctionAddress(decompiledFunctionAddr);
     connect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
     decompilerBusy = true;
+
+    if (!scrollHistory.empty() && previousFunctionAddr == decompiledFunctionAddr) {
+        scrollHistory[historyPos] = { ui->textEdit->horizontalScrollBar()->sliderPosition(),
+                                      ui->textEdit->verticalScrollBar()->sliderPosition() };
+    }
+
     dec->decompileAt(addr);
 }
 
