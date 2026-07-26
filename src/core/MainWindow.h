@@ -360,6 +360,7 @@ private:
     int functionDockWidthToRestore = 0;
     QList<MemoryWidgetType> widgetSwitchHistory;
     int widgetSwitchHistoryPos = -1;
+    bool restoringWidgetSwitch = false;
 };
 
 #endif // MAINWINDOW_H

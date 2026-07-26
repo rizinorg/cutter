@@ -1128,9 +1128,17 @@ void MainWindow::setCurrentMemoryWidget(MemoryDockWidget *memoryWidget)
     if (memoryWidget->getSeekable()->isSynchronized()) {
         lastSyncMemoryWidget = memoryWidget;
     }
+
+    bool typeChanged = false;
+    if (lastMemoryWidget && lastMemoryWidget->getType() != memoryWidget->getType()) {
+        typeChanged = true;
+    }
+
     lastMemoryWidget = memoryWidget;
 
-    if (widgetSwitchHistoryPos >= 0 && widgetSwitchHistoryPos < widgetSwitchHistory.size()) {
+    if (!restoringWidgetSwitch && Config()->getGlobalWidgetSwitchHistory() && typeChanged) {
+        Core()->pushSeekHistory();
+    } else if (widgetSwitchHistoryPos >= 0 && widgetSwitchHistoryPos < widgetSwitchHistory.size()) {
         widgetSwitchHistory[widgetSwitchHistoryPos] = memoryWidget->getType();
     }
 }
@@ -2097,14 +2105,18 @@ void MainWindow::onSeekChanged(RVA /*offset*/, CutterCore::SeekHistoryType type)
         if (widgetSwitchHistoryPos > 0) {
             widgetSwitchHistoryPos--;
             if (Config()->getGlobalWidgetSwitchHistory()) {
+                restoringWidgetSwitch = true;
                 forceShowMemoryWidget(widgetSwitchHistory[widgetSwitchHistoryPos]);
+                restoringWidgetSwitch = false;
             }
         }
     } else if (type == CutterCore::SeekHistoryType::Redo) {
         if (widgetSwitchHistoryPos + 1 < widgetSwitchHistory.size()) {
             widgetSwitchHistoryPos++;
             if (Config()->getGlobalWidgetSwitchHistory()) {
+                restoringWidgetSwitch = true;
                 forceShowMemoryWidget(widgetSwitchHistory[widgetSwitchHistoryPos]);
+                restoringWidgetSwitch = false;
             }
         }
     }
