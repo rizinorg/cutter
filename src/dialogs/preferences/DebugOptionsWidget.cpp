@@ -16,26 +16,42 @@ DebugOptionsWidget::DebugOptionsWidget(PreferencesDialog *dialog)
 {
     ui->setupUi(this);
 
+    connect(ui->traceContinue, &QCheckBox::toggled, this, [this](bool checked) {
+        Config()->setConfig("dbg.trace_continue", checked);
+        this->debugOptionsChanged();
+    });
+
+    connect(ui->esilBreakOnInvalid, &QCheckBox::toggled, this, [this](bool checked) {
+        Config()->setConfig("esil.breakoninvalid", checked);
+        this->debugOptionsChanged();
+    });
+
+    connect(ui->stackAddr, &QLineEdit::editingFinished, this, &DebugOptionsWidget::updateStackAddr);
+    connect(ui->stackSize, &QLineEdit::editingFinished, this, &DebugOptionsWidget::updateStackSize);
+
     updateDebugPlugin();
 
     connect(ui->pluginComboBox, &QComboBox::currentTextChanged, this,
             &DebugOptionsWidget::onDebugPluginChanged);
+
+    connect(Core(), &CutterCore::debugOptionsChanged, this, &DebugOptionsWidget::updateDebugPlugin);
 }
 
 DebugOptionsWidget::~DebugOptionsWidget() {}
 
 void DebugOptionsWidget::updateDebugPlugin()
 {
-    ui->traceContinue->setChecked(Config()->getConfigBool("dbg.trace_continue"));
-    connect(ui->traceContinue, &QCheckBox::toggled, this,
-            [](bool checked) { Config()->setConfig("dbg.trace_continue", checked); });
-    ui->esilBreakOnInvalid->setChecked(Config()->getConfigBool("esil.breakoninvalid"));
-    connect(ui->esilBreakOnInvalid, &QCheckBox::toggled, this,
-            [](bool checked) { Config()->setConfig("esil.breakoninvalid", checked); });
+    qhelpers::setCheckedWithoutSignals(ui->traceContinue,
+                                       Config()->getConfigBool("dbg.trace_continue"));
+
+    qhelpers::setCheckedWithoutSignals(ui->esilBreakOnInvalid,
+                                       Config()->getConfigBool("esil.breakoninvalid"));
 
     disconnect(ui->pluginComboBox, &QComboBox::currentTextChanged, this,
                &DebugOptionsWidget::onDebugPluginChanged);
 
+    ui->pluginComboBox->blockSignals(true);
+    ui->pluginComboBox->clear();
     const QStringList plugins = Core()->getDebugPlugins();
     for (const QString &str : plugins) {
         ui->pluginComboBox->addItem(str);
@@ -43,6 +59,7 @@ void DebugOptionsWidget::updateDebugPlugin()
 
     const QString plugin = Core()->getActiveDebugPlugin();
     ui->pluginComboBox->setCurrentText(plugin);
+    ui->pluginComboBox->blockSignals(false);
 
     connect(ui->pluginComboBox, &QComboBox::currentTextChanged, this,
             &DebugOptionsWidget::onDebugPluginChanged);
@@ -53,13 +70,13 @@ void DebugOptionsWidget::updateDebugPlugin()
     const QString stackAddr = Core()->getConfig("esil.stack.addr");
     ui->stackAddr->setText(stackAddr);
     ui->stackAddr->setPlaceholderText(stackAddr);
-    connect(ui->stackAddr, &QLineEdit::editingFinished, this, &DebugOptionsWidget::updateStackAddr);
-    connect(ui->stackSize, &QLineEdit::editingFinished, this, &DebugOptionsWidget::updateStackSize);
 }
 
 void DebugOptionsWidget::onDebugPluginChanged(const QString &plugin)
 {
     Core()->setDebugPlugin(plugin);
+
+    this->debugOptionsChanged();
 }
 
 void DebugOptionsWidget::updateStackSize()
@@ -67,6 +84,8 @@ void DebugOptionsWidget::updateStackSize()
     const QString newSize = ui->stackSize->text();
     Core()->setConfig("esil.stack.size", newSize);
     ui->stackSize->setPlaceholderText(newSize);
+
+    this->debugOptionsChanged();
 }
 
 void DebugOptionsWidget::updateStackAddr()
@@ -74,4 +93,14 @@ void DebugOptionsWidget::updateStackAddr()
     const QString newAddr = ui->stackAddr->text();
     Core()->setConfig("esil.stack.addr", newAddr);
     ui->stackAddr->setPlaceholderText(newAddr);
+
+    this->debugOptionsChanged();
+}
+
+void DebugOptionsWidget::debugOptionsChanged() const
+{
+    disconnect(Core(), &CutterCore::debugOptionsChanged, this,
+               &DebugOptionsWidget::updateDebugPlugin);
+    Core()->triggerDebugOptionsChanged();
+    connect(Core(), &CutterCore::debugOptionsChanged, this, &DebugOptionsWidget::updateDebugPlugin);
 }

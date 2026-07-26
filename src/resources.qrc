@@ -132,5 +132,8 @@
         <file>img/icons/layout_white.svg</file>
         <file>img/icons/layout.svg</file>
         <file>img/icons/light/layout.svg</file>
+        <file>img/icons/rizin.svg</file>
+        <file>img/icons/rizin_light.svg</file>
+        <file>img/icons/light/rizin.svg</file>
     </qresource>
 </RCC>

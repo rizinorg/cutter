@@ -95,7 +95,7 @@ jobs:
         unset CMAKE_VERSION
         unset GIT_VERSION
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
         persist-credentials: false
@@ -288,22 +288,16 @@ jobs:
       with:
         name: ${{ env.PACKAGE_NAME }}
         path: ${{ env.PACKAGE_PATH }}
-    - name: Get release
-      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-      id: get_release
-      uses: rizinorg/gha-get-release@c8074dd5d13ddd0a194d8c9205a1466973c7dc0d
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Upload release assets
-      if: steps.get_release.outputs.upload_url != null && env.PACKAGE_NAME != null
-      uses: actions/upload-release-asset@v1.0.2
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') && env.PACKAGE_NAME != null
+      uses: softprops/action-gh-release@v3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ${{ env.PACKAGE_PATH }}
-          asset_name: ${{ env.PACKAGE_NAME }}
-          asset_content_type: ${{ env.UPLOAD_ASSET_TYPE }}
+        files: ${{ env.PACKAGE_PATH }}
+        draft: true
+
     - name: Set output
       id: output_setup
       if: ${{ matrix.name == 'linux-x86_64' }}
@@ -341,7 +335,7 @@ jobs:
       # Prevent one job from pausing the rest
       fail-fast: false
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
         persist-credentials: false
@@ -373,23 +367,15 @@ jobs:
       with:
         name: ${{ steps.build.outputs.PACKAGE_NAME }}
         path: ${{ steps.build.outputs.PACKAGE_PATH }}
-    - name: Get release
-      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-      id: get_release
-      uses: rizinorg/gha-get-release@c8074dd5d13ddd0a194d8c9205a1466973c7dc0d
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Upload release assets
-      if: steps.get_release.outputs.upload_url != null && env.PACKAGE_NAME != null
-      uses: actions/upload-release-asset@v1.0.2
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') && env.PACKAGE_NAME != null
+      uses: softprops/action-gh-release@v3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ${{ env.PACKAGE_PATH }}
-          asset_name: ${{ env.PACKAGE_NAME }}
-          asset_content_type: ${{ env.UPLOAD_ASSET_TYPE }}
-
+        files: ${{ env.PACKAGE_PATH }}
+        draft: true
 
   build:
     name: ${{ matrix.name }}
@@ -411,7 +397,7 @@ jobs:
             python-version: 3.12.x
             output-id: artifact_windows
           - name: macos-x86_64
-            os: macos-14
+            os: macos-15-intel # Must be an x86_64 image: https://github.com/actions/runner-images#available-images
             arch: x86_64
             package: true
           - name: macos-arm64
@@ -422,7 +408,7 @@ jobs:
       # Prevent one job from pausing the rest
       fail-fast: false
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
         persist-credentials: false
@@ -538,7 +524,7 @@ jobs:
           -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON ^
           -DCMAKE_PREFIX_PATH="%CUTTER_DEPS%\pyside" ^
           -DCPACK_PACKAGE_FILE_NAME=%PACKAGE_NAME% ^
-          -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ^
+          -DCMAKE_TOOLCHAIN_FILE=%VCPKG_INSTALLATION_ROOT%/scripts/buildsystems/vcpkg.cmake ^
           -G Ninja ^
           ..
         cmake --build . --config Release
@@ -551,22 +537,15 @@ jobs:
       with:
         name: ${{ env.PACKAGE_NAME }}
         path: ${{ env.PACKAGE_PATH }}
-    - name: Get release
-      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-      id: get_release
-      uses: rizinorg/gha-get-release@c8074dd5d13ddd0a194d8c9205a1466973c7dc0d
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Upload release assets
-      if: steps.get_release.outputs.upload_url != null && env.PACKAGE_NAME != null
-      uses: actions/upload-release-asset@v1.0.2
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') && env.PACKAGE_NAME != null
+      uses: softprops/action-gh-release@v3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ${{ env.PACKAGE_PATH }}
-          asset_name: ${{ env.PACKAGE_NAME }}
-          asset_content_type: ${{ env.UPLOAD_ASSET_TYPE }}
+        files: ${{ env.PACKAGE_PATH }}
+        draft: true
 
     - name: Set output
       if: matrix.output-id != ''
@@ -604,7 +583,7 @@ jobs:
             artifact-output: artifact_windows
       fail-fast: false
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         path: 'cutter-src-tmp'
         persist-credentials: false
@@ -625,7 +604,7 @@ jobs:
         pwd
 
     - name: Download cutter build
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: ${{ needs[matrix.artifact-job].outputs[matrix.artifact-output] || 'bad_id2' }}
     - name: build-linux

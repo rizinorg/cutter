@@ -349,11 +349,14 @@ void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale, b
 
         p.setBrush(Qt::gray);
 
-        // Always draw edges
-        // TODO: Only draw edges if they are actually visible ...
         // Draw edges
         for (GraphEdge &edge : block.edges) {
             if (edge.polyline.empty()) {
+                continue;
+            }
+            // Skips expensive polyline and arrow rendering if the edge's bounding box
+            // is completely outside the current viewport.
+            if (!edge.polyline.boundingRect().adjusted(-1, -1, 1, 1).intersects(windowF)) {
                 continue;
             }
             const QPolygonF polyline = edge.polyline;

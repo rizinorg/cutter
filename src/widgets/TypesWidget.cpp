@@ -7,6 +7,7 @@
 #include "shortcuts/ShortcutManager.h"
 #include "ui_TypesWidget.h"
 
+#include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QIcon>
 #include <QMenu>
@@ -52,10 +53,12 @@ QVariant TypesModel::data(const QModelIndex &index, int role) const
             return exp.type;
         case SIZE:
             return exp.size ? exp.size : QVariant();
-        case FORMAT:
-            return exp.format;
         case CATEGORY:
             return exp.category;
+        case TYPE_CLASS:
+            return exp.typeClass == "None" ? QVariant() : exp.typeClass;
+        case FORMAT:
+            return exp.format;
         default:
             return QVariant();
         }
@@ -77,10 +80,12 @@ QVariant TypesModel::headerData(int section, Qt::Orientation, int role) const
             return tr("Type / Name");
         case SIZE:
             return tr("Size");
-        case FORMAT:
-            return tr("Format");
         case CATEGORY:
             return tr("Category");
+        case TYPE_CLASS:
+            return tr("Type Class");
+        case FORMAT:
+            return tr("Format");
         default:
             return QVariant();
         }
@@ -139,6 +144,11 @@ bool TypesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIn
         return leftExp.format < rightExp.format;
     case TypesModel::CATEGORY:
         return leftExp.category < rightExp.category;
+    case TypesModel::TYPE_CLASS: {
+        const QString left = leftExp.typeClass == "None" ? "" : leftExp.typeClass;
+        const QString right = rightExp.typeClass == "None" ? "" : rightExp.typeClass;
+        return left < right;
+    }
     default:
         break;
     }
@@ -194,23 +204,46 @@ TypesWidget::TypesWidget(MainWindow *main)
         ui->quickFilterView->setItemCount(typesProxyModel->rowCount());
     });
 
-    actionViewType = new QAction(tr("View Type"), this);
-    actionEditType = new QAction(tr("Edit Type"), this);
-    actionShowVariables = new QAction(tr("Show Variables and Globals of this Type"), this);
+    actionDeleteType = Shortcuts()->makeAction("Types.delete", this);
+    actionDeleteType->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    this->addAction(actionDeleteType);
 
-    connect(actionViewType, &QAction::triggered, [this]() { viewType(true); });
+    actionEditType = Shortcuts()->makeAction("Types.edit", this);
+    actionEditType->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    this->addAction(actionEditType);
+
+    actionExportTypes = Shortcuts()->makeAction("Types.export", this);
+    actionExportTypes->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    this->addAction(actionExportTypes);
+
+    actionLoadNewTypes = Shortcuts()->makeAction("Types.load", this);
+    actionLoadNewTypes->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    this->addAction(actionLoadNewTypes);
+
+    actionRenameType = Shortcuts()->makeAction("Types.rename", this);
+    actionRenameType->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    this->addAction(actionRenameType);
+
+    actionShowUsages = Shortcuts()->makeAction("Types.showUsages", this);
+    actionShowUsages->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    this->addAction(actionShowUsages);
+
+    actionViewType = Shortcuts()->makeAction("Types.view", this);
+    actionViewType->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    this->addAction(actionViewType);
+
+    connect(actionDeleteType, &QAction::triggered, this, &TypesWidget::onActionDeleteTypeTriggered);
     connect(actionEditType, &QAction::triggered, [this]() { viewType(false); });
+    connect(actionExportTypes, &QAction::triggered, this,
+            &TypesWidget::onActionExportTypesTriggered);
+    connect(actionLoadNewTypes, &QAction::triggered, this,
+            &TypesWidget::onActionLoadNewTypesTriggered);
+    connect(actionRenameType, &QAction::triggered, this, &TypesWidget::onActionRenameTypeTriggered);
+    connect(actionShowUsages, &QAction::triggered, [this]() { showUsages(); });
+    connect(actionViewType, &QAction::triggered, [this]() { viewType(true); });
+
     connect(ui->typesTreeView, &QTreeView::doubleClicked, this,
             &TypesWidget::typeItemDoubleClicked);
-
-    connect(actionShowVariables, &QAction::triggered, [this]() { showVariables(); });
-
-    connect(ui->actionExportTypes, &QAction::triggered, this,
-            &TypesWidget::onActionExportTypesTriggered);
-    connect(ui->actionLoadNewTypes, &QAction::triggered, this,
-            &TypesWidget::onActionLoadNewTypesTriggered);
-    connect(ui->actionDeleteType, &QAction::triggered, this,
-            &TypesWidget::onActionDeleteTypeTriggered);
 }
 
 TypesWidget::~TypesWidget() {}
@@ -258,25 +291,54 @@ void TypesWidget::showTypesContextMenu(const QPoint &pt)
     const QModelIndex index = ui->typesTreeView->indexAt(pt);
 
     QMenu menu(ui->typesTreeView);
-    menu.addAction(ui->actionLoadNewTypes);
+
+    // Menu is separated like this:
+    // 1. Global actions
+    // 2. Item actions (view, rename..)
+    // 3. Destructive actions (delete)
+
+    menu.addAction(actionLoadNewTypes);
+    menu.addAction(actionExportTypes);
 
     if (index.isValid()) {
-        const auto t = index.data(TypesModel::typeDescriptionRole).value<TypeDescription>();
+        menu.addSeparator();
+        menu.addAction(actionRenameType);
+        auto t = index.data(TypesModel::typeDescriptionRole).value<TypeDescription>();
         if (t.category != "Primitive") {
             // Add "Link To Address" option
-            menu.addAction(actionViewType);
             menu.addAction(actionEditType);
-            menu.addAction(actionShowVariables);
+            menu.addAction(actionShowUsages);
+            menu.addAction(actionViewType);
+        }
+
+        auto *typeClassMenu = new QMenu(tr("Set Type Class"), this);
+        for (const auto &typeClass : Core()->getAllTypeClasses()) {
+            auto action = new QAction(typeClass, this);
+            connect(action, &QAction::triggered, this, [t, typeClass, index, this] {
+                const QModelIndex sourceIndex = typesProxyModel->mapToSource(index);
+                if (!sourceIndex.isValid() || t.typeClass == typeClass) {
+                    return;
+                }
+
+                Core()->setTypeClass(t.type, typeClass);
+                auto newType = t;
+                newType.typeClass = typeClass;
+                typesModel->types[sourceIndex.row()] = newType;
+                emit typesModel->dataChanged(index, index);
+            });
+            typeClassMenu->addAction(action);
+        }
+
+        if (!typeClassMenu->actions().isEmpty()) {
+            menu.addMenu(typeClassMenu);
         }
     }
-
-    menu.addAction(ui->actionExportTypes);
 
     if (index.isValid()) {
         const auto t = index.data(TypesModel::typeDescriptionRole).value<TypeDescription>();
         if (t.category != "Typedef") {
             menu.addSeparator();
-            menu.addAction(ui->actionDeleteType);
+            menu.addAction(actionDeleteType);
         }
     }
 
@@ -364,6 +426,47 @@ void TypesWidget::onActionDeleteTypeTriggered()
     }
 }
 
+void TypesWidget::onActionRenameTypeTriggered()
+{
+    const QModelIndex proxyIndex = ui->typesTreeView->currentIndex();
+    if (!proxyIndex.isValid()) {
+        return;
+    }
+    const QModelIndex index = typesProxyModel->mapToSource(proxyIndex);
+    if (!index.isValid()) {
+        return;
+    }
+
+    auto exp = index.data(TypesModel::typeDescriptionRole).value<TypeDescription>();
+
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("Rename %1").arg(exp.type));
+
+    auto *lineEdit = new QLineEdit(&dialog);
+    lineEdit->setText(exp.type);
+    lineEdit->selectAll();
+    auto *buttonBox =
+            new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+    auto *layout = new QVBoxLayout(&dialog);
+    layout->addWidget(lineEdit);
+    layout->addWidget(buttonBox);
+    dialog.setFixedSize(350, dialog.sizeHint().height());
+
+    connect(buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+    if (dialog.exec() == QDialog::Accepted) {
+        const QString result = lineEdit->text();
+        if (result.isEmpty() || result == exp.type) {
+            return;
+        }
+        Core()->renameType(exp.type, result);
+        exp.type = result;
+        typesModel->types[index.row()] = exp;
+        emit typesModel->dataChanged(index, index);
+    }
+}
+
 void TypesWidget::typeItemDoubleClicked(const QModelIndex &index)
 {
     if (!index.isValid()) {
@@ -381,7 +484,7 @@ void TypesWidget::typeItemDoubleClicked(const QModelIndex &index)
     dialog.exec();
 }
 
-void TypesWidget::showVariables()
+void TypesWidget::showUsages()
 {
     const QModelIndex index = ui->typesTreeView->currentIndex();
 

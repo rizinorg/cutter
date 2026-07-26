@@ -215,6 +215,10 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
           { { Qt::Key_Space },
             QT_TRANSLATE_NOOP("DisassemblyWidget", "Switch to Graph"),
             "DisassemblyWidget" } },
+        { "Disassembly.moveLeft",
+          { QList<QKeySequence> { Qt::Key_H }
+                    + QKeySequence::keyBindings(QKeySequence::MoveToPreviousChar),
+            QT_TRANSLATE_NOOP("DisassemblyWidget", "Move Cursor Down"), "DisassemblyWidget" } },
         { "Disassembly.moveDown",
           { QList<QKeySequence> { Qt::Key_J }
                     + QKeySequence::keyBindings(QKeySequence::MoveToNextLine),
@@ -222,6 +226,10 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
         { "Disassembly.moveUp",
           { QList<QKeySequence> { Qt::Key_K }
                     + QKeySequence::keyBindings(QKeySequence::MoveToPreviousLine),
+            QT_TRANSLATE_NOOP("DisassemblyWidget", "Move Cursor Up"), "DisassemblyWidget" } },
+        { "Disassembly.moveRight",
+          { QList<QKeySequence> { Qt::Key_L }
+                    + QKeySequence::keyBindings(QKeySequence::MoveToNextChar),
             QT_TRANSLATE_NOOP("DisassemblyWidget", "Move Cursor Up"), "DisassemblyWidget" } },
         { "Disassembly.pageDown",
           { QKeySequence::keyBindings(QKeySequence::MoveToNextPage),
@@ -336,6 +344,34 @@ const QHash<QString, Shortcut> &getDefaultShortcuts()
           { { Qt::CTRL | Qt::Key_O },
             QT_TRANSLATE_NOOP("SearchBarWidget", "Show Search Bar Options Menu"),
             "SearchBarWidget" } },
+
+        // Types
+        { "Types.delete",
+          { { Qt::SHIFT | Qt::Key_D },
+            QT_TRANSLATE_NOOP("TypesWidget", "Delete"),
+            "TypesWidget" } },
+        { "Types.edit",
+          { { Qt::SHIFT | Qt::Key_E }, QT_TRANSLATE_NOOP("TypesWidget", "Edit"), "TypesWidget" } },
+        { "Types.export",
+          { { Qt::SHIFT | Qt::Key_X },
+            QT_TRANSLATE_NOOP("TypesWidget", "Export Types"),
+            "TypesWidget" } },
+        { "Types.load",
+          { { Qt::SHIFT | Qt::Key_L },
+            QT_TRANSLATE_NOOP("TypesWidget", "Load New Types"),
+            "TypesWidget" } },
+        { "Types.rename",
+          { { Qt::SHIFT | Qt::Key_R },
+            QT_TRANSLATE_NOOP("TypesWidget", "Rename"),
+            "TypesWidget" } },
+        { "Types.showUsages",
+          { { Qt::SHIFT | Qt::Key_U },
+            QT_TRANSLATE_NOOP("TypesWidget", "Show Usages"),
+            "TypesWidget" } },
+        { "Types.view",
+          { { QKeySequence(Qt::Key_Return), QKeySequence(Qt::SHIFT | Qt::Key_V) },
+            QT_TRANSLATE_NOOP("TypesWidget", "View"),
+            "TypesWidget" } },
 
         // Docking
         { "Docking.toggle",

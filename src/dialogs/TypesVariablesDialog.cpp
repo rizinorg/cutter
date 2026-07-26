@@ -190,23 +190,50 @@ void TypesVariablesDialog::refreshModel(const QString &typeName)
 {
     QList<VariableEntry> newVariables;
 
-    if (!typeName.isEmpty()) {
-        const auto &globals = Core()->getAllGlobals();
-        for (const auto &g : globals) {
-            if (g.type == typeName) {
-                newVariables.append(VariableEntry { g.name, QString("0x%1").arg(g.addr, 0, 16),
-                                                    VariableScope::GLOBAL, "", g.addr });
-            }
-        }
+    if (typeName.isEmpty()) {
+        return;
+    }
 
-        const auto &fcns = Core()->getAllFunctions();
-        for (const auto &f : fcns) {
-            const auto &vars = Core()->getVariables(f.offset);
-            for (const auto &v : vars) {
-                if (v.type == typeName) {
-                    newVariables.append(VariableEntry { v.name, v.value, VariableScope::LOCAL,
-                                                        f.name, f.offset });
-                }
+    auto core = Core()->lock();
+    auto typedb = rz_analysis_get_type_db(core->analysis);
+    if (!typedb) {
+        return;
+    }
+
+    auto parser = typedb->parser;
+    if (!parser) {
+        return;
+    }
+
+    auto selectedType =
+            fromOwned(rz_type_parse_string_single(parser, typeName.toUtf8().constData(), nullptr),
+                      rz_type_free);
+
+    if (!selectedType) {
+        return;
+    }
+
+    const auto &globals = Core()->getAllGlobals();
+    for (const auto &g : globals) {
+        auto globalType =
+                fromOwned(rz_type_parse_string_single(parser, g.type.toUtf8().constData(), nullptr),
+                          rz_type_free);
+        if (rz_types_equal(selectedType.get(), globalType.get())) {
+            newVariables.append(VariableEntry { g.name, rzAddressString(g.addr),
+                                                VariableScope::GLOBAL, "", g.addr });
+        }
+    }
+
+    const auto &fcns = Core()->getAllFunctions();
+    for (const auto &f : fcns) {
+        const auto &vars = Core()->getVariables(f.offset);
+        for (const auto &v : vars) {
+            auto varType = fromOwned(
+                    rz_type_parse_string_single(parser, v.type.toUtf8().constData(), nullptr),
+                    rz_type_free);
+            if (rz_types_equal(selectedType.get(), varType.get())) {
+                newVariables.append(
+                        VariableEntry { v.name, v.value, VariableScope::LOCAL, f.name, f.offset });
             }
         }
     }

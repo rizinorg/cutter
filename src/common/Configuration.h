@@ -245,6 +245,14 @@ public:
     void setPreviewValue(bool checked);
     bool getPreviewValue() const;
 
+    // Strings
+
+    /**
+     * @brief Set whether to show raw strings in @ref StringsWidget
+     */
+    void setShowRawStrings(bool enabled);
+    bool getShowRawStrings() const;
+
     // Tooltip
 
     /**

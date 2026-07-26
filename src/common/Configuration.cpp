@@ -817,6 +817,16 @@ bool Configuration::getPreviewValue() const
     return s.value("asm.preview").toBool();
 }
 
+void Configuration::setShowRawStrings(bool enabled)
+{
+    s.setValue("showRawStrings", enabled);
+}
+
+bool Configuration::getShowRawStrings() const
+{
+    return s.value("showRawStrings", false).toBool();
+}
+
 void Configuration::setShowVarTooltips(bool enabled)
 {
     s.setValue("showVarTooltips", enabled);

@@ -8,7 +8,7 @@
 #include <QToolTip>
 #include <QWidget>
 
-namespace DH = DisassemblyHelper;
+namespace DisHlp = DisassemblyHelper;
 
 QString DisassemblyPreview::getToolTipStyleSheet()
 {
@@ -63,12 +63,12 @@ bool DisassemblyPreview::showDisasPreviewAt(QWidget *parent, const QPoint &point
 }
 
 bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &pointOfEvent,
-                                               const DH::TargetAction &ta,
-                                               const DH::TargetContext &ctx)
+                                               const DisHlp::TargetAction &ta,
+                                               const DisHlp::TargetContext &ctx)
 {
     QString msg;
     switch (ta.type) {
-    case DH::TargetType::Register: {
+    case DisHlp::TargetType::Register: {
         msg = QString("reg %1 = 0x%2").arg(ctx.word).arg(ta.value, 0, 16);
         auto fcn = Core()->functionIn(ta.value);
         if (fcn) {
@@ -76,11 +76,11 @@ bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &po
         }
         break;
     }
-    case DH::TargetType::VariableValue: {
+    case DisHlp::TargetType::VariableValue: {
         msg = QString("var %1 = 0x%2").arg(ctx.word).arg(ta.value, 0, 16);
         break;
     }
-    case DH::TargetType::MMIO: {
+    case DisHlp::TargetType::MMIO: {
         const int len = 8; // TODO: Determine proper len of mmio address for the cpu
         auto core = Core()->lock();
         if (char *r = rz_core_print_hexdump_or_hexdiff_str(core, RZ_OUTPUT_MODE_STANDARD, ta.value,
@@ -90,7 +90,7 @@ bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &po
         }
         break;
     }
-    case DH::TargetType::Memory: {
+    case DisHlp::TargetType::Memory: {
         const ut64 addr = Core()->math(ctx.word.mid(1, ctx.word.length() - 2));
         msg = QString("%1 = 0x%2 -> 0x%3").arg(ctx.word).arg(addr, 0, 16).arg(ta.value, 0, 16);
         break;
@@ -109,13 +109,13 @@ bool DisassemblyPreview::showDebugValueTooltip(QWidget *parent, const QPoint &po
 }
 
 bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
-                                     const DH::TargetContext &ctx, bool hasPreview)
+                                     const DisHlp::TargetContext &ctx, bool hasPreview)
 {
     const bool isWordEmpty = ctx.word.isEmpty();
     if (hasPreview) {
-        auto ta = DH::resolveTarget(ctx, DH::XRefComments | DH::Arrows);
+        auto ta = DisHlp::resolveTarget(ctx, DisHlp::XRefComments | DisHlp::Arrows);
 
-        if (!isWordEmpty && ta.type == DH::TargetType::XRefComment) {
+        if (!isWordEmpty && ta.type == DisHlp::TargetType::XRefComment) {
             if (ta.value != RVA_INVALID) {
                 showDisasPreviewAt(parent, globalPos, ta.value);
             }
@@ -125,7 +125,8 @@ bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
             return true;
         }
 
-        if (ta.type == DH::TargetType::Arrow && showDisasPreviewAt(parent, globalPos, ta.value)) {
+        if (ta.type == DisHlp::TargetType::Arrow
+            && showDisasPreviewAt(parent, globalPos, ta.value)) {
             return true;
         }
 
@@ -136,8 +137,9 @@ bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
 
     if (Config()->getShowVarTooltips() && (Core()->currentlyDebugging || Core()->currentlyEmulating)
         && !isWordEmpty) {
-        auto ta = DH::resolveTarget(ctx, DH::Debug);
-        if (ta.type != DH::TargetType::None && showDebugValueTooltip(parent, globalPos, ta, ctx)) {
+        auto ta = DisHlp::resolveTarget(ctx, DisHlp::Debug);
+        if (ta.type != DisHlp::TargetType::None
+            && showDebugValueTooltip(parent, globalPos, ta, ctx)) {
             return true;
         }
     }

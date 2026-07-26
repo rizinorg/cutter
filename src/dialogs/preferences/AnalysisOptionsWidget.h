@@ -41,6 +41,11 @@ private:
      */
     void createAnalysisInOptionsList();
 
+    /**
+     * @brief emits a signal using Core() indicating that one or more analysis options were changed
+     */
+    void analysisOptionsChanged() const;
+
 private slots:
     /**
      * @brief A slot to display the options in the dialog according to the current analysis.*
@@ -54,7 +59,7 @@ private slots:
      * @param checkBox - The checkbox which is responsible for the signal
      * @param config - the configuration string to be toggled
      */
-    static void checkboxEnabler(QCheckBox *checkbox, const QString &config);
+    void checkboxEnabler(QCheckBox *checkbox, const QString &config);
 
     /**
      * @brief A slot to update the value of analysis.in when a different option is selected
@@ -66,14 +71,14 @@ private slots:
      * @brief A slot to update the value of analysis.ptrdepth when a new value is selected
      * @param value - The new value for analysis.ptrdepth
      */
-    static void updateAnalysisPtrDepth(int value);
+    void updateAnalysisPtrDepth(int value);
 
     /**
      * @brief slot to update the value of analysis.prelude when a new value is introduced in the
      * corresponding textbox
      * @param prelude - The new value for analysis.prelude
      */
-    static void updateAnalysisPrelude(const QString &prelude);
+    void updateAnalysisPrelude(const QString &prelude);
 };
 
 #endif // ANALOPTIONSWIDGET_H
