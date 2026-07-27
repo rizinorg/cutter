@@ -156,16 +156,24 @@ void NewFileDialog::onLoadProjectButtonClicked()
     loadProject(ui->projectFileEdit->text());
 }
 
-void NewFileDialog::onShellcodeButtonClicked()
+QString NewFileDialog::extractShellcodeHex(const QString &shellcode)
 {
-    const QString shellcode = ui->shellcodeText->toPlainText();
-    QString extractedCode = "";
-    static const QRegularExpression rx("([0-9a-f]{2})", QRegularExpression::CaseInsensitiveOption);
+    QString extractedCode;
+    static const QRegularExpression rx("([0-9a-f])", QRegularExpression::CaseInsensitiveOption);
     QRegularExpressionMatchIterator i = rx.globalMatch(shellcode);
     while (i.hasNext()) {
-        const QRegularExpressionMatch match = i.next();
-        extractedCode.append(match.captured(1));
+        extractedCode.append(i.next().captured(1));
     }
+    // Pad a trailing lone nibble so it is not discarded (#2831)
+    if (extractedCode.size() % 2) {
+        extractedCode.append(QLatin1Char('0'));
+    }
+    return extractedCode;
+}
+
+void NewFileDialog::onShellcodeButtonClicked()
+{
+    const QString extractedCode = extractShellcodeHex(ui->shellcodeText->toPlainText());
     const int size = extractedCode.size() / 2;
     if (size > 0) {
         loadShellcode(extractedCode, size);
@@ -427,23 +435,14 @@ void NewFileDialog::onTabWidgetCurrentChanged(int index)
 
 bool NewFileDialog::eventFilter(QObject * /*obj*/, QEvent *event)
 {
-    const QString shellcode = ui->shellcodeText->toPlainText();
-    QString extractedCode = "";
-    static const QRegularExpression rx("([0-9a-f]{2})", QRegularExpression::CaseInsensitiveOption);
-    QRegularExpressionMatchIterator i = rx.globalMatch(shellcode);
-    int size = 0;
-
     if (event->type() == QEvent::KeyPress) {
         const auto *keyEvent = static_cast<QKeyEvent *>(event);
 
         // Confirm comment by pressing Ctrl/Cmd+Return
         if ((keyEvent->modifiers() & Qt::ControlModifier)
             && ((keyEvent->key() == Qt::Key_Enter) || (keyEvent->key() == Qt::Key_Return))) {
-            while (i.hasNext()) {
-                const QRegularExpressionMatch match = i.next();
-                extractedCode.append(match.captured(1));
-            }
-            size = extractedCode.size() / 2;
+            const QString extractedCode = extractShellcodeHex(ui->shellcodeText->toPlainText());
+            const int size = extractedCode.size() / 2;
             if (size > 0) {
                 loadShellcode(extractedCode, size);
             }
