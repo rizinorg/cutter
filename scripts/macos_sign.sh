@@ -108,6 +108,8 @@ resign_dmg() {
 	notarize_bundle Cutter-rw/Cutter.app
 	unmount
 	trap - EXIT
+	# Remove temporary signing space and keep the HFS+ volume consistent.
+	ee hdiutil resize -size min Cutter-rw.dmg
 	OUTPUT="${1%.*}-signed.dmg"
 	echo_step "Creating final read-only ${OUTPUT}"
 	ee hdiutil convert -format UDZO -o "${OUTPUT}" Cutter-rw.dmg
