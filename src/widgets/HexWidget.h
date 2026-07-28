@@ -158,11 +158,14 @@ public:
 
     void fetch(uint64_t address, int length) override
     {
-        // FIXME: reuse data if possible
         const uint64_t blockSize = 0x1000ULL;
         const uint64_t alignedAddr = address & ~(blockSize - 1);
         const int offset = address - alignedAddr;
         int len = (offset + length + (blockSize - 1)) & ~(blockSize - 1);
+
+        uint64_t oldFirstBlockAddr = mFirstBlockAddr;
+        QVector<QByteArray> oldBlocks = mBlocks;
+
         mFirstBlockAddr = alignedAddr;
         mLastValidAddr = length ? alignedAddr + len - 1 : 0;
         if (mLastValidAddr < mFirstBlockAddr) {
@@ -172,6 +175,13 @@ public:
         mBlocks.clear();
         uint64_t addr = alignedAddr;
         for (ut64 i = 0; i < len / blockSize; ++i, addr += blockSize) {
+            if (!oldBlocks.isEmpty() && addr >= oldFirstBlockAddr) {
+                uint64_t oldIdx = (addr - oldFirstBlockAddr) / blockSize;
+                if (oldIdx < static_cast<uint64_t>(oldBlocks.size())) {
+                    mBlocks.append(oldBlocks[static_cast<int>(oldIdx)]);
+                    continue;
+                }
+            }
             mBlocks.append(Core()->ioRead(addr, blockSize));
         }
     }
@@ -234,7 +244,7 @@ public:
         RzCoreLocked core(Core());
         rz_core_write_at(core, adr, in, len);
         writeToCache(in, adr, len);
-        emit Core()->instructionChanged(adr);
+        emit Core() -> instructionChanged(adr);
         return true;
     }
 
