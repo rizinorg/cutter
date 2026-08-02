@@ -53,7 +53,7 @@ endif()
 
 # TODO: This version number should be fetched automatically
 # instead of being hardcoded.
-set (Rizin_VERSION 0.9)
+set (Rizin_VERSION 0.10)
 
 set (RZ_LIBS rz_core rz_config rz_cons rz_io rz_util rz_flag rz_mark rz_arch rz_debug
         rz_hash rz_bin rz_lang rz_il rz_egg rz_reg rz_search rz_syscall

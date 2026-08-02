@@ -187,9 +187,9 @@ public:
         return *this;
     }
     operator bool() { return rzIter && rzIter->cur; }
-    T &operator*() { return *reinterpret_cast<RzCoreDecodedBytes *>(rzIter->cur); }
-    T *get() { return reinterpret_cast<RzCoreDecodedBytes *>(rzIter->cur); }
-    T *operator->() { return reinterpret_cast<RzCoreDecodedBytes *>(rzIter->cur); }
+    T &operator*() { return *reinterpret_cast<T *>(rzIter->cur); }
+    T *get() { return reinterpret_cast<T *>(rzIter->cur); }
+    T *operator->() { return reinterpret_cast<T *>(rzIter->cur); }
 };
 
 #define CutterHtDef(xx, XX, K, VB)                                                                 \
@@ -218,5 +218,7 @@ public:
     };
 
 CutterHtDef(sp, SP, const char *, void *);
+
+QSet<QString> convertRzSetS(const RzSetS *set);
 
 #endif // RIZINCPP_H

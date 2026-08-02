@@ -1187,19 +1187,15 @@ void CutterCore::setConfig(const char *k, const RzInterval &itv)
 void CutterCore::setConfig(const char *k, const QStringList &list)
 {
     CORE_LOCK();
-    RzList *rzList = rz_list_newf(free);
-    if (!rzList) {
+    RzSetS *set = rz_set_s_new(HT_STR_DUP);
+    if (!set) {
         return;
     }
-
     for (const QString &str : list) {
-        char *dupStr = strdup(str.toUtf8().constData());
-        if (dupStr) {
-            rz_list_append(rzList, dupStr);
-        }
+        rz_set_s_add(set, str.toUtf8().constData());
     }
-
-    rz_config_set_list(core->config, k, rzList);
+    rz_config_set_set(core->config, k, set);
+    rz_set_s_free(set);
 }
 
 int CutterCore::getConfigi(const char *k)
@@ -1226,16 +1222,12 @@ RzInterval CutterCore::getConfigItv(const char *k)
     return rz_config_get_interval(core->config, k);
 }
 
-QStringList CutterCore::getConfigList(const char *k)
+QSet<QString> CutterCore::getConfigSet(const char *k)
 {
     CORE_LOCK();
-
-    QStringList res;
-    RzList *list = rz_config_get_list(core->config, k);
-    for (const auto *s : CutterRzList<const char>(list)) {
-        res << QString::fromUtf8(s);
-    }
-    rz_list_free(list);
+    RzSetS *set = rz_config_get_set(core->config, k);
+    QSet<QString> res = convertRzSetS(set);
+    rz_set_s_free(set);
     return res;
 }
 
@@ -1295,18 +1287,18 @@ QString CutterCore::getConfig(const char *k)
     return { rz_config_get(core->config, k) };
 }
 
-QStringList CutterCore::getConfigOptions(const char *k)
+QSet<QString> CutterCore::getConfigOptions(const char *k)
 {
     CORE_LOCK();
     const RzConfigNode *node = rz_config_node_get(core->config, k);
     if (!(node && node->options)) {
         return {};
     }
-    QStringList list;
-    for (const auto &s : CutterRzList<char>(node->options)) {
-        list << s;
+    QSet<QString> res;
+    for (auto it = CutterRzIter<const char *>(rz_set_s_as_iter(node->options)); it; ++it) {
+        res << QString::fromUtf8(*it);
     }
-    return list;
+    return res;
 }
 
 void CutterCore::setConfig(const char *k, const QVariant &v)
@@ -4154,13 +4146,11 @@ QList<EvaluableVarDescription> CutterCore::getAllEvaluableVars()
                 var.type = EvaluableVarDescription::Interval;
                 const RzInterval itv = rz_config_var_get_interval(v);
                 value = QVariant::fromValue(itv);
-            } else if (RZ_CONFIG_VAR_IS_TYPE(flags, RZ_CONFIG_VAR_TYPE_LIST)) {
-                var.type = EvaluableVarDescription::List;
-                const RzList *list = rz_config_var_get_list(v);
-                QStringList stringList;
-                for (const auto *c : CutterRzList<const char>(list)) {
-                    stringList << QString(c);
-                }
+            } else if (RZ_CONFIG_VAR_IS_TYPE(flags, RZ_CONFIG_VAR_TYPE_SET)) {
+                var.type = EvaluableVarDescription::Set;
+                RzSetS *set = rz_config_var_get_set(v);
+                value = QVariant::fromValue(convertRzSetS(set));
+                rz_set_s_free(set);
             }
 
             if (value.isNull()) {
@@ -4168,13 +4158,9 @@ QList<EvaluableVarDescription> CutterCore::getAllEvaluableVars()
             }
             var.value = value;
 
-            const RzList *optionsList = rz_config_var_get_options(v);
-            if (optionsList) {
-                RzListIter *iter;
-                char *option;
-                CutterRzListForeach (optionsList, iter, char, option) {
-                    var.options << QString::fromUtf8(option);
-                }
+            const RzSetS *optionsSet = rz_config_var_get_options(v);
+            if (optionsSet) {
+                var.options = convertRzSetS(optionsSet);
             }
         } else {
             const RzConfigNode *node = &entry->node;
@@ -4189,10 +4175,8 @@ QList<EvaluableVarDescription> CutterCore::getAllEvaluableVars()
 
             var.value = QString::fromUtf8(rz_config_entry_get_as_string(entry));
 
-            RzListIter *iter;
-            char *option;
-            CutterRzListForeach (node->options, iter, char, option) {
-                var.options << QString::fromUtf8(option);
+            if (node->options) {
+                var.options = convertRzSetS(node->options);
             }
         }
 
