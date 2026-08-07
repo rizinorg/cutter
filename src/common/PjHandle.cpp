@@ -2,10 +2,7 @@
 
 #include <rz_util/rz_pj.h>
 
-PjHandle::PjHandle()
-    : m_pj(pj_new())
-{
-}
+PjHandle::PjHandle() : m_pj(pj_new()) {}
 
 PjHandle::~PjHandle()
 {
@@ -14,8 +11,7 @@ PjHandle::~PjHandle()
     }
 }
 
-PjHandle::PjHandle(PjHandle &&other) noexcept
-    : m_pj(other.m_pj)
+PjHandle::PjHandle(PjHandle &&other) noexcept : m_pj(other.m_pj)
 {
     other.m_pj = nullptr;
 }
