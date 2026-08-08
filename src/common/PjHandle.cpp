@@ -4,34 +4,22 @@
 
 PjHandle::PjHandle() : m_pj(pj_new()) {}
 
-PjHandle::~PjHandle()
-{
-    if (m_pj) {
-        pj_free(m_pj);
-    }
-}
+PjHandle::~PjHandle() = default;
 
-PjHandle::PjHandle(PjHandle &&other) noexcept : m_pj(other.m_pj)
-{
-    other.m_pj = nullptr;
-}
+PjHandle::PjHandle(PjHandle &&) noexcept = default;
 
 PjHandle &PjHandle::operator=(PjHandle &&other) noexcept
 {
+    // unique_ptr self move isn't safe, so guarding.
     if (this != &other) {
-        if (m_pj) {
-            pj_free(m_pj);
-        }
-        m_pj = other.m_pj;
-        other.m_pj = nullptr;
+        m_pj = std::move(other.m_pj);
     }
     return *this;
 }
 
 char *PjHandle::drain()
 {
-    PJ *pj = m_pj;
-    m_pj = nullptr;
+    PJ *pj = m_pj.release();
     if (!pj) {
         return nullptr;
     }

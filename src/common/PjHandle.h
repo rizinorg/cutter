@@ -2,6 +2,7 @@
 #define PJHANDLE_H
 
 #include "core/CutterCommon.h"
+#include <memory>
 
 /**
  * @brief RAII handle for a rizin PJ (JSON builder).
@@ -38,7 +39,7 @@ public:
     PjHandle &operator=(PjHandle &&other) noexcept;
 
     explicit operator bool() const { return m_pj != nullptr; }
-    PJ *get() const { return m_pj; }
+    PJ *get() const { return m_pj.get(); }
 
     /**
      * @brief Drain the PJ into its JSON buffer.
@@ -48,7 +49,11 @@ public:
     char *drain();
 
 private:
-    PJ *m_pj;
+    struct Deleter
+    {
+        void operator()(PJ *pj) const { pj_free(pj); }
+    };
+    std::unique_ptr<PJ, Deleter> m_pj;
 };
 
 #endif // PJHANDLE_H
