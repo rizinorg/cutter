@@ -2,6 +2,7 @@
 #define PJHANDLE_H
 
 #include "core/CutterCommon.h"
+
 #include <memory>
 
 /**
