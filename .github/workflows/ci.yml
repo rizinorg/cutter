@@ -223,6 +223,7 @@ jobs:
             -DCUTTER_PACKAGE_RZ_LIBSWIFT=ON \
             -DCUTTER_PACKAGE_RZ_LIBYARA=ON \
             -DCUTTER_PACKAGE_RZ_SILHOUETTE=ON \
+            -DCUTTER_PACKAGE_RZ_FRIDA=ON \
             -DCMAKE_INSTALL_PREFIX=appdir/usr \
             -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON \
             -DCUTTER_QT=${{ matrix.qt-major }} \
@@ -470,6 +471,7 @@ jobs:
                 -DCUTTER_PACKAGE_RZ_LIBSWIFT=ON \
                 -DCUTTER_PACKAGE_RZ_LIBYARA=ON \
                 -DCUTTER_PACKAGE_RZ_SILHOUETTE=ON \
+                -DCUTTER_PACKAGE_RZ_FRIDA=ON \
                 -DCPACK_PACKAGE_FILE_NAME="$PACKAGE_NAME" \
                 -DCPACK_BUNDLE_APPLE_CERT_APP="-" \
                 .. && \
@@ -520,6 +522,7 @@ jobs:
           -DCUTTER_PACKAGE_RZ_LIBSWIFT=ON ^
           -DCUTTER_PACKAGE_RZ_LIBYARA=ON ^
           -DCUTTER_PACKAGE_RZ_SILHOUETTE=ON ^
+          -DCUTTER_PACKAGE_RZ_FRIDA=ON ^
           -DCUTTER_PACKAGE_JSDEC=ON ^
           -DCUTTER_ENABLE_DEPENDENCY_DOWNLOADS=ON ^
           -DCMAKE_PREFIX_PATH="%CUTTER_DEPS%\pyside" ^
