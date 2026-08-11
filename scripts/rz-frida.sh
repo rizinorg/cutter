@@ -10,9 +10,8 @@ FRIDA_VERSION="17.17.0"
 
 cd "$SCRIPTPATH/.."
 
-# url to be updated after rz-frida gets transferred under rizinorg
 if [[ ! -d rz-frida ]]; then
-	git clone https://github.com/IndAlok/rz-frida.git --depth 1 rz-frida
+	git clone https://github.com/rizinorg/rz-frida.git --depth 1 rz-frida
 fi
 
 cd rz-frida

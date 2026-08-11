@@ -4,9 +4,8 @@ $cmake_opts = $args[1]
 # keep in sync with rz-frida release
 $FRIDA_VERSION = "17.17.0"
 
-# url to be updated after rz-frida gets transferred under rizinorg
 if (-not (Test-Path -Path 'rz-frida' -PathType Container)) {
-    git clone https://github.com/IndAlok/rz-frida.git --depth 1 rz-frida
+    git clone https://github.com/rizinorg/rz-frida.git --depth 1 rz-frida
 }
 cd rz-frida
 if (-not (Test-Path -Path 'frida-core-devkit' -PathType Container)) {
