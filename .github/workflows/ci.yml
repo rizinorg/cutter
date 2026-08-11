@@ -381,6 +381,7 @@ jobs:
   build:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 180
     strategy:
       matrix:
         name: [
@@ -493,6 +494,7 @@ jobs:
         scripts/fetch_deps.sh
         ln -sf "$PWD/cutter-deps/pyside/share/PySide6/"* "$PWD/cutter-deps/pyside/"
         choco install winflexbison3
+        choco install pkgconfiglite -y
         vcpkg install zlib:x64-windows
     - name: windows cmake
       if: contains(matrix.os, 'windows')
