@@ -76,8 +76,11 @@ if [[ -n "$FRIDA_PLUGIN_INSTALLED" ]]; then
 			install_name_tool -change "$rzlib" "@rpath/$(basename "$rzlib")" "$FRIDA_PLUGIN_INSTALLED"
 		done < <(otool -L "$FRIDA_PLUGIN_INSTALLED" | awk '$1 ~ /Rizin-prefix\/lib\/lib/ {print $1}')
 	fi
-	mkdir -p "$INSTALL_PREFIX/lib/rizin/plugins"
-	cp -f "$FRIDA_PLUGIN_INSTALLED" "$INSTALL_PREFIX/lib/rizin/plugins/"
+	FRIDA_PLUGIN_DEST="$INSTALL_PREFIX/lib/rizin/plugins/$(basename "$FRIDA_PLUGIN_INSTALLED")"
+	if [[ "$FRIDA_PLUGIN_INSTALLED" != "$FRIDA_PLUGIN_DEST" ]]; then
+		mkdir -p "$INSTALL_PREFIX/lib/rizin/plugins"
+		cp -f "$FRIDA_PLUGIN_INSTALLED" "$FRIDA_PLUGIN_DEST"
+	fi
 fi
 
 cd plugin/cutter
