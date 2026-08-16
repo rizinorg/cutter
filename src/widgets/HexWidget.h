@@ -244,7 +244,7 @@ public:
         RzCoreLocked core(Core());
         rz_core_write_at(core, adr, in, len);
         writeToCache(in, adr, len);
-        emit Core() -> instructionChanged(adr);
+        emit Core()->instructionChanged(adr);
         return true;
     }
 
