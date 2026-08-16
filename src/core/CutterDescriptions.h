@@ -10,8 +10,8 @@
 #include <QColor>
 #include <QList>
 #include <QMetaType>
+#include <QSet>
 #include <QString>
-#include <QStringList>
 #include <QVariant>
 
 struct FunctionDescription
@@ -448,11 +448,11 @@ struct EvaluableVarDescription
     QString description;
     bool readOnly;
 
-    enum Type : ut8 { Bool = 0, Int, String, Interval, List };
+    enum Type : ut8 { Bool = 0, Int, String, Interval, Set };
     Type type;
 
-    QVariant value; ///< Can be either QString, QStringList or RzInterval depending on type
-    QList<QString> options;
+    QVariant value; ///< Can be either QString, QSet<QString> or RzInterval depending on type
+    QSet<QString> options;
 };
 
 Q_DECLARE_METATYPE(FunctionDescription)

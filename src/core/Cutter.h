@@ -495,12 +495,12 @@ public:
     bool getConfigb(const QString &k) { return getConfigb(k.toUtf8().constData()); }
     RzInterval getConfigItv(const char *k);
     RzInterval getConfigItv(const QString &k) { return getConfigItv(k.toUtf8().constData()); }
-    QStringList getConfigList(const char *k);
-    QStringList getConfigList(const QString &k) { return getConfigList(k.toUtf8().constData()); }
+    QSet<QString> getConfigSet(const char *k);
+    QSet<QString> getConfigSet(const QString &k) { return getConfigSet(k.toUtf8().constData()); }
     QString getConfig(const char *k);
     QString getConfig(const QString &k) { return getConfig(k.toUtf8().constData()); }
     QString getConfigDescription(const char *k);
-    QStringList getConfigOptions(const char *k);
+    QSet<QString> getConfigOptions(const char *k);
     QStringList getColorThemes();
     QHash<QString, QColor> getTheme();
     QStringList getThemeKeys();
