@@ -32,10 +32,6 @@ public:
     void setAnalysisLevel(int aLevel);
     void setCompareLogic(int cLogic);
     bool hasData();
-
-    QList<BinDiffMatchDescription> matches();
-    QList<FunctionDescription> mismatch(bool originalFile);
-
 public slots:
     void cancel();
 
@@ -47,9 +43,7 @@ private:
     std::unique_ptr<CutterDiff> cutterDiff;
     RzAnalysisMatchResult *result;
     void sortFunctions();
-    QList<BinDiffMatchDescription> matchedList;
-    QSet<const RzAnalysisFunction *> removedSet;
-    QSet<const RzAnalysisFunction *> addedSet;
+    void storeBlocksDiff();
     bool continueRun;
     size_t maxTotal;
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)

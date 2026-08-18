@@ -10,6 +10,109 @@
 #include <QObject>
 
 class CutterDiffLocked;
+class CutterDiff;
+using CutterDiffItemDescription = QVariantMap;
+
+class RizinDiffItem
+{
+    friend class BinDiff;
+
+public:
+    explicit RizinDiffItem(RzDiff *rzDiff, RzList *opGroups) : diff(rzDiff), opGroups(opGroups)
+    {
+        Q_ASSERT(diff);
+        Q_ASSERT(opGroups);
+    }
+    struct RzDiffDeleter
+    {
+        void operator()(RzDiff *ptr) const
+        {
+            if (ptr) {
+                rz_diff_free(ptr);
+            }
+        }
+    };
+    struct RzListDeleter
+    {
+        void operator()(RzList *ptr) const
+        {
+            if (ptr) {
+                rz_list_free(ptr);
+            }
+        }
+    };
+
+    bool isLineDiff() const { return opGroups != nullptr; }
+
+    RzDiff *getDiff() const { return diff.get(); }
+    RzList *getOpGroups() const { return opGroups.get(); }
+
+private:
+    std::unique_ptr<RzDiff, RzDiffDeleter> diff = nullptr;
+    std::unique_ptr<RzList, RzListDeleter> opGroups = nullptr;
+};
+
+class CutterDiffItem
+{
+    friend class BinDiff;
+
+public:
+    explicit CutterDiffItem(DiffItemType type, const RzAnalysisFunction *a,
+                            const RzAnalysisFunction *b, const QString &simtype = {},
+                            double similarity = 0.0);
+
+    explicit CutterDiffItem(DiffItemType type, const RzAnalysisBlock *a, const RzAnalysisBlock *b,
+                            const QString &simtype = {}, double similarity = 0.0);
+    CutterDiffItem() {} // invalid CutterDiffItem
+    ~CutterDiffItem();
+
+    DiffItemType getType() const;
+
+    const CutterDiffItemDescription &descriptionA() const;
+
+    const CutterDiffItemDescription &descriptionB() const;
+
+    const QString &getSimtype() const;
+
+    double getSimilarity() const;
+    static FunctionDescription toFunctionDescription(const QVariantMap &desc);
+    FunctionDescription functionA() const;
+
+    FunctionDescription functionB() const;
+    BinDiffMatchDescription toBinDiffMatchDescription() const;
+    bool isFunction() const { return functionDiff; }
+    bool isBlock() const { return blockDiff; }
+    const QHash<QString, QSharedPointer<RizinDiffItem>> &getLineDiffs() const { return lineDiffs; }
+    RVA mapOffset(RVA offset, bool original) const;
+
+    const QList<CutterDiffItem> &getBlocks() const { return blocks; }
+
+private:
+    static CutterDiffItemDescription functionDescription(const RzAnalysisFunction *func);
+
+    static CutterDiffItemDescription blockDescription(const RzAnalysisBlock *bb);
+    static bool isValidPair(DiffItemType type, const void *a, const void *b);
+    void addLineDiff(const QString &key, RzDiff *diff, RzList *opGroups);
+
+private:
+    bool functionDiff;
+    bool blockDiff;
+    DiffItemType type;
+
+    CutterDiffItemDescription descA;
+    CutterDiffItemDescription descB;
+
+    QHash<qulonglong, qulonglong> offsetAtoB;
+    QHash<qulonglong, qulonglong> offsetBtoA;
+
+    QString simtype;
+    double similarity = 0.0;
+
+    QList<CutterDiffItem> blocks;
+    QHash<QString, QSharedPointer<RizinDiffItem>> lineDiffs;
+};
+
+static CutterDiffItem invalidCutterDiffItem;
 
 struct Bound
 {
@@ -21,6 +124,7 @@ class CUTTER_EXPORT CutterDiff : public QObject
 {
     Q_OBJECT
     friend class CutterDiffLocked;
+    friend class BinDiff;
 
 public:
     explicit CutterDiff(QObject *parent = nullptr);
@@ -31,6 +135,8 @@ public:
     void syncConfig();
     RzAnalysisMatchResult *matchFunctions(int compareLogic, RzAnalysisMatchThreadInfoCb callback,
                                           void *user);
+    RzAnalysisMatchResult *matchFunctionBlocks(RzAnalysisFunction *funcA,
+                                               RzAnalysisFunction *funcB);
     enum : ut8 { AnalysisLevelSymbols, AnalysisLevelAuto, AnalysisLevelExperimental };
 
     enum : ut8 {
@@ -50,6 +156,8 @@ public:
     {
         return getCommonConfig(key.toUtf8().constData());
     }
+
+    // Not needed after adding temp config
     void setCommonConfig(const char *key, const char *value);
     int getCommonConfigi(const char *key);
     int getCommonConfigi(const QString &key) { return getCommonConfigi(key.toUtf8().constData()); }
@@ -57,21 +165,53 @@ public:
     bool getCommonConfigb(const QString &key) { return getCommonConfigb(key.toUtf8().constData()); }
     void setCommonConfigi(const char *key, int value);
     void setCommonConfigb(const char *key, bool value);
+
     void seekSilent(ut64 offset, bool orig);
     QString cmdRawAt(const char *cmd, RVA address, bool orig);
     QString cmdRaw(const char *cmd, bool orig);
     RVA getOffset(bool orig);
-    RzDiff *lineDiff(const char *lines1, const char *lines2); // Own RzDiff
-    RzDiff *lineDiff(const QString &lines1, const QString &lines2); // Own RzDiff
-    RzDiff *diffFunctionDissas(RVA addrA, RVA addrB); // Own RzDiff
-    QString diffFunctionDecomp(RVA addrA, RVA addrB);
-    QString diffFunctionRzIL(RVA addrA, RVA addrB);
+    RZ_OWN RzDiff *lineDiff(const char *lines1, const char *lines2);
+    RZ_OWN RzDiff *lineDiff(const QString &lines1, const QString &lines2);
+    RZ_OWN RzDiff *diffFunctionDissas(RVA addrA, RVA addrB);
+    RZ_OWN RzDiff *diffBlockDisas(RVA addrA, RVA addrB);
     QString disassembleFunction(RVA addr, bool orig);
+    QString disassembleBasicBlock(RVA addr, bool orig);
     QString ansiEscapeToHtml(const QString &text);
-    CutterRzList<RzList /*<RzDiffOp *>*/> lineDiffOpsGrouped(RzDiff *diff) const;
+    RZ_OWN RzList *lineDiffOpsGrouped(RzDiff *diff) const; // Own RzList
     QString getFileName(bool orig = true) const { return orig ? fileNameA : fileNameB; }
     QString getFilePath(bool orig = true) const { return orig ? filePathA : filePathB; }
     Bound getLineDiffBounds(const QString &line1, const QString &line2);
+    bool isFunctionsAnalyzed() const { return functionsAnalyzed; }
+    bool isBlocksAnalyzed() const { return blocksAnalyzed; }
+    RZ_OWN RzAnalysisMatchResult *matchFunctionBlocks(RVA addrA, RVA addrB);
+    BinDiffMatchDescription getCurrentMatchDescription();
+    QList<CutterDiffItem> &getDiffItemList() { return diffItemList; }
+    void setCurrentDiffItemIndex(qsizetype index)
+    {
+        if (index > diffItemList.size()) {
+            index = diffItemList.size() - 1;
+        }
+        if (index < 0) {
+            index = -1;
+        }
+        currentDiffItemIndex = index;
+        emit currentItemDiffChanged();
+    }
+    qsizetype getCurrentDiffItemIndex() { return getCurrentDiffItemIndex(); }
+
+    bool diffEmpty() { return diffItemList.isEmpty(); }
+
+    const CutterDiffItem &getCurrentDiffItem() const
+    {
+        if (currentDiffItemIndex < 0 || currentDiffItemIndex >= diffItemList.size()) {
+            return invalidCutterDiffItem;
+        }
+        return diffItemList[currentDiffItemIndex];
+    }
+
+    // maybe adddiffItem
+    // removeDiffItem
+    // itemupdate signal from diffItems as well which will again trigger dataupdated
 
 private:
     RzCore *coreA = nullptr;
@@ -86,7 +226,19 @@ private:
     QRecursiveMutex mutex;
 #endif
     RzList *getFunctions(RzAnalysis *analysis, int compareLogic); // Own RzList
+    QList<BinDiffMatchDescription> matchedFunctionsList;
+
+    bool blocksAnalyzed;
+    bool functionsAnalyzed;
+    qsizetype currentDiffItemIndex;
+    QList<CutterDiffItem> diffItemList;
 signals:
+    void currentMatchChanged();
+    void currentItemDiffChanged();
+    // void diffDataUpdated();//data update shall be added to every widget TODO
+    // so we can do selective diffing of functions and chosse which all the blocks to be diffed
+    // also there shall be a individual Diffing thread like BinDiff for performing diffing on
+    // induvidual diffItems without restrcting/obstructing the usability of CutterDiffWindow
 };
 
 class CutterDiffLocked

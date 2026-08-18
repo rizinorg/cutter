@@ -20,7 +20,7 @@ class LineDiffWidget : public QWidget
 public:
     explicit LineDiffWidget(CutterDiff *cutterDiff, QWidget *parent = nullptr);
     ~LineDiffWidget();
-    void fetchFunctionDisasSplit(RVA addrA, RVA addrB);
+    void fetchFunctionDisasSplit(const CutterDiffItem &diffItem);
     void balanceLines();
     void setUpFonts();
 

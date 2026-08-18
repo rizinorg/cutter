@@ -49,6 +49,9 @@ LineDiffWidget::LineDiffWidget(CutterDiff *cutterDiff, QWidget *parent)
     setUpFonts();
     connect(Config(), &Configuration::fontsUpdated, this, &LineDiffWidget::setUpFonts);
     onViewModeChanged();
+
+    connect(cutterDiff, &CutterDiff::currentItemDiffChanged, this,
+            [this]() { fetchFunctionDisasSplit(this->cutterDiff->getCurrentDiffItem()); });
 }
 
 LineDiffWidget::~LineDiffWidget() {}
@@ -93,62 +96,88 @@ void LineDiffWidget::setUpFonts()
     unifiedEdit->setUpFont(Config()->getFont());
 }
 
-void LineDiffWidget::fetchFunctionDisasSplit(RVA addrA, RVA addrB)
+void LineDiffWidget::fetchFunctionDisasSplit(const CutterDiffItem &diffItem)
 {
-    const QSignalBlocker blocker1(leftEdit), blocker2(rightEdit), blocker3(unifiedEdit);
-    leftEdit->clear();
-    rightEdit->clear();
-    char *stringUtf;
-    RzDiff *diffedLines = cutterDiff->diffFunctionDissas(addrA, addrB);
     QColor matched = Config()->getColor("gui.match.perfect");
     QColor unmatched = Config()->getColor("gui.match.partial");
+    viewSelector->setDisabled(true);
     matched.setAlpha(50);
     unmatched.setAlpha(50);
-    const CutterRzList<RzList /*<RzDiffOp *>*/> groups =
-            cutterDiff->lineDiffOpsGrouped(diffedLines);
-    for (const RzList /*<RzDiffOp*>*/ *group : groups) {
-        for (RzDiffOp *op : CutterRzList<RzDiffOp>(group)) {
+    if (!diffItem.isFunction()) {
+        return;
+    }
+    if (diffItem.getType() == DiffItemMatched) {
+        if (!diffItem.getLineDiffs().contains("disas")) {
+            // show disassembly not available in the linDiffView
+            return;
+        }
+        viewSelector->setDisabled(false);
+        const QSignalBlocker blocker1(leftEdit), blocker2(rightEdit), blocker3(unifiedEdit);
+        leftEdit->clear();
+        rightEdit->clear();
+        char *stringUtf;
+        const RzListIter *it = nullptr;
+        const RzList *group = nullptr;
+        CutterRzListForeach (diffItem.getLineDiffs()["disas"]->getOpGroups(), it,
+                             RzList /*<RzDiffOp *>*/, group) {
+            // for (const RzList /*<RzDiffOp*>*/ *group : groups) {
+            for (RzDiffOp *op : CutterRzList<RzDiffOp>(group)) {
 
-            switch (op->type) {
-            case RZ_DIFF_OP_EQUAL: {
-                stringUtf = rz_diff_op_stringify(diffedLines, op, true);
-                const QString opString = QString::fromUtf8(stringUtf);
-                leftEdit->insertFormatted(opString, { 0, 0, 0, 0 });
-                rightEdit->insertFormatted(opString, { 0, 0, 0, 0 });
-                unifiedEdit->insertFormatted(opString, { 0, 0, 0, 0 });
-                break;
+                switch (op->type) {
+                case RZ_DIFF_OP_EQUAL: {
+                    stringUtf = rz_diff_op_stringify(diffItem.getLineDiffs()["disas"]->getDiff(),
+                                                     op, true);
+                    const QString opString = QString::fromUtf8(stringUtf);
+                    leftEdit->insertFormatted(opString, { 0, 0, 0, 0 });
+                    rightEdit->insertFormatted(opString, { 0, 0, 0, 0 });
+                    unifiedEdit->insertFormatted(opString, { 0, 0, 0, 0 });
+                    break;
+                }
+                case RZ_DIFF_OP_DELETE: {
+                    stringUtf = rz_diff_op_stringify(diffItem.getLineDiffs()["disas"]->getDiff(),
+                                                     op, true);
+                    leftEdit->insertFormatted(QString::fromUtf8(stringUtf), unmatched);
+                    unifiedEdit->insertFormatted(QString::fromUtf8(stringUtf), unmatched);
+                    break;
+                }
+                case RZ_DIFF_OP_INSERT: {
+                    stringUtf = rz_diff_op_stringify(diffItem.getLineDiffs()["disas"]->getDiff(),
+                                                     op, false);
+                    rightEdit->insertFormatted(QString::fromUtf8(stringUtf), matched);
+                    unifiedEdit->insertFormatted(QString::fromUtf8(stringUtf), matched);
+                    break;
+                }
+                case RZ_DIFF_OP_REPLACE: {
+                    const QString actual = QString::fromUtf8(rz_diff_op_stringify(
+                            diffItem.getLineDiffs()["disas"]->getDiff(), op, true));
+                    const QString replaced = QString::fromUtf8(rz_diff_op_stringify(
+                            diffItem.getLineDiffs()["disas"]->getDiff(), op, false));
+                    const auto bound = cutterDiff->getLineDiffBounds(actual, replaced);
+                    leftEdit->insertBounded(actual, unmatched, bound);
+                    rightEdit->insertBounded(replaced, matched, bound);
+                    unifiedEdit->insertBounded(actual, unmatched, bound);
+                    unifiedEdit->insertBounded(replaced, matched, bound);
+                    break;
+                }
+                default:
+                    break;
+                }
+                balanceLines();
             }
-            case RZ_DIFF_OP_DELETE: {
-                stringUtf = rz_diff_op_stringify(diffedLines, op, true);
-                leftEdit->insertFormatted(QString::fromUtf8(stringUtf), unmatched);
-                unifiedEdit->insertFormatted(QString::fromUtf8(stringUtf), unmatched);
-                break;
-            }
-            case RZ_DIFF_OP_INSERT: {
-                stringUtf = rz_diff_op_stringify(diffedLines, op, false);
-                rightEdit->insertFormatted(QString::fromUtf8(stringUtf), matched);
-                unifiedEdit->insertFormatted(QString::fromUtf8(stringUtf), matched);
-                break;
-            }
-            case RZ_DIFF_OP_REPLACE: {
-                const QString actual =
-                        QString::fromUtf8(rz_diff_op_stringify(diffedLines, op, true));
-                const QString replaced =
-                        QString::fromUtf8(rz_diff_op_stringify(diffedLines, op, false));
-                const auto bound = cutterDiff->getLineDiffBounds(actual, replaced);
-                leftEdit->insertBounded(actual, unmatched, bound);
-                rightEdit->insertBounded(replaced, matched, bound);
-                unifiedEdit->insertBounded(actual, unmatched, bound);
-                unifiedEdit->insertBounded(replaced, matched, bound);
-                break;
-            }
-            default:
-                break;
-            }
-            balanceLines();
+        }
+    } else if (diffItem.getType() == DiffItemRemoved) {
+        if (!diffItem.descriptionA().contains("disas")) {
+            unifiedEdit->insertFormatted(diffItem.descriptionA()["disas"].toString(), unmatched);
+            viewSelector->setCurrentIndex(0);
+            return;
+        }
+    } else if (diffItem.getType() == DiffItemAdded) {
+        if (!diffItem.descriptionA().contains("disas")) {
+            unifiedEdit->insertFormatted(diffItem.descriptionA()["disas"].toString(), matched);
+            viewSelector->setCurrentIndex(0);
+            return;
         }
     }
-    rz_diff_free(diffedLines);
 }
 
 void LineDiffWidget::balanceLines()

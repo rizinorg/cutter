@@ -1,6 +1,7 @@
 #ifndef CUTTERDIFFWINDOW_H
 #define CUTTERDIFFWINDOW_H
 
+#include "GraphDiffWidget.h"
 #include "HexDiff.h"
 #include "LineDiffWidget.h"
 
@@ -172,8 +173,10 @@ private:
     QList<FunctionDescription> fcnsB;
     HexDiff *hexDiff = nullptr;
     LineDiffWidget *lineDiff = nullptr;
+    GraphDiffWidget *graphDiff = nullptr;
     void addHexDiff();
     void addLineDiff();
+    void addGraphDiff();
     void setupFonts();
     void clearParseWindow();
     void updateParseWindow(HexDiff::Selection selection);
