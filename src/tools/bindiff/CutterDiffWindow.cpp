@@ -1,5 +1,6 @@
 #include "CutterDiffWindow.h"
 
+#include "DiffExportDialog.h"
 #include "DiffLoadDialog.h"
 #include "ui_CutterDiffWindow.h"
 
@@ -372,6 +373,8 @@ CutterDiffWindow::CutterDiffWindow(std::unique_ptr<BinDiff> bDiff, QWidget *pare
     // connect(bDiff, &BinDiff::complete, this, &CutterDiffWindow::onBinDiffCompleted);
     connect(ui->actionDiffNewFiles, &QAction::triggered, this,
             &CutterDiffWindow::onActionDiffNewFile);
+    connect(ui->actionExportToJSON, &QAction::triggered, this, &CutterDiffWindow::exportDiff);
+
     ui->tabParsing->hide();
     setupFonts();
     showMaximized();
@@ -527,10 +530,12 @@ void CutterDiffWindow::showDiff()
     });
     connect(ui->treeViewAdded, &CutterTreeView::doubleClicked, this,
             [this](const QModelIndex &index) {
+                cutterDiff->setCurrentDiffItemIndex(listMatch[index.row()].diffItemIndex);
                 seekAndShowHexDiff({ RVA_INVALID, added->address(index) });
             });
     connect(ui->treeViewRemoved, &CutterTreeView::doubleClicked, this,
             [this](const QModelIndex &index) {
+                cutterDiff->setCurrentDiffItemIndex(listMatch[index.row()].diffItemIndex);
                 seekAndShowHexDiff({ RVA_INVALID, removed->address(index) });
             });
     connect(ui->treeViewMatches, &CutterTreeView::doubleClicked, this,
@@ -765,4 +770,10 @@ void CutterDiffWindow::clearParseWindow()
     ui->bytesSHA1B->setText("");
     ui->bytesSHA256B->setText("");
     ui->bytesCRC32B->setText("");
+}
+
+void CutterDiffWindow::exportDiff()
+{
+    DiffExportDialog dialog(cutterDiff, this);
+    dialog.exec();
 }

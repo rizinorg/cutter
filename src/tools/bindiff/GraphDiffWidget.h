@@ -5,6 +5,7 @@
 
 #include <QComboBox>
 #include <QLabel>
+#include <QPushButton>
 #include <QWidget>
 
 #include <CutterDiff.h>
@@ -17,13 +18,16 @@ class GraphDiffWidget : public QWidget
 public:
     explicit GraphDiffWidget(CutterDiff *cutterDiff, QWidget *parent = nullptr);
     void loadGraph();
+    void changeSplitOrientation();
 signals:
 private:
     CutterDiff *cutterDiff = nullptr;
     DiffGraphView *leftView = nullptr;
     DiffGraphView *rightView = nullptr;
-    QComboBox *comboBox;
-    QLabel *functionLabel;
+    QComboBox *comboBox = nullptr;
+    QLabel *functionLabel = nullptr;
+    QPushButton *splitOrientationButton = nullptr;
+    bool graphSplitHorizontal = false;
 };
 
 #endif // GRAPHDIFFWIDGET_H

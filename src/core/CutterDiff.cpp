@@ -173,14 +173,142 @@ bool CutterDiffItem::isValidPair(DiffItemType type, const void *a, const void *b
     return false;
 }
 
-void CutterDiffItem::addLineDiff(const QString &key, RzDiff *diff, RzList *opGroups)
-{
-    Q_ASSERT(diff);
-    Q_ASSERT(opGroups);
-    Q_ASSERT(!lineDiffs.contains(key));
+// AI Generated Starts GPT GO
 
-    lineDiffs.emplace(key, QSharedPointer<RizinDiffItem>::create(diff, opGroups));
+QJsonObject CutterDiffItem::toJson() const
+{
+    QJsonObject json;
+
+    json["functionDiff"] = functionDiff;
+    json["blockDiff"] = blockDiff;
+    json["type"] = static_cast<int>(type);
+
+    json["descA"] = QJsonObject::fromVariantMap(descA);
+    json["descB"] = QJsonObject::fromVariantMap(descB);
+
+    json["simtype"] = simtype;
+    json["similarity"] = similarity;
+
+    QJsonObject offsetAtoBJson;
+    for (auto it = offsetAtoB.constBegin(); it != offsetAtoB.constEnd(); ++it) {
+        offsetAtoBJson[QString::number(it.key())] = QString::number(it.value());
+    }
+    json["offsetAtoB"] = offsetAtoBJson;
+
+    QJsonObject offsetBtoAJson;
+    for (auto it = offsetBtoA.constBegin(); it != offsetBtoA.constEnd(); ++it) {
+        offsetBtoAJson[QString::number(it.key())] = QString::number(it.value());
+    }
+    json["offsetBtoA"] = offsetBtoAJson;
+
+    QJsonObject instrDiffsJson;
+
+    for (auto it = instrDiffs.constBegin(); it != instrDiffs.constEnd(); ++it) {
+        QJsonArray instructions;
+
+        for (const DiffInstr &instr : it.value()) {
+            QJsonObject instruction;
+
+            instruction["a"] = instr.a;
+            instruction["b"] = instr.b;
+            instruction["type"] = static_cast<int>(instr.type);
+
+            QJsonObject bound;
+            bound["pos"] = instr.bound.pos;
+            bound["size"] = instr.bound.size;
+
+            instruction["bound"] = bound;
+            instructions.append(instruction);
+        }
+
+        instrDiffsJson[it.key()] = instructions;
+    }
+
+    json["instrDiffs"] = instrDiffsJson;
+
+    // Recursively serialize children.
+    QJsonArray blocksJson;
+
+    for (const CutterDiffItem &block : blocks) {
+        blocksJson.append(block.toJson());
+    }
+
+    json["blocks"] = blocksJson;
+
+    return json;
 }
+
+CutterDiffItem CutterDiffItem::fromJson(const QJsonObject &json)
+{
+    CutterDiffItem item;
+
+    item.functionDiff = json["functionDiff"].toBool();
+    item.blockDiff = json["blockDiff"].toBool();
+
+    item.type = static_cast<DiffItemType>(json["type"].toInt());
+
+    item.descA = json["descA"].toObject().toVariantMap();
+    item.descB = json["descB"].toObject().toVariantMap();
+
+    item.simtype = json["simtype"].toString();
+    item.similarity = json["similarity"].toDouble();
+
+    // offsetAtoB
+    const QJsonObject offsetAtoBJson = json["offsetAtoB"].toObject();
+
+    for (auto it = offsetAtoBJson.constBegin(); it != offsetAtoBJson.constEnd(); ++it) {
+
+        item.offsetAtoB.insert(it.key().toULongLong(), it.value().toString().toULongLong());
+    }
+
+    // offsetBtoA
+    const QJsonObject offsetBtoAJson = json["offsetBtoA"].toObject();
+
+    for (auto it = offsetBtoAJson.constBegin(); it != offsetBtoAJson.constEnd(); ++it) {
+
+        item.offsetBtoA.insert(it.key().toULongLong(), it.value().toString().toULongLong());
+    }
+
+    // instrDiffs
+    const QJsonObject instrDiffsJson = json["instrDiffs"].toObject();
+
+    for (auto it = instrDiffsJson.constBegin(); it != instrDiffsJson.constEnd(); ++it) {
+
+        QList<DiffInstr> instructions;
+        const QJsonArray array = it.value().toArray();
+
+        for (const QJsonValue &value : array) {
+            const QJsonObject instructionJson = value.toObject();
+
+            DiffInstr instr;
+
+            instr.a = instructionJson["a"].toString();
+            instr.b = instructionJson["b"].toString();
+
+            instr.type = static_cast<DiffInstrType>(instructionJson["type"].toInt());
+
+            const QJsonObject boundJson = instructionJson["bound"].toObject();
+
+            instr.bound.pos = boundJson["pos"].toInt();
+            instr.bound.size = boundJson["size"].toInt();
+
+            instructions.append(instr);
+        }
+
+        item.instrDiffs.insert(it.key(), instructions);
+    }
+
+    // Recursively deserialize children.
+    const QJsonArray blocksJson = json["blocks"].toArray();
+
+    for (const QJsonValue &value : blocksJson) {
+        item.blocks.append(CutterDiffItem::fromJson(value.toObject()));
+    }
+
+    return item;
+}
+
+// AI Generated Ends GPT Go
 
 CutterDiff::CutterDiff(QObject *parent)
     : QObject { parent }
@@ -758,4 +886,55 @@ BinDiffMatchDescription CutterDiff::getCurrentMatchDescription()
         return getCurrentDiffItem().toBinDiffMatchDescription();
     }
     return {};
+}
+
+bool CutterDiff::saveDiffItemsToJson(const QString &filePath) const
+{
+    QJsonArray diffItemsJson;
+
+    for (const CutterDiffItem &item : diffItemList) {
+        diffItemsJson.append(item.toJson());
+    }
+
+    QJsonObject root;
+    root["diffItems"] = diffItemsJson;
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        return false;
+    }
+
+    const QJsonDocument document(root);
+    file.write(document.toJson(QJsonDocument::Indented));
+
+    return true;
+}
+
+bool CutterDiff::loadDiffItemsFromJson(const QString &filePath)
+{
+    QFile file(filePath);
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        return false;
+    }
+
+    const QJsonDocument document = QJsonDocument::fromJson(file.readAll());
+
+    if (!document.isObject()) {
+        return false;
+    }
+
+    const QJsonArray diffItemsJson = document.object()["diffItems"].toArray();
+
+    diffItemList.clear();
+
+    for (const QJsonValue &value : diffItemsJson) {
+        if (!value.isObject()) {
+            continue;
+        }
+
+        diffItemList.append(CutterDiffItem::fromJson(value.toObject()));
+    }
+
+    return true;
 }

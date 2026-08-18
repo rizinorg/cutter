@@ -96,6 +96,57 @@ struct MatchEntry
     double similarity;
 };
 
+QList<DiffInstr> BinDiff::rzDiffOpToCutterInstrs(RzDiff *diff,
+                                                 RzList * /*<RzList<RzDiffOp*>>**/ list) const
+{
+    QList<DiffInstr> result;
+    char *stringUtf;
+    const RzListIter *it = nullptr;
+    const RzList *group = nullptr;
+    CutterRzListForeach (list, it, RzList /*<RzDiffOp *>*/, group) {
+        for (RzDiffOp *op : CutterRzList<RzDiffOp>(group)) {
+            DiffInstr instr;
+            switch (op->type) {
+            case RZ_DIFF_OP_EQUAL: {
+                stringUtf = rz_diff_op_stringify(diff, op, true);
+                const QString opString = QString::fromUtf8(stringUtf);
+                instr.a = opString;
+                instr.type = DiffInstrEqual;
+                break;
+            }
+            case RZ_DIFF_OP_DELETE: {
+                stringUtf = rz_diff_op_stringify(diff, op, true);
+                const QString opString = QString::fromUtf8(stringUtf);
+                instr.a = opString;
+                instr.type = DiffInstrDeleted;
+                break;
+            }
+            case RZ_DIFF_OP_INSERT: {
+                stringUtf = rz_diff_op_stringify(diff, op, false);
+                const QString opString = QString::fromUtf8(stringUtf);
+                instr.b = opString;
+                instr.type = DiffInstrInserted;
+                break;
+            }
+            case RZ_DIFF_OP_REPLACE: {
+                const QString actual = QString::fromUtf8(rz_diff_op_stringify(diff, op, true));
+                const QString replaced = QString::fromUtf8(rz_diff_op_stringify(diff, op, false));
+                const auto bound = cutterDiff->getLineDiffBounds(actual, replaced);
+                instr.a = actual;
+                instr.b = replaced;
+                instr.type = DiffInstrReplaced;
+                instr.bound = bound;
+                break;
+            }
+            default:
+                break;
+            }
+            result.emplace_back(instr);
+        }
+    }
+    return result;
+}
+
 void BinDiff::sortFunctions()
 {
     if (!result) {
@@ -146,7 +197,9 @@ void BinDiff::sortFunctions()
         item.descB["disas"] = disasB;
         RzDiff *diff = cutterDiff->lineDiff(disasA, disasB);
         RzList *groups = cutterDiff->lineDiffOpsGrouped(diff);
-        item.addLineDiff("disas", diff, groups);
+        item.instrDiffs["disas"] = rzDiffOpToCutterInstrs(diff, groups);
+        rz_diff_free(diff);
+        rz_list_free(groups);
     }
 
     // Add discarded functions as well
@@ -257,9 +310,11 @@ void BinDiff::storeBlocksDiff()
             const QString disasB = cutterDiff->disassembleBasicBlock(blockB->addr, false);
             RzDiff *diff = cutterDiff->lineDiff(disasA, disasB);
             RzList *groups = cutterDiff->lineDiffOpsGrouped(diff);
-            diffBlock.addLineDiff("disas", diff, groups);
+            diffBlock.instrDiffs["disas"] = rzDiffOpToCutterInstrs(diff, groups);
             diffItem.offsetAtoB[blockA->addr] = blockB->addr;
             diffItem.offsetBtoA[blockB->addr] = blockA->addr;
+            rz_diff_free(diff);
+            rz_list_free(groups);
         }
 
         for (const RzAnalysisBlock *bb : discardedA) {

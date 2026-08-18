@@ -180,6 +180,7 @@ private:
     void setupFonts();
     void clearParseWindow();
     void updateParseWindow(HexDiff::Selection selection);
+    void exportDiff();
 };
 
 #endif // CUTTERDIFFWINDOW_H

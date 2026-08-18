@@ -823,6 +823,7 @@
      <string>File</string>
     </property>
     <addaction name="actionDiffNewFiles"/>
+    <addaction name="actionExportToJSON"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -830,6 +831,11 @@
   <action name="actionDiffNewFiles">
    <property name="text">
     <string>Diff New Files</string>
+   </property>
+  </action>
+  <action name="actionExportToJSON">
+   <property name="text">
+    <string>Export to JSON</string>
    </property>
   </action>
  </widget>
