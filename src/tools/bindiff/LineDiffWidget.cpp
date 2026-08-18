@@ -20,32 +20,52 @@ LineDiffWidget::LineDiffWidget(CutterDiff *cutterDiff, QWidget *parent)
       splitViewSplitter(new QSplitter(Qt::Horizontal, this))
 {
     auto *layoutV = new QVBoxLayout(this);
+    auto *layoutHHeader = new QVBoxLayout(this);
     layoutV->setContentsMargins(0, 0, 0, 0);
-    layoutV->setSpacing(0);
+    layoutV->setSpacing(2);
+    functionLabel = new QLabel(this);
+    layoutHHeader->addWidget(functionLabel);
+    layoutV->addLayout(layoutHHeader, 0);
     auto *layoutHEdits = new QHBoxLayout(this);
-    layoutV->addLayout(layoutHEdits);
+    layoutV->addLayout(layoutHEdits, 1);
     layoutHEdits->addWidget(unifiedEdit);
-
     splitViewSplitter->addWidget(leftEdit);
     splitViewSplitter->addWidget(rightEdit);
     layoutHEdits->addWidget(splitViewSplitter);
     auto layoutH = new QHBoxLayout(this);
     layoutH->addStretch();
+
     auto labelLineDiff = new QLabel(this);
     labelLineDiff->setText("View : ");
     layoutH->addWidget(labelLineDiff);
+
+    splitOrientationButton = new QPushButton(this);
+    splitOrientationButton->setText("↕");
+    splitOrientationButton->setToolTip("Toggle split view orientation");
+    layoutH->addWidget(splitOrientationButton);
+
     viewSelector->addItems({ "Unified", "Split", "Left", "Right" });
     connect(viewSelector, &QComboBox::currentIndexChanged, this,
             &LineDiffWidget::onViewModeChanged);
 
     layoutH->addWidget(viewSelector);
+    layoutV->addLayout(layoutH, 0);
+
+    connect(splitOrientationButton, &QPushButton::clicked, this, [this]() {
+        splitHorizontal = !splitHorizontal;
+        onViewModeChanged();
+    });
+
+    layoutH->addWidget(viewSelector);
     layoutV->addLayout(layoutH);
 
-    connect(leftEdit->verticalScrollBar(), &QScrollBar::valueChanged, this,
-            [this](int value) { rightEdit->verticalScrollBar()->setValue(value); });
+    // Implement Syncronouse Scrolling compatible with Horizontal view as well
 
-    connect(rightEdit->verticalScrollBar(), &QScrollBar::valueChanged, this,
-            [this](int value) { leftEdit->verticalScrollBar()->setValue(value); });
+    // connect(leftEdit->verticalScrollBar(), &QScrollBar::valueChanged, this,
+    //         [this](int value) { rightEdit->verticalScrollBar()->setValue(value); });
+
+    // connect(rightEdit->verticalScrollBar(), &QScrollBar::valueChanged, this,
+    //         [this](int value) { leftEdit->verticalScrollBar()->setValue(value); });
     setUpFonts();
     connect(Config(), &Configuration::fontsUpdated, this, &LineDiffWidget::setUpFonts);
     onViewModeChanged();
@@ -62,6 +82,12 @@ void LineDiffWidget::onViewModeChanged()
     unifiedEdit->hide();
     leftEdit->hide();
     rightEdit->hide();
+    if (splitHorizontal) {
+        splitOrientationButton->setText("↕");
+    } else {
+        splitOrientationButton->setText("↔");
+    }
+    splitOrientationButton->setDisabled(true);
     switch (viewSelector->currentIndex()) {
     case 0:
         unifiedEdit->show();
@@ -70,6 +96,8 @@ void LineDiffWidget::onViewModeChanged()
         splitViewSplitter->show();
         leftEdit->show();
         rightEdit->show();
+        splitOrientationButton->setDisabled(false);
+        splitViewSplitter->setOrientation(splitHorizontal ? Qt::Horizontal : Qt::Vertical);
         break;
     }
     case 2: {
@@ -98,6 +126,10 @@ void LineDiffWidget::setUpFonts()
 
 void LineDiffWidget::fetchFunctionDisasSplit(const CutterDiffItem &diffItem)
 {
+    if (!diffItem.isFunction()) {
+        // Unable to load function may be a message
+        return;
+    }
     QColor matched = Config()->getColor("gui.match.perfect");
     QColor unmatched = Config()->getColor("gui.match.partial");
     viewSelector->setDisabled(true);
@@ -107,71 +139,57 @@ void LineDiffWidget::fetchFunctionDisasSplit(const CutterDiffItem &diffItem)
         return;
     }
     if (diffItem.getType() == DiffItemMatched) {
-        if (!diffItem.getLineDiffs().contains("disas")) {
-            // show disassembly not available in the linDiffView
-            return;
-        }
+        functionLabel->setText(QString("%0 -> %1")
+                                       .arg(diffItem.descriptionA()["name"].toString())
+                                       .arg(diffItem.descriptionB()["name"].toString()));
         viewSelector->setDisabled(false);
         const QSignalBlocker blocker1(leftEdit), blocker2(rightEdit), blocker3(unifiedEdit);
         leftEdit->clear();
         rightEdit->clear();
-        char *stringUtf;
-        const RzListIter *it = nullptr;
-        const RzList *group = nullptr;
-        CutterRzListForeach (diffItem.getLineDiffs()["disas"]->getOpGroups(), it,
-                             RzList /*<RzDiffOp *>*/, group) {
-            // for (const RzList /*<RzDiffOp*>*/ *group : groups) {
-            for (RzDiffOp *op : CutterRzList<RzDiffOp>(group)) {
+        if (!diffItem.getInstrDiffs().contains("disas")) {
+            // TODO: show disas not available in the window
+            return;
+        }
+        for (const DiffInstr &instr : diffItem.getInstrDiffs()["disas"]) {
 
-                switch (op->type) {
-                case RZ_DIFF_OP_EQUAL: {
-                    stringUtf = rz_diff_op_stringify(diffItem.getLineDiffs()["disas"]->getDiff(),
-                                                     op, true);
-                    const QString opString = QString::fromUtf8(stringUtf);
-                    leftEdit->insertFormatted(opString, { 0, 0, 0, 0 });
-                    rightEdit->insertFormatted(opString, { 0, 0, 0, 0 });
-                    unifiedEdit->insertFormatted(opString, { 0, 0, 0, 0 });
-                    break;
-                }
-                case RZ_DIFF_OP_DELETE: {
-                    stringUtf = rz_diff_op_stringify(diffItem.getLineDiffs()["disas"]->getDiff(),
-                                                     op, true);
-                    leftEdit->insertFormatted(QString::fromUtf8(stringUtf), unmatched);
-                    unifiedEdit->insertFormatted(QString::fromUtf8(stringUtf), unmatched);
-                    break;
-                }
-                case RZ_DIFF_OP_INSERT: {
-                    stringUtf = rz_diff_op_stringify(diffItem.getLineDiffs()["disas"]->getDiff(),
-                                                     op, false);
-                    rightEdit->insertFormatted(QString::fromUtf8(stringUtf), matched);
-                    unifiedEdit->insertFormatted(QString::fromUtf8(stringUtf), matched);
-                    break;
-                }
-                case RZ_DIFF_OP_REPLACE: {
-                    const QString actual = QString::fromUtf8(rz_diff_op_stringify(
-                            diffItem.getLineDiffs()["disas"]->getDiff(), op, true));
-                    const QString replaced = QString::fromUtf8(rz_diff_op_stringify(
-                            diffItem.getLineDiffs()["disas"]->getDiff(), op, false));
-                    const auto bound = cutterDiff->getLineDiffBounds(actual, replaced);
-                    leftEdit->insertBounded(actual, unmatched, bound);
-                    rightEdit->insertBounded(replaced, matched, bound);
-                    unifiedEdit->insertBounded(actual, unmatched, bound);
-                    unifiedEdit->insertBounded(replaced, matched, bound);
-                    break;
-                }
-                default:
-                    break;
-                }
-                balanceLines();
+            switch (instr.type) {
+            case DiffInstrEqual: {
+                leftEdit->insertFormatted(instr.a, { 0, 0, 0, 0 });
+                rightEdit->insertFormatted(instr.a, { 0, 0, 0, 0 });
+                unifiedEdit->insertFormatted(instr.a, { 0, 0, 0, 0 });
+                break;
             }
+            case DiffInstrDeleted: {
+                leftEdit->insertFormatted(instr.a, unmatched);
+                unifiedEdit->insertFormatted(instr.a, unmatched);
+                break;
+            }
+            case DiffInstrInserted: {
+                rightEdit->insertFormatted(instr.b, matched);
+                unifiedEdit->insertFormatted(instr.b, matched);
+                break;
+            }
+            case DiffInstrReplaced: {
+                leftEdit->insertBounded(instr.a, unmatched, instr.bound);
+                rightEdit->insertBounded(instr.b, matched, instr.bound);
+                unifiedEdit->insertBounded(instr.a, unmatched, instr.bound);
+                unifiedEdit->insertBounded(instr.b, matched, instr.bound);
+                break;
+            }
+            default:
+                break;
+            }
+            balanceLines();
         }
     } else if (diffItem.getType() == DiffItemRemoved) {
+        functionLabel->setText(QString("%0").arg(diffItem.descriptionA()["name"].toString()));
         if (!diffItem.descriptionA().contains("disas")) {
             unifiedEdit->insertFormatted(diffItem.descriptionA()["disas"].toString(), unmatched);
             viewSelector->setCurrentIndex(0);
             return;
         }
     } else if (diffItem.getType() == DiffItemAdded) {
+        functionLabel->setText(QString("%0").arg(diffItem.descriptionB()["name"].toString()));
         if (!diffItem.descriptionA().contains("disas")) {
             unifiedEdit->insertFormatted(diffItem.descriptionA()["disas"].toString(), matched);
             viewSelector->setCurrentIndex(0);

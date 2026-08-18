@@ -30,6 +30,10 @@ GraphDiffWidget::GraphDiffWidget(CutterDiff *cutterDiff, QWidget *parent)
     // Bottom: graph mode selector
     auto bottomHBox = new QHBoxLayout();
 
+    splitOrientationButton = new QPushButton(this);
+    splitOrientationButton->setText("↕");
+    splitOrientationButton->setToolTip("Toggle split view orientation");
+
     comboBox = new QComboBox(this);
     comboBox->addItem("Unified", UnifiedMode);
     comboBox->addItem("Split", SplitMode);
@@ -37,11 +41,26 @@ GraphDiffWidget::GraphDiffWidget(CutterDiff *cutterDiff, QWidget *parent)
     comboBox->addItem("Modified", ModifiedMode);
 
     bottomHBox->addStretch();
+    bottomHBox->addWidget(splitOrientationButton);
     bottomHBox->addWidget(comboBox);
 
     vBox->addLayout(bottomHBox, 0);
     connect(cutterDiff, &CutterDiff::currentItemDiffChanged, this, &GraphDiffWidget::loadGraph);
     connect(comboBox, &QComboBox::currentIndexChanged, this, &GraphDiffWidget::loadGraph);
+    connect(splitOrientationButton, &QPushButton::clicked, this, [this, splitter]() {
+        changeSplitOrientation();
+        splitter->setOrientation(graphSplitHorizontal ? Qt::Horizontal : Qt::Vertical);
+    });
+}
+
+void GraphDiffWidget::changeSplitOrientation()
+{
+    graphSplitHorizontal = !graphSplitHorizontal;
+    if (graphSplitHorizontal) {
+        splitOrientationButton->setText("↕");
+    } else {
+        splitOrientationButton->setText("↔");
+    }
 }
 
 void GraphDiffWidget::loadGraph()
@@ -54,6 +73,19 @@ void GraphDiffWidget::loadGraph()
     if (!cutterDiff->getCurrentDiffItem().isFunction()) {
         return;
     }
+
+    if (type != DiffItemMatched) {
+        if (type == DiffItemRemoved) {
+            comboBox->setCurrentIndex(OriginalMode);
+        } else {
+            comboBox->setCurrentIndex(ModifiedMode);
+        }
+        comboBox->setDisabled(true);
+    } else {
+        comboBox->setDisabled(false);
+    }
+
+    splitOrientationButton->setDisabled(true);
 
     switch (type) {
     case DiffItemMatched: {
@@ -68,6 +100,7 @@ void GraphDiffWidget::loadGraph()
             break;
 
         case SplitMode:
+            splitOrientationButton->setDisabled(false);
             leftView->show();
             rightView->show();
             leftView->loadCurrentGraph(Original);

@@ -3,7 +3,9 @@
 
 #include <QAction>
 #include <QComboBox>
+#include <QLabel>
 #include <QPlainTextEdit>
+#include <QPushButton>
 #include <QSplitter>
 #include <QTextBlock>
 #include <QWidget>
@@ -35,6 +37,9 @@ private:
     DiffTextEdit *unifiedEdit;
     QComboBox *viewSelector;
     QSplitter *splitViewSplitter;
+    bool splitHorizontal = false;
+    QPushButton *splitOrientationButton = nullptr;
+    QLabel *functionLabel;
 };
 
 class DiffTextEdit : public QPlainTextEdit

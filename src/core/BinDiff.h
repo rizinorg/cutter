@@ -42,6 +42,8 @@ signals:
 private:
     std::unique_ptr<CutterDiff> cutterDiff;
     RzAnalysisMatchResult *result;
+    QList<DiffInstr> rzDiffOpToCutterInstrs(RzDiff *diff,
+                                            RzList * /*<RzList<RzDiffOp*>>**/ list) const;
     void sortFunctions();
     void storeBlocksDiff();
     bool continueRun;

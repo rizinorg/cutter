@@ -5,6 +5,9 @@
 #include "CutterCommon.h"
 #include "RizinCpp.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QMutex>
 #include <QMutexLocker>
 #include <QObject>
@@ -13,43 +16,19 @@ class CutterDiffLocked;
 class CutterDiff;
 using CutterDiffItemDescription = QVariantMap;
 
-class RizinDiffItem
+struct Bound
 {
-    friend class BinDiff;
+    int pos;
+    int size;
+};
 
-public:
-    explicit RizinDiffItem(RzDiff *rzDiff, RzList *opGroups) : diff(rzDiff), opGroups(opGroups)
-    {
-        Q_ASSERT(diff);
-        Q_ASSERT(opGroups);
-    }
-    struct RzDiffDeleter
-    {
-        void operator()(RzDiff *ptr) const
-        {
-            if (ptr) {
-                rz_diff_free(ptr);
-            }
-        }
-    };
-    struct RzListDeleter
-    {
-        void operator()(RzList *ptr) const
-        {
-            if (ptr) {
-                rz_list_free(ptr);
-            }
-        }
-    };
-
-    bool isLineDiff() const { return opGroups != nullptr; }
-
-    RzDiff *getDiff() const { return diff.get(); }
-    RzList *getOpGroups() const { return opGroups.get(); }
-
-private:
-    std::unique_ptr<RzDiff, RzDiffDeleter> diff = nullptr;
-    std::unique_ptr<RzList, RzListDeleter> opGroups = nullptr;
+enum DiffInstrType : ut8 { DiffInstrEqual, DiffInstrReplaced, DiffInstrInserted, DiffInstrDeleted };
+struct DiffInstr
+{
+    QString a;
+    QString b;
+    DiffInstrType type;
+    Bound bound;
 };
 
 class CutterDiffItem
@@ -82,17 +61,20 @@ public:
     BinDiffMatchDescription toBinDiffMatchDescription() const;
     bool isFunction() const { return functionDiff; }
     bool isBlock() const { return blockDiff; }
-    const QHash<QString, QSharedPointer<RizinDiffItem>> &getLineDiffs() const { return lineDiffs; }
     RVA mapOffset(RVA offset, bool original) const;
 
     const QList<CutterDiffItem> &getBlocks() const { return blocks; }
+
+    const QHash<QString, QList<DiffInstr>> &getInstrDiffs() const { return instrDiffs; }
+
+    QJsonObject toJson() const;
+    static CutterDiffItem fromJson(const QJsonObject &json);
 
 private:
     static CutterDiffItemDescription functionDescription(const RzAnalysisFunction *func);
 
     static CutterDiffItemDescription blockDescription(const RzAnalysisBlock *bb);
     static bool isValidPair(DiffItemType type, const void *a, const void *b);
-    void addLineDiff(const QString &key, RzDiff *diff, RzList *opGroups);
 
 private:
     bool functionDiff;
@@ -109,16 +91,10 @@ private:
     double similarity = 0.0;
 
     QList<CutterDiffItem> blocks;
-    QHash<QString, QSharedPointer<RizinDiffItem>> lineDiffs;
+    QHash<QString, QList<DiffInstr>> instrDiffs;
 };
 
 static CutterDiffItem invalidCutterDiffItem;
-
-struct Bound
-{
-    int pos;
-    int size;
-};
 
 class CUTTER_EXPORT CutterDiff : public QObject
 {
@@ -208,6 +184,10 @@ public:
         }
         return diffItemList[currentDiffItemIndex];
     }
+
+    bool saveDiffItemsToJson(const QString &filePath) const;
+
+    bool loadDiffItemsFromJson(const QString &filePath);
 
     // maybe adddiffItem
     // removeDiffItem

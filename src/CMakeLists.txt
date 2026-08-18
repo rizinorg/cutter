@@ -184,6 +184,7 @@ set(SOURCES
     tools/bindiff/LineDiffWidget.cpp
     tools/bindiff/GraphDiffWidget.cpp
     tools/bindiff/DiffGraphView.cpp
+    tools/bindiff/DiffExportDialog.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -376,6 +377,7 @@ set(HEADER_FILES
     tools/bindiff/LineDiffWidget.h
     tools/bindiff/GraphDiffWidget.h
     tools/bindiff/DiffGraphView.h
+    tools/bindiff/DiffExportDialog.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui

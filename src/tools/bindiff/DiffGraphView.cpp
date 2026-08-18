@@ -41,14 +41,14 @@ void DiffGraphView::drawDiffLine(QPainter &p, const QString &instr, int x, int y
         return;
     }
     switch (type) {
-    case Equal:
+    case DiffInstrEqual:
         background = Qt::transparent;
         break;
-    case Added:
+    case DiffInstrInserted:
         background = Config()->getColor("gui.match.perfect");
         background.setAlpha(50);
         break;
-    case Removed:
+    case DiffInstrDeleted:
         background = Config()->getColor("gui.match.partial");
         background.setAlpha(50);
         break;
@@ -150,58 +150,11 @@ void DiffGraphView::addDiffGraphBlockMatched(const CutterDiffItem &diffItem)
         gb.edges.emplace_back(it.key());
     }
 
-    if (diffItem.getLineDiffs().contains("disas")) {
-        char *stringUtf;
-        const RzListIter *it = nullptr;
-        const RzList *group = nullptr;
-        CutterRzListForeach (diffItem.getLineDiffs()["disas"]->getOpGroups(), it,
-                             RzList /*<RzDiffOp *>*/, group) {
-            for (RzDiffOp *op : CutterRzList<RzDiffOp>(group)) {
-                Instr instr;
-                switch (op->type) {
-                case RZ_DIFF_OP_EQUAL: {
-                    stringUtf = rz_diff_op_stringify(diffItem.getLineDiffs()["disas"]->getDiff(),
-                                                     op, true);
-                    const QString opString = QString::fromUtf8(stringUtf);
-                    instr.a = opString;
-                    instr.type = Equal;
-                    break;
-                }
-                case RZ_DIFF_OP_DELETE: {
-                    stringUtf = rz_diff_op_stringify(diffItem.getLineDiffs()["disas"]->getDiff(),
-                                                     op, true);
-                    const QString opString = QString::fromUtf8(stringUtf);
-                    instr.a = opString;
-                    instr.type = Removed;
-                    break;
-                }
-                case RZ_DIFF_OP_INSERT: {
-                    stringUtf = rz_diff_op_stringify(diffItem.getLineDiffs()["disas"]->getDiff(),
-                                                     op, false);
-                    const QString opString = QString::fromUtf8(stringUtf);
-                    instr.b = opString;
-                    instr.type = Added;
-                    break;
-                }
-                case RZ_DIFF_OP_REPLACE: {
-                    const QString actual = QString::fromUtf8(rz_diff_op_stringify(
-                            diffItem.getLineDiffs()["disas"]->getDiff(), op, true));
-                    const QString replaced = QString::fromUtf8(rz_diff_op_stringify(
-                            diffItem.getLineDiffs()["disas"]->getDiff(), op, false));
-                    const auto bound = cutterDiff->getLineDiffBounds(actual, replaced);
-                    instr.a = actual;
-                    instr.b = replaced;
-                    instr.type = Replaced;
-                    instr.bound = bound;
-                    break;
-                }
-                default:
-                    break;
-                }
-                db.instrs.emplace_back(instr);
-            }
-        }
+    if (diffItem.getInstrDiffs().contains("disas")) {
+        db.instrs = diffItem.getInstrDiffs()["disas"]; // Maybe reference it instead for avoiding
+                                                       // space complexity issues
     }
+
     diffBlocks[db.entry] = db;
     prepareGraphNode(gb);
     addBlock(gb);
@@ -221,7 +174,7 @@ void DiffGraphView::addDiffGraphBlockMismatch(const CutterDiffItem &diffItem)
     const CutterDiffItemDescription &desc = diffItem.getType() == DiffItemRemoved
             ? diffItem.descriptionA()
             : diffItem.descriptionB();
-    ut64 entry = graphEntryFromOffset(desc["offset"].toULongLong(), isOriginal);
+    const ut64 entry = graphEntryFromOffset(desc["offset"].toULongLong(), isOriginal);
     const RVA bbiFail = desc["fail"].toULongLong();
     const RVA bbiJump = desc["jump"].toULongLong();
     DiffBlock db;
@@ -257,18 +210,18 @@ void DiffGraphView::addDiffGraphBlockMismatch(const CutterDiffItem &diffItem)
 
     if (desc.contains("casejumps")) {
         for (const qulonglong jump : desc["casejumps"].value<QList<qulonglong>>()) {
-            ut64 graphEntry = graphEntryFromOffset(jump, true);
+            const ut64 graphEntry = graphEntryFromOffset(jump, true);
             db.caseOps[graphEntry] = diffItem.getType();
         }
     }
     if (desc.contains("disas")) {
-        Instr instr;
+        DiffInstr instr;
         if (isOriginal) {
             instr.a = desc["disas"].toString();
         } else {
             instr.b = desc["disas"].toString();
         }
-        instr.type = isOriginal ? Removed : Added;
+        instr.type = isOriginal ? DiffInstrDeleted : DiffInstrInserted;
         db.instrs.emplace_back(instr);
     }
     diffBlocks[db.entry] = db;
@@ -343,7 +296,7 @@ void DiffGraphView::prepareGraphNode(GraphBlock &block)
         }
     };
 
-    for (Instr &instr : db.instrs) {
+    for (DiffInstr &instr : db.instrs) {
         trimRight(instr.a);
         trimRight(instr.b);
         if (db.type == DiffItemMatched) {
@@ -439,43 +392,43 @@ void DiffGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool)
     auto lineCount = [](const QString &str) { return str.split('\n').size(); };
     if (db.type == DiffItemMatched) {
         if (diffGraphMode == Unified) {
-            for (const Instr &instr : db.instrs) {
+            for (const DiffInstr &instr : db.instrs) {
                 p.setPen(QPen(palette().color(QPalette::Text), 1));
-                if (instr.type == Equal) {
+                if (instr.type == DiffInstrEqual) {
                     for (const QString &line : instr.a.split("\n")) {
                         // color for Equal
                         drawDiffLine(p, line, x, y);
                         y += charHeight;
                     }
-                } else if (instr.type == Added) {
+                } else if (instr.type == DiffInstrInserted) {
                     for (const QString &line : instr.b.split("\n")) {
                         // color for Added
-                        drawDiffLine(p, line, x, y, Added);
+                        drawDiffLine(p, line, x, y, DiffInstrInserted);
                         y += charHeight;
                     }
-                } else if (instr.type == Removed) {
+                } else if (instr.type == DiffInstrDeleted) {
                     for (const QString &line : instr.a.split("\n")) {
                         // color for Removed
-                        drawDiffLine(p, line, x, y, Removed);
+                        drawDiffLine(p, line, x, y, DiffInstrDeleted);
                         y += charHeight;
                     }
                 } else {
                     for (const QString &line : instr.a.split("\n")) {
                         // color for Removed
                         p.drawText(QPoint(x, y), line);
-                        drawDiffLine(p, line, x, y, Removed);
+                        drawDiffLine(p, line, x, y, DiffInstrDeleted);
                         y += charHeight;
                     }
                     for (const QString &line : instr.b.split("\n")) {
                         // color for Added
                         p.drawText(QPoint(x, y), line);
-                        drawDiffLine(p, line, x, y, Added);
+                        drawDiffLine(p, line, x, y, DiffInstrInserted);
                         y += charHeight;
                     }
                 }
             }
         } else {
-            for (const Instr &instr : db.instrs) {
+            for (const DiffInstr &instr : db.instrs) {
                 p.setPen(QPen(palette().color(QPalette::Text), 1));
                 const int aLines = lineCount(instr.a);
                 const int bLines = lineCount(instr.b);
@@ -483,10 +436,13 @@ void DiffGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool)
 
                 if (diffGraphMode == Original) {
                     // Draw A
-                    if (instr.type == Equal || instr.type == Removed || instr.type == Replaced) {
+                    if (instr.type == DiffInstrEqual || instr.type == DiffInstrDeleted
+                        || instr.type == DiffInstrReplaced) {
 
                         for (const QString &line : instr.a.split('\n')) {
-                            drawDiffLine(p, line, x, y, instr.type == Equal ? Equal : Removed);
+                            drawDiffLine(p, line, x, y,
+                                         instr.type == DiffInstrEqual ? DiffInstrEqual
+                                                                      : DiffInstrDeleted);
                             y += charHeight;
                         }
                     }
@@ -495,10 +451,13 @@ void DiffGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool)
                     y += (slotHeight - aLines) * charHeight;
                 } else if (diffGraphMode == Modified) {
                     // Draw B
-                    if (instr.type == Equal || instr.type == Added || instr.type == Replaced) {
+                    if (instr.type == DiffInstrEqual || instr.type == DiffInstrInserted
+                        || instr.type == DiffInstrReplaced) {
 
                         for (const QString &line : instr.b.split('\n')) {
-                            drawDiffLine(p, line, x, y, instr.type == Equal ? Equal : Added);
+                            drawDiffLine(p, line, x, y,
+                                         instr.type == DiffInstrEqual ? DiffInstrEqual
+                                                                      : DiffInstrInserted);
                             y += charHeight;
                         }
                     }
@@ -509,7 +468,7 @@ void DiffGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool)
             }
         }
     } else {
-        for (const Instr &instr : db.instrs) {
+        for (const DiffInstr &instr : db.instrs) {
             p.setPen(QPen(palette().color(QPalette::Text), 1));
             const QStringList &instrList =
                     db.type == DiffItemRemoved ? instr.a.split("\n") : instr.b.split("\n");

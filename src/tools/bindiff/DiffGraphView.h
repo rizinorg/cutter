@@ -10,18 +10,9 @@ class QTextEdit;
 
 enum DiffGraphMode : ut8 { Unified, Original, Modified };
 
-enum DiffInstrType : ut8 { Equal, Replaced, Added, Removed };
-
 class DiffGraphView : public CutterGraphView
 {
     Q_OBJECT
-    struct Instr
-    {
-        QString a;
-        QString b;
-        DiffInstrType type;
-        Bound bound;
-    };
 
     struct DiffBlock
     {
@@ -36,7 +27,7 @@ class DiffGraphView : public CutterGraphView
         bool terminal = false;
         bool indirectcall = false;
         DiffItemType type;
-        QList<Instr> instrs;
+        QList<DiffInstr> instrs;
     };
 
 public:
@@ -61,7 +52,7 @@ public:
     void addDiffGraphBlockMatched(const CutterDiffItem &diffItem);
     void addDiffGraphBlockMismatch(const CutterDiffItem &diffItem);
     void drawDiffLine(QPainter &pen, const QString &instr, int x, int y,
-                      DiffInstrType type = Equal);
+                      DiffInstrType type = DiffInstrEqual);
     ut64 graphEntryFromOffset(ut64 offset, bool original);
 public slots:
     void refreshView() override;
