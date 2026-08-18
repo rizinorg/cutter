@@ -25,6 +25,8 @@ struct FunctionDescription
     QString name;
     RVA edges;
     RVA stackframe;
+    QStringList disas;
+    int diffItemIndex;
 
     bool contains(RVA addr) const
     {
@@ -423,12 +425,23 @@ struct BasefindResultDescription
     quint32 score;
 };
 
+enum DiffItemType : ut8 { DiffItemMatched, DiffItemRemoved, DiffItemAdded };
+
+struct DiffGraphBlock
+{
+    DiffItemType type;
+    const RzAnalysisBlock *bbA;
+    const RzAnalysisBlock *bbB;
+};
+
 struct BinDiffMatchDescription
 {
     FunctionDescription original;
     FunctionDescription modified;
     QString simtype;
     double similarity;
+    QList<DiffGraphBlock> blocks;
+    int diffItemIndex;
 };
 
 struct BinDiffStatusDescription

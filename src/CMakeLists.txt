@@ -182,6 +182,8 @@ set(SOURCES
     tools/bindiff/DiffWaitDialog.cpp
     tools/bindiff/HexDiff.cpp
     tools/bindiff/LineDiffWidget.cpp
+    tools/bindiff/GraphDiffWidget.cpp
+    tools/bindiff/DiffGraphView.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -372,6 +374,8 @@ set(HEADER_FILES
     tools/bindiff/DiffWaitDialog.h
     tools/bindiff/HexDiff.h
     tools/bindiff/LineDiffWidget.h
+    tools/bindiff/GraphDiffWidget.h
+    tools/bindiff/DiffGraphView.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -536,6 +540,7 @@ set(CUTTER_SOURCES ${OPTIONS} ${UI_FILES} ${QRC_FILES} ${PLATFORM_RESOURCES} ${S
 source_group(TREE "${CMAKE_CURRENT_LIST_DIR}" FILES ${CUTTER_SOURCES})
 
 add_executable(Cutter ${CUTTER_SOURCES} ${BINDINGS_SOURCE})
+
 set_target_properties(Cutter PROPERTIES
         OUTPUT_NAME cutter
         RUNTIME_OUTPUT_DIRECTORY ..

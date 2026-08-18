@@ -6,6 +6,182 @@
 
 #define LOCK() const CutterDiffLocked lock(this);
 
+CutterDiffItem::CutterDiffItem(DiffItemType type, const RzAnalysisFunction *a,
+                               const RzAnalysisFunction *b, const QString &simtype,
+                               double similarity)
+    : type(type), simtype(simtype), similarity(similarity), functionDiff(true), blockDiff(false)
+{
+    Q_ASSERT(isValidPair(type, a, b));
+
+    if (a) {
+        descA = functionDescription(a);
+    }
+
+    if (b) {
+        descB = functionDescription(b);
+    }
+}
+
+CutterDiffItem::CutterDiffItem(DiffItemType type, const RzAnalysisBlock *a,
+                               const RzAnalysisBlock *b, const QString &simtype, double similarity)
+    : type(type), simtype(simtype), similarity(similarity), functionDiff(false), blockDiff(true)
+{
+    Q_ASSERT(isValidPair(type, a, b));
+
+    if (a) {
+        descA = blockDescription(a);
+    }
+
+    if (b) {
+        descB = blockDescription(b);
+    }
+}
+
+CutterDiffItem::~CutterDiffItem() {}
+
+DiffItemType CutterDiffItem::getType() const
+{
+    return type;
+}
+
+const CutterDiffItemDescription &CutterDiffItem::descriptionA() const
+{
+    return descA;
+}
+
+const CutterDiffItemDescription &CutterDiffItem::descriptionB() const
+{
+    return descB;
+}
+
+const QString &CutterDiffItem::getSimtype() const
+{
+    return simtype;
+}
+
+double CutterDiffItem::getSimilarity() const
+{
+    return similarity;
+}
+FunctionDescription CutterDiffItem::toFunctionDescription(const QVariantMap &desc)
+{
+    FunctionDescription f;
+    f.offset = desc["offset"].toULongLong();
+    f.linearSize = desc["linearSize"].toULongLong();
+    f.nargs = desc["nargs"].toULongLong();
+    f.nbbs = desc["nbbs"].toULongLong();
+    f.nlocals = desc["nlocals"].toULongLong();
+    f.calltype = desc["calltype"].toString();
+    f.name = desc["name"].toString();
+    f.edges = desc["edges"].toULongLong();
+    f.stackframe = desc["stackframe"].toULongLong();
+    f.disas = desc["disas"].toStringList();
+    return f;
+}
+
+FunctionDescription CutterDiffItem::functionA() const
+{
+    if (type == DiffItemAdded) {
+        return {};
+    }
+    return toFunctionDescription(descA);
+}
+
+FunctionDescription CutterDiffItem::functionB() const
+{
+    if (type == DiffItemRemoved) {
+        return {};
+    }
+    return toFunctionDescription(descB);
+}
+BinDiffMatchDescription CutterDiffItem::toBinDiffMatchDescription() const
+{
+    return { functionA(), functionB(), simtype, similarity };
+}
+
+RVA CutterDiffItem::mapOffset(RVA offset, bool original) const
+{
+    if (type != DiffItemMatched) {
+        return RVA_INVALID;
+    }
+    const QHash<qulonglong, qulonglong> &mappings = original ? offsetAtoB : offsetBtoA;
+    if (mappings.contains(offset)) {
+        return mappings[offset];
+    }
+    return RVA_INVALID;
+}
+
+CutterDiffItemDescription CutterDiffItem::functionDescription(const RzAnalysisFunction *func)
+{
+    CutterDiffItemDescription desc;
+
+    desc["offset"] = static_cast<qulonglong>(func->addr);
+    desc["linearSize"] = static_cast<qulonglong>(
+            rz_analysis_function_linear_size(const_cast<RzAnalysisFunction *>(func)));
+    desc["nargs"] =
+            static_cast<qulonglong>(rz_analysis_arg_count(const_cast<RzAnalysisFunction *>(func)));
+    desc["nbbs"] = static_cast<qulonglong>(rz_pvector_len(func->bbs));
+    desc["nlocals"] = static_cast<qulonglong>(
+            rz_analysis_var_local_count(const_cast<RzAnalysisFunction *>(func)));
+    desc["calltype"] = QString::fromUtf8(func->cc ? func->cc : "");
+    desc["name"] = QString::fromUtf8(func->name ? func->name : "");
+    desc["edges"] = static_cast<qulonglong>(rz_analysis_function_count_edges(func, nullptr));
+    desc["stackframe"] = static_cast<qulonglong>(func->maxstack);
+    desc["disas"] = QStringList {};
+
+    return desc;
+}
+
+CutterDiffItemDescription CutterDiffItem::blockDescription(const RzAnalysisBlock *bb)
+{
+    CutterDiffItemDescription desc;
+
+    desc["offset"] = static_cast<qulonglong>(bb->addr);
+    desc["size"] = static_cast<qulonglong>(bb->size);
+    desc["fail"] = static_cast<qulonglong>(bb->fail);
+    desc["jump"] = static_cast<qulonglong>(bb->jump);
+
+    QList<qulonglong> switchCaseOps;
+    const RzAnalysisSwitchOp *switchOp = bb->switch_op;
+
+    if (switchOp) {
+        for (const auto &caseOp : CutterRzList<RzAnalysisCaseOp>(switchOp->cases)) {
+            if (caseOp->jump == RVA_INVALID) {
+                continue;
+            }
+            switchCaseOps.emplace_back(caseOp->jump);
+        }
+    }
+
+    desc.insert("casejumps", QVariant::fromValue(switchCaseOps));
+
+    return desc;
+}
+
+bool CutterDiffItem::isValidPair(DiffItemType type, const void *a, const void *b)
+{
+    switch (type) {
+    case DiffItemMatched:
+        return a != nullptr && b != nullptr;
+
+    case DiffItemRemoved:
+        return a != nullptr && b == nullptr;
+
+    case DiffItemAdded:
+        return a == nullptr && b != nullptr;
+    }
+    return false;
+}
+
+void CutterDiffItem::addLineDiff(const QString &key, RzDiff *diff, RzList *opGroups)
+{
+    Q_ASSERT(diff);
+    Q_ASSERT(opGroups);
+    Q_ASSERT(!lineDiffs.contains(key));
+
+    lineDiffs.emplace(key, QSharedPointer<RizinDiffItem>::create(diff, opGroups));
+}
+
 CutterDiff::CutterDiff(QObject *parent)
     : QObject { parent }
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
@@ -281,6 +457,24 @@ fail:
     return nullptr;
 }
 
+RzAnalysisMatchResult *CutterDiff::matchFunctionBlocks(RVA addrA, RVA addrB)
+{
+    RzAnalysisFunction *funcA = rz_analysis_get_function_at(coreA->analysis, addrA);
+    RzAnalysisFunction *funcB = rz_analysis_get_function_at(coreB->analysis, addrB);
+    RzAnalysisMatchResult *results = nullptr;
+    RzAnalysisMatchOpt opts = { 0 };
+    opts.analysis_a = coreA->analysis;
+    opts.analysis_b = coreB->analysis;
+    if (!funcA || !funcB) {
+        return results;
+    }
+    results = rz_analysis_match_basic_blocks(funcA, funcB, &opts);
+    if (!results) {
+        qWarning() << tr("failed to perform the function matching operation or job was cancelled.");
+    }
+    return results;
+}
+
 QString CutterDiff::getCommentAt(RVA addr, bool orig)
 {
     LOCK();
@@ -461,11 +655,64 @@ QString CutterDiff::disassembleFunction(RVA addr, bool orig)
     return r;
 }
 
+QString CutterDiff::disassembleBasicBlock(RVA addr, bool orig)
+{
+    LOCK();
+    RzCore *core = orig ? coreA : coreB;
+    RzAnalysisBlock *bbi = rz_analysis_get_block_at(core->analysis, addr);
+    if (!bbi) {
+        qWarning() << QString("Could not load basic block at %1").arg(QString::number(addr, 16));
+        return {};
+    }
+    auto vec = fromOwned(
+            rz_pvector_new(reinterpret_cast<RzPVectorFree>(rz_analysis_disasm_text_free)));
+    if (!vec) {
+        return {};
+    }
+    const uint64_t start = bbi->addr;
+    const uint64_t end = start + bbi->size;
+    if (start > end) {
+        qWarning() << "Start address is greater than end address of the function";
+        return {};
+    }
+    const uint64_t size = bbi->size;
+    QByteArray array;
+    array.resize(size);
+    rz_io_read_at_mapped(core->io, start, reinterpret_cast<ut8 *>(array.data()), size);
+    RzCoreDisasmOptions disasmOptions = { .cbytes = 1, .vec = vec.get() };
+    TempDiffConfig config(this, orig);
+    config.setConfigi("scr.utf8", 0);
+    config.setConfigi("asm.offset", 0);
+    config.setConfigi("asm.lines", 0);
+    config.setConfigi("asm.cmt.right", 0);
+    config.setConfigi("asm.lines.fcn", 0);
+    config.setConfigi("asm.bytes", 0);
+    config.setConfigi("asm.comments", 0);
+    config.setConfigi("scr.color", COLOR_MODE_DISABLED);
+    rz_core_print_disasm(core, start, reinterpret_cast<ut8 *>(array.data()), size, size, nullptr,
+                         &disasmOptions);
+    QString r;
+    for (const auto &t : CutterPVector<RzAnalysisDisasmText>(vec.get())) {
+        const QString text = t->text;
+        r.append(text);
+        r.append("\n");
+    }
+    return r;
+}
+
 RzDiff *CutterDiff::diffFunctionDissas(RVA addrA, RVA addrB)
 {
     LOCK();
     const QString disasA = disassembleFunction(addrA, true);
     const QString disasB = disassembleFunction(addrB, false);
+    return lineDiff(disasA, disasB);
+}
+
+RzDiff *CutterDiff::diffBlockDisas(RVA addrA, RVA addrB)
+{
+    LOCK();
+    const QString disasA = disassembleBasicBlock(addrA, true);
+    const QString disasB = disassembleBasicBlock(addrB, false);
     return lineDiff(disasA, disasB);
 }
 
@@ -480,10 +727,10 @@ RzDiff *CutterDiff::lineDiff(const QString &lines1, const QString &lines2)
     return lineDiff(lines1.toUtf8().constData(), lines2.toUtf8().constData());
 }
 
-CutterRzList<RzList /*<RzDiffOp*>*/> CutterDiff::lineDiffOpsGrouped(RzDiff *diff) const
+RzList *CutterDiff::lineDiffOpsGrouped(RzDiff *diff) const
 {
-    auto *groups = rz_diff_opcodes_grouped_new(diff, 2);
-    return CutterRzList<RzList /*<RzDiffOp *>*/>(groups);
+    auto *groups = rz_diff_opcodes_grouped_new(diff, 3);
+    return groups;
 }
 
 Bound CutterDiff::getLineDiffBounds(const QString &line1, const QString &line2)
@@ -503,4 +750,12 @@ Bound CutterDiff::getLineDiffBounds(const QString &line1, const QString &line2)
     }
 
     return { first, last - first + 1 };
+}
+
+BinDiffMatchDescription CutterDiff::getCurrentMatchDescription()
+{
+    if (getCurrentDiffItem().getType() == DiffItemMatched) {
+        return getCurrentDiffItem().toBinDiffMatchDescription();
+    }
+    return {};
 }

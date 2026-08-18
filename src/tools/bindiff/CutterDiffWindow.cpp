@@ -376,6 +376,7 @@ CutterDiffWindow::CutterDiffWindow(std::unique_ptr<BinDiff> bDiff, QWidget *pare
     setupFonts();
     showMaximized();
     addLineDiff();
+    addGraphDiff();
     showDiff();
 }
 
@@ -385,7 +386,7 @@ CutterDiffWindow::~CutterDiffWindow()
 }
 
 // Work incomplete
-void CutterDiffWindow::selectFunction(const QModelIndex &index) {}
+void CutterDiffWindow::selectFunction(const QModelIndex &) {}
 
 void CutterDiffWindow::showContextMenuMatches(const QPoint &pos)
 {
@@ -398,6 +399,7 @@ void CutterDiffWindow::showContextMenuMatches(const QPoint &pos)
     const QAction *goToAndAlign = menu.addAction("Align HexDiff");
     const QAction *diffFunctionLines = menu.addAction("Line Diff");
     const QAction *copyAddress = menu.addAction("Copy Address");
+    const QAction *showGraphDiff = menu.addAction("Graph Diff");
 
     const QAction *selected = menu.exec(ui->treeViewMatches->viewport()->mapToGlobal(pos));
 
@@ -410,7 +412,7 @@ void CutterDiffWindow::showContextMenuMatches(const QPoint &pos)
     } else if (selected == goToAndAlign) {
         seekAndShowHexDiff(addr);
     } else if (selected == diffFunctionLines) {
-        lineDiff->fetchFunctionDisasSplit(addr.first, addr.second);
+        cutterDiff->setCurrentDiffItemIndex(listMatch[index.row()].diffItemIndex);
         ui->tabWidget->setCurrentIndex(4);
     } else if (selected == copyAddress) {
         if (index.column() < DiffMatchModel::AddressMod) {
@@ -418,6 +420,9 @@ void CutterDiffWindow::showContextMenuMatches(const QPoint &pos)
         } else {
             QApplication::clipboard()->setText(rzAddressString(addr.second));
         }
+    } else if (selected == showGraphDiff) {
+        graphDiff->loadGraph();
+        ui->tabWidget->setCurrentIndex(5);
     }
 }
 
@@ -455,9 +460,31 @@ void CutterDiffWindow::showDiff()
             "gui.match.perfect"); // needs to be added to either cutter or in rizin
     const QColor partial = Config()->getColor("gui.match.partial");
 
-    listMatch = bDiff->matches();
-    listDel = bDiff->mismatch(true);
-    listAdd = bDiff->mismatch(false);
+    for (int i = 0; i < cutterDiff->getDiffItemList().size(); i++) {
+        const CutterDiffItem &diffItem = cutterDiff->getDiffItemList()[i];
+        switch (diffItem.getType()) {
+        case DiffItemMatched: {
+            BinDiffMatchDescription desc = diffItem.toBinDiffMatchDescription();
+            desc.diffItemIndex = i;
+            listMatch.push_back(desc);
+            break;
+        }
+        case DiffItemRemoved: {
+            FunctionDescription desc = diffItem.functionA();
+            desc.diffItemIndex = i;
+            listDel.push_back(diffItem.functionA());
+            break;
+        }
+        case DiffItemAdded: {
+            FunctionDescription desc = diffItem.functionA();
+            desc.diffItemIndex = i;
+            listAdd.push_back(diffItem.functionB());
+            break;
+        }
+        default:
+            break;
+        }
+    }
 
     matches = new DiffMatchModel(&listMatch, perfect, partial, this);
     added = new DiffMismatchModel(&listAdd, this);
@@ -508,6 +535,7 @@ void CutterDiffWindow::showDiff()
             });
     connect(ui->treeViewMatches, &CutterTreeView::doubleClicked, this,
             [this](const QModelIndex &index) {
+                cutterDiff->setCurrentDiffItemIndex(listMatch[index.row()].diffItemIndex);
                 auto addr = matches->address(index);
                 if (index.column() < DiffMatchModel::AddressMod) {
                     seekAndShowHexDiff({ addr.first, RVA_INVALID });
@@ -580,6 +608,14 @@ void CutterDiffWindow::addLineDiff()
         lineDiff = new LineDiffWidget(cutterDiff, this);
     }
     ui->lineDiffContainer->layout()->addWidget(lineDiff);
+}
+
+void CutterDiffWindow::addGraphDiff()
+{
+    if (!graphDiff) {
+        graphDiff = new GraphDiffWidget(cutterDiff, this);
+    }
+    ui->graphDiffContainer->addWidget(graphDiff);
 }
 
 void CutterDiffWindow::onCopyMD5AClicked()

@@ -102,7 +102,7 @@
         </sizepolicy>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>5</number>
        </property>
        <widget class="QWidget" name="tabMatches">
         <attribute name="title">
@@ -791,6 +791,16 @@
          </property>
          <item>
           <layout class="QVBoxLayout" name="lineDiffContainer"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tabGraphDiff">
+        <attribute name="title">
+         <string>GraphDiff</string>
+        </attribute>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <layout class="QHBoxLayout" name="graphDiffContainer"/>
          </item>
         </layout>
        </widget>
