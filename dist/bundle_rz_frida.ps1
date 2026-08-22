@@ -1,8 +1,14 @@
 $ErrorActionPreference = 'Stop'
 $env:GIT_TERMINAL_PROMPT = '0'
 
+if ($args.Count -lt 1 -or $args.Count -gt 2) {
+    throw "Usage: bundle_rz_frida.ps1 <install-prefix> [extra-cmake-opts]"
+}
 $dist = $args[0]
 $cmake_opts = $args[1]
+if (-not $dist) {
+    throw "install prefix is empty"
+}
 
 # keep in sync with rz-frida release
 $FRIDA_VERSION = "17.17.0"
@@ -17,14 +23,13 @@ if (-not (Test-Path -Path 'frida-core-devkit\frida-core.h' -PathType Leaf)) {
         "https://github.com/frida/frida/releases/download/$FRIDA_VERSION/frida-core-devkit-$FRIDA_VERSION-windows-x86_64.tar.xz"
     New-Item -ItemType Directory -Force -Path frida-core-devkit | Out-Null
     $ok = $false
-    $sevenZip = 'C:\Program Files\7-Zip\7z.exe'
-    if (Test-Path -Path $sevenZip -PathType Leaf) {
-        & $sevenZip x -y "-ofrida-core-devkit" frida-core-devkit.tar.xz | Out-Null
+    if (Get-Command 7z.exe -ErrorAction SilentlyContinue) {
+        7z.exe x -y "-ofrida-core-devkit" frida-core-devkit.tar.xz | Out-Null
         $ok = Test-Path -Path 'frida-core-devkit\frida-core.h' -PathType Leaf
         if (-not $ok) {
             foreach ($innerTar in @('frida-core-devkit.tar', 'frida-core-devkit\frida-core-devkit.tar')) {
                 if (Test-Path -Path $innerTar -PathType Leaf) {
-                    & $sevenZip x -y "-ofrida-core-devkit" $innerTar | Out-Null
+                    7z.exe x -y "-ofrida-core-devkit" $innerTar | Out-Null
                     Remove-Item -Force $innerTar -ErrorAction SilentlyContinue
                     $ok = Test-Path -Path 'frida-core-devkit\frida-core.h' -PathType Leaf
                     if ($ok) { break }
@@ -32,17 +37,15 @@ if (-not (Test-Path -Path 'frida-core-devkit\frida-core.h' -PathType Leaf)) {
             }
         }
     }
-    $gitTar = 'C:\Program Files\Git\usr\bin\tar.exe'
-    if (-not $ok -and (Test-Path -Path $gitTar -PathType Leaf)) {
-        & $gitTar xf frida-core-devkit.tar.xz -C frida-core-devkit
-        $ok = Test-Path -Path 'frida-core-devkit\frida-core.h' -PathType Leaf
+    # sys32 tar hangs: (https://github.com/rizinorg/cutter/actions/runs/31564868702/job/94014574770)
+    # so we skip it if that's on path.
+    if (-not $ok) {
+        $tar = Get-Command tar.exe -ErrorAction SilentlyContinue
+        if ($tar -and $tar.Source -notmatch '(?i)[\\/]System32[\\/]tar\.exe$') {
+            & $tar.Source xf frida-core-devkit.tar.xz -C frida-core-devkit
+            $ok = Test-Path -Path 'frida-core-devkit\frida-core.h' -PathType Leaf
+        }
     }
-    if (-not $ok -and (Get-Command python -ErrorAction SilentlyContinue)) {
-        python -c "import sys, tarfile; tarfile.open(sys.argv[1]).extractall(sys.argv[2])" `
-            frida-core-devkit.tar.xz frida-core-devkit
-        $ok = Test-Path -Path 'frida-core-devkit\frida-core.h' -PathType Leaf
-    }
-
     Remove-Item -Force 'frida-core-devkit.tar', 'frida-core-devkit\frida-core-devkit.tar' -ErrorAction SilentlyContinue
     if (-not $ok) {
         Get-ChildItem -Recurse frida-core-devkit | Select-Object -First 20 FullName

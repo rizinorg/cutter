@@ -2,6 +2,15 @@
 set -e
 
 SCRIPTPATH=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
+
+if [[ $# -lt 1 || $# -gt 2 ]]; then
+	echo "Usage: $0 <install-prefix> [extra-cmake-opts]" >&2
+	exit 1
+fi
+if [[ -z "$1" ]]; then
+	echo "error: install prefix is empty" >&2
+	exit 1
+fi
 INSTALL_PREFIX="$1"
 EXTRA_CMAKE_OPTS="$2"
 
