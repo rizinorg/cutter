@@ -220,6 +220,18 @@ void XrefsDialog::fillRefsForAddress(RVA addr, const QString &name, bool whole_f
     // Adjust columns to content
     qhelpers::adjustColumns(ui->fromTreeWidget, fromModel.columnCount(), 0);
     qhelpers::adjustColumns(ui->toTreeWidget, toModel.columnCount(), 0);
+    // Prevent columns from exceeding a maximum width (e.g., 400px)
+    for (int i = 0; i < ui->fromTreeWidget->header()->count(); ++i) {
+    int width = ui->fromTreeWidget->columnWidth(i);
+    if (width > 400)
+        ui->fromTreeWidget->setColumnWidth(i, std::min(width, 400));
+    }
+    for (int i = 0; i < ui->toTreeWidget->header()->count(); ++i) {
+    int width = ui->toTreeWidget->columnWidth(i);
+    if (width > 400)
+        ui->toTreeWidget->setColumnWidth(i, std::min(width, 400));
+  }
+
 
     // Automatically select the first line
     if (!qhelpers::selectFirstItem(ui->toTreeWidget)) {
@@ -241,6 +253,18 @@ void XrefsDialog::fillRefsForVariable(const QString &nameOfVariable, RVA offset)
     // Adjust columns to content
     qhelpers::adjustColumns(ui->fromTreeWidget, fromModel.columnCount(), 0);
     qhelpers::adjustColumns(ui->toTreeWidget, toModel.columnCount(), 0);
+    // Prevent columns from exceeding a maximum width (e.g., 400px)
+    for (int i = 0; i < ui->fromTreeWidget->header()->count(); ++i) {
+    int width = ui->fromTreeWidget->columnWidth(i);
+    if (width > 400)
+        ui->fromTreeWidget->setColumnWidth(i, std::min(width, 400));
+    }
+    for (int i = 0; i < ui->toTreeWidget->header()->count(); ++i) {
+    int width = ui->toTreeWidget->columnWidth(i);
+    if (width > 400)
+        ui->toTreeWidget->setColumnWidth(i, std::min(width, 400));
+    }
+
 
     // Automatically select the first line
     if (!qhelpers::selectFirstItem(ui->toTreeWidget)) {
