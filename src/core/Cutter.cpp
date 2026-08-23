@@ -1414,11 +1414,25 @@ RVA CutterCore::getFunctionStart(RVA addr)
     return fcn ? fcn->addr : RVA_INVALID;
 }
 
+RVA CutterCore::getFunctionMinAddr(RVA addr)
+{
+    const auto core = Core()->lock();
+    const RzAnalysisFunction *fcn = Core()->functionIn(addr);
+    return fcn ? rz_analysis_function_min_addr(const_cast<RzAnalysisFunction *>(fcn)) : RVA_INVALID;
+}
+
 RVA CutterCore::getFunctionEnd(RVA addr)
 {
     const auto core = Core()->lock();
     const RzAnalysisFunction *fcn = Core()->functionIn(addr);
     return fcn ? fcn->addr : RVA_INVALID;
+}
+
+ut64 CutterCore::getFunctionSize(RVA addr)
+{
+    const auto core = Core()->lock();
+    RzAnalysisFunction *fcn = Core()->functionIn(addr);
+    return fcn ? rz_analysis_function_linear_size(fcn) : 0;
 }
 
 RVA CutterCore::getLastFunctionInstruction(RVA addr)
