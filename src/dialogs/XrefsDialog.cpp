@@ -52,10 +52,14 @@ XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom)
             &XrefsDialog::onToTreeWidgetItemSelectionChanged);
     connect(ui->fromTreeWidget->selectionModel(), &QItemSelectionModel::selectionChanged, this,
             &XrefsDialog::onFromTreeWidgetItemSelectionChanged);
-    connect(ui->fromQuickFilter, &QuickFilterView::filterTextChanged, &fromProxyModel,
-            &QSortFilterProxyModel::setFilterWildcard);
-    connect(ui->toQuickFilter, &QuickFilterView::filterTextChanged, &toProxyModel,
-            &QSortFilterProxyModel::setFilterWildcard);
+    connect(ui->fromQuickFilter, &QuickFilterView::filterChanged, this,
+            [this](const QString &text, int options) {
+                qhelpers::applyFilter(&fromProxyModel, text, options);
+            });
+    connect(ui->toQuickFilter, &QuickFilterView::filterChanged, this,
+            [this](const QString &text, int options) {
+                qhelpers::applyFilter(&toProxyModel, text, options);
+            });
 
     // SearchWidget shortcuts
 

@@ -1,17 +1,57 @@
 #include "AbstractFilterView.h"
 
+#include "common/CutterSearchable.h"
+#include "common/Helpers.h"
+#include "common/Configuration.h"
+
 #include <QAction>
+#include <QIcon>
 #include <QMenu>
 
 AbstractFilterView::AbstractFilterView(QWidget *parent) : QWidget(parent) {}
 
 void AbstractFilterView::setupSharedConnections()
 {
+    auto *optionsMenu = new QMenu(this);
+    caseSensitiveAction = optionsMenu->addAction(tr("&Case Sensitive"));
+    caseSensitiveAction->setCheckable(true);
+    caseSensitiveAction->setChecked(Config()->getQuickFilterCaseSensitive());
+
+    wholeWordsAction = optionsMenu->addAction(tr("&Exact Match"));
+    wholeWordsAction->setCheckable(true);
+    wholeWordsAction->setChecked(Config()->getQuickFilterWholeWords());
+
+    regexAction = optionsMenu->addAction(tr("&Regular Expression"));
+    regexAction->setCheckable(true);
+    regexAction->setChecked(Config()->getQuickFilterRegex());
+
+    auto emitFilterChanged = [this]() { emit filterChanged(lineEdit()->text(), filterOptions()); };
+
+    connect(caseSensitiveAction, &QAction::toggled, this, emitFilterChanged);
+    connect(Config(), &Configuration::quickFilterCaseSensitiveChanged, caseSensitiveAction, &QAction::setChecked);
+
+    connect(wholeWordsAction, &QAction::toggled, this, emitFilterChanged);
+    connect(Config(), &Configuration::quickFilterWholeWordsChanged, wholeWordsAction, &QAction::setChecked);
+
+    connect(regexAction, &QAction::toggled, this, emitFilterChanged);
+    connect(Config(), &Configuration::quickFilterRegexChanged, regexAction, &QAction::setChecked);
+
+    auto *optionsAction = new QAction(this);
+    const int lineEditHeight = lineEdit()->fontMetrics().height();
+    const int targetIconSize = qRound(lineEditHeight * 0.8);
+    const QIcon cogIcon(":/img/icons/cog_light.svg");
+    const qreal dpr = qhelpers::devicePixelRatio(this);
+    QPixmap pixmap = cogIcon.pixmap(qRound(targetIconSize * dpr), qRound(targetIconSize * dpr));
+    pixmap.setDevicePixelRatio(dpr);
+    optionsAction->setIcon(pixmap);
+    optionsAction->setMenu(optionsMenu);
+    lineEdit()->addAction(optionsAction, QLineEdit::LeadingPosition);
+
     debounceTimer = new QTimer(this);
     debounceTimer->setSingleShot(true);
 
     connect(debounceTimer, &QTimer::timeout, this,
-            [this]() { emit filterTextChanged(lineEdit()->text()); });
+            [this]() { emit filterChanged(lineEdit()->text(), filterOptions()); });
 
     connect(lineEdit(), &QLineEdit::textChanged, this, [this]() { debounceTimer->start(150); });
 }
@@ -42,6 +82,21 @@ void AbstractFilterView::closeFilter()
     lineEdit()->setText("");
     hide();
     emit filterClosed();
+}
+
+int AbstractFilterView::filterOptions() const
+{
+    int options = 0;
+    if (caseSensitiveAction->isChecked()) {
+        options |= SearchOption::CaseSensitive;
+    }
+    if (wholeWordsAction->isChecked()) {
+        options |= SearchOption::WholeWords;
+    }
+    if (regexAction->isChecked()) {
+        options |= SearchOption::RegExp;
+    }
+    return options;
 }
 
 void AbstractFilterView::showCustomContextMenu(const QPoint &pos)

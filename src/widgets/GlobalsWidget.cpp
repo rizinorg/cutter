@@ -1,5 +1,6 @@
 #include "GlobalsWidget.h"
 
+#include "common/CutterSearchable.h"
 #include "common/Helpers.h"
 #include "core/MainWindow.h"
 #include "dialogs/GlobalVariableDialog.h"
@@ -170,10 +171,12 @@ GlobalsWidget::GlobalsWidget(MainWindow *main)
     // Setup custom context menu
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, globalsProxyModel,
-            &QSortFilterProxyModel::setFilterWildcard);
+    connect(ui->quickFilterView, &ComboQuickFilterView::filterChanged, this,
+            [this](const QString &text, int options) {
+                qhelpers::applyFilter(globalsProxyModel, text, options);
+            });
 
-    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
+    connect(ui->quickFilterView, &ComboQuickFilterView::filterChanged, this,
             [this] { ui->quickFilterView->setItemCount(globalsProxyModel->rowCount()); });
 
     QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);

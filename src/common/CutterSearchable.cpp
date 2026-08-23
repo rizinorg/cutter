@@ -5,7 +5,9 @@
 
 #include <QAbstractScrollArea>
 #include <QObject>
+#include <QRegularExpression>
 #include <QScrollBar>
+#include <QSortFilterProxyModel>
 
 void CutterSearchableHelper::setupConnections(QWidget *parent, SearchBarWidget *searchBar)
 {

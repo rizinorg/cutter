@@ -128,7 +128,7 @@ HeadersWidget::HeadersWidget(MainWindow *main)
     connect(Core(), &CutterCore::refreshAll, this, &HeadersWidget::refreshHeaders);
     connect(Core(), &CutterCore::commentsChanged, this,
             [this]() { qhelpers::emitColumnChanged(headersModel, HeadersModel::CommentColumn); });
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
+    connect(ui->quickFilterView, &QuickFilterView::filterChanged, this,
             [this] { ui->quickFilterView->setItemCount(headersProxyModel->rowCount()); });
 }
 

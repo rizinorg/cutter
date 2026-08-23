@@ -5,11 +5,13 @@
 #include "CutterDescriptions.h"
 #include "CutterDockWidget.h"
 
+#include <QAction>
 #include <QSortFilterProxyModel>
 
 #include <memory>
 
 class MainWindow;
+class RefreshDeferrer;
 
 namespace Ui {
 class ThreadsWidget;
