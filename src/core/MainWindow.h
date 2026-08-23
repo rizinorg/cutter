@@ -146,6 +146,8 @@ public:
 public slots:
     void finalizeOpen();
     void showAddress(RVA addr);
+    void onSeekChanged(RVA offset, CutterCore::SeekHistoryType type);
+    void forceShowMemoryWidget(MemoryWidgetType type);
 
     void refreshAll();
     void seekToFunctionLastInstruction();
@@ -356,6 +358,9 @@ private:
     MemoryDockWidget *lastSyncMemoryWidget = nullptr;
     MemoryDockWidget *lastMemoryWidget = nullptr;
     int functionDockWidthToRestore = 0;
+    QList<MemoryWidgetType> widgetSwitchHistory;
+    int widgetSwitchHistoryPos = -1;
+    bool restoringWidgetSwitch = false;
 };
 
 #endif // MAINWINDOW_H
