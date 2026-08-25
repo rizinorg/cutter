@@ -73,6 +73,18 @@ if(WIN32)
 			endif()
 		")
 	endif()
+	if (CUTTER_PACKAGE_RZ_FRIDA AND CUTTER_ENABLE_DEPENDENCY_DOWNLOADS)
+		install(CODE "
+			set(ENV{RZ_PREFIX} \"\${CMAKE_INSTALL_PREFIX}\")
+			set(ENV{PATH} \"\${CMAKE_INSTALL_PREFIX};\$ENV{PATH}\")
+			execute_process(COMMAND powershell \"${CMAKE_CURRENT_SOURCE_DIR}/bundle_rz_frida.ps1\" \"\${CMAKE_INSTALL_PREFIX}\" \"-DCUTTER_INSTALL_PLUGDIR=plugins/native\"
+							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+							RESULT_VARIABLE SCRIPT_RESULT)
+			if (SCRIPT_RESULT)
+				message(FATAL_ERROR \"Failed to package rz-frida (returned \${SCRIPT_RESULT})\")
+			endif()
+		")
+	endif()
 endif()
 
 ################################################
@@ -184,6 +196,23 @@ if(CUTTER_ENABLE_DEPENDENCY_DOWNLOADS AND (NOT WIN32))
 							RESULT_VARIABLE SCRIPT_RESULT)
 			if (SCRIPT_RESULT)
 				message(FATAL_ERROR \"Failed to package rz-silhouette (returned \${SCRIPT_RESULT})\")
+			endif()
+		")
+	endif()
+	if (CUTTER_PACKAGE_RZ_FRIDA)
+		if(APPLE)
+			set (FRIDA_PLUGIN_OPTIONS "-DCUTTER_INSTALL_PLUGDIR=plugins/native")
+		else()
+			set (FRIDA_PLUGIN_OPTIONS "")
+		endif()
+		install(CODE "
+			execute_process(COMMAND
+							\"${CMAKE_CURRENT_SOURCE_DIR}/../scripts/rz-frida.sh\"
+							\"\${CMAKE_INSTALL_PREFIX}\" \"${FRIDA_PLUGIN_OPTIONS}\"
+							WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+							RESULT_VARIABLE SCRIPT_RESULT)
+			if (SCRIPT_RESULT)
+				message(FATAL_ERROR \"Failed to package rz-frida (returned \${SCRIPT_RESULT})\")
 			endif()
 		")
 	endif()
