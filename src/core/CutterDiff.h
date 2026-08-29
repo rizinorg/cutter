@@ -109,10 +109,7 @@ public:
     bool openFiles(const QString &fileA, const QString &fileB);
     bool analyzeCores(int level);
     void syncConfig();
-    RzAnalysisMatchResult *matchFunctions(int compareLogic, RzAnalysisMatchThreadInfoCb callback,
-                                          void *user);
-    RzAnalysisMatchResult *matchFunctionBlocks(RzAnalysisFunction *funcA,
-                                               RzAnalysisFunction *funcB);
+
     enum : ut8 { AnalysisLevelSymbols, AnalysisLevelAuto, AnalysisLevelExperimental };
 
     enum : ut8 {
@@ -120,20 +117,22 @@ public:
         CompareLogicComplete, ///< All functions (imports included)
         CompareLogicSymbols, ///< Only symbols
     };
+
+    // Sidebar
     QList<FunctionDescription> getFunctionList(bool orig = true);
+
+    // HexDiff
     QByteArray ioRead(RVA addr, int len, bool orig = true);
     QString getCommentAt(RVA addr, bool orig = true);
     QString listFlagsAsStringAt(RVA addr, bool orig = true);
-    bool cmpBytesAt(RVA addrA, RVA addrB, size_t len);
-    QString getString(RVA addr, uint64_t len, RzStrEnc encoding, bool escape_nl = false,
-                      bool orig = true);
+    bool cmpBytesAt(RVA addrA, RVA addrB, size_t len); // unused
+
+    // Assuming both of the cores will be having same config all the time.
     QString getCommonConfig(const char *key);
     QString getCommonConfig(const QString &key)
     {
         return getCommonConfig(key.toUtf8().constData());
     }
-
-    // Not needed after adding temp config
     void setCommonConfig(const char *key, const char *value);
     int getCommonConfigi(const char *key);
     int getCommonConfigi(const QString &key) { return getCommonConfigi(key.toUtf8().constData()); }
@@ -146,22 +145,32 @@ public:
     QString cmdRawAt(const char *cmd, RVA address, bool orig);
     QString cmdRaw(const char *cmd, bool orig);
     RVA getOffset(bool orig);
-    RZ_OWN RzDiff *lineDiff(const char *lines1, const char *lines2);
-    RZ_OWN RzDiff *lineDiff(const QString &lines1, const QString &lines2);
-    RZ_OWN RzDiff *diffFunctionDissas(RVA addrA, RVA addrB);
-    RZ_OWN RzDiff *diffBlockDisas(RVA addrA, RVA addrB);
     QString disassembleFunction(RVA addr, bool orig);
     QString disassembleBasicBlock(RVA addr, bool orig);
     QString ansiEscapeToHtml(const QString &text);
-    RZ_OWN RzList *lineDiffOpsGrouped(RzDiff *diff) const; // Own RzList
     QString getFileName(bool orig = true) const { return orig ? fileNameA : fileNameB; }
     QString getFilePath(bool orig = true) const { return orig ? filePathA : filePathB; }
     Bound getLineDiffBounds(const QString &line1, const QString &line2);
     bool isFunctionsAnalyzed() const { return functionsAnalyzed; }
     bool isBlocksAnalyzed() const { return blocksAnalyzed; }
-    RZ_OWN RzAnalysisMatchResult *matchFunctionBlocks(RVA addrA, RVA addrB);
+
+    /**
+     * @brief getDiffItemList
+     * @return BinDiffMatchDescription to display in function similarity table.
+     */
     BinDiffMatchDescription getCurrentMatchDescription();
+
+    /**
+     * @brief getDiffItemList
+     * @return Reference to CutterDiffItem list.
+     */
     QList<CutterDiffItem> &getDiffItemList() { return diffItemList; }
+
+    /**
+     * @brief setCurrentDiffItemIndex
+     * sets currentDiffItemIndex to -1 if out of currentDiffItemIndex is given
+     * @param index
+     */
     void setCurrentDiffItemIndex(qsizetype index)
     {
         if (index > diffItemList.size()) {
@@ -173,10 +182,16 @@ public:
         currentDiffItemIndex = index;
         emit currentItemDiffChanged();
     }
+
     qsizetype getCurrentDiffItemIndex() { return getCurrentDiffItemIndex(); }
 
     bool diffEmpty() { return diffItemList.isEmpty(); }
 
+    /**
+     * @brief getCurrentDiffItem :returns reference to the current CutterDiffItem
+     * returns invalid item if index is invalid
+     * @return
+     */
     const CutterDiffItem &getCurrentDiffItem() const
     {
         if (currentDiffItemIndex < 0 || currentDiffItemIndex >= diffItemList.size()) {
@@ -185,13 +200,29 @@ public:
         return diffItemList[currentDiffItemIndex];
     }
 
+    /**
+     * @brief Exporting CutterDiffItems to JSON
+     * @param filePath
+     * @return Operation success bool
+     */
     bool saveDiffItemsToJson(const QString &filePath) const;
 
+    /**
+     * @brief loadDiffItemsFromJson Import JSON and store it into CutterDiff
+     * @param filePath
+     * @return operationSuccessfull bool
+     */
     bool loadDiffItemsFromJson(const QString &filePath);
 
     // maybe adddiffItem
     // removeDiffItem
     // itemupdate signal from diffItems as well which will again trigger dataupdated
+
+    void emitUpdate()
+    {
+        emit diffDataUpdated();
+        qInfo() << "dataUpdated";
+    }
 
 private:
     RzCore *coreA = nullptr;
@@ -205,16 +236,27 @@ private:
 #else
     QRecursiveMutex mutex;
 #endif
-    RzList *getFunctions(RzAnalysis *analysis, int compareLogic); // Own RzList
-    QList<BinDiffMatchDescription> matchedFunctionsList;
-
     bool blocksAnalyzed;
     bool functionsAnalyzed;
     qsizetype currentDiffItemIndex;
     QList<CutterDiffItem> diffItemList;
+
+    // Function pairing
+    RZ_OWN RzList *getFunctions(RzAnalysis *analysis, int compareLogic);
+    RZ_OWN RzAnalysisMatchResult *matchFunctionBlocks(RVA addrA, RVA addrB);
+    RZ_OWN RzAnalysisMatchResult *matchFunctions(int compareLogic,
+                                                 RzAnalysisMatchThreadInfoCb callback, void *user);
+
+    // LineDiffing
+    RZ_OWN RzDiff *lineDiff(const char *lines1, const char *lines2);
+    RZ_OWN RzDiff *lineDiff(const QString &lines1, const QString &lines2);
+    RZ_OWN RzDiff *diffFunctionDissas(RVA addrA, RVA addrB);
+    RZ_OWN RzDiff *diffBlockDisas(RVA addrA, RVA addrB);
+    RZ_OWN RzList *lineDiffOpsGrouped(RzDiff *diff) const;
 signals:
     void currentMatchChanged();
     void currentItemDiffChanged();
+    void diffDataUpdated();
     // void diffDataUpdated();//data update shall be added to every widget TODO
     // so we can do selective diffing of functions and chosse which all the blocks to be diffed
     // also there shall be a individual Diffing thread like BinDiff for performing diffing on

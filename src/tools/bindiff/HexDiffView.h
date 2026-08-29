@@ -1,5 +1,5 @@
-#ifndef HEXDIFF_H
-#define HEXDIFF_H
+#ifndef HEXDIFFVIEW_H
+#define HEXDIFFVIEW_H
 
 #include "Cutter.h"
 #include "common/IOModesController.h"
@@ -87,7 +87,7 @@ enum DiffArea : ut8 {
     ItemA,
     ItemB
 }; // used modulo and comparisons for getting areas for cursorArea and area in mouse press event
-   // both need to be rewritten with a nullarea or no area pointer
+// both need to be rewritten with a nullarea or no area pointer
 
 // Defining DiffFileContext sharing file specific elements in one unified struct
 // I think this shall be moved to the HexDiff class Itself
@@ -565,4 +565,4 @@ private:
     AddressRangeScrollBar *vScrollBar;
 };
 
-#endif // HEXWIDGET_H
+#endif // HEXDIFFVIEW_H

@@ -4,11 +4,10 @@
 #include <QSplitter>
 #include <QVBoxLayout>
 
-GraphDiffWidget::GraphDiffWidget(CutterDiff *cutterDiff, QWidget *parent)
-    : cutterDiff(cutterDiff),
+GraphDiffWidget::GraphDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent)
+    : CutterDiffWidget(cutterDiff, parent),
       leftView(new DiffGraphView(cutterDiff, this)),
       rightView(new DiffGraphView(cutterDiff, this)),
-      QWidget { parent }
 {
     auto vBox = new QVBoxLayout(this);
     setLayout(vBox);
@@ -67,99 +66,69 @@ void GraphDiffWidget::loadGraph()
 {
     const CutterDiffItem &diffItem = cutterDiff->getCurrentDiffItem();
     const auto type = cutterDiff->getCurrentDiffItem().getType();
-    const auto graphMode =
-            static_cast<DiffGraphMode>(comboBox->itemData(comboBox->currentIndex()).toInt());
 
     if (!cutterDiff->getCurrentDiffItem().isFunction()) {
         return;
     }
 
-    if (type != DiffItemMatched) {
-        if (type == DiffItemRemoved) {
-            comboBox->setCurrentIndex(OriginalMode);
-        } else {
-            comboBox->setCurrentIndex(ModifiedMode);
-        }
-        comboBox->setDisabled(true);
-    } else {
-        comboBox->setDisabled(false);
-    }
+    const auto graphMode =
+            static_cast<DiffGraphMode>(comboBox->itemData(comboBox->currentIndex()).toInt());
 
     splitOrientationButton->setDisabled(true);
+    comboBox->setDisabled(true);
 
-    switch (type) {
-    case DiffItemMatched: {
+    leftView->hide();
+    rightView->hide();
+
+    if (type == DiffItemMatched) {
+        comboBox->setDisabled(false);
         functionLabel->setText(QString("%0->%1")
                                        .arg(diffItem.descriptionA()["name"].toString())
                                        .arg(diffItem.descriptionB()["name"].toString()));
         switch (graphMode) {
-        case UnifiedMode:
+        case UnifiedMode: {
             leftView->show();
-            rightView->hide();
             leftView->loadCurrentGraph(Unified);
             break;
+        }
 
-        case SplitMode:
+        case SplitMode: {
             splitOrientationButton->setDisabled(false);
             leftView->show();
             rightView->show();
             leftView->loadCurrentGraph(Original);
             rightView->loadCurrentGraph(Modified);
             break;
+        }
 
-        case OriginalMode:
+        case OriginalMode: {
             leftView->show();
-            rightView->hide();
             leftView->loadCurrentGraph(Original);
             break;
+        }
 
-        case ModifiedMode:
-            leftView->hide();
+        case ModifiedMode: {
             rightView->show();
             rightView->loadCurrentGraph(Modified);
             break;
         }
-        break;
+        default: {
+            break;
+        }
+        }
+
+    } else if (type == DiffItemRemoved) {
+        qInfo() << "yes";
+        const QSignalBlocker blocker(comboBox);
+        comboBox->setCurrentIndex(OriginalMode);
+        leftView->loadCurrentGraph(Original);
+        leftView->show();
+    } else if (type == DiffItemAdded) {
+        const QSignalBlocker blocker(comboBox);
+        comboBox->setCurrentIndex(ModifiedMode);
+        rightView->loadCurrentGraph(Modified);
+        rightView->show();
     }
-
-    case DiffItemRemoved:
-        functionLabel->setText(QString("%0").arg(diffItem.descriptionA()["name"].toString()));
-        switch (graphMode) {
-        case OriginalMode:
-            leftView->show();
-            rightView->hide();
-            leftView->loadCurrentGraph(Original);
-            break;
-
-        default:
-            leftView->hide();
-            rightView->show();
-            rightView->loadCurrentGraph(Modified);
-            break;
-        }
-        break;
-
-    case DiffItemAdded:
-        functionLabel->setText(QString("%0").arg(diffItem.descriptionB()["name"].toString()));
-        switch (graphMode) {
-        case ModifiedMode:
-            leftView->hide();
-            rightView->show();
-            rightView->loadCurrentGraph(Modified);
-            break;
-
-        default:
-            leftView->show();
-            rightView->hide();
-            leftView->loadCurrentGraph(Original);
-            break;
-        }
-        break;
-
-    default:
-        functionLabel->setText("unknown");
-        leftView->hide();
-        rightView->hide();
-        break;
-    }
+    leftView->refreshView();
+    rightView->refreshView();
 }

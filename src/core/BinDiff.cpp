@@ -18,10 +18,7 @@ BinDiff::BinDiff()
     cutterDiff.reset(new CutterDiff());
 }
 
-BinDiff::~BinDiff()
-{
-    rz_analysis_match_result_free(result);
-}
+BinDiff::~BinDiff() {}
 
 bool BinDiff::hasData()
 {
@@ -61,7 +58,6 @@ void BinDiff::run()
     qRegisterMetaType<BinDiffStatusDescription>();
 
     mutex.lock();
-    rz_analysis_match_result_free(result);
     continueRun = true;
     maxTotal = 1; // maxTotal must be at least 1.
     mutex.unlock();
@@ -80,6 +76,7 @@ void BinDiff::run()
     if (canComplete) {
         emit complete();
     }
+    cutterDiff->emitUpdate();
 }
 
 void BinDiff::cancel()
@@ -149,6 +146,7 @@ QList<DiffInstr> BinDiff::rzDiffOpToCutterInstrs(RzDiff *diff,
 
 void BinDiff::sortFunctions()
 {
+    RzAnalysisMatchResult *result = cutterDiff->matchFunctions(compareLogic, threadCallback, this);
     if (!result) {
         return;
     }
@@ -227,6 +225,7 @@ void BinDiff::sortFunctions()
         item.descB["disas"] = disasB;
     }
     cutterDiff->functionsAnalyzed = true;
+    rz_analysis_match_result_free(result);
 }
 
 static int compareBlocks(const RzAnalysisBlock *a, const RzAnalysisBlock *b, void *user)
@@ -256,92 +255,112 @@ void BinDiff::storeBlocksDiff()
     const RzListIter *it = nullptr;
     const RzAnalysisBlock *bb = nullptr;
     for (CutterDiffItem &diffItem : cutterDiff->getDiffItemList()) {
-        if (diffItem.getType() != DiffItemMatched) {
-            continue;
-        }
-        const BinDiffMatchDescription match = diffItem.toBinDiffMatchDescription();
-        result = cutterDiff->matchFunctionBlocks(match.original.offset, match.modified.offset);
-        if (!result) {
-            qWarning() << "Failed to perform blocks matching";
-            continue;
-        }
-        rz_list_sort(result->matches, reinterpret_cast<RzListComparator>(comparePairBlocks),
-                     nullptr);
-        rz_list_sort(result->unmatch_a, reinterpret_cast<RzListComparator>(comparePairBlocks),
-                     nullptr);
-        rz_list_sort(result->unmatch_b, reinterpret_cast<RzListComparator>(comparePairBlocks),
-                     nullptr);
-        // Find Best Pairs
-        QHash<const RzAnalysisBlock *, MatchBlockEntry> bestMatches;
-        QSet<const RzAnalysisBlock *> discardedA;
-
-        CutterRzListForeach (result->matches, it, RzAnalysisMatchPair, pair) {
-            auto *blockA = static_cast<const RzAnalysisBlock *>(pair->pair_a);
-            auto *blockB = static_cast<const RzAnalysisBlock *>(pair->pair_b);
-
-            auto hashIt = bestMatches.find(blockB);
-
-            if (hashIt == bestMatches.end()) {
-                bestMatches.insert(blockB, { blockA, blockB, pair->similarity });
+        if (diffItem.getType() == DiffItemMatched) {
+            const BinDiffMatchDescription match = diffItem.toBinDiffMatchDescription();
+            result = cutterDiff->matchFunctionBlocks(match.original.offset, match.modified.offset);
+            if (!result) {
+                qWarning() << "Failed to perform blocks matching";
                 continue;
             }
+            rz_list_sort(result->matches, reinterpret_cast<RzListComparator>(comparePairBlocks),
+                         nullptr);
+            rz_list_sort(result->unmatch_a, reinterpret_cast<RzListComparator>(comparePairBlocks),
+                         nullptr);
+            rz_list_sort(result->unmatch_b, reinterpret_cast<RzListComparator>(comparePairBlocks),
+                         nullptr);
+            // Find Best Pairs
+            QHash<const RzAnalysisBlock *, MatchBlockEntry> bestMatches;
+            QSet<const RzAnalysisBlock *> discardedA;
 
-            if (pair->similarity > hashIt->similarity) {
+            CutterRzListForeach (result->matches, it, RzAnalysisMatchPair, pair) {
+                auto *blockA = static_cast<const RzAnalysisBlock *>(pair->pair_a);
+                auto *blockB = static_cast<const RzAnalysisBlock *>(pair->pair_b);
 
-                discardedA.insert(hashIt->blockA);
+                auto hashIt = bestMatches.find(blockB);
 
-                discardedA.remove(blockA);
+                if (hashIt == bestMatches.end()) {
+                    bestMatches.insert(blockB, { blockA, blockB, pair->similarity });
+                    continue;
+                }
 
-                hashIt->blockA = blockA;
-                hashIt->similarity = pair->similarity;
-            } else {
+                if (pair->similarity > hashIt->similarity) {
 
-                discardedA.insert(blockA);
+                    discardedA.insert(hashIt->blockA);
+
+                    discardedA.remove(blockA);
+
+                    hashIt->blockA = blockA;
+                    hashIt->similarity = pair->similarity;
+                } else {
+
+                    discardedA.insert(blockA);
+                }
             }
-        }
 
-        for (const MatchBlockEntry &entry : std::as_const(bestMatches)) {
-            const RzAnalysisBlock *blockA = entry.blockA;
-            const RzAnalysisBlock *blockB = entry.blockB;
-            CutterDiffItem &diffBlock = diffItem.blocks.emplaceBack(DiffItemMatched, blockA, blockB,
-                                                                    "", entry.similarity);
-            // Condition for getting disassembly
-            const QString disasA = cutterDiff->disassembleBasicBlock(blockA->addr, true);
-            const QString disasB = cutterDiff->disassembleBasicBlock(blockB->addr, false);
-            RzDiff *diff = cutterDiff->lineDiff(disasA, disasB);
-            RzList *groups = cutterDiff->lineDiffOpsGrouped(diff);
-            diffBlock.instrDiffs["disas"] = rzDiffOpToCutterInstrs(diff, groups);
-            diffItem.offsetAtoB[blockA->addr] = blockB->addr;
-            diffItem.offsetBtoA[blockB->addr] = blockA->addr;
-            rz_diff_free(diff);
-            rz_list_free(groups);
-        }
+            for (const MatchBlockEntry &entry : std::as_const(bestMatches)) {
+                const RzAnalysisBlock *blockA = entry.blockA;
+                const RzAnalysisBlock *blockB = entry.blockB;
+                CutterDiffItem &diffBlock = diffItem.blocks.emplaceBack(
+                        DiffItemMatched, blockA, blockB, "", entry.similarity);
+                // Condition for getting disassembly
+                const QString disasA = cutterDiff->disassembleBasicBlock(blockA->addr, true);
+                const QString disasB = cutterDiff->disassembleBasicBlock(blockB->addr, false);
+                RzDiff *diff = cutterDiff->lineDiff(disasA, disasB);
+                RzList *groups = cutterDiff->lineDiffOpsGrouped(diff);
+                diffBlock.instrDiffs["disas"] = rzDiffOpToCutterInstrs(diff, groups);
+                diffItem.offsetAtoB[blockA->addr] = blockB->addr;
+                diffItem.offsetBtoA[blockB->addr] = blockA->addr;
+                rz_diff_free(diff);
+                rz_list_free(groups);
+            }
 
-        for (const RzAnalysisBlock *bb : discardedA) {
-            CutterDiffItem &diffBlock = diffItem.blocks.emplaceBack(
-                    DiffItemRemoved, static_cast<const RzAnalysisBlock *>(bb), nullptr, "", 0);
-            diffBlock.descA["disas"] = cutterDiff->disassembleBasicBlock(bb->addr, true);
-            // condition for getting disassembly
-        }
+            for (const RzAnalysisBlock *bb : discardedA) {
+                CutterDiffItem &diffBlock = diffItem.blocks.emplaceBack(
+                        DiffItemRemoved, static_cast<const RzAnalysisBlock *>(bb), nullptr, "", 0);
+                diffBlock.descA["disas"] = cutterDiff->disassembleBasicBlock(bb->addr, true);
+                // condition for getting disassembly
+            }
 
-        CutterRzListForeach (result->unmatch_a, it, RzAnalysisBlock, bb) {
-            CutterDiffItem &diffBlock = diffItem.blocks.emplaceBack(
-                    DiffItemRemoved, static_cast<const RzAnalysisBlock *>(bb), nullptr, "", 0);
-            diffBlock.descA["disas"] = cutterDiff->disassembleBasicBlock(bb->addr, true);
-            // condition for getting disassembly
-        }
-        CutterRzListForeach (result->unmatch_b, it, RzAnalysisBlock, bb) {
-            CutterDiffItem &diffBlock = diffItem.blocks.emplaceBack(
-                    DiffItemAdded, nullptr, static_cast<const RzAnalysisBlock *>(bb), "", 0);
+            CutterRzListForeach (result->unmatch_a, it, RzAnalysisBlock, bb) {
+                CutterDiffItem &diffBlock = diffItem.blocks.emplaceBack(
+                        DiffItemRemoved, static_cast<const RzAnalysisBlock *>(bb), nullptr, "", 0);
+                diffBlock.descA["disas"] = cutterDiff->disassembleBasicBlock(bb->addr, true);
+                // condition for getting disassembly
+            }
+            CutterRzListForeach (result->unmatch_b, it, RzAnalysisBlock, bb) {
+                CutterDiffItem &diffBlock = diffItem.blocks.emplaceBack(
+                        DiffItemAdded, nullptr, static_cast<const RzAnalysisBlock *>(bb), "", 0);
 
-            // Condition for getting disassembly
-            diffBlock.descB["disas"] = cutterDiff->disassembleBasicBlock(bb->addr, false);
+                // Condition for getting disassembly
+                diffBlock.descB["disas"] = cutterDiff->disassembleBasicBlock(bb->addr, false);
+            }
+            rz_analysis_match_result_free(result);
+            result = nullptr;
+        } else if (diffItem.getType() == DiffItemRemoved) {
+            const RzAnalysisFunction *func = rz_analysis_get_function_at(
+                    cutterDiff->coreA->analysis, diffItem.descriptionA()["offset"].toULongLong());
+            if (!func) {
+                continue;
+            }
+            for (auto *bb : CutterPVector<RzAnalysisBlock>(func->bbs)) {
+                CutterDiffItem &diffBlock = diffItem.blocks.emplaceBack(
+                        DiffItemRemoved, static_cast<const RzAnalysisBlock *>(bb), nullptr, "", 0);
+                diffBlock.descA["disas"] = cutterDiff->disassembleBasicBlock(bb->addr, true);
+            }
+        } else {
+            const RzAnalysisFunction *func = rz_analysis_get_function_at(
+                    cutterDiff->coreB->analysis, diffItem.descriptionB()["offset"].toULongLong());
+            if (!func) {
+                continue;
+            }
+            for (auto *bb : CutterPVector<RzAnalysisBlock>(func->bbs)) {
+                CutterDiffItem &diffBlock = diffItem.blocks.emplaceBack(
+                        DiffItemAdded, nullptr, static_cast<const RzAnalysisBlock *>(bb), "", 0);
+                diffBlock.descB["disas"] = cutterDiff->disassembleBasicBlock(bb->addr, false);
+            }
         }
     }
     cutterDiff->blocksAnalyzed = true;
-    if (result) {
-        rz_analysis_match_result_free(result);
-    }
 }
 
 bool BinDiff::updateProgress(size_t nLeft, size_t nMatch)

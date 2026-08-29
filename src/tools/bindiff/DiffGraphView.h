@@ -1,6 +1,7 @@
 #ifndef DIFFGRAPHVIEW_H
 #define DIFFGRAPHVIEW_H
 
+#include <QAction>
 #include <QWidget>
 
 #include <Configuration.h>
@@ -89,6 +90,7 @@ signals:
 
 private:
     DiffGraphMode diffGraphMode = Unified;
+    QAction *actionCenter = nullptr;
 };
 
 #endif // DIFFGRAPHVIEW_H

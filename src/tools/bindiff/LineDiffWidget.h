@@ -1,6 +1,8 @@
 #ifndef LINEDIFFWIDGET_H
 #define LINEDIFFWIDGET_H
 
+#include "CutterDiffWindow.h"
+
 #include <QAction>
 #include <QComboBox>
 #include <QLabel>
@@ -15,12 +17,12 @@
 class DiffTextEdit;
 class LineNumberArea;
 
-class LineDiffWidget : public QWidget
+class LineDiffWidget : public CutterDiffWidget
 {
     Q_OBJECT
 
 public:
-    explicit LineDiffWidget(CutterDiff *cutterDiff, QWidget *parent = nullptr);
+    explicit LineDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent);
     ~LineDiffWidget();
     void fetchFunctionDisasSplit(const CutterDiffItem &diffItem);
     void balanceLines();

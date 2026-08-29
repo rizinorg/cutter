@@ -1,4 +1,4 @@
-#include "HexDiff.h"
+#include "HexDiffView.h"
 
 #include "Configuration.h"
 #include "Cutter.h"
