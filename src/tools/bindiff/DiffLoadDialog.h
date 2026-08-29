@@ -6,6 +6,7 @@
 #include <QDialog>
 #include <QListWidgetItem>
 
+#include <CutterDiff.h>
 #include <core/Cutter.h>
 #include <memory>
 
@@ -39,6 +40,8 @@ private slots:
 
 private:
     std::unique_ptr<Ui::DiffLoadDialog> ui;
+    std::unique_ptr<CutterDiff> cutterDiff;
+    DiffWaitDialog *waitDialogue;
 };
 
 #endif // DIFF_LOAD_DIALOG_H

@@ -32,6 +32,13 @@
       <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
      </property>
      <item>
+      <widget class="QLabel" name="labelJob">
+       <property name="text">
+        <string>Analyzing...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QProgressBar" name="progressBar">
        <property name="value">
         <number>24</number>
@@ -40,65 +47,48 @@
      </item>
      <item>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="3" column="1">
-        <widget class="QLabel" name="lineEditElapsedTime"/>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="lineEditModified"/>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="labelElapsedTime">
-         <property name="text">
-          <string>Elapsed Time</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="labelModified">
-         <property name="text">
-          <string>Modified File</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="labelMatches">
-         <property name="text">
-          <string>Matches</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="lineEditOriginal"/>
-       </item>
-       <item row="0" column="0">
+       <property name="sizeConstraint">
+        <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
+       </property>
+       <item row="2" column="0">
         <widget class="QLabel" name="labelOrignal">
          <property name="text">
           <string>Original File</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
-        <widget class="QLineEdit" name="lineEditNFuncs"/>
-       </item>
        <item row="4" column="0">
-        <widget class="QLabel" name="labelNFuncs">
-         <property name="text">
-          <string>Functions left to compare</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QLineEdit" name="lineEditMatches"/>
-       </item>
-       <item row="2" column="0">
         <widget class="QLabel" name="labelEstimatedTime">
          <property name="text">
           <string>Estimated Time</string>
          </property>
         </widget>
        </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="lineEditModified"/>
+       </item>
        <item row="2" column="1">
+        <widget class="QLineEdit" name="lineEditOriginal"/>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="labelElapsedTime">
+         <property name="text">
+          <string>Elapsed Time</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="labelModified">
+         <property name="text">
+          <string>Modified File</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
         <widget class="QLabel" name="lineEditEstimatedTime"/>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLabel" name="lineEditElapsedTime"/>
        </item>
       </layout>
      </item>

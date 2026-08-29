@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 
 #include <DisassemblyPreview.h>
+#include <dialogs/MultitypeFileSaveDialog.h>
 
 DiffGraphView::DiffGraphView(CutterDiff *cutterDiff, QWidget *parent)
     : CutterGraphView(parent), contextMenu(new QMenu(this)), cutterDiff(cutterDiff)
@@ -10,9 +11,16 @@ DiffGraphView::DiffGraphView(CutterDiff *cutterDiff, QWidget *parent)
     // colors update
     // relevant refresh signals
     // Navigation shortcuts
+    actionCenter = new QAction("Center", this);
     installEventFilter(this);
     connect(Core(), &CutterCore::refreshAll, this, &DiffGraphView::refreshView);
-    // contextMenu->addAction(&actionExportGraph);
+    connect(cutterDiff, &CutterDiff::currentItemDiffChanged, this, &DiffGraphView::refreshView);
+    connect(actionCenter, &QAction::triggered, this, [this]() {
+        center();
+        this->viewport()->update();
+    });
+    contextMenu->addAction(&actionExportGraph);
+    contextMenu->addAction(actionCenter);
     contextMenu->addMenu(layoutMenu);
 }
 
@@ -21,7 +29,8 @@ DiffGraphView::~DiffGraphView() {}
 void DiffGraphView::refreshView()
 {
     CutterGraphView::refreshView();
-    loadCurrentGraph(diffGraphMode);
+    // loadCurrentGraph(diffGraphMode);
+    viewport()->update();
     emit viewRefreshed();
 }
 
@@ -210,7 +219,7 @@ void DiffGraphView::addDiffGraphBlockMismatch(const CutterDiffItem &diffItem)
 
     if (desc.contains("casejumps")) {
         for (const qulonglong jump : desc["casejumps"].value<QList<qulonglong>>()) {
-            const ut64 graphEntry = graphEntryFromOffset(jump, true);
+            const ut64 graphEntry = graphEntryFromOffset(jump, isOriginal);
             db.caseOps[graphEntry] = diffItem.getType();
         }
     }
@@ -241,31 +250,31 @@ void DiffGraphView::loadCurrentGraph(DiffGraphMode graphMode)
     // map offsets to graphblock entries
     // RVA_INVALID or 0 can get mapped incase of missing entries
     ut64 count = 0;
-    for (const CutterDiffItem &diffItem : cutterDiff->getCurrentDiffItem().getBlocks()) {
-        switch (diffItem.getType()) {
+    for (const CutterDiffItem &diffBlock : cutterDiff->getCurrentDiffItem().getBlocks()) {
+        switch (diffBlock.getType()) {
         case DiffItemMatched:
-            blocksA[diffItem.descriptionA()["offset"].toULongLong()] = count;
-            blocksB[diffItem.descriptionB()["offset"].toULongLong()] = count++;
+            blocksA[diffBlock.descriptionA()["offset"].toULongLong()] = count;
+            blocksB[diffBlock.descriptionB()["offset"].toULongLong()] = count++;
             break;
         case DiffItemAdded:
-            blocksB[diffItem.descriptionB()["offset"].toULongLong()] = count++;
+            blocksB[diffBlock.descriptionB()["offset"].toULongLong()] = count++;
             break;
         case DiffItemRemoved:
-            blocksA[diffItem.descriptionA()["offset"].toULongLong()] = count++;
+            blocksA[diffBlock.descriptionA()["offset"].toULongLong()] = count++;
             break;
         default:
             break;
         }
     }
 
-    for (const CutterDiffItem &diffItem : cutterDiff->getCurrentDiffItem().getBlocks()) {
-        if (diffItem.getType() == DiffItemType::DiffItemMatched) {
-            addDiffGraphBlockMatched(diffItem);
-        } else if (diffItem.getType() == DiffItemType::DiffItemAdded && (graphMode != Original)) {
-            addDiffGraphBlockMismatch(diffItem);
-        } else if (diffItem.getType() == DiffItemType::DiffItemRemoved
+    for (const CutterDiffItem &diffBlock : cutterDiff->getCurrentDiffItem().getBlocks()) {
+        if (diffBlock.getType() == DiffItemType::DiffItemMatched) {
+            addDiffGraphBlockMatched(diffBlock);
+        } else if (diffBlock.getType() == DiffItemType::DiffItemAdded && (graphMode != Original)) {
+            addDiffGraphBlockMismatch(diffBlock);
+        } else if (diffBlock.getType() == DiffItemType::DiffItemRemoved
                    && (graphMode != Modified)) { // Block Removed
-            addDiffGraphBlockMismatch(diffItem);
+            addDiffGraphBlockMismatch(diffBlock);
         }
     }
 
@@ -276,7 +285,7 @@ void DiffGraphView::loadCurrentGraph(DiffGraphMode graphMode)
 void DiffGraphView::prepareGraphNode(GraphBlock &block)
 {
     DiffBlock &db = diffBlocks[block.entry];
-    auto lineCount = [](const QString &str) { return str.split('\n').size(); };
+    auto lineCount = [](const QString &str) { return str.isEmpty() ? 0 : str.count('\n') + 1; };
 
     auto longestLine = [this](const QString &str) {
         double longest = 0;
@@ -389,7 +398,7 @@ void DiffGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool)
         p.drawText(QPointF(x, y), line);
         y += charHeight;
     }
-    auto lineCount = [](const QString &str) { return str.split('\n').size(); };
+    auto lineCount = [](const QString &str) { return str.isEmpty() ? 0 : str.count('\n') + 1; };
     if (db.type == DiffItemMatched) {
         if (diffGraphMode == Unified) {
             for (const DiffInstr &instr : db.instrs) {
@@ -435,11 +444,14 @@ void DiffGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool)
                 const int slotHeight = qMax(aLines, bLines);
 
                 if (diffGraphMode == Original) {
-                    // Draw A
+                    QStringList instrList;
+
                     if (instr.type == DiffInstrEqual || instr.type == DiffInstrDeleted
                         || instr.type == DiffInstrReplaced) {
 
-                        for (const QString &line : instr.a.split('\n')) {
+                        instrList = instr.a.isEmpty() ? QStringList {} : instr.a.split('\n');
+
+                        for (const QString &line : instrList) {
                             drawDiffLine(p, line, x, y,
                                          instr.type == DiffInstrEqual ? DiffInstrEqual
                                                                       : DiffInstrDeleted);
@@ -447,23 +459,26 @@ void DiffGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool)
                         }
                     }
 
-                    // Reserve remaining rows
-                    y += (slotHeight - aLines) * charHeight;
+                    const int displayedLines = instrList.size();
+                    y += (slotHeight - displayedLines) * charHeight;
                 } else if (diffGraphMode == Modified) {
-                    // Draw B
-                    if (instr.type == DiffInstrEqual || instr.type == DiffInstrInserted
-                        || instr.type == DiffInstrReplaced) {
+                    QStringList instrList;
 
-                        for (const QString &line : instr.b.split('\n')) {
-                            drawDiffLine(p, line, x, y,
-                                         instr.type == DiffInstrEqual ? DiffInstrEqual
-                                                                      : DiffInstrInserted);
-                            y += charHeight;
-                        }
+                    if (instr.type == DiffInstrEqual) {
+                        instrList = instr.a.isEmpty() ? QStringList {} : instr.a.split('\n');
+                    } else if (instr.type == DiffInstrInserted || instr.type == DiffInstrReplaced) {
+                        instrList = instr.b.isEmpty() ? QStringList {} : instr.b.split('\n');
                     }
 
-                    // Reserve remaining rows
-                    y += (slotHeight - bLines) * charHeight;
+                    for (const QString &line : instrList) {
+                        drawDiffLine(p, line, x, y,
+                                     instr.type == DiffInstrEqual ? DiffInstrEqual
+                                                                  : DiffInstrInserted);
+                        y += charHeight;
+                    }
+
+                    const int displayedLines = instrList.size();
+                    y += (slotHeight - displayedLines) * charHeight;
                 }
             }
         }
@@ -516,14 +531,6 @@ GraphView::EdgeConfiguration DiffGraphView::edgeConfiguration(GraphView::GraphBl
             ec.lineStyle = Qt::DotLine; // show removed lines as dotted
         }
     } // two new types of edges for old and new for unified view
-
-    // if (to->entry == db.truePath){
-    //     ec.color = brtrueColor;
-    // } else if (to->entry == db.falsePath){
-    //     ec.color = brfalseColor;
-    // } else {
-    //     ec.color = jmpColor;
-    // }// two new types of edges for old and new for unified view
 
     ec.startArrow = false;
     ec.endArrow = true;
@@ -584,7 +591,81 @@ void DiffGraphView::contextMenuEvent(QContextMenuEvent *event)
 
 void DiffGraphView::showExportDialog()
 {
-    // showExportGraphDialog(defaultName, RZ_CORE_GRAPH_TYPE_BLOCK_FUN, currentFcnAddr);
+    QString defaultName;
+    const CutterDiffItem &diffItem = cutterDiff->getCurrentDiffItem();
+    const DiffItemType type = diffItem.getType();
+
+    const uint64_t bitmapExportWarningSize = 32 * 1024 * 1024;
+
+    // May need to match default conventional naming of graphs
+    if (type == DiffItemMatched) {
+        defaultName = QString("%0->%1")
+                              .arg(diffItem.descriptionA()["name"].toString())
+                              .arg(diffItem.descriptionB()["name"].toString());
+    } else if (type == DiffItemAdded) {
+        defaultName = QString("%0").arg(diffItem.descriptionA()["name"].toString());
+    } else {
+        defaultName = QString("%0").arg(diffItem.descriptionB()["name"].toString());
+    }
+
+    defaultName.replace(QRegularExpression("[.:]"), "_");
+    defaultName.remove(QRegularExpression("[^a-zA-Z0-9_].*"));
+    if (defaultName.isEmpty()) {
+        defaultName = "graph";
+    }
+    const QVector<MultitypeFileSaveDialog::TypeDescription> types = {
+        { tr("PNG (*.png)"), "png", QVariant::fromValue(GraphExportType::Png) },
+        { tr("JPEG (*.jpg)"), "jpg", QVariant::fromValue(GraphExportType::Jpeg) },
+        { tr("SVG (*.svg)"), "svg", QVariant::fromValue(GraphExportType::Svg) }
+    };
+
+    MultitypeFileSaveDialog dialog(this, tr("Export Graph"));
+    dialog.setTypes(types);
+    dialog.selectFile(defaultName);
+    if (!dialog.exec()) {
+        return;
+    }
+
+    auto selectedType = dialog.selectedType();
+    if (!selectedType.data.canConvert<GraphExportType>()) {
+        qWarning() << "Bad selected type, should not happen.";
+        return;
+    }
+    auto exportType = selectedType.data.value<GraphExportType>();
+
+    if (graphIsBitamp(exportType)) {
+        const uint64_t bitmapSize = uint64_t(width) * uint64_t(height);
+        if (bitmapSize > bitmapExportWarningSize) {
+            auto answer =
+                    QMessageBox::question(this, tr("Graph Export"),
+                                          tr("Do you really want to export %1 x %2 = %3 pixel "
+                                             "bitmap image? Consider using different format.")
+                                                  .arg(width)
+                                                  .arg(height)
+                                                  .arg(bitmapSize));
+            if (answer != QMessageBox::Yes) {
+                return;
+            }
+        }
+    }
+
+    const QString filePath = dialog.selectedFiles().first();
+    const bool graphTransparent = Config()->getBitmapTransparentState();
+    const double graphScaleFactor = Config()->getBitmapExportScaleFactor();
+    switch (exportType) {
+    case GraphExportType::Png:
+        this->saveAsBitmap(filePath, "png", graphScaleFactor, graphTransparent);
+        break;
+    case GraphExportType::Jpeg:
+        this->saveAsBitmap(filePath, "jpg", graphScaleFactor, false);
+        break;
+    case GraphExportType::Svg:
+        this->saveAsSvg(filePath);
+        break;
+    default:
+        qInfo() << "Export format not supported yet.";
+        break;
+    }
 }
 
 void DiffGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos)

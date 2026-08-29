@@ -260,13 +260,13 @@ class AddressRangeScrollBar;
 /**
  * @brief Widget for rendering and editing of hex and ASCII memory data
  */
-class HexDiff : public QScrollArea
+class HexDiffView : public QScrollArea
 {
     Q_OBJECT
 
 public:
-    explicit HexDiff(CutterDiff *cutterDiff, QWidget *parent = nullptr);
-    ~HexDiff() override = default;
+    explicit HexDiffView(CutterDiff *cutterDiff, QWidget *parent = nullptr);
+    ~HexDiffView() override = default;
 
     void setMonospaceFont(const QFont &font);
 
@@ -328,7 +328,7 @@ public slots:
     void refresh();
     void updateColors();
 signals:
-    void selectionChanged(HexDiff::Selection selection);
+    void selectionChanged(HexDiffView::Selection selection);
     void positionChanged(RVA start);
 
 protected:

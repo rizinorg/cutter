@@ -1,6 +1,7 @@
 #ifndef GRAPHDIFFWIDGET_H
 #define GRAPHDIFFWIDGET_H
 
+#include "CutterDiffWindow.h"
 #include "DiffGraphView.h"
 
 #include <QComboBox>
@@ -12,11 +13,11 @@
 
 enum GraphWidgetMode : ut8 { UnifiedMode, SplitMode, OriginalMode, ModifiedMode };
 
-class GraphDiffWidget : public QWidget
+class GraphDiffWidget : public CutterDiffWidget
 {
     Q_OBJECT
 public:
-    explicit GraphDiffWidget(CutterDiff *cutterDiff, QWidget *parent = nullptr);
+    explicit GraphDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent);
     void loadGraph();
     void changeSplitOrientation();
 signals:

@@ -180,11 +180,15 @@ set(SOURCES
     core/CutterDiff.cpp
     tools/bindiff/CutterDiffWindow.cpp
     tools/bindiff/DiffWaitDialog.cpp
-    tools/bindiff/HexDiff.cpp
+    tools/bindiff/HexDiffView.cpp
     tools/bindiff/LineDiffWidget.cpp
     tools/bindiff/GraphDiffWidget.cpp
     tools/bindiff/DiffGraphView.cpp
     tools/bindiff/DiffExportDialog.cpp
+    tools/bindiff/FunctionDiffNavWidget.cpp
+    tools/bindiff/DiffMatchWidget.cpp
+    tools/bindiff/DiffMisMatchWidget.cpp
+    tools/bindiff/HexDiffWidget.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -373,11 +377,15 @@ set(HEADER_FILES
     core/CutterDiff.h
     tools/bindiff/CutterDiffWindow.h
     tools/bindiff/DiffWaitDialog.h
-    tools/bindiff/HexDiff.h
+    tools/bindiff/HexDiffView.h
     tools/bindiff/LineDiffWidget.h
     tools/bindiff/GraphDiffWidget.h
     tools/bindiff/DiffGraphView.h
     tools/bindiff/DiffExportDialog.h
+    tools/bindiff/FunctionDiffNavWidget.h
+    tools/bindiff/DiffMatchWidget.h
+    tools/bindiff/DiffMisMatchWidget.h
+    tools/bindiff/HexDiffWidget.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -465,7 +473,7 @@ set(UI_FILES
     tools/bindiff/DiffLoadDialog.ui
     tools/bindiff/CutterDiffWindow.ui
     tools/bindiff/DiffWaitDialog.ui
-    tools/bindiff/LineDiffWidget.ui
+    tools/bindiff/HexDiffWidget.ui
 )
 set(QRC_FILES
     resources.qrc

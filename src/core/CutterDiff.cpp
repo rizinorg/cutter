@@ -587,6 +587,9 @@ fail:
 
 RzAnalysisMatchResult *CutterDiff::matchFunctionBlocks(RVA addrA, RVA addrB)
 {
+    // Progress shall update shall be worked on in future and it requires
+    // A work orchestration model for BinDiff then the callback and owner
+    // arguments shall be added to the function.
     RzAnalysisFunction *funcA = rz_analysis_get_function_at(coreA->analysis, addrA);
     RzAnalysisFunction *funcB = rz_analysis_get_function_at(coreB->analysis, addrB);
     RzAnalysisMatchResult *results = nullptr;

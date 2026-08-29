@@ -15,13 +15,9 @@ DiffWaitDialog::DiffWaitDialog(QWidget *parent)
     setModal(true);
     bDiff.reset(new BinDiff());
 
-    ui->lineEditNFuncs->setReadOnly(true);
-    ui->lineEditMatches->setReadOnly(true);
     ui->lineEditOriginal->setReadOnly(true);
     ui->lineEditModified->setReadOnly(true);
     ui->progressBar->setValue(0);
-    ui->lineEditNFuncs->setText("0");
-    ui->lineEditMatches->setText("0");
 
     const QTime zero(0, 0, 0, 0);
     ui->lineEditElapsedTime->setText(zero.toString("hh:mm:ss"));
@@ -63,8 +59,6 @@ void DiffWaitDialog::onProgress(BinDiffStatusDescription status)
     const int partial = status.total - status.nLeft;
     const ut32 progress = (100 * partial) / status.total;
     ui->progressBar->setValue(progress);
-    ui->lineEditNFuncs->setText(QString::asprintf("%lu", status.nLeft));
-    ui->lineEditMatches->setText(QString::asprintf("%lu", status.nMatch));
 
     const double speed = ((double)partial) / ((double)eTimer.elapsed());
     ut64 seconds = (((double)status.nLeft) / speed) / 1000ull;

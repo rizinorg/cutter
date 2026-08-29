@@ -10,9 +10,8 @@
 
 #include <Configuration.h>
 
-LineDiffWidget::LineDiffWidget(CutterDiff *cutterDiff, QWidget *parent)
-    : QWidget(parent),
-      cutterDiff(cutterDiff),
+LineDiffWidget::LineDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent)
+    : CutterDiffWidget(cutterDiff, parent),
       leftEdit(new DiffTextEdit(this)),
       rightEdit(new DiffTextEdit(this)),
       unifiedEdit(new DiffTextEdit(this)),
@@ -20,29 +19,44 @@ LineDiffWidget::LineDiffWidget(CutterDiff *cutterDiff, QWidget *parent)
       splitViewSplitter(new QSplitter(Qt::Horizontal, this))
 {
     auto *layoutV = new QVBoxLayout(this);
-    auto *layoutHHeader = new QVBoxLayout(this);
     layoutV->setContentsMargins(0, 0, 0, 0);
     layoutV->setSpacing(2);
+
+    // Header
+    auto *layoutHHeader = new QHBoxLayout();
+
     functionLabel = new QLabel(this);
     layoutHHeader->addWidget(functionLabel);
+
     layoutV->addLayout(layoutHHeader, 0);
-    auto *layoutHEdits = new QHBoxLayout(this);
-    layoutV->addLayout(layoutHEdits, 1);
+
+    // Editors
+    auto *layoutHEdits = new QHBoxLayout();
+
     layoutHEdits->addWidget(unifiedEdit);
+
     splitViewSplitter->addWidget(leftEdit);
     splitViewSplitter->addWidget(rightEdit);
+
     layoutHEdits->addWidget(splitViewSplitter);
-    auto layoutH = new QHBoxLayout(this);
+
+    layoutV->addLayout(layoutHEdits, 1);
+
+    // Bottom controls
+    auto *layoutH = new QHBoxLayout();
+
     layoutH->addStretch();
 
-    auto labelLineDiff = new QLabel(this);
-    labelLineDiff->setText("View : ");
+    auto *labelLineDiff = new QLabel("View : ", this);
     layoutH->addWidget(labelLineDiff);
 
     splitOrientationButton = new QPushButton(this);
     splitOrientationButton->setText("↕");
     splitOrientationButton->setToolTip("Toggle split view orientation");
+
     layoutH->addWidget(splitOrientationButton);
+
+    layoutV->addLayout(layoutH, 0);
 
     viewSelector->addItems({ "Unified", "Split", "Left", "Right" });
     connect(viewSelector, &QComboBox::currentIndexChanged, this,
@@ -55,9 +69,6 @@ LineDiffWidget::LineDiffWidget(CutterDiff *cutterDiff, QWidget *parent)
         splitHorizontal = !splitHorizontal;
         onViewModeChanged();
     });
-
-    layoutH->addWidget(viewSelector);
-    layoutV->addLayout(layoutH);
 
     // Implement Syncronouse Scrolling compatible with Horizontal view as well
 
@@ -138,14 +149,15 @@ void LineDiffWidget::fetchFunctionDisasSplit(const CutterDiffItem &diffItem)
     if (!diffItem.isFunction()) {
         return;
     }
+    leftEdit->clear();
+    rightEdit->clear();
+    unifiedEdit->clear();
     if (diffItem.getType() == DiffItemMatched) {
         functionLabel->setText(QString("%0 -> %1")
                                        .arg(diffItem.descriptionA()["name"].toString())
                                        .arg(diffItem.descriptionB()["name"].toString()));
         viewSelector->setDisabled(false);
         const QSignalBlocker blocker1(leftEdit), blocker2(rightEdit), blocker3(unifiedEdit);
-        leftEdit->clear();
-        rightEdit->clear();
         if (!diffItem.getInstrDiffs().contains("disas")) {
             // TODO: show disas not available in the window
             return;
@@ -183,15 +195,15 @@ void LineDiffWidget::fetchFunctionDisasSplit(const CutterDiffItem &diffItem)
         }
     } else if (diffItem.getType() == DiffItemRemoved) {
         functionLabel->setText(QString("%0").arg(diffItem.descriptionA()["name"].toString()));
-        if (!diffItem.descriptionA().contains("disas")) {
+        if (diffItem.descriptionA().contains("disas")) {
             unifiedEdit->insertFormatted(diffItem.descriptionA()["disas"].toString(), unmatched);
             viewSelector->setCurrentIndex(0);
             return;
         }
     } else if (diffItem.getType() == DiffItemAdded) {
         functionLabel->setText(QString("%0").arg(diffItem.descriptionB()["name"].toString()));
-        if (!diffItem.descriptionA().contains("disas")) {
-            unifiedEdit->insertFormatted(diffItem.descriptionA()["disas"].toString(), matched);
+        if (!diffItem.descriptionB().contains("disas")) {
+            unifiedEdit->insertFormatted(diffItem.descriptionB()["disas"].toString(), matched);
             viewSelector->setCurrentIndex(0);
             return;
         }
@@ -243,17 +255,25 @@ void DiffTextEdit::highlightCurrentLine()
 {
     const QTextBlock currentBlock = textCursor().block();
 
+    if (!currentBlock.isValid()) {
+        return;
+    }
+
     if (highlightedBlock.isValid() && highlightedBlock != currentBlock) {
-        QTextCursor oldCursor(highlightedBlock);
-        QTextBlockFormat oldFmt = highlightedBlock.blockFormat();
-        oldFmt.clearBackground();
-        oldCursor.setBlockFormat(oldFmt);
+        QTextCursor cursor(highlightedBlock);
+        QTextBlockFormat format = highlightedBlock.blockFormat();
+        format.clearBackground();
+        cursor.setBlockFormat(format);
     }
 
     QTextCursor cursor(currentBlock);
-    QTextBlockFormat fmt = currentBlock.blockFormat();
-    fmt.setBackground(Config()->getColor("gui.background").lighter(100));
-    cursor.setBlockFormat(fmt);
+    QTextBlockFormat format = currentBlock.blockFormat();
+
+    QColor color = Config()->getColor("gui.background");
+    color.setAlpha(40);
+
+    format.setBackground(color);
+    cursor.setBlockFormat(format);
 
     highlightedBlock = currentBlock;
 }
