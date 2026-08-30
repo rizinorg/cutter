@@ -27,13 +27,16 @@ public:
     void fetchFunctionDisasSplit(const CutterDiffItem &diffItem);
     void balanceLines();
     void setUpFonts();
+    void setUpColors();
 
 protected:
 private slots:
     void onViewModeChanged();
 
 private:
-    CutterDiff *cutterDiff;
+    QColor matched;
+    QColor unmatched;
+
     DiffTextEdit *leftEdit;
     DiffTextEdit *rightEdit;
     DiffTextEdit *unifiedEdit;

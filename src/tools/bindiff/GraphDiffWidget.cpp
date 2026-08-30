@@ -7,7 +7,7 @@
 GraphDiffWidget::GraphDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent)
     : CutterDiffWidget(cutterDiff, parent),
       leftView(new DiffGraphView(cutterDiff, this)),
-      rightView(new DiffGraphView(cutterDiff, this)),
+      rightView(new DiffGraphView(cutterDiff, this))
 {
     auto vBox = new QVBoxLayout(this);
     setLayout(vBox);

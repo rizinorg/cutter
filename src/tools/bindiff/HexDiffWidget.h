@@ -26,6 +26,7 @@ private:
     Ui::HexDiffWidget *ui;
     HexDiffView *hexDiffView;
     void reload();
+    void seekToDiffItem();
 
 private:
     void onCopyMD5AClicked();

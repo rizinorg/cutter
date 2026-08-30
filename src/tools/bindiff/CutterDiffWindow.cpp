@@ -17,15 +17,14 @@
 
 #include <Configuration.h>
 
-CutterDiffWindow::CutterDiffWindow(std::unique_ptr<BinDiff> bDiff, QWidget *parent)
+CutterDiffWindow::CutterDiffWindow(std::unique_ptr<CutterDiff> cutterDiff, QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::CutterDiffWindow),
-      bDiff(std::move(bDiff)),
-      cutterDiff(this->bDiff->cutterDiff.get()),
-      functionDiffNavWidget(new FunctionDiffNavWidget(this->cutterDiff, this)),
-      matchWidget(new DiffMatchWidget(cutterDiff, this)),
-      addedWidget(new DiffMisMatchWidget(cutterDiff, this, false)),
-      removedWidget(new DiffMisMatchWidget(cutterDiff, this, true))
+      cutterDiff(std::move(cutterDiff)),
+      functionDiffNavWidget(new FunctionDiffNavWidget(this->cutterDiff.get(), this)),
+      matchWidget(new DiffMatchWidget(this->cutterDiff.get(), this)),
+      addedWidget(new DiffMisMatchWidget(this->cutterDiff.get(), this, false)),
+      removedWidget(new DiffMisMatchWidget(this->cutterDiff.get(), this, true))
 {
     ui->setupUi(this);
     ui->splitter->insertWidget(0, functionDiffNavWidget);
@@ -36,12 +35,12 @@ CutterDiffWindow::CutterDiffWindow(std::unique_ptr<BinDiff> bDiff, QWidget *pare
     ui->tabAdded->layout()->addWidget(addedWidget);
     ui->tabRemoved->layout()->addWidget(removedWidget);
 
-    connect(cutterDiff, &CutterDiff::diffDataUpdated, this, &CutterDiffWindow::showDiff);
+    connect(cutterDiff.get(), &CutterDiff::diffDataUpdated, this, &CutterDiffWindow::showDiff);
     connect(ui->actionDiffNewFiles, &QAction::triggered, this,
             &CutterDiffWindow::onActionDiffNewFile);
     connect(ui->actionExportToJSON, &QAction::triggered, this, &CutterDiffWindow::exportDiff);
 
-    connect(cutterDiff, &CutterDiff::diffDataUpdated, this, &CutterDiffWindow::showDiff);
+    connect(cutterDiff.get(), &CutterDiff::diffDataUpdated, this, &CutterDiffWindow::showDiff);
     // ui->tabParsing->hide();
 
     setupFonts();
@@ -115,7 +114,7 @@ void CutterDiffWindow::onActionDiffNewFile()
 void CutterDiffWindow::addHexDiff()
 {
     if (!hexDiff) {
-        hexDiff = new HexDiffWidget(cutterDiff, this);
+        hexDiff = new HexDiffWidget(cutterDiff.get(), this);
     }
     ui->hexDiffContainer->addWidget(hexDiff);
 }
@@ -123,7 +122,7 @@ void CutterDiffWindow::addHexDiff()
 void CutterDiffWindow::addLineDiff()
 {
     if (!lineDiff) {
-        lineDiff = new LineDiffWidget(cutterDiff, this);
+        lineDiff = new LineDiffWidget(cutterDiff.get(), this);
     }
     ui->lineDiffContainer->layout()->addWidget(lineDiff);
 }
@@ -131,13 +130,13 @@ void CutterDiffWindow::addLineDiff()
 void CutterDiffWindow::addGraphDiff()
 {
     if (!graphDiff) {
-        graphDiff = new GraphDiffWidget(cutterDiff, this);
+        graphDiff = new GraphDiffWidget(cutterDiff.get(), this);
     }
     ui->graphDiffContainer->addWidget(graphDiff);
 }
 
 void CutterDiffWindow::exportDiff()
 {
-    DiffExportDialog dialog(cutterDiff, this);
+    DiffExportDialog dialog(cutterDiff.get(), this);
     dialog.exec();
 }

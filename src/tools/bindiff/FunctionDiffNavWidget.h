@@ -43,7 +43,6 @@ public:
     void reload();
 
 private:
-    CutterDiff *cutterDiff;
     QLabel *labelFileA;
     QLabel *labelFileB;
     CutterTreeView *treeViewA;

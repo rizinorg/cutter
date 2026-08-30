@@ -8,11 +8,13 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
+#include <BinDiff.h>
 #include <core/Cutter.h>
 #include <rz_th.h>
 
 DiffLoadDialog::DiffLoadDialog(QWidget *parent) : QDialog(parent), ui(new Ui::DiffLoadDialog)
 {
+    cutterDiff.reset(new CutterDiff());
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     setModal(true);
@@ -36,10 +38,8 @@ DiffLoadDialog::DiffLoadDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Di
     connect(ui->buttonFileBOpen, &QPushButton::clicked, this,
             &DiffLoadDialog::onButtonFileBOpenClicked);
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &DiffLoadDialog::onButtonBoxAccepted);
-    connect(ui->setCurrentA, &QCheckBox::checkStateChanged, this,
-            &DiffLoadDialog::onSetCurrentAChanged);
-    connect(ui->setCurrentB, &QCheckBox::checkStateChanged, this,
-            &DiffLoadDialog::onSetCurrentBChanged);
+    connect(ui->setCurrentA, &QCheckBox::stateChanged, this, &DiffLoadDialog::onSetCurrentAChanged);
+    connect(ui->setCurrentB, &QCheckBox::stateChanged, this, &DiffLoadDialog::onSetCurrentBChanged);
 
     auto index = ui->comboBoxAnalysis->findData(tr("Auto"), Qt::DisplayRole);
     ui->comboBoxAnalysis->setCurrentIndex(index);
@@ -47,7 +47,7 @@ DiffLoadDialog::DiffLoadDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Di
 
 DiffLoadDialog::~DiffLoadDialog() {}
 
-void DiffLoadDialog::onSetCurrentAChanged(Qt::CheckState state)
+void DiffLoadDialog::onSetCurrentAChanged(int state)
 {
     if (state) {
         ui->lineEditFileA->setText(Core()->getConfig("file.path"));
@@ -60,7 +60,7 @@ void DiffLoadDialog::onSetCurrentAChanged(Qt::CheckState state)
     }
 }
 
-void DiffLoadDialog::onSetCurrentBChanged(Qt::CheckState state)
+void DiffLoadDialog::onSetCurrentBChanged(int state)
 {
     if (state) {
         ui->lineEditFileB->setText(Core()->getConfig("file.path"));
@@ -163,10 +163,23 @@ void DiffLoadDialog::onButtonBoxAccepted()
                              tr("Given file path for File B is not valid."));
         return;
     }
-    auto waitDialog = new DiffWaitDialog();
-    waitDialog->show(ui->lineEditFileA->text(), ui->lineEditFileB->text(),
-                     ui->comboBoxAnalysis->currentIndex(), ui->comboBoxCompare->currentIndex());
+
+    const BinDiffOptions options = { ui->lineEditFileA->text(), ui->lineEditFileB->text(),
+                                     ui->comboBoxAnalysis->currentIndex(),
+                                     ui->comboBoxCompare->currentIndex() };
+
+    auto waitDialog = new DiffWaitDialog(cutterDiff.get(), options);
+
+    connect(waitDialog, &QDialog::finished, this, [this, waitDialog](int result) {
+        if (result == QDialog::Accepted) {
+            auto diffWindow = new CutterDiffWindow(std::move(cutterDiff));
+            diffWindow->setAttribute(Qt::WA_DeleteOnClose);
+            diffWindow->show();
+        }
+    });
+
     waitDialog->setAttribute(Qt::WA_DeleteOnClose);
+    waitDialog->show(ui->lineEditFileA->text(), ui->lineEditFileB->text());
 }
 
 void DiffLoadDialog::onButtonBoxRejected() {}

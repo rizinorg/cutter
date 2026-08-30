@@ -59,6 +59,10 @@ LineDiffWidget::LineDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent)
     layoutV->addLayout(layoutH, 0);
 
     viewSelector->addItems({ "Unified", "Split", "Left", "Right" });
+
+    connect(Config(), &Configuration::colorsUpdated, this, &LineDiffWidget::setUpColors);
+    connect(Config(), &Configuration::fontsUpdated, this, &LineDiffWidget::setUpFonts);
+
     connect(viewSelector, &QComboBox::currentIndexChanged, this,
             &LineDiffWidget::onViewModeChanged);
 
@@ -135,23 +139,27 @@ void LineDiffWidget::setUpFonts()
     unifiedEdit->setUpFont(Config()->getFont());
 }
 
+void LineDiffWidget::setUpColors()
+{
+    matched = Config()->getColor("gui.match.perfect");
+    unmatched = Config()->getColor("gui.match.partial");
+}
+
 void LineDiffWidget::fetchFunctionDisasSplit(const CutterDiffItem &diffItem)
 {
     if (!diffItem.isFunction()) {
         // Unable to load function may be a message
         return;
     }
-    QColor matched = Config()->getColor("gui.match.perfect");
-    QColor unmatched = Config()->getColor("gui.match.partial");
+    leftEdit->clear();
+    rightEdit->clear();
+    unifiedEdit->clear();
     viewSelector->setDisabled(true);
     matched.setAlpha(50);
     unmatched.setAlpha(50);
     if (!diffItem.isFunction()) {
         return;
     }
-    leftEdit->clear();
-    rightEdit->clear();
-    unifiedEdit->clear();
     if (diffItem.getType() == DiffItemMatched) {
         functionLabel->setText(QString("%0 -> %1")
                                        .arg(diffItem.descriptionA()["name"].toString())
@@ -228,8 +236,6 @@ void LineDiffWidget::balanceLines()
     for (int i = 0; i < missing; ++i) {
         cursor.insertBlock();
     }
-
-    edit->setTextCursor(cursor);
 }
 
 DiffTextEdit::DiffTextEdit(QWidget *parent) : QPlainTextEdit(parent)
@@ -270,7 +276,7 @@ void DiffTextEdit::highlightCurrentLine()
     QTextBlockFormat format = currentBlock.blockFormat();
 
     QColor color = Config()->getColor("gui.background");
-    color.setAlpha(40);
+    color.setAlpha(100);
 
     format.setBackground(color);
     cursor.setBlockFormat(format);
@@ -325,36 +331,36 @@ void DiffTextEdit::lineNumberAreaPaintEvent(QPaintEvent *event)
 
 void DiffTextEdit::insertFormatted(const QString &text, const QColor &color)
 {
-    QTextCursor cursor = textCursor();
+    QTextCursor cursor(document());
     cursor.movePosition(QTextCursor::End);
 
-    const QTextCharFormat oldFormat = defaultFormat;
-
-    QTextCharFormat fmt = oldFormat;
+    QTextCharFormat fmt = defaultFormat;
     fmt.setBackground(color);
 
     cursor.insertText(text, fmt);
-
-    cursor.setCharFormat(oldFormat);
-    setTextCursor(cursor);
 }
 
 void DiffTextEdit::insertBounded(const QString &text, const QColor &color, const Bound bound)
 {
-    QTextCursor cursor = textCursor();
+    QTextCursor cursor(document());
     cursor.movePosition(QTextCursor::End);
-    const QTextCharFormat oldFormat = defaultFormat;
-    const QColor colorHighlight = { color.red(), color.green(), color.blue(), 255 };
-    QTextCharFormat fmt = oldFormat;
-    fmt.setBackground(color);
 
+    const QTextCharFormat oldFormat = defaultFormat;
+
+    const QColor colorHighlight = { color.red(), color.green(), color.blue(), 255 };
+
+    QTextCharFormat fmt = oldFormat;
+
+    fmt.setBackground(color);
     cursor.insertText(text.left(bound.pos), fmt);
+
     fmt.setBackground(colorHighlight);
     cursor.insertText(text.mid(bound.pos, bound.size), fmt);
+
     fmt.setBackground(color);
     cursor.insertText(text.mid(bound.pos + bound.size), fmt);
+
     cursor.setCharFormat(oldFormat);
-    setTextCursor(cursor);
 }
 
 void DiffTextEdit::setUpFont(const QFont &font)

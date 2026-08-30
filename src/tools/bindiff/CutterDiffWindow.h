@@ -25,7 +25,7 @@ class CutterDiffWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit CutterDiffWindow(std::unique_ptr<BinDiff> bDiff, QWidget *parent = nullptr);
+    explicit CutterDiffWindow(std::unique_ptr<CutterDiff> cutterDiff, QWidget *parent = nullptr);
     ~CutterDiffWindow();
     void showHexDiff();
     // I don't know how relevant is a seek feature for DiffedFiles
@@ -33,7 +33,7 @@ public:
     // Current address in HexDiff to GraphDiff
     // We can highlight the block corresponding to the cursor address
     // in the graphdiff if not the particular line
-    // An option to Rediff based on the transpose would also be good
+    // An option to re-diff based on the transpose would also be good
     void seekAndShowHexDiff(QPair<RVA, RVA> addr);
     void showLineDiff();
     void showGraphDiff();
@@ -47,8 +47,7 @@ private slots:
 
 private:
     Ui::CutterDiffWindow *ui;
-    std::unique_ptr<BinDiff> bDiff;
-    CutterDiff *cutterDiff;
+    std::unique_ptr<CutterDiff> cutterDiff;
 
     FunctionDiffNavWidget *functionDiffNavWidget;
     HexDiffWidget *hexDiff = nullptr;

@@ -35,13 +35,12 @@ private slots:
     void onButtonFileBOpenClicked();
     void onButtonBoxAccepted();
     void onButtonBoxRejected();
-    void onSetCurrentAChanged(Qt::CheckState state);
-    void onSetCurrentBChanged(Qt::CheckState state);
+    void onSetCurrentAChanged(int state);
+    void onSetCurrentBChanged(int state);
 
 private:
     std::unique_ptr<Ui::DiffLoadDialog> ui;
     std::unique_ptr<CutterDiff> cutterDiff;
-    DiffWaitDialog *waitDialogue;
 };
 
 #endif // DIFF_LOAD_DIALOG_H

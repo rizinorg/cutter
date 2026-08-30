@@ -6,6 +6,7 @@
 #include "RizinCpp.h"
 
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QMutex>
@@ -34,6 +35,8 @@ struct DiffInstr
 class CutterDiffItem
 {
     friend class BinDiff;
+    friend class FunctionMatchJob;
+    friend class BlocksMatchJob;
 
 public:
     explicit CutterDiffItem(DiffItemType type, const RzAnalysisFunction *a,
@@ -101,6 +104,8 @@ class CUTTER_EXPORT CutterDiff : public QObject
     Q_OBJECT
     friend class CutterDiffLocked;
     friend class BinDiff;
+    friend class FunctionMatchJob;
+    friend class BlocksMatchJob;
 
 public:
     explicit CutterDiff(QObject *parent = nullptr);
@@ -150,7 +155,7 @@ public:
     QString ansiEscapeToHtml(const QString &text);
     QString getFileName(bool orig = true) const { return orig ? fileNameA : fileNameB; }
     QString getFilePath(bool orig = true) const { return orig ? filePathA : filePathB; }
-    Bound getLineDiffBounds(const QString &line1, const QString &line2);
+    Bound getLineDiffBounds(const QString &line1, const QString &line2) const;
     bool isFunctionsAnalyzed() const { return functionsAnalyzed; }
     bool isBlocksAnalyzed() const { return blocksAnalyzed; }
 
@@ -158,7 +163,7 @@ public:
      * @brief getDiffItemList
      * @return BinDiffMatchDescription to display in function similarity table.
      */
-    BinDiffMatchDescription getCurrentMatchDescription();
+    BinDiffMatchDescription getCurrentMatchDescription() const;
 
     /**
      * @brief getDiffItemList
@@ -218,11 +223,10 @@ public:
     // removeDiffItem
     // itemupdate signal from diffItems as well which will again trigger dataupdated
 
-    void emitUpdate()
-    {
-        emit diffDataUpdated();
-        qInfo() << "dataUpdated";
-    }
+    void emitUpdate() { emit diffDataUpdated(); }
+
+    QList<DiffInstr> rzDiffOpToCutterInstrs(RzDiff *diff,
+                                            RzList * /*<RzList<RzDiffOp*>>**/ list) const;
 
 private:
     RzCore *coreA = nullptr;
@@ -236,6 +240,11 @@ private:
 #else
     QRecursiveMutex mutex;
 #endif
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+    QMutex analysisMutex;
+#else
+    QRecursiveMutex analysisMutex;
+#endif
     bool blocksAnalyzed;
     bool functionsAnalyzed;
     qsizetype currentDiffItemIndex;
@@ -243,7 +252,8 @@ private:
 
     // Function pairing
     RZ_OWN RzList *getFunctions(RzAnalysis *analysis, int compareLogic);
-    RZ_OWN RzAnalysisMatchResult *matchFunctionBlocks(RVA addrA, RVA addrB);
+    RZ_OWN RzAnalysisMatchResult *
+    matchFunctionBlocks(RVA addrA, RVA addrB, RzAnalysisMatchThreadInfoCb callback, void *user);
     RZ_OWN RzAnalysisMatchResult *matchFunctions(int compareLogic,
                                                  RzAnalysisMatchThreadInfoCb callback, void *user);
 

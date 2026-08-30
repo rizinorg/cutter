@@ -446,8 +446,8 @@ struct BinDiffMatchDescription
 
 struct BinDiffStatusDescription
 {
-    size_t total;
-    size_t nLeft;
+    double total;
+    double nLeft;
     size_t nMatch;
 };
 

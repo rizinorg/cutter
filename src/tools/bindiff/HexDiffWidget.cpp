@@ -14,6 +14,8 @@ HexDiffWidget::HexDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent)
     ui->splitter->insertWidget(0, hexDiffView);
     ui->splitter->setSizes({ 750, 250 });
 
+    connect(cutterDiff, &CutterDiff::currentItemDiffChanged, this, &HexDiffWidget::seekToDiffItem);
+
     connect(ui->shiftUpA, &QPushButton::clicked, this, [this]() { hexDiffView->transpose(-1, 0); });
     connect(ui->shiftDownA, &QPushButton::clicked, this,
             [this]() { hexDiffView->transpose(1, 0); });
@@ -97,6 +99,18 @@ void HexDiffWidget::seek(QPair<RVA, RVA> addr)
                                                        : static_cast<int>(addr.second - addr.first);
         hexDiffView->transpose(0, transpose, true);
         hexDiffView->seek(addr.first);
+    }
+}
+
+void HexDiffWidget::seekToDiffItem()
+{
+    const CutterDiffItem &diffItem = cutterDiff->getCurrentDiffItem();
+    if (diffItem.getType() == DiffItemMatched) {
+        hexDiffView->seek(diffItem.descriptionA()["offset"].toULongLong(), true);
+    } else if (diffItem.getType() == DiffItemRemoved) {
+        hexDiffView->seek(diffItem.descriptionA()["offset"].toULongLong(), true);
+    } else {
+        hexDiffView->seek(diffItem.descriptionB()["offset"].toULongLong(), false);
     }
 }
 

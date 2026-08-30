@@ -7,13 +7,19 @@
 #include <core/Cutter.h>
 #include <rz_util.h>
 
-DiffWaitDialog::DiffWaitDialog(QWidget *parent)
-    : QDialog(parent), timer(parent), ui(new Ui::DiffWaitDialog)
+DiffWaitDialog::DiffWaitDialog(CutterDiff *cutterDiff, const BinDiffOptions &options,
+                               QWidget *parent)
+    : QDialog(parent),
+      ui(new Ui::DiffWaitDialog),
+      cutterDiff(cutterDiff),
+      options(options),
+      timer(parent)
 {
+    Q_ASSERT(cutterDiff != nullptr);
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     setModal(true);
-    bDiff.reset(new BinDiff());
+    bDiff.reset(new BinDiff(cutterDiff, options));
 
     ui->lineEditOriginal->setReadOnly(true);
     ui->lineEditModified->setReadOnly(true);
@@ -32,7 +38,7 @@ DiffWaitDialog::~DiffWaitDialog()
     }
 }
 
-void DiffWaitDialog::show(const QString &original, const QString &modified, int level, int compare)
+void DiffWaitDialog::show(const QString &original, const QString &modified)
 {
     connect(this, &DiffWaitDialog::cancelJob, bDiff.get(), &BinDiff::cancel);
     connect(bDiff.get(), &BinDiff::progress, this, &DiffWaitDialog::onProgress);
@@ -42,10 +48,6 @@ void DiffWaitDialog::show(const QString &original, const QString &modified, int 
     ui->lineEditOriginal->setText(original);
     ui->lineEditModified->setText(modified);
 
-    bDiff->setAnalysisLevel(level);
-    bDiff->setCompareLogic(compare);
-    bDiff->setFileB(modified);
-    bDiff->setFileA(original);
     eTimer.restart();
     timer.setSingleShot(false);
     timer.start(1000);
@@ -56,27 +58,44 @@ void DiffWaitDialog::show(const QString &original, const QString &modified, int 
 
 void DiffWaitDialog::onProgress(BinDiffStatusDescription status)
 {
-    const int partial = status.total - status.nLeft;
-    const ut32 progress = (100 * partial) / status.total;
+    if (status.total <= 0) {
+        ui->progressBar->setValue(0);
+        ui->lineEditEstimatedTime->clear();
+        return;
+    }
+
+    const double completed = std::clamp(status.nLeft, 0.0, double(status.total));
+
+    const int progress = static_cast<int>((completed / double(status.total)) * 100.0);
+
     ui->progressBar->setValue(progress);
 
-    const double speed = ((double)partial) / ((double)eTimer.elapsed());
-    ut64 seconds = (((double)status.nLeft) / speed) / 1000ull;
-    const int hours = seconds / 3600;
-    seconds -= (hours * 3600);
-    const int minutes = seconds / 60;
-    seconds = seconds % 60;
-    const QTime estimated(hours, minutes, seconds, 0);
-    ui->lineEditEstimatedTime->setText(estimated.toString("hh:mm:ss"));
+    const qint64 elapsed = eTimer.elapsed();
+
+    if (completed > 0.0 && elapsed > 0) {
+        const double speed = completed / double(elapsed);
+
+        const double remaining = double(status.total) - completed;
+
+        const auto remainingMs = static_cast<qint64>(remaining / speed);
+
+        const qint64 seconds = remainingMs / 1000;
+
+        const int hours = seconds / 3600;
+        const int minutes = (seconds % 3600) / 60;
+        const int secs = seconds % 60;
+
+        const QTime estimated(hours, minutes, secs, 0);
+        ui->lineEditEstimatedTime->setText(estimated.toString("hh:mm:ss"));
+    } else {
+        ui->lineEditEstimatedTime->clear();
+    }
 }
 
 void DiffWaitDialog::onCompletion()
 {
     timer.stop();
-    auto *diffWindow = new CutterDiffWindow(std::move(bDiff));
-    diffWindow->setAttribute(Qt::WA_DeleteOnClose);
-    diffWindow->show();
-    close();
+    accept();
 }
 
 void DiffWaitDialog::updateElapsedTime()

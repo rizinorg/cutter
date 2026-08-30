@@ -316,6 +316,10 @@ CutterDiff::CutterDiff(QObject *parent)
       ,
       mutex(QMutex::Recursive)
 #endif
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+      ,
+      analysisMutex(QMutex::Recursive)
+#endif
 {
 }
 
@@ -581,21 +585,21 @@ fail:
 
     rz_list_free(fcnsA);
     rz_list_free(fcnsB);
-    // rz_core_file_close_all_but(diffCore);
     return nullptr;
 }
 
-RzAnalysisMatchResult *CutterDiff::matchFunctionBlocks(RVA addrA, RVA addrB)
+RzAnalysisMatchResult *CutterDiff::matchFunctionBlocks(RVA addrA, RVA addrB,
+                                                       RzAnalysisMatchThreadInfoCb callback,
+                                                       void *user)
 {
-    // Progress shall update shall be worked on in future and it requires
-    // A work orchestration model for BinDiff then the callback and owner
-    // arguments shall be added to the function.
     RzAnalysisFunction *funcA = rz_analysis_get_function_at(coreA->analysis, addrA);
     RzAnalysisFunction *funcB = rz_analysis_get_function_at(coreB->analysis, addrB);
     RzAnalysisMatchResult *results = nullptr;
-    RzAnalysisMatchOpt opts = { 0 };
+    RzAnalysisMatchOpt opts;
     opts.analysis_a = coreA->analysis;
     opts.analysis_b = coreB->analysis;
+    opts.callback = callback;
+    opts.user = user;
     if (!funcA || !funcB) {
         return results;
     }
@@ -864,7 +868,7 @@ RzList *CutterDiff::lineDiffOpsGrouped(RzDiff *diff) const
     return groups;
 }
 
-Bound CutterDiff::getLineDiffBounds(const QString &line1, const QString &line2)
+Bound CutterDiff::getLineDiffBounds(const QString &line1, const QString &line2) const
 {
     if (line1.size() != line2.size()) {
         return { 0, 0 };
@@ -883,7 +887,7 @@ Bound CutterDiff::getLineDiffBounds(const QString &line1, const QString &line2)
     return { first, last - first + 1 };
 }
 
-BinDiffMatchDescription CutterDiff::getCurrentMatchDescription()
+BinDiffMatchDescription CutterDiff::getCurrentMatchDescription() const
 {
     if (getCurrentDiffItem().getType() == DiffItemMatched) {
         return getCurrentDiffItem().toBinDiffMatchDescription();
@@ -940,4 +944,55 @@ bool CutterDiff::loadDiffItemsFromJson(const QString &filePath)
     }
 
     return true;
+}
+
+QList<DiffInstr> CutterDiff::rzDiffOpToCutterInstrs(RzDiff *diff,
+                                                    RzList * /*<RzList<RzDiffOp*>>**/ list) const
+{
+    QList<DiffInstr> result;
+    char *stringUtf;
+    const RzListIter *it = nullptr;
+    const RzList *group = nullptr;
+    CutterRzListForeach (list, it, RzList /*<RzDiffOp *>*/, group) {
+        for (RzDiffOp *op : CutterRzList<RzDiffOp>(group)) {
+            DiffInstr instr;
+            switch (op->type) {
+            case RZ_DIFF_OP_EQUAL: {
+                stringUtf = rz_diff_op_stringify(diff, op, true);
+                const QString opString = QString::fromUtf8(stringUtf);
+                instr.a = opString;
+                instr.type = DiffInstrEqual;
+                break;
+            }
+            case RZ_DIFF_OP_DELETE: {
+                stringUtf = rz_diff_op_stringify(diff, op, true);
+                const QString opString = QString::fromUtf8(stringUtf);
+                instr.a = opString;
+                instr.type = DiffInstrDeleted;
+                break;
+            }
+            case RZ_DIFF_OP_INSERT: {
+                stringUtf = rz_diff_op_stringify(diff, op, false);
+                const QString opString = QString::fromUtf8(stringUtf);
+                instr.b = opString;
+                instr.type = DiffInstrInserted;
+                break;
+            }
+            case RZ_DIFF_OP_REPLACE: {
+                const QString actual = QString::fromUtf8(rz_diff_op_stringify(diff, op, true));
+                const QString replaced = QString::fromUtf8(rz_diff_op_stringify(diff, op, false));
+                const auto bound = getLineDiffBounds(actual, replaced);
+                instr.a = actual;
+                instr.b = replaced;
+                instr.type = DiffInstrReplaced;
+                instr.bound = bound;
+                break;
+            }
+            default:
+                break;
+            }
+            result.emplace_back(instr);
+        }
+    }
+    return result;
 }
