@@ -8,6 +8,7 @@
 #include <QProgressBar>
 #include <QPushButton>
 #include <QThread>
+#include <QTimer>
 #include <QVBoxLayout>
 
 DiffExportDialog::DiffExportDialog(CutterDiff *cutterDiff, QWidget *parent)
@@ -116,7 +117,7 @@ void DiffExportDialog::startExport()
 
                     statusLabel->setText(tr("Diff exported successfully."));
 
-                    QMetaObject::invokeMethod(this, [this]() { accept(); }, Qt::QueuedConnection);
+                    QTimer::singleShot(0, this, [this]() { accept(); });
                 } else {
                     setExporting(false);
                     showError(error);

@@ -175,7 +175,7 @@ void FunctionDiffNavWidget::reload()
     fcnsB.clear();
     labelFileA->setText(cutterDiff->getFileName(true));
     labelFileB->setText(cutterDiff->getFileName(false));
-    const QList<CutterDiffItem> &diffItemList = cutterDiff->getDiffItemList();
+    const std::vector<CutterDiffItem> &diffItemList = cutterDiff->getDiffItemList();
     for (int i = 0; i < diffItemList.size(); i++) {
         const CutterDiffItem &diffItem = diffItemList[i];
         const DiffItemType type = diffItem.getType();
@@ -183,13 +183,13 @@ void FunctionDiffNavWidget::reload()
         case DiffItemRemoved: {
             FunctionDescription desc = diffItem.functionA();
             desc.diffItemIndex = i;
-            fcnsA.emplaceBack(desc);
+            fcnsA.append(desc);
             break;
         }
         case DiffItemAdded: {
             FunctionDescription desc = diffItem.functionB();
             desc.diffItemIndex = i;
-            fcnsB.emplaceBack(desc);
+            fcnsB.append(desc);
             break;
         }
         case DiffItemMatched: {
@@ -197,8 +197,8 @@ void FunctionDiffNavWidget::reload()
             FunctionDescription descB = diffItem.functionB();
             descA.diffItemIndex = i;
             descB.diffItemIndex = i;
-            fcnsA.emplaceBack(descA);
-            fcnsB.emplaceBack(descB);
+            fcnsA.append(descA);
+            fcnsB.append(descB);
             break;
         }
         default: {

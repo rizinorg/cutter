@@ -2,7 +2,6 @@
 #define DIFFEXPORTDIALOG_H
 
 #include <QDialog>
-#include <QStringLiteral>
 
 #include <CutterDiff.h>
 // AI Generated Start GPT GO

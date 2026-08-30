@@ -22,7 +22,6 @@ public:
     void changeSplitOrientation();
 signals:
 private:
-    CutterDiff *cutterDiff = nullptr;
     DiffGraphView *leftView = nullptr;
     DiffGraphView *rightView = nullptr;
     QComboBox *comboBox = nullptr;

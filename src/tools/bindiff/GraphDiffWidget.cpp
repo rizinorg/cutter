@@ -7,7 +7,7 @@
 GraphDiffWidget::GraphDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent)
     : CutterDiffWidget(cutterDiff, parent),
       leftView(new DiffGraphView(cutterDiff, this)),
-      rightView(new DiffGraphView(cutterDiff, this)),
+      rightView(new DiffGraphView(cutterDiff, this))
 {
     auto vBox = new QVBoxLayout(this);
     setLayout(vBox);
@@ -45,7 +45,8 @@ GraphDiffWidget::GraphDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *paren
 
     vBox->addLayout(bottomHBox, 0);
     connect(cutterDiff, &CutterDiff::currentItemDiffChanged, this, &GraphDiffWidget::loadGraph);
-    connect(comboBox, &QComboBox::currentIndexChanged, this, &GraphDiffWidget::loadGraph);
+    connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            &GraphDiffWidget::loadGraph);
     connect(splitOrientationButton, &QPushButton::clicked, this, [this, splitter]() {
         changeSplitOrientation();
         splitter->setOrientation(graphSplitHorizontal ? Qt::Horizontal : Qt::Vertical);
@@ -118,12 +119,13 @@ void GraphDiffWidget::loadGraph()
         }
 
     } else if (type == DiffItemRemoved) {
-        qInfo() << "yes";
         const QSignalBlocker blocker(comboBox);
+        functionLabel->setText(QString("%0").arg(diffItem.descriptionA()["name"].toString()));
         comboBox->setCurrentIndex(OriginalMode);
         leftView->loadCurrentGraph(Original);
         leftView->show();
     } else if (type == DiffItemAdded) {
+        functionLabel->setText(QString("%0").arg(diffItem.descriptionB()["name"].toString()));
         const QSignalBlocker blocker(comboBox);
         comboBox->setCurrentIndex(ModifiedMode);
         rightView->loadCurrentGraph(Modified);

@@ -2,26 +2,18 @@
 
 #include "Configuration.h"
 #include "Cutter.h"
-#include "dialogs/CommentsDialog.h"
-#include "dialogs/FlagDialog.h"
-#include "dialogs/MarkDialog.h"
-#include "dialogs/WriteCommandsDialogs.h"
 #include "shortcuts/ShortcutManager.h"
 #include "widgets/AddressRangeScrollBar.h"
 
 #include <QActionGroup>
 #include <QApplication>
 #include <QClipboard>
-#include <QInputDialog>
-#include <QJsonArray>
-#include <QJsonObject>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPushButton>
-#include <QRegularExpression>
 #include <QResizeEvent>
 #include <QScrollBar>
 #include <QToolTip>

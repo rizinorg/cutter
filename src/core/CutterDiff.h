@@ -6,6 +6,7 @@
 #include "RizinCpp.h"
 
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QMutex>
@@ -34,6 +35,8 @@ struct DiffInstr
 class CutterDiffItem
 {
     friend class BinDiff;
+    friend class FunctionMatchJob;
+    friend class BlocksMatchJob;
 
 public:
     explicit CutterDiffItem(DiffItemType type, const RzAnalysisFunction *a,
@@ -63,7 +66,7 @@ public:
     bool isBlock() const { return blockDiff; }
     RVA mapOffset(RVA offset, bool original) const;
 
-    const QList<CutterDiffItem> &getBlocks() const { return blocks; }
+    const std::vector<CutterDiffItem> &getBlocks() const { return blocks; }
 
     const QHash<QString, QList<DiffInstr>> &getInstrDiffs() const { return instrDiffs; }
 
@@ -77,9 +80,11 @@ private:
     static bool isValidPair(DiffItemType type, const void *a, const void *b);
 
 private:
+    DiffItemType type;
+    QString simtype;
+    double similarity = 0.0;
     bool functionDiff;
     bool blockDiff;
-    DiffItemType type;
 
     CutterDiffItemDescription descA;
     CutterDiffItemDescription descB;
@@ -87,10 +92,7 @@ private:
     QHash<qulonglong, qulonglong> offsetAtoB;
     QHash<qulonglong, qulonglong> offsetBtoA;
 
-    QString simtype;
-    double similarity = 0.0;
-
-    QList<CutterDiffItem> blocks;
+    std::vector<CutterDiffItem> blocks;
     QHash<QString, QList<DiffInstr>> instrDiffs;
 };
 
@@ -101,6 +103,8 @@ class CUTTER_EXPORT CutterDiff : public QObject
     Q_OBJECT
     friend class CutterDiffLocked;
     friend class BinDiff;
+    friend class FunctionMatchJob;
+    friend class BlocksMatchJob;
 
 public:
     explicit CutterDiff(QObject *parent = nullptr);
@@ -150,7 +154,7 @@ public:
     QString ansiEscapeToHtml(const QString &text);
     QString getFileName(bool orig = true) const { return orig ? fileNameA : fileNameB; }
     QString getFilePath(bool orig = true) const { return orig ? filePathA : filePathB; }
-    Bound getLineDiffBounds(const QString &line1, const QString &line2);
+    Bound getLineDiffBounds(const QString &line1, const QString &line2) const;
     bool isFunctionsAnalyzed() const { return functionsAnalyzed; }
     bool isBlocksAnalyzed() const { return blocksAnalyzed; }
 
@@ -158,22 +162,22 @@ public:
      * @brief getDiffItemList
      * @return BinDiffMatchDescription to display in function similarity table.
      */
-    BinDiffMatchDescription getCurrentMatchDescription();
+    BinDiffMatchDescription getCurrentMatchDescription() const;
 
     /**
      * @brief getDiffItemList
      * @return Reference to CutterDiffItem list.
      */
-    QList<CutterDiffItem> &getDiffItemList() { return diffItemList; }
+    std::vector<CutterDiffItem> &getDiffItemList() { return diffItemList; }
 
     /**
      * @brief setCurrentDiffItemIndex
      * sets currentDiffItemIndex to -1 if out of currentDiffItemIndex is given
      * @param index
      */
-    void setCurrentDiffItemIndex(qsizetype index)
+    void setCurrentDiffItemIndex(int index)
     {
-        if (index > diffItemList.size()) {
+        if (index > (int)diffItemList.size()) {
             index = diffItemList.size() - 1;
         }
         if (index < 0) {
@@ -183,9 +187,9 @@ public:
         emit currentItemDiffChanged();
     }
 
-    qsizetype getCurrentDiffItemIndex() { return getCurrentDiffItemIndex(); }
+    int getCurrentDiffItemIndex() { return currentDiffItemIndex; }
 
-    bool diffEmpty() { return diffItemList.isEmpty(); }
+    bool diffEmpty() { return diffItemList.empty(); }
 
     /**
      * @brief getCurrentDiffItem :returns reference to the current CutterDiffItem
@@ -194,7 +198,7 @@ public:
      */
     const CutterDiffItem &getCurrentDiffItem() const
     {
-        if (currentDiffItemIndex < 0 || currentDiffItemIndex >= diffItemList.size()) {
+        if (currentDiffItemIndex < 0 || currentDiffItemIndex >= (int)diffItemList.size()) {
             return invalidCutterDiffItem;
         }
         return diffItemList[currentDiffItemIndex];
@@ -218,11 +222,10 @@ public:
     // removeDiffItem
     // itemupdate signal from diffItems as well which will again trigger dataupdated
 
-    void emitUpdate()
-    {
-        emit diffDataUpdated();
-        qInfo() << "dataUpdated";
-    }
+    void emitUpdate() { emit diffDataUpdated(); }
+
+    QList<DiffInstr> rzDiffOpToCutterInstrs(RzDiff *diff,
+                                            RzList * /*<RzList<RzDiffOp*>>**/ list) const;
 
 private:
     RzCore *coreA = nullptr;
@@ -236,14 +239,20 @@ private:
 #else
     QRecursiveMutex mutex;
 #endif
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+    QMutex analysisMutex;
+#else
+    QRecursiveMutex analysisMutex;
+#endif
     bool blocksAnalyzed;
     bool functionsAnalyzed;
-    qsizetype currentDiffItemIndex;
-    QList<CutterDiffItem> diffItemList;
+    int currentDiffItemIndex;
+    std::vector<CutterDiffItem> diffItemList;
 
     // Function pairing
     RZ_OWN RzList *getFunctions(RzAnalysis *analysis, int compareLogic);
-    RZ_OWN RzAnalysisMatchResult *matchFunctionBlocks(RVA addrA, RVA addrB);
+    RZ_OWN RzAnalysisMatchResult *
+    matchFunctionBlocks(RVA addrA, RVA addrB, RzAnalysisMatchThreadInfoCb callback, void *user);
     RZ_OWN RzAnalysisMatchResult *matchFunctions(int compareLogic,
                                                  RzAnalysisMatchThreadInfoCb callback, void *user);
 

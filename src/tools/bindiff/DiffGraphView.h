@@ -38,8 +38,6 @@ public:
     virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive) override;
     virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event,
                               QPoint pos) override;
-    virtual void blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event,
-                                    QPoint pos) override;
     virtual GraphView::EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from,
                                                            GraphView::GraphBlock *to,
                                                            bool interactive) override;
@@ -49,7 +47,6 @@ public:
     std::unordered_map<ut64, GraphBlock> getBlocks() { return blocks; }
     using EdgeConfigurationMapping = std::map<std::pair<ut64, ut64>, EdgeConfiguration>;
     EdgeConfigurationMapping getEdgeConfigurations();
-    ut64 currentFcnAddr = RVA_INVALID; // TODO: make this less public
     void addDiffGraphBlockMatched(const CutterDiffItem &diffItem);
     void addDiffGraphBlockMismatch(const CutterDiffItem &diffItem);
     void drawDiffLine(QPainter &pen, const QString &instr, int x, int y,
