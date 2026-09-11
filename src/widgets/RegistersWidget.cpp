@@ -21,8 +21,8 @@ RegistersWidget::RegistersWidget(MainWindow *main)
     registerLayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     ui->verticalLayout->addLayout(registerLayout);
 
-    connect(Core(), &CutterCore::refreshAll, this, &RegistersWidget::updateContents);
-    connect(Core(), &CutterCore::registersChanged, this, &RegistersWidget::updateContents);
+    Session()->connect(&DynamicSession::refreshAll, this, &RegistersWidget::updateContents);
+    Session()->connect(&RizinWrapper::registersChanged, this, &RegistersWidget::updateContents);
     connect(ui->configureProfileBtn, &QPushButton::clicked, this,
             &RegistersWidget::configureRegProfileClicked);
 

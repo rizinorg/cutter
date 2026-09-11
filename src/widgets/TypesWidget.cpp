@@ -96,7 +96,7 @@ QVariant TypesModel::headerData(int section, Qt::Orientation, int role) const
 
 bool TypesModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    RzCoreLocked core(Core());
+    auto core = Core()->lock();
     rz_type_db_del(rz_analysis_get_type_db(core->analysis),
                    types.at(row).type.toUtf8().constData());
     beginRemoveRows(parent, row, row + count - 1);
@@ -197,7 +197,7 @@ TypesWidget::TypesWidget(MainWindow *main)
             &ComboQuickFilterView::clearFilter);
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    connect(Core(), &CutterCore::refreshAll, this, &TypesWidget::refreshTypes);
+    Session()->connect(&DynamicSession::refreshAll, this, &TypesWidget::refreshTypes);
 
     connect(ui->quickFilterView->comboBox(), &QComboBox::currentTextChanged, this, [this]() {
         typesProxyModel->setCategory(ui->quickFilterView->comboBox()->currentData().toString());

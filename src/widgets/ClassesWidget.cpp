@@ -229,12 +229,13 @@ AnalysisClassesModel::AnalysisClassesModel(CutterDockWidget *parent)
     // Just use a simple refresh deferrer. If an event was triggered in the background, simply
     // refresh everything later.
 
-    connect(Core(), &CutterCore::refreshAll, this, &AnalysisClassesModel::refreshAll);
-    connect(Core(), &CutterCore::codeRebased, this, &AnalysisClassesModel::refreshAll);
-    connect(Core(), &CutterCore::classNew, this, &AnalysisClassesModel::classNew);
-    connect(Core(), &CutterCore::classDeleted, this, &AnalysisClassesModel::classDeleted);
-    connect(Core(), &CutterCore::classRenamed, this, &AnalysisClassesModel::classRenamed);
-    connect(Core(), &CutterCore::classAttrsChanged, this, &AnalysisClassesModel::classAttrsChanged);
+    Session()->connect(&DynamicSession::refreshAll, this, &AnalysisClassesModel::refreshAll);
+    Session()->connect(&DynamicSession::codeRebased, this, &AnalysisClassesModel::refreshAll);
+    Session()->connect(&RizinWrapper::classNew, this, &AnalysisClassesModel::classNew);
+    Session()->connect(&RizinWrapper::classDeleted, this, &AnalysisClassesModel::classDeleted);
+    Session()->connect(&RizinWrapper::classRenamed, this, &AnalysisClassesModel::classRenamed);
+    Session()->connect(&RizinWrapper::classAttrsChanged, this,
+                       &AnalysisClassesModel::classAttrsChanged);
 
     refreshAll();
 }
@@ -756,7 +757,7 @@ void ClassesWidget::seekToVTableActionTriggered()
         return;
     }
 
-    Core()->seekAndShow(vtables[0].addr + desc.vtableOffset);
+    Session()->seekAndShow(vtables[0].addr + desc.vtableOffset);
 }
 
 void ClassesWidget::addMethodActionTriggered()

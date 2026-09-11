@@ -1,5 +1,6 @@
 #include "DecompilerWidget.h"
 
+#include "CutterApplication.h"
 #include "common/Configuration.h"
 #include "common/CutterSeekable.h"
 #include "common/Decompiler.h"
@@ -46,10 +47,10 @@ DecompilerWidget::DecompilerWidget(MainWindow *main)
 
     connect(Config(), &Configuration::fontsUpdated, this, &DecompilerWidget::fontsUpdatedSlot);
     connect(Config(), &Configuration::colorsUpdated, this, &DecompilerWidget::colorsUpdatedSlot);
-    connect(Core(), &CutterCore::registersChanged, this, &DecompilerWidget::highlightPC);
+    Session()->connect(&RizinWrapper::registersChanged, this, &DecompilerWidget::highlightPC);
     connect(mCtxMenu, &DecompilerContextMenu::copy, this, &DecompilerWidget::copy);
 
-    auto decompilers = Core()->getDecompilers();
+    auto decompilers = static_cast<CutterApplication *>(qApp)->getDecompilers();
     QString selectedDecompilerId = Config()->getSelectedDecompiler();
     if (selectedDecompilerId.isEmpty()) {
         // If no decompiler was previously chosen. set rz-ghidra as default decompiler
@@ -76,7 +77,8 @@ DecompilerWidget::DecompilerWidget(MainWindow *main)
     connect(ui->textEdit, &QWidget::customContextMenuRequested, this,
             &DecompilerWidget::showDecompilerContextMenu);
 
-    connect(Core(), &CutterCore::breakpointsChanged, this, &DecompilerWidget::updateBreakpoints);
+    Session()->connect(&RizinWrapper::breakpointsChanged, this,
+                       &DecompilerWidget::updateBreakpoints);
     mCtxMenu->addSeparator();
     mCtxMenu->addAction(&syncAction);
     addActions(mCtxMenu->actions());
@@ -84,15 +86,16 @@ DecompilerWidget::DecompilerWidget(MainWindow *main)
     ui->progressLabel->setVisible(false);
     doRefresh();
 
-    connect(Core(), &CutterCore::refreshAll, this, &DecompilerWidget::doRefresh);
-    connect(Core(), &CutterCore::functionRenamed, this, &DecompilerWidget::doRefresh);
-    connect(Core(), &CutterCore::varsChanged, this, &DecompilerWidget::doRefresh);
-    connect(Core(), &CutterCore::functionsChanged, this, &DecompilerWidget::doRefresh);
-    connect(Core(), &CutterCore::flagsChanged, this, &DecompilerWidget::doRefresh);
-    connect(Core(), &CutterCore::globalVarsChanged, this, &DecompilerWidget::doRefresh);
-    connect(Core(), &CutterCore::commentsChanged, this, &DecompilerWidget::refreshIfChanged);
-    connect(Core(), &CutterCore::instructionChanged, this, &DecompilerWidget::refreshIfChanged);
-    connect(Core(), &CutterCore::refreshCodeViews, this, &DecompilerWidget::doRefresh);
+    Session()->connect(&DynamicSession::refreshAll, this, &DecompilerWidget::doRefresh);
+    Session()->connect(&RizinWrapper::functionRenamed, this, &DecompilerWidget::doRefresh);
+    Session()->connect(&RizinWrapper::varsChanged, this, &DecompilerWidget::doRefresh);
+    Session()->connect(&RizinWrapper::functionsChanged, this, &DecompilerWidget::doRefresh);
+    Session()->connect(&RizinWrapper::flagsChanged, this, &DecompilerWidget::doRefresh);
+    Session()->connect(&RizinWrapper::globalVarsChanged, this, &DecompilerWidget::doRefresh);
+    Session()->connect(&RizinWrapper::commentsChanged, this, &DecompilerWidget::refreshIfChanged);
+    Session()->connect(&RizinWrapper::instructionChanged, this,
+                       &DecompilerWidget::refreshIfChanged);
+    Session()->connect(&DynamicSession::refreshCodeViews, this, &DecompilerWidget::doRefresh);
 
     // Esc to seek backward
     QAction *seekPrevAction = Shortcuts()->makeAction("General.seekPrev", this);
@@ -110,7 +113,8 @@ QString DecompilerWidget::getWidgetType()
 
 Decompiler *DecompilerWidget::getCurrentDecompiler()
 {
-    return Core()->getDecompilerById(ui->decompilerComboBox->currentData().toString());
+    return static_cast<CutterApplication *>(qApp)->getDecompilerById(
+            ui->decompilerComboBox->currentData().toString());
 }
 
 ut64 DecompilerWidget::findReference(size_t pos)
@@ -400,7 +404,7 @@ void DecompilerWidget::cursorPositionChanged()
     updateSelection();
 }
 
-void DecompilerWidget::seekChanged(RVA /* addr */, CutterCore::SeekHistoryType type)
+void DecompilerWidget::seekChanged(RVA /* addr */, RizinWrapper::SeekHistoryType type)
 {
     if (seekFromCursor) {
         return;
@@ -410,16 +414,16 @@ void DecompilerWidget::seekChanged(RVA /* addr */, CutterCore::SeekHistoryType t
         scrollHistory[historyPos] = { ui->textEdit->horizontalScrollBar()->sliderPosition(),
                                       ui->textEdit->verticalScrollBar()->sliderPosition() };
     }
-    if (type == CutterCore::SeekHistoryType::New) {
+    if (type == RizinWrapper::SeekHistoryType::New) {
         // Erase previous history past this point.
         if (scrollHistory.size() > historyPos + 1) {
             scrollHistory.erase(scrollHistory.begin() + historyPos + 1, scrollHistory.end());
         }
         scrollHistory.push_back({ 0, 0 });
         historyPos = scrollHistory.size() - 1;
-    } else if (type == CutterCore::SeekHistoryType::Undo) {
+    } else if (type == RizinWrapper::SeekHistoryType::Undo) {
         --historyPos;
-    } else if (type == CutterCore::SeekHistoryType::Redo) {
+    } else if (type == RizinWrapper::SeekHistoryType::Redo) {
         ++historyPos;
     }
     const RVA fcnAddr = Core()->getFunctionStart(seekable->getOffset());

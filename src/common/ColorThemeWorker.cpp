@@ -56,7 +56,7 @@ ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject(parent)
         QDir().mkpath(customRzThemesLocationPath);
     }
 
-    RzCoreLocked core = Core()->lock();
+    auto core = Core()->lock();
     const char *themeDir = rz_path_system(core->sys_path, RZ_THEMES);
     const QDir currDir { themeDir };
     if (currDir.exists()) {
@@ -138,7 +138,7 @@ ColorThemeWorker::Theme ColorThemeWorker::getTheme(const QString &themeName) con
     const QString curr = Config()->getColorTheme();
 
     if (themeName != curr) {
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         rz_core_theme_load(core, themeName.toUtf8().constData());
         theme = Core()->getTheme();
         rz_core_theme_load(core, curr.toUtf8().constData());

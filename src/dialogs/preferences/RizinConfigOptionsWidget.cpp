@@ -539,11 +539,15 @@ RizinConfigOptionsWidget::RizinConfigOptionsWidget(PreferencesDialog *parent)
             &RizinConfigOptionsWidget::restoreBtnPressed);
 
     // refresh
-    connect(Core(), &CutterCore::refreshAll, this, &RizinConfigOptionsWidget::refresh);
-    connect(Core(), &CutterCore::asmOptionsChanged, this, &RizinConfigOptionsWidget::refresh);
-    connect(Core(), &CutterCore::debugOptionsChanged, this, &RizinConfigOptionsWidget::refresh);
-    connect(Core(), &CutterCore::analysisOptionsChanged, this, &RizinConfigOptionsWidget::refresh);
-    connect(Core(), &CutterCore::symbolsOptionsChanged, this, &RizinConfigOptionsWidget::refresh);
+    Session()->connect(&DynamicSession::refreshAll, this, &RizinConfigOptionsWidget::refresh);
+    Session()->connect(&DynamicSession::asmOptionsChanged, this,
+                       &RizinConfigOptionsWidget::refresh);
+    Session()->connect(&DynamicSession::debugOptionsChanged, this,
+                       &RizinConfigOptionsWidget::refresh);
+    Session()->connect(&DynamicSession::analysisOptionsChanged, this,
+                       &RizinConfigOptionsWidget::refresh);
+    Session()->connect(&DynamicSession::symbolsOptionsChanged, this,
+                       &RizinConfigOptionsWidget::refresh);
 
     refreshComboQuickFilter();
     updateItemCount();
@@ -614,30 +618,32 @@ void RizinConfigOptionsWidget::handleConfigOptionChanged(const QModelIndex &topL
 void RizinConfigOptionsWidget::triggerOptionsChanged(int options) const
 {
     if (options & OptionChanged::Asm) {
-        disconnect(Core(), &CutterCore::asmOptionsChanged, this,
-                   &RizinConfigOptionsWidget::refresh);
-        Core()->triggerAsmOptionsChanged();
-        connect(Core(), &CutterCore::asmOptionsChanged, this, &RizinConfigOptionsWidget::refresh);
+        Session()->disconnect(&DynamicSession::asmOptionsChanged, this,
+                              &RizinConfigOptionsWidget::refresh);
+        Session()->triggerAsmOptionsChanged();
+        Session()->connect(&DynamicSession::asmOptionsChanged, this,
+                           &RizinConfigOptionsWidget::refresh);
     }
     if (options & OptionChanged::Debug) {
-        disconnect(Core(), &CutterCore::debugOptionsChanged, this,
-                   &RizinConfigOptionsWidget::refresh);
-        Core()->triggerDebugOptionsChanged();
-        connect(Core(), &CutterCore::debugOptionsChanged, this, &RizinConfigOptionsWidget::refresh);
+        Session()->disconnect(&DynamicSession::debugOptionsChanged, this,
+                              &RizinConfigOptionsWidget::refresh);
+        Session()->triggerDebugOptionsChanged();
+        Session()->connect(&DynamicSession::debugOptionsChanged, this,
+                           &RizinConfigOptionsWidget::refresh);
     }
     if (options & OptionChanged::Analysis) {
-        disconnect(Core(), &CutterCore::analysisOptionsChanged, this,
-                   &RizinConfigOptionsWidget::refresh);
-        Core()->triggerAnalysisOptionsChanged();
-        connect(Core(), &CutterCore::analysisOptionsChanged, this,
-                &RizinConfigOptionsWidget::refresh);
+        Session()->disconnect(&DynamicSession::analysisOptionsChanged, this,
+                              &RizinConfigOptionsWidget::refresh);
+        Session()->triggerAnalysisOptionsChanged();
+        Session()->connect(&DynamicSession::analysisOptionsChanged, this,
+                           &RizinConfigOptionsWidget::refresh);
     }
     if (options & OptionChanged::Symbols) {
-        disconnect(Core(), &CutterCore::symbolsOptionsChanged, this,
-                   &RizinConfigOptionsWidget::refresh);
-        Core()->triggerSymbolsOptionsChanged();
-        connect(Core(), &CutterCore::symbolsOptionsChanged, this,
-                &RizinConfigOptionsWidget::refresh);
+        Session()->disconnect(&DynamicSession::symbolsOptionsChanged, this,
+                              &RizinConfigOptionsWidget::refresh);
+        Session()->triggerSymbolsOptionsChanged();
+        Session()->connect(&DynamicSession::symbolsOptionsChanged, this,
+                           &RizinConfigOptionsWidget::refresh);
     }
 }
 
@@ -660,7 +666,7 @@ void RizinConfigOptionsWidget::resetToDefaultBtnPressed()
 {
     Core()->resetConfig();
     triggerOptionsChanged(OptionChanged::All);
-    Core()->triggerRefreshAll();
+    Session()->triggerRefreshAll();
     updateItemCount();
     ui->treeView->expandAll();
 }

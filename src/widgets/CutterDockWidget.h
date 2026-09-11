@@ -5,7 +5,6 @@
 #include "core/CutterCommon.h"
 
 #include <QDockWidget>
-
 class MainWindow;
 
 /**
@@ -18,7 +17,8 @@ class CUTTER_EXPORT CutterDockWidget : public QDockWidget
     Q_OBJECT
 
 public:
-    CUTTER_DEPRECATED("Action will be ignored. Use CutterDockWidget(MainWindow*) instead.")
+    CUTTER_DEPRECATED(
+            "Action will be ignored. Use CutterDockWidget(MainWindow*, DynamicSession*) instead.")
     CutterDockWidget(MainWindow *parent, QAction *action);
 
     explicit CutterDockWidget(MainWindow *parent);

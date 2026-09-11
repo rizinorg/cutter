@@ -69,7 +69,7 @@ void TypesInteractionDialog::onPlainTextEditTextChanged()
 void TypesInteractionDialog::done(int r)
 {
     if (r == QDialog::Accepted) {
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         bool success;
         RzTypeDB *typedb = rz_analysis_get_type_db(core->analysis);
         if (!typeName.isEmpty()) {

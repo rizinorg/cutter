@@ -155,7 +155,7 @@ void VersionInfoDialog::onCopyVersionInfoButtonClicked()
 
 void VersionInfoDialog::fillVersionInfo()
 {
-    RzCoreLocked core(Core());
+    auto core = Core()->lock();
     RzBinObject *bobj = rz_bin_cur_object(core->bin);
     if (!bobj) {
         return;

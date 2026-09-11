@@ -29,8 +29,9 @@ GlibcHeapWidget::GlibcHeapWidget(MainWindow *main, QWidget *parent)
     chunkInfoAction = new QAction(tr("Detailed Chunk Info"), this);
     binInfoAction = new QAction(tr("Bins Info"), this);
 
-    connect(Core(), &CutterCore::refreshAll, this, &GlibcHeapWidget::updateContents);
-    connect(Core(), &CutterCore::debugTaskStateChanged, this, &GlibcHeapWidget::updateContents);
+    Session()->connect(&DynamicSession::refreshAll, this, &GlibcHeapWidget::updateContents);
+    Session()->connect(&DynamicSession::debugTaskStateChanged, this,
+                       &GlibcHeapWidget::updateContents);
     connect(viewHeap, &QAbstractItemView::doubleClicked, this, &GlibcHeapWidget::onDoubleClicked);
     connect<void (QComboBox::*)(int)>(arenaSelectorView, &QComboBox::currentIndexChanged, this,
                                       &GlibcHeapWidget::onArenaSelected);
@@ -89,7 +90,7 @@ void GlibcHeapWidget::onArenaSelected(int index)
 
 void GlibcHeapWidget::updateContents()
 {
-    if (!refreshDeferrer->attemptRefresh(nullptr) || Core()->isDebugTaskInProgress()) {
+    if (!refreshDeferrer->attemptRefresh(nullptr) || Session()->isDebugTaskInProgress()) {
         return;
     }
 

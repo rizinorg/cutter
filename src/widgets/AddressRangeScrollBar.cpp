@@ -9,7 +9,7 @@
 
 AddressRangeScrollBar::AddressRangeScrollBar(QWidget *parent) : QScrollBar(parent)
 {
-    connect(Core(), &CutterCore::refreshAll, this, &AddressRangeScrollBar::refreshRange);
+    Session()->connect(&DynamicSession::refreshAll, this, &AddressRangeScrollBar::refreshRange);
     connect(this, &AddressRangeScrollBar::actionTriggered, this, [this](int action) {
         switch (action) {
         // Due to the way the QScrollBar::actionTriggered signal works,
@@ -56,7 +56,7 @@ void AddressRangeScrollBar::refreshRange()
 {
     beginOffset = RVA_MAX;
     endOffset = 0;
-    if (!Core()->currentlyEmulating && Core()->currentlyDebugging) {
+    if (!Session()->isCurrentlyEmulating() && Session()->isCurrentlyDebugging()) {
         const QString currentlyOpenFile = Core()->getConfig("file.path");
         const QList<MemoryMapDescription> memoryMaps = Core()->getMemoryMap();
         for (const MemoryMapDescription &map : memoryMaps) {
@@ -70,7 +70,7 @@ void AddressRangeScrollBar::refreshRange()
             }
         }
     } else {
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         const RzPVector *mapsPtr = rz_io_maps(core->io);
         if (!mapsPtr) {
             emit hideScrollBar();
@@ -79,7 +79,8 @@ void AddressRangeScrollBar::refreshRange()
         const CutterPVector<RzIOMap> maps { mapsPtr };
         for (const RzIOMap *const map : maps) {
             // Skip the ESIL memory stack region
-            if (Core()->currentlyEmulating && std::strncmp(rz_str_get(map->name), "mem.", 4) == 0) {
+            if (Session()->isCurrentlyEmulating()
+                && std::strncmp(rz_str_get(map->name), "mem.", 4) == 0) {
                 continue;
             }
             const ut64 b = rz_itv_begin(map->itv);

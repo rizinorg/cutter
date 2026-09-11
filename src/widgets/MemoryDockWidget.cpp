@@ -22,7 +22,7 @@ bool MemoryDockWidget::tryRaiseMemoryWidget()
         return false;
     }
 
-    if (type == MemoryWidgetType::Graph && Core()->isGraphEmpty()) {
+    if (type == MemoryWidgetType::Graph && Session()->isGraphEmpty()) {
         return false;
     }
     raiseMemoryWidget();

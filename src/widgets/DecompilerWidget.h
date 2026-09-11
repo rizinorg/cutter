@@ -57,7 +57,7 @@ private slots:
      *     - Seek changed to an offset contained in the decompiled function.
      *     - Auto-refresh is disabled.
      */
-    void seekChanged(RVA /* addr */, CutterCore::SeekHistoryType type);
+    void seekChanged(RVA /* addr */, RizinWrapper::SeekHistoryType type);
     void decompilationFinished(RzAnnotatedCode *code);
 
 private:

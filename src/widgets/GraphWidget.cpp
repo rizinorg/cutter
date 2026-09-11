@@ -53,7 +53,7 @@ GraphWidget::GraphWidget(MainWindow *main)
     connect(graphView, &DisassemblerGraphView::graphMoved, this,
             [=, this]() { main->toggleOverview(true, this); });
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &GraphWidget::prepareHeader);
-    connect(Core(), &CutterCore::functionRenamed, this, &GraphWidget::prepareHeader);
+    Session()->connect(&RizinWrapper::functionRenamed, this, &GraphWidget::prepareHeader);
     graphView->installEventFilter(this);
 }
 

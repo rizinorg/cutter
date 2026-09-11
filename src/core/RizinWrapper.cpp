@@ -1,16 +1,12 @@
-#include "core/Cutter.h"
+#include "RizinWrapper.h"
 
 #include "CutterDescriptions.h"
-#include "Decompiler.h"
-#include "common/AsyncTask.h"
-#include "common/BasicInstructionHighlighter.h"
 #include "common/Configuration.h"
 #include "common/Json.h"
-#include "common/RizinTask.h"
+// #include "common/RizinTask.h"
 #include "common/TempConfig.h"
-#include "dialogs/IntervalDialog.h" // IWYU pragma: keep
-#include "dialogs/MarkDialog.h"
-#include "dialogs/RizinTaskDialog.h"
+// #include "dialogs/IntervalDialog.h" // IWYU pragma: keep
+// #include "dialogs/MarkDialog.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -27,8 +23,6 @@
 #include <rz_cmd.h>
 #include <rz_socket.h>
 #include <sdb.h>
-
-static CutterCore *uniqueInstance;
 
 #define RZ_JSON_KEY(name) static const QString name = QStringLiteral(#name)
 
@@ -119,6 +113,13 @@ RZ_JSON_KEY(vsize);
 
 #undef RZ_JSON_KEY
 
+constexpr qreal markAlphaF = 0.5;
+
+RzCore *RizinWrapper::lock() const
+{
+    return core;
+}
+
 static void updateOwnedCharPtr(char *&variable, const QString &newValue)
 {
     auto data = newValue.toUtf8();
@@ -134,68 +135,57 @@ static bool regSync(RzCore *core, RzRegisterType type, bool write)
     return true;
 }
 
-RzCoreLocked::RzCoreLocked(CutterCore *core) : core(core)
-{
-    core->coreMutex.lock();
-    assert(core->coreLockDepth >= 0);
-    core->coreLockDepth++;
-    if (core->coreLockDepth == 1) {
-        assert(core->coreBed);
-        rz_cons_sleep_end(core->coreBed);
-        core->coreBed = nullptr;
-    }
-}
+// RzCoreLocked::RzCoreLocked(RizinWrapper *core) : core(core)
+// {
+//     core->coreMutex.lock();
+//     assert(core->coreLockDepth >= 0);
+//     core->coreLockDepth++;
+//     if (core->coreLockDepth == 1) {
+//         assert(core->coreBed);
+//         rz_cons_sleep_end(core->coreBed);
+//         core->coreBed = nullptr;
+//     }
+// }
 
-RzCoreLocked::~RzCoreLocked()
-{
-    assert(core->coreLockDepth > 0);
-    core->coreLockDepth--;
-    if (core->coreLockDepth == 0) {
-        core->coreBed = rz_cons_sleep_begin();
-    }
-    core->coreMutex.unlock();
-}
+// RzCoreLocked::~RzCoreLocked()
+// {
+//     assert(core->coreLockDepth > 0);
+//     core->coreLockDepth--;
+//     if (core->coreLockDepth == 0) {
+//         core->coreBed = rz_cons_sleep_begin();
+//     }
+//     core->coreMutex.unlock();
+// }
 
-RzCoreLocked::operator RzCore *() &
-{
-    return core->rzCore;
-}
+// RzCoreLocked::operator RzCore *() &
+// {
+//     return core->core;
+// }
 
-RzCore *RzCoreLocked::operator->() &
-{
-    return core->rzCore;
-}
+// RzCore *RzCoreLocked::operator->() &
+// {
+//     return core->core;
+// }
 
-#define CORE_LOCK() RzCoreLocked core(this)
+// #define CORE_LOCK() RzCoreLocked core(this)
 
 static void cutterREventCallback(RzEvent *, int type, void *user, void *data)
 {
-    auto core = reinterpret_cast<CutterCore *>(user);
+    auto core = reinterpret_cast<RizinWrapper *>(user);
     core->handleREvent(type, data);
 }
 
-CutterCore::CutterCore(QObject *parent)
-    : QObject(parent)
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-      ,
-      coreMutex(QMutex::Recursive)
-#endif
+RizinWrapper::RizinWrapper(QObject *parent) : QObject(parent)
 {
-    if (uniqueInstance) {
-        throw std::logic_error("Only one instance of CutterCore must exist");
-    }
-    uniqueInstance = this;
+    // TODO:
+    initialize();
 }
 
-CutterCore *CutterCore::instance()
+void RizinWrapper::initialize(bool loadPlugins)
 {
-    return uniqueInstance;
-}
-
-void CutterCore::initialize(bool loadPlugins)
-{
+    // TODO: this need to be repeayed?
     rz_cons_new(); // initialize console
-    rzCore = rz_core_new();
+    core = rz_core_new();
 
 #if defined(MACOS_RZ_BUNDLED)
     auto app_path = QDir(QCoreApplication::applicationDirPath());
@@ -203,24 +193,22 @@ void CutterCore::initialize(bool loadPlugins)
     app_path.cd("Resources");
     qInfo() << "Setting Rizin prefix =" << app_path.absolutePath()
             << " for macOS Application Bundle.";
-    rz_path_set_prefix(rzCore->sys_path, app_path.absolutePath().toUtf8().constData());
+    rz_path_set_prefix(core->sys_path, app_path.absolutePath().toUtf8().constData());
 #endif
 
     char **env = rz_sys_get_environ();
-    rzCore->io->envprofile = rz_run_get_environ_profile(env);
-    rz_core_task_sync_begin(&rzCore->tasks);
-    coreBed = rz_cons_sleep_begin();
-    CORE_LOCK();
+    core->io->envprofile = rz_run_get_environ_profile(env);
+    rz_core_task_sync_begin(&core->tasks);
 
-    rz_event_hook(rzCore->ev, RZ_EVENT_ALL, cutterREventCallback, this);
+    rz_event_hook(core->ev, RZ_EVENT_ALL, cutterREventCallback, this);
 
     if (loadPlugins) {
         setConfig("cfg.plugins", true);
-        rz_core_loadlibs(this->rzCore, RZ_CORE_LOADLIBS_ALL);
+        rz_core_loadlibs(this->core, RZ_CORE_LOADLIBS_ALL);
     } else {
         setConfig("cfg.plugins", false);
     }
-    // IMPLICIT rz_bin_iobind (rzCore->bin, rzCore->io);
+    // IMPLICIT rz_bin_iobind (core->bin, core->io);
 
     // Otherwise Rizin may ask the user for input and Cutter would freeze
     setConfig("scr.interactive", false);
@@ -229,85 +217,38 @@ void CutterCore::initialize(bool loadPlugins)
     // Otherwise sometimes disassembly is truncated.
     // The blocksize here is a rather arbitrary value larger than the default 0x100.
     rz_core_block_size(core, 0x400);
-
-    // Initialize graph node highlighter
-    bbHighlighter = new BasicBlockHighlighter();
-
-    // Initialize Async tasks manager
-    asyncTaskManager = new AsyncTaskManager(this);
 }
 
-CutterCore::~CutterCore()
+void RizinWrapper::setDebugStateProvider(std::function<bool()> currentlyDebuggingCb,
+                                         std::function<bool()> currentlyEmulatingCb)
 {
-    delete bbHighlighter;
-    rz_cons_sleep_end(coreBed);
-    rz_core_task_sync_end(&rzCore->tasks);
-    rz_core_free(this->rzCore);
-    rz_cons_free();
-    assert(uniqueInstance == this);
-    uniqueInstance = nullptr;
+    this->currentlyDebuggingCb = std::move(currentlyDebuggingCb);
+    this->currentlyEmulatingCb = std::move(currentlyEmulatingCb);
 }
 
-RzCoreLocked CutterCore::lock()
+void *RizinWrapper::handleSleepBegin()
 {
-    return RzCoreLocked(this);
+    return rz_core_sleep_begin(core);
 }
 
-RzCoreLocked CutterCore::core()
+void RizinWrapper::handleSleepEnd(void *bed)
 {
-    return lock();
+    rz_core_sleep_end(core, bed);
 }
 
-QDir CutterCore::getCutterRCDefaultDirectory() const
+RizinWrapper::~RizinWrapper()
 {
-    return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+    // TODO: move to session destructor?
+    // rz_cons_sleep_end(coreBed);
+
+    rz_core_task_sync_end(&core->tasks);
+    rz_core_free(this->core);
+    // TODO:
+    rz_cons_free(); // Move this to cutterApp??
 }
 
-QVector<QString> CutterCore::getCutterRCFilePaths() const
+QList<QString> RizinWrapper::sdbList(const QString &path)
 {
-    QVector<QString> result;
-    result.push_back(QFileInfo(QDir::home(), ".cutterrc").absoluteFilePath());
-    const QStringList locations =
-            QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation);
-    for (auto &location : locations) {
-        result.push_back(QFileInfo(QDir(location), ".cutterrc").absoluteFilePath());
-    }
-    result.push_back(QFileInfo(getCutterRCDefaultDirectory(), "rc")
-                             .absoluteFilePath()); // File in config editor is from this path
-    return result;
-}
-
-void CutterCore::loadCutterRC()
-{
-    CORE_LOCK();
-    const auto result = getCutterRCFilePaths();
-    for (auto &cutterRCFilePath : result) {
-        auto cutterRCFileInfo = QFileInfo(cutterRCFilePath);
-        if (!cutterRCFileInfo.exists() || !cutterRCFileInfo.isFile()) {
-            continue;
-        }
-        qInfo() << tr("Loading initialization file from ") << cutterRCFilePath;
-        rz_core_cmd_file(core, cutterRCFilePath.toUtf8().constData());
-        rz_cons_flush();
-    }
-}
-
-void CutterCore::loadDefaultCutterRC()
-{
-    CORE_LOCK();
-    auto cutterRCFilePath = QFileInfo(getCutterRCDefaultDirectory(), "rc").absoluteFilePath();
-    const auto cutterRCFileInfo = QFileInfo(cutterRCFilePath);
-    if (!cutterRCFileInfo.exists() || !cutterRCFileInfo.isFile()) {
-        return;
-    }
-    qInfo() << tr("Loading initialization file from ") << cutterRCFilePath;
-    rz_core_cmd_file(core, cutterRCFilePath.toUtf8().constData());
-    rz_cons_flush();
-}
-
-QList<QString> CutterCore::sdbList(const QString &path)
-{
-    CORE_LOCK();
     QList<QString> list = QList<QString>();
     const Sdb *root = sdb_ns_path(core->sdb, path.toUtf8().constData(), 0);
     if (root && root->ns) {
@@ -331,9 +272,9 @@ static bool foreachKeysCb(void *user, const SdbKv *kv)
     return true;
 }
 
-QList<QString> CutterCore::sdbListKeys(const QString &path)
+QList<QString> RizinWrapper::sdbListKeys(const QString &path)
 {
-    CORE_LOCK();
+
     QList<QString> list = QList<QString>();
     Sdb *root = sdb_ns_path(core->sdb, path.toUtf8().constData(), 0);
     if (root) {
@@ -342,9 +283,9 @@ QList<QString> CutterCore::sdbListKeys(const QString &path)
     return list;
 }
 
-QString CutterCore::sdbGet(const QString &path, const QString &key)
+QString RizinWrapper::sdbGet(const QString &path, const QString &key)
 {
-    CORE_LOCK();
+
     Sdb *db = sdb_ns_path(core->sdb, path.toUtf8().constData(), 0);
     if (db) {
         const char *val = sdb_const_get(db, key.toUtf8().constData());
@@ -355,9 +296,9 @@ QString CutterCore::sdbGet(const QString &path, const QString &key)
     return QString();
 }
 
-bool CutterCore::sdbSet(const QString &path, const QString &key, const QString &val)
+bool RizinWrapper::sdbSet(const QString &path, const QString &key, const QString &val)
 {
-    CORE_LOCK();
+
     Sdb *db = sdb_ns_path(core->sdb, path.toUtf8().constData(), 1);
     if (!db) {
         return false;
@@ -365,15 +306,42 @@ bool CutterCore::sdbSet(const QString &path, const QString &key, const QString &
     return sdb_set(db, key.toUtf8().constData(), val.toUtf8().constData());
 }
 
-QString CutterCore::sanitizeStringForCommand(QString s)
+QString RizinWrapper::getRegisterName(const QString &registerRole)
+{
+    if (!currentlyDebugging()) {
+        return "";
+    }
+    return rz_reg_get_name_by_type(getReg(), registerRole.toUtf8().constData());
+}
+
+RVA RizinWrapper::getProgramCounterValue()
+{
+    if (currentlyDebugging()) {
+        return rz_core_reg_getv_by_role_or_name(core, "PC");
+    }
+    return RVA_INVALID;
+}
+
+void RizinWrapper::setRegister(const QString &regName, const QString &regValue)
+{
+    if (!currentlyDebugging()) {
+        return;
+    }
+
+    const ut64 val = rz_num_math(core->num, regValue.toUtf8().constData());
+    rz_core_reg_assign_sync(core, getReg(), regSync, regName.toUtf8().constData(), val);
+    emit registersChanged();
+    emit refreshCodeViews();
+}
+
+QString RizinWrapper::sanitizeStringForCommand(QString s)
 {
     static const QRegularExpression regexp(";|@");
     return s.replace(regexp, QStringLiteral("_"));
 }
 
-QString CutterCore::cmd(const char *str)
+QString RizinWrapper::cmd(const char *str)
 {
-    CORE_LOCK();
 
     const RVA offset = core->offset;
     char *res = rz_core_cmd_str(core, str);
@@ -385,9 +353,8 @@ QString CutterCore::cmd(const char *str)
     return o;
 }
 
-QString CutterCore::getFunctionExecOut(const std::function<bool(RzCore *)> &fcn, const RVA addr)
+QString RizinWrapper::getFunctionExecOut(const std::function<bool(RzCore *)> &fcn, const RVA addr)
 {
-    CORE_LOCK();
 
     const RVA offset = core->offset;
     seekSilent(addr);
@@ -416,14 +383,8 @@ clean_return:
     return o;
 }
 
-bool CutterCore::isRedirectableDebugee() const
+bool RizinWrapper::hasLocalUnixDebuggerIO() const
 {
-    if (!currentlyDebugging || currentlyAttachedToPID != -1) {
-        return false;
-    }
-
-    // We are only able to redirect locally debugged unix processes
-    RzCoreLocked core(Core());
     const RzList *descs = rz_id_storage_list(core->io->files);
     RzListIter *it;
     RzIODesc *desc;
@@ -436,16 +397,7 @@ bool CutterCore::isRedirectableDebugee() const
     return false;
 }
 
-bool CutterCore::isDebugTaskInProgress()
-{
-    if (debugTask) {
-        return true;
-    }
-
-    return false;
-}
-
-void CutterCore::setProfileDirectives(const QString &directives)
+void RizinWrapper::setProfileDirectives(const QString &directives)
 {
     QString file = getConfig("dbg.profile");
     if (file.isEmpty()) {
@@ -464,21 +416,21 @@ void CutterCore::setProfileDirectives(const QString &directives)
     rz_file_dump(pathPtr, reinterpret_cast<const ut8 *>("\n"), 1, 1);
 }
 
-void CutterCore::setRegisterProfile(const QString &profile)
+void RizinWrapper::setRegisterProfile(const QString &profile)
 {
-    CORE_LOCK();
+
     rz_reg_set_profile_string(core->dbg->reg, profile.toUtf8().constData());
     emit registersChanged();
 }
 
-QString CutterCore::convertGdbProfile(const QString &profilePath)
+QString RizinWrapper::convertGdbProfile(const QString &profilePath)
 {
     return QString::fromUtf8(rz_reg_parse_gdb_profile(profilePath.toUtf8().constData()));
 }
 
-QString CutterCore::getRegisterProfile()
+QString RizinWrapper::getRegisterProfile()
 {
-    CORE_LOCK();
+
     const RzReg *reg = core->dbg->reg;
     if (reg && reg->reg_profile_str) {
         return QString::fromUtf8(reg->reg_profile_str);
@@ -486,34 +438,7 @@ QString CutterCore::getRegisterProfile()
     return QString();
 }
 
-bool CutterCore::asyncTask(std::function<void *(RzCore *)> fcn, std::shared_ptr<RizinTask> &task)
-{
-    if (task) {
-        return false;
-    }
-
-    CORE_LOCK();
-    const RVA offset = core->offset;
-    task = std::shared_ptr<RizinTask>(new RizinFunctionTask(std::move(fcn), true));
-    connect(task.get(), &RizinTask::finished, task.get(), [this, offset, task]() {
-        CORE_LOCK();
-
-        if (offset != core->offset) {
-            updateSeek();
-        }
-    });
-
-    return true;
-}
-
-void CutterCore::functionTask(std::function<void *(RzCore *)> fcn)
-{
-    auto task = std::unique_ptr<RizinTask>(new RizinFunctionTask(std::move(fcn), true));
-    task->startTask();
-    task->joinTask();
-}
-
-QString CutterCore::cmdRawAt(const char *cmd, RVA address)
+QString RizinWrapper::cmdRawAt(const char *cmd, RVA address)
 {
     QString res;
     const RVA oldOffset = getOffset();
@@ -525,33 +450,25 @@ QString CutterCore::cmdRawAt(const char *cmd, RVA address)
     return res;
 }
 
-QString CutterCore::cmdRaw(const char *cmd)
+QString RizinWrapper::cmdRaw(const char *cmd)
 {
     const QString res;
-    CORE_LOCK();
+
     return rz_core_cmd_str(core, cmd);
 }
 
-CutterJson CutterCore::cmdj(const char *str)
+CutterJson RizinWrapper::cmdj(const char *str)
 {
     char *res;
     {
-        CORE_LOCK();
+
         res = rz_core_cmd_str(core, str);
     }
 
     return parseJson("cmdj", res, str);
 }
 
-QString CutterCore::cmdTask(const QString &str)
-{
-    RizinCmdTask task(str);
-    task.startTask();
-    task.joinTask();
-    return task.getResult();
-}
-
-CutterJson CutterCore::parseJson(const char *name, char *res, const char *cmd)
+CutterJson RizinWrapper::parseJson(const char *name, char *res, const char *cmd)
 {
     if (RZ_STR_ISEMPTY(res)) {
         return CutterJson();
@@ -571,7 +488,7 @@ CutterJson CutterCore::parseJson(const char *name, char *res, const char *cmd)
     return CutterJson(doc, std::make_shared<CutterJsonOwner>(doc, res));
 }
 
-QStringList CutterCore::autocomplete(const QString &cmd, RzLinePromptType promptType)
+QStringList RizinWrapper::autocomplete(const QString &cmd, RzLinePromptType promptType)
 {
     RzLineBuffer buf;
     const int c = snprintf(buf.data, sizeof(buf.data), "%s", cmd.toUtf8().constData());
@@ -580,7 +497,6 @@ QStringList CutterCore::autocomplete(const QString &cmd, RzLinePromptType prompt
     }
     buf.index = buf.length = std::min((int)(sizeof(buf.data) - 1), c);
 
-    CORE_LOCK();
     RzLineNSCompletionResult *compr = rz_core_autocomplete_rzshell(core, &buf, promptType);
 
     QStringList r;
@@ -595,10 +511,10 @@ QStringList CutterCore::autocomplete(const QString &cmd, RzLinePromptType prompt
     return r;
 }
 
-bool CutterCore::loadFile(const QString &path, ut64 baddr, ut64 mapaddr, int perms, int va,
-                          bool loadbin, const QString &forceBinPlugin)
+bool RizinWrapper::loadFile(const QString &path, ut64 baddr, ut64 mapaddr, int perms, int va,
+                            bool loadbin, const QString &forceBinPlugin)
 {
-    CORE_LOCK();
+
     RzCoreFile *f;
     rz_config_set_i(core->config, "io.va", va);
 
@@ -650,13 +566,13 @@ bool CutterCore::loadFile(const QString &path, ut64 baddr, ut64 mapaddr, int per
     return true;
 }
 
-bool CutterCore::tryFile(const QString &path, bool rw)
+bool RizinWrapper::tryFile(const QString &path, bool rw)
 {
     if (path.isEmpty()) {
         // opening no file is always possible
         return true;
     }
-    CORE_LOCK();
+
     // clear info from previous fails
     rz_cons_break_clear();
     RzCoreFile *cf;
@@ -674,9 +590,9 @@ bool CutterCore::tryFile(const QString &path, bool rw)
     return true;
 }
 
-bool CutterCore::mapFile(const QString &path, RVA mapaddr)
+bool RizinWrapper::mapFile(const QString &path, RVA mapaddr)
 {
-    CORE_LOCK();
+
     const RVA addr = mapaddr != RVA_INVALID ? mapaddr : 0;
     const ut64 baddr = rz_bin_get_baddr(core->bin);
     if (rz_core_file_open(core, path.toUtf8().constData(), RZ_PERM_RX, addr)) {
@@ -687,23 +603,23 @@ bool CutterCore::mapFile(const QString &path, RVA mapaddr)
     return true;
 }
 
-void CutterCore::renameFunction(const RVA offset, const QString &newName)
+void RizinWrapper::renameFunction(const RVA offset, const QString &newName)
 {
-    CORE_LOCK();
+
     rz_core_analysis_function_rename(core, offset, newName.toStdString().c_str());
     emit functionRenamed(offset, newName);
 }
 
-void CutterCore::delFunction(RVA addr)
+void RizinWrapper::delFunction(RVA addr)
 {
-    CORE_LOCK();
+
     rz_core_analysis_undefine(core, addr);
     emit functionsChanged();
 }
 
-void CutterCore::renameFlag(const QString &old_name, const QString &new_name)
+void RizinWrapper::renameFlag(const QString &old_name, const QString &new_name)
 {
-    CORE_LOCK();
+
     RzFlagItem *flag = rz_flag_get(core->flags, old_name.toStdString().c_str());
     if (!flag) {
         return;
@@ -712,10 +628,10 @@ void CutterCore::renameFlag(const QString &old_name, const QString &new_name)
     emit flagsChanged();
 }
 
-void CutterCore::renameFunctionVariable(const QString &newName, const QString &oldName,
-                                        RVA functionAddress)
+void RizinWrapper::renameFunctionVariable(const QString &newName, const QString &oldName,
+                                          RVA functionAddress)
 {
-    CORE_LOCK();
+
     RzAnalysisFunction *function = rz_analysis_get_function_at(core->analysis, functionAddress);
     RzAnalysisVar *variable =
             rz_analysis_function_get_var_byname(function, oldName.toUtf8().constData());
@@ -725,23 +641,23 @@ void CutterCore::renameFunctionVariable(const QString &newName, const QString &o
     emit refreshCodeViews();
 }
 
-void CutterCore::delFlag(RVA addr)
+void RizinWrapper::delFlag(RVA addr)
 {
-    CORE_LOCK();
+
     rz_flag_unset_off(core->flags, addr);
     emit flagsChanged();
 }
 
-void CutterCore::delFlag(const QString &name)
+void RizinWrapper::delFlag(const QString &name)
 {
-    CORE_LOCK();
+
     rz_flag_unset_name(core->flags, name.toStdString().c_str());
     emit flagsChanged();
 }
 
-CutterRzIter<RzCoreDecodedBytes> CutterCore::getRzCoreDecodedBytesSingle(RVA addr)
+CutterRzIter<RzCoreDecodedBytes> RizinWrapper::getRzCoreDecodedBytesSingle(RVA addr)
 {
-    CORE_LOCK();
+
     ut8 buf[128];
     rz_io_read_at_mapped(core->io, addr, buf, sizeof(buf));
 
@@ -751,21 +667,21 @@ CutterRzIter<RzCoreDecodedBytes> CutterCore::getRzCoreDecodedBytesSingle(RVA add
     return result;
 }
 
-QString CutterCore::getInstructionBytes(RVA addr)
+QString RizinWrapper::getInstructionBytes(RVA addr)
 {
     auto cdb = getRzCoreDecodedBytesSingle(addr);
     return cdb ? cdb->bytes : "";
 }
 
-QString CutterCore::getInstructionOpcode(RVA addr)
+QString RizinWrapper::getInstructionOpcode(RVA addr)
 {
     auto cdb = getRzCoreDecodedBytesSingle(addr);
     return cdb ? cdb->opcode : "";
 }
 
-void CutterCore::editInstruction(RVA addr, const QString &inst, bool fillWithNops)
+void RizinWrapper::editInstruction(RVA addr, const QString &inst, bool fillWithNops)
 {
-    CORE_LOCK();
+
     if (fillWithNops) {
         rz_core_write_assembly_fill(core, addr, inst.trimmed().toStdString().c_str());
     } else {
@@ -774,9 +690,9 @@ void CutterCore::editInstruction(RVA addr, const QString &inst, bool fillWithNop
     emit instructionChanged(addr);
 }
 
-void CutterCore::nopInstruction(RVA addr)
+void RizinWrapper::nopInstruction(RVA addr)
 {
-    CORE_LOCK();
+
     {
         auto seek = seekTemp(addr);
         rz_core_hack(core, "nop");
@@ -784,9 +700,9 @@ void CutterCore::nopInstruction(RVA addr)
     emit instructionChanged(addr);
 }
 
-void CutterCore::jmpReverse(RVA addr)
+void RizinWrapper::jmpReverse(RVA addr)
 {
-    CORE_LOCK();
+
     {
         auto seek = seekTemp(addr);
         rz_core_hack(core, "recj");
@@ -794,16 +710,16 @@ void CutterCore::jmpReverse(RVA addr)
     emit instructionChanged(addr);
 }
 
-void CutterCore::editBytes(RVA addr, const QString &bytes)
+void RizinWrapper::editBytes(RVA addr, const QString &bytes)
 {
-    CORE_LOCK();
+
     rz_core_write_hexpair(core, addr, bytes.toUtf8().constData());
     emit instructionChanged(addr);
 }
 
-void CutterCore::editBytesEndian(RVA addr, const QString &bytes)
+void RizinWrapper::editBytesEndian(RVA addr, const QString &bytes)
 {
-    CORE_LOCK();
+
     const ut64 value = rz_num_math(core->num, bytes.toUtf8().constData());
     if (core->num->nc.errors) {
         return;
@@ -812,17 +728,17 @@ void CutterCore::editBytesEndian(RVA addr, const QString &bytes)
     emit stackChanged();
 }
 
-void CutterCore::setToCode(RVA addr)
+void RizinWrapper::setToCode(RVA addr)
 {
-    CORE_LOCK();
+
     rz_meta_del(core->analysis, RZ_META_TYPE_STRING, core->offset, 1);
     rz_meta_del(core->analysis, RZ_META_TYPE_DATA, core->offset, 1);
     emit instructionChanged(addr);
 }
 
-void CutterCore::setAsString(RVA addr, int size, StringTypeFormats type)
+void RizinWrapper::setAsString(RVA addr, int size, StringTypeFormats type)
 {
-    if (RVA_INVALID == addr) {
+    if (addr == RVA_INVALID) {
         return;
     }
 
@@ -844,29 +760,30 @@ void CutterCore::setAsString(RVA addr, int size, StringTypeFormats type)
         return;
     }
 
-    CORE_LOCK();
-    seekAndShow(addr);
+    // Do we need this? Right clicking to open context menu seeks to the address anyways?
+    // Keyboard shortcuts also function on current address
+    /* seekAndShow(addr); */
+
     rz_core_meta_string_add(core, addr, size, encoding, nullptr);
     emit instructionChanged(addr);
 }
 
-void CutterCore::removeString(RVA addr)
+void RizinWrapper::removeString(RVA addr)
 {
-    CORE_LOCK();
     rz_meta_del(core->analysis, RZ_META_TYPE_STRING, addr, 1);
     emit instructionChanged(addr);
 }
 
-QString CutterCore::getString(RVA addr)
+QString RizinWrapper::getString(RVA addr)
 {
-    CORE_LOCK();
+
     return getString(addr, core->blocksize,
                      rz_str_guess_encoding_from_buffer(core->block, core->blocksize));
 }
 
-QString CutterCore::getString(RVA addr, uint64_t len, RzStrEnc encoding, bool escape_nl)
+QString RizinWrapper::getString(RVA addr, uint64_t len, RzStrEnc encoding, bool escape_nl)
 {
-    CORE_LOCK();
+
     RzStrStringifyOpt opt = {};
     opt.buffer = core->block;
     opt.length = len;
@@ -876,19 +793,18 @@ QString CutterCore::getString(RVA addr, uint64_t len, RzStrEnc encoding, bool es
     return fromOwnedCharPtr(rz_str_stringify_raw_buffer(&opt, nullptr));
 }
 
-QString CutterCore::getMetaString(RVA addr)
+QString RizinWrapper::getMetaString(RVA addr)
 {
-    CORE_LOCK();
+
     return rz_meta_get_string(core->analysis, RZ_META_TYPE_STRING, addr);
 }
 
-void CutterCore::setToData(RVA addr, int size, int repeat)
+void RizinWrapper::setToData(RVA addr, int size, int repeat)
 {
     if (size <= 0 || repeat <= 0) {
         return;
     }
 
-    CORE_LOCK();
     RVA address = addr;
     for (int i = 0; i < repeat; ++i, address += size) {
         rz_meta_set(core->analysis, RZ_META_TYPE_DATA, address, size, nullptr);
@@ -896,86 +812,85 @@ void CutterCore::setToData(RVA addr, int size, int repeat)
     emit instructionChanged(addr);
 }
 
-int CutterCore::sizeofDataMeta(RVA addr)
+int RizinWrapper::sizeofDataMeta(RVA addr)
 {
     ut64 size = 0;
-    CORE_LOCK();
+
     rz_meta_get_at(core->analysis, addr, RZ_META_TYPE_DATA, &size);
     return (int)size;
 }
 
-void CutterCore::setComment(RVA addr, const QString &cmt)
+void RizinWrapper::setComment(RVA addr, const QString &cmt)
 {
-    CORE_LOCK();
+
     rz_meta_set_string(core->analysis, RZ_META_TYPE_COMMENT, addr, cmt.toStdString().c_str());
     emit commentsChanged(addr);
 }
 
-void CutterCore::delComment(RVA addr)
+void RizinWrapper::delComment(RVA addr)
 {
-    CORE_LOCK();
+
     rz_meta_del(core->analysis, RZ_META_TYPE_COMMENT, addr, 1);
     emit commentsChanged(addr);
 }
 
-QString CutterCore::getCommentAt(RVA addr)
+QString RizinWrapper::getCommentAt(RVA addr)
 {
-    CORE_LOCK();
+
     return rz_meta_get_string(core->analysis, RZ_META_TYPE_COMMENT, addr);
 }
 
-void CutterCore::setImmediateBase(const QString &rzBaseName, RVA offset)
+void RizinWrapper::setImmediateBase(const QString &rzBaseName, RVA offset)
 {
     if (offset == RVA_INVALID) {
         offset = getOffset();
     }
-    CORE_LOCK();
+
     const int base =
             static_cast<int>(rz_num_base_of_string(core->num, rzBaseName.toUtf8().constData()));
     rz_analysis_hint_set_immbase(core->analysis, offset, base);
     emit instructionChanged(offset);
 }
 
-void CutterCore::setCurrentBits(int bits, RVA offset)
+void RizinWrapper::setCurrentBits(int bits, RVA offset)
 {
     if (offset == RVA_INVALID) {
         offset = getOffset();
     }
 
-    CORE_LOCK();
     rz_analysis_hint_set_bits(core->analysis, offset, bits);
     emit instructionChanged(offset);
 }
 
-void CutterCore::applyStructureOffset(const QString &structureOffset, RVA offset)
+void RizinWrapper::applyStructureOffset(const QString &structureOffset, RVA offset)
 {
     if (offset == RVA_INVALID) {
         offset = getOffset();
     }
 
     {
-        CORE_LOCK();
+
         auto seek = seekTemp(offset);
         rz_core_analysis_hint_set_offset(core, structureOffset.toUtf8().constData());
     }
     emit instructionChanged(offset);
 }
 
-void CutterCore::seekSilent(ut64 offset)
+void RizinWrapper::seekSilent(ut64 offset)
 {
-    CORE_LOCK();
+
     if (offset == RVA_INVALID) {
         return;
     }
     rz_core_seek(core, offset, true);
 }
 
-void CutterCore::seek(ut64 offset)
+void RizinWrapper::seek(ut64 offset)
 {
     // Slower than using the API, but the API is not complete
     // which means we either have to duplicate code from rizin
     // here, or refactor rizin API.
-    CORE_LOCK();
+
     if (offset == RVA_INVALID) {
         return;
     }
@@ -987,26 +902,9 @@ void CutterCore::seek(ut64 offset)
     }
 }
 
-void CutterCore::showMemoryWidget()
+void RizinWrapper::seek(const QString &thing)
 {
-    emit showMemoryWidgetRequested();
-}
 
-void CutterCore::seekAndShow(ut64 offset)
-{
-    seek(offset);
-    emit showAddressRequested(offset);
-}
-
-void CutterCore::seekAndShow(const QString &offset)
-{
-    seek(offset);
-    emit showAddressRequested(math(offset));
-}
-
-void CutterCore::seek(const QString &thing)
-{
-    CORE_LOCK();
     const ut64 addr = rz_num_math(core->num, thing.toUtf8().constData());
     if (core->num->nc.errors) {
         return;
@@ -1015,34 +913,34 @@ void CutterCore::seek(const QString &thing)
     updateSeek();
 }
 
-void CutterCore::seekPrev()
+void RizinWrapper::seekPrev()
 {
-    CORE_LOCK();
+
     rz_core_seek_undo(core);
     updateSeek(SeekHistoryType::Undo);
 }
 
-void CutterCore::seekNext()
+void RizinWrapper::seekNext()
 {
-    CORE_LOCK();
+
     rz_core_seek_redo(core);
     updateSeek(SeekHistoryType::Redo);
 }
 
-void CutterCore::updateSeek(SeekHistoryType type)
+void RizinWrapper::updateSeek(SeekHistoryType type)
 {
     emit seekChanged(getOffset(), type);
 }
 
-RVA CutterCore::prevOpAddr(RVA startAddr, int count)
+RVA RizinWrapper::prevOpAddr(RVA startAddr, int count)
 {
-    CORE_LOCK();
+
     return rz_core_prevop_addr_force(core, startAddr, count);
 }
 
-RVA CutterCore::nextOpAddr(RVA startAddr, int count)
+RVA RizinWrapper::nextOpAddr(RVA startAddr, int count)
 {
-    CORE_LOCK();
+
     auto seek = seekTemp(startAddr);
     auto consumed =
             rz_core_analysis_ops_size(core, core->offset, core->block, (int)core->blocksize, count);
@@ -1051,95 +949,83 @@ RVA CutterCore::nextOpAddr(RVA startAddr, int count)
     return addr;
 }
 
-RVA CutterCore::getOffset()
+RVA RizinWrapper::getOffset()
 {
-    return rzCore->offset;
+    return core->offset;
 }
 
-void CutterCore::applySignature(const QString &filepath)
+void RizinWrapper::applySignature(const QString &filepath)
 {
-    CORE_LOCK();
     int oldCnt, newCnt;
     const char *arch = rz_config_get(core->config, "asm.arch");
     const ut8 expectedArch = rz_core_flirt_arch_from_name(arch);
     if (expectedArch == RZ_FLIRT_SIG_ARCH_ANY && filepath.endsWith(".sig", Qt::CaseInsensitive)) {
-        QMessageBox::warning(nullptr, tr("Signatures"),
-                             tr("Cannot apply signature file because the requested arch is not "
-                                "supported by .sig "
-                                "files"));
+        emit log(LogLevel::Warning, tr("Signatures"),
+                 tr("Cannot apply signature file because the requested arch is not "
+                    "supported by .sig "
+                    "files"));
         return;
     }
     oldCnt = rz_flag_count(core->flags, "flirt");
     if (rz_sign_flirt_apply(core->analysis, filepath.toStdString().c_str(), expectedArch)) {
         newCnt = rz_flag_count(core->flags, "flirt");
-        QMessageBox::information(nullptr, tr("Signatures"),
-                                 tr("Found %1 matching signatures!").arg(newCnt - oldCnt));
+        emit log(LogLevel::Info, tr("Signatures"),
+                 tr("Found %1 matching signatures!").arg(newCnt - oldCnt));
         return;
     }
-    QMessageBox::warning(
-            nullptr, tr("Signatures"),
-            tr("Failed to apply signature file!\nPlease check the console for more details."));
+    emit log(LogLevel::Warning, tr("Signatures"),
+             tr("Failed to apply signature file!\nPlease check the console for more details."));
 }
 
-void CutterCore::createSignature(const QString &filepath)
+void RizinWrapper::createSignature(const QString &filepath)
 {
-    CORE_LOCK();
     ut32 nModules = 0;
     if (!rz_core_flirt_create_file(core, filepath.toStdString().c_str(), &nModules)) {
-        QMessageBox::warning(
-                nullptr, tr("Signatures"),
-                tr("Cannot create signature file (check the console for more details)."));
+        emit log(LogLevel::Warning, tr("Signatures"),
+                 tr("Cannot create signature file (check the console for more details)."));
         return;
     }
-    QMessageBox::information(nullptr, tr("Signatures"),
-                             tr("Written %1 signatures to %2.").arg(nModules).arg(filepath));
+    emit log(LogLevel::Info, tr("Signatures"),
+             tr("Written %1 signatures to %2.").arg(nModules).arg(filepath));
 }
 
-bool CutterCore::isValidInputNumValue(const QString &expression)
+bool RizinWrapper::isValidInputNumValue(const QString &expression)
 {
-    CORE_LOCK();
     return rz_is_valid_input_num_value(core ? core->num : nullptr, expression.toUtf8().constData());
 }
 
-ut64 CutterCore::math(const QString &expr)
+ut64 RizinWrapper::math(const QString &expr)
 {
-    CORE_LOCK();
     return rz_num_math(core ? core->num : nullptr, expr.toUtf8().constData());
 }
 
-ut64 CutterCore::num(const QString &expr)
+ut64 RizinWrapper::num(const QString &expr)
 {
-    CORE_LOCK();
     return rz_num_get(core ? core->num : nullptr, expr.toUtf8().constData());
 }
 
-QString CutterCore::itoa(ut64 num, int rdx)
+QString RizinWrapper::itoa(ut64 num, int rdx)
 {
     return QString::number(num, rdx);
 }
 
-void CutterCore::setConfig(const char *k, const char *v)
+void RizinWrapper::setConfig(const char *k, const char *v)
 {
-    CORE_LOCK();
     rz_config_set(core->config, k, v);
 }
 
-void CutterCore::setConfig(const QString &k, const char *v)
+void RizinWrapper::setConfig(const QString &k, const char *v)
 {
-    CORE_LOCK();
     rz_config_set(core->config, k.toUtf8().constData(), v);
 }
 
-void CutterCore::setConfig(const char *k, const QString &v)
+void RizinWrapper::setConfig(const char *k, const QString &v)
 {
-    CORE_LOCK();
     rz_config_set(core->config, k, v.toUtf8().constData());
 }
 
-AddressTypeHint CutterCore::getAddressType(RVA addr)
+AddressTypeHint RizinWrapper::getAddressType(RVA addr)
 {
-    const auto core = Core()->lock();
-
     if (functionIn(addr)) {
         return AddressTypeHint::Function;
     }
@@ -1160,33 +1046,32 @@ AddressTypeHint CutterCore::getAddressType(RVA addr)
     return AddressTypeHint::Unknown;
 }
 
-void CutterCore::setConfig(const char *k, int v)
+void RizinWrapper::setConfig(const char *k, int v)
 {
-    CORE_LOCK();
+
     rz_config_set_i(core->config, k, static_cast<ut64>(v));
 }
 
-void CutterCore::setConfig(const char *k, ut64 v)
+void RizinWrapper::setConfig(const char *k, ut64 v)
 {
-    CORE_LOCK();
+
     rz_config_set_integer(core->config, k, v);
 }
 
-void CutterCore::setConfig(const char *k, bool v)
+void RizinWrapper::setConfig(const char *k, bool v)
 {
-    CORE_LOCK();
+
     rz_config_set_i(core->config, k, v ? 1 : 0);
 }
 
-void CutterCore::setConfig(const char *k, const RzInterval &itv)
+void RizinWrapper::setConfig(const char *k, const RzInterval &itv)
 {
-    CORE_LOCK();
+
     rz_config_set_interval(core->config, k, itv);
 }
 
-void CutterCore::setConfig(const char *k, const QStringList &list)
+void RizinWrapper::setConfig(const char *k, const QStringList &list)
 {
-    CORE_LOCK();
     RzSetS *set = rz_set_s_new(HT_STR_DUP);
     if (!set) {
         return;
@@ -1198,98 +1083,52 @@ void CutterCore::setConfig(const char *k, const QStringList &list)
     rz_set_s_free(set);
 }
 
-int CutterCore::getConfigi(const char *k)
+int RizinWrapper::getConfigi(const char *k)
 {
-    CORE_LOCK();
+
     return static_cast<int>(rz_config_get_i(core->config, k));
 }
 
-ut64 CutterCore::getConfigut64(const char *k)
+ut64 RizinWrapper::getConfigut64(const char *k)
 {
-    CORE_LOCK();
+
     return rz_config_get_i(core->config, k);
 }
 
-bool CutterCore::getConfigb(const char *k)
+bool RizinWrapper::getConfigb(const char *k)
 {
-    CORE_LOCK();
     return rz_config_get_i(core->config, k) != 0;
 }
 
-RzInterval CutterCore::getConfigItv(const char *k)
+RzInterval RizinWrapper::getConfigItv(const char *k)
 {
-    CORE_LOCK();
+
     return rz_config_get_interval(core->config, k);
 }
 
-QSet<QString> CutterCore::getConfigSet(const char *k)
+QSet<QString> RizinWrapper::getConfigSet(const char *k)
 {
-    CORE_LOCK();
     RzSetS *set = rz_config_get_set(core->config, k);
     QSet<QString> res = convertRzSetS(set);
     rz_set_s_free(set);
     return res;
 }
 
-QString CutterCore::getConfigDescription(const char *k)
+QString RizinWrapper::getConfigDescription(const char *k)
 {
-    CORE_LOCK();
+
     const RzConfigNode *node = rz_config_node_get(core->config, k);
     return node ? QString(node->desc) : QString("Unrecognized configuration key");
 }
 
-void CutterCore::triggerRefreshAll()
+QString RizinWrapper::getConfig(const char *k)
 {
-    emit refreshAll();
-}
 
-void CutterCore::triggerAsmOptionsChanged()
-{
-    emit asmOptionsChanged();
-}
-
-void CutterCore::triggerGraphOptionsChanged()
-{
-    emit graphOptionsChanged();
-}
-
-void CutterCore::triggerDebugOptionsChanged()
-{
-    emit debugOptionsChanged();
-}
-
-void CutterCore::triggerAnalysisOptionsChanged()
-{
-    emit analysisOptionsChanged();
-}
-
-void CutterCore::triggerSymbolsOptionsChanged()
-{
-    emit symbolsOptionsChanged();
-}
-
-void CutterCore::message(const QString &msg, bool debug)
-{
-    if (msg.isEmpty()) {
-        return;
-    }
-    if (debug) {
-        qDebug() << msg;
-        emit newDebugMessage(msg);
-        return;
-    }
-    emit newMessage(msg);
-}
-
-QString CutterCore::getConfig(const char *k)
-{
-    CORE_LOCK();
     return { rz_config_get(core->config, k) };
 }
 
-QSet<QString> CutterCore::getConfigOptions(const char *k)
+QSet<QString> RizinWrapper::getConfigOptions(const char *k)
 {
-    CORE_LOCK();
     const RzConfigNode *node = rz_config_node_get(core->config, k);
     if (!(node && node->options)) {
         return {};
@@ -1301,7 +1140,7 @@ QSet<QString> CutterCore::getConfigOptions(const char *k)
     return res;
 }
 
-void CutterCore::setConfig(const char *k, const QVariant &v)
+void RizinWrapper::setConfig(const char *k, const QVariant &v)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
     const int typeId = v.typeId();
@@ -1340,7 +1179,7 @@ void CutterCore::setConfig(const char *k, const QVariant &v)
 #endif
 }
 
-void CutterCore::setCPU(const QString &arch, const QString &cpu, int bits)
+void RizinWrapper::setCPU(const QString &arch, const QString &cpu, int bits)
 {
     if (arch != nullptr) {
         setConfig("asm.arch", arch);
@@ -1351,14 +1190,14 @@ void CutterCore::setCPU(const QString &arch, const QString &cpu, int bits)
     setConfig("asm.bits", bits);
 }
 
-void CutterCore::setEndianness(bool big)
+void RizinWrapper::setEndianness(bool big)
 {
     setConfig("cfg.bigendian", big);
 }
 
-QByteArray CutterCore::assemble(const QString &code)
+QByteArray RizinWrapper::assemble(const QString &code)
 {
-    CORE_LOCK();
+
     RzAsmCode *ac = rz_asm_massemble(core->rasm, code.toUtf8().constData());
     QByteArray res;
     if (ac && ac->bytes) {
@@ -1368,9 +1207,9 @@ QByteArray CutterCore::assemble(const QString &code)
     return res;
 }
 
-QString CutterCore::disassemble(const QByteArray &data)
+QString RizinWrapper::disassemble(const QByteArray &data)
 {
-    CORE_LOCK();
+
     RzAsmCode *ac = rz_asm_mdisassemble(core->rasm, reinterpret_cast<const ut8 *>(data.constData()),
                                         data.length());
     QString code;
@@ -1381,15 +1220,15 @@ QString CutterCore::disassemble(const QByteArray &data)
     return code;
 }
 
-QString CutterCore::disassembleSingleInstruction(RVA addr)
+QString RizinWrapper::disassembleSingleInstruction(RVA addr)
 {
     auto cdb = getRzCoreDecodedBytesSingle(addr);
     return QString(cdb->disasm).simplified();
 }
 
-RzAnalysisFunction *CutterCore::functionIn(ut64 addr)
+RzAnalysisFunction *RizinWrapper::functionIn(ut64 addr)
 {
-    CORE_LOCK();
+
     RzAnalysisFunction *fcn = rz_analysis_get_function_at(core->analysis, addr); // NOLINT
     if (fcn) {
         return fcn;
@@ -1401,30 +1240,27 @@ RzAnalysisFunction *CutterCore::functionIn(ut64 addr)
     return fcn;
 }
 
-RzAnalysisFunction *CutterCore::functionAt(ut64 addr)
+RzAnalysisFunction *RizinWrapper::functionAt(ut64 addr)
 {
-    CORE_LOCK();
+
     return rz_analysis_get_function_at(core->analysis, addr);
 }
 
-RVA CutterCore::getFunctionStart(RVA addr)
+RVA RizinWrapper::getFunctionStart(RVA addr)
 {
-    const auto core = Core()->lock();
-    const RzAnalysisFunction *fcn = Core()->functionIn(addr);
+    const RzAnalysisFunction *fcn = this->functionIn(addr);
     return fcn ? fcn->addr : RVA_INVALID;
 }
 
-RVA CutterCore::getFunctionEnd(RVA addr)
+RVA RizinWrapper::getFunctionEnd(RVA addr)
 {
-    const auto core = Core()->lock();
-    const RzAnalysisFunction *fcn = Core()->functionIn(addr);
+    const RzAnalysisFunction *fcn = this->functionIn(addr);
     return fcn ? fcn->addr : RVA_INVALID;
 }
 
-RVA CutterCore::getLastFunctionInstruction(RVA addr)
+RVA RizinWrapper::getLastFunctionInstruction(RVA addr)
 {
-    const auto core = Core()->lock();
-    const RzAnalysisFunction *fcn = Core()->functionIn(addr);
+    const RzAnalysisFunction *fcn = this->functionIn(addr);
     if (!fcn) {
         return RVA_INVALID;
     }
@@ -1432,9 +1268,9 @@ RVA CutterCore::getLastFunctionInstruction(RVA addr)
     return lastBB ? rz_analysis_block_get_op_addr(lastBB, lastBB->ninstr - 1) : RVA_INVALID;
 }
 
-QString CutterCore::flagAt(RVA addr, bool getClosestFlag)
+QString RizinWrapper::flagAt(RVA addr, bool getClosestFlag)
 {
-    CORE_LOCK();
+
     // rz_flag_get_at and rz_flag_get_i can return different
     // flags for addresses containing multiple flags, so we must use rz_flag_get_i here
     // instead of setting rz_flag_get_at's "closest" argument to false
@@ -1446,58 +1282,31 @@ QString CutterCore::flagAt(RVA addr, bool getClosestFlag)
     return core->flags->realnames && f->realname ? f->realname : f->name;
 }
 
-void CutterCore::createFunctionAt(RVA addr)
+void RizinWrapper::createFunctionAt(RVA addr)
 {
     createFunctionAt(addr, "");
 }
 
-void CutterCore::createFunctionAt(RVA addr, QString name)
+void RizinWrapper::createFunctionAt(RVA addr, QString name)
 {
     if (!name.isEmpty() && !name.isNull()) {
         static const QRegularExpression regExp("[^a-zA-Z0-9_.]");
         name.remove(regExp);
     }
 
-    CORE_LOCK();
     const bool analyzeRecursively = rz_config_get_i(core->config, "analysis.calls");
     rz_core_analysis_function_add(core, name.toStdString().c_str(), addr, analyzeRecursively);
     emit functionsChanged();
 }
 
-RVA CutterCore::getOffsetJump(RVA addr)
+RVA RizinWrapper::getOffsetJump(RVA addr)
 {
     auto cdb = getRzCoreDecodedBytesSingle(addr);
     return cdb ? cdb->an_op.jump : RVA_INVALID;
 }
 
-QList<Decompiler *> CutterCore::getDecompilers()
+CutterJson RizinWrapper::getSignatureInfo()
 {
-    return decompilers;
-}
-
-Decompiler *CutterCore::getDecompilerById(const QString &id)
-{
-    for (auto *dec : std::as_const(decompilers)) {
-        if (dec->getId() == id) {
-            return dec;
-        }
-    }
-    return nullptr;
-}
-
-bool CutterCore::registerDecompiler(Decompiler *decompiler)
-{
-    if (getDecompilerById(decompiler->getId())) {
-        return false;
-    }
-    decompiler->setParent(this);
-    decompilers.push_back(decompiler);
-    return true;
-}
-
-CutterJson CutterCore::getSignatureInfo()
-{
-    CORE_LOCK();
     RzBinFile *cur = rz_bin_cur(core->bin);
     const RzBinPlugin *plg = rz_bin_file_cur_plugin(cur);
     if (!plg || !plg->signature) {
@@ -1510,9 +1319,9 @@ CutterJson CutterCore::getSignatureInfo()
     return parseJson("signature", signature, nullptr);
 }
 
-bool CutterCore::existsFileInfo()
+bool RizinWrapper::existsFileInfo()
 {
-    CORE_LOCK();
+
     RzBinObject *bobj = rz_bin_cur_object(core->bin);
     if (!bobj) {
         return false;
@@ -1524,6 +1333,7 @@ bool CutterCore::existsFileInfo()
     return strncmp("pe", info->rclass, 2) == 0 || strncmp("elf", info->rclass, 3) == 0;
 }
 
+// TODO: move to anony namespace?
 // Utility function to check if a telescoped item exists and add it with prefixes to the desc
 static inline const QString appendVar(QString &dst, const QString &val, const QString &prepend_val,
                                       const QString &append_val)
@@ -1534,7 +1344,7 @@ static inline const QString appendVar(QString &dst, const QString &val, const QS
     return val;
 }
 
-RefDescription CutterCore::formatRefDesc(const std::shared_ptr<AddrRefs> &refItem)
+RefDescription RizinWrapper::formatRefDesc(const std::shared_ptr<AddrRefs> &refItem)
 {
     RefDescription desc;
 
@@ -1587,25 +1397,23 @@ RefDescription CutterCore::formatRefDesc(const std::shared_ptr<AddrRefs> &refIte
     return desc;
 }
 
-RzReg *CutterCore::getReg()
+RzReg *RizinWrapper::getReg()
 {
-    CORE_LOCK();
-    if (currentlyDebugging && currentlyEmulating) {
+    if (currentlyDebugging() && currentlyEmulating()) {
         return rz_analysis_get_reg(core->analysis);
-    } else if (currentlyDebugging) {
+    } else if (currentlyDebugging()) {
         return core->dbg->reg;
     }
     return rz_analysis_get_reg(core->analysis);
 }
 
-QList<RegisterRef> CutterCore::getRegisterRefs(int depth)
+QList<RegisterRef> RizinWrapper::getRegisterRefs(int depth)
 {
     QList<RegisterRef> ret;
-    if (!currentlyDebugging) {
+    if (!currentlyDebugging()) {
         return ret;
     }
 
-    CORE_LOCK();
     RzList *ritems = rz_core_reg_filter_items_sync(core, getReg(), regSync, nullptr);
     if (!ritems) {
         return ret;
@@ -1623,14 +1431,13 @@ QList<RegisterRef> CutterCore::getRegisterRefs(int depth)
     return ret;
 }
 
-QList<AddrRefs> CutterCore::getStack(int size, int depth)
+QList<AddrRefs> RizinWrapper::getStack(int size, int depth)
 {
     QList<AddrRefs> stack;
-    if (!currentlyDebugging) {
+    if (!currentlyDebugging()) {
         return stack;
     }
 
-    CORE_LOCK();
     const RVA addr = rz_core_reg_getv_by_role_or_name(core, "SP");
     if (addr == RVA_INVALID) {
         return stack;
@@ -1648,7 +1455,7 @@ QList<AddrRefs> CutterCore::getStack(int size, int depth)
     return stack;
 }
 
-AddrRefs CutterCore::getAddrRefs(RVA addr, int depth)
+AddrRefs RizinWrapper::getAddrRefs(RVA addr, int depth)
 {
     AddrRefs refs;
     if (depth < 1 || addr == UT64_MAX) {
@@ -1656,7 +1463,6 @@ AddrRefs CutterCore::getAddrRefs(RVA addr, int depth)
         return refs;
     }
 
-    CORE_LOCK();
     const int bits = rz_asm_get_bits(core->rasm);
     QByteArray buf = QByteArray();
     const ut64 type = rz_core_analysis_address(core, addr);
@@ -1769,9 +1575,9 @@ AddrRefs CutterCore::getAddrRefs(RVA addr, int depth)
     return refs;
 }
 
-QVector<Chunk> CutterCore::getHeapChunks(RVA arena_addr)
+QVector<Chunk> RizinWrapper::getHeapChunks(RVA arena_addr)
 {
-    CORE_LOCK();
+
     QVector<Chunk> chunksVector;
     ut64 mArena;
 
@@ -1804,15 +1610,15 @@ QVector<Chunk> CutterCore::getHeapChunks(RVA arena_addr)
     return chunksVector;
 }
 
-int CutterCore::getArchBits()
+int RizinWrapper::getArchBits()
 {
-    CORE_LOCK();
+
     return core->dbg->bits;
 }
 
-QVector<Arena> CutterCore::getArenas()
+QVector<Arena> RizinWrapper::getArenas()
 {
-    CORE_LOCK();
+
     QVector<Arena> arenaVector;
 
     // get arenas using API and store them in arena_vector
@@ -1836,15 +1642,15 @@ QVector<Arena> CutterCore::getArenas()
     return arenaVector;
 }
 
-RzHeapChunkSimple *CutterCore::getHeapChunk(ut64 addr)
+RzHeapChunkSimple *RizinWrapper::getHeapChunk(ut64 addr)
 {
-    CORE_LOCK();
+
     return rz_heap_chunk(core, addr);
 }
 
-QVector<RzHeapBin *> CutterCore::getHeapBins(ut64 arena_addr)
+QVector<RzHeapBin *> RizinWrapper::getHeapBins(ut64 arena_addr)
 {
-    CORE_LOCK();
+
     QVector<RzHeapBin *> binsVector;
 
     MallocState *arena = rz_heap_get_arena(core, arena_addr);
@@ -1893,16 +1699,16 @@ QVector<RzHeapBin *> CutterCore::getHeapBins(ut64 arena_addr)
     return binsVector;
 }
 
-bool CutterCore::writeHeapChunk(RzHeapChunkSimple *chunk_simple)
+bool RizinWrapper::writeHeapChunk(RzHeapChunkSimple *chunk_simple)
 {
-    CORE_LOCK();
+
     return rz_heap_write_chunk(core, chunk_simple);
 }
 
-QList<VariableDescription> CutterCore::getVariables(RVA at)
+QList<VariableDescription> RizinWrapper::getVariables(RVA at)
 {
     QList<VariableDescription> ret;
-    CORE_LOCK();
+
     const RzAnalysisFunction *fcn = functionIn(at);
     if (!fcn) {
         return ret;
@@ -1931,9 +1737,9 @@ QList<VariableDescription> CutterCore::getVariables(RVA at)
     return ret;
 }
 
-QList<GlobalDescription> CutterCore::getAllGlobals()
+QList<GlobalDescription> RizinWrapper::getAllGlobals()
 {
-    CORE_LOCK();
+
     RzListIter *it;
 
     QList<GlobalDescription> ret;
@@ -1960,10 +1766,10 @@ QList<GlobalDescription> CutterCore::getAllGlobals()
     return ret;
 }
 
-QVector<RegisterRefValueDescription> CutterCore::getRegisterRefValues()
+QVector<RegisterRefValueDescription> RizinWrapper::getRegisterRefValues()
 {
     QVector<RegisterRefValueDescription> result;
-    CORE_LOCK();
+
     RzList *ritems = rz_core_reg_filter_items_sync(core, getReg(), regSync, nullptr);
     if (!ritems) {
         return result;
@@ -1982,10 +1788,10 @@ QVector<RegisterRefValueDescription> CutterCore::getRegisterRefValues()
     return result;
 }
 
-RegisterRefValueDescription CutterCore::getRegisterRefValue(const QString &regName)
+RegisterRefValueDescription RizinWrapper::getRegisterRefValue(const QString &regName)
 {
     RegisterRefValueDescription desc;
-    CORE_LOCK();
+
     RzRegItem *ri = rz_reg_get(getReg(), regName.toUtf8().constData(), -1);
     if (!ri) {
         return desc;
@@ -1997,798 +1803,14 @@ RegisterRefValueDescription CutterCore::getRegisterRefValue(const QString &regNa
     return desc;
 }
 
-QString CutterCore::getRegisterName(const QString &registerRole)
+void RizinWrapper::toggleBreakpoint(RVA addr)
 {
-    if (!currentlyDebugging) {
-        return "";
-    }
-    const auto core = Core()->lock();
-    return rz_reg_get_name_by_type(getReg(), registerRole.toUtf8().constData());
-}
-
-RVA CutterCore::getProgramCounterValue()
-{
-    if (currentlyDebugging) {
-        CORE_LOCK();
-        return rz_core_reg_getv_by_role_or_name(core, "PC");
-    }
-    return RVA_INVALID;
-}
-
-void CutterCore::setRegister(const QString &regName, const QString &regValue)
-{
-    if (!currentlyDebugging) {
-        return;
-    }
-    CORE_LOCK();
-    const ut64 val = rz_num_math(core->num, regValue.toUtf8().constData());
-    rz_core_reg_assign_sync(core, getReg(), regSync, regName.toUtf8().constData(), val);
-    emit registersChanged();
-    emit refreshCodeViews();
-}
-
-void CutterCore::setCurrentDebugThread(int tid)
-{
-    if (!asyncTask(
-                [=](RzCore *core) {
-                    rz_debug_select(core->dbg, core->dbg->pid, tid);
-                    return (void *)nullptr;
-                },
-                debugTask)) {
-        return;
-    }
-
-    emit debugTaskStateChanged();
-    connect(debugTask.get(), &RizinTask::finished, this, [this]() {
-        debugTask.reset();
-        emit registersChanged();
-        emit refreshCodeViews();
-        emit stackChanged();
-        syncAndSeekProgramCounter();
-        emit switchedThread();
-        emit debugTaskStateChanged();
-    });
-
-    debugTask->startTask();
-}
-
-void CutterCore::setCurrentDebugProcess(int pid)
-{
-    if (!currentlyDebugging
-        || !asyncTask(
-                [=](RzCore *core) {
-                    rz_debug_select(core->dbg, pid, core->dbg->tid);
-                    core->dbg->main_pid = pid;
-                    return (void *)nullptr;
-                },
-                debugTask)) {
-        return;
-    }
-
-    emit debugTaskStateChanged();
-    connect(debugTask.get(), &RizinTask::finished, this, [this]() {
-        debugTask.reset();
-        emit registersChanged();
-        emit refreshCodeViews();
-        emit stackChanged();
-        emit flagsChanged();
-        syncAndSeekProgramCounter();
-        emit switchedProcess();
-        emit debugTaskStateChanged();
-    });
-
-    debugTask->startTask();
-}
-
-void CutterCore::startDebug()
-{
-    if (!currentlyDebugging) {
-        offsetPriorDebugging = getOffset();
-    }
-    currentlyOpenFile = getConfig("file.path");
-
-    if (!asyncTask(
-                [](RzCore *core) {
-                    rz_core_file_reopen_debug(core, "");
-                    return nullptr;
-                },
-                debugTask)) {
-        return;
-    }
-
-    emit debugTaskStateChanged();
-
-    connect(debugTask.get(), &RizinTask::finished, this, [this]() {
-        delete debugTaskDialog;
-        debugTask.reset();
-
-        emit registersChanged();
-        if (!currentlyDebugging) {
-            setConfig("asm.flags", false);
-            currentlyDebugging = true;
-            emit toggleDebugView();
-            emit refreshCodeViews();
-        }
-
-        emit codeRebased();
-        emit stackChanged();
-        emit debugTaskStateChanged();
-    });
-
-    debugTaskDialog = new RizinTaskDialog(debugTask);
-    debugTaskDialog->setBreakOnClose(true);
-    debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
-    debugTaskDialog->setDesc(tr("Starting native debug..."));
-    debugTaskDialog->show();
-
-    debugTask->startTask();
-}
-
-void CutterCore::startEmulation()
-{
-    if (!currentlyDebugging) {
-        offsetPriorDebugging = getOffset();
-    }
-
-    // clear registers, init esil state, stack, progcounter at current seek
-    asyncTask(
-            [&](RzCore *core) {
-                rz_core_analysis_esil_reinit(core);
-                rz_core_analysis_esil_init_mem(core, nullptr, UT64_MAX, UT32_MAX);
-                rz_core_analysis_esil_init_regs(core);
-                return nullptr;
-            },
-            debugTask);
-
-    emit debugTaskStateChanged();
-
-    connect(debugTask.get(), &RizinTask::finished, this, [this]() {
-        delete debugTaskDialog;
-        debugTask.reset();
-
-        if (!currentlyDebugging || !currentlyEmulating) {
-            // prevent register flags from appearing during debug/emul
-            setConfig("asm.flags", false);
-            // allows to view self-modifying code changes or other binary changes
-            setConfig("io.cache", true);
-            currentlyDebugging = true;
-            currentlyEmulating = true;
-            emit toggleDebugView();
-        }
-
-        emit registersChanged();
-        emit stackChanged();
-        emit codeRebased();
-        emit refreshCodeViews();
-        emit debugTaskStateChanged();
-    });
-
-    debugTaskDialog = new RizinTaskDialog(debugTask);
-    debugTaskDialog->setBreakOnClose(true);
-    debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
-    debugTaskDialog->setDesc(tr("Starting emulation..."));
-    debugTaskDialog->show();
-
-    debugTask->startTask();
-}
-
-void CutterCore::attachRemote(const QString &uri)
-{
-    if (!currentlyDebugging) {
-        offsetPriorDebugging = getOffset();
-    }
-
-    // connect to a debugger with the given plugin
-    if (!asyncTask(
-                [&](RzCore *core) {
-                    rz_config_set_b(core->config, "cfg.debug", true);
-                    rz_core_file_reopen_remote_debug(core, uri.toStdString().c_str(), 0);
-                    return nullptr;
-                },
-                debugTask)) {
-        return;
-    }
-    emit debugTaskStateChanged();
-
-    connect(debugTask.get(), &RizinTask::finished, this, [this, uri]() {
-        delete debugTaskDialog;
-        debugTask.reset();
-        // Check if we actually connected
-        bool connected = false;
-        RzCoreLocked core(Core());
-        const RzList *descs = rz_id_storage_list(core->io->files);
-        RzListIter *it;
-        RzIODesc *desc;
-        CutterRzListForeach (descs, it, RzIODesc, desc) {
-            const QString fileUri = QString(desc->uri);
-            if (!fileUri.compare(uri)) {
-                connected = true;
-            }
-        }
-        seekAndShow(getProgramCounterValue());
-        if (!connected) {
-            emit attachedRemote(false);
-            emit debugTaskStateChanged();
-            return;
-        }
-
-        emit registersChanged();
-        if (!currentlyDebugging || !currentlyEmulating) {
-            // prevent register flags from appearing during debug/emul
-            setConfig("asm.flags", false);
-            currentlyDebugging = true;
-            emit toggleDebugView();
-        }
-
-        currentlyRemoteDebugging = true;
-        emit codeRebased();
-        emit attachedRemote(true);
-        emit debugTaskStateChanged();
-    });
-
-    debugTaskDialog = new RizinTaskDialog(debugTask);
-    debugTaskDialog->setBreakOnClose(true);
-    debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
-    debugTaskDialog->setDesc(tr("Connecting to: ") + uri);
-    debugTaskDialog->show();
-
-    debugTask->startTask();
-}
-
-void CutterCore::attachDebug(int pid)
-{
-    if (!currentlyDebugging) {
-        offsetPriorDebugging = getOffset();
-    }
-
-    if (!asyncTask(
-                [&](RzCore *core) {
-                    // cannot use setConfig because core is
-                    // already locked, which causes a deadlock
-                    rz_config_set_b(core->config, "cfg.debug", true);
-                    auto uri = rz_str_newf("dbg://%d", pid);
-                    if (currentlyOpenFile.isEmpty()) {
-                        rz_core_file_open_load(core, uri, 0, RZ_PERM_R, false);
-                    } else {
-                        rz_core_file_reopen_remote_debug(core, uri, 0);
-                    }
-                    free(uri);
-                    return nullptr;
-                },
-                debugTask)) {
-        return;
-    }
-    emit debugTaskStateChanged();
-
-    connect(debugTask.get(), &RizinTask::finished, this, [this, pid]() {
-        delete debugTaskDialog;
-        debugTask.reset();
-
-        syncAndSeekProgramCounter();
-        if (!currentlyDebugging || !currentlyEmulating) {
-            // prevent register flags from appearing during debug/emul
-            setConfig("asm.flags", false);
-            currentlyDebugging = true;
-            currentlyOpenFile = getConfig("file.path");
-            currentlyAttachedToPID = pid;
-            emit toggleDebugView();
-        }
-
-        emit codeRebased();
-        emit debugTaskStateChanged();
-    });
-
-    debugTaskDialog = new RizinTaskDialog(debugTask);
-    debugTaskDialog->setBreakOnClose(true);
-    debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
-    debugTaskDialog->setDesc(tr("Attaching to process (") + QString::number(pid) + ")...");
-    debugTaskDialog->show();
-
-    debugTask->startTask();
-}
-
-void CutterCore::suspendDebug()
-{
-    debugTask->breakTask();
-    debugTask->joinTask();
-}
-
-void CutterCore::stopDebug()
-{
-    if (!currentlyDebugging) {
-        return;
-    }
-
-    if (debugTask) {
-        suspendDebug();
-    }
-
-    currentlyDebugging = false;
-    currentlyTracing = false;
-    currentlyRemoteDebugging = false;
-    emit debugTaskStateChanged();
-
-    CORE_LOCK();
-    if (currentlyEmulating) {
-        rz_core_analysis_esil_init_mem_del(core, nullptr, UT64_MAX, UT32_MAX);
-        rz_core_analysis_esil_deinit(core);
-        resetWriteCache();
-        rz_core_debug_clear_register_flags(core);
-        rz_core_analysis_esil_trace_stop(core);
-        currentlyEmulating = false;
-    } else {
-        // ensure we have opened a file.
-        if (core->io->desc) {
-            rz_core_debug_process_close(core);
-        }
-        currentlyAttachedToPID = -1;
-    }
-
-    syncAndSeekProgramCounter();
-    setConfig("asm.flags", true);
-    setConfig("io.cache", false);
-    emit codeRebased();
-    emit toggleDebugView();
-    offsetPriorDebugging = getOffset();
-    emit debugTaskStateChanged();
-}
-
-void CutterCore::syncAndSeekProgramCounter()
-{
-    seekAndShow(getProgramCounterValue());
-    emit registersChanged();
-}
-
-void CutterCore::continueDebug()
-{
-    if (!currentlyDebugging) {
-        return;
-    }
-
-    if (currentlyEmulating) {
-        if (!asyncTask(
-                    [](RzCore *core) {
-                        rz_core_esil_step(core, UT64_MAX, "0", nullptr, false);
-                        rz_core_reg_update_flags(core);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    } else {
-        if (!asyncTask(
-                    [](RzCore *core) {
-                        rz_debug_continue(core->dbg);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    }
-
-    emit debugTaskStateChanged();
-    connect(debugTask.get(), &RizinTask::finished, this, [this]() {
-        debugTask.reset();
-        syncAndSeekProgramCounter();
-        emit refreshCodeViews();
-        emit debugTaskStateChanged();
-    });
-
-    debugTask->startTask();
-}
-
-void CutterCore::continueBackDebug()
-{
-    if (!currentlyDebugging) {
-        return;
-    }
-
-    if (currentlyEmulating) {
-        if (!asyncTask(
-                    [](RzCore *core) {
-                        rz_core_esil_continue_back(core);
-                        rz_core_reg_update_flags(core);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    } else {
-        if (!asyncTask(
-                    [](RzCore *core) {
-                        rz_debug_continue_back(core->dbg);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    }
-    emit debugTaskStateChanged();
-
-    connect(debugTask.get(), &RizinTask::finished, this, [this]() {
-        debugTask.reset();
-        syncAndSeekProgramCounter();
-        emit refreshCodeViews();
-        emit debugTaskStateChanged();
-    });
-
-    debugTask->startTask();
-}
-
-void CutterCore::continueUntilDebug(ut64 offset)
-{
-    if (!currentlyDebugging) {
-        return;
-    }
-
-    if (currentlyEmulating) {
-        if (!asyncTask(
-                    [=](RzCore *core) {
-                        rz_core_esil_step(core, offset, nullptr, nullptr, false);
-                        rz_core_reg_update_flags(core);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    } else {
-        if (!asyncTask(
-                    [=](RzCore *core) {
-                        rz_core_debug_continue_until(core, offset);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    }
-    emit debugTaskStateChanged();
-    connect(debugTask.get(), &RizinTask::finished, this, [this]() {
-        debugTask.reset();
-        syncAndSeekProgramCounter();
-        emit refreshCodeViews();
-        emit debugTaskStateChanged();
-    });
-    debugTask->startTask();
-}
-
-void CutterCore::continueUntilCall()
-{
-    if (!currentlyDebugging) {
-        return;
-    }
-
-    if (currentlyEmulating) {
-        if (!asyncTask(
-                    [](RzCore *core) {
-                        rz_core_analysis_continue_until_call(core);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    } else {
-        if (!asyncTask(
-                    [](RzCore *core) {
-                        rz_core_debug_step_one(core, 0);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    }
-
-    emit debugTaskStateChanged();
-    connect(debugTask.get(), &RizinTask::finished, this, [this]() {
-        debugTask.reset();
-        syncAndSeekProgramCounter();
-        emit refreshCodeViews();
-        emit debugTaskStateChanged();
-    });
-
-    debugTask->startTask();
-}
-
-void CutterCore::continueUntilSyscall()
-{
-    if (!currentlyDebugging) {
-        return;
-    }
-
-    if (currentlyEmulating) {
-        if (!asyncTask(
-                    [](RzCore *core) {
-                        rz_core_analysis_continue_until_syscall(core);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    } else {
-        if (!asyncTask(
-                    [](RzCore *core) {
-                        rz_cons_break_push(
-                                [](void *x) { rz_debug_stop(reinterpret_cast<RzDebug *>(x)); },
-                                core->dbg);
-                        rz_reg_arena_swap(core->dbg->reg, true);
-                        rz_debug_continue_syscalls(core->dbg, nullptr, 0);
-                        rz_cons_break_pop();
-                        rz_core_dbg_follow_seek_register(core);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    }
-
-    emit debugTaskStateChanged();
-    connect(debugTask.get(), &RizinTask::finished, this, [this]() {
-        debugTask.reset();
-        syncAndSeekProgramCounter();
-        emit refreshCodeViews();
-        emit debugTaskStateChanged();
-    });
-
-    debugTask->startTask();
-}
-
-void CutterCore::stepDebug()
-{
-    if (!currentlyDebugging) {
-        return;
-    }
-
-    if (currentlyEmulating) {
-        if (!asyncTask(
-                    [](RzCore *core) {
-                        rz_core_esil_step(core, UT64_MAX, nullptr, nullptr, false);
-                        rz_core_reg_update_flags(core);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    } else {
-        if (!asyncTask(
-                    [](RzCore *core) {
-                        rz_core_debug_step_one(core, 1);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    }
-
-    emit debugTaskStateChanged();
-    connect(debugTask.get(), &RizinTask::finished, this, [this]() {
-        debugTask.reset();
-        syncAndSeekProgramCounter();
-        emit refreshCodeViews();
-        emit debugTaskStateChanged();
-    });
-
-    debugTask->startTask();
-}
-
-void CutterCore::stepOverDebug()
-{
-    if (!currentlyDebugging) {
-        return;
-    }
-
-    if (currentlyEmulating) {
-        if (!asyncTask(
-                    [&](RzCore *core) {
-                        rz_core_analysis_esil_step_over(core);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    } else {
-        asyncTask(
-                [](RzCore *core) {
-                    rz_core_debug_step_over(core, 1);
-                    rz_core_dbg_follow_seek_register(core);
-                    return nullptr;
-                },
-                debugTask);
-    }
-
-    emit debugTaskStateChanged();
-    connect(debugTask.get(), &RizinTask::finished, this, [this]() {
-        debugTask.reset();
-        syncAndSeekProgramCounter();
-        emit refreshCodeViews();
-        emit debugTaskStateChanged();
-    });
-
-    debugTask->startTask();
-}
-
-void CutterCore::stepOutDebug()
-{
-    if (!currentlyDebugging) {
-        return;
-    }
-
-    emit debugTaskStateChanged();
-    asyncTask(
-            [](RzCore *core) {
-                rz_core_debug_step_until_frame(core);
-                rz_core_dbg_follow_seek_register(core);
-                return nullptr;
-            },
-            debugTask);
-
-    connect(debugTask.get(), &RizinTask::finished, this, [this]() {
-        debugTask.reset();
-        syncAndSeekProgramCounter();
-        emit refreshCodeViews();
-        emit debugTaskStateChanged();
-    });
-
-    debugTask->startTask();
-}
-
-void CutterCore::stepBackDebug()
-{
-    if (!currentlyDebugging) {
-        return;
-    }
-
-    if (currentlyEmulating) {
-        if (!asyncTask(
-                    [](RzCore *core) {
-                        rz_core_esil_step_back(core);
-                        rz_core_reg_update_flags(core);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    } else {
-        asyncTask(
-                [](RzCore *core) {
-                    rz_core_debug_step_back(core, 1);
-                    rz_core_dbg_follow_seek_register(core);
-                    return nullptr;
-                },
-                debugTask);
-    }
-    emit debugTaskStateChanged();
-
-    connect(debugTask.get(), &RizinTask::finished, this, [this]() {
-        debugTask.reset();
-        syncAndSeekProgramCounter();
-        emit refreshCodeViews();
-        emit debugTaskStateChanged();
-    });
-
-    debugTask->startTask();
-}
-
-QStringList CutterCore::getDebugPlugins()
-{
-    QStringList plugins;
-    CORE_LOCK();
-    CutterHtSP<RzDebugPlugin>(core->dbg->plugins)
-            .ForEach([&plugins](const char * /*k*/, const RzDebugPlugin *plugin) {
-                plugins << plugin->name;
-                return true;
-            });
-    return plugins;
-}
-
-QString CutterCore::getActiveDebugPlugin()
-{
-    return getConfig("dbg.backend");
-}
-
-void CutterCore::setDebugPlugin(const QString &plugin)
-{
-    setConfig("dbg.backend", plugin);
-}
-
-void CutterCore::startTraceSession()
-{
-    if (!currentlyDebugging || currentlyTracing) {
-        return;
-    }
-
-    if (currentlyEmulating) {
-        if (!asyncTask(
-                    [](RzCore *core) {
-                        rz_core_analysis_esil_trace_start(core);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    } else {
-        if (!asyncTask(
-                    [](RzCore *core) {
-                        core->dbg->session = rz_debug_session_new();
-                        rz_debug_add_checkpoint(core->dbg);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    }
-    emit debugTaskStateChanged();
-
-    connect(debugTask.get(), &RizinTask::finished, this, [this]() {
-        delete debugTaskDialog;
-        debugTask.reset();
-
-        currentlyTracing = true;
-        emit debugTaskStateChanged();
-    });
-
-    debugTaskDialog = new RizinTaskDialog(debugTask);
-    debugTaskDialog->setBreakOnClose(true);
-    debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
-    debugTaskDialog->setDesc(tr("Creating debug tracepoint..."));
-    debugTaskDialog->show();
-
-    debugTask->startTask();
-}
-
-void CutterCore::stopTraceSession()
-{
-    if (!currentlyDebugging || !currentlyTracing) {
-        return;
-    }
-
-    if (currentlyEmulating) {
-        if (!asyncTask(
-                    [](RzCore *core) {
-                        rz_core_analysis_esil_trace_stop(core);
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    } else {
-        if (!asyncTask(
-                    [](RzCore *core) {
-                        rz_debug_session_free(core->dbg->session);
-                        core->dbg->session = nullptr;
-                        return nullptr;
-                    },
-                    debugTask)) {
-            return;
-        }
-    }
-    emit debugTaskStateChanged();
-
-    connect(debugTask.get(), &RizinTask::finished, this, [this]() {
-        delete debugTaskDialog;
-        debugTask.reset();
-
-        currentlyTracing = false;
-        emit debugTaskStateChanged();
-    });
-
-    debugTaskDialog = new RizinTaskDialog(debugTask);
-    debugTaskDialog->setBreakOnClose(true);
-    debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
-    debugTaskDialog->setDesc(tr("Stopping debug session..."));
-    debugTaskDialog->show();
-
-    debugTask->startTask();
-}
-
-void CutterCore::toggleBreakpoint(RVA addr)
-{
-    CORE_LOCK();
     rz_core_debug_breakpoint_toggle(core, addr);
     emit breakpointsChanged(addr);
 }
 
-void CutterCore::addBreakpoint(const BreakpointDescription &config)
+void RizinWrapper::addBreakpoint(const BreakpointDescription &config)
 {
-    CORE_LOCK();
     RzBreakpointItem *breakpoint = nullptr;
     int watchpointProt = 0;
     if (config.hw) {
@@ -2799,7 +1821,7 @@ void CutterCore::addBreakpoint(const BreakpointDescription &config)
     const char *module = nullptr;
     QByteArray moduleNameData;
     if (config.type == BreakpointDescription::Named) {
-        address = Core()->math(config.positionExpression);
+        address = this->math(config.positionExpression);
     } else if (config.type == BreakpointDescription::Module) {
         address = 0;
         moduleNameData = config.positionExpression.toUtf8();
@@ -2808,7 +1830,7 @@ void CutterCore::addBreakpoint(const BreakpointDescription &config)
     breakpoint = rz_debug_bp_add(core->dbg, address, config.size, config.hw, (watchpointProt != 0),
                                  watchpointProt, module, config.moduleDelta);
     if (!breakpoint) {
-        QMessageBox::critical(nullptr, tr("Breakpoint error"), tr("Failed to create breakpoint"));
+        emit log(LogLevel::Error, tr("Breakpoint error"), tr("Failed to create breakpoint"));
         return;
     }
     if (config.type == BreakpointDescription::Named) {
@@ -2839,9 +1861,9 @@ void CutterCore::addBreakpoint(const BreakpointDescription &config)
     emit breakpointsChanged(breakpoint->addr);
 }
 
-void CutterCore::updateBreakpoint(int index, const BreakpointDescription &config)
+void RizinWrapper::updateBreakpoint(int index, const BreakpointDescription &config)
 {
-    CORE_LOCK();
+
     if (auto bp = rz_bp_get_index(core->dbg->bp, index)) {
         rz_bp_del(core->dbg->bp, bp->addr);
     }
@@ -2851,37 +1873,37 @@ void CutterCore::updateBreakpoint(int index, const BreakpointDescription &config
     addBreakpoint(config);
 }
 
-void CutterCore::delBreakpoint(RVA addr)
+void RizinWrapper::delBreakpoint(RVA addr)
 {
-    CORE_LOCK();
+
     rz_bp_del(core->dbg->bp, addr);
     emit breakpointsChanged(addr);
 }
 
-void CutterCore::delAllBreakpoints()
+void RizinWrapper::delAllBreakpoints()
 {
-    CORE_LOCK();
+
     rz_bp_del_all(core->dbg->bp);
     emit refreshCodeViews();
 }
 
-void CutterCore::enableBreakpoint(RVA addr)
+void RizinWrapper::enableBreakpoint(RVA addr)
 {
-    CORE_LOCK();
+
     rz_bp_enable(core->dbg->bp, addr, true, 1);
     emit breakpointsChanged(addr);
 }
 
-void CutterCore::disableBreakpoint(RVA addr)
+void RizinWrapper::disableBreakpoint(RVA addr)
 {
-    CORE_LOCK();
+
     rz_bp_enable(core->dbg->bp, addr, false, 1);
     emit breakpointsChanged(addr);
 }
 
-void CutterCore::setBreakpointTrace(int index, bool enabled)
+void RizinWrapper::setBreakpointTrace(int index, bool enabled)
 {
-    CORE_LOCK();
+
     RzBreakpointItem *bpi = rz_bp_get_index(core->dbg->bp, index);
     bpi->trace = enabled;
 }
@@ -2906,15 +1928,15 @@ static BreakpointDescription breakpointDescriptionFromRizin(int index, rz_bp_ite
     return bp;
 }
 
-int CutterCore::breakpointIndexAt(RVA addr)
+int RizinWrapper::breakpointIndexAt(RVA addr)
 {
-    CORE_LOCK();
+
     return rz_bp_get_index_at(core->dbg->bp, addr);
 }
 
-BreakpointDescription CutterCore::getBreakpointAt(RVA addr)
+BreakpointDescription RizinWrapper::getBreakpointAt(RVA addr)
 {
-    CORE_LOCK();
+
     const int index = rz_bp_get_index_at(core->dbg->bp, addr);
     auto bp = rz_bp_get_index(core->dbg->bp, index);
     if (bp) {
@@ -2923,9 +1945,9 @@ BreakpointDescription CutterCore::getBreakpointAt(RVA addr)
     return BreakpointDescription();
 }
 
-QList<BreakpointDescription> CutterCore::getBreakpoints()
+QList<BreakpointDescription> RizinWrapper::getBreakpoints()
 {
-    CORE_LOCK();
+
     QList<BreakpointDescription> ret;
     // TODO: use higher level API, don't touch rizin bps_idx directly
     for (int i = 0; i < core->dbg->bp->bps_idx_count; i++) {
@@ -2937,7 +1959,7 @@ QList<BreakpointDescription> CutterCore::getBreakpoints()
     return ret;
 }
 
-QList<RVA> CutterCore::getBreakpointsAddresses()
+QList<RVA> RizinWrapper::getBreakpointsAddresses()
 {
     QList<RVA> bpAddresses;
     for (const BreakpointDescription &bp : getBreakpoints()) {
@@ -2947,7 +1969,7 @@ QList<RVA> CutterCore::getBreakpointsAddresses()
     return bpAddresses;
 }
 
-QList<RVA> CutterCore::getBreakpointsInFunction(RVA funcAddr)
+QList<RVA> RizinWrapper::getBreakpointsInFunction(RVA funcAddr)
 {
     QList<RVA> allBreakpoints = getBreakpointsAddresses();
     QList<RVA> functionBreakpoints;
@@ -2959,14 +1981,14 @@ QList<RVA> CutterCore::getBreakpointsInFunction(RVA funcAddr)
     return functionBreakpoints;
 }
 
-bool CutterCore::isBreakpoint(const QList<RVA> &breakpoints, RVA addr)
+bool RizinWrapper::isBreakpoint(const QList<RVA> &breakpoints, RVA addr)
 {
     return breakpoints.contains(addr);
 }
 
-QList<ThreadDescription> CutterCore::getProcessThreads(int pid)
+QList<ThreadDescription> RizinWrapper::getProcessThreads(int pid)
 {
-    CORE_LOCK();
+
     auto dbg = core->dbg;
     if (!dbg || !dbg->cur || !dbg->cur->threads) {
         return {};
@@ -2994,9 +2016,9 @@ QList<ThreadDescription> CutterCore::getProcessThreads(int pid)
     return ret;
 }
 
-QList<ProcessDescription> CutterCore::getProcesses(int pid)
+QList<ProcessDescription> RizinWrapper::getProcesses(int pid)
 {
-    CORE_LOCK();
+
     auto dbg = core->dbg;
     if (!dbg || !dbg->cur || !dbg->cur->threads) {
         return {};
@@ -3022,9 +2044,9 @@ QList<ProcessDescription> CutterCore::getProcesses(int pid)
     return ret;
 }
 
-QList<MemoryMapDescription> CutterCore::getMemoryMap()
+QList<MemoryMapDescription> RizinWrapper::getMemoryMap()
 {
-    CORE_LOCK();
+
     RzList *list0 = rz_debug_map_list(core->dbg, false);
     RzList *list1 = rz_debug_map_list(core->dbg, true);
     rz_list_join(list0, list1);
@@ -3047,19 +2069,8 @@ QList<MemoryMapDescription> CutterCore::getMemoryMap()
     return ret;
 }
 
-void CutterCore::setGraphEmpty(bool empty)
+void RizinWrapper::getRegs()
 {
-    emptyGraph = empty;
-}
-
-bool CutterCore::isGraphEmpty() const
-{
-    return emptyGraph;
-}
-
-void CutterCore::getRegs()
-{
-    const auto core = Core()->lock();
     this->regs = {};
     const RzList *rs = rz_reg_get_list(getReg(), RZ_REG_TYPE_ANY);
     if (!rs) {
@@ -3070,7 +2081,7 @@ void CutterCore::getRegs()
     }
 }
 
-void CutterCore::setSettings()
+void RizinWrapper::setSettings()
 {
     setConfig("scr.interactive", false);
 
@@ -3090,9 +2101,9 @@ void CutterCore::setSettings()
     setConfig("search.flags", false);
 }
 
-QList<RVA> CutterCore::getSeekHistory()
+QList<RVA> RizinWrapper::getSeekHistory()
 {
-    CORE_LOCK();
+
     QList<RVA> ret;
     RzListIter *it;
     RzCoreSeekItem *undo;
@@ -3104,9 +2115,9 @@ QList<RVA> CutterCore::getSeekHistory()
     return ret;
 }
 
-QStringList CutterCore::getAsmPluginNames()
+QStringList RizinWrapper::getAsmPluginNames()
 {
-    CORE_LOCK();
+
     QStringList ret;
     CutterHtSP<RzAsmPlugin>(rz_asm_get_plugins(core->rasm))
             .ForEach([&ret](const char * /*k*/, const RzAsmPlugin *ap) {
@@ -3116,9 +2127,9 @@ QStringList CutterCore::getAsmPluginNames()
     return ret;
 }
 
-QStringList CutterCore::getAnalysisPluginNames()
+QStringList RizinWrapper::getAnalysisPluginNames()
 {
-    CORE_LOCK();
+
     QStringList ret;
     CutterHtSP<RzAnalysisPlugin>(rz_analysis_get_plugins(core->analysis))
             .ForEach([&ret](const char * /*k*/, const RzAnalysisPlugin *ap) {
@@ -3128,11 +2139,11 @@ QStringList CutterCore::getAnalysisPluginNames()
     return ret;
 }
 
-bool CutterCore::hasAssembler()
+bool RizinWrapper::hasAssembler()
 {
-    CORE_LOCK();
-    QString archStr = Core()->getConfig("asm.arch");
-    int currBits = Core()->getConfigi("asm.bits");
+
+    QString archStr = this->getConfig("asm.arch");
+    int currBits = this->getConfigi("asm.bits");
     if (!core->rasm || archStr.isEmpty() || currBits == 0) {
         return false;
     }
@@ -3152,9 +2163,9 @@ bool CutterCore::hasAssembler()
     return found;
 }
 
-QList<RzBinPluginDescription> CutterCore::getBinPluginDescriptions(bool bin, bool xtr)
+QList<RzBinPluginDescription> RizinWrapper::getBinPluginDescriptions(bool bin, bool xtr)
 {
-    CORE_LOCK();
+
     QList<RzBinPluginDescription> ret;
     if (bin) {
         CutterHtSP<RzBinPlugin>(core->bin->plugins)
@@ -3183,9 +2194,9 @@ QList<RzBinPluginDescription> CutterCore::getBinPluginDescriptions(bool bin, boo
     return ret;
 }
 
-QList<RzIOPluginDescription> CutterCore::getRIOPluginDescriptions()
+QList<RzIOPluginDescription> RizinWrapper::getRIOPluginDescriptions()
 {
-    CORE_LOCK();
+
     QList<RzIOPluginDescription> ret;
     CutterHtSP<RzIOPlugin>(core->io->plugins)
             .ForEach([&ret](const char * /*k*/, const RzIOPlugin *p) {
@@ -3203,9 +2214,9 @@ QList<RzIOPluginDescription> CutterCore::getRIOPluginDescriptions()
     return ret;
 }
 
-QList<RzCorePluginDescription> CutterCore::getRCorePluginDescriptions()
+QList<RzCorePluginDescription> RizinWrapper::getRCorePluginDescriptions()
 {
-    CORE_LOCK();
+
     QList<RzCorePluginDescription> ret;
     CutterHtSP<RzCorePlugin>(core->plugins)
             .ForEach([&ret](const char * /*k*/, const RzCorePlugin *p) {
@@ -3219,13 +2230,12 @@ QList<RzCorePluginDescription> CutterCore::getRCorePluginDescriptions()
     return ret;
 }
 
-QList<RzAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
+QList<RzAsmPluginDescription> RizinWrapper::getRAsmPluginDescriptions()
 {
-    CORE_LOCK();
-    QList<RzAsmPluginDescription> ret;
 
+    QList<RzAsmPluginDescription> ret;
     CutterHtSP<RzAsmPlugin>(rz_asm_get_plugins(core->rasm))
-            .ForEach([&ret, &core](const char * /*k*/, const RzAsmPlugin *ap) {
+            .ForEach([&ret, this](const char * /*k*/, const RzAsmPlugin *ap) {
                 RzAsmPluginDescription plugin;
 
                 plugin.name = ap->name;
@@ -3276,9 +2286,8 @@ QList<RzAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
     return ret;
 }
 
-QList<FunctionDescription> CutterCore::getAllFunctions()
+QList<FunctionDescription> RizinWrapper::getAllFunctions()
 {
-    CORE_LOCK();
 
     const RzList *fcns = rz_analysis_function_list(core->analysis);
     QList<FunctionDescription> funcList;
@@ -3308,9 +2317,9 @@ static inline uint64_t rva(RzBinObject *o, uint64_t paddr, uint64_t vaddr, int v
     return va ? rz_bin_object_get_vaddr(o, paddr, vaddr) : paddr;
 }
 
-QList<ImportDescription> CutterCore::getAllImports()
+QList<ImportDescription> RizinWrapper::getAllImports()
 {
-    CORE_LOCK();
+
     const RzBinFile *bf = rz_bin_cur(core->bin);
     if (!bf) {
         return {};
@@ -3352,9 +2361,9 @@ QList<ImportDescription> CutterCore::getAllImports()
     return qList;
 }
 
-QList<ExportDescription> CutterCore::getAllExports()
+QList<ExportDescription> RizinWrapper::getAllExports()
 {
-    CORE_LOCK();
+
     const RzBinFile *bf = rz_bin_cur(core->bin);
     if (!bf) {
         return {};
@@ -3391,9 +2400,9 @@ QList<ExportDescription> CutterCore::getAllExports()
     return ret;
 }
 
-QList<SymbolDescription> CutterCore::getAllSymbols()
+QList<SymbolDescription> RizinWrapper::getAllSymbols()
 {
-    CORE_LOCK();
+
     const RzBinFile *bf = rz_bin_cur(core->bin);
     if (!bf) {
         return {};
@@ -3430,9 +2439,9 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
     return ret;
 }
 
-QList<HeaderDescription> CutterCore::getAllHeaders()
+QList<HeaderDescription> RizinWrapper::getAllHeaders()
 {
-    CORE_LOCK();
+
     const RzBinFile *bf = rz_bin_cur(core->bin);
     if (!bf) {
         return {};
@@ -3453,9 +2462,8 @@ QList<HeaderDescription> CutterCore::getAllHeaders()
     return ret;
 }
 
-QList<FlirtDescription> CutterCore::getSignaturesDB()
+QList<FlirtDescription> RizinWrapper::getSignaturesDB()
 {
-    CORE_LOCK();
 
     void *ptr = nullptr;
     const RzListIter *iter = nullptr;
@@ -3482,9 +2490,9 @@ QList<FlirtDescription> CutterCore::getSignaturesDB()
     return sigdb;
 }
 
-QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
+QList<CommentDescription> RizinWrapper::getAllComments(const QString &filterType)
 {
-    CORE_LOCK();
+
     QList<CommentDescription> qList;
     RzIntervalTreeIter it;
     void *pVoid;
@@ -3513,9 +2521,9 @@ QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
     return qList;
 }
 
-QList<RelocDescription> CutterCore::getAllRelocs()
+QList<RelocDescription> RizinWrapper::getAllRelocs()
 {
-    CORE_LOCK();
+
     QList<RelocDescription> ret;
 
     if (core && core->bin && core->bin->cur && core->bin->cur->o) {
@@ -3543,9 +2551,9 @@ QList<RelocDescription> CutterCore::getAllRelocs()
     return ret;
 }
 
-QList<StringDescription> CutterCore::getAllStrings(bool raw)
+QList<StringDescription> RizinWrapper::getAllStrings(bool raw)
 {
-    CORE_LOCK();
+
     RzBinFile *bf = rz_bin_cur(core->bin);
     if (!bf) {
         return {};
@@ -3591,9 +2599,9 @@ QList<StringDescription> CutterCore::getAllStrings(bool raw)
     return ret;
 }
 
-QList<FlagspaceDescription> CutterCore::getAllFlagspaces()
+QList<FlagspaceDescription> RizinWrapper::getAllFlagspaces()
 {
-    CORE_LOCK();
+
     QList<FlagspaceDescription> flagspaces;
     RzSpaceIter it;
     RzSpace *space;
@@ -3606,9 +2614,9 @@ QList<FlagspaceDescription> CutterCore::getAllFlagspaces()
     return flagspaces;
 }
 
-QList<FlagDescription> CutterCore::getAllFlags(const QString &flagspace)
+QList<FlagDescription> RizinWrapper::getAllFlags(const QString &flagspace)
 {
-    CORE_LOCK();
+
     QList<FlagDescription> flags;
     const std::string name =
             flagspace.isEmpty() || flagspace.isNull() ? "*" : flagspace.toStdString();
@@ -3628,9 +2636,8 @@ QList<FlagDescription> CutterCore::getAllFlags(const QString &flagspace)
     return flags;
 }
 
-SectionDescription CutterCore::getSectionAtAddress(RVA addr)
+SectionDescription RizinWrapper::getSectionAtAddress(RVA addr)
 {
-    CORE_LOCK();
     RzBinObject *o = rz_bin_cur_object(core->bin);
     if (!o) {
         return {};
@@ -3664,9 +2671,9 @@ SectionDescription CutterCore::getSectionAtAddress(RVA addr)
     return desc;
 }
 
-QList<SectionDescription> CutterCore::getAllSections()
+QList<SectionDescription> RizinWrapper::getAllSections()
 {
-    CORE_LOCK();
+
     QList<SectionDescription> sections;
 
     RzBinObject *o = rz_bin_cur_object(core->bin);
@@ -3711,9 +2718,9 @@ QList<SectionDescription> CutterCore::getAllSections()
     return sections;
 }
 
-QStringList CutterCore::getSectionList()
+QStringList RizinWrapper::getSectionList()
 {
-    CORE_LOCK();
+
     QStringList ret;
 
     RzBinObject *o = rz_bin_cur_object(core->bin);
@@ -3737,9 +2744,9 @@ static inline QString permsStr(int perms)
     return QString((perms & RZ_PERM_SHAR) ? 's' : '-') + rz_str_rwx_i(perms);
 }
 
-QList<SegmentDescription> CutterCore::getAllSegments()
+QList<SegmentDescription> RizinWrapper::getAllSegments()
 {
-    CORE_LOCK();
+
     const RzBinFile *bf = rz_bin_cur(core->bin);
     if (!bf) {
         return {};
@@ -3765,9 +2772,9 @@ QList<SegmentDescription> CutterCore::getAllSegments()
     return ret;
 }
 
-QList<EntrypointDescription> CutterCore::getAllEntrypoint()
+QList<EntrypointDescription> RizinWrapper::getAllEntrypoint()
 {
-    CORE_LOCK();
+
     const RzBinFile *bf = rz_bin_cur(core->bin);
     if (!bf) {
         return {};
@@ -3797,9 +2804,9 @@ QList<EntrypointDescription> CutterCore::getAllEntrypoint()
     return qList;
 }
 
-QList<BinClassDescription> CutterCore::getAllClassesFromBin()
+QList<BinClassDescription> RizinWrapper::getAllClassesFromBin()
 {
-    CORE_LOCK();
+
     const RzBinFile *bf = rz_bin_cur(core->bin);
     if (!bf) {
         return {};
@@ -3835,12 +2842,11 @@ QList<BinClassDescription> CutterCore::getAllClassesFromBin()
     return qList;
 }
 
-QList<BinClassDescription> CutterCore::getAllClassesFromFlags()
+QList<BinClassDescription> RizinWrapper::getAllClassesFromFlags()
 {
     static const QRegularExpression classFlagRegExp("^class\\.(.*)$");
     static const QRegularExpression methodFlagRegExp("^method\\.([^\\.]*)\\.(.*)$");
 
-    const auto core = Core()->lock();
     QList<BinClassDescription> ret;
     QMap<QString, BinClassDescription *> classesCache;
 
@@ -3890,9 +2896,9 @@ QList<BinClassDescription> CutterCore::getAllClassesFromFlags()
     return ret;
 }
 
-QList<QString> CutterCore::getAllAnalysisClasses(bool sorted)
+QList<QString> RizinWrapper::getAllAnalysisClasses(bool sorted)
 {
-    CORE_LOCK();
+
     QList<QString> ret;
     const PVectorPtr l = makePVectorPtr(rz_analysis_class_get_all(core->analysis, sorted));
     if (!l) {
@@ -3905,9 +2911,9 @@ QList<QString> CutterCore::getAllAnalysisClasses(bool sorted)
     return ret;
 }
 
-QList<AnalysisMethodDescription> CutterCore::getAnalysisClassMethods(const QString &cls)
+QList<AnalysisMethodDescription> RizinWrapper::getAnalysisClassMethods(const QString &cls)
 {
-    CORE_LOCK();
+
     QList<AnalysisMethodDescription> ret;
 
     RzVector *meths = rz_analysis_class_method_get_all(core->analysis, cls.toUtf8().constData());
@@ -3931,9 +2937,9 @@ QList<AnalysisMethodDescription> CutterCore::getAnalysisClassMethods(const QStri
     return ret;
 }
 
-QList<AnalysisBaseClassDescription> CutterCore::getAnalysisClassBaseClasses(const QString &cls)
+QList<AnalysisBaseClassDescription> RizinWrapper::getAnalysisClassBaseClasses(const QString &cls)
 {
-    CORE_LOCK();
+
     QList<AnalysisBaseClassDescription> ret;
 
     RzVector *bases = rz_analysis_class_base_get_all(core->analysis, cls.toUtf8().constData());
@@ -3956,9 +2962,9 @@ QList<AnalysisBaseClassDescription> CutterCore::getAnalysisClassBaseClasses(cons
     return ret;
 }
 
-QList<AnalysisVTableDescription> CutterCore::getAnalysisClassVTables(const QString &cls)
+QList<AnalysisVTableDescription> RizinWrapper::getAnalysisClassVTables(const QString &cls)
 {
-    CORE_LOCK();
+
     QList<AnalysisVTableDescription> acVtables;
 
     RzVector *vtables = rz_analysis_class_vtable_get_all(core->analysis, cls.toUtf8().constData());
@@ -3981,29 +2987,29 @@ QList<AnalysisVTableDescription> CutterCore::getAnalysisClassVTables(const QStri
     return acVtables;
 }
 
-void CutterCore::createNewClass(const QString &cls)
+void RizinWrapper::createNewClass(const QString &cls)
 {
-    CORE_LOCK();
+
     rz_analysis_class_create(core->analysis, cls.toUtf8().constData());
 }
 
-void CutterCore::renameClass(const QString &oldName, const QString &newName)
+void RizinWrapper::renameClass(const QString &oldName, const QString &newName)
 {
-    CORE_LOCK();
+
     rz_analysis_class_rename(core->analysis, oldName.toUtf8().constData(),
                              newName.toUtf8().constData());
 }
 
-void CutterCore::deleteClass(const QString &cls)
+void RizinWrapper::deleteClass(const QString &cls)
 {
-    CORE_LOCK();
+
     rz_analysis_class_delete(core->analysis, cls.toUtf8().constData());
 }
 
-bool CutterCore::getAnalysisMethod(const QString &cls, const QString &meth,
-                                   AnalysisMethodDescription *desc)
+bool RizinWrapper::getAnalysisMethod(const QString &cls, const QString &meth,
+                                     AnalysisMethodDescription *desc)
 {
-    CORE_LOCK();
+
     RzAnalysisMethod analysisMeth;
     if (rz_analysis_class_method_get(core->analysis, cls.toUtf8().constData(),
                                      meth.toUtf8().constData(), &analysisMeth)
@@ -4018,9 +3024,10 @@ bool CutterCore::getAnalysisMethod(const QString &cls, const QString &meth,
     return true;
 }
 
-void CutterCore::setAnalysisMethod(const QString &className, const AnalysisMethodDescription &meth)
+void RizinWrapper::setAnalysisMethod(const QString &className,
+                                     const AnalysisMethodDescription &meth)
 {
-    CORE_LOCK();
+
     RzAnalysisMethod analysisMeth;
     analysisMeth.name = rz_str_dup(meth.name.toUtf8().constData());
     analysisMeth.real_name = rz_str_dup(meth.realName.toUtf8().constData());
@@ -4030,18 +3037,18 @@ void CutterCore::setAnalysisMethod(const QString &className, const AnalysisMetho
     rz_analysis_class_method_fini(&analysisMeth);
 }
 
-void CutterCore::renameAnalysisMethod(const QString &className, const QString &oldMethodName,
-                                      const QString &newMethodName)
+void RizinWrapper::renameAnalysisMethod(const QString &className, const QString &oldMethodName,
+                                        const QString &newMethodName)
 {
-    CORE_LOCK();
+
     rz_analysis_class_method_rename(core->analysis, className.toUtf8().constData(),
                                     oldMethodName.toUtf8().constData(),
                                     newMethodName.toUtf8().constData());
 }
 
-QList<ResourcesDescription> CutterCore::getAllResources()
+QList<ResourcesDescription> RizinWrapper::getAllResources()
 {
-    CORE_LOCK();
+
     const RzBinFile *bf = rz_bin_cur(core->bin);
     if (!bf) {
         return {};
@@ -4068,9 +3075,9 @@ QList<ResourcesDescription> CutterCore::getAllResources()
     return resourcesDescriptions;
 }
 
-QList<VTableDescription> CutterCore::getAllVTables()
+QList<VTableDescription> RizinWrapper::getAllVTables()
 {
-    CORE_LOCK();
+
     QList<VTableDescription> vtableDescs;
     RVTableContext context;
     rz_analysis_vtable_begin(core->analysis, &context);
@@ -4096,11 +3103,10 @@ QList<VTableDescription> CutterCore::getAllVTables()
     return vtableDescs;
 }
 
-QList<BacktraceDescription> CutterCore::getAllBacktraces()
+QList<BacktraceDescription> RizinWrapper::getAllBacktraces()
 {
     QList<BacktraceDescription> backtraces;
 
-    CORE_LOCK();
     RzList *list = rz_core_debug_backtraces(core);
     RzListIter *iter;
     RzBacktrace *bt;
@@ -4117,7 +3123,7 @@ QList<BacktraceDescription> CutterCore::getAllBacktraces()
     return backtraces;
 }
 
-QList<EvaluableVarDescription> CutterCore::getAllEvaluableVars()
+QList<EvaluableVarDescription> RizinWrapper::getAllEvaluableVars()
 {
     auto rzConfigIteratorCb = [](const RzConfigEntry *entry, void *user) -> bool {
         if (!entry) {
@@ -4185,7 +3191,6 @@ QList<EvaluableVarDescription> CutterCore::getAllEvaluableVars()
     };
 
     QList<EvaluableVarDescription> evalVars;
-    CORE_LOCK();
 
     CutterHtSP<RzConfig>(core->plugin_configs)
             .ForEach([&evalVars, rzConfigIteratorCb](const char *, const RzConfig *config) {
@@ -4202,9 +3207,9 @@ QList<EvaluableVarDescription> CutterCore::getAllEvaluableVars()
     return evalVars;
 }
 
-QList<QString> CutterCore::getAllEvaluableVarSpaces()
+QList<QString> RizinWrapper::getAllEvaluableVarSpaces()
 {
-    CORE_LOCK();
+
     QList<QString> evalVarSpaces;
 
     RzList *spaces = rz_core_config_in_space(core, nullptr);
@@ -4219,7 +3224,7 @@ QList<QString> CutterCore::getAllEvaluableVarSpaces()
     return evalVarSpaces;
 }
 
-QList<TypeDescription> CutterCore::getAllTypes()
+QList<TypeDescription> RizinWrapper::getAllTypes()
 {
     QList<TypeDescription> types;
 
@@ -4232,9 +3237,9 @@ QList<TypeDescription> CutterCore::getAllTypes()
     return types;
 }
 
-QList<TypeDescription> CutterCore::getBaseType(RzBaseTypeKind kind, const char *category)
+QList<TypeDescription> RizinWrapper::getBaseType(RzBaseTypeKind kind, const char *category)
 {
-    CORE_LOCK();
+
     QList<TypeDescription> types;
 
     const RzTypeDB *typedb = rz_analysis_get_type_db(core->analysis);
@@ -4257,32 +3262,32 @@ QList<TypeDescription> CutterCore::getBaseType(RzBaseTypeKind kind, const char *
     return types;
 }
 
-QList<TypeDescription> CutterCore::getAllPrimitiveTypes()
+QList<TypeDescription> RizinWrapper::getAllPrimitiveTypes()
 {
     return getBaseType(RZ_BASE_TYPE_KIND_ATOMIC, "Primitive");
 }
 
-QList<TypeDescription> CutterCore::getAllUnions()
+QList<TypeDescription> RizinWrapper::getAllUnions()
 {
     return getBaseType(RZ_BASE_TYPE_KIND_UNION, "Union");
 }
 
-QList<TypeDescription> CutterCore::getAllStructs()
+QList<TypeDescription> RizinWrapper::getAllStructs()
 {
     return getBaseType(RZ_BASE_TYPE_KIND_STRUCT, "Struct");
 }
 
-QList<TypeDescription> CutterCore::getAllEnums()
+QList<TypeDescription> RizinWrapper::getAllEnums()
 {
     return getBaseType(RZ_BASE_TYPE_KIND_ENUM, "Enum");
 }
 
-QList<TypeDescription> CutterCore::getAllTypedefs()
+QList<TypeDescription> RizinWrapper::getAllTypedefs()
 {
     return getBaseType(RZ_BASE_TYPE_KIND_TYPEDEF, "Typedef");
 }
 
-QList<QString> CutterCore::getAllTypeClasses()
+QList<QString> RizinWrapper::getAllTypeClasses()
 {
     QList<QString> typeClasses;
 
@@ -4297,9 +3302,9 @@ QList<QString> CutterCore::getAllTypeClasses()
     return typeClasses;
 }
 
-QString CutterCore::getTypeAsC(const QString &name)
+QString RizinWrapper::getTypeAsC(const QString &name)
 {
-    CORE_LOCK();
+
     QString output = "Failed to fetch the output.";
     if (name.isEmpty()) {
         return output;
@@ -4310,22 +3315,22 @@ QString CutterCore::getTypeAsC(const QString &name)
     return result;
 }
 
-bool CutterCore::typeExists(const QString &typeName)
+bool RizinWrapper::typeExists(const QString &typeName)
 {
-    CORE_LOCK();
+
     return rz_type_exists(rz_analysis_get_type_db(core->analysis), typeName.toUtf8().constData());
 }
 
-bool CutterCore::isAddressMapped(RVA addr)
+bool RizinWrapper::isAddressMapped(RVA addr)
 {
-    CORE_LOCK();
+
     return rz_io_map_get(core->io, addr);
 }
 
-QList<SearchDescription> CutterCore::getAllSearchCommand(const QString &searchFor, SearchKind kind,
-                                                         const QString &in)
+QList<SearchDescription> RizinWrapper::getAllSearchCommand(const QString &searchFor,
+                                                           SearchKind kind, const QString &in)
 {
-    CORE_LOCK();
+
     QList<SearchDescription> searchRef;
 
     TempConfig cfg;
@@ -4508,8 +3513,8 @@ static QString cutterValueAsHex(const QString &strVal, bool bigEndian, size_t si
     return output;
 }
 
-QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind kind,
-                                                  const QString &in)
+QList<SearchDescription> RizinWrapper::getAllSearch(QString searchFor, SearchKind kind,
+                                                    const QString &in)
 {
     if (searchFor.isEmpty() && kind != SearchKind::CryptographicMaterial
         && kind != SearchKind::MagicSignature) {
@@ -4530,8 +3535,6 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
         // use C API
         break;
     }
-
-    CORE_LOCK();
 
     if (core->in_search) {
         // this is impossible to happen, unless the user runs
@@ -4653,10 +3656,10 @@ QList<SearchDescription> CutterCore::getAllSearch(QString searchFor, SearchKind 
     return searchRef;
 }
 
-QList<XrefDescription> CutterCore::collectXRefsForVariable(const QString &variableName, RVA offset,
-                                                           int accessTypeMask, bool stopAtFirst)
+QList<XrefDescription> RizinWrapper::collectXRefsForVariable(const QString &variableName,
+                                                             RVA offset, int accessTypeMask,
+                                                             bool stopAtFirst)
 {
-    const auto core = Core()->lock();
     auto fcn = functionIn(offset);
     if (!fcn) {
         return {};
@@ -4693,15 +3696,15 @@ QList<XrefDescription> CutterCore::collectXRefsForVariable(const QString &variab
     return xrefs;
 }
 
-QList<XrefDescription> CutterCore::getXRefsForVariable(const QString &variableName, bool findWrites,
-                                                       RVA offset)
+QList<XrefDescription> RizinWrapper::getXRefsForVariable(const QString &variableName,
+                                                         bool findWrites, RVA offset)
 {
     const ut8 mask =
             findWrites ? RZ_ANALYSIS_VAR_ACCESS_TYPE_WRITE : RZ_ANALYSIS_VAR_ACCESS_TYPE_READ;
     return collectXRefsForVariable(variableName, offset, mask, false);
 }
 
-XrefDescription CutterCore::getFirstXRefForVariable(const QString &variableName, RVA offset)
+XrefDescription RizinWrapper::getFirstXRefForVariable(const QString &variableName, RVA offset)
 {
     const ut8 mask = RZ_ANALYSIS_VAR_ACCESS_TYPE_WRITE | RZ_ANALYSIS_VAR_ACCESS_TYPE_READ;
     auto result = collectXRefsForVariable(variableName, offset, mask, true);
@@ -4709,13 +3712,12 @@ XrefDescription CutterCore::getFirstXRefForVariable(const QString &variableName,
     return result.isEmpty() ? XrefDescription() : result.first();
 }
 
-QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_function,
-                                            const QString &filterType)
+QList<XrefDescription> RizinWrapper::getXRefs(RVA addr, bool to, bool whole_function,
+                                              const QString &filterType)
 {
     QList<XrefDescription> xrefList = QList<XrefDescription>();
 
     RzList *xrefs = nullptr;
-    CORE_LOCK();
 
     if (to) {
         xrefs = rz_analysis_xrefs_get_to(core->analysis, addr);
@@ -4746,7 +3748,7 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
             xd.fromStr = rzAddressString(xd.from);
         }
 
-        xd.toStr = Core()->flagAt(xd.to);
+        xd.toStr = this->flagAt(xd.to);
 
         xrefList << xd;
     }
@@ -4754,9 +3756,9 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
     return xrefList;
 }
 
-QString CutterCore::getXRefCommentAt(RVA offset)
+QString RizinWrapper::getXRefCommentAt(RVA offset)
 {
-    CORE_LOCK();
+
     QString commentStr;
     char *comment = rz_core_get_xref_comment(core, offset);
     if (comment) {
@@ -4766,10 +3768,10 @@ QString CutterCore::getXRefCommentAt(RVA offset)
     return commentStr;
 }
 
-void CutterCore::addGlobalVariable(RVA offset, QString name, const QString &typ)
+void RizinWrapper::addGlobalVariable(RVA offset, QString name, const QString &typ)
 {
     name = sanitizeStringForCommand(name);
-    CORE_LOCK();
+
     char *errmsg = nullptr;
     RzType *globType = rz_type_parse_string_single(rz_analysis_get_type_db(core->analysis)->parser,
                                                    typ.toStdString().c_str(), &errmsg);
@@ -4787,10 +3789,10 @@ void CutterCore::addGlobalVariable(RVA offset, QString name, const QString &typ)
     emit globalVarsChanged();
 }
 
-void CutterCore::modifyGlobalVariable(RVA offset, QString name, const QString &typ)
+void RizinWrapper::modifyGlobalVariable(RVA offset, QString name, const QString &typ)
 {
     name = sanitizeStringForCommand(name);
-    CORE_LOCK();
+
     RzAnalysisVarGlobal *glob = rz_analysis_var_global_get_byaddr_at(core->analysis, offset);
     if (!glob) {
         return;
@@ -4812,27 +3814,27 @@ void CutterCore::modifyGlobalVariable(RVA offset, QString name, const QString &t
     emit globalVarsChanged();
 }
 
-void CutterCore::delGlobalVariable(QString name)
+void RizinWrapper::delGlobalVariable(QString name)
 {
     name = sanitizeStringForCommand(name);
-    CORE_LOCK();
+
     rz_analysis_var_global_delete_byname(core->analysis, name.toStdString().c_str());
 
     emit globalVarsChanged();
 }
 
-void CutterCore::delGlobalVariable(RVA offset)
+void RizinWrapper::delGlobalVariable(RVA offset)
 {
-    CORE_LOCK();
+
     rz_analysis_var_global_delete_byaddr_at(core->analysis, offset);
 
     emit globalVarsChanged();
 }
 
-QString CutterCore::getGlobalVariableType(QString name)
+QString RizinWrapper::getGlobalVariableType(QString name)
 {
     name = sanitizeStringForCommand(name);
-    CORE_LOCK();
+
     const RzAnalysisVarGlobal *glob =
             rz_analysis_var_global_get_byname(core->analysis, name.toStdString().c_str());
     if (!glob) {
@@ -4845,9 +3847,9 @@ QString CutterCore::getGlobalVariableType(QString name)
     return QString(gtype);
 }
 
-QString CutterCore::getGlobalVariableType(RVA offset)
+QString RizinWrapper::getGlobalVariableType(RVA offset)
 {
-    CORE_LOCK();
+
     const RzAnalysisVarGlobal *glob = rz_analysis_var_global_get_byaddr_at(core->analysis, offset);
     if (!glob) {
         return QString("");
@@ -4859,25 +3861,25 @@ QString CutterCore::getGlobalVariableType(RVA offset)
     return QString(gtype);
 }
 
-void CutterCore::addFlag(RVA offset, QString name, RVA size)
+void RizinWrapper::addFlag(RVA offset, QString name, RVA size)
 {
     name = sanitizeStringForCommand(name);
-    CORE_LOCK();
+
     rz_flag_set(core->flags, name.toStdString().c_str(), offset, size);
     emit flagsChanged();
 }
 
-QString CutterCore::listFlagsAsStringAt(RVA addr)
+QString RizinWrapper::listFlagsAsStringAt(RVA addr)
 {
-    CORE_LOCK();
+
     char *flagList = rz_flag_get_liststr(core->flags, addr);
     QString result = fromOwnedCharPtr(flagList);
     return result;
 }
 
-QString CutterCore::nearestFlag(RVA offset, RVA *flagOffsetOut)
+QString RizinWrapper::nearestFlag(RVA offset, RVA *flagOffsetOut)
 {
-    CORE_LOCK();
+
     auto r = rz_flag_get_at(core->flags, offset, true);
     if (!r) {
         return {};
@@ -4888,10 +3890,10 @@ QString CutterCore::nearestFlag(RVA offset, RVA *flagOffsetOut)
     return r->name;
 }
 
-void CutterCore::addMark(RVA from, RVA to, const QString &name, const QString &comment,
-                         QColor color)
+void RizinWrapper::addMark(RVA from, RVA to, const QString &name, const QString &comment,
+                           QColor color)
 {
-    CORE_LOCK();
+
     auto m = rz_mark_set(core->marks, name.toStdString().c_str(), from, to);
     if (m) {
         rz_mark_item_set_comment(m, comment.toStdString().c_str());
@@ -4900,9 +3902,9 @@ void CutterCore::addMark(RVA from, RVA to, const QString &name, const QString &c
     emit marksChanged();
 }
 
-void CutterCore::delMark(const QString &name)
+void RizinWrapper::delMark(const QString &name)
 {
-    CORE_LOCK();
+
     auto m = rz_mark_get(core->marks, name.toStdString().c_str());
     if (m) {
         rz_mark_unset(core->marks, m);
@@ -4910,7 +3912,7 @@ void CutterCore::delMark(const QString &name)
     emit marksChanged();
 }
 
-QList<MarkDescription> CutterCore::convertMarks(RzList *marks)
+QList<MarkDescription> RizinWrapper::convertMarks(RzList *marks)
 {
     QList<MarkDescription> markList;
 
@@ -4931,19 +3933,17 @@ QList<MarkDescription> CutterCore::convertMarks(RzList *marks)
     return markList;
 }
 
-QList<MarkDescription> CutterCore::getMarks()
+QList<MarkDescription> RizinWrapper::getMarks()
 {
-    CORE_LOCK();
     return convertMarks(rz_mark_all_list(core->marks));
 }
 
-QList<MarkDescription> CutterCore::getMarksAt(RVA addr)
+QList<MarkDescription> RizinWrapper::getMarksAt(RVA addr)
 {
-    CORE_LOCK();
     return convertMarks(rz_mark_get_all_off(core->marks, addr));
 }
 
-QColor CutterCore::getBlendedMarksColorAt(RVA addr)
+QColor RizinWrapper::getBlendedMarksColorAt(RVA addr)
 {
     const auto &marks = getMarksAt(addr);
     QListIterator<MarkDescription> it(marks);
@@ -4975,7 +3975,7 @@ QColor CutterCore::getBlendedMarksColorAt(RVA addr)
     return first ? QColor() : QColor::fromRgbF(r, g, b, a);
 }
 
-void CutterCore::handleREvent(int type, void *data)
+void RizinWrapper::handleREvent(int type, void *data)
 {
     switch (type) {
     case RZ_EVENT_CLASS_NEW: {
@@ -5018,36 +4018,36 @@ void CutterCore::handleREvent(int type, void *data)
     }
 }
 
-void CutterCore::triggerFlagsChanged()
+void RizinWrapper::triggerFlagsChanged()
 {
     emit flagsChanged();
 }
 
-void CutterCore::triggerVarsChanged()
+void RizinWrapper::triggerVarsChanged()
 {
     emit varsChanged();
 }
 
-void CutterCore::triggerFunctionRenamed(const RVA offset, const QString &newName)
+void RizinWrapper::triggerFunctionRenamed(const RVA offset, const QString &newName)
 {
     emit functionRenamed(offset, newName);
 }
 
-void CutterCore::loadPDB(const QString &file)
+void RizinWrapper::loadPDB(const QString &file)
 {
-    CORE_LOCK();
+
     rz_core_bin_pdb_load(core, file.toUtf8().constData());
 }
 
-void CutterCore::applyDwarf()
+void RizinWrapper::applyDwarf()
 {
-    CORE_LOCK();
+
     rz_core_bin_apply_dwarf(core, rz_bin_cur(core->bin));
 }
 
-QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
+QList<DisassemblyLine> RizinWrapper::disassembleLines(RVA offset, int lines)
 {
-    CORE_LOCK();
+
     auto vec = fromOwned(
             rz_pvector_new(reinterpret_cast<RzPVectorFree>(rz_analysis_disasm_text_free)));
     if (!vec) {
@@ -5086,9 +4086,9 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
     return r;
 }
 
-QString CutterCore::hexdump(RVA address, int size, HexdumpFormats format)
+QString RizinWrapper::hexdump(RVA address, int size, HexdumpFormats format)
 {
-    CORE_LOCK();
+
     char *res = nullptr;
     switch (format) {
     case HexdumpFormats::Normal:
@@ -5120,7 +4120,7 @@ QString CutterCore::hexdump(RVA address, int size, HexdumpFormats format)
     return fromOwnedCharPtr(res);
 }
 
-QByteArray CutterCore::hexStringToBytes(const QString &hex)
+QByteArray RizinWrapper::hexStringToBytes(const QString &hex)
 {
     const QByteArray hexChars = hex.toUtf8();
     QByteArray bytes;
@@ -5130,34 +4130,31 @@ QByteArray CutterCore::hexStringToBytes(const QString &hex)
     return bytes;
 }
 
-QString CutterCore::bytesToHexString(const QByteArray &bytes)
+QString RizinWrapper::bytesToHexString(const QByteArray &bytes)
 {
     return QString::fromUtf8(bytes.toHex());
 }
 
-void CutterCore::loadScript(const QString &scriptname)
+void RizinWrapper::loadScript(const QString &scriptname)
 {
-    {
-        CORE_LOCK();
-        rz_core_cmd_file(core, scriptname.toUtf8().constData());
-        rz_cons_flush();
-    }
-    triggerRefreshAll();
+    rz_core_cmd_file(core, scriptname.toUtf8().constData());
+    rz_cons_flush();
+    emit reset();
 }
 
-bool CutterCore::isFileLoaded()
+bool RizinWrapper::isFileLoaded()
 {
-    CORE_LOCK();
+
     const RzList *descs = rz_id_storage_list(core->io->files);
     return rz_list_empty(descs);
 }
 
-QString CutterCore::getRizinVersionReadable(const char *program)
+QString RizinWrapper::getRizinVersionReadable(const char *program)
 {
-    return fromOwnedCharPtr(rz_version_str(rzCore->sys_path, program));
+    return fromOwnedCharPtr(rz_version_str(core->sys_path, program));
 }
 
-QString CutterCore::getVersionInformation()
+QString RizinWrapper::getVersionInformation()
 {
     int i;
     QString versionInfo;
@@ -5196,10 +4193,10 @@ QString CutterCore::getVersionInformation()
     return versionInfo;
 }
 
-QStringList CutterCore::getColorThemes()
+QStringList RizinWrapper::getColorThemes()
 {
     QStringList r;
-    CORE_LOCK();
+
     RzPVector *themesList = rz_core_get_themes(core);
     if (!themesList) {
         return r;
@@ -5211,7 +4208,7 @@ QStringList CutterCore::getColorThemes()
     return r;
 }
 
-QHash<QString, QColor> CutterCore::getTheme()
+QHash<QString, QColor> RizinWrapper::getTheme()
 {
     QHash<QString, QColor> theme;
     for (int i = 0;; ++i) {
@@ -5225,7 +4222,7 @@ QHash<QString, QColor> CutterCore::getTheme()
     return theme;
 }
 
-QStringList CutterCore::getThemeKeys()
+QStringList RizinWrapper::getThemeKeys()
 {
     QStringList stringList;
     for (int i = 0;; ++i) {
@@ -5238,7 +4235,7 @@ QStringList CutterCore::getThemeKeys()
     return stringList;
 }
 
-bool CutterCore::setColor(const QString &key, const QString &color)
+bool RizinWrapper::setColor(const QString &key, const QString &color)
 {
     if (!rz_cons_pal_set(key.toUtf8().constData(), color.toUtf8().constData())) {
         return false;
@@ -5247,13 +4244,13 @@ bool CutterCore::setColor(const QString &key, const QString &color)
     return true;
 }
 
-QString CutterCore::getColorNameFromOp(ut32 opType)
+QString RizinWrapper::getColorNameFromOp(ut32 opType)
 {
-    CORE_LOCK();
+
     return rz_print_color_op_type(core->print, opType);
 }
 
-QString CutterCore::ansiEscapeToHtml(const QString &text)
+QString RizinWrapper::ansiEscapeToHtml(const QString &text)
 {
     int len;
     QString r = text;
@@ -5267,37 +4264,26 @@ QString CutterCore::ansiEscapeToHtml(const QString &text)
     return r;
 }
 
-BasicBlockHighlighter *CutterCore::getBBHighlighter()
-{
-    return bbHighlighter;
-}
-
-BasicInstructionHighlighter *CutterCore::getBIHighlighter()
-{
-    return &biHighlighter;
-}
-
-void CutterCore::setIOCache(bool enabled)
+void RizinWrapper::setIOCache(bool enabled)
 {
     if (enabled) {
         // disable write mode when cache is enabled
         setWriteMode(false);
     }
     setConfig("io.cache", enabled);
-    this->iocache = enabled;
 
     emit ioCacheChanged(enabled);
     emit ioModeChanged();
 }
 
-bool CutterCore::isIOCacheEnabled() const
+bool RizinWrapper::isIOCacheEnabled()
 {
-    return iocache;
+    return getConfigb("io.cache");
 }
 
-void CutterCore::commitWriteCache()
+void RizinWrapper::commitWriteCache()
 {
-    CORE_LOCK();
+
     // Temporarily disable cache mode
     TempConfig tempConfig;
     tempConfig.set("io.cache", false);
@@ -5313,23 +4299,21 @@ void CutterCore::commitWriteCache()
     }
 }
 
-void CutterCore::resetWriteCache()
+void RizinWrapper::resetWriteCache()
 {
-    CORE_LOCK();
     rz_io_cache_reset(core->io, core->io->cached);
 }
 
 // Enable or disable write-mode. Avoid unecessary changes if not need.
-void CutterCore::setWriteMode(bool enabled)
+void RizinWrapper::setWriteMode(bool enabled)
 {
     const bool writeModeState = isWriteModeEnabled();
 
-    if (writeModeState == enabled && !this->iocache) {
+    if (writeModeState == enabled && !this->isIOCacheEnabled()) {
         // New mode is the same as current and IO Cache is disabled. Do nothing.
         return;
     }
 
-    CORE_LOCK();
     // Change from read-only to write-mode
     const RzIODesc *desc = core->io->desc;
     if (desc) {
@@ -5344,16 +4328,16 @@ void CutterCore::setWriteMode(bool enabled)
     }
     // Disable cache mode because we specifically set write or
     // read-only modes.
-    if (this->iocache) {
+    if (this->isIOCacheEnabled()) {
         setIOCache(false);
     }
     emit writeModeChanged(enabled);
     emit ioModeChanged();
 }
 
-bool CutterCore::isWriteModeEnabled()
+bool RizinWrapper::isWriteModeEnabled()
 {
-    CORE_LOCK();
+
     RzListIter *it;
     RzCoreFile *cf;
     CutterRzListForeach (core->files, it, RzCoreFile, cf) {
@@ -5368,10 +4352,9 @@ bool CutterCore::isWriteModeEnabled()
     return false;
 }
 
-bool CutterCore::hasUncommitedChanges()
+bool RizinWrapper::hasUncommitedChanges()
 {
 
-    CORE_LOCK();
     for (auto c : CutterPVector<RzIOCache>(&core->io->cache)) {
         if (!c->written) {
             return false;
@@ -5380,7 +4363,7 @@ bool CutterCore::hasUncommitedChanges()
     return true;
 }
 
-QStringList CutterCore::getDisassemblyPreview(RVA address, int num_of_lines)
+QStringList RizinWrapper::getDisassemblyPreview(RVA address, int num_of_lines)
 {
     QList<DisassemblyLine> disassemblyLines;
     {
@@ -5413,7 +4396,7 @@ QStringList CutterCore::getDisassemblyPreview(RVA address, int num_of_lines)
     }
 }
 
-QString CutterCore::getHexdumpPreview(RVA address, int size)
+QString RizinWrapper::getHexdumpPreview(RVA address, int size)
 {
     // temporarily simplify the disasm output to get it colorful and simple to read
     TempConfig tempConfig;
@@ -5425,9 +4408,8 @@ QString CutterCore::getHexdumpPreview(RVA address, int size)
             .replace(QLatin1Char('\n'), "<br>");
 }
 
-QByteArray CutterCore::ioRead(RVA addr, int len)
+QByteArray RizinWrapper::ioRead(RVA addr, int len)
 {
-    CORE_LOCK();
 
     QByteArray array;
 
@@ -5444,9 +4426,9 @@ QByteArray CutterCore::ioRead(RVA addr, int len)
     return array;
 }
 
-QStringList CutterCore::getConfigVariableSpaces(const QString &key)
+QStringList RizinWrapper::getConfigVariableSpaces(const QString &key)
 {
-    CORE_LOCK();
+
     RzList *list = rz_core_config_in_space(core, key.toUtf8().constData());
     if (!list) {
         return {};
@@ -5460,15 +4442,15 @@ QStringList CutterCore::getConfigVariableSpaces(const QString &key)
     return stringList;
 }
 
-void CutterCore::resetConfig()
+void RizinWrapper::resetConfig()
 {
-    CORE_LOCK();
+
     rz_core_config_init(core);
 }
 
-char *CutterCore::getTextualGraphAt(RzCoreGraphType type, RzCoreGraphFormat format, RVA address)
+char *RizinWrapper::getTextualGraphAt(RzCoreGraphType type, RzCoreGraphFormat format, RVA address)
 {
-    CORE_LOCK();
+
     char *string = nullptr; // NOLINT
     RzGraph *graph = rz_core_graph(core, type, address);
     if (!graph) {
@@ -5512,14 +4494,13 @@ char *CutterCore::getTextualGraphAt(RzCoreGraphType type, RzCoreGraphFormat form
     return string;
 }
 
-void CutterCore::writeGraphvizGraphToFile(const QString &path, const QString &format,
-                                          RzCoreGraphType type, RVA address)
+void RizinWrapper::writeGraphvizGraphToFile(const QString &path, const QString &format,
+                                            RzCoreGraphType type, RVA address)
 {
     TempConfig tempConfig;
     tempConfig.set("scr.color", false);
     tempConfig.set("graph.gv.format", format);
 
-    CORE_LOCK();
     auto filepath = path.toUtf8();
 
     if (!rz_core_graph_write(core, address, type, filepath)) {
@@ -5531,14 +4512,8 @@ void CutterCore::writeGraphvizGraphToFile(const QString &path, const QString &fo
     }
 }
 
-void CutterCore::showTypeInTypesWidget(const QString &typeName)
+void RizinWrapper::renameType(const QString &from, const QString &to)
 {
-    emit showTypeRequested(typeName);
-}
-
-void CutterCore::renameType(const QString &from, const QString &to)
-{
-    CORE_LOCK();
 
     rz_core_types_rename(core, from.toUtf8().constData(), to.toUtf8().constData());
 
@@ -5547,9 +4522,9 @@ void CutterCore::renameType(const QString &from, const QString &to)
     emit varsChanged();
 }
 
-void CutterCore::setTypeClass(const QString &type, const QString &typeClass)
+void RizinWrapper::setTypeClass(const QString &type, const QString &typeClass)
 {
-    CORE_LOCK();
+
     const RzTypeDB *typedb = rz_analysis_get_type_db(core->analysis);
     RzBaseType *btype = rz_type_db_get_base_type(typedb, type.toUtf8().constData());
     if (!btype) {

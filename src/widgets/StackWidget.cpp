@@ -33,11 +33,12 @@ StackWidget::StackWidget(MainWindow *main)
     editAction = new QAction(tr("Edit stack value..."), this);
     viewStack->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(Core(), &CutterCore::refreshAll, this, &StackWidget::updateContents);
-    connect(Core(), &CutterCore::registersChanged, this, &StackWidget::updateContents);
-    connect(Core(), &CutterCore::stackChanged, this, &StackWidget::updateContents);
-    connect(Core(), &CutterCore::commentsChanged, this,
-            [this]() { qhelpers::emitColumnChanged(modelStack, StackModel::CommentColumn); });
+    Session()->connect(&DynamicSession::refreshAll, this, &StackWidget::updateContents);
+    Session()->connect(&RizinWrapper::registersChanged, this, &StackWidget::updateContents);
+    Session()->connect(&RizinWrapper::stackChanged, this, &StackWidget::updateContents);
+    Session()->connect(&RizinWrapper::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(modelStack, StackModel::CommentColumn);
+    });
     connect(Config(), &Configuration::fontsUpdated, this, &StackWidget::fontsUpdatedSlot);
     connect(viewStack, &QAbstractItemView::doubleClicked, this, &StackWidget::onDoubleClicked);
     connect(viewStack, &QWidget::customContextMenuRequested, this,
@@ -57,7 +58,7 @@ StackWidget::~StackWidget() = default;
 
 void StackWidget::updateContents()
 {
-    if (!refreshDeferrer->attemptRefresh(nullptr) || Core()->isDebugTaskInProgress()) {
+    if (!refreshDeferrer->attemptRefresh(nullptr) || Session()->isDebugTaskInProgress()) {
         return;
     }
 
@@ -88,7 +89,7 @@ void StackWidget::onDoubleClicked(const QModelIndex &index)
         if (column == StackModel::OffsetColumn) {
             mainWindow->showMemoryWidget(MemoryWidgetType::Hexdump);
         } else {
-            Core()->showMemoryWidget();
+            Session()->showMemoryWidget();
         }
     }
 }

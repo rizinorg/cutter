@@ -181,11 +181,11 @@ FlagsWidget::FlagsWidget(MainWindow *main)
 
     setScrollMode();
 
-    connect(Core(), &CutterCore::flagsChanged, this, &FlagsWidget::flagsChanged);
-    connect(Core(), &CutterCore::codeRebased, this, &FlagsWidget::flagsChanged);
-    connect(Core(), &CutterCore::refreshAll, this, &FlagsWidget::refreshFlagspaces);
-    connect(Core(), &CutterCore::commentsChanged, this,
-            [this]() { qhelpers::emitColumnChanged(flagsModel, FlagsModel::COMMENT); });
+    Session()->connect(&RizinWrapper::flagsChanged, this, &FlagsWidget::flagsChanged);
+    Session()->connect(&DynamicSession::codeRebased, this, &FlagsWidget::flagsChanged);
+    Session()->connect(&DynamicSession::refreshAll, this, &FlagsWidget::refreshFlagspaces);
+    Session()->connect(&RizinWrapper::commentsChanged, this,
+                       [this]() { qhelpers::emitColumnChanged(flagsModel, FlagsModel::COMMENT); });
 
     auto menu = ui->flagsTreeView->getItemContextMenu();
     menu->addSeparator();

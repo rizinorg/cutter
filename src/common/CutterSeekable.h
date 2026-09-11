@@ -18,13 +18,13 @@ public:
     /**
      * @brief seek changes current offset.
      * If the seekable is synchronized with Core, then
-     * the Core offset will be modified and then the CutterCore::seekChanged
+     * the Core offset will be modified and then the RizinWrapper::seekChanged
      * signal will be emitted.
      * In any case, CutterSeekable::seekableSeekChanged is emitted.
      * @param addr the location to seek at.
      * @param type the type of seek wrt history (Undo, Redo, or New)
      */
-    void seek(RVA addr, CutterCore::SeekHistoryType type = CutterCore::SeekHistoryType::New)
+    void seek(RVA addr, RizinWrapper::SeekHistoryType type = RizinWrapper::SeekHistoryType::New)
     {
         updateSeek(addr, type, false);
     }
@@ -70,7 +70,7 @@ public slots:
     void toggleSynchronization();
 
 private slots:
-    void onCoreSeekChanged(RVA addr, CutterCore::SeekHistoryType type);
+    void onCoreSeekChanged(RVA addr, RizinWrapper::SeekHistoryType type);
 
 private:
     /**
@@ -94,9 +94,9 @@ private:
      * @brief internal method for changing the seek
      * @param localOnly whether the seek should be updated globally if synchronized
      */
-    void updateSeek(RVA addr, CutterCore::SeekHistoryType type, bool localOnly);
+    void updateSeek(RVA addr, RizinWrapper::SeekHistoryType type, bool localOnly);
 
 signals:
-    void seekableSeekChanged(RVA addr, CutterCore::SeekHistoryType type);
+    void seekableSeekChanged(RVA addr, RizinWrapper::SeekHistoryType type);
     void syncChanged();
 };

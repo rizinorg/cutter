@@ -48,17 +48,21 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     connect(Config(), &Configuration::colorsUpdated, this,
             &DisassemblerGraphView::setTooltipStylesheet);
 
-    connect(Core(), &CutterCore::refreshAll, this, &DisassemblerGraphView::refreshView);
-    connect(Core(), &CutterCore::commentsChanged, this, &DisassemblerGraphView::refreshView);
-    connect(Core(), &CutterCore::functionRenamed, this, &DisassemblerGraphView::refreshView);
-    connect(Core(), &CutterCore::flagsChanged, this, &DisassemblerGraphView::refreshView);
-    connect(Core(), &CutterCore::globalVarsChanged, this, &DisassemblerGraphView::refreshView);
-    connect(Core(), &CutterCore::varsChanged, this, &DisassemblerGraphView::refreshView);
-    connect(Core(), &CutterCore::instructionChanged, this, &DisassemblerGraphView::refreshView);
-    connect(Core(), &CutterCore::breakpointsChanged, this, &DisassemblerGraphView::refreshView);
-    connect(Core(), &CutterCore::functionsChanged, this, &DisassemblerGraphView::refreshView);
-    connect(Core(), &CutterCore::asmOptionsChanged, this, &DisassemblerGraphView::refreshView);
-    connect(Core(), &CutterCore::refreshCodeViews, this, &DisassemblerGraphView::refreshView);
+    Session()->connect(&DynamicSession::refreshAll, this, &DisassemblerGraphView::refreshView);
+    Session()->connect(&RizinWrapper::commentsChanged, this, &DisassemblerGraphView::refreshView);
+    Session()->connect(&RizinWrapper::functionRenamed, this, &DisassemblerGraphView::refreshView);
+    Session()->connect(&RizinWrapper::flagsChanged, this, &DisassemblerGraphView::refreshView);
+    Session()->connect(&RizinWrapper::globalVarsChanged, this, &DisassemblerGraphView::refreshView);
+    Session()->connect(&RizinWrapper::varsChanged, this, &DisassemblerGraphView::refreshView);
+    Session()->connect(&RizinWrapper::instructionChanged, this,
+                       &DisassemblerGraphView::refreshView);
+    Session()->connect(&RizinWrapper::breakpointsChanged, this,
+                       &DisassemblerGraphView::refreshView);
+    Session()->connect(&RizinWrapper::functionsChanged, this, &DisassemblerGraphView::refreshView);
+    Session()->connect(&DynamicSession::asmOptionsChanged, this,
+                       &DisassemblerGraphView::refreshView);
+    Session()->connect(&DynamicSession::refreshCodeViews, this,
+                       &DisassemblerGraphView::refreshView);
 
     connectSeekChanged(false);
 
@@ -97,7 +101,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
 
     highlightBB->setText(tr("Highlight block"));
     connect(highlightBB, &QAction::triggered, this, [this]() {
-        auto bbh = Core()->getBBHighlighter();
+        auto bbh = Session()->getBBHighlighter();
         const RVA currBlockEntry = blockForAddress(this->seekable->getOffset())->entry;
 
         QColor background = disassemblyBackgroundColor;
@@ -115,7 +119,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
 
     actionUnhighlight.setText(tr("Unhighlight block"));
     connect(&actionUnhighlight, &QAction::triggered, this, [this]() {
-        auto bbh = Core()->getBBHighlighter();
+        auto bbh = Session()->getBBHighlighter();
         bbh->clear(blockForAddress(this->seekable->getOffset())->entry);
         emit Config()->colorsUpdated();
     });
@@ -221,7 +225,7 @@ void DisassemblerGraphView::loadCurrentGraph()
         emptyText->setVisible(false);
     }
     // Refresh global "empty graph" variable so other widget know there is nothing to show here
-    Core()->setGraphEmpty(emptyGraph);
+    Session()->setGraphEmpty(emptyGraph);
     setEntry(fcn ? fcn->addr : RVA_INVALID);
 
     if (!fcn) {
@@ -264,7 +268,7 @@ void DisassemblerGraphView::loadCurrentGraph()
             }
         }
 
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         const std::unique_ptr<ut8[]> buf { new ut8[bbi->size] };
         if (!buf) {
             break;
@@ -302,7 +306,7 @@ void DisassemblerGraphView::loadCurrentGraph()
             }
 
             QTextDocument textDoc;
-            textDoc.setHtml(CutterCore::ansiEscapeToHtml(op->text));
+            textDoc.setHtml(RizinWrapper::ansiEscapeToHtml(op->text));
 
             instr.plainText = textDoc.toPlainText();
 
@@ -418,7 +422,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
 
     // Draw basic block background
     p.drawRect(blockRect);
-    auto bb = Core()->getBBHighlighter()->getBasicBlock(block.entry);
+    auto bb = Session()->getBBHighlighter()->getBasicBlock(block.entry);
     if (bb) {
         const QColor color(bb->color);
         p.setBrush(color);
@@ -444,7 +448,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
         y += charHeight;
     }
 
-    auto bih = Core()->getBIHighlighter();
+    auto bih = Session()->getBIHighlighter();
     const QColor selectionColor = ConfigColor("wordHighlight");
 
     for (const Instr &instr : db.instrs) {
@@ -921,9 +925,9 @@ void DisassemblerGraphView::blockContextMenuRequested(GraphView::GraphBlock &blo
                                                       QContextMenuEvent *event, QPoint /*pos*/)
 {
     const RVA offset = this->seekable->getOffset();
-    actionUnhighlight.setVisible(Core()->getBBHighlighter()->getBasicBlock(block.entry));
+    actionUnhighlight.setVisible(Session()->getBBHighlighter()->getBasicBlock(block.entry));
     actionUnhighlightInstruction.setVisible(
-            Core()->getBIHighlighter()->getBasicInstruction(offset));
+            Session()->getBIHighlighter()->getBasicInstruction(offset));
     event->accept();
     blockMenu->exec(event->globalPos());
 }
@@ -993,7 +997,7 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
     const DisHlp::TargetAction ta = DisHlp::resolveTarget(ctx, DisHlp::TargetFilter::Standard);
     switch (ta.type) {
     case DisHlp::TargetType::TypeName:
-        Core()->showTypeInTypesWidget(ctx.word);
+        Session()->showTypeInTypesWidget(ctx.word);
         break;
     case DisHlp::TargetType::XRefComment:
     case DisHlp::TargetType::VariableXRef:
@@ -1052,7 +1056,7 @@ void DisassemblerGraphView::onActionHighlightBITriggered()
         return;
     }
 
-    auto bih = Core()->getBIHighlighter();
+    auto bih = Session()->getBIHighlighter();
     QColor background = ConfigColor("linehl");
     if (auto currentColor = bih->getBasicInstruction(offset)) {
         background = currentColor->color;
@@ -1075,7 +1079,7 @@ void DisassemblerGraphView::onActionUnhighlightBITriggered()
         return;
     }
 
-    auto bih = Core()->getBIHighlighter();
+    auto bih = Session()->getBIHighlighter();
     bih->clear(instr->addr, instr->size);
     Config()->colorsUpdated();
 }

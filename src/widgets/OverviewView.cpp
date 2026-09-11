@@ -62,7 +62,7 @@ void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool int
     p.drawRect(blockRect.translated(2, 2));
 
     // Draw basic block highlighting/tracing
-    auto bb = Core()->getBBHighlighter()->getBasicBlock(block.entry);
+    auto bb = Session()->getBBHighlighter()->getBasicBlock(block.entry);
     if (bb) {
         QColor color(bb->color);
         color.setAlphaF(0.5);

@@ -68,8 +68,8 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
             &AsmOptionsWidget::offsetCheckBoxToggled);
     connect(ui->relOffsetCheckBox, &QCheckBox::toggled, this,
             &AsmOptionsWidget::relOffCheckBoxToggled);
-    connect(Core(), &CutterCore::asmOptionsChanged, this,
-            &AsmOptionsWidget::updateAsmOptionsFromVars);
+    Session()->connect(&DynamicSession::asmOptionsChanged, this,
+                       &AsmOptionsWidget::updateAsmOptionsFromVars);
 
     connect(ui->varTooltipsCheckBox, &QCheckBox::toggled, [this](bool checked) {
         Config()->setShowVarTooltips(checked);
@@ -191,11 +191,11 @@ void AsmOptionsWidget::resetToDefault()
 
 void AsmOptionsWidget::triggerAsmOptionsChanged() const
 {
-    disconnect(Core(), &CutterCore::asmOptionsChanged, this,
-               &AsmOptionsWidget::updateAsmOptionsFromVars);
-    Core()->triggerAsmOptionsChanged();
-    connect(Core(), &CutterCore::asmOptionsChanged, this,
-            &AsmOptionsWidget::updateAsmOptionsFromVars);
+    Session()->disconnect(&DynamicSession::asmOptionsChanged, this,
+                          &AsmOptionsWidget::updateAsmOptionsFromVars);
+    Session()->triggerAsmOptionsChanged();
+    Session()->connect(&DynamicSession::asmOptionsChanged, this,
+                       &AsmOptionsWidget::updateAsmOptionsFromVars);
 }
 
 void AsmOptionsWidget::onCmtcolSpinBoxValueChanged(int value)

@@ -34,7 +34,7 @@ void AnalysisTask::runTask()
         emit Core()->ioModeChanged();
     }
     // Need to lock Core here, so avoid the use of Core()-> functions as much as possible
-    RzCoreLocked core(Core());
+    auto core = Core()->lock();
 
     // recursive mutex Demangle (must be before file Core()->loadFile)
     rz_config_set_b(core->config, "bin.demangle", options.demangle);

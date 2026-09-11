@@ -1,6 +1,7 @@
 #ifndef DISASSEMBLYWIDGET_H
 #define DISASSEMBLYWIDGET_H
 
+#include "CutterDescriptions.h"
 #include "MemoryDockWidget.h"
 #include "common/CutterSeekable.h"
 #include "common/RefreshDeferrer.h"
@@ -79,7 +80,7 @@ public slots:
     void refreshDisasm(RVA offset = RVA_INVALID, RefreshMode mode = RefreshMode::Reset);
 
 protected slots:
-    void onSeekChanged(RVA offset, CutterCore::SeekHistoryType type);
+    void onSeekChanged(RVA offset, RizinWrapper::SeekHistoryType type);
     void refreshIfInRange(RVA offset);
     void instructionChanged(RVA offset);
 

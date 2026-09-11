@@ -97,7 +97,7 @@ bool IOModesController::askCommitUnsavedChanges()
             Core()->commitWriteCache();
         } else if (ret == QMessageBox::Discard) {
             Core()->resetWriteCache();
-            emit Core()->refreshCodeViews();
+            emit Session()->refreshCodeViews();
         } else if (ret == QMessageBox::Cancel) {
             return false;
         }

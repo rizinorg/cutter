@@ -224,14 +224,14 @@ void SectionsWidget::initAddrMapDocks()
 
 void SectionsWidget::initConnects()
 {
-    connect(Core(), &CutterCore::refreshAll, this, &SectionsWidget::refreshSections);
-    connect(Core(), &CutterCore::codeRebased, this, &SectionsWidget::refreshSections);
+    Session()->connect(&DynamicSession::refreshAll, this, &SectionsWidget::refreshSections);
+    Session()->connect(&DynamicSession::codeRebased, this, &SectionsWidget::refreshSections);
     connect(this, &QDockWidget::visibilityChanged, this, [=, this](bool visibility) {
         if (visibility) {
             refreshSections();
         }
     });
-    connect(Core(), &CutterCore::seekChanged, this, &SectionsWidget::refreshDocks);
+    Session()->connect(&RizinWrapper::seekChanged, this, &SectionsWidget::refreshDocks);
     connect(Config(), &Configuration::colorsUpdated, this, &SectionsWidget::refreshSections);
     connect(toggleButton, &QToolButton::clicked, this, [=, this] {
         toggleButton->hide();
@@ -243,13 +243,14 @@ void SectionsWidget::initConnects()
             updateToggle();
         }
     });
-    connect(Core(), &CutterCore::commentsChanged, this,
-            [this]() { qhelpers::emitColumnChanged(sectionsModel, SectionsModel::CommentColumn); });
+    Session()->connect(&RizinWrapper::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(sectionsModel, SectionsModel::CommentColumn);
+    });
 }
 
 void SectionsWidget::refreshSections()
 {
-    if (!sectionsRefreshDeferrer->attemptRefresh(nullptr) || Core()->isDebugTaskInProgress()) {
+    if (!sectionsRefreshDeferrer->attemptRefresh(nullptr) || Session()->isDebugTaskInProgress()) {
         return;
     }
     sectionsModel->beginResetModel();
@@ -456,7 +457,7 @@ void AddrDockScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         if (event->buttons() & Qt::LeftButton) {
             const RVA seekAddr = getAddrFromPos((int)event->scenePos().y(), true);
             disableCenterOn = true;
-            Core()->seekAndShow(seekAddr);
+            Session()->seekAndShow(seekAddr);
             disableCenterOn = false;
             return;
         }

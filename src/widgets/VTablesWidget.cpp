@@ -161,8 +161,8 @@ VTablesWidget::VTablesWidget(MainWindow *main)
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
             [this] { ui->quickFilterView->setItemCount(proxy->rowCount()); });
 
-    connect(Core(), &CutterCore::codeRebased, this, &VTablesWidget::refreshVTables);
-    connect(Core(), &CutterCore::refreshAll, this, &VTablesWidget::refreshVTables);
+    Session()->connect(&DynamicSession::codeRebased, this, &VTablesWidget::refreshVTables);
+    Session()->connect(&DynamicSession::refreshAll, this, &VTablesWidget::refreshVTables);
 
     connect(ui->vTableTreeView, &QTreeView::doubleClicked, this,
             &VTablesWidget::onVTableTreeViewDoubleClicked);
@@ -196,11 +196,11 @@ void VTablesWidget::onVTableTreeViewDoubleClicked(const QModelIndex &index)
 
     const QModelIndex parent = index.parent();
     if (parent.isValid()) {
-        Core()->seekAndShow(index.data(VTableModel::vTableDescriptionRole)
-                                    .value<BinClassMethodDescription>()
-                                    .addr);
+        Session()->seekAndShow(index.data(VTableModel::vTableDescriptionRole)
+                                       .value<BinClassMethodDescription>()
+                                       .addr);
     } else {
-        Core()->seekAndShow(
+        Session()->seekAndShow(
                 index.data(VTableModel::vTableDescriptionRole).value<VTableDescription>().addr);
     }
 }

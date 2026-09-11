@@ -6,7 +6,7 @@
 
 CutterSeekable::CutterSeekable(QObject *parent) : QObject(parent)
 {
-    connect(Core(), &CutterCore::seekChanged, this, &CutterSeekable::onCoreSeekChanged);
+    Session()->connect(&RizinWrapper::seekChanged, this, &CutterSeekable::onCoreSeekChanged);
 }
 
 CutterSeekable::~CutterSeekable() {}
@@ -14,18 +14,18 @@ CutterSeekable::~CutterSeekable() {}
 void CutterSeekable::setSynchronization(bool sync)
 {
     synchronized = sync;
-    onCoreSeekChanged(Core()->getOffset(), CutterCore::SeekHistoryType::New);
+    onCoreSeekChanged(Core()->getOffset(), RizinWrapper::SeekHistoryType::New);
     emit syncChanged();
 }
 
-void CutterSeekable::onCoreSeekChanged(RVA addr, CutterCore::SeekHistoryType type)
+void CutterSeekable::onCoreSeekChanged(RVA addr, RizinWrapper::SeekHistoryType type)
 {
     if (synchronized && widgetOffset != addr) {
         updateSeek(addr, type, true);
     }
 }
 
-void CutterSeekable::updateSeek(RVA addr, CutterCore::SeekHistoryType type, bool localOnly)
+void CutterSeekable::updateSeek(RVA addr, RizinWrapper::SeekHistoryType type, bool localOnly)
 {
     previousOffset = widgetOffset;
     widgetOffset = addr;
@@ -41,7 +41,7 @@ void CutterSeekable::seekPrev()
     if (synchronized) {
         Core()->seekPrev();
     } else {
-        this->seek(previousOffset, CutterCore::SeekHistoryType::Undo);
+        this->seek(previousOffset, RizinWrapper::SeekHistoryType::Undo);
     }
 }
 
@@ -76,14 +76,14 @@ void CutterSeekable::seekToReference(RVA offset)
         // Try first call
         for (auto &ref : refs) {
             if (ref.to != RVA_INVALID && ref.type == "CALL") {
-                Core()->seekAndShow(ref.to);
+                Session()->seekAndShow(ref.to);
                 return;
             }
         }
         // Fallback to first valid, if any
         for (auto &ref : refs) {
             if (ref.to != RVA_INVALID) {
-                Core()->seekAndShow(ref.to);
+                Session()->seekAndShow(ref.to);
                 return;
             }
         }

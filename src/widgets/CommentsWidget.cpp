@@ -256,9 +256,9 @@ CommentsWidget::CommentsWidget(MainWindow *main)
     connect(this, &QWidget::customContextMenuRequested, this,
             &CommentsWidget::showTitleContextMenu);
 
-    connect(Core(), &CutterCore::codeRebased, this, &CommentsWidget::refreshTree);
-    connect(Core(), &CutterCore::commentsChanged, this, &CommentsWidget::refreshTree);
-    connect(Core(), &CutterCore::refreshAll, this, &CommentsWidget::refreshTree);
+    Session()->connect(&DynamicSession::codeRebased, this, &CommentsWidget::refreshTree);
+    Session()->connect(&RizinWrapper::commentsChanged, this, &CommentsWidget::refreshTree);
+    Session()->connect(&DynamicSession::refreshAll, this, &CommentsWidget::refreshTree);
 }
 
 CommentsWidget::~CommentsWidget() {}

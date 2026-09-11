@@ -445,7 +445,7 @@ void InitialOptionsDialog::setupAndStartAnalysis()
     taskDialog->setAttribute(Qt::WA_DeleteOnClose);
     taskDialog->show();
 
-    Core()->getAsyncTaskManager()->start(analysisTaskPtr);
+    Session()->getAsyncTaskManager()->start(analysisTaskPtr);
 
     done(0);
 

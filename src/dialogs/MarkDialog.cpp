@@ -24,7 +24,7 @@ MarkDialog::MarkDialog(RVA start, RVA end, QWidget *parent, QString name)
     if (!markName.isEmpty()) {
         // Editing existing Mark
         setWindowTitle("Edit Mark");
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         const RzMarkItem *mark = rz_mark_get(core->marks, markName.toStdString().c_str());
         if (mark) {
             markFrom = mark->from;

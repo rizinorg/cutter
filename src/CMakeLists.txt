@@ -3,7 +3,6 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CutterConfig.h.in"
 
 set(SOURCES
     Main.cpp
-    core/Cutter.cpp
     core/CutterJson.cpp
     core/RizinCpp.cpp
     core/Basefind.cpp
@@ -175,6 +174,9 @@ set(SOURCES
     dialogs/preferences/RizinConfigOptionsWidget.cpp
     dialogs/IntervalDialog.cpp
     dialogs/StringListDialog.cpp
+    core/RizinWrapper.cpp
+    core/sessions/CoreSession.cpp
+    core/sessions/DynamicSession.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -358,6 +360,9 @@ set(HEADER_FILES
     dialogs/preferences/RizinConfigOptionsWidget.h
     dialogs/IntervalDialog.h
     dialogs/StringListDialog.h
+    core/RizinWrapper.h
+    core/sessions/CoreSession.h
+    core/sessions/DynamicSession.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui

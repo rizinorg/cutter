@@ -23,7 +23,7 @@ Dashboard::Dashboard(MainWindow *main) : CutterDockWidget(main), ui(new Ui::Dash
 {
     ui->setupUi(this);
 
-    connect(Core(), &CutterCore::refreshAll, this, &Dashboard::updateContents);
+    Session()->connect(&DynamicSession::refreshAll, this, &Dashboard::updateContents);
 
     connect(ui->certificateButton, &QPushButton::clicked, this,
             &Dashboard::onCertificateButtonClicked);
@@ -35,7 +35,7 @@ Dashboard::~Dashboard() {}
 
 void Dashboard::updateContents()
 {
-    RzCoreLocked core(Core());
+    auto core = Core()->lock();
     const int fd = rz_io_fd_get_current(core->io);
     const RzIODesc *desc = rz_io_desc_get(core->io, fd);
     setPlainText(this->ui->modeEdit, desc ? rz_str_rwx_i(desc->perm & RZ_PERM_RWX) : "");

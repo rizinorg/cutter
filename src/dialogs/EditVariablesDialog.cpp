@@ -55,7 +55,7 @@ void EditVariablesDialog::applyFields()
     }
     const auto desc = ui->dropdownLocalVars->currentData().value<VariableDescription>();
 
-    RzCoreLocked core(Core());
+    auto core = Core()->lock();
     auto *fcn = const_cast<RzAnalysisFunction *>(Core()->functionIn(core->offset));
     if (!fcn) {
         return;
@@ -85,7 +85,7 @@ void EditVariablesDialog::applyFields()
     }
 
     // Refresh the views to reflect the changes to vars
-    emit Core()->refreshCodeViews();
+    emit Session()->refreshCodeViews();
 }
 
 void EditVariablesDialog::updateFields()

@@ -43,8 +43,8 @@ FunctionModel::FunctionModel(bool nested, const QFont &default_font, const QFont
       iconFuncLight(":/img/icons/function_light.svg")
 
 {
-    connect(Core(), &CutterCore::seekChanged, this, &FunctionModel::seekChanged);
-    connect(Core(), &CutterCore::functionRenamed, this, &FunctionModel::functionRenamed);
+    Session()->connect(&RizinWrapper::seekChanged, this, &FunctionModel::seekChanged);
+    Session()->connect(&RizinWrapper::functionRenamed, this, &FunctionModel::functionRenamed);
 }
 
 QModelIndex FunctionModel::index(int row, int column, const QModelIndex &parent) const
@@ -565,11 +565,12 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     connect(this, &QWidget::customContextMenuRequested, this,
             &FunctionsWidget::showTitleContextMenu);
 
-    connect(Core(), &CutterCore::functionsChanged, this, &FunctionsWidget::refreshTree);
-    connect(Core(), &CutterCore::codeRebased, this, &FunctionsWidget::refreshTree);
-    connect(Core(), &CutterCore::refreshAll, this, &FunctionsWidget::refreshTree);
-    connect(Core(), &CutterCore::commentsChanged, this,
-            [this]() { qhelpers::emitColumnChanged(functionModel, FunctionModel::CommentColumn); });
+    Session()->connect(&RizinWrapper::functionsChanged, this, &FunctionsWidget::refreshTree);
+    Session()->connect(&DynamicSession::codeRebased, this, &FunctionsWidget::refreshTree);
+    Session()->connect(&DynamicSession::refreshAll, this, &FunctionsWidget::refreshTree);
+    Session()->connect(&RizinWrapper::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(functionModel, FunctionModel::CommentColumn);
+    });
 
     // Save the width of function name column so it's preserved when
     // switching from horizontal->vertical->horizontal layout
@@ -614,7 +615,7 @@ void FunctionsWidget::refreshTree()
                 }
 
                 functionModel->mainAdress = RVA_INVALID;
-                RzCoreLocked core(Core());
+                auto core = Core()->lock();
                 const RzBinFile *bf = rz_bin_cur(core->bin);
                 if (bf) {
                     const RzBinAddr *binmain =
@@ -641,7 +642,7 @@ void FunctionsWidget::refreshTree()
                                        Config()->getTruncateFunctionNameCol() ? maxFunctionNameWidth
                                                                               : -1);
             });
-    Core()->getAsyncTaskManager()->start(task);
+    Session()->getAsyncTaskManager()->start(task);
 }
 
 void FunctionsWidget::changeSizePolicy(QSizePolicy::Policy hor, QSizePolicy::Policy ver)
@@ -668,7 +669,7 @@ void FunctionsWidget::onActionFunctionsRenameTriggered()
         Core()->renameFunction(function.offset, newName);
 
         // Seek to new renamed function
-        Core()->seekAndShow(function.offset);
+        Session()->seekAndShow(function.offset);
     }
 }
 

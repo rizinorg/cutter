@@ -165,10 +165,11 @@ ExportsWidget::ExportsWidget(MainWindow *main)
     const QShortcut *toggleShortcut = Shortcuts()->makeQShortcut("Exports.toggle", main);
     connect(toggleShortcut, &QShortcut::activated, this, [=, this]() { toggleDockWidget(true); });
 
-    connect(Core(), &CutterCore::codeRebased, this, &ExportsWidget::refreshExports);
-    connect(Core(), &CutterCore::refreshAll, this, &ExportsWidget::refreshExports);
-    connect(Core(), &CutterCore::commentsChanged, this,
-            [this]() { qhelpers::emitColumnChanged(exportsModel, ExportsModel::CommentColumn); });
+    Session()->connect(&DynamicSession::codeRebased, this, &ExportsWidget::refreshExports);
+    Session()->connect(&DynamicSession::refreshAll, this, &ExportsWidget::refreshExports);
+    Session()->connect(&RizinWrapper::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(exportsModel, ExportsModel::CommentColumn);
+    });
 }
 
 ExportsWidget::~ExportsWidget() {}

@@ -136,8 +136,8 @@ ConsoleWidget::ConsoleWidget(MainWindow *main)
     connect(ui->inputCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &ConsoleWidget::onIndexChange);
 
-    connect(Core(), &CutterCore::debugTaskStateChanged, this, [=, this]() {
-        if (Core()->isRedirectableDebugee()) {
+    Session()->connect(&DynamicSession::debugTaskStateChanged, this, [=, this]() {
+        if (Session()->isRedirectableDebugee()) {
             ui->inputCombo->setVisible(true);
         } else {
             ui->inputCombo->setVisible(false);
@@ -172,6 +172,9 @@ ConsoleWidget::ConsoleWidget(MainWindow *main)
     connect(ui->debugeeInputLineEdit, &QLineEdit::returnPressed, this,
             &ConsoleWidget::onDebugeeInputLineEditReturnPressed);
     connect(ui->execButton, &QToolButton::clicked, this, &ConsoleWidget::onExecButtonClicked);
+
+    connect(Session(), &DynamicSession::newMessage, this, &ConsoleWidget::addOutput);
+    connect(Session(), &DynamicSession::newDebugMessage, this, &ConsoleWidget::addDebugOutput);
 }
 
 ConsoleWidget::~ConsoleWidget()
@@ -271,7 +274,7 @@ void ConsoleWidget::executeCommand(const QString &command)
     commandTask = std::make_shared<CommandTask>(command, CommandTask::ColorMode::MODE_16M);
     connect(commandTask.get(), &CommandTask::finished, this,
             [this, cmdLine, command, oldOffset](const QString &result) {
-                ui->outputTextEdit->appendHtml(CutterCore::ansiEscapeToHtml(result));
+                ui->outputTextEdit->appendHtml(RizinWrapper::ansiEscapeToHtml(result));
                 scrollOutputToEnd();
                 historyAdd(command);
                 commandTask.reset();
@@ -283,7 +286,8 @@ void ConsoleWidget::executeCommand(const QString &command)
                 }
             });
 
-    Core()->getAsyncTaskManager()->start(commandTask);
+    // When we run this, rizin runs its own async call?
+    Session()->getAsyncTaskManager()->start(commandTask);
 }
 
 void ConsoleWidget::sendToStdin(const QString &input)
@@ -476,7 +480,7 @@ void ConsoleWidget::processQueuedOutput()
         // Get the last segment that wasn't overwritten by carriage return
         output = output.trimmed();
         output = output.remove(0, output.lastIndexOf('\r')).trimmed();
-        ui->outputTextEdit->appendHtml(CutterCore::ansiEscapeToHtml(output));
+        ui->outputTextEdit->appendHtml(RizinWrapper::ansiEscapeToHtml(output));
         scrollOutputToEnd();
     }
 }

@@ -26,7 +26,7 @@ CutterGraphView::CutterGraphView(QWidget *parent)
       actionExportGraph(tr("Export Graph"), this),
       graphLayout(GraphView::Layout::GridMedium)
 {
-    connect(Core(), &CutterCore::graphOptionsChanged, this, &CutterGraphView::refreshView);
+    Session()->connect(&DynamicSession::graphOptionsChanged, this, &CutterGraphView::refreshView);
     connect(Config(), &Configuration::colorsUpdated, this, &CutterGraphView::colorsUpdatedSlot);
     connect(Config(), &Configuration::fontsUpdated, this, &CutterGraphView::fontsUpdatedSlot);
 

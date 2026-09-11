@@ -1407,7 +1407,7 @@ void HexWidget::wWriteString()
         return;
     }
     {
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         rz_core_write_string_at(core, getLocationAddress(), str.toUtf8().constData());
     }
     refresh();
@@ -1429,7 +1429,7 @@ void HexWidget::wIncreaseDecrease()
         value *= -1;
     }
     {
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         rz_core_write_value_inc_at(core, getLocationAddress(), value, sz);
     }
     refresh();
@@ -1465,7 +1465,7 @@ void HexWidget::wWriteBytes()
         for (int i = 0, j = 0, sz = bytes.size(); i < sz; i += incr, j++) {
             buf[j] = static_cast<uint8_t>(bytes.mid(i + offset, 2).toInt(nullptr, 16));
         }
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         rz_core_write_at(core, getLocationAddress(), buf, bytesSize);
         free(buf);
     }
@@ -1518,7 +1518,7 @@ void HexWidget::wWrite64()
     }
 
     {
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         if (d.getMode() == Base64EnDecodedWriteDialog::Encode) {
             rz_core_write_base64_at(core, getLocationAddress(), str.toHex().constData());
         } else {
@@ -1547,7 +1547,7 @@ void HexWidget::wWriteRandom()
     }
 
     {
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         rz_core_write_random_at(core, getLocationAddress(), nbytes);
     }
     refresh();
@@ -1566,7 +1566,7 @@ void HexWidget::wDuplFromOffset()
     const RVA src = d.getOffset();
     const int len = (int)d.getNBytes();
     {
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         rz_core_write_duplicate_at(core, getLocationAddress(), src, len);
     }
     refresh();
@@ -1584,7 +1584,7 @@ void HexWidget::wWritePascalString()
         return;
     }
     {
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         rz_core_write_length_string_at(core, getLocationAddress(), str.toUtf8().constData());
     }
     refresh();
@@ -1602,7 +1602,7 @@ void HexWidget::wWriteWideString()
         return;
     }
     {
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         rz_core_write_string_wide_at(core, getLocationAddress(), str.toUtf8().constData());
     }
     refresh();
@@ -1620,7 +1620,7 @@ void HexWidget::wWriteCString()
         return;
     }
     {
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         rz_core_write_string_zero_at(core, getLocationAddress(), str.toUtf8().constData());
     }
     refresh();

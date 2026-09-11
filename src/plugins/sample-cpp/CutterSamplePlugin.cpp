@@ -40,14 +40,14 @@ CutterSamplePluginWidget::CutterSamplePluginWidget(MainWindow *main) : CutterDoc
     layout->addWidget(button);
     layout->setAlignment(button, Qt::AlignHCenter);
 
-    connect(Core(), &CutterCore::seekChanged, this, &CutterSamplePluginWidget::on_seekChanged);
+    Session()->connect(&RizinWrapper::seekChanged, this, &CutterSamplePluginWidget::on_seekChanged);
     connect(button, &QPushButton::clicked, this, &CutterSamplePluginWidget::on_buttonClicked);
 }
 
 void CutterSamplePluginWidget::on_seekChanged(RVA addr)
 {
     Q_UNUSED(addr);
-    RzCoreLocked core(Core());
+    auto core = Core()->lock();
     TempConfig tempConfig;
     tempConfig.set("scr.color", 0);
     QString disasm = Core()->disassembleSingleInstruction(Core()->getOffset());
@@ -57,7 +57,7 @@ void CutterSamplePluginWidget::on_seekChanged(RVA addr)
 
 void CutterSamplePluginWidget::on_buttonClicked()
 {
-    RzCoreLocked core(Core());
+    auto core = Core()->lock();
     auto fortune = fromOwned(rz_core_fortune_get_random(core));
     if (!fortune) {
         return;

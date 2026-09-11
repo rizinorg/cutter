@@ -334,7 +334,7 @@ void DisassemblyContextMenu::addDebugMenu()
 
 QVector<DisassemblyContextMenu::ThingUsedHere> DisassemblyContextMenu::getThingUsedHere(RVA offset)
 {
-    RzCoreLocked core(Core());
+    auto core = Core()->lock();
     auto p = fromOwned(rz_core_analysis_name(core, offset), rz_core_analysis_name_free);
     if (!p) {
         return {};
@@ -542,7 +542,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
         structureOffsetMenu->menuAction()->setVisible(true);
         structureOffsetMenu->clear();
 
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         const RzTypeDB *typedb = rz_analysis_get_type_db(core->analysis);
         RzList *typeoffs = rz_type_db_get_by_offset(typedb, memDisp);
         if (typeoffs) {
@@ -606,7 +606,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
     showInSubmenu.setMenu(mainWindow->createShowInMenu(this, offset));
 
     // Only show debug options if we are currently debugging
-    debugMenu->menuAction()->setVisible(Core()->currentlyDebugging);
+    debugMenu->menuAction()->setVisible(Session()->isCurrentlyDebugging());
     const bool hasBreakpoint = Core()->breakpointIndexAt(offset) > -1;
     actionAddBreakpoint.setText(hasBreakpoint ? tr("Remove breakpoint") : tr("Add breakpoint"));
     actionAdvancedBreakpoint.setText(hasBreakpoint ? tr("Edit breakpoint")
@@ -738,7 +738,7 @@ void DisassemblyContextMenu::advancedBreakpointTriggered()
 
 void DisassemblyContextMenu::continueUntilTriggered() const
 {
-    Core()->continueUntilDebug(offset);
+    Session()->continueUntilDebug(offset);
 }
 
 void DisassemblyContextMenu::setPCTriggered() const
@@ -896,19 +896,19 @@ void DisassemblyContextMenu::setAsStringAdvancedTriggered()
                               tr("Can't edit string at this address"));
         return;
     }
-    CutterCore::StringTypeFormats coreStringType = CutterCore::StringTypeFormats::None;
+    RizinWrapper::StringTypeFormats coreStringType = RizinWrapper::StringTypeFormats::None;
 
     const auto strSize = dialog.getStringSizeValue();
     const auto strType = dialog.getStringType();
     switch (strType) {
     case EditStringDialog::StringType::Auto:
-        coreStringType = CutterCore::StringTypeFormats::None;
+        coreStringType = RizinWrapper::StringTypeFormats::None;
         break;
     case EditStringDialog::StringType::ASCII_LATIN1:
-        coreStringType = CutterCore::StringTypeFormats::ASCII_LATIN1;
+        coreStringType = RizinWrapper::StringTypeFormats::ASCII_LATIN1;
         break;
     case EditStringDialog::StringType::UTF8:
-        coreStringType = CutterCore::StringTypeFormats::UTF8;
+        coreStringType = RizinWrapper::StringTypeFormats::UTF8;
         break;
     };
 

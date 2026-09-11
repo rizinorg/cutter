@@ -74,11 +74,11 @@ HexdumpWidget::HexdumpWidget(MainWindow *main)
     this->ui->hexTextView->addAction(&syncAction);
 
     connect(Config(), &Configuration::fontsUpdated, this, &HexdumpWidget::fontsUpdated);
-    connect(Core(), &CutterCore::refreshAll, this, [this]() { refresh(); });
-    connect(Core(), &CutterCore::refreshCodeViews, this, [this]() { refresh(); });
-    connect(Core(), &CutterCore::instructionChanged, this, [this]() { refresh(); });
-    connect(Core(), &CutterCore::stackChanged, this, [this]() { refresh(); });
-    connect(Core(), &CutterCore::registersChanged, this, [this]() { refresh(); });
+    Session()->connect(&DynamicSession::refreshAll, this, [this]() { refresh(); });
+    Session()->connect(&DynamicSession::refreshCodeViews, this, [this]() { refresh(); });
+    Session()->connect(&RizinWrapper::instructionChanged, this, [this]() { refresh(); });
+    Session()->connect(&RizinWrapper::stackChanged, this, [this]() { refresh(); });
+    Session()->connect(&RizinWrapper::registersChanged, this, [this]() { refresh(); });
 
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &HexdumpWidget::onSeekChanged);
     connect(ui->hexTextView, &HexWidget::positionChanged, this, [this](RVA addr) {
@@ -260,7 +260,7 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
     } else {
         // Fill the information tab hashes and entropy
         RzHashSize digestSize = 0;
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         const ut64 oldOffset = core->offset;
         rz_core_seek(core, start_address, true);
         const ut8 *block = core->block;
@@ -348,7 +348,7 @@ void HexdumpWidget::onCopyMD5Clicked()
     const QString md5 = ui->bytesMD5->text();
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(md5);
-    Core()->message("MD5 copied to clipboard: " + md5);
+    Session()->message("MD5 copied to clipboard: " + md5);
 }
 
 void HexdumpWidget::onCopyShA1Clicked()
@@ -356,7 +356,7 @@ void HexdumpWidget::onCopyShA1Clicked()
     const QString sha1 = ui->bytesSHA1->text();
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(sha1);
-    Core()->message("SHA1 copied to clipboard: " + sha1);
+    Session()->message("SHA1 copied to clipboard: " + sha1);
 }
 
 void HexdumpWidget::onCopyShA256Clicked()
@@ -364,7 +364,7 @@ void HexdumpWidget::onCopyShA256Clicked()
     const QString sha256 = ui->bytesSHA256->text();
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(sha256);
-    Core()->message("SHA256 copied to clipboard: " + sha256);
+    Session()->message("SHA256 copied to clipboard: " + sha256);
 }
 
 void HexdumpWidget::onCopyCrC32Clicked()
@@ -372,7 +372,7 @@ void HexdumpWidget::onCopyCrC32Clicked()
     const QString crc32 = ui->bytesCRC32->text();
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(crc32);
-    Core()->message("CRC32 copied to clipboard: " + crc32);
+    Session()->message("CRC32 copied to clipboard: " + crc32);
 }
 
 void HexdumpWidget::selectHexPreview()

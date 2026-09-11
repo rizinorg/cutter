@@ -149,12 +149,13 @@ ThreadsWidget::ThreadsWidget(MainWindow *main)
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, modelFilter,
             &QSortFilterProxyModel::setFilterWildcard);
-    connect(Core(), &CutterCore::refreshAll, this, &ThreadsWidget::updateContents);
-    connect(Core(), &CutterCore::registersChanged, this, &ThreadsWidget::updateContents);
-    connect(Core(), &CutterCore::debugTaskStateChanged, this, &ThreadsWidget::updateContents);
+    Session()->connect(&DynamicSession::refreshAll, this, &ThreadsWidget::updateContents);
+    Session()->connect(&RizinWrapper::registersChanged, this, &ThreadsWidget::updateContents);
+    Session()->connect(&DynamicSession::debugTaskStateChanged, this,
+                       &ThreadsWidget::updateContents);
     // Seek doesn't necessarily change when switching threads/processes
-    connect(Core(), &CutterCore::switchedThread, this, &ThreadsWidget::updateContents);
-    connect(Core(), &CutterCore::switchedProcess, this, &ThreadsWidget::updateContents);
+    Session()->connect(&DynamicSession::switchedThread, this, &ThreadsWidget::updateContents);
+    Session()->connect(&DynamicSession::switchedProcess, this, &ThreadsWidget::updateContents);
     connect(Config(), &Configuration::fontsUpdated, this, &ThreadsWidget::fontsUpdatedSlot);
     connect(ui->viewThreads, &QTableView::activated, this, &ThreadsWidget::onActivated);
     connect(ui->viewThreads, &QWidget::customContextMenuRequested, this,
@@ -172,13 +173,13 @@ void ThreadsWidget::updateContents()
         return;
     }
 
-    if (!Core()->currentlyDebugging) {
+    if (!Session()->isCurrentlyDebugging()) {
         // Remove rows from the previous debugging session
         modelThreads->setList(QList<ThreadDescription>());
         return;
     }
 
-    if (Core()->isDebugTaskInProgress()) {
+    if (Session()->isDebugTaskInProgress()) {
         ui->viewThreads->setDisabled(true);
     } else {
         setThreadsGrid();
@@ -231,7 +232,7 @@ void ThreadsWidget::onActivated(const QModelIndex &index)
     // attach to any given id. If it isn't found simply update the UI.
     for (const auto &value : Core()->getProcessThreads()) {
         if (tid == value.pid) {
-            Core()->setCurrentDebugThread(tid);
+            Session()->setCurrentDebugThread(tid);
             break;
         }
     }

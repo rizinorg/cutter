@@ -14,8 +14,8 @@ EntrypointWidget::EntrypointWidget(MainWindow *main)
 
     setScrollMode();
 
-    connect(Core(), &CutterCore::codeRebased, this, &EntrypointWidget::fillEntrypoint);
-    connect(Core(), &CutterCore::refreshAll, this, &EntrypointWidget::fillEntrypoint);
+    Session()->connect(&DynamicSession::codeRebased, this, &EntrypointWidget::fillEntrypoint);
+    Session()->connect(&DynamicSession::refreshAll, this, &EntrypointWidget::fillEntrypoint);
     connect(ui->entrypointTreeWidget, &QTreeWidget::itemDoubleClicked, this,
             &EntrypointWidget::onEntrypointTreeWidgetItemDoubleClicked);
 }
@@ -48,5 +48,5 @@ void EntrypointWidget::onEntrypointTreeWidgetItemDoubleClicked(QTreeWidgetItem *
     }
 
     const auto ep = item->data(0, Qt::UserRole).value<EntrypointDescription>();
-    Core()->seekAndShow(ep.vaddr);
+    Session()->seekAndShow(ep.vaddr);
 }

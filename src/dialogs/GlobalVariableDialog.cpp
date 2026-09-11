@@ -15,7 +15,7 @@ GlobalVariableDialog::GlobalVariableDialog(RVA offset, QWidget *parent)
     // Setup UI
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
-    RzCoreLocked core = Core()->lock();
+    auto core = Core()->lock();
     const RzAnalysisVarGlobal *globalVariable =
             rz_analysis_var_global_get_byaddr_at(core->analysis, offset);
     if (globalVariable) {

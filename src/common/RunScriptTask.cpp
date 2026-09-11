@@ -17,7 +17,7 @@ void RunScriptTask::runTask()
 {
     if (!this->fileName.isNull()) {
         log(tr("Executing script..."));
-        Core()->functionTask([&](RzCore *core) {
+        Session()->functionTask([&](RzCore *core) {
             rz_core_run_script(core, this->fileName.toUtf8().constData());
             return nullptr;
         });

@@ -12,17 +12,17 @@ RizinTask::~RizinTask()
 
 void RizinTask::startTask()
 {
-    rz_core_task_enqueue(&Core()->rzCore->tasks, task);
+    rz_core_task_enqueue(&Session()->wrapper->core->tasks, task);
 }
 
 void RizinTask::breakTask()
 {
-    rz_core_task_break(&Core()->rzCore->tasks, task->id);
+    rz_core_task_break(&Session()->wrapper->core->tasks, task->id);
 }
 
 void RizinTask::joinTask()
 {
-    rz_core_task_join(&Core()->rzCore->tasks, nullptr, task->id);
+    rz_core_task_join(&Session()->wrapper->core->tasks, nullptr, task->id);
 }
 
 void RizinTask::taskFinished()

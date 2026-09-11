@@ -11,6 +11,6 @@ void CommandTask::runTask()
 {
     TempConfig tempConfig;
     tempConfig.set("scr.color", colorMode);
-    auto res = Core()->cmdTask(cmd);
+    auto res = Session()->cmdTask(cmd);
     emit finished(res);
 }

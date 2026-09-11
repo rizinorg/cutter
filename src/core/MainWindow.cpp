@@ -5,6 +5,7 @@
 // Common Headers
 #include "CutterApplication.h"
 #include "CutterConfig.h"
+#include "RizinWrapper.h"
 #include "common/AnalysisTask.h"
 #include "common/BugReporting.h"
 #include "common/Helpers.h"
@@ -112,7 +113,6 @@
 #include <QGraphicsEllipseItem>
 #include <QGraphicsScene>
 #include <QGraphicsView>
-
 // Tools
 #include "tools/basefind/BaseFindDialog.h"
 
@@ -126,7 +126,7 @@ using namespace Cutter;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      core(Core()),
+      session(Session()),
       tabsOnTop(false),
       ui(new Ui::MainWindow),
       ioModesController(this),
@@ -154,7 +154,8 @@ void MainWindow::initUI()
     connect(ui->actionCommitChanges, &QAction::triggered, this,
             []() { Core()->commitWriteCache(); });
     ui->actionCommitChanges->setEnabled(false);
-    connect(Core(), &CutterCore::ioCacheChanged, ui->actionCommitChanges, &QAction::setEnabled);
+    Session()->connect(&RizinWrapper::ioCacheChanged, ui->actionCommitChanges,
+                       &QAction::setEnabled);
 
     widgetTypeToConstructorMap.insert(GraphWidget::getWidgetType(), getNewInstance<GraphWidget>);
     widgetTypeToConstructorMap.insert(DisassemblyWidget::getWidgetType(),
@@ -194,22 +195,20 @@ void MainWindow::initUI()
     connect(ui->actionZoomOut, &QAction::triggered, this, &MainWindow::onZoomOut);
     connect(ui->actionZoomReset, &QAction::triggered, this, &MainWindow::onZoomReset);
 
-    connect(core, &CutterCore::toggleDebugView, this, &MainWindow::toggleDebugView);
+    session->connect(&DynamicSession::toggleDebugView, this, &MainWindow::toggleDebugView);
 
-    connect(core, &CutterCore::newMessage, this->consoleDock, &ConsoleWidget::addOutput);
-    connect(core, &CutterCore::newDebugMessage, this->consoleDock, &ConsoleWidget::addDebugOutput);
+    session->connect(&DynamicSession::showMemoryWidgetRequested, this,
+                     static_cast<void (MainWindow::*)()>(&MainWindow::showMemoryWidget));
+    session->connect(&DynamicSession::showAddressRequested, this, &MainWindow::showAddress);
 
-    connect(core, &CutterCore::showMemoryWidgetRequested, this,
-            static_cast<void (MainWindow::*)()>(&MainWindow::showMemoryWidget));
-    connect(core, &CutterCore::showAddressRequested, this, &MainWindow::showAddress);
-
-    connect(core, &CutterCore::showTypeRequested, typesDock, [this](const QString &typeName) {
-        typesDock->toggleDockWidget(true);
-        typesDock->selectTypeByName(typeName);
-    });
+    session->connect(&DynamicSession::showTypeRequested, typesDock,
+                     [this](const QString &typeName) {
+                         typesDock->toggleDockWidget(true);
+                         typesDock->selectTypeByName(typeName);
+                     });
 
     updateTasksIndicator();
-    connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
+    connect(session->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
             &MainWindow::updateTasksIndicator);
 
     // Undo and redo seek
@@ -218,7 +217,7 @@ void MainWindow::initUI()
 
     initBackForwardMenu();
 
-    connect(core, &CutterCore::ioModeChanged, this, &MainWindow::setAvailableIOModeOptions);
+    session->connect(&RizinWrapper::ioModeChanged, this, &MainWindow::setAvailableIOModeOptions);
 
     auto *ioModeActionGroup = new QActionGroup(this);
 
@@ -501,7 +500,7 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
 
 void MainWindow::updateTasksIndicator()
 {
-    const bool running = core->getAsyncTaskManager()->getTasksRunning();
+    const bool running = session->getAsyncTaskManager()->getTasksRunning();
     tasksProgressIndicator->setProgressIndicatorVisible(running);
 }
 
@@ -653,7 +652,7 @@ bool MainWindow::openProject(const QString &file)
     RzProjectErr err;
     RzList *res = rz_list_new();
     {
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         err = rz_project_load_file(core, file.toUtf8().constData(), true, res);
     }
     if (err != RZ_PROJECT_ERR_SUCCESS) {
@@ -678,15 +677,18 @@ bool MainWindow::openProject(const QString &file)
 
 void MainWindow::finalizeOpen()
 {
-    core->getRegs();
-    core->updateSeek();
+    {
+        auto rizin = session->lock();
+        rizin->getRegs();
+        rizin->updateSeek();
+    }
     refreshAll();
     // Add fortune message
     {
-        auto rizin = Core()->lock();
-        char *fortune = rz_core_fortune_get_random(rizin);
+        auto rizin = session->lock();
+        char *fortune = rz_core_fortune_get_random(rizin.core());
         if (fortune) {
-            core->message("\n" + QString(fortune));
+            session->message("\n" + QString(fortune));
             free(fortune);
         }
     }
@@ -738,15 +740,17 @@ void MainWindow::finalizeOpen()
 
 RzProjectErr MainWindow::saveProject(bool *canceled)
 {
-    const QString file = core->getConfig("prj.file");
+    const QString file = LOCK(session, { return rizin->getConfig("prj.file"); });
     if (file.isEmpty()) {
         return saveProjectAs(canceled);
     }
     if (canceled) {
         *canceled = false;
     }
-    auto rizin = core->lock();
-    const RzProjectErr err = rz_project_save_file(rizin, file.toUtf8().constData(), false);
+    const RzProjectErr err = LOCK(session, {
+        return rz_project_save_file(rizin.core(), file.toUtf8().constData(), false);
+    });
+
     if (err == RZ_PROJECT_ERR_SUCCESS) {
         Config()->addRecentProject(file);
     }
@@ -755,7 +759,8 @@ RzProjectErr MainWindow::saveProject(bool *canceled)
 
 RzProjectErr MainWindow::saveProjectAs(bool *canceled)
 {
-    QString projectFile = core->getConfig("prj.file");
+    QString projectFile = LOCK(session, { return rizin->getConfig("prj.file"); });
+
     if (projectFile.isEmpty()) {
         // preferred name is of fromat 'binary.exe.rzdb'
         projectFile = QString("%1.%2").arg(filename).arg("rzdb");
@@ -775,9 +780,10 @@ RzProjectErr MainWindow::saveProjectAs(bool *canceled)
     if (canceled) {
         *canceled = false;
     }
-    auto rizin = core->lock();
-    const RzProjectErr err = rz_project_save_file(
-            rizin, file.toUtf8().constData(), rz_config_get_bool(rizin->config, "prj.compress"));
+    const RzProjectErr err = LOCK(session, {
+        return rz_project_save_file(rizin.core(), file.toUtf8().constData(),
+                                    rz_config_get_bool(rizin.core()->config, "prj.compress"));
+    });
     if (err == RZ_PROJECT_ERR_SUCCESS) {
         Config()->addRecentProject(file);
     }
@@ -835,10 +841,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
         }
     }
 
-    if (!core->currentlyDebugging) {
+    if (!session->isCurrentlyDebugging()) {
         saveSettings();
     } else {
-        core->stopDebug();
+        session->stopDebug();
     }
     QMainWindow::closeEvent(event);
 }
@@ -881,7 +887,7 @@ void MainWindow::saveSettings()
     settings.setValue("docksGroupedDragging", ui->actionGroupedDockDragging->isChecked());
     settings.setValue("geometry", saveGeometry());
 
-    layouts[Core()->currentlyDebugging ? layoutDebug : layoutDefault] = getViewLayout();
+    layouts[session->isCurrentlyDebugging() ? layoutDebug : layoutDefault] = getViewLayout();
     saveLayouts(settings);
 }
 
@@ -898,7 +904,7 @@ void MainWindow::setTabLocation()
 
 void MainWindow::refreshAll()
 {
-    core->triggerRefreshAll();
+    Session()->triggerRefreshAll();
 }
 
 void MainWindow::lockDocks(bool lock)
@@ -1138,7 +1144,7 @@ MemoryDockWidget *MainWindow::getLastMemoryWidget()
 void MainWindow::showAddress(RVA addr)
 {
     if (lastMemoryWidget && lastMemoryWidget->getType() == MemoryWidgetType::Graph) {
-        const AddressTypeHint addressType = core->getAddressType(addr);
+        const AddressTypeHint addressType = LOCK(session, { return rizin->getAddressType(addr); });
 
         MemoryWidgetType targetType;
         if (addressType == AddressTypeHint::Data) {
@@ -1153,7 +1159,7 @@ void MainWindow::showAddress(RVA addr)
         memoryWidget->tryRaiseMemoryWidget();
         setCurrentMemoryWidget(memoryWidget);
     } else {
-        Core()->showMemoryWidget();
+        Session()->showMemoryWidget();
     }
 }
 
@@ -1229,7 +1235,7 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
 
     RzListIter *it;
     RzCoreSeekItem *undo;
-    RzCoreLocked core(Core());
+    auto core = Core()->lock();
     const RzList *list = rz_core_seek_list(core);
 
     bool history = true;
@@ -1387,7 +1393,7 @@ void MainWindow::showDebugDocks()
         functionsDock, stringsDock, searchDock,    stackDock,      registersDock,
         backtraceDock, threadsDock, memoryMapDock, breakpointDock,
     };
-    if (QSysInfo::kernelType() == "linux" || Core()->currentlyRemoteDebugging) {
+    if (QSysInfo::kernelType() == "linux" || session->isCurrentlyRemoteDebugging()) {
         debugDocks.append(heapDock);
     }
     functionDockWidthToRestore = functionsDock->maximumWidth();
@@ -1477,7 +1483,7 @@ CutterLayout MainWindow::getViewLayout(const QString &name)
 void MainWindow::setViewLayout(const CutterLayout &layout)
 {
     const bool isDefault = layout.state.isEmpty() || layout.geometry.isEmpty();
-    const bool isDebug = Core()->currentlyDebugging;
+    const bool isDebug = session->isCurrentlyDebugging();
 
     // make a copy to avoid iterating over container from which items are being removed
     auto widgetsToClose = dockWidgets;
@@ -1597,7 +1603,7 @@ void MainWindow::saveLayouts(QSettings &settings)
 
 void MainWindow::onActionDefaultTriggered()
 {
-    if (core->currentlyDebugging) {
+    if (session->isCurrentlyDebugging()) {
         layouts[layoutDebug] = {};
         setViewLayout(layouts[layoutDebug]);
     } else {
@@ -1645,7 +1651,7 @@ void MainWindow::onActionRunScriptTriggered()
     taskDialog->setAttribute(Qt::WA_DeleteOnClose);
     taskDialog->show();
 
-    Core()->getAsyncTaskManager()->start(runScriptTaskPtr);
+    Session()->getAsyncTaskManager()->start(runScriptTaskPtr);
 }
 
 void MainWindow::onActionMapTriggered()
@@ -1675,7 +1681,7 @@ void MainWindow::onActionResetSettingsTriggered()
     if (ret == QMessageBox::Ok) {
         Config()->resetAll();
         readSettings();
-        setViewLayout(getViewLayout(Core()->currentlyDebugging ? layoutDebug : layoutDefault));
+        setViewLayout(getViewLayout(session->isCurrentlyDebugging() ? layoutDebug : layoutDefault));
     }
 }
 
@@ -1686,12 +1692,12 @@ void MainWindow::onActionQuitTriggered()
 
 void MainWindow::onActionBackwardTriggered()
 {
-    core->seekPrev();
+    LOCK(session, { rizin->seekPrev(); });
 }
 
 void MainWindow::onActionForwardTriggered()
 {
-    core->seekNext();
+    LOCK(session, { rizin->seekNext(); });
 }
 
 void MainWindow::onActionDisasAddCommentTriggered()
@@ -1761,7 +1767,7 @@ void MainWindow::onActionAnalyzeTriggered() const
     taskDialog->show();
     connect(analysisTask, &AnalysisTask::finished, this, &MainWindow::refreshAll);
 
-    Core()->getAsyncTaskManager()->start(analysisTaskPtr);
+    Session()->getAsyncTaskManager()->start(analysisTaskPtr);
 }
 
 void MainWindow::onActionImportPdbTriggered()
@@ -1777,8 +1783,8 @@ void MainWindow::onActionImportPdbTriggered()
     const QString &pdbFile = QDir::toNativeSeparators(dialog.selectedFiles().first());
 
     if (!pdbFile.isEmpty()) {
-        core->loadPDB(pdbFile);
-        core->message(tr("%1 loaded.").arg(pdbFile));
+        LOCK(session, { rizin->loadPDB(pdbFile); });
+        session->message(tr("%1 loaded.").arg(pdbFile));
         this->refreshAll();
     }
 }
@@ -1855,8 +1861,10 @@ void MainWindow::onActionExportAsCodeTriggered()
     TempConfig tempConfig;
     tempConfig.set("io.va", false);
     QTextStream fileOut(&file);
-    auto ps = core->seekTemp(0);
-    auto rc = core->lock();
+
+    auto rizin = session->lock();
+    auto ps = rizin->seekTemp(0);
+    auto rc = rizin.core();
     const auto size = static_cast<int>(rz_io_fd_size(rc->io, rc->file->fd));
     auto buffer = std::vector<ut8>(size);
     if (!rz_io_read_at_mapped(rc->io, 0, buffer.data(), size)) {
@@ -1887,7 +1895,7 @@ void MainWindow::onActionApplySigFromFileTriggered()
     const QString &sigfile = QDir::toNativeSeparators(dialog.selectedFiles().first());
 
     if (!sigfile.isEmpty()) {
-        core->applySignature(sigfile);
+        LOCK(session, { rizin->applySignature(sigfile); });
         this->refreshAll();
     }
 }
@@ -1911,7 +1919,7 @@ void MainWindow::onActionCreateNewSigTriggered()
     const QString &sigfile = QDir::toNativeSeparators(dialog.selectedFiles().first());
 
     if (!sigfile.isEmpty()) {
-        core->createSignature(sigfile);
+        LOCK(session, { rizin->createSignature(sigfile); });
     }
 }
 
@@ -1939,7 +1947,7 @@ void MainWindow::seekToFunctionStart()
 void MainWindow::toggleDebugView()
 {
     const MemoryWidgetType memType = getMemoryWidgetTypeToRestore();
-    if (Core()->currentlyDebugging) {
+    if (session->isCurrentlyDebugging()) {
         layouts[layoutDefault] = getViewLayout();
         setViewLayout(getViewLayout(layoutDebug));
         enableDebugWidgetsMenu(true);
@@ -1955,10 +1963,10 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 {
     switch (event->button()) {
     case Qt::BackButton:
-        core->seekPrev();
+        LOCK(session, { rizin->seekPrev(); });
         break;
     case Qt::ForwardButton:
-        core->seekNext();
+        LOCK(session, { rizin->seekNext(); });
         break;
     default:
         break;

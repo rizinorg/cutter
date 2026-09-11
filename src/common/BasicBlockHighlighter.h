@@ -3,7 +3,9 @@
 
 class BasicBlockHighlighter;
 
-#include "Cutter.h"
+#include "CutterCommon.h"
+
+#include <QColor>
 
 #include <map>
 

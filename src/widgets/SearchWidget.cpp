@@ -255,10 +255,12 @@ SearchWidget::SearchWidget(MainWindow *main)
 
     setScrollMode();
 
-    connect(Core(), &CutterCore::toggleDebugView, this, &SearchWidget::updateSearchBoundaries);
-    connect(Core(), &CutterCore::refreshAll, this, &SearchWidget::refreshSearchspaces);
-    connect(Core(), &CutterCore::commentsChanged, this,
-            [this]() { qhelpers::emitColumnChanged(searchModel, SearchModel::COMMENT); });
+    Session()->connect(&DynamicSession::toggleDebugView, this,
+                       &SearchWidget::updateSearchBoundaries);
+    Session()->connect(&DynamicSession::refreshAll, this, &SearchWidget::refreshSearchspaces);
+    Session()->connect(&RizinWrapper::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(searchModel, SearchModel::COMMENT);
+    });
 
     connect(ui->filterLineEdit, &QLineEdit::returnPressed, this, &SearchWidget::runSearch);
     connect(ui->searchButton, &QAbstractButton::clicked, this, &SearchWidget::runSearch);
@@ -277,7 +279,7 @@ void SearchWidget::updateSearchBoundaries()
 {
     QVector<std::pair<QString, const char *>> boundaries;
 
-    if (Core()->currentlyDebugging && !Core()->currentlyEmulating) {
+    if (Session()->isCurrentlyDebugging() && !Session()->isCurrentlyEmulating()) {
         boundaries = searchBoundariesDebug;
     } else {
         boundaries = searchBoundaries;

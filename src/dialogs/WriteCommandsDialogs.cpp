@@ -83,7 +83,8 @@ size_t DuplicateFromOffsetDialog::getNBytes() const
 
 void DuplicateFromOffsetDialog::refresh()
 {
-    const QSignalBlocker sb(Core());
+    const QSignalBlocker sbS(Session());
+    const QSignalBlocker sbR(Signal());
     auto buf = Core()->ioRead(getOffset(), (int)getNBytes());
 
     // Add space every two characters for word wrap in hex sequence

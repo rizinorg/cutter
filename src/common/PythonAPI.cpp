@@ -31,7 +31,7 @@ PyObject *api_refresh(PyObject *self, PyObject *args)
 {
     Q_UNUSED(self);
     Q_UNUSED(args);
-    Core()->triggerRefreshAll();
+    Session()->triggerRefreshAll();
     Py_RETURN_NONE;
 }
 
@@ -45,7 +45,7 @@ PyObject *api_message(PyObject *self, PyObject *args, PyObject *kwargs)
                                      &debug)) {
         return NULL;
     }
-    Core()->message(QString(message), debug);
+    Session()->message(QString(message), debug);
     Py_RETURN_NONE;
 }
 

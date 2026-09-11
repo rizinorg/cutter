@@ -9,13 +9,13 @@
 #include "common/CutterLayout.h"
 #include "common/IOModesController.h"
 #include "common/InitialOptions.h"
+#include "sessions/DynamicSession.h"
 
 #include <QList>
 #include <QMainWindow>
 
 #include <memory>
 
-class CutterCore;
 class Omnibar;
 class ProgressIndicator;
 class PreviewWidget;
@@ -240,7 +240,7 @@ private slots:
     void setAvailableIOModeOptions();
 
 private:
-    CutterCore *core;
+    DynamicSession *session;
 
     bool tabsOnTop;
     ut64 hexdumpTopOffset;

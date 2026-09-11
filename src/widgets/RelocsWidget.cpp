@@ -138,10 +138,11 @@ RelocsWidget::RelocsWidget(MainWindow *main)
     setModels(relocsProxyModel);
     ui->treeView->sortByColumn(RelocsModel::NameColumn, Qt::AscendingOrder);
 
-    connect(Core(), &CutterCore::codeRebased, this, &RelocsWidget::refreshRelocs);
-    connect(Core(), &CutterCore::refreshAll, this, &RelocsWidget::refreshRelocs);
-    connect(Core(), &CutterCore::commentsChanged, this,
-            [this]() { qhelpers::emitColumnChanged(relocsModel, RelocsModel::CommentColumn); });
+    Session()->connect(&DynamicSession::codeRebased, this, &RelocsWidget::refreshRelocs);
+    Session()->connect(&DynamicSession::refreshAll, this, &RelocsWidget::refreshRelocs);
+    Session()->connect(&RizinWrapper::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(relocsModel, RelocsModel::CommentColumn);
+    });
 }
 
 RelocsWidget::~RelocsWidget() {}

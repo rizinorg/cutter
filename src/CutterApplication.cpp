@@ -118,7 +118,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     Core()->initialize(clOptions.enableRizinPlugins);
     Core()->setSettings();
     Config()->loadInitial();
-    Core()->loadCutterRC();
+    Session()->loadCutterRC();
 
     Config()->setOutputRedirectionEnabled(clOptions.outputRedirectionEnabled);
 
@@ -373,6 +373,31 @@ QStringList CutterApplication::getArgs() const
         args.push_back(options.filename);
     }
     return args;
+}
+
+QList<Decompiler *> CutterApplication::getDecompilers()
+{
+    return decompilers;
+}
+
+Decompiler *CutterApplication::getDecompilerById(const QString &id)
+{
+    for (auto *dec : std::as_const(decompilers)) {
+        if (dec->getId() == id) {
+            return dec;
+        }
+    }
+    return nullptr;
+}
+
+bool CutterApplication::registerDecompiler(Decompiler *decompiler)
+{
+    if (getDecompilerById(decompiler->getId())) {
+        return false;
+    }
+    decompiler->setParent(this);
+    decompilers.push_back(decompiler);
+    return true;
 }
 
 bool CutterApplication::parseCommandLineOptions()

@@ -538,7 +538,7 @@ const QColor Configuration::getColor(const QString &name) const
 
 void Configuration::setColorTheme(const QString &theme)
 {
-    RzCoreLocked core = Core()->lock();
+    auto core = Core()->lock();
     if (theme == "default") {
         rz_cons_pal_init(core->cons->context);
         s.setValue("theme", "default");

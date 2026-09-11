@@ -178,7 +178,7 @@ public:
     bool isFirstExecution();
 
     /**
-     * @return id of the last selected decompiler (see CutterCore::getDecompilerById)
+     * @return id of the last selected decompiler (see RizinWrapper::getDecompilerById)
      */
     QString getSelectedDecompiler();
     void setSelectedDecompiler(const QString &id);

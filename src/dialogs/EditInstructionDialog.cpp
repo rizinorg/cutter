@@ -65,11 +65,11 @@ void EditInstructionDialog::updatePreview(const QString &input)
         ui->instructionLabel->setText("");
         return;
     } else if (editMode == EDIT_BYTES) {
-        const QByteArray data = CutterCore::hexStringToBytes(input);
+        const QByteArray data = RizinWrapper::hexStringToBytes(input);
         result = Core()->disassemble(data).replace('\n', "; ");
     } else if (editMode == EDIT_TEXT) {
         const QByteArray data = Core()->assemble(input);
-        result = CutterCore::bytesToHexString(data).trimmed();
+        result = RizinWrapper::bytesToHexString(data).trimmed();
     }
 
     if (result.isEmpty() || result.contains("invalid")) {

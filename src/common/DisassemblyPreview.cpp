@@ -135,7 +135,8 @@ bool DisassemblyPreview::showTooltip(QWidget *parent, const QPoint &globalPos,
         }
     }
 
-    if (Config()->getShowVarTooltips() && (Core()->currentlyDebugging || Core()->currentlyEmulating)
+    if (Config()->getShowVarTooltips()
+        && (Session()->isCurrentlyDebugging() || Session()->isCurrentlyEmulating())
         && !isWordEmpty) {
         auto ta = DisHlp::resolveTarget(ctx, DisHlp::Debug);
         if (ta.type != DisHlp::TargetType::None

@@ -216,10 +216,11 @@ StringsWidget::StringsWidget(MainWindow *main)
     });
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    connect(Core(), &CutterCore::refreshAll, this, &StringsWidget::refreshStrings);
-    connect(Core(), &CutterCore::codeRebased, this, &StringsWidget::refreshStrings);
-    connect(Core(), &CutterCore::commentsChanged, this,
-            [this]() { qhelpers::emitColumnChanged(model, StringsModel::CommentColumn); });
+    Session()->connect(&DynamicSession::refreshAll, this, &StringsWidget::refreshStrings);
+    Session()->connect(&DynamicSession::codeRebased, this, &StringsWidget::refreshStrings);
+    Session()->connect(&RizinWrapper::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(model, StringsModel::CommentColumn);
+    });
 
     connect(ui->quickFilterView->comboBox(), &QComboBox::currentTextChanged, this, [this]() {
         proxyModel->setSelectedSection(ui->quickFilterView->comboBox()->currentData().toString());
@@ -248,7 +249,7 @@ void StringsWidget::refreshStrings()
     task = std::shared_ptr<StringsTask>(new StringsTask(ui->rawStringsCheckBox->isChecked()));
     connect(task.get(), &StringsTask::stringSearchFinished, this,
             &StringsWidget::stringSearchFinished);
-    Core()->getAsyncTaskManager()->start(task);
+    Session()->getAsyncTaskManager()->start(task);
 
     refreshSectionCombo();
 }

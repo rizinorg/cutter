@@ -60,12 +60,12 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent)
     addWidget(this->graphicsView);
     // addWidget(addsCombo);
 
-    connect(Core(), &CutterCore::seekChanged, this, &VisualNavbar::onSeekChanged);
-    connect(Core(), &CutterCore::registersChanged, this, &VisualNavbar::drawPCCursor);
-    connect(Core(), &CutterCore::refreshAll, this, &VisualNavbar::fetchAndPaintData);
-    connect(Core(), &CutterCore::functionsChanged, this, &VisualNavbar::fetchAndPaintData);
-    connect(Core(), &CutterCore::flagsChanged, this, &VisualNavbar::fetchAndPaintData);
-    connect(Core(), &CutterCore::globalVarsChanged, this, &VisualNavbar::fetchAndPaintData);
+    Session()->connect(&RizinWrapper::seekChanged, this, &VisualNavbar::onSeekChanged);
+    Session()->connect(&RizinWrapper::registersChanged, this, &VisualNavbar::drawPCCursor);
+    Session()->connect(&DynamicSession::refreshAll, this, &VisualNavbar::fetchAndPaintData);
+    Session()->connect(&RizinWrapper::functionsChanged, this, &VisualNavbar::fetchAndPaintData);
+    Session()->connect(&RizinWrapper::flagsChanged, this, &VisualNavbar::fetchAndPaintData);
+    Session()->connect(&RizinWrapper::globalVarsChanged, this, &VisualNavbar::fetchAndPaintData);
 
     const QBrush bg = QBrush(QColor(74, 74, 74));
 
@@ -138,7 +138,7 @@ void VisualNavbar::fetchStats()
 {
     static const ut64 blocksCount = 2048;
 
-    RzCoreLocked core(Core());
+    auto core = Core()->lock();
     stats.reset(nullptr);
     auto list =
             fromOwned(rz_core_get_boundaries_select(core, "search.from", "search.to", "search.in"));
@@ -447,7 +447,7 @@ QString VisualNavbar::toolTipForAddress(RVA address)
     QString ret = tr("Address: %1").arg(rzAddressString(address));
 
     // Don't append sections when a debug task is in progress to avoid freezing the interface
-    if (Core()->isDebugTaskInProgress()) {
+    if (Session()->isDebugTaskInProgress()) {
         return ret;
     }
 

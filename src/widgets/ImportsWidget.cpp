@@ -184,10 +184,11 @@ ImportsWidget::ImportsWidget(MainWindow *main)
     const QShortcut *toggleShortcut = Shortcuts()->makeQShortcut("Imports.toggle", main);
     connect(toggleShortcut, &QShortcut::activated, this, [=, this]() { toggleDockWidget(true); });
 
-    connect(Core(), &CutterCore::codeRebased, this, &ImportsWidget::refreshImports);
-    connect(Core(), &CutterCore::refreshAll, this, &ImportsWidget::refreshImports);
-    connect(Core(), &CutterCore::commentsChanged, this,
-            [this]() { qhelpers::emitColumnChanged(importsModel, ImportsModel::CommentColumn); });
+    Session()->connect(&DynamicSession::codeRebased, this, &ImportsWidget::refreshImports);
+    Session()->connect(&DynamicSession::refreshAll, this, &ImportsWidget::refreshImports);
+    Session()->connect(&RizinWrapper::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(importsModel, ImportsModel::CommentColumn);
+    });
 }
 
 ImportsWidget::~ImportsWidget() {}

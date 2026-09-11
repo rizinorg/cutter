@@ -9,7 +9,7 @@
 
 void openIssue()
 {
-    RzCoreLocked core(Core());
+    auto core = Core()->lock();
     RzBinFile *bf = rz_bin_cur(core->bin);
     RzBinObject *bobj = rz_bin_cur_object(core->bin);
     const RzBinInfo *info = bobj ? rz_bin_object_get_info(bobj) : nullptr;

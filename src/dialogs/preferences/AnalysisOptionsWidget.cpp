@@ -94,8 +94,8 @@ AnalysisOptionsWidget::AnalysisOptionsWidget(PreferencesDialog *dialog)
     connect(ui->preludeLineEdit, &QLineEdit::textChanged, this,
             &AnalysisOptionsWidget::updateAnalysisPrelude);
 
-    connect(Core(), &CutterCore::analysisOptionsChanged, this,
-            &AnalysisOptionsWidget::updateAnalysisOptionsFromVars);
+    Session()->connect(&DynamicSession::analysisOptionsChanged, this,
+                       &AnalysisOptionsWidget::updateAnalysisOptionsFromVars);
 
     updateAnalysisOptionsFromVars();
 }
@@ -153,9 +153,9 @@ void AnalysisOptionsWidget::createAnalysisInOptionsList()
 
 void AnalysisOptionsWidget::analysisOptionsChanged() const
 {
-    disconnect(Core(), &CutterCore::analysisOptionsChanged, this,
-               &AnalysisOptionsWidget::updateAnalysisOptionsFromVars);
-    Core()->triggerAnalysisOptionsChanged();
-    connect(Core(), &CutterCore::analysisOptionsChanged, this,
-            &AnalysisOptionsWidget::updateAnalysisOptionsFromVars);
+    Session()->disconnect(&DynamicSession::analysisOptionsChanged, this,
+                          &AnalysisOptionsWidget::updateAnalysisOptionsFromVars);
+    Session()->triggerAnalysisOptionsChanged();
+    Session()->connect(&DynamicSession::analysisOptionsChanged, this,
+                       &AnalysisOptionsWidget::updateAnalysisOptionsFromVars);
 }

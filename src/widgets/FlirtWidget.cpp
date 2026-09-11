@@ -138,7 +138,7 @@ FlirtWidget::FlirtWidget(MainWindow *main)
 
     this->connect(ui->flirtTreeView->selectionModel(), &QItemSelectionModel::currentChanged, this,
                   &FlirtWidget::onSelectedItemChanged);
-    connect(Core(), &CutterCore::refreshAll, this, &FlirtWidget::refreshFlirt);
+    Session()->connect(&DynamicSession::refreshAll, this, &FlirtWidget::refreshFlirt);
 
     this->addActions(this->blockMenu->actions());
 }

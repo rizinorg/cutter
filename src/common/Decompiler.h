@@ -9,7 +9,7 @@
 #include <rz_util/rz_annotated_code.h>
 
 /**
- * @brief Implements a decompiler that can be registered using CutterCore::registerDecompiler()
+ * @brief Implements a decompiler that can be registered using RizinWrapper::registerDecompiler()
  */
 class CUTTER_EXPORT Decompiler : public QObject
 {

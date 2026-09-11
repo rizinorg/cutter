@@ -95,7 +95,7 @@ protected:
         }
 
         auto offset = addressableModel->address(index);
-        Core()->seekAndShow(offset);
+        Session()->seekAndShow(offset);
     }
     virtual void onSelectedItemChanged(const QModelIndex &index) { updateMenuFromItem(index); }
     void updateMenuFromItem(const QModelIndex &index)

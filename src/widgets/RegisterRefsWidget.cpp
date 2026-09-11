@@ -152,9 +152,10 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main)
     connect(ui->quickFilterView, &QuickFilterView::filterClosed, ui->registerRefTreeView,
             [this]() { ui->registerRefTreeView->setFocus(); });
     setScrollMode();
-    connect(Core(), &CutterCore::refreshAll, this, &RegisterRefsWidget::refreshRegisterRef);
-    connect(Core(), &CutterCore::registersChanged, this, &RegisterRefsWidget::refreshRegisterRef);
-    connect(Core(), &CutterCore::commentsChanged, this, [this]() {
+    Session()->connect(&DynamicSession::refreshAll, this, &RegisterRefsWidget::refreshRegisterRef);
+    Session()->connect(&RizinWrapper::registersChanged, this,
+                       &RegisterRefsWidget::refreshRegisterRef);
+    Session()->connect(&RizinWrapper::commentsChanged, this, [this]() {
         qhelpers::emitColumnChanged(registerRefModel, RegisterRefModel::CommentColumn);
     });
     connect(actionCopyValue, &QAction::triggered, this,
@@ -212,7 +213,7 @@ void RegisterRefsWidget::onRegisterRefTreeViewDoubleClicked(const QModelIndex &i
 {
     const auto item = index.data(RegisterRefModel::RegisterRefDescriptionRole)
                               .value<RegisterRefDescription>();
-    Core()->seekAndShow(item.value);
+    Session()->seekAndShow(item.value);
 }
 
 void RegisterRefsWidget::customMenuRequested(QPoint pos)

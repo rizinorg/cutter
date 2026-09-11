@@ -20,7 +20,7 @@ FlagDialog::FlagDialog(RVA offset, QWidget *parent, QString flagNameHint)
     if (!flagName.isEmpty()) {
         flagOffset = offset;
     } else {
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         const RzFlagItem *flag = rz_flag_get_i(core->flags, offset);
         if (flag) {
             flagName = QString(flag->name);

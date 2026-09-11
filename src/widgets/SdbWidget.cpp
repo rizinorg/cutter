@@ -15,7 +15,7 @@ SdbWidget::SdbWidget(MainWindow *main) : CutterDockWidget(main), ui(new Ui::SdbW
 
     path.clear();
 
-    connect(Core(), &CutterCore::refreshAll, this, [this]() { reload(); });
+    Session()->connect(&DynamicSession::refreshAll, this, [this]() { reload(); });
 
     connect(ui->treeWidget, &QTreeWidget::itemDoubleClicked, this,
             &SdbWidget::onTreeWidgetItemDoubleClicked);

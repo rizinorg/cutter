@@ -9,6 +9,7 @@
 #include "common/TempConfig.h"
 #include "core/MainWindow.h"
 #include "menus/DisassemblyContextMenu.h"
+#include "sessions/DynamicSession.h"
 #include "shortcuts/ShortcutManager.h"
 #include "widgets/AddressRangeScrollBar.h"
 
@@ -133,19 +134,20 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
 
     // Avoids the "The slot requires more arguments than the signal provides" error
     auto refresh = [this]() { refreshDisasm(); };
-    connect(Core(), &CutterCore::commentsChanged, this, refresh);
-    connect(Core(), &CutterCore::flagsChanged, this, refresh);
-    connect(Core(), &CutterCore::globalVarsChanged, this, refresh);
-    connect(Core(), &CutterCore::functionsChanged, this, refresh);
-    connect(Core(), &CutterCore::functionRenamed, this, refresh);
-    connect(Core(), &CutterCore::varsChanged, this, refresh);
-    connect(Core(), &CutterCore::asmOptionsChanged, this, refresh);
-    connect(Core(), &CutterCore::refreshCodeViews, this, [this] {
+    Session()->connect(&RizinWrapper::commentsChanged, this, refresh);
+    Session()->connect(&RizinWrapper::flagsChanged, this, refresh);
+    Session()->connect(&RizinWrapper::globalVarsChanged, this, refresh);
+    Session()->connect(&RizinWrapper::functionsChanged, this, refresh);
+    Session()->connect(&RizinWrapper::functionRenamed, this, refresh);
+    Session()->connect(&RizinWrapper::varsChanged, this, refresh);
+    Session()->connect(&DynamicSession::asmOptionsChanged, this, refresh);
+    Session()->connect(&DynamicSession::refreshCodeViews, this, [this] {
         breakpointsDirty = true;
         refreshDisasm();
     });
-    connect(Core(), &CutterCore::instructionChanged, this, &DisassemblyWidget::instructionChanged);
-    connect(Core(), &CutterCore::breakpointsChanged, this, [this](RVA offset) {
+    Session()->connect(&RizinWrapper::instructionChanged, this,
+                       &DisassemblyWidget::instructionChanged);
+    Session()->connect(&RizinWrapper::breakpointsChanged, this, [this](RVA offset) {
         breakpointsDirty = true;
         refreshIfInRange(offset);
     });
@@ -153,7 +155,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     connect(Config(), &Configuration::fontsUpdated, this, &DisassemblyWidget::fontsUpdatedSlot);
     connect(Config(), &Configuration::colorsUpdated, this, &DisassemblyWidget::colorsUpdatedSlot);
 
-    connect(Core(), &CutterCore::refreshAll, this, [this]() {
+    Session()->connect(&DynamicSession::refreshAll, this, [this]() {
         // just in case if breakpoints were changed via rizin console
         breakpointsDirty = true;
         refreshDisasm(seekable->getOffset());
@@ -1026,7 +1028,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
                     DisHlp::resolveTarget(ctx, DisassemblyHelper::TargetFilter::Standard);
             switch (ta.type) {
             case DisHlp::TargetType::TypeName:
-                Core()->showTypeInTypesWidget(ctx.word);
+                Session()->showTypeInTypesWidget(ctx.word);
                 break;
             case DisHlp::TargetType::XRefComment:
             case DisHlp::TargetType::VariableXRef:
@@ -1147,9 +1149,9 @@ int DisassemblyWidget::getStartIndex() const
     return startIndex;
 }
 
-void DisassemblyWidget::onSeekChanged(RVA offset, CutterCore::SeekHistoryType type)
+void DisassemblyWidget::onSeekChanged(RVA offset, RizinWrapper::SeekHistoryType type)
 {
-    if (type == CutterCore::SeekHistoryType::New) {
+    if (type == RizinWrapper::SeekHistoryType::New) {
         // Erase previous history past this point.
         if (topOffsetHistory.size() > topOffsetHistoryPos + 1) {
             topOffsetHistory.erase(topOffsetHistory.begin() + topOffsetHistoryPos + 1,
@@ -1157,9 +1159,9 @@ void DisassemblyWidget::onSeekChanged(RVA offset, CutterCore::SeekHistoryType ty
         }
         topOffsetHistory.push_back(offset);
         topOffsetHistoryPos = topOffsetHistory.size() - 1;
-    } else if (type == CutterCore::SeekHistoryType::Undo) {
+    } else if (type == RizinWrapper::SeekHistoryType::Undo) {
         --topOffsetHistoryPos;
-    } else if (type == CutterCore::SeekHistoryType::Redo) {
+    } else if (type == RizinWrapper::SeekHistoryType::Redo) {
         ++topOffsetHistoryPos;
     }
     if (!seekFromCursor) {
@@ -1172,7 +1174,7 @@ void DisassemblyWidget::onSeekChanged(RVA offset, CutterCore::SeekHistoryType ty
     }
 
     if (topOffset != RVA_INVALID && offset >= topOffset && offset <= bottomOffset
-        && type == CutterCore::SeekHistoryType::New) {
+        && type == RizinWrapper::SeekHistoryType::New) {
         // if the line with the seek offset is currently visible, just move the cursor there
         updateCursorPosition();
         topOffsetHistory[topOffsetHistoryPos] = topOffset;

@@ -40,6 +40,22 @@ public:
     void setInitialOptions(const InitialOptions &options) { clOptions.fileOpenOptions = options; }
     QStringList getArgs() const;
 
+    /* Decompilers */
+    // TODO: add impl
+    QList<Decompiler *> getDecompilers();
+    Decompiler *getDecompilerById(const QString &id);
+
+    /**
+     * Register a new decompiler
+     *
+     * The decompiler must have a unique id, otherwise this method will fail.
+     * The decompiler's parent will be set to this RizinWrapper instance, so it will automatically
+     * be freed later.
+     *
+     * @return whether the decompiler was registered successfully
+     */
+    bool registerDecompiler(Decompiler *decompiler);
+
 protected:
     bool event(QEvent *e);
 
@@ -57,9 +73,10 @@ private:
 
 private:
     bool fileAlreadyDropped;
-    CutterCore core;
     MainWindow *mainWindow;
     CutterCommandLineOptions clOptions;
+
+    QList<Decompiler *> decompilers;
 };
 
 /**

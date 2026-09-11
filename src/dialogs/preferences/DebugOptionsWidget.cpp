@@ -34,7 +34,8 @@ DebugOptionsWidget::DebugOptionsWidget(PreferencesDialog *dialog)
     connect(ui->pluginComboBox, &QComboBox::currentTextChanged, this,
             &DebugOptionsWidget::onDebugPluginChanged);
 
-    connect(Core(), &CutterCore::debugOptionsChanged, this, &DebugOptionsWidget::updateDebugPlugin);
+    Session()->connect(&DynamicSession::debugOptionsChanged, this,
+                       &DebugOptionsWidget::updateDebugPlugin);
 }
 
 DebugOptionsWidget::~DebugOptionsWidget() {}
@@ -52,12 +53,12 @@ void DebugOptionsWidget::updateDebugPlugin()
 
     ui->pluginComboBox->blockSignals(true);
     ui->pluginComboBox->clear();
-    const QStringList plugins = Core()->getDebugPlugins();
+    const QStringList plugins = Session()->getDebugPlugins();
     for (const QString &str : plugins) {
         ui->pluginComboBox->addItem(str);
     }
 
-    const QString plugin = Core()->getActiveDebugPlugin();
+    const QString plugin = Session()->getActiveDebugPlugin();
     ui->pluginComboBox->setCurrentText(plugin);
     ui->pluginComboBox->blockSignals(false);
 
@@ -74,7 +75,7 @@ void DebugOptionsWidget::updateDebugPlugin()
 
 void DebugOptionsWidget::onDebugPluginChanged(const QString &plugin)
 {
-    Core()->setDebugPlugin(plugin);
+    Session()->setDebugPlugin(plugin);
 
     this->debugOptionsChanged();
 }
@@ -99,8 +100,9 @@ void DebugOptionsWidget::updateStackAddr()
 
 void DebugOptionsWidget::debugOptionsChanged() const
 {
-    disconnect(Core(), &CutterCore::debugOptionsChanged, this,
-               &DebugOptionsWidget::updateDebugPlugin);
-    Core()->triggerDebugOptionsChanged();
-    connect(Core(), &CutterCore::debugOptionsChanged, this, &DebugOptionsWidget::updateDebugPlugin);
+    Session()->disconnect(&DynamicSession::debugOptionsChanged, this,
+                          &DebugOptionsWidget::updateDebugPlugin);
+    Session()->triggerDebugOptionsChanged();
+    Session()->connect(&DynamicSession::debugOptionsChanged, this,
+                       &DebugOptionsWidget::updateDebugPlugin);
 }

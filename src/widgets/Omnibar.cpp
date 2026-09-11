@@ -69,9 +69,9 @@ Omnibar::Omnibar(MainWindow *main, QWidget *parent)
     this->setCompleter(completer);
     this->installEventFilter(this);
 
-    connect(Core(), &CutterCore::flagsChanged, this, &Omnibar::refresh);
-    connect(Core(), &CutterCore::codeRebased, this, &Omnibar::refresh);
-    connect(Core(), &CutterCore::refreshAll, this, &Omnibar::refresh);
+    Session()->connect(&RizinWrapper::flagsChanged, this, &Omnibar::refresh);
+    Session()->connect(&DynamicSession::codeRebased, this, &Omnibar::refresh);
+    Session()->connect(&DynamicSession::refreshAll, this, &Omnibar::refresh);
 }
 
 bool Omnibar::eventFilter(QObject *obj, QEvent *event)
@@ -157,7 +157,7 @@ void Omnibar::goToEntry()
             memoryWidget->getSeekable()->seek(offset);
             memoryWidget->raiseMemoryWidget();
         } else {
-            Core()->seekAndShow(str);
+            Session()->seekAndShow(str);
         }
     }
 

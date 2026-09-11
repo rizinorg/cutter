@@ -23,7 +23,7 @@ InitializationFileEditor::InitializationFileEditor(PreferencesDialog *dialog)
     connect(ui->configFileEdit, &QPlainTextEdit::modificationChanged, ui->saveRC,
             &QWidget::setEnabled);
 
-    const QDir cutterRCDirectory = Core()->getCutterRCDefaultDirectory();
+    const QDir cutterRCDirectory = Session()->getCutterRCDefaultDirectory();
     auto cutterRCFileInfo = QFileInfo(cutterRCDirectory, "rc");
     const QString cutterRCLocation = cutterRCFileInfo.absoluteFilePath();
 
@@ -50,7 +50,7 @@ InitializationFileEditor::~InitializationFileEditor() {};
 
 void InitializationFileEditor::saveCutterRC()
 {
-    const QDir cutterRCDirectory = Core()->getCutterRCDefaultDirectory();
+    const QDir cutterRCDirectory = Session()->getCutterRCDefaultDirectory();
     if (!cutterRCDirectory.exists()) {
         cutterRCDirectory.mkpath(".");
     }
@@ -70,5 +70,5 @@ void InitializationFileEditor::saveCutterRC()
 void InitializationFileEditor::executeCutterRC()
 {
     saveCutterRC();
-    Core()->loadDefaultCutterRC();
+    Session()->loadDefaultCutterRC();
 }

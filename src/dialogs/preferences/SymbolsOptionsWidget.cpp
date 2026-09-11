@@ -18,11 +18,11 @@ SymbolsOptionsWidget::SymbolsOptionsWidget(PreferencesDialog *parent)
     updateSymbolsOptions();
 
     auto symbolOptionsChanged = [this] {
-        disconnect(Core(), &CutterCore::symbolsOptionsChanged, this,
-                   &SymbolsOptionsWidget::updateSymbolsOptions);
-        Core()->triggerSymbolsOptionsChanged();
-        connect(Core(), &CutterCore::symbolsOptionsChanged, this,
-                &SymbolsOptionsWidget::updateSymbolsOptions);
+        Session()->disconnect(&DynamicSession::symbolsOptionsChanged, this,
+                              &SymbolsOptionsWidget::updateSymbolsOptions);
+        Session()->triggerSymbolsOptionsChanged();
+        Session()->connect(&DynamicSession::symbolsOptionsChanged, this,
+                           &SymbolsOptionsWidget::updateSymbolsOptions);
     };
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
@@ -53,8 +53,8 @@ SymbolsOptionsWidget::SymbolsOptionsWidget(PreferencesDialog *parent)
         Core()->setConfig("pdb.server", ui->pdbServerEdit->text());
         symbolOptionsChanged();
     });
-    connect(Core(), &CutterCore::symbolsOptionsChanged, this,
-            &SymbolsOptionsWidget::updateSymbolsOptions);
+    Session()->connect(&DynamicSession::symbolsOptionsChanged, this,
+                       &SymbolsOptionsWidget::updateSymbolsOptions);
 }
 
 SymbolsOptionsWidget::~SymbolsOptionsWidget() {}
@@ -93,7 +93,7 @@ void SymbolsOptionsWidget::reanalyze()
         if (pdbFileInfo.exists() && pdbFileInfo.isFile()) {
             Core()->loadPDB(ui->pdbLineEdit->text());
             mainWindow->refreshAll();
-            Core()->message(tr("%1 loaded.").arg(ui->pdbLineEdit->text()));
+            Session()->message(tr("%1 loaded.").arg(ui->pdbLineEdit->text()));
         }
     }
 }

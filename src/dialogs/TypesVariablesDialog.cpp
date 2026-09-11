@@ -252,7 +252,7 @@ void TypesVariablesDialog::onItemDoubleClicked(const QModelIndex &index)
         return;
     }
     const auto v = index.data(TypesVariablesModel::typeVariableRole).value<VariableEntry>();
-    Core()->seekAndShow(v.offset);
+    Session()->seekAndShow(v.offset);
     close();
 }
 

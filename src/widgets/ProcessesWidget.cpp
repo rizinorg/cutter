@@ -53,11 +53,12 @@ ProcessesWidget::ProcessesWidget(MainWindow *main)
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, modelFilter,
             &ProcessesFilterModel::setFilterWildcard);
-    connect(Core(), &CutterCore::refreshAll, this, &ProcessesWidget::updateContents);
-    connect(Core(), &CutterCore::registersChanged, this, &ProcessesWidget::updateContents);
-    connect(Core(), &CutterCore::debugTaskStateChanged, this, &ProcessesWidget::updateContents);
+    Session()->connect(&DynamicSession::refreshAll, this, &ProcessesWidget::updateContents);
+    Session()->connect(&RizinWrapper::registersChanged, this, &ProcessesWidget::updateContents);
+    Session()->connect(&DynamicSession::debugTaskStateChanged, this,
+                       &ProcessesWidget::updateContents);
     // Seek doesn't necessarily change when switching processes
-    connect(Core(), &CutterCore::switchedProcess, this, &ProcessesWidget::updateContents);
+    Session()->connect(&DynamicSession::switchedProcess, this, &ProcessesWidget::updateContents);
     connect(Config(), &Configuration::fontsUpdated, this, &ProcessesWidget::fontsUpdatedSlot);
     connect(ui->viewProcesses, &QTableView::activated, this, &ProcessesWidget::onActivated);
 }
@@ -70,13 +71,13 @@ void ProcessesWidget::updateContents()
         return;
     }
 
-    if (!Core()->currentlyDebugging) {
+    if (!Session()->isCurrentlyDebugging()) {
         // Remove rows from the previous debugging session
         modelProcesses->removeRows(0, modelProcesses->rowCount());
         return;
     }
 
-    if (Core()->isDebugTaskInProgress()) {
+    if (Session()->isDebugTaskInProgress()) {
         ui->viewProcesses->setDisabled(true);
     } else {
         setProcessesGrid();
@@ -170,7 +171,7 @@ void ProcessesWidget::onActivated(const QModelIndex &index)
                 msgBox.exec();
                 break;
             default:
-                Core()->setCurrentDebugProcess(pid);
+                Session()->setCurrentDebugProcess(pid);
                 break;
             }
         }

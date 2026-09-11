@@ -127,10 +127,11 @@ SymbolsWidget::SymbolsWidget(MainWindow *main)
     setModels(symbolsProxyModel);
     ui->treeView->sortByColumn(SymbolsModel::AddressColumn, Qt::AscendingOrder);
 
-    connect(Core(), &CutterCore::codeRebased, this, &SymbolsWidget::refreshSymbols);
-    connect(Core(), &CutterCore::refreshAll, this, &SymbolsWidget::refreshSymbols);
-    connect(Core(), &CutterCore::commentsChanged, this,
-            [this]() { qhelpers::emitColumnChanged(symbolsModel, SymbolsModel::CommentColumn); });
+    Session()->connect(&DynamicSession::codeRebased, this, &SymbolsWidget::refreshSymbols);
+    Session()->connect(&DynamicSession::refreshAll, this, &SymbolsWidget::refreshSymbols);
+    Session()->connect(&RizinWrapper::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(symbolsModel, SymbolsModel::CommentColumn);
+    });
 }
 
 SymbolsWidget::~SymbolsWidget() {}

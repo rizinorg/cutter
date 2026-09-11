@@ -137,15 +137,15 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main)
     toggleConnectionActions = { actionAttach, actionStartRemote };
     reverseActions = { actionStepBack, actionContinueBack };
 
-    connect(Core(), &CutterCore::debugProcessFinished, this, [=](int pid) {
+    Session()->connect(&RizinWrapper::debugProcessFinished, this, [=](int pid) {
         QMessageBox msgBox(main);
         msgBox.setText(tr("Debugged process exited (") + QString::number(pid) + ")");
         msgBox.exec();
     });
 
-    connect(Core(), &CutterCore::debugTaskStateChanged, this, [=, this]() {
-        const bool disableToolbar = Core()->isDebugTaskInProgress();
-        if (Core()->currentlyDebugging) {
+    Session()->connect(&DynamicSession::debugTaskStateChanged, this, [=, this]() {
+        const bool disableToolbar = Session()->isDebugTaskInProgress();
+        if (Session()->isCurrentlyDebugging()) {
             for (auto a : std::as_const(toggleActions)) {
                 a->setDisabled(disableToolbar);
             }
@@ -158,7 +158,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main)
                 actionContinue->setIcon(continueIcon);
             }
             for (auto a : std::as_const(reverseActions)) {
-                a->setVisible(Core()->currentlyTracing);
+                a->setVisible(Session()->isCurrentlyTracing());
                 a->setDisabled(disableToolbar);
             }
         } else {
@@ -168,7 +168,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main)
         }
     });
 
-    connect(actionStop, &QAction::triggered, Core(), &CutterCore::stopDebug);
+    connect(actionStop, &QAction::triggered, Session(), &DynamicSession::stopDebug);
     connect(actionStop, &QAction::triggered, [=, this]() {
         actionStart->setVisible(true);
         actionStartEmul->setVisible(true);
@@ -184,15 +184,16 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main)
         setAllActionsVisible(false);
     });
 
-    connect(actionStep, &QAction::triggered, Core(), &CutterCore::stepDebug);
-    connect(actionStepBack, &QAction::triggered, Core(), &CutterCore::stepBackDebug);
+    connect(actionStep, &QAction::triggered, Session(), &DynamicSession::stepDebug);
+    connect(actionStepBack, &QAction::triggered, Session(), &DynamicSession::stepBackDebug);
 
     connect(actionStart, &QAction::triggered, this, &DebugActions::startDebug);
 
     connect(actionAttach, &QAction::triggered, this, &DebugActions::attachProcessDialog);
     connect(actionStartRemote, &QAction::triggered, this, &DebugActions::attachRemoteDialog);
-    connect(Core(), &CutterCore::attachedRemote, this, &DebugActions::onAttachedRemoteDebugger);
-    connect(actionStartEmul, &QAction::triggered, Core(), &CutterCore::startEmulation);
+    Session()->connect(&DynamicSession::attachedRemote, this,
+                       &DebugActions::onAttachedRemoteDebugger);
+    connect(actionStartEmul, &QAction::triggered, Session(), &DynamicSession::startEmulation);
     connect(actionStartEmul, &QAction::triggered, [=, this]() {
         setAllActionsVisible(true);
         actionStart->setVisible(false);
@@ -209,30 +210,31 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main)
             a->setVisible(false);
         }
     });
-    connect(actionStepOver, &QAction::triggered, Core(), &CutterCore::stepOverDebug);
-    connect(actionStepOut, &QAction::triggered, Core(), &CutterCore::stepOutDebug);
+    connect(actionStepOver, &QAction::triggered, Session(), &DynamicSession::stepOverDebug);
+    connect(actionStepOut, &QAction::triggered, Session(), &DynamicSession::stepOutDebug);
     connect(actionContinueUntilMain, &QAction::triggered, this, &DebugActions::continueUntilMain);
-    connect(actionContinueUntilCall, &QAction::triggered, Core(), &CutterCore::continueUntilCall);
-    connect(actionContinueUntilSyscall, &QAction::triggered, Core(),
-            &CutterCore::continueUntilSyscall);
-    connect(actionContinueBack, &QAction::triggered, Core(), &CutterCore::continueBackDebug);
-    connect(actionContinue, &QAction::triggered, Core(), [=]() {
+    connect(actionContinueUntilCall, &QAction::triggered, Session(),
+            &DynamicSession::continueUntilCall);
+    connect(actionContinueUntilSyscall, &QAction::triggered, Session(),
+            &DynamicSession::continueUntilSyscall);
+    connect(actionContinueBack, &QAction::triggered, Session(), &DynamicSession::continueBackDebug);
+    connect(actionContinue, &QAction::triggered, Session(), [=]() {
         // Switch between continue and suspend depending on the debugger's state
-        if (Core()->isDebugTaskInProgress()) {
-            Core()->suspendDebug();
+        if (Session()->isDebugTaskInProgress()) {
+            Session()->suspendDebug();
         } else {
-            Core()->continueDebug();
+            Session()->continueDebug();
         }
     });
 
-    connect(actionTrace, &QAction::triggered, Core(), [=, this]() {
+    connect(actionTrace, &QAction::triggered, Session(), [=, this]() {
         // Check if a debug session was created to switch between start and stop
-        if (!Core()->currentlyTracing) {
-            Core()->startTraceSession();
+        if (!Session()->isCurrentlyTracing()) {
+            Session()->startTraceSession();
             actionTrace->setText(stopTraceLabel);
             actionTrace->setIcon(stopTraceIcon);
         } else {
-            Core()->stopTraceSession();
+            Session()->stopTraceSession();
             actionTrace->setText(startTraceLabel);
             actionTrace->setIcon(startTraceIcon);
         }
@@ -244,7 +246,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main)
 
 void DebugActions::setButtonVisibleIfMainExists()
 {
-    RzCoreLocked core = Core()->lock();
+    auto core = Core()->lock();
     // if main is not a flag we hide the continue until main button
     if (!rz_flag_get(core->flags, "sym.main") && !rz_flag_get(core->flags, "main")) {
         actionContinueUntilMain->setVisible(false);
@@ -275,7 +277,7 @@ void DebugActions::continueUntilMain()
             return;
         }
     }
-    Core()->continueUntilDebug(mainFlag->offset);
+    Session()->continueUntilDebug(mainFlag->offset);
 }
 
 void DebugActions::attachRemoteDebugger()
@@ -331,7 +333,7 @@ void DebugActions::attachRemoteDialog()
                 continue;
             }
 
-            Core()->attachRemote(remoteDialog->getUri());
+            Session()->attachRemote(remoteDialog->getUri());
         }
     }
 }
@@ -369,7 +371,7 @@ void DebugActions::attachProcess(int pid)
     actionStop->setText(stopAttachLabel);
     actionStop->setIcon(detachIcon);
     // attach
-    Core()->attachDebug(pid);
+    Session()->attachDebug(pid);
 }
 
 void DebugActions::startDebug()
@@ -378,7 +380,7 @@ void DebugActions::startDebug()
     const QString filename = Core()->getConfig("file.path");
 
     const QFileInfo info(filename);
-    if (!Core()->currentlyDebugging && !info.isExecutable()) {
+    if (!Session()->isCurrentlyDebugging() && !info.isExecutable()) {
         QMessageBox msgBox(main);
         msgBox.setText(tr("File '%1' does not have executable permissions.").arg(filename));
         msgBox.exec();
@@ -427,7 +429,7 @@ void DebugActions::startDebug()
     actionTrace->setText(startTraceLabel);
     actionTrace->setIcon(startTraceIcon);
 
-    Core()->startDebug();
+    Session()->startDebug();
 }
 
 void DebugActions::setAllActionsVisible(bool visible)

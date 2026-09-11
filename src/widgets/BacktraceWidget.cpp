@@ -90,8 +90,8 @@ BacktraceWidget::BacktraceWidget(MainWindow *main)
 
     refreshDeferrer = createRefreshDeferrer([this]() { updateContents(); });
 
-    connect(Core(), &CutterCore::refreshAll, this, &BacktraceWidget::updateContents);
-    connect(Core(), &CutterCore::registersChanged, this, &BacktraceWidget::updateContents);
+    Session()->connect(&DynamicSession::refreshAll, this, &BacktraceWidget::updateContents);
+    Session()->connect(&RizinWrapper::registersChanged, this, &BacktraceWidget::updateContents);
     connect(Config(), &Configuration::fontsUpdated, this, &BacktraceWidget::fontsUpdatedSlot);
 
     connect(Config(), &Configuration::functionsOptionsChanged, this,
@@ -102,7 +102,7 @@ BacktraceWidget::~BacktraceWidget() {}
 
 void BacktraceWidget::updateContents()
 {
-    if (!refreshDeferrer->attemptRefresh(nullptr) || Core()->isDebugTaskInProgress()) {
+    if (!refreshDeferrer->attemptRefresh(nullptr) || Session()->isDebugTaskInProgress()) {
         return;
     }
 

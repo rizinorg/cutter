@@ -131,10 +131,11 @@ MemoryMapWidget::MemoryMapWidget(MainWindow *main)
     setModels(memoryProxyModel);
     ui->treeView->sortByColumn(MemoryMapModel::AddrStartColumn, Qt::AscendingOrder);
 
-    connect(Core(), &CutterCore::refreshAll, this, &MemoryMapWidget::refreshMemoryMap);
-    connect(Core(), &CutterCore::registersChanged, this, &MemoryMapWidget::refreshMemoryMap);
-    connect(Core(), &CutterCore::commentsChanged, this,
-            [this]() { qhelpers::emitColumnChanged(memoryModel, MemoryMapModel::CommentColumn); });
+    Session()->connect(&DynamicSession::refreshAll, this, &MemoryMapWidget::refreshMemoryMap);
+    Session()->connect(&RizinWrapper::registersChanged, this, &MemoryMapWidget::refreshMemoryMap);
+    Session()->connect(&RizinWrapper::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(memoryModel, MemoryMapModel::CommentColumn);
+    });
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
             [this] { ui->quickFilterView->setItemCount(memoryProxyModel->rowCount()); });
 }
@@ -147,7 +148,7 @@ void MemoryMapWidget::refreshMemoryMap()
         return;
     }
 
-    if (Core()->currentlyEmulating) {
+    if (Session()->isCurrentlyEmulating()) {
         return;
     }
     memoryModel->beginResetModel();

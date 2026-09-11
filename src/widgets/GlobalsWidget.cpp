@@ -196,11 +196,12 @@ GlobalsWidget::GlobalsWidget(MainWindow *main)
     connect(actionEditGlobal, &QAction::triggered, this, [this]() { editGlobal(); });
     connect(actionDeleteGlobal, &QAction::triggered, this, [this]() { deleteGlobal(); });
 
-    connect(Core(), &CutterCore::globalVarsChanged, this, &GlobalsWidget::refreshGlobals);
-    connect(Core(), &CutterCore::codeRebased, this, &GlobalsWidget::refreshGlobals);
-    connect(Core(), &CutterCore::refreshAll, this, &GlobalsWidget::refreshGlobals);
-    connect(Core(), &CutterCore::commentsChanged, this,
-            [this]() { qhelpers::emitColumnChanged(globalsModel, GlobalsModel::CommentColumn); });
+    Session()->connect(&RizinWrapper::globalVarsChanged, this, &GlobalsWidget::refreshGlobals);
+    Session()->connect(&DynamicSession::codeRebased, this, &GlobalsWidget::refreshGlobals);
+    Session()->connect(&DynamicSession::refreshAll, this, &GlobalsWidget::refreshGlobals);
+    Session()->connect(&RizinWrapper::commentsChanged, this, [this]() {
+        qhelpers::emitColumnChanged(globalsModel, GlobalsModel::CommentColumn);
+    });
 }
 
 GlobalsWidget::~GlobalsWidget() {}

@@ -231,7 +231,7 @@ public:
 
     bool write(const uint8_t *in, uint64_t adr, size_t len) override
     {
-        RzCoreLocked core(Core());
+        auto core = Core()->lock();
         rz_core_write_at(core, adr, in, len);
         writeToCache(in, adr, len);
         emit Core()->instructionChanged(adr);

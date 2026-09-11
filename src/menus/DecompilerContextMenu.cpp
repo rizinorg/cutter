@@ -179,7 +179,7 @@ void DecompilerContextMenu::aboutToShowSlot()
     setupBreakpointsInLineMenu();
 
     // Only show debug options if we are currently debugging
-    debugMenu->menuAction()->setVisible(Core()->currentlyDebugging);
+    debugMenu->menuAction()->setVisible(Session()->isCurrentlyDebugging());
 
     const bool hasBreakpoint = !this->availableBreakpoints.isEmpty();
     const int numberOfBreakpoints = this->availableBreakpoints.size();
@@ -213,7 +213,7 @@ void DecompilerContextMenu::aboutToShowSlot()
             actionRenameThingHere.setText(
                     tr("Rename function %1").arg(QString(annotationHere->reference.name)));
         } else if (annotationHere->type == RZ_CODE_ANNOTATION_TYPE_GLOBAL_VARIABLE) {
-            RzCoreLocked core = Core()->lock();
+            auto core = Core()->lock();
             const RzFlagItem *flagDetails =
                     rz_flag_get_i(core->flags, annotationHere->reference.offset);
             if (flagDetails) {
@@ -230,7 +230,7 @@ void DecompilerContextMenu::aboutToShowSlot()
     if (isReference()) {
         actionCopyReferenceAddress.setVisible(true);
         const RVA referenceAddr = annotationHere->reference.offset;
-        RzCoreLocked core = Core()->lock();
+        auto core = Core()->lock();
         const RzFlagItem *flagDetails = rz_flag_get_i(core->flags, referenceAddr);
         if (annotationHere->type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
             actionCopyReferenceAddress.setText(tr("Copy address of %1 (%2)")
@@ -402,7 +402,7 @@ void DecompilerContextMenu::actionRenameThingHereTriggered()
     if (!annotationHere || annotationHere->type == RZ_CODE_ANNOTATION_TYPE_CONSTANT_VARIABLE) {
         return;
     }
-    RzCoreLocked core = Core()->lock();
+    auto core = Core()->lock();
     bool ok;
     auto type = annotationHere->type;
     if (type == RZ_CODE_ANNOTATION_TYPE_FUNCTION_NAME) {
@@ -530,7 +530,7 @@ void DecompilerContextMenu::actionAdvancedBreakpointTriggered()
 
 void DecompilerContextMenu::actionContinueUntilTriggered() const
 {
-    Core()->continueUntilDebug(offset);
+    Session()->continueUntilDebug(offset);
 }
 
 void DecompilerContextMenu::actionSetPCTriggered() const
@@ -572,7 +572,7 @@ void DecompilerContextMenu::updateTargetMenuActions()
         action->deleteLater();
     }
     showTargetMenuActions.clear();
-    RzCoreLocked core = Core()->lock();
+    auto core = Core()->lock();
     if (isReference()) {
         QString name;
         QMenu *menu = nullptr;
