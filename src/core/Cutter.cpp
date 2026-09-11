@@ -5124,8 +5124,11 @@ QByteArray CutterCore::hexStringToBytes(const QString &hex)
 {
     const QByteArray hexChars = hex.toUtf8();
     QByteArray bytes;
-    bytes.reserve(hexChars.length() / 2);
+    bytes.resize(hexChars.length() / 2 + 1);
     const int size = rz_hex_str2bin(hexChars.constData(), reinterpret_cast<ut8 *>(bytes.data()));
+    if (size < 0) {
+        return {};
+    }
     bytes.resize(size);
     return bytes;
 }
