@@ -22,6 +22,11 @@ if (CUTTER_ENABLE_SIGDB)
     list(APPEND MESON_OPTIONS "-Dinstall_sigdb=true")
 endif()
 
+# Enable ASan/UBSan in bundled Rizin when Cutter ASAN is enabled
+if(CUTTER_ASAN)
+    list(APPEND MESON_OPTIONS "-Db_sanitize=address,undefined")
+endif()
+
 find_program(MESON meson)
 if(NOT MESON)
     message(FATAL_ERROR "Failed to find meson, which is required to build bundled rizin")
