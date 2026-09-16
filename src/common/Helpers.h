@@ -118,6 +118,15 @@ CUTTER_EXPORT void emitColumnChanged(QAbstractItemModel *model, int column);
 
 CUTTER_EXPORT bool filterStringContains(const QString &string, const QSortFilterProxyModel *model);
 
+/**
+ * @brief Applies filter options to a proxy model
+ * @param proxyModel The proxy model to filter
+ * @param filterText The text to filter by
+ * @param options Bitwise combination of SearchOption flags (CaseSensitive, WholeWords, RegExp)
+ */
+CUTTER_EXPORT void applyFilter(QSortFilterProxyModel *proxyModel, const QString &filterText,
+                               int options);
+
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 using ColorFloat = float;
 using KeyComb = QKeyCombination;

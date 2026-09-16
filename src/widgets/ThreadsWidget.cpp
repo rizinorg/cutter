@@ -1,12 +1,16 @@
 #include "ThreadsWidget.h"
 
-#include "CutterCommon.h"
-#include "Helpers.h"
 #include "QuickFilterView.h"
+#include "common/Configuration.h"
+#include "common/CutterSearchable.h"
+#include "common/Helpers.h"
+#include "core/Cutter.h"
 #include "core/MainWindow.h"
 #include "shortcuts/ShortcutManager.h"
 #include "ui_ThreadsWidget.h"
 
+#include <QAction>
+#include <QMenu>
 #include <QShortcut>
 
 #include <rz_debug.h>
@@ -147,8 +151,10 @@ ThreadsWidget::ThreadsWidget(MainWindow *main)
     menuText.setSeparator(true);
     qhelpers::prependQAction(&menuText, &addressableItemContextMenu);
 
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, modelFilter,
-            &QSortFilterProxyModel::setFilterWildcard);
+    connect(ui->quickFilterView, &QuickFilterView::filterChanged, this,
+            [this](const QString &text, int options) {
+                qhelpers::applyFilter(modelFilter, text, options);
+            });
     connect(Core(), &CutterCore::refreshAll, this, &ThreadsWidget::updateContents);
     connect(Core(), &CutterCore::registersChanged, this, &ThreadsWidget::updateContents);
     connect(Core(), &CutterCore::debugTaskStateChanged, this, &ThreadsWidget::updateContents);

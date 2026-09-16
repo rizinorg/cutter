@@ -18,9 +18,9 @@ class QuickFilterView : public AbstractFilterView
 
 public:
     explicit QuickFilterView(QWidget *parent = nullptr);
-    ~QuickFilterView();
+    ~QuickFilterView() override;
 
-    void clearFilter();
+    void clearFilter() override;
 
 protected:
     ItemCountLineEdit *lineEdit() const override;

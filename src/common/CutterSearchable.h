@@ -4,6 +4,7 @@
 #include "CutterCommon.h"
 
 class QString;
+class QSortFilterProxyModel;
 class SearchBarWidget;
 class QWidget;
 
@@ -81,6 +82,7 @@ void setupConnections(QWidget *parent, SearchBarWidget *bar);
  */
 void positionSearchBar(QWidget *parent, SearchBarWidget *searchBar, QWidget *searchArea,
                        int hPadding, int vPadding);
-};
+
+} // namespace CutterSearchableHelper
 
 #endif // CUTTERSEARCHABLE_H

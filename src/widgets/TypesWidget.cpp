@@ -1,5 +1,6 @@
 #include "TypesWidget.h"
 
+#include "common/CutterSearchable.h"
 #include "common/Helpers.h"
 #include "core/MainWindow.h"
 #include "dialogs/TypesInteractionDialog.h"
@@ -181,10 +182,12 @@ TypesWidget::TypesWidget(MainWindow *main)
 
     ui->typesTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, typesProxyModel,
-            &QSortFilterProxyModel::setFilterWildcard);
+    connect(ui->quickFilterView, &ComboQuickFilterView::filterChanged, this,
+            [this](const QString &text, int options) {
+                qhelpers::applyFilter(typesProxyModel, text, options);
+            });
 
-    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
+    connect(ui->quickFilterView, &ComboQuickFilterView::filterChanged, this,
             [this] { ui->quickFilterView->setItemCount(typesProxyModel->rowCount()); });
 
     QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);

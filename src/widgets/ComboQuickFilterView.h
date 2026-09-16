@@ -22,7 +22,7 @@ class ComboQuickFilterView : public AbstractFilterView
 
 public:
     explicit ComboQuickFilterView(QWidget *parent = nullptr);
-    ~ComboQuickFilterView();
+    ~ComboQuickFilterView() override;
 
     void setLabelText(const QString &text);
     QComboBox *comboBox();

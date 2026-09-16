@@ -62,6 +62,17 @@ void InterfaceOptionsWidget::setUpQuickFilter()
     connect(ui->quickFilterCheckBox, &QCheckBox::toggled, Config(),
             &Configuration::setShowQuickFilter);
 
+    ui->caseSensitiveCheckBox->setChecked(Config()->getQuickFilterCaseSensitive());
+    connect(ui->caseSensitiveCheckBox, &QCheckBox::toggled, Config(),
+            &Configuration::setQuickFilterCaseSensitive);
+
+    ui->wholeWordsCheckBox->setChecked(Config()->getQuickFilterWholeWords());
+    connect(ui->wholeWordsCheckBox, &QCheckBox::toggled, Config(),
+            &Configuration::setQuickFilterWholeWords);
+
+    ui->regexCheckBox->setChecked(Config()->getQuickFilterRegex());
+    connect(ui->regexCheckBox, &QCheckBox::toggled, Config(), &Configuration::setQuickFilterRegex);
+
     ui->itemCountCheckBox->setChecked(Config()->getItemCountVisible());
     connect(ui->itemCountCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
         Config()->setItemCountVisible(checked);
