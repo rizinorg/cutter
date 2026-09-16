@@ -37,9 +37,10 @@ DiffLoadDialog::DiffLoadDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Di
             &DiffLoadDialog::onButtonFileAOpenClicked);
     connect(ui->buttonFileBOpen, &QPushButton::clicked, this,
             &DiffLoadDialog::onButtonFileBOpenClicked);
-    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &DiffLoadDialog::onButtonBoxAccepted);
-    connect(ui->setCurrentA, &QCheckBox::stateChanged, this, &DiffLoadDialog::onSetCurrentAChanged);
-    connect(ui->setCurrentB, &QCheckBox::stateChanged, this, &DiffLoadDialog::onSetCurrentBChanged);
+    connect(ui->buttonBox->button(QDialogButtonBox::Ok), &QPushButton::clicked, this,
+            &DiffLoadDialog::onButtonBoxAccepted);
+    connect(ui->setCurrentA, &QCheckBox::toggled, this, &DiffLoadDialog::onSetCurrentAChanged);
+    connect(ui->setCurrentB, &QCheckBox::toggled, this, &DiffLoadDialog::onSetCurrentBChanged);
 
     auto index = ui->comboBoxAnalysis->findData(tr("Auto"), Qt::DisplayRole);
     ui->comboBoxAnalysis->setCurrentIndex(index);
@@ -96,7 +97,7 @@ int DiffLoadDialog::getCompare() const
 void DiffLoadDialog::onButtonFileAOpenClicked()
 {
     QFileDialog dialog(this);
-    dialog.setWindowTitle(tr("Select File 2"));
+    dialog.setWindowTitle(tr("Select File A"));
     dialog.setNameFilters({ tr("All files (*)") });
 
     if (!dialog.exec()) {
@@ -112,8 +113,8 @@ void DiffLoadDialog::onButtonFileAOpenClicked()
     const QFileInfo info(fileName);
 
     if (!info.exists() || !info.isFile()) {
-        QMessageBox::warning(this, tr("Invalid Path"),
-                             tr("Given file path for File A is not valid."));
+        QMessageBox::warning(this, tr("Invalid File Path"),
+                             tr("Please provide a valid path for File A"));
         return;
     }
 
@@ -123,7 +124,7 @@ void DiffLoadDialog::onButtonFileAOpenClicked()
 void DiffLoadDialog::onButtonFileBOpenClicked()
 {
     QFileDialog dialog(this);
-    dialog.setWindowTitle(tr("Select File 2"));
+    dialog.setWindowTitle(tr("Select File B"));
     dialog.setNameFilters({ tr("All files (*)") });
 
     if (!dialog.exec()) {
@@ -136,31 +137,42 @@ void DiffLoadDialog::onButtonFileBOpenClicked()
         return;
     }
 
+    const QFileInfo info(fileName);
+
+    if (!info.exists() || !info.isFile()) {
+        QMessageBox::warning(this, tr("Invalid File Path"),
+                             tr("Please provide a valid path for File B"));
+        return;
+    }
+
     ui->lineEditFileB->setText(fileName);
 }
 
 void DiffLoadDialog::onButtonBoxAccepted()
 {
-    if (ui->lineEditFileA->text().isEmpty()) {
-        QMessageBox::warning(this, tr("Empty FileA"), tr("Select a file for diffing."));
-        return;
-    }
     const QFileInfo infoA(ui->lineEditFileA->text());
+    if (ui->lineEditFileA->text().isEmpty() || !infoA.exists() || !infoA.isFile()) {
+        QMessageBox::warning(this, tr("Invalid File Path"),
+                             tr("Please provide a valid path for File A"));
+        return;
+    }
 
-    if (!infoA.exists() || !infoA.isFile()) {
-        QMessageBox::warning(this, tr("Invalid Path"),
-                             tr("Given file path for File A is not valid."));
-        return;
-    }
-    if (ui->lineEditFileB->text().isEmpty()) {
-        QMessageBox::warning(this, tr("Empty FileB"), tr("Select a file for diffing."));
-        return;
-    }
     const QFileInfo infoB(ui->lineEditFileB->text());
+    if (ui->lineEditFileB->text().isEmpty() || !infoB.exists() || !infoB.isFile()) {
+        QMessageBox::warning(this, tr("Invalid File Path"),
+                             tr("Please provide a valid path for File B"));
+        return;
+    }
 
-    if (!infoB.exists() || !infoB.isFile()) {
-        QMessageBox::warning(this, tr("Invalid Path"),
-                             tr("Given file path for File B is not valid."));
+    if (!infoA.isReadable()) {
+        QMessageBox::warning(this, tr("Cannot open the file"),
+                             tr("The selected File A cannot be read."));
+        return;
+    }
+
+    if (!infoB.isReadable()) {
+        QMessageBox::warning(this, tr("Cannot open the file"),
+                             tr("The selected File B cannot be read."));
         return;
     }
 
@@ -180,6 +192,7 @@ void DiffLoadDialog::onButtonBoxAccepted()
 
     waitDialog->setAttribute(Qt::WA_DeleteOnClose);
     waitDialog->show(ui->lineEditFileA->text(), ui->lineEditFileB->text());
+    accept();
 }
 
 void DiffLoadDialog::onButtonBoxRejected() {}

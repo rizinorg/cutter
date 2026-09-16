@@ -2,15 +2,25 @@
 #define CUTTERDIFFWINDOW_H
 
 #include <QAction>
+#include <QCloseEvent>
 #include <QMainWindow>
 #include <QSyntaxHighlighter>
 
 #include <BinDiff.h>
 #include <CutterDiff.h>
+#include <deque>
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#    define CUTTER_FILTER_REGEXP() filterRegularExpression()
+#else
+#    define CUTTER_FILTER_REGEXP() filterRegExp()
+#endif
 
 namespace Ui {
 class CutterDiffWindow;
 }
+
+enum TabWidgets : ut8 { MatchWidget, RemovedWidget, AddedWidget, HexDiff, LineDiff, GraphDiff };
 
 class HexDiffWidget;
 class LineDiffWidget;
@@ -40,6 +50,9 @@ public:
     void showMatches();
     void showRemoved();
     void showAdded();
+    void showPrevMemoryWidget();
+    void showDiffItemContextMenu(const QPoint &pos, int diffItemIndex, bool orig = true);
+
 public slots:
     void onActionDiffNewFile();
 private slots:
@@ -56,6 +69,26 @@ private:
     DiffMatchWidget *matchWidget = nullptr;
     DiffMisMatchWidget *addedWidget = nullptr;
     DiffMisMatchWidget *removedWidget = nullptr;
+    struct DiffSeekLocation
+    {
+        int tabIndex;
+        int diffItemIndex;
+
+        bool operator==(const DiffSeekLocation &other) const
+        {
+            return tabIndex == other.tabIndex && diffItemIndex == other.diffItemIndex;
+        }
+    };
+
+    std::deque<DiffSeekLocation> seekHistory;
+    size_t currentSeekIndex = 0;
+    bool seekingHistory = false;
+
+    static constexpr size_t maxSeekHistory = 50;
+    ut8 lastMemoryWidget = HexDiff;
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 private:
     void addHexDiff();
@@ -63,20 +96,27 @@ private:
     void addGraphDiff();
     void setupFonts();
     void exportDiff();
+    void seekHistoryForward();
+    void seekHistoryBackward();
+    void seekToCurrentHistory();
+    void addSeekHistory();
+
+    void updateSeekActions();
+    void onTabIndexChanged();
+signals:
+    void reload();
 };
 
 class CutterDiffWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CutterDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent)
-        : QWidget(parent), cutterDiff(cutterDiff), diffWindow(parent)
-    {
-    }
+    explicit CutterDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent);
 
 protected:
     CutterDiff *cutterDiff;
     CutterDiffWindow *diffWindow;
+    virtual void reload() = 0;
 };
 
 #endif // CUTTERDIFFWINDOW_H

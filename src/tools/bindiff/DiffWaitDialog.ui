@@ -53,7 +53,7 @@
        <item row="2" column="0">
         <widget class="QLabel" name="labelOrignal">
          <property name="text">
-          <string>Original File</string>
+          <string>File A</string>
          </property>
         </widget>
        </item>
@@ -80,7 +80,7 @@
        <item row="3" column="0">
         <widget class="QLabel" name="labelModified">
          <property name="text">
-          <string>Modified File</string>
+          <string>File B</string>
          </property>
         </widget>
        </item>

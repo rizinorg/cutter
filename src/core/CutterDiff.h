@@ -12,7 +12,6 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QObject>
-
 class CutterDiffLocked;
 class CutterDiff;
 using CutterDiffItemDescription = QVariantMap;
@@ -187,7 +186,7 @@ public:
         emit currentItemDiffChanged();
     }
 
-    int getCurrentDiffItemIndex() { return currentDiffItemIndex; }
+    int getCurrentDiffItemIndex() const { return currentDiffItemIndex; }
 
     bool diffEmpty() { return diffItemList.empty(); }
 
@@ -202,6 +201,14 @@ public:
             return invalidCutterDiffItem;
         }
         return diffItemList[currentDiffItemIndex];
+    }
+
+    const CutterDiffItem &getDiffItemAt(int index) const
+    {
+        if (index < 0 || index >= (int)diffItemList.size()) {
+            return invalidCutterDiffItem;
+        }
+        return diffItemList[index];
     }
 
     /**
@@ -222,7 +229,11 @@ public:
     // removeDiffItem
     // itemupdate signal from diffItems as well which will again trigger dataupdated
 
-    void emitUpdate() { emit diffDataUpdated(); }
+    void emitUpdate()
+    {
+        currentDiffItemIndex = diffItemList.size() ? 0 : -1;
+        emit diffDataUpdated();
+    }
 
     QList<DiffInstr> rzDiffOpToCutterInstrs(RzDiff *diff,
                                             RzList * /*<RzList<RzDiffOp*>>**/ list) const;

@@ -549,20 +549,21 @@ RzAnalysisMatchResult *CutterDiff::matchFunctions(int compareLogic,
                                                   RzAnalysisMatchThreadInfoCb callback, void *user)
 {
     LOCK();
-    RzList *fcnsA = nullptr, *fcnsB = nullptr;
     RzAnalysisMatchResult *result = nullptr;
     RzAnalysisMatchOpt opts;
 
-    fcnsA = getFunctions(coreA->analysis, compareLogic);
-    if (rz_list_empty(fcnsA)) {
+    auto fcnsA = fromOwned(
+            getFunctions(coreA->analysis,
+                         compareLogic)); /* returns unique ptr with rz_list_free as free function */
+    if (!fcnsA || rz_list_empty(fcnsA.get())) {
         qWarning() << tr("no functions found in the current opened file");
-        goto fail;
+        return nullptr;
     }
 
-    fcnsB = getFunctions(coreB->analysis, compareLogic);
-    if (rz_list_empty(fcnsB)) {
+    auto fcnsB = fromOwned(getFunctions(coreB->analysis, compareLogic));
+    if (!fcnsB || rz_list_empty(fcnsB.get())) {
         qWarning() << tr("no functions found in the just opene file %1");
-        goto fail;
+        return nullptr;
     }
 
     opts.analysis_a = coreA->analysis;
@@ -571,21 +572,13 @@ RzAnalysisMatchResult *CutterDiff::matchFunctions(int compareLogic,
     opts.user = user;
 
     // calculate all the matches between the functions of the 2 different core files.
-    result = rz_analysis_match_functions(fcnsA, fcnsB, &opts);
+    result = rz_analysis_match_functions(fcnsA.get(), fcnsB.get(), &opts);
     if (!result) {
         qWarning() << tr("failed to perform the function matching operation or job was cancelled.");
-        goto fail;
+        return nullptr;
     }
 
-    rz_list_free(fcnsA);
-    rz_list_free(fcnsB);
     return result;
-
-fail:
-
-    rz_list_free(fcnsA);
-    rz_list_free(fcnsB);
-    return nullptr;
 }
 
 RzAnalysisMatchResult *CutterDiff::matchFunctionBlocks(RVA addrA, RVA addrB,

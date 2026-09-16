@@ -330,6 +330,8 @@ public slots:
 signals:
     void selectionChanged(HexDiffView::Selection selection);
     void positionChanged(RVA start);
+    void transposeChanged(int transpose);
+    void startAddressChanged(RVA startAddress);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

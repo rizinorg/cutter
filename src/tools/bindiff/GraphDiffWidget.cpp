@@ -10,6 +10,8 @@ GraphDiffWidget::GraphDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *paren
       rightView(new DiffGraphView(cutterDiff, this))
 {
     auto vBox = new QVBoxLayout(this);
+    vBox->setContentsMargins(0, 0, 0, 0);
+    vBox->setSpacing(2);
     setLayout(vBox);
 
     // Top: current function name
@@ -36,17 +38,17 @@ GraphDiffWidget::GraphDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *paren
     comboBox = new QComboBox(this);
     comboBox->addItem("Unified", UnifiedMode);
     comboBox->addItem("Split", SplitMode);
-    comboBox->addItem("Original", OriginalMode);
-    comboBox->addItem("Modified", ModifiedMode);
+    comboBox->addItem("File A", OriginalMode);
+    comboBox->addItem("File B", ModifiedMode);
 
     bottomHBox->addStretch();
     bottomHBox->addWidget(splitOrientationButton);
     bottomHBox->addWidget(comboBox);
 
     vBox->addLayout(bottomHBox, 0);
-    connect(cutterDiff, &CutterDiff::currentItemDiffChanged, this, &GraphDiffWidget::loadGraph);
+    connect(cutterDiff, &CutterDiff::currentItemDiffChanged, this, &GraphDiffWidget::reload);
     connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
-            &GraphDiffWidget::loadGraph);
+            &GraphDiffWidget::reload);
     connect(splitOrientationButton, &QPushButton::clicked, this, [this, splitter]() {
         changeSplitOrientation();
         splitter->setOrientation(graphSplitHorizontal ? Qt::Horizontal : Qt::Vertical);
@@ -63,7 +65,7 @@ void GraphDiffWidget::changeSplitOrientation()
     }
 }
 
-void GraphDiffWidget::loadGraph()
+void GraphDiffWidget::reload()
 {
     const CutterDiffItem &diffItem = cutterDiff->getCurrentDiffItem();
     const auto type = cutterDiff->getCurrentDiffItem().getType();

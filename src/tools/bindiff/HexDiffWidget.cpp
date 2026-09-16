@@ -52,9 +52,6 @@ HexDiffWidget::HexDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent)
     ui->bytesSHA256B->setPlaceholderText(placeholder);
     ui->bytesCRC32B->setPlaceholderText(placeholder);
 
-    // HexDiffView signals
-    connect(hexDiffView, &HexDiffView::selectionChanged, this, &HexDiffWidget::selectionChanged);
-
     // Copy buttons - File A
     connect(ui->copyMD5A, &QPushButton::clicked, this, &HexDiffWidget::onCopyMD5AClicked);
 
@@ -117,6 +114,7 @@ void HexDiffWidget::seekToDiffItem()
 void HexDiffWidget::reload()
 {
     const QFont font = Config()->getFont();
+    seekToDiffItem();
     hexDiffView->setMonospaceFont(font);
     hexDiffView->refresh();
 }

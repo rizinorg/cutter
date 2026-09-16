@@ -4,11 +4,28 @@
 #include "CutterDiffWindow.h"
 
 #include <QLabel>
+#include <QSortFilterProxyModel>
 #include <QWidget>
+#include <QuickFilterView.h>
 
 #include <AddressableItemModel.h>
 #include <CutterDiff.h>
 #include <CutterTreeView.h>
+
+class FunctionListProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+public:
+    explicit FunctionListProxyModel(QObject *parent = nullptr);
+
+protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
+
+    bool lessThan(const QModelIndex &sourceLeft, const QModelIndex &sourceRight) const override;
+
+private:
+};
 
 class FunctionListModel : public AddressableItemModel<>
 {
@@ -40,7 +57,9 @@ class FunctionDiffNavWidget : public CutterDiffWidget
 public:
     explicit FunctionDiffNavWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent);
     ~FunctionDiffNavWidget() = default;
-    void reload();
+
+protected:
+    void reload() override;
 
 private:
     QLabel *labelFileA;
@@ -51,6 +70,10 @@ private:
     QList<FunctionDescription> fcnsB;
     FunctionListModel *modelA;
     FunctionListModel *modelB;
+    FunctionListProxyModel *proxyModelA;
+    FunctionListProxyModel *proxyModelB;
+    QuickFilterView *filterA;
+    QuickFilterView *filterB;
 };
 
 #endif // FUNCTIONDIFFNAVWIDGET_H

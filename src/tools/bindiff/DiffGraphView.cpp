@@ -336,8 +336,8 @@ void DiffGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool)
 {
     QColor matched = Config()->getColor("gui.match.perfect");
     QColor unmatched = Config()->getColor("gui.match.partial");
-    matched.setAlpha(50);
-    unmatched.setAlpha(50);
+    matched.setAlpha(20);
+    unmatched.setAlpha(20);
     const QRectF blockRect(block.x, block.y, block.width, block.height);
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
@@ -360,6 +360,7 @@ void DiffGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool)
 
     p.setPen(QPen(graphNodeColor, 1));
     p.setBrush(disassemblyBackgroundColor);
+    p.drawRect(blockRect); // Background for composing the match colors
     if (blockSelected) {
         if (db.type == DiffItemRemoved) {
             p.setBrush(QColor(unmatched.red(), unmatched.green(), unmatched.blue(), 100));

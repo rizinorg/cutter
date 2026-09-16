@@ -4,11 +4,32 @@
 #include "CutterDiffWindow.h"
 
 #include <QAction>
+#include <QCheckBox>
+#include <QSortFilterProxyModel>
 #include <QWidget>
+#include <QuickFilterView.h>
 
 #include <Configuration.h>
 #include <CutterDiff.h>
 #include <CutterTreeView.h>
+
+class DiffMatchProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+public:
+    explicit DiffMatchProxyModel(QObject *parent = nullptr);
+
+    void setHidePerfectMatches(bool hide);
+
+protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
+
+    bool lessThan(const QModelIndex &sourceLeft, const QModelIndex &sourceRight) const override;
+
+private:
+    bool hidePerfectMatches = false;
+};
 
 class DiffMatchModel : public QAbstractListModel
 {
@@ -50,17 +71,21 @@ class DiffMatchWidget : public CutterDiffWidget
 public:
     explicit DiffMatchWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent);
     ~DiffMatchWidget() = default;
-    void reload();
+
+protected:
+    void reload() override;
 signals:
 private:
     // CutterDiff *cutterDiff;
     // CutterDiffWindow *diffWindow;
     CutterTreeView *treeView;
     DiffMatchModel *model;
+    DiffMatchProxyModel *proxyModel;
     QList<BinDiffMatchDescription> list;
+    QCheckBox *checkBoxHideIdentical;
+    QuickFilterView *matchesFilter;
 
 private:
-    void showContextMenu(const QPoint &pos);
 };
 
 #endif // DIFFMATCHWIDGET_H

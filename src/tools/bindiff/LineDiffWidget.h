@@ -30,6 +30,7 @@ public:
     void setUpColors();
 
 protected:
+    void reload() override;
 private slots:
     void onViewModeChanged();
 

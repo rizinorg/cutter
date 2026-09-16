@@ -18,8 +18,10 @@ class GraphDiffWidget : public CutterDiffWidget
     Q_OBJECT
 public:
     explicit GraphDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent);
-    void loadGraph();
     void changeSplitOrientation();
+
+protected:
+    void reload() override;
 signals:
 private:
     DiffGraphView *leftView = nullptr;

@@ -21,6 +21,7 @@ LineDiffWidget::LineDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent)
     auto *layoutV = new QVBoxLayout(this);
     layoutV->setContentsMargins(0, 0, 0, 0);
     layoutV->setSpacing(2);
+    setLayout(layoutV);
 
     // Header
     auto *layoutHHeader = new QHBoxLayout();
@@ -56,7 +57,7 @@ LineDiffWidget::LineDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent)
 
     layoutH->addWidget(splitOrientationButton);
 
-    viewSelector->addItems({ "Unified", "Split", "Left", "Right" });
+    viewSelector->addItems({ "Unified", "Split", "File A", "File B" });
 
     connect(Config(), &Configuration::colorsUpdated, this, &LineDiffWidget::setUpColors);
     connect(Config(), &Configuration::fontsUpdated, this, &LineDiffWidget::setUpFonts);
@@ -83,11 +84,15 @@ LineDiffWidget::LineDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent)
     connect(Config(), &Configuration::fontsUpdated, this, &LineDiffWidget::setUpFonts);
     onViewModeChanged();
 
-    connect(cutterDiff, &CutterDiff::currentItemDiffChanged, this,
-            [this]() { fetchFunctionDisasSplit(this->cutterDiff->getCurrentDiffItem()); });
+    connect(cutterDiff, &CutterDiff::currentItemDiffChanged, this, &LineDiffWidget::reload);
 }
 
 LineDiffWidget::~LineDiffWidget() {}
+
+void LineDiffWidget::reload()
+{
+    fetchFunctionDisasSplit(this->cutterDiff->getCurrentDiffItem());
+}
 
 void LineDiffWidget::onViewModeChanged()
 {
@@ -210,7 +215,7 @@ void LineDiffWidget::fetchFunctionDisasSplit(const CutterDiffItem &diffItem)
         }
     } else if (diffItem.getType() == DiffItemAdded) {
         functionLabel->setText(QString("%0").arg(diffItem.descriptionB()["name"].toString()));
-        if (!diffItem.descriptionB().contains("disas")) {
+        if (diffItem.descriptionB().contains("disas")) {
             unifiedEdit->insertFormatted(diffItem.descriptionB()["disas"].toString(), matched);
             viewSelector->setCurrentIndex(0);
             return;

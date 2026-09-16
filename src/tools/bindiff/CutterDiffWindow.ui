@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1080</width>
-    <height>720</height>
+    <width>992</width>
+    <height>682</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,6 +15,18 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
      <widget class="QSplitter" name="splitter">
       <property name="sizePolicy">
@@ -49,25 +61,64 @@
         </sizepolicy>
        </property>
        <property name="currentIndex">
-        <number>3</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tabMatches">
         <attribute name="title">
          <string>Match Results</string>
         </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_2"/>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+        </layout>
        </widget>
        <widget class="QWidget" name="tabAdded">
         <attribute name="title">
          <string>Added</string>
         </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_3"/>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+        </layout>
        </widget>
        <widget class="QWidget" name="tabRemoved">
         <attribute name="title">
          <string>Removed</string>
         </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_4"/>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+        </layout>
        </widget>
        <widget class="QWidget" name="tabHexDiff">
         <attribute name="title">
@@ -95,7 +146,17 @@
             <bool>false</bool>
            </property>
            <widget class="QWidget" name="horizontalLayoutWidget">
-            <layout class="QHBoxLayout" name="hexDiffContainer"/>
+            <layout class="QHBoxLayout" name="hexDiffContainer">
+             <property name="leftMargin">
+              <number>3</number>
+             </property>
+             <property name="topMargin">
+              <number>3</number>
+             </property>
+             <property name="rightMargin">
+              <number>3</number>
+             </property>
+            </layout>
            </widget>
           </widget>
          </item>
@@ -131,8 +192,24 @@
          <string>GraphDiff</string>
         </attribute>
         <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
          <item>
-          <layout class="QHBoxLayout" name="graphDiffContainer"/>
+          <layout class="QHBoxLayout" name="graphDiffContainer">
+           <property name="spacing">
+            <number>6</number>
+           </property>
+          </layout>
          </item>
         </layout>
        </widget>
@@ -146,7 +223,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1080</width>
+     <width>992</width>
      <height>22</height>
     </rect>
    </property>
@@ -160,6 +237,25 @@
    <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="acceptDrops">
+    <bool>false</bool>
+   </property>
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionUndoSeek"/>
+   <addaction name="actionRedoSeek"/>
+  </widget>
   <action name="actionDiffNewFiles">
    <property name="text">
     <string>Diff New Files</string>
@@ -170,7 +266,40 @@
     <string>Export to JSON</string>
    </property>
   </action>
+  <action name="actionUndoSeek">
+   <property name="icon">
+    <iconset>
+     <normalon>:/img/icons/arrow_left.svg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Undo Seek</string>
+   </property>
+   <property name="toolTip">
+    <string>Undo Seek</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::TextHeuristicRole</enum>
+   </property>
+  </action>
+  <action name="actionRedoSeek">
+   <property name="icon">
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/img/icons/arrow_right.svg</normaloff>:/img/icons/arrow_right.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Redo Seek</string>
+   </property>
+   <property name="toolTip">
+    <string>Redo Seek</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::TextHeuristicRole</enum>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

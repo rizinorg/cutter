@@ -96,12 +96,12 @@ public:
     double progress() const override { return currentProgress; }
 
 private:
-    struct MatchEntry
-    {
-        const RzAnalysisFunction *fcnA;
-        const RzAnalysisFunction *fcnB;
-        double similarity;
-    };
+    // struct MatchEntry
+    // {
+    //     const RzAnalysisFunction *fcnA;
+    //     const RzAnalysisFunction *fcnB;
+    //     double similarity;
+    // };
     static bool threadCallback(const size_t nLeft, const size_t nMatch, void *user);
     int maxTotal = 1;
     bool validateProgress(const size_t nLeft, const size_t nMatches);

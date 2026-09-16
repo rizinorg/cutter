@@ -3,11 +3,28 @@
 
 #include "CutterDiffWindow.h"
 
+#include <QSortFilterProxyModel>
 #include <QWidget>
+#include <QuickFilterView.h>
 
 #include <AddressableItemModel.h>
 #include <CutterDiff.h>
 #include <CutterTreeView.h>
+
+class DiffMismatchProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+public:
+    explicit DiffMismatchProxyModel(QObject *parent = nullptr);
+
+protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
+
+    bool lessThan(const QModelIndex &sourceLeft, const QModelIndex &sourceRight) const override;
+
+private:
+};
 
 class DiffMismatchModel : public AddressableItemModel<>
 {
@@ -54,7 +71,9 @@ public:
     explicit DiffMisMatchWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent,
                                 bool original = false);
     ~DiffMisMatchWidget() = default;
-    void reload();
+
+protected:
+    void reload() override;
 signals:
 
 private:
@@ -62,6 +81,8 @@ private:
     CutterTreeView *treeView;
     DiffMismatchModel *model;
     QList<FunctionDescription> list;
+    DiffMismatchProxyModel *proxyModel;
+    QuickFilterView *mismatchesFilter;
 };
 
 #endif // DIFFMISMATCHWIDGET_H
