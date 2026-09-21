@@ -324,6 +324,15 @@ bool filterStringContains(const QString &string, const QSortFilterProxyModel *mo
 #endif
 }
 
+bool filterRegexEmpty(const QSortFilterProxyModel *model)
+{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    return model->filterRegExp().pattern().isEmpty();
+#else
+    return model->filterRegularExpression().pattern().isEmpty();
+#endif
+}
+
 QPointF mouseEventPos(QMouseEvent *ev)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
