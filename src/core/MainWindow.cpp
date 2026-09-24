@@ -7,6 +7,7 @@
 #include "CutterConfig.h"
 #include "common/AnalysisTask.h"
 #include "common/BugReporting.h"
+#include "common/Configuration.h"
 #include "common/Helpers.h"
 #include "common/PythonManager.h"
 #include "common/RunScriptTask.h"
@@ -202,6 +203,7 @@ void MainWindow::initUI()
     connect(core, &CutterCore::showMemoryWidgetRequested, this,
             static_cast<void (MainWindow::*)()>(&MainWindow::showMemoryWidget));
     connect(core, &CutterCore::showAddressRequested, this, &MainWindow::showAddress);
+    connect(core, &CutterCore::seekChanged, this, &MainWindow::onSeekChanged);
 
     connect(core, &CutterCore::showTypeRequested, typesDock, [this](const QString &typeName) {
         typesDock->toggleDockWidget(true);
@@ -1127,7 +1129,19 @@ void MainWindow::setCurrentMemoryWidget(MemoryDockWidget *memoryWidget)
     if (memoryWidget->getSeekable()->isSynchronized()) {
         lastSyncMemoryWidget = memoryWidget;
     }
+
+    bool typeChanged = false;
+    if (lastMemoryWidget && lastMemoryWidget->getType() != memoryWidget->getType()) {
+        typeChanged = true;
+    }
+
     lastMemoryWidget = memoryWidget;
+
+    if (!restoringWidgetSwitch && Config()->getGlobalWidgetSwitchHistory() && typeChanged) {
+        Core()->pushSeekHistory();
+    } else if (widgetSwitchHistoryPos >= 0 && widgetSwitchHistoryPos < widgetSwitchHistory.size()) {
+        widgetSwitchHistory[widgetSwitchHistoryPos] = memoryWidget->getType();
+    }
 }
 
 MemoryDockWidget *MainWindow::getLastMemoryWidget()
@@ -2061,5 +2075,52 @@ void MainWindow::setAvailableIOModeOptions()
         break;
     default:
         ui->actionReadOnly->setChecked(true);
+    }
+}
+
+void MainWindow::forceShowMemoryWidget(MemoryWidgetType type)
+{
+    for (auto &dock : dockWidgets) {
+        if (auto memoryWidget = qobject_cast<MemoryDockWidget *>(dock)) {
+            if (memoryWidget->getType() == type && memoryWidget->getSeekable()->isSynchronized()) {
+                memoryWidget->raiseMemoryWidget();
+                return;
+            }
+        }
+    }
+    auto memoryDockWidget = addNewMemoryWidget(type, Core()->getOffset());
+    memoryDockWidget->raiseMemoryWidget();
+}
+
+void MainWindow::onSeekChanged(RVA /*offset*/, CutterCore::SeekHistoryType type)
+{
+    if (type == CutterCore::SeekHistoryType::New) {
+        if (widgetSwitchHistoryPos >= 0
+            && widgetSwitchHistory.size() > widgetSwitchHistoryPos + 1) {
+            widgetSwitchHistory.erase(widgetSwitchHistory.begin() + widgetSwitchHistoryPos + 1,
+                                      widgetSwitchHistory.end());
+        }
+        const MemoryWidgetType currentType =
+                lastMemoryWidget ? lastMemoryWidget->getType() : MemoryWidgetType::Disassembly;
+        widgetSwitchHistory.push_back(currentType);
+        widgetSwitchHistoryPos = widgetSwitchHistory.size() - 1;
+    } else if (type == CutterCore::SeekHistoryType::Undo) {
+        if (widgetSwitchHistoryPos > 0) {
+            widgetSwitchHistoryPos--;
+            if (Config()->getGlobalWidgetSwitchHistory()) {
+                restoringWidgetSwitch = true;
+                forceShowMemoryWidget(widgetSwitchHistory[widgetSwitchHistoryPos]);
+                restoringWidgetSwitch = false;
+            }
+        }
+    } else if (type == CutterCore::SeekHistoryType::Redo) {
+        if (widgetSwitchHistoryPos + 1 < widgetSwitchHistory.size()) {
+            widgetSwitchHistoryPos++;
+            if (Config()->getGlobalWidgetSwitchHistory()) {
+                restoringWidgetSwitch = true;
+                forceShowMemoryWidget(widgetSwitchHistory[widgetSwitchHistoryPos]);
+                restoringWidgetSwitch = false;
+            }
+        }
     }
 }

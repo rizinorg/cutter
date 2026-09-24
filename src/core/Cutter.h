@@ -430,6 +430,7 @@ public:
     void seekSilent(const QString &thing) { seekSilent(math(thing)); }
     void seekPrev();
     void seekNext();
+    void pushSeekHistory();
     void updateSeek(SeekHistoryType type = SeekHistoryType::New);
     /**
      * @brief Raise a memory widget showing current offset, prefer last active

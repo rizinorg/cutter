@@ -1034,3 +1034,13 @@ int Configuration::getOmnibarEntriesIncrement() const
 {
     return s.value("omnibarEntriesIncrement", 100).toInt();
 }
+
+void Configuration::setGlobalWidgetSwitchHistory(bool value)
+{
+    s.setValue("globalWidgetSwitchHistory", value);
+}
+
+bool Configuration::getGlobalWidgetSwitchHistory() const
+{
+    return s.value("globalWidgetSwitchHistory", true).toBool();
+}

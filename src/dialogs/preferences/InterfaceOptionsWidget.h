@@ -30,6 +30,7 @@ private:
     std::unique_ptr<Ui::InterfaceOptionsWidget> ui;
 
     void setUpFunctions();
+    void setUpNavigation();
     void setUpOmnibar();
     void setUpQuickFilter();
 };

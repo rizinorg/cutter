@@ -1029,6 +1029,26 @@ void CutterCore::seekNext()
     updateSeek(SeekHistoryType::Redo);
 }
 
+void CutterCore::pushSeekHistory()
+{
+    CORE_LOCK();
+    RzCoreSeekItem item;
+    item.offset = core->offset;
+    item.cursor = core->print->cur;
+    item.is_current = false;
+    item.idx = 0;
+
+    RzVector *vundo = &core->seek_history.undos;
+    ut64 histsize = rz_config_get_i(core->config, "cfg.seek.histsize");
+    if (histsize != 0 && rz_vector_len(vundo) >= histsize) {
+        rz_vector_remove_at(vundo, 0, nullptr);
+    }
+
+    rz_vector_push(vundo, &item);
+    rz_vector_clear(&core->seek_history.redos);
+    updateSeek(SeekHistoryType::New);
+}
+
 void CutterCore::updateSeek(SeekHistoryType type)
 {
     emit seekChanged(getOffset(), type);
