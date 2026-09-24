@@ -16,6 +16,9 @@ Cutter is a free and open-source reverse engineering platform powered by [rizin]
 
 Cutter release binaries for all major platforms (Linux, macOS, Windows) can be downloaded from [GitHub Releases](https://github.com/rizinorg/cutter/releases).
 
+> [!NOTE]
+> The packages already includes the [plugins](https://github.com/rizinorg/cutter-plugins): rz-ghidra, rz-silhouette, JsDec, swift demangler, yara.
+
 - **Linux**: If your distribution provides it, check for `cutter` package in your package manager (or `cutter-re` / `rz-cutter`). If not available there, we have setup repositories in [OBS](https://openbuildservice.org/) for some common distributions. Look at [https://software.opensuse.org/package/cutter-re](https://software.opensuse.org/download/package?package=cutter-re&project=home%3ARizinOrg) and follow the instructions there. Otherwise download the `.AppImage` file from our release, make it executable and run as below or use [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher).
 
     `chmod +x Cutter*.AppImage; ./Cutter*.AppImage`

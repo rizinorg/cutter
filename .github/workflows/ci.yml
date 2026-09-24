@@ -250,7 +250,7 @@ jobs:
           chmod a+x linuxdeployqt*.AppImage
           rm -fv "../cutter-deps/qt/plugins/imageformats/libqjp2.so"
           if [ "${{ matrix.qt-major }}" == "5" ]; then
-            export APPIMAGE_FILE="Cutter-${PACKAGE_ID}-Linux-Qt5-x86_64.AppImage"
+            export APPIMAGE_FILE="Cutter-${PACKAGE_ID}-Linux-Qt5-x86_64-with-plugins.AppImage"
             ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop \
               -executable=./appdir/usr/bin/python3 \
               -appimage \
@@ -258,7 +258,7 @@ jobs:
               -ignore-glob=usr/lib/python3.12/**/* \
               -verbose=2
           else
-            export APPIMAGE_FILE="Cutter-${PACKAGE_ID}-Linux-x86_64.AppImage"
+            export APPIMAGE_FILE="Cutter-${PACKAGE_ID}-Linux-x86_64-with-plugins.AppImage"
             ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop \
               -executable=./appdir/usr/bin/python3 \
               -appimage \
@@ -483,8 +483,8 @@ jobs:
         echo waiting for XProtectBehaviorService kill; while pgrep XProtect; do sleep 3; done;
         retry make package
         export CUTTER_VERSION=$(python3 ../scripts/get_version.py)
-        echo PACKAGE_NAME=${PACKAGE_NAME}.dmg >> $GITHUB_ENV
-        echo PACKAGE_PATH=build/${PACKAGE_NAME}.dmg >> $GITHUB_ENV
+        echo PACKAGE_NAME=${PACKAGE_NAME}-with-plugins.dmg >> $GITHUB_ENV
+        echo PACKAGE_PATH=build/${PACKAGE_NAME}-with-plugins.dmg >> $GITHUB_ENV
         echo UPLOAD_ASSET_TYPE=application/x-apple-diskimage >> $GITHUB_ENV
     - name: windows dependencies
       if: contains(matrix.os, 'windows')
@@ -507,7 +507,7 @@ jobs:
         cd
         mkdir build
         cd build
-        set PACKAGE_NAME=Cutter-%PACKAGE_ID%-Windows-x86_64
+        set PACKAGE_NAME=Cutter-%PACKAGE_ID%-Windows-x86_64-with-plugins
         cmake ^
           -DCMAKE_BUILD_TYPE=Release ^
           -DCUTTER_USE_BUNDLED_RIZIN=ON ^
