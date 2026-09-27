@@ -243,12 +243,12 @@ void DisassemblerGraphView::loadCurrentGraph()
         }
         db.truePath = RVA_INVALID;
         db.falsePath = RVA_INVALID;
-        if (bbiFail) {
+        if (bbiFail != RVA_INVALID) {
             db.falsePath = bbiFail;
             gb.edges.emplace_back(bbiFail);
         }
-        if (bbiJump) {
-            if (bbiFail) {
+        if (bbiJump != RVA_INVALID) {
+            if (bbiFail != RVA_INVALID) {
                 db.truePath = bbiJump;
             }
             gb.edges.emplace_back(bbiJump);

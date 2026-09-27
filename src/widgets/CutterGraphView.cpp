@@ -397,7 +397,7 @@ bool CutterGraphView::graphIsBitamp(CutterGraphView::GraphExportType type)
     }
 }
 
-Q_DECLARE_METATYPE(CutterGraphView::GraphExportType);
+// Q_DECLARE_METATYPE(CutterGraphView::GraphExportType);
 
 void CutterGraphView::showExportGraphDialog(const QString &defaultName, RzCoreGraphType type,
                                             RVA address)
