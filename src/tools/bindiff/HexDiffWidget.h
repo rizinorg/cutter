@@ -2,6 +2,7 @@
 #define HEXDIFFWIDGET_H
 
 #include "CutterDiffWindow.h"
+#include "HexDiffScrollBar.h"
 #include "HexDiffView.h"
 
 #include <QWidget>
@@ -12,7 +13,6 @@
 namespace Ui {
 class HexDiffWidget;
 }
-
 class HexDiffWidget : public CutterDiffWidget
 {
     Q_OBJECT
@@ -24,7 +24,10 @@ public:
 
 private:
     Ui::HexDiffWidget *ui;
-    HexDiffView *hexDiffView;
+    HexDiffScrollBar *addressScrollbar;
+    HexDiffViewSyncer *syncer;
+    HexDiffView *hexDiffViewA;
+    HexDiffView *hexDiffViewB;
     void seekToDiffItem();
 
 protected:
@@ -41,8 +44,6 @@ private:
     void onCopyCrC32BClicked();
 
     void clearParseWindow();
-    void updateParseWindow(HexDiffView::Selection selection);
-    void selectionChanged(HexDiffView::Selection selection);
 };
 
 #endif // HEXDIFFWIDGET_H

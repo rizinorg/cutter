@@ -238,6 +238,8 @@ public:
     QList<DiffInstr> rzDiffOpToCutterInstrs(RzDiff *diff,
                                             RzList * /*<RzList<RzDiffOp*>>**/ list) const;
 
+    std::pair<RVA, RVA> addressRange(bool orig);
+
 private:
     RzCore *coreA = nullptr;
     RzCore *coreB = nullptr;

@@ -189,6 +189,7 @@ set(SOURCES
     tools/bindiff/DiffMatchWidget.cpp
     tools/bindiff/DiffMisMatchWidget.cpp
     tools/bindiff/HexDiffWidget.cpp
+    tools/bindiff/HexDiffScrollBar.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -386,6 +387,7 @@ set(HEADER_FILES
     tools/bindiff/DiffMatchWidget.h
     tools/bindiff/DiffMisMatchWidget.h
     tools/bindiff/HexDiffWidget.h
+    tools/bindiff/HexDiffScrollBar.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui

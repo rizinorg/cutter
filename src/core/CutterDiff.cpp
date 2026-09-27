@@ -994,3 +994,35 @@ QList<DiffInstr> CutterDiff::rzDiffOpToCutterInstrs(RzDiff *diff,
     }
     return result;
 }
+
+std::pair<RVA, RVA> CutterDiff::addressRange(bool orig)
+{
+    LOCK();
+    const RzCore *core = orig ? coreA : coreB;
+    const RzPVector *mapsPtr = rz_io_maps(core->io);
+    if (!mapsPtr) {
+        return { RVA_INVALID, RVA_INVALID };
+    }
+    std::pair<RVA, RVA> range = { RVA_MAX, 0 };
+    const CutterPVector<RzIOMap> maps { mapsPtr };
+    for (const RzIOMap *const map : maps) {
+        if (!map) {
+            continue;
+        }
+        const ut64 b = rz_itv_begin(map->itv);
+        const ut64 e = rz_itv_end(map->itv);
+        if (b < range.first) {
+            range.first = b;
+        }
+        if (e > range.second) {
+            range.second = e;
+        }
+    }
+    if (range.second) {
+        --range.second;
+    }
+    if (range.second == 0) {
+        range.first = 0;
+    }
+    return range;
+}

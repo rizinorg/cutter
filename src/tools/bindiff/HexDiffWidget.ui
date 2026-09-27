@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>717</width>
-    <height>460</height>
+    <height>476</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,7 +48,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tabDiffOptions">
           <attribute name="title">
@@ -56,65 +56,38 @@
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_6">
            <item>
-            <widget class="QLabel" name="labelShift">
+            <widget class="QLabel" name="label">
              <property name="text">
-              <string>Shift</string>
+              <string>Shift A</string>
              </property>
             </widget>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
-             <item>
-              <layout class="QVBoxLayout" name="vBoxShiftA">
-               <item>
-                <widget class="QLabel" name="label">
-                 <property name="text">
-                  <string>File A</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="shiftUpA">
-                 <property name="text">
-                  <string>▲</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="shiftDownA">
-                 <property name="text">
-                  <string>▼</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QVBoxLayout" name="vBoxShiftB">
-               <item>
-                <widget class="QLabel" name="label_2">
-                 <property name="text">
-                  <string>FileB</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="shiftUpB">
-                 <property name="text">
-                  <string>▲</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="shiftDownB">
-                 <property name="text">
-                  <string>▼</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-            </layout>
+            <widget class="QSpinBox" name="spinBoxShiftB">
+             <property name="minimum">
+              <number>-2147483648</number>
+             </property>
+             <property name="maximum">
+              <number>2147483647</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Shift B</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinBoxShiftA">
+             <property name="minimum">
+              <number>-2147483648</number>
+             </property>
+             <property name="maximum">
+              <number>2147483647</number>
+             </property>
+            </widget>
            </item>
            <item>
             <spacer name="verticalSpacer">
@@ -124,7 +97,7 @@
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>174</height>
+               <height>40</height>
               </size>
              </property>
             </spacer>
