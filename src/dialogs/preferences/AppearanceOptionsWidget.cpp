@@ -32,16 +32,7 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
         ui->languageComboBox->addItem(lang.name, lang.locale);
     }
 
-    auto matchingLang =
-            std::find_if(langs.begin(), langs.end(), [](const Configuration::LangInfo &v) {
-                return v.locale == Config()->getCurrLocale();
-            });
-    if (matchingLang == langs.end()) {
-        matchingLang =
-                std::find_if(langs.begin(), langs.end(), [](const Configuration::LangInfo &v) {
-                    return v.locale.language() == QLocale::English;
-                });
-    }
+    auto matchingLang = Configuration::findMatchingLang(langs, Config()->getCurrLocale(), true);
     if (matchingLang != langs.end()) {
         ui->languageComboBox->setCurrentIndex(matchingLang - langs.begin());
     } else {

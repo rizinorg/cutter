@@ -715,6 +715,49 @@ std::vector<Configuration::LangInfo> Configuration::getAvailableTranslations()
     return result;
 }
 
+bool Configuration::areLocalesEqual(const QLocale &a, const QLocale &b)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+    return a.language() == b.language() && a.script() == b.script()
+            && a.territory() == b.territory();
+#else
+    return a.language() == b.language() && a.script() == b.script()
+            && a.country() == b.country();
+#endif
+}
+
+bool Configuration::areLocalesCompatible(const QLocale &a, const QLocale &b)
+{
+    if (a.language() != b.language()) {
+        return false;
+    }
+    if (a.script() != QLocale::AnyScript && b.script() != QLocale::AnyScript
+        && a.script() != b.script()) {
+        return false;
+    }
+    return true;
+}
+
+std::vector<Configuration::LangInfo>::const_iterator Configuration::findMatchingLang(
+        const std::vector<Configuration::LangInfo> &langs, const QLocale &locale,
+        bool fallbackToEnglish)
+{
+    auto it = std::find_if(langs.begin(), langs.end(), [&](const Configuration::LangInfo &v) {
+        return areLocalesEqual(v.locale, locale);
+    });
+    if (it == langs.end()) {
+        it = std::find_if(langs.begin(), langs.end(), [&](const Configuration::LangInfo &v) {
+            return areLocalesCompatible(v.locale, locale);
+        });
+    }
+    if (it == langs.end() && fallbackToEnglish) {
+        it = std::find_if(langs.begin(), langs.end(), [](const Configuration::LangInfo &v) {
+            return v.locale.language() == QLocale::English;
+        });
+    }
+    return it;
+}
+
 /**
  * @brief check if this is the first time Cutter's is executed on this computer
  * @return true if this is first execution; otherwise returns false.

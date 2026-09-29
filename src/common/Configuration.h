@@ -101,6 +101,12 @@ public:
      */
     std::vector<LangInfo> getAvailableTranslations();
 
+    static bool areLocalesEqual(const QLocale &a, const QLocale &b);
+    static bool areLocalesCompatible(const QLocale &a, const QLocale &b);
+    static std::vector<LangInfo>::const_iterator findMatchingLang(
+            const std::vector<LangInfo> &langs, const QLocale &locale,
+            bool fallbackToEnglish = false);
+
     // Fonts
 
     /**
