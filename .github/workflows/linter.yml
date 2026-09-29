@@ -17,7 +17,7 @@ jobs:
       clang-format: ${{ steps.filter.outputs.clang-format }}
     steps:
     - uses: actions/checkout@v7
-    - uses: dorny/paths-filter@v2
+    - uses: dorny/paths-filter@v4
       id: filter
       with:
         filters: |
