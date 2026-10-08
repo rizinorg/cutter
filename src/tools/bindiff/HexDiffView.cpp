@@ -4,8 +4,11 @@
 
 HexDiffViewSyncer::HexDiffViewSyncer(CutterDiff *cutterDiff, HexDiffScrollBar *scrollBar,
                                      QObject *parent)
-    : QObject(parent), cutterDiff(cutterDiff), scrollBar(scrollBar), addrCharLen(AddrWidth64)
+    : QObject(parent), cutterDiff(cutterDiff), scrollBar(scrollBar), addrCharLen(AddrWidth64), cursor(new HexDiffCursor(this))
 {
+    connect(scrollBar, &HexDiffScrollBar::addressChanged, this, &HexDiffViewSyncer::onScrollBarAddressChanged);
+    // signal forwarding from cursor
+    connect(cursor, &HexDiffCursor::cursorChanged, this, &HexDiffViewSyncer::cursorChanged);
     updateScrollBar();
 }
 
@@ -157,7 +160,7 @@ int HexDiffViewSyncer::getGroupedItemLen() const
     return getItemLen() * multiplier;
 }
 
-QString HexDiffViewSyncer::renderItem(quint64 byteOffset, bool orig)
+QString HexDiffViewSyncer::renderItem(qint64 byteOffset, bool orig)
 {
     const int groupSize = getGroupItems() ? 2 : 1;
 
@@ -260,7 +263,7 @@ QString HexDiffViewSyncer::renderItem(quint64 byteOffset, bool orig)
     return result;
 }
 
-QString HexDiffViewSyncer::renderAscii(quint64 byteOffset, bool orig)
+QString HexDiffViewSyncer::renderAscii(qint64 byteOffset, bool orig)
 {
     const RVA addr = getAddressAt(byteOffset, orig);
     const QByteArray data = cutterDiff->ioRead(addr, 1, orig);
@@ -287,16 +290,16 @@ RVA HexDiffViewSyncer::shifted(RVA addr, qint64 shift) const
     }
 }
 
-RVA HexDiffViewSyncer::getAddressAt(quint64 pos, bool orig) const
+RVA HexDiffViewSyncer::getAddressAt(qint64 pos, bool orig) const
 {
     if (orig) {
-        return shifted(startAddress + pos, shiftA);
+        return shifted(startAddress+pos, shiftA);
     } else {
-        return shifted(startAddress + pos, shiftB);
+        return shifted(startAddress+pos, shiftB);
     }
 }
 
-bool HexDiffViewSyncer::diffItem(quint64 byteOffset, bool orig)
+bool HexDiffViewSyncer::diffItem(qint64 byteOffset, bool orig)
 {
     const RVA addrA = getAddressAt(byteOffset, orig);
     const RVA addrB = getAddressAt(byteOffset, !orig);
@@ -307,7 +310,7 @@ bool HexDiffViewSyncer::diffItem(quint64 byteOffset, bool orig)
     return dataA != dataB;
 }
 
-bool HexDiffViewSyncer::diffByte(quint64 byteOffset, bool orig)
+bool HexDiffViewSyncer::diffByte(qint64 byteOffset, bool orig)
 {
     const RVA addrA = getAddressAt(byteOffset, orig);
     const RVA addrB = getAddressAt(byteOffset, !orig);
@@ -318,44 +321,65 @@ bool HexDiffViewSyncer::diffByte(quint64 byteOffset, bool orig)
     return dataA != dataB;
 }
 
-void HexDiffViewSyncer::beginSelection(quint64 offset, bool orig)
+void HexDiffViewSyncer::beginSelection(bool orig)
 {
     cursorOwnedByA = orig;
-    selection.posA = getAddressAt(offset, orig);
-    selection.posB = getAddressAt(offset, orig);
-    emit selectionChanged();
+    cursor->startSelection();
 }
 
-void HexDiffViewSyncer::updateSelection(quint64 offset, bool orig)
+void HexDiffViewSyncer::updateSelection(qint64 byteOffset, bool orig)
 {
-    selection.posB = getAddressAt(offset, orig);
-    emit selectionChanged();
+    cursorOwnedByA = orig;
+    cursor->updateSelection(getAddressAt(byteOffset,orig));
+}
+
+void HexDiffViewSyncer::updateSelectionBy(qint64 by, bool orig)
+{
+    cursorOwnedByA = orig;
+    cursor->updateSelection(shifted(cursor->addr(),by));
 }
 
 void HexDiffViewSyncer::clearSelection()
 {
-    selection.clear();
-    emit selectionChanged();
+    cursor->clearSelection();
 }
 
-HexDiffSelection HexDiffViewSyncer::getSelectionOffsets(quint64 lastOffset, bool orig)
+HexDiffSelection HexDiffViewSyncer::getSelectionOffsets(qint64 lastOffset, bool orig)
 {
-    HexDiffSelection result;
+    const HexDiffSelection addrSelection = cursor->getSelection();
+    HexDiffSelection offsetSelection;
 
-    if (!selection.isValid()) {
-        return result;
+    const RVA base = getAddressAt(0, orig);
+    const RVA end  = getAddressAt(lastOffset, orig);
+
+    const RVA start = addrSelection.start();
+    const RVA stop  = addrSelection.end();
+
+    if (start > end) {
+        offsetSelection.posA = lastOffset + 1;
+    } else if (start < base) {
+        offsetSelection.posA = 0;
+    } else {
+        offsetSelection.posA = static_cast<qint64>(start - base);
     }
 
-    const RVA baseAddress = getAddressAt(0, cursorOwnedByA);
-    const RVA lastAddress = getAddressAt(lastOffset, orig);
+    if (stop > end) {
+        offsetSelection.posB = lastOffset + 1;
+    } else if (stop < base) {
+        offsetSelection.posB = 0;
+    } else {
+        offsetSelection.posB = static_cast<qint64>(stop - base);
+    }
 
-    const RVA startAddress = qMax(baseAddress, selection.start());
-    const RVA endAddress = selection.end();
+    return offsetSelection;
+}
 
-    result.posA = startAddress - baseAddress;
-    result.posB = qMin(endAddress - baseAddress, lastAddress - baseAddress);
-
-    return result;
+HexDiffSelection HexDiffViewSyncer::getSelectionAddr(bool orig){
+    const HexDiffSelection selection = cursor->getSelection();
+    HexDiffSelection addrA;
+    addrA.posA = shifted(selection.posA, orig ?shiftA:shiftB);
+    addrA.posB = shifted(selection.posB, orig ?shiftA:shiftB);
+    return addrA;
 }
 
 void HexDiffViewSyncer::onScrollBarAddressChanged(RVA value)
@@ -370,6 +394,7 @@ void HexDiffViewSyncer::scrollTo(RVA addr)
 {
     scrollBar->setAddress(addr);
 }
+
 void HexDiffViewSyncer::scrollBy(int lineCount)
 {
     RVA addr;
@@ -394,29 +419,60 @@ void HexDiffViewSyncer::updateScrollBar()
     scrollBar->setAddress(rangeA.first);
     scrollBar->setAddressSingleStep(getBytesPerRow());
     scrollBar->setAddressPageStep(16 * getBytesPerRow());
+    onScrollBarAddressChanged(rangeA.first);
 }
 
-quint64 HexDiffViewSyncer::getCursorOffset()
+void HexDiffViewSyncer::moveCursorBy(qint64 shift, bool orig)
 {
-    const qint64 shift = cursorOwnedByA ? shiftA : shiftB;
-    const RVA base = shifted(startAddress, shift);
+    cursorOwnedByA = orig;
+    cursor->setCursor(shifted(cursor->addr(),shift));
+}
 
-    if (cursorAddr < base) {
-        return UINT64_MAX;
+void HexDiffViewSyncer::showCursor(qint64 lastOffset, bool orig)
+{
+    if (cursor->addr() == RVA_INVALID) {
+        return;
     }
 
-    return cursorAddr - base;
+    int hidden = cursor->hiddenIn(
+            getAddressAt(0, orig),
+            getAddressAt(lastOffset, orig)
+            );
+
+    if (!hidden) {
+        refreshView();
+        return;
+    }
+
+    if (hidden == 1) {
+        scrollTo(cursor->addr());
+    } else {
+        scrollTo(cursor->addr() - lastOffset + 1);
+    }
+
+    refreshView();
 }
 
-void HexDiffViewSyncer::setCursor(quint64 offset, bool orig)
+qint64 HexDiffViewSyncer::getCursorOffset() const
+{
+    if (cursor->addr() == RVA_INVALID) {
+        return -1;
+    }
+
+    return cursor->addr() - getAddressAt(0, cursorOwnedByA);
+}
+void HexDiffViewSyncer::setCursor(RVA addr){
+    cursor->setCursor(addr);
+}
+
+void HexDiffViewSyncer::setCursorAtOffset(qint64 offset, bool orig)
 {
     const RVA newCursorAddr = getAddressAt(offset, orig);
-    if (newCursorAddr == cursorAddr && cursorOwnedByA == orig) {
+    if (newCursorAddr == cursor->addr() && cursorOwnedByA == orig) {
         return;
     }
     cursorOwnedByA = orig;
-    cursorAddr = newCursorAddr;
-    emit refreshView();
+    cursor->setCursor(newCursorAddr);
 }
 
 HexDiffView::HexDiffView(HexDiffViewSyncer *syncer, bool orig, QWidget *parent)
@@ -428,9 +484,8 @@ HexDiffView::HexDiffView(HexDiffViewSyncer *syncer, bool orig, QWidget *parent)
     connect(Config(), &Configuration::fontsUpdated, this, &HexDiffView::setMonospaceFont);
     connect(horizontalScrollBar(), &QScrollBar::valueChanged, this,
             [this](int) { viewport()->update(); });
-    connect(syncer, &HexDiffViewSyncer::selectionChanged, this, &HexDiffView::updateViewport);
     connect(syncer, &HexDiffViewSyncer::refreshView, this, &HexDiffView::updateViewport);
-
+    connect(syncer, &HexDiffViewSyncer::cursorChanged, this, &HexDiffView::onCursorUpdated);
     updateColors();
     setMonospaceFont();
     updateViewport();
@@ -590,9 +645,12 @@ void HexDiffView::drawAddressArea(QPainter &painter)
     }
 }
 
-void HexDiffView::drawItem(QPainter &painter, QRectF rect, quint64 byteOffset,
+void HexDiffView::drawItem(QPainter &painter, QRectF rect, qint64 byteOffset,
                            const QPolygonF &clip)
 {
+    if(!isOffsetVisible(byteOffset)){
+        return;
+    }
     rect.setWidth(rect.width() - getColumnSpacing() / 2);
     painter.save();
     painter.setPen(defColor);
@@ -613,10 +671,10 @@ void HexDiffView::drawItem(QPainter &painter, QRectF rect, quint64 byteOffset,
     }
     painter.restore();
 }
-
 QPolygonF HexDiffView::getItemSelectionPolygon()
 {
-    const HexDiffSelection selection = syncer->getSelectionOffsets(lastVisibleOffset(), orig);
+    const HexDiffSelection selection =
+            syncer->getSelectionOffsets(lastVisibleOffset(), orig);
 
     if (!selection.isValid()) {
         return QPolygonF();
@@ -628,10 +686,17 @@ QPolygonF HexDiffView::getItemSelectionPolygon()
 
     const quint64 itemSize = syncer->getGroupedItemSize();
     const quint64 bytesPerRow = syncer->getBytesPerRow();
-    const quint64 start = selection.start();
-    const quint64 end = selection.end();
 
-    const quint64 last = end - 1;
+           // Clamp the selection to the currently visible region.
+    const qint64 visibleLast = lastVisibleOffset();
+
+    const qint64 start = qMax<qint64>(0, selection.start());
+    const qint64 last = qMin<qint64>(visibleLast, selection.end());
+
+    if (start > last) {
+        return QPolygonF();
+    }
+
     const QRectF startRect = getItemRectAtOffset(start);
     const QRectF stopRect = getItemRectAtOffset(last);
 
@@ -642,10 +707,12 @@ QPolygonF HexDiffView::getItemSelectionPolygon()
     const quint64 inItemStartOffset = start % itemSize;
     const quint64 inItemEndOffset = last % itemSize;
 
-    const qreal addWidthStart = startRect.width() * (qreal(inItemStartOffset) / qreal(itemSize));
+    const qreal addWidthStart =
+            startRect.width() * (qreal(inItemStartOffset) / qreal(itemSize));
 
     const qreal addWidthEnd =
-            stopRect.width() * (qreal(itemSize - inItemEndOffset - 1) / qreal(itemSize));
+            stopRect.width() *
+            (qreal(itemSize - inItemEndOffset - 1) / qreal(itemSize));
 
     const qreal startX = startRect.left() + addWidthStart;
     const qreal endX = stopRect.right() - addWidthEnd;
@@ -659,28 +726,33 @@ QPolygonF HexDiffView::getItemSelectionPolygon()
     QPolygonF poly;
 
     if (inItemStartOffset != 0) {
-        poly << QPointF(startX + tail, startRect.top()) << QPointF(startX, startRect.center().y())
-             << QPointF(startX + tail, startRect.bottom());
+        poly << QPointF(startX + tail, startRect.top())
+        << QPointF(startX, startRect.center().y())
+        << QPointF(startX + tail, startRect.bottom());
     } else {
-        poly << QPointF(startX, startRect.top()) << QPointF(startX, startRect.bottom());
+        poly << QPointF(startX, startRect.top())
+        << QPointF(startX, startRect.bottom());
     }
 
     if (multiRow) {
         poly << QPointF(itemArea.left(), startRect.bottom())
-             << QPointF(itemArea.left(), stopRect.bottom());
+        << QPointF(itemArea.left(), stopRect.bottom());
     }
 
     if (inItemEndOffset != itemSize - 1) {
-        poly << QPointF(endX - tail, stopRect.bottom()) << QPointF(endX, stopRect.center().y())
-             << QPointF(endX - tail, stopRect.top());
+        poly << QPointF(endX - tail, stopRect.bottom())
+        << QPointF(endX, stopRect.center().y())
+        << QPointF(endX - tail, stopRect.top());
     } else {
-        poly << QPointF(endX, stopRect.bottom()) << QPointF(endX, stopRect.top());
+        poly << QPointF(endX, stopRect.bottom())
+        << QPointF(endX, stopRect.top());
     }
 
     if (multiRow) {
         poly << QPointF(itemArea.right(), stopRect.top())
-             << QPointF(itemArea.right(), startRect.top());
+        << QPointF(itemArea.right(), startRect.top());
     }
+
     return poly;
 }
 
@@ -708,7 +780,8 @@ void HexDiffView::drawItemSelectionBackground(QPainter &painter, const QPolygonF
 
 void HexDiffView::drawAsciiSelectionBackground(QPainter &painter)
 {
-    const HexDiffSelection selection = syncer->getSelectionOffsets(lastVisibleOffset(), orig);
+    const HexDiffSelection selection =
+            syncer->getSelectionOffsets(lastVisibleOffset(), orig);
 
     if (!selection.isValid()) {
         return;
@@ -720,9 +793,15 @@ void HexDiffView::drawAsciiSelectionBackground(QPainter &painter)
 
     const quint64 bytesPerRow = syncer->getBytesPerRow();
 
-    const quint64 start = selection.start();
-    const quint64 end = selection.end();
-    const quint64 last = end - 1;
+           // Clamp the selection to the currently visible region.
+    const qint64 visibleLast = lastVisibleOffset();
+
+    const qint64 start = qMax<qint64>(0, selection.start());
+    const qint64 last = qMin<qint64>(visibleLast, selection.end());
+
+    if (start > last) {
+        return;
+    }
 
     const QRectF startRect = getAsciiItemRectAtOffset(start);
     const QRectF stopRect = getAsciiItemRectAtOffset(last);
@@ -766,16 +845,18 @@ void HexDiffView::drawAsciiSelectionBackground(QPainter &painter)
     }
 
     painter.save();
+
     if (cursorArea == AsciiArea) {
         QColor backgroundColor = palette().color(QPalette::Highlight);
-
         backgroundColor.setAlpha(100);
         painter.setBrush(backgroundColor);
     } else {
         painter.setBrush(Qt::NoBrush);
     }
+
     painter.setPen(palette().color(QPalette::Highlight));
     painter.drawPolygon(poly);
+
     painter.restore();
 }
 
@@ -790,7 +871,7 @@ void HexDiffView::drawItemArea(QPainter &painter)
     for (int i = 0; i < visibleLines; ++i) {
         rect.moveTo(itemArea.left(), itemArea.top() + i * itemHeight);
         for (int j = 0; j < itemsPerRow; ++j) {
-            const quint64 byteOffset =
+            const qint64 byteOffset =
                     syncer->getBytesPerRow() * i + syncer->getGroupedItemSize() * j;
             drawItem(painter, rect, byteOffset, selectionPoly);
             rect.translate(itemWidth, 0);
@@ -801,8 +882,11 @@ void HexDiffView::drawItemArea(QPainter &painter)
     painter.drawLine(QLineF(vLineOffset, 0, vLineOffset, viewport()->height()));
 }
 
-void HexDiffView::drawAsciiItem(QPainter &painter, QRectF rect, quint64 byteOffset)
+void HexDiffView::drawAsciiItem(QPainter &painter, QRectF rect, qint64 byteOffset)
 {
+    if(!isOffsetVisible(byteOffset)){
+        return;
+    }
     rect.setWidth(rect.width() - getColumnSpacing() / 2);
     painter.setPen(defColor);
     if (syncer->diffByte(byteOffset, orig)) {
@@ -822,7 +906,7 @@ void HexDiffView::drawAsciiArea(QPainter &painter)
         rect.moveTo(asciiArea.left(), asciiArea.top() + i * asciiItemHeight);
         for (int j = 0; j < syncer->getBytesPerRow(); ++j) {
 
-            const quint64 byteOffset = syncer->getBytesPerRow() * i + j;
+            const qint64 byteOffset = syncer->getBytesPerRow() * i + j;
 
             drawAsciiItem(painter, rect, byteOffset);
             rect.translate(asciiItemWidth, 0);
@@ -842,21 +926,24 @@ void HexDiffView::mousePressEvent(QMouseEvent *event)
     }
     QPointF pos = event->position();
     pos.rx() += horizontalScrollBar()->value();
-
-    selecting = false;
-
-    syncer->setCursor(getItemOffset(pos), orig);
-    if (itemArea.contains(pos)) {
-        cursorArea = ItemArea;
-        selecting = true;
-        syncer->beginSelection(getItemOffset(pos), orig);
-    } else if (asciiArea.contains(pos)) {
-        cursorArea = AsciiArea;
-        selecting = true;
-        syncer->beginSelection(getAsciiOffset(pos), orig);
+    if(event->modifiers() & Qt::ShiftModifier){
+        if(cursorArea == ItemArea){
+            syncer->updateSelection(getItemOffset(pos),orig);
+        }else{
+            syncer->updateSelection(getAsciiOffset(pos),orig);
+        }
+    }else{
+        syncer->clearSelection();
+        if(cursorArea == ItemArea){
+            syncer->setCursorAtOffset(getItemOffset(pos),orig);
+        }else{
+            syncer->setCursorAtOffset(getAsciiOffset(pos),orig);
+        }
     }
+    mouseSelecting = true;
     QScrollArea::mousePressEvent(event);
 }
+
 void HexDiffView::mouseMoveEvent(QMouseEvent *event)
 {
     QPointF relPos = event->position();
@@ -869,22 +956,14 @@ void HexDiffView::mouseMoveEvent(QMouseEvent *event)
     } else {
         setCursor(Qt::ArrowCursor);
     }
-    if (selecting) {
-        if (cursorArea == ItemArea) {
-            syncer->updateSelection(getItemOffset(relPos), orig);
+    if(mouseSelecting){
+        if(cursorArea == ItemArea){
+            const qint64 currentOffset = getItemOffset(relPos);
+            syncer->updateSelection(currentOffset,orig);
+        }else{
+            const qint64 currentOffset = getAsciiOffset(relPos);
+            syncer->updateSelection(currentOffset, orig);
         }
-        if (cursorArea == AsciiArea) {
-            syncer->updateSelection(getAsciiOffset(relPos), orig);
-        }
-    }
-    // autoScroll
-    bool outside = !viewport()->rect().contains(event->pos());
-    if (selecting && outside) {
-        if (!autoScrollTimer->isActive()) {
-            autoScrollTimer->start();
-        }
-    } else {
-        autoScrollTimer->stop();
     }
     QScrollArea::mouseMoveEvent(event);
 }
@@ -893,12 +972,11 @@ void HexDiffView::mouseReleaseEvent(QMouseEvent *event)
 {
     QPointF relPos = event->position();
     relPos.rx() += horizontalScrollBar()->value();
-    selecting = false;
-    autoScrollTimer->stop();
+    mouseSelecting = false;
     QScrollArea::mouseReleaseEvent(event);
 }
 
-QRectF HexDiffView::getItemRectAtOffset(quint64 offset)
+QRectF HexDiffView::getItemRectAtOffset(qint64 offset)
 {
     if (!isOffsetVisible(offset)) {
         return QRectF();
@@ -918,16 +996,16 @@ QRectF HexDiffView::getItemRectAtOffset(quint64 offset)
                   itemWidth, itemHeight);
 }
 
-QRectF HexDiffView::getAsciiItemRectAtOffset(quint64 offset)
+QRectF HexDiffView::getAsciiItemRectAtOffset(qint64 offset)
 {
     if (!isOffsetVisible(offset)) {
         return QRectF();
     }
 
-    const quint64 bytesPerRow = syncer->getBytesPerRow();
+    const qint64 bytesPerRow = syncer->getBytesPerRow();
 
-    const quint64 byteIndex = offset % bytesPerRow;
-    const quint64 rowIndex = offset / bytesPerRow;
+    const qint64 byteIndex = offset % bytesPerRow;
+    const qint64 rowIndex = offset / bytesPerRow;
 
     const qreal itemWidth = charWidth + getColumnSpacing();
 
@@ -937,7 +1015,7 @@ QRectF HexDiffView::getAsciiItemRectAtOffset(quint64 offset)
                   itemWidth, itemHeight);
 }
 
-quint64 HexDiffView::getItemOffset(QPointF pos)
+qint64 HexDiffView::getItemOffset(QPointF pos)
 {
     pos.setX(std::clamp(pos.x(), itemArea.left(), itemArea.right() + getColumnSpacing()));
     pos.setY(std::clamp(pos.y(), itemArea.top(), itemArea.bottom()));
@@ -946,14 +1024,14 @@ quint64 HexDiffView::getItemOffset(QPointF pos)
 
     const qreal itemWidth = syncer->getGroupedItemLen() * charWidth;
 
-    const quint64 row = relativePos.y() / (lineHeight + getRowSpacing());
+    const qint64 row = relativePos.y() / (lineHeight + getRowSpacing());
 
-    const quint64 itemIndex = relativePos.x() / (itemWidth + getColumnSpacing());
+    const qint64 itemIndex = relativePos.x() / (itemWidth + getColumnSpacing());
 
     return row * syncer->getBytesPerRow() + itemIndex * syncer->getGroupedItemSize();
 }
 
-quint64 HexDiffView::getAsciiOffset(QPointF pos)
+qint64 HexDiffView::getAsciiOffset(QPointF pos)
 {
     pos.setX(std::clamp(pos.x(), asciiArea.left(), asciiArea.right() + getColumnSpacing()));
     pos.setY(std::clamp(pos.y(), asciiArea.top(), asciiArea.bottom() + getColumnSpacing()));
@@ -962,9 +1040,9 @@ quint64 HexDiffView::getAsciiOffset(QPointF pos)
 
     const qreal itemWidth = charWidth;
 
-    const quint64 row = relativePos.y() / (lineHeight + getRowSpacing());
+    const qint64 row = relativePos.y() / (lineHeight + getRowSpacing());
 
-    const quint64 itemIndex = relativePos.x() / (itemWidth + getColumnSpacing());
+    const qint64 itemIndex = relativePos.x() / (itemWidth + getColumnSpacing());
 
     return row * syncer->getBytesPerRow() + itemIndex;
 }
@@ -1148,8 +1226,8 @@ void HexDiffView::wheelEvent(QWheelEvent *event)
 
 void HexDiffView::drawItemCursor(QPainter &painter)
 {
-    const quint64 cursorOffset = syncer->getCursorOffset();
-    if (cursorOffset > lastVisibleOffset()) {
+    const qint64 cursorOffset = syncer->getCursorOffset();
+    if (cursorOffset > lastVisibleOffset() || cursorOffset<0) {
         return;
     }
     const QRectF rect = getItemRectAtOffset(cursorOffset);
@@ -1169,8 +1247,8 @@ void HexDiffView::drawItemCursor(QPainter &painter)
 
 void HexDiffView::drawAsciiCursor(QPainter &painter)
 {
-    const quint64 cursorOffset = syncer->getCursorOffset();
-    if (cursorOffset > lastVisibleOffset()) {
+    const qint64 cursorOffset = syncer->getCursorOffset();
+    if (cursorOffset > lastVisibleOffset() || cursorOffset<0) {
         return;
     }
     const QRectF rect = getAsciiItemRectAtOffset(cursorOffset);
@@ -1228,4 +1306,39 @@ void HexDiffView::autoScroll()
     } else if (mouseDir & MouseTop) {
         syncer->scrollBy(-1);
     }
+}
+
+void HexDiffView::keyPressEvent(QKeyEvent *event){
+    if(event->matches(QKeySequence::MoveToNextChar)){
+        syncer->moveCursorBy(syncer->getGroupedItemSize(),orig);
+    }else if(event->matches(QKeySequence::MoveToPreviousChar)){
+        syncer->moveCursorBy(-syncer->getGroupedItemSize(),orig);
+    }else if(event->matches(QKeySequence::MoveToNextLine)){
+        syncer->moveCursorBy(syncer->getBytesPerRow(),orig);
+    }else if(event->matches(QKeySequence::MoveToPreviousLine)){
+        syncer->moveCursorBy(-syncer->getBytesPerRow(),orig);
+    }else if(event->matches(QKeySequence::MoveToNextPage)){
+        syncer->moveCursorBy(lastVisibleOffset()+1,orig);
+    }else if(event->matches(QKeySequence::MoveToPreviousPage)){
+        syncer->moveCursorBy(-lastVisibleOffset()-1,orig);
+    }
+
+    if(event->matches(QKeySequence::SelectNextChar)){
+        syncer->updateSelectionBy(syncer->getGroupedItemSize(),orig);
+    }else if(event->matches(QKeySequence::SelectPreviousChar)){
+        syncer->updateSelectionBy(-syncer->getGroupedItemSize(),orig);
+    }else if(event->matches(QKeySequence::SelectNextLine)){
+        syncer->updateSelectionBy(syncer->getBytesPerRow(),orig);
+    }else if(event->matches(QKeySequence::SelectPreviousLine)){
+        syncer->updateSelectionBy(-syncer->getBytesPerRow(),orig);
+    }else if(event->matches(QKeySequence::SelectNextPage)){
+        syncer->updateSelectionBy(lastVisibleOffset()+1,orig);
+    }else if(event->matches(QKeySequence::SelectPreviousPage)){
+        syncer->updateSelectionBy(-lastVisibleOffset()-1,orig);
+    }
+}
+
+
+void HexDiffView::onCursorUpdated(){
+    syncer->showCursor(lastVisibleOffset(),orig);
 }

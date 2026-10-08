@@ -71,7 +71,6 @@ public:
 
     QJsonObject toJson() const;
     static CutterDiffItem fromJson(const QJsonObject &json);
-
 private:
     static CutterDiffItemDescription functionDescription(const RzAnalysisFunction *func);
 
@@ -91,6 +90,7 @@ private:
     QHash<qulonglong, qulonglong> offsetAtoB;
     QHash<qulonglong, qulonglong> offsetBtoA;
 
+    // implement block offsets for quick searching and providing syncing points for hexdiffView
     std::vector<CutterDiffItem> blocks;
     QHash<QString, QList<DiffInstr>> instrDiffs;
 };

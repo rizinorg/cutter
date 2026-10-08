@@ -29,6 +29,9 @@ private:
     HexDiffView *hexDiffViewA;
     HexDiffView *hexDiffViewB;
     void seekToDiffItem();
+    void updateParseWindow();
+private slots:
+    void onCursorChanged();
 
 protected:
     void reload() override;

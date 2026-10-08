@@ -41,13 +41,90 @@ struct HexDiffSelection
 
     RVA end() const { return qMax(posA, posB); }
 
-    bool isValid() const { return posA != UINT64_MAX && posB != UINT64_MAX && start() < end(); }
+    bool isValid() const { return posA != RVA_INVALID && posB != RVA_INVALID && start() < end(); }
 
-    bool contains(RVA offset) const { return isValid() && start() <= offset && offset < end(); }
+    bool isEmpty() const {return posA == posB;}
+
+    bool contains(RVA address) const { return isValid() && start() <= address && address < end(); }
 
     RVA length() const { return isValid() ? end() - start() + 1 : 0; }
 
     void clear() { posA = posB = UINT64_MAX; }
+};
+
+class HexDiffCursor : public QObject{
+    Q_OBJECT
+public:
+    HexDiffCursor(QObject *parent = nullptr):QObject(parent){}
+    ~HexDiffCursor() = default;
+    void setCursor(RVA addr){
+        posA = addr;
+        posB = addr;
+        emit cursorChanged();
+    }
+    void startSelection(){
+        posA = posB;
+    }
+    void updateSelection(RVA addr)
+    {
+        if(posB== addr){
+            return;
+        }
+        if (posA == RVA_INVALID) {
+            posA = addr;
+        }
+        posB = addr;
+        emit cursorChanged();
+    }
+    void extendSelection(qint64 by){
+        posB = by<0 ? posB-qAbs(by)
+                      : posB + qAbs(by);
+    }
+    bool contains(RVA addr) const {
+        const RVA start = qMin(posA, posB);
+        const RVA end = qMax(posA,posB);
+        return start<=addr &&
+                end>=addr &&
+                start!=end;
+    }
+    bool hasSelection() const{
+        return posA != posB;
+    }
+    void clearSelection(){
+        posA = posB;
+        emit cursorChanged();
+    }
+    int hiddenIn(RVA a, RVA b) const {
+        if(a>b){
+            const RVA temp = a;
+            a=b;
+            b=temp;
+        }
+        if(a<=posB && posB<=b){
+            return 0;
+        }else if(posB>b){
+            return 1;
+        }else{
+            return -1;
+        }
+    }
+
+    RVA addr() const{
+        return posB;
+    }
+    HexDiffSelection getSelection(){
+        HexDiffSelection selection;
+        selection.posA = posA;
+        selection.posB = posB;
+        return selection;
+    }
+
+private:
+    //selection
+    RVA posA = RVA_INVALID;
+    RVA posB = RVA_INVALID;//cursorPosition
+signals:
+    void cursorChanged();
 };
 
 class HexDiffViewSyncer : public QObject
@@ -74,7 +151,7 @@ public:
     bool isLittleEndian() const;
     void setLittleEndian(bool little);
 
-    RVA getAddressAt(quint64 byteOffset, bool orig) const;
+    RVA getAddressAt(qint64 byteOffset, bool orig) const;
 
     void setShiftA(int shift);
     void setShiftB(int shift);
@@ -90,41 +167,47 @@ public:
     bool getShowExAddr() const { return showExAddr; }
 
     bool getHeaderEnabled() const { return headerEnabled; }
-    QString renderItem(quint64 byteOffset, bool orig);
-    QString renderAscii(quint64 byteOffset, bool orig);
+    QString renderItem(qint64 byteOffset, bool orig);
+    QString renderAscii(qint64 byteOffset, bool orig);
     bool getShowAscii() const { return showAscii; }
 
-    bool diffItem(quint64 byteOffset, bool orig);
-    bool diffByte(quint64 byteOffset, bool orig);
+    bool diffItem(qint64 byteOffset, bool orig);
+    bool diffByte(qint64 byteOffset, bool orig);
 
     // selection
-    void beginSelection(quint64 offset, bool orig);
-    void updateSelection(quint64 offset, bool orig);
+    void beginSelection(bool orig);
+    void updateSelection(qint64 byteOffset, bool orig);
+    void updateSelectionBy(qint64 by, bool orig);
     void clearSelection();
-    HexDiffSelection getSelectionOffsets(quint64 lastAddress, bool orig);
+    HexDiffSelection getSelectionOffsets(qint64 lastOffset, bool orig);
+    HexDiffSelection getSelectionAddr(bool orig);
 
     // scroll and seek
     void scrollBy(int lineCount);
     void updateScrollBar();
     void onScrollBarAddressChanged(RVA value); // shall not be exposed publically
     void scrollTo(RVA addr);
+    void moveCursorBy(qint64 shift, bool orig);
+    void showCursor(qint64 byteOffset, bool orig);
 
     // cursor
-    quint64 getCursorOffset();
-    void setCursor(quint64 offset, bool orig);
-
+    qint64 getCursorOffset() const;
+    void setCursorAtOffset(qint64 offset, bool orig);
+    void setCursor(RVA addr);
+    //keyboard move
 private:
     CutterDiff *cutterDiff = nullptr;
     HexDiffScrollBar *scrollBar;
     DiffItemSize itemSize = ItemSizeByte;
     DiffItemFormat itemFormat = ItemFormatHex;
+    HexDiffCursor *cursor;
     bool littleEndian = true;
 
     qint64 shiftA = 0;
     qint64 shiftB = 0;
     RVA startAddress = 0;
     RVA cursorAddr = RVA_INVALID;
-    ut8 powBytesPerRow = 5;
+    ut8 powBytesPerRow = 3;
 
     bool groupItems = false;
     bool showExAddr = true;
@@ -139,6 +222,7 @@ private:
 signals:
     void refreshView();
     void selectionChanged();
+    void cursorChanged();
 };
 
 class HexDiffView : public QScrollArea
@@ -181,22 +265,21 @@ private:
     void drawAddressArea(QPainter &painter);
 
     QRectF itemArea;
-    void drawItem(QPainter &painter, QRectF rect, quint64 byteOffset,
+    void drawItem(QPainter &painter, QRectF rect, qint64 byteOffset,
                   const QPolygonF &clip = QPolygonF());
     void drawItemArea(QPainter &painter);
     void drawItemSelectionBackground(QPainter &painter, const QPolygonF &poly);
     QPolygonF getItemSelectionPolygon();
-    QRectF getItemRectAtOffset(quint64 offset);
-    quint64 getItemOffset(QPointF pos);
+    QRectF getItemRectAtOffset(qint64 offset);
+    qint64 getItemOffset(QPointF pos);
     RVA getItemAddrAtPos(QPointF pos) { return syncer->getAddressAt(getItemOffset(pos), orig); }
 
     QRectF asciiArea;
     void drawAsciiArea(QPainter &painter);
-    void drawAsciiItem(QPainter &painter, QRectF rect, quint64 byteOffset);
+    void drawAsciiItem(QPainter &painter, QRectF rect, qint64 byteOffset);
     void drawAsciiSelectionBackground(QPainter &painter);
-    QRectF getAsciiItemRectAtOffset(quint64 offset);
-    quint64 getAsciiOffset(QPointF pos);
-    RVA getAsciiAddrAtPos(QPointF pos) { return syncer->getAddressAt(getAsciiOffset(pos), orig); }
+    QRectF getAsciiItemRectAtOffset(qint64 offset);
+    qint64 getAsciiOffset(QPointF pos);
 
     void updateAreaGeometry();
     // HeaderArea
@@ -209,16 +292,19 @@ private:
     void updateScrollbarWidth();
 
     // Mouse
-    quint64 cursorOffset = 0;
+    qint64 cursorOffset = 0;
     CursorArea cursorArea = ItemArea;
     QRectF cursorRect;
 
     // Address
-    RVA lastVisibleOffset() { return syncer->getBytesPerRow() * visibleLines; }
-    bool isOffsetVisible(quint64 offset) { return lastVisibleOffset() >= offset; }
+    qint64 lastVisibleOffset() { return syncer->getBytesPerRow() * visibleLines -1;}
+    bool isOffsetVisible(qint64 offset) { return offset>=0 && lastVisibleOffset() >= offset; }
 
     // Selection
-    bool selecting = false;
+    bool mouseSelecting = false;
+    bool keyboardSelecting = false;
+
+    bool selecting() const {return mouseSelecting || keyboardSelecting;}
 
     // context menu
     void showContextMenu(const QPoint &pos);
@@ -230,7 +316,8 @@ private:
     // cursor
     void drawItemCursor(QPainter &painter);
     void drawAsciiCursor(QPainter &painter);
-
+private slots:
+    void onCursorUpdated();
 protected:
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
@@ -239,6 +326,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 };
 
 #endif // HEXDIFFVIEW_H

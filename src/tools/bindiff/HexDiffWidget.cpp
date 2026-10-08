@@ -30,9 +30,8 @@ HexDiffWidget::HexDiffWidget(CutterDiff *cutterDiff, CutterDiffWindow *parent)
     ui->splitter->setSizes({ 750, 250 });
 
     connect(cutterDiff, &CutterDiff::currentItemDiffChanged, this, &HexDiffWidget::seekToDiffItem);
+    connect(syncer, &HexDiffViewSyncer::cursorChanged, this, &HexDiffWidget::onCursorChanged);
 
-    connect(addressScrollbar, &HexDiffScrollBar::addressChanged, syncer,
-            &HexDiffViewSyncer::onScrollBarAddressChanged);
     ui->tabParsing->show();
 
     // shift
@@ -180,93 +179,96 @@ void HexDiffWidget::clearParseWindow()
     ui->bytesCRC32B->setText("");
 }
 
-// void HexDiffWidget::updateParseWindow(HexDiffView::Selection selection)
-// {
-//     const int size = selection.endAddress - selection.startAddress + 1;
-//     if (ui->tabParsing->currentIndex() == 1) {
-//         RzHashSize digestSize = 0;
-//         const CutterDiffLocked cutterDiff(this->cutterDiff);
-//         const ut64 oldOffsetA = cutterDiff.coreA->offset;
-//         const ut64 oldOffsetB = cutterDiff.coreB->offset;
-//         rz_core_seek(cutterDiff.coreA, selection.startAddress, true);
-//         rz_core_seek(cutterDiff.coreB, selection.startAddressB, true);
-//         const ut8 *blockA = cutterDiff.coreA->block;
-//         const ut8 *blockB = cutterDiff.coreB->block;
-//         char *digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreA->hash, "md5",
-//                                                                 blockA, size, &digestSize,
-//                                                                 false);
-//         ui->bytesMD5A->setText(QString(digest));
-//         free(digest);
+void HexDiffWidget::updateParseWindow()
+{
+    HexDiffSelection selectionA = syncer->getSelectionAddr(true);
+    HexDiffSelection selectionB = syncer->getSelectionAddr(false);
+    const int size = selectionA.length();
+    if (ui->tabParsing->currentIndex() != 1) {
+        return;
+    }
+    RzHashSize digestSize = 0;
+    const CutterDiffLocked cutterDiff(this->cutterDiff);
+    const ut64 oldOffsetA = cutterDiff.coreA->offset;
+    const ut64 oldOffsetB = cutterDiff.coreB->offset;
+    rz_core_seek(cutterDiff.coreA, selectionA.start(), true);
+    rz_core_seek(cutterDiff.coreB, selectionB.start(), true);
+    const ut8 *blockA = cutterDiff.coreA->block;
+    const ut8 *blockB = cutterDiff.coreB->block;
+    char *digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreA->hash, "md5",
+                                                            blockA, size, &digestSize,
+                                                            false);
+    ui->bytesMD5A->setText(QString(digest));
+    free(digest);
 
-//         digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreB->hash, "md5", blockB,
-//                                                           size, &digestSize, false);
-//         ui->bytesMD5B->setText(QString(digest));
-//         free(digest);
+    digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreB->hash, "md5", blockB,
+                                                      size, &digestSize, false);
+    ui->bytesMD5B->setText(QString(digest));
+    free(digest);
 
-//         digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreA->hash, "sha1", blockA,
-//                                                           size, &digestSize, false);
-//         ui->bytesSHA1A->setText(QString(digest));
-//         free(digest);
+    digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreA->hash, "sha1", blockA,
+                                                      size, &digestSize, false);
+    ui->bytesSHA1A->setText(QString(digest));
+    free(digest);
 
-//         digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreB->hash, "sha1", blockB,
-//                                                           size, &digestSize, false);
-//         ui->bytesSHA1B->setText(QString(digest));
-//         free(digest);
+    digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreB->hash, "sha1", blockB,
+                                                      size, &digestSize, false);
+    ui->bytesSHA1B->setText(QString(digest));
+    free(digest);
 
-//         digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreA->hash, "sha256",
-//         blockA,
-//                                                           size, &digestSize, false);
-//         ui->bytesSHA256A->setText(QString(digest));
-//         free(digest);
+    digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreA->hash, "sha256",
+    blockA,
+                                                      size, &digestSize, false);
+    ui->bytesSHA256A->setText(QString(digest));
+    free(digest);
 
-//         digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreB->hash, "sha256",
-//         blockB,
-//                                                           size, &digestSize, false);
-//         ui->bytesSHA256B->setText(QString(digest));
-//         free(digest);
+    digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreB->hash, "sha256",
+    blockB,
+                                                      size, &digestSize, false);
+    ui->bytesSHA256B->setText(QString(digest));
+    free(digest);
 
-//         digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreA->hash, "crc32",
-//         blockA,
-//                                                           size, &digestSize, false);
-//         ui->bytesCRC32A->setText(QString(digest));
-//         free(digest);
+    digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreA->hash, "crc32",
+    blockA,
+                                                      size, &digestSize, false);
+    ui->bytesCRC32A->setText(QString(digest));
+    free(digest);
 
-//         digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreB->hash, "crc32",
-//         blockB,
-//                                                           size, &digestSize, false);
-//         ui->bytesCRC32B->setText(QString(digest));
-//         free(digest);
+    digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreB->hash, "crc32",
+    blockB,
+                                                      size, &digestSize, false);
+    ui->bytesCRC32B->setText(QString(digest));
+    free(digest);
 
-//         digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreA->hash, "entropy",
-//         blockA,
-//                                                           size, &digestSize, false);
-//         ui->bytesEntropyA->setText(QString(digest));
-//         free(digest);
+    digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreA->hash, "entropy",
+    blockA,
+                                                      size, &digestSize, false);
+    ui->bytesEntropyA->setText(QString(digest));
+    free(digest);
 
-//         digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreB->hash, "entropy",
-//         blockB,
-//                                                           size, &digestSize, false);
-//         ui->bytesEntropyB->setText(QString(digest));
-//         free(digest);
+    digest = rz_hash_cfg_calculate_small_block_string(cutterDiff.coreB->hash, "entropy",
+    blockB,
+                                                      size, &digestSize, false);
+    ui->bytesEntropyB->setText(QString(digest));
+    free(digest);
 
-//         rz_core_seek(cutterDiff.coreA, oldOffsetA, true);
-//         rz_core_seek(cutterDiff.coreB, oldOffsetB, true);
-//         ui->bytesMD5A->setCursorPosition(0);
-//         ui->bytesSHA1A->setCursorPosition(0);
-//         ui->bytesSHA256A->setCursorPosition(0);
-//         ui->bytesCRC32A->setCursorPosition(0);
-//         ui->bytesMD5B->setCursorPosition(0);
-//         ui->bytesSHA1B->setCursorPosition(0);
-//         ui->bytesSHA256B->setCursorPosition(0);
-//         ui->bytesCRC32B->setCursorPosition(0);
-//     }
-// }
+    rz_core_seek(cutterDiff.coreA, oldOffsetA, true);
+    rz_core_seek(cutterDiff.coreB, oldOffsetB, true);
+    ui->bytesMD5A->setCursorPosition(0);
+    ui->bytesSHA1A->setCursorPosition(0);
+    ui->bytesSHA256A->setCursorPosition(0);
+    ui->bytesCRC32A->setCursorPosition(0);
+    ui->bytesMD5B->setCursorPosition(0);
+    ui->bytesSHA1B->setCursorPosition(0);
+    ui->bytesSHA256B->setCursorPosition(0);
+    ui->bytesCRC32B->setCursorPosition(0);
+}
 
-// void HexDiffWidget::selectionChanged(HexDiffView::Selection selection)
-// {
-//     if (selection.empty) {
-//         clearParseWindow();
-//     } else {
-//         updateParseWindow(selection);
-//     }
-// }
+void HexDiffWidget::onCursorChanged()
+{
+    if (syncer->getSelectionAddr(true).isEmpty()) {
+        clearParseWindow();
+    } else {
+        updateParseWindow();
+    }
+}

@@ -34,11 +34,10 @@ quint64 HexDiffScrollBar::addressFromValue(int value) const
     if (range == 0 || maximum() == 0) {
         return mBeginAddress;
     }
+    const double ratio = double(value)/double(maximum());
+    const auto scaled = static_cast<quint64>(range *ratio);
 
-    const auto scaled = (static_cast<unsigned __int128>(range) * static_cast<quint64>(value))
-            / static_cast<unsigned __int128>(maximum());
-
-    return mBeginAddress + static_cast<quint64>(scaled);
+    return mBeginAddress + scaled;
 }
 
 int HexDiffScrollBar::valueFromAddress(quint64 address) const
@@ -59,9 +58,8 @@ int HexDiffScrollBar::valueFromAddress(quint64 address) const
 
     const quint64 offset = address - mBeginAddress;
 
-    const auto scaled =
-            (static_cast<unsigned __int128>(offset) * static_cast<unsigned __int128>(maximum()))
-            / static_cast<unsigned __int128>(range);
+    const double ratio = double(offset)/double(range);
+    const auto scaled = static_cast<quint64>(ratio * maximum());
 
     return static_cast<int>(scaled);
 }
