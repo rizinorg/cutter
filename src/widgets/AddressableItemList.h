@@ -116,4 +116,10 @@ private:
     MainWindow *mainWindow = nullptr;
 };
 
+/**
+ * @brief Type alias for the default CutterTreeView-based AddressableItemList,
+ * used in .ui files where class names cannot contain template syntax (<>).
+ */
+using AddressableItemListView = AddressableItemList<CutterTreeView>;
+
 #endif // ADDRESSABLE_ITEM_LIST_H
