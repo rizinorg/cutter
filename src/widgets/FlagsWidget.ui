@@ -31,7 +31,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="AddressableItemList&lt;&gt;" name="flagsTreeView">
+     <widget class="AddressableItemListView" name="flagsTreeView">
       <property name="styleSheet">
        <string notr="true">CutterTreeView::item
 {
@@ -124,7 +124,7 @@
    <header>ItemCountLineEdit.h</header>
   </customwidget>
   <customwidget>
-   <class>AddressableItemList&lt;&gt;</class>
+   <class>AddressableItemListView</class>
    <extends>QTreeView</extends>
    <header>widgets/AddressableItemList.h</header>
    <container>1</container>
