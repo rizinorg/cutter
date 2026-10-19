@@ -4,8 +4,15 @@
 
 QSet<QString> convertRzSetS(const RzSetS *set)
 {
+    if (!set) {
+        return {};
+    }
+
+    RzIterator rzIt = (RzIterator) { nullptr };
+    rz_set_s_as_iter(set, &rzIt);
+
     QSet<QString> res;
-    for (auto it = CutterRzIter<const char *>(rz_set_s_as_iter(set)); it; ++it) {
+    for (auto it = CutterRzIter<const char *>(rzIt); it; ++it) {
         res << QString::fromUtf8(*it);
     }
     return res;
