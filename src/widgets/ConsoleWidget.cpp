@@ -271,7 +271,7 @@ void ConsoleWidget::executeCommand(const QString &command)
     commandTask = std::make_shared<CommandTask>(command, CommandTask::ColorMode::MODE_16M);
     connect(commandTask.get(), &CommandTask::finished, this,
             [this, cmdLine, command, oldOffset](const QString &result) {
-                ui->outputTextEdit->appendHtml(CutterCore::ansiEscapeToHtml(result));
+                ui->outputTextEdit->appendHtml(Core()->ansiEscapeToHtml(result));
                 scrollOutputToEnd();
                 historyAdd(command);
                 commandTask.reset();
@@ -476,7 +476,7 @@ void ConsoleWidget::processQueuedOutput()
         // Get the last segment that wasn't overwritten by carriage return
         output = output.trimmed();
         output = output.remove(0, output.lastIndexOf('\r')).trimmed();
-        ui->outputTextEdit->appendHtml(CutterCore::ansiEscapeToHtml(output));
+        ui->outputTextEdit->appendHtml(Core()->ansiEscapeToHtml(output));
         scrollOutputToEnd();
     }
 }
