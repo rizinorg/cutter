@@ -169,27 +169,60 @@ public:
 template<typename T>
 class CutterRzIter
 {
-    UniquePtrC<RzIterator, &rz_iterator_free> rzIter;
+    RzIterator rzIter {};
+    bool valid = false;
 
 public:
-    CutterRzIter(RzIterator *rzIter) : rzIter(rzIter)
+    explicit CutterRzIter(RzIterator iter) : rzIter(iter), valid(true)
     {
         // immediately attempt advancing by 1, otherwise it's hard to distinguish whether current
         // element is null due to not having called next, or due to having run out of elements
-        if (rzIter) {
+        if (valid) {
             ++*this;
         }
     }
 
-    CutterRzIter<T> &operator++()
+    ~CutterRzIter()
     {
-        rz_iterator_next(rzIter.get());
+        if (valid) {
+            rz_iterator_fini(&rzIter);
+        }
+    }
+
+    CutterRzIter(CutterRzIter &&other) noexcept : rzIter(other.rzIter), valid(other.valid)
+    {
+        other.valid = false;
+    }
+
+    CutterRzIter &operator=(CutterRzIter &&other) noexcept
+    {
+        if (this != &other) {
+            if (valid) {
+                rz_iterator_fini(&rzIter);
+            }
+            rzIter = other.rzIter;
+            valid = other.valid;
+            other.valid = false;
+        }
         return *this;
     }
-    operator bool() { return rzIter && rzIter->cur; }
-    T &operator*() { return *reinterpret_cast<T *>(rzIter->cur); }
-    T *get() { return reinterpret_cast<T *>(rzIter->cur); }
-    T *operator->() { return reinterpret_cast<T *>(rzIter->cur); }
+
+    // prevent copying to avoid double-free in rz_iterator_fini
+    CutterRzIter(const CutterRzIter &) = delete;
+    CutterRzIter &operator=(const CutterRzIter &) = delete;
+
+    CutterRzIter<T> &operator++()
+    {
+        if (valid) {
+            rz_iterator_next(&rzIter);
+        }
+        return *this;
+    }
+
+    operator bool() const { return valid && rzIter.cur; }
+    T &operator*() const { return *reinterpret_cast<T *>(rzIter.cur); }
+    T *get() const { return reinterpret_cast<T *>(rzIter.cur); }
+    T *operator->() const { return reinterpret_cast<T *>(rzIter.cur); }
 };
 
 #define CutterHtDef(xx, XX, K, VB)                                                                 \

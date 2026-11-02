@@ -30,7 +30,7 @@ ver_newer() {
 cd "$SCRIPTPATH/.."
 
 if [[ ! -f rz-frida/meson.build ]]; then
-	git clone https://github.com/rizinorg/rz-frida.git --depth 1 rz-frida
+	git clone https://github.com/rizinorg/rz-frida.git --depth 1 --branch "dev" rz-frida
 fi
 
 cd rz-frida
