@@ -53,7 +53,7 @@
         <widget class="QuickFilterView" name="toQuickFilter" native="true"/>
        </item>
        <item>
-        <widget class="AddressableItemList&lt;&gt;" name="toTreeWidget">
+        <widget class="AddressableItemListView" name="toTreeWidget">
          <property name="frameShape">
           <enum>QFrame::Shape::Box</enum>
          </property>
@@ -79,7 +79,7 @@
         <widget class="QuickFilterView" name="fromQuickFilter" native="true"/>
        </item>
        <item>
-        <widget class="AddressableItemList&lt;&gt;" name="fromTreeWidget">
+        <widget class="AddressableItemListView" name="fromTreeWidget">
          <property name="frameShape">
           <enum>QFrame::Shape::Box</enum>
          </property>
@@ -148,7 +148,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>AddressableItemList&lt;&gt;</class>
+   <class>AddressableItemListView</class>
    <extends>QTreeView</extends>
    <header>widgets/AddressableItemList.h</header>
    <container>1</container>
