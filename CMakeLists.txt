@@ -31,6 +31,7 @@ set("CUTTER_QT" 6 CACHE STRING "Major QT version to use 5|6")
 set_property(CACHE "CUTTER_QT" PROPERTY STRINGS 5 6)
 option(CUTTER_INCLUDE_GIT_HASH "Include git hash in full version" ON)
 set(CUTTER_VERSION_SUFFIX "" CACHE STRING "Can be used by packagers to differentiate multiple packages using same source, for example build number or presence of additional patches.")
+option(CUTTER_ASAN "Build with ASAN" OFF)
 
 if(NOT CUTTER_ENABLE_PYTHON)
     set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
@@ -188,10 +189,12 @@ message(STATUS "- Package RzFrida: ${CUTTER_PACKAGE_RZ_FRIDA}")
 message(STATUS "- Package JSDec: ${CUTTER_PACKAGE_JSDEC}")
 message(STATUS "- QT: ${CUTTER_QT}")
 message(STATUS "")
+message(STATUS "- ASAN: ${CUTTER_ASAN}")
 
 if (CUTTER_QT LESS 5 OR CUTTER_QT GREATER 6)
     message(FATAL_ERROR "Unsupported QT major version")
 endif()
+
 
 add_subdirectory(src)
 

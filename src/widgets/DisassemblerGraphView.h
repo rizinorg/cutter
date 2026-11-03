@@ -19,6 +19,7 @@ class FallbackSyntaxHighlighter;
 /**
  * @brief Graph View widget for disassembly
  */
+
 class DisassemblerGraphView : public CutterGraphView
 {
     Q_OBJECT
