@@ -284,4 +284,27 @@ if(CUTTER_PACKAGE_RZ_GHIDRA)
 	")
 endif()
 
+if(UNIX AND NOT APPLE)
+	set(CPACK_GENERATOR "DEB")
+	set(CPACK_DEBIAN_PACKAGE_NAME "cutter")
+	set(CPACK_DEBIAN_PACKAGE_VERSION "${CUTTER_VERSION_FULL}")
+	set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
+	set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://cutter.re/")
+	set(CPACK_DEBIAN_PACKAGE_MAINTAINER "rizinorg")
+	set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+	set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+	set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
+	set(CPACK_INSTALL_CMAKE_PROJECTS "")
+	configure_file(deb-install.sh.in deb-install.sh @ONLY)
+	set(CPACK_INSTALL_COMMANDS "/bin/sh ${CMAKE_CURRENT_BINARY_DIR}/deb-install.sh")
+endif()
+
 include(CPack)
+
+if(UNIX AND NOT APPLE)
+	add_custom_target(deb
+		COMMAND "${CMAKE_CPACK_COMMAND}" -G DEB --config "${CMAKE_BINARY_DIR}/CPackConfig.cmake"
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		COMMENT "Building .deb package"
+	)
+endif()

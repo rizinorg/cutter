@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+
+DESTDIR="$CMAKE_INSTALL_PREFIX" "@CMAKE_COMMAND@" \
+	-DCMAKE_INSTALL_PREFIX=/usr \
+	-P "@CMAKE_BINARY_DIR@/cmake_install.cmake"
