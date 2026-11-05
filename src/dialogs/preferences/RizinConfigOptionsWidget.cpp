@@ -514,7 +514,7 @@ RizinConfigOptionsWidget::RizinConfigOptionsWidget(PreferencesDialog *parent)
         }
     });
 
-    connect(ui->comboQuickFilter, &ComboQuickFilterView::filterTextChanged, this,
+    connect(ui->comboQuickFilter, &ComboQuickFilterView::filterChanged, this,
             [this](const QString &text) {
                 proxyModel->setFilterWildcard(text);
                 updateItemCount();

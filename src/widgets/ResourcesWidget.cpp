@@ -119,7 +119,7 @@ ResourcesWidget::ResourcesWidget(MainWindow *main)
     connect(Core(), &CutterCore::refreshAll, this, &ResourcesWidget::refreshResources);
     connect(Core(), &CutterCore::commentsChanged, this,
             [this]() { qhelpers::emitColumnChanged(model, ResourcesModel::COMMENT); });
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
+    connect(ui->quickFilterView, &QuickFilterView::filterChanged, this,
             [this] { ui->quickFilterView->setItemCount(filterModel->rowCount()); });
 }
 

@@ -337,6 +337,15 @@ public:
      */
     bool getShowQuickFilter() const;
 
+    bool getQuickFilterCaseSensitive() const;
+    void setQuickFilterCaseSensitive(bool caseSensitive);
+
+    bool getQuickFilterWholeWords() const;
+    void setQuickFilterWholeWords(bool wholeWords);
+
+    bool getQuickFilterRegex() const;
+    void setQuickFilterRegex(bool regex);
+
     /**
      * @brief Enable or disable the visibility of the item count label within the Quick Filter
      * @param visible Set to true to show the item count, false to hide it
@@ -411,6 +420,9 @@ signals:
     void interfaceThemeChanged();
     void itemCountOptionsChanged();
     void quickFilterOptionsChanged();
+    void quickFilterCaseSensitiveChanged(bool caseSensitive);
+    void quickFilterWholeWordsChanged(bool wholeWords);
+    void quickFilterRegexChanged(bool regex);
     void functionsOptionsChanged();
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
     void kSyntaxHighlightingThemeChanged();
