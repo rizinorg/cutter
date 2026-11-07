@@ -390,6 +390,8 @@ void MainWindow::initToolBar()
             &MainWindow::onActionImportPdbTriggered);
     connect(ui->actionExportAsCode, &QAction::triggered, this,
             &MainWindow::onActionExportAsCodeTriggered);
+    connect(ui->actionExportDisassembly, &QAction::triggered, this,
+            &MainWindow::onActionExportDisassemblyTriggered);
     connect(ui->actionApplySigFromFile, &QAction::triggered, this,
             &MainWindow::onActionApplySigFromFileTriggered);
     connect(ui->actionCreateNewSig, &QAction::triggered, this,
@@ -1781,6 +1783,58 @@ void MainWindow::onActionImportPdbTriggered()
         core->message(tr("%1 loaded.").arg(pdbFile));
         this->refreshAll();
     }
+}
+
+void MainWindow::exportDisassembly(RVA funcMinAddr)
+{
+    if (funcMinAddr == RVA_INVALID) {
+        qWarning() << "No function at current offset.";
+        return;
+    }
+
+    QFileDialog dialog(this, tr("Export Disassembly"));
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setNameFilters({ tr("Assembly (*.asm *.S)"), tr("All files (*)") });
+    dialog.setDefaultSuffix("asm");
+    if (!dialog.exec()) {
+        return;
+    }
+
+    QFile file(dialog.selectedFiles()[0]);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << tr("Can't open file");
+        return;
+    }
+
+    const ut64 size = Core()->getFunctionSize(funcMinAddr);
+    if (size == 0) {
+        qWarning() << "Function size is 0.";
+        return;
+    }
+
+    const QString disassembly = Core()->getFunctionExecOut(
+            [funcMinAddr, size](RzCore *core) {
+                ut8 *buf = static_cast<ut8 *>(malloc(size));
+                if (!buf) {
+                    return false;
+                }
+                rz_io_read_at_mapped(core->io, funcMinAddr, buf, size);
+                RzCoreDisasmOptions options = {};
+                options.cbytes = 1;
+                rz_core_print_disasm(core, funcMinAddr, buf, size, 0, nullptr, &options);
+                free(buf);
+                return true;
+            },
+            funcMinAddr);
+
+    QTextStream fileOut(&file);
+    fileOut << disassembly;
+}
+
+void MainWindow::onActionExportDisassemblyTriggered()
+{
+    exportDisassembly(Core()->getFunctionMinAddr(Core()->getOffset()));
 }
 
 void MainWindow::onActionExportAsCodeTriggered()

@@ -1,6 +1,8 @@
 #include "DisassemblyContextMenu.h"
 
 #include "MainWindow.h"
+#include "common/CommandTask.h"
+#include "common/TempConfig.h"
 #include "dialogs/BreakpointsDialog.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/EditFunctionDialog.h"
@@ -15,6 +17,7 @@
 
 #include <QApplication>
 #include <QClipboard>
+#include <QFileDialog>
 #include <QInputDialog>
 #include <QJsonArray>
 #include <QPushButton>
@@ -35,6 +38,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
       copySeparator(addSeparator()),
       actionCopyAddr(this),
       actionCopyInstrBytes(this),
+      actionExportDisassembly(this),
       actionAddComment(this),
       actionAnalyzeFunction(this),
       actionEditFunction(this),
@@ -82,6 +86,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     initShortcutAction(&actionCopyInstrBytes, "Disassembly.copyInstructionBytes",
                        &DisassemblyContextMenu::copyInstrBytesTriggered);
     addAction(&actionCopyInstrBytes);
+
+    initAction(&actionExportDisassembly, tr("Export disassembly of current function"),
+               &DisassemblyContextMenu::exportDisassemblyTriggered);
+    addAction(&actionExportDisassembly);
 
     initAction(&showInSubmenu, tr("Show in"), nullptr);
     addAction(&showInSubmenu);
@@ -719,6 +727,19 @@ void DisassemblyContextMenu::copyInstrBytesTriggered() const
 {
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(Core()->getInstructionBytes(offset));
+}
+
+void DisassemblyContextMenu::exportDisassemblyTriggered()
+{
+    const RVA funcMinAddr = Core()->getFunctionMinAddr(offset);
+    if (funcMinAddr == RVA_INVALID) {
+        qWarning() << "No function at current offset.";
+        return;
+    }
+
+    if (mainWindow) {
+        mainWindow->exportDisassembly(funcMinAddr);
+    }
 }
 
 void DisassemblyContextMenu::addBreakpointTriggered() const
