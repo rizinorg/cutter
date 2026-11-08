@@ -221,7 +221,7 @@ CutterPlugin *PluginManager::loadPythonPlugin(const char *moduleName)
 #    elif QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
             reinterpret_cast<SbkObjectType *>(SbkCutterBindingsTypes[SBK_CutterPlugin_IDX]),
 #    else
-            reinterpret_cast<PyTypeObject **>(SbkCutterBindingsTypeStructs)[SBK_CutterPlugin_IDX],
+            Shiboken::Module::get(SbkCutterBindingsTypeStructs[SBK_CutterPlugin_IDX]),
 #    endif
             pluginObject);
     if (!pythonToCpp) {
