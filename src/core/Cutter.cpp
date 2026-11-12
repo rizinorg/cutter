@@ -141,7 +141,7 @@ RzCoreLocked::RzCoreLocked(CutterCore *core) : core(core)
     core->coreLockDepth++;
     if (core->coreLockDepth == 1) {
         assert(core->coreBed);
-        rz_cons_sleep_end(core->coreBed);
+        rz_interrupt_sleep_end(core->rzCore->intr, core->coreBed);
         core->coreBed = nullptr;
     }
 }
@@ -151,7 +151,7 @@ RzCoreLocked::~RzCoreLocked()
     assert(core->coreLockDepth > 0);
     core->coreLockDepth--;
     if (core->coreLockDepth == 0) {
-        core->coreBed = rz_cons_sleep_begin();
+        core->coreBed = rz_interrupt_sleep_begin(core->rzCore->intr);
     }
     core->coreMutex.unlock();
 }
@@ -194,7 +194,6 @@ CutterCore *CutterCore::instance()
 
 void CutterCore::initialize(bool loadPlugins)
 {
-    rz_cons_new(); // initialize console
     rzCore = rz_core_new();
 
 #if defined(MACOS_RZ_BUNDLED)
@@ -209,7 +208,7 @@ void CutterCore::initialize(bool loadPlugins)
     char **env = rz_sys_get_environ();
     rzCore->io->envprofile = rz_run_get_environ_profile(env);
     rz_core_task_sync_begin(&rzCore->tasks);
-    coreBed = rz_cons_sleep_begin();
+    coreBed = rz_interrupt_sleep_begin(rzCore->intr);
     CORE_LOCK();
 
     rz_event_hook(rzCore->ev, RZ_EVENT_ALL, cutterREventCallback, this);
@@ -240,10 +239,9 @@ void CutterCore::initialize(bool loadPlugins)
 CutterCore::~CutterCore()
 {
     delete bbHighlighter;
-    rz_cons_sleep_end(coreBed);
+    rz_interrupt_sleep_end(rzCore->intr, coreBed);
     rz_core_task_sync_end(&rzCore->tasks);
     rz_core_free(this->rzCore);
-    rz_cons_free();
     assert(uniqueInstance == this);
     uniqueInstance = nullptr;
 }
@@ -288,7 +286,7 @@ void CutterCore::loadCutterRC()
         }
         qInfo() << tr("Loading initialization file from ") << cutterRCFilePath;
         rz_core_cmd_file(core, cutterRCFilePath.toUtf8().constData());
-        rz_cons_flush();
+        rz_cons_flush(core->cons);
     }
 }
 
@@ -302,7 +300,7 @@ void CutterCore::loadDefaultCutterRC()
     }
     qInfo() << tr("Loading initialization file from ") << cutterRCFilePath;
     rz_core_cmd_file(core, cutterRCFilePath.toUtf8().constData());
-    rz_cons_flush();
+    rz_cons_flush(core->cons);
 }
 
 QList<QString> CutterCore::sdbList(const QString &path)
@@ -392,22 +390,22 @@ QString CutterCore::getFunctionExecOut(const std::function<bool(RzCore *)> &fcn,
     const RVA offset = core->offset;
     seekSilent(addr);
     QString o = {};
-    rz_cons_push();
+    rz_cons_push(core->cons);
     const bool isPipe = core->is_pipe;
     core->is_pipe = true;
 
     if (!fcn(core)) {
         core->is_pipe = isPipe;
-        rz_cons_pop();
+        rz_cons_pop(core->cons);
         goto clean_return;
     }
 
     core->is_pipe = isPipe;
-    rz_cons_filter();
-    o = rz_cons_get_buffer();
+    rz_cons_filter(core->cons);
+    o = rz_cons_get_buffer(core->cons);
 
-    rz_cons_pop();
-    rz_cons_echo(nullptr);
+    rz_cons_pop(core->cons);
+    rz_cons_echo(core->cons, nullptr);
 
 clean_return:
     if (offset != core->offset) {
@@ -645,7 +643,7 @@ bool CutterCore::loadFile(const QString &path, ut64 baddr, ut64 mapaddr, int per
         }
     }
 
-    rz_cons_flush();
+    rz_cons_flush(core->cons);
     fflush(stdout);
     return true;
 }
@@ -658,7 +656,7 @@ bool CutterCore::tryFile(const QString &path, bool rw)
     }
     CORE_LOCK();
     // clear info from previous fails
-    rz_cons_break_clear();
+    rz_interrupt_break_clear(core->intr);
     RzCoreFile *cf;
     int flags = RZ_PERM_R;
     if (rw) {
@@ -746,9 +744,10 @@ CutterRzIter<RzCoreDecodedBytes> CutterCore::getRzCoreDecodedBytesSingle(RVA add
     rz_io_read_at_mapped(core->io, addr, buf, sizeof(buf));
 
     // Warning! only safe to use with stack buffer, due to instruction count being 1
-    auto result = CutterRzIter<RzCoreDecodedBytes>(
-            rz_core_analysis_bytes(core, addr, buf, sizeof(buf), 1));
-    return result;
+    RzIterator it = {};
+    rz_core_analysis_bytes(core, addr, buf, sizeof(buf), 1, &it);
+
+    return CutterRzIter<RzCoreDecodedBytes>(it);
 }
 
 QString CutterCore::getInstructionBytes(RVA addr)
@@ -1187,19 +1186,15 @@ void CutterCore::setConfig(const char *k, const RzInterval &itv)
 void CutterCore::setConfig(const char *k, const QStringList &list)
 {
     CORE_LOCK();
-    RzList *rzList = rz_list_newf(free);
-    if (!rzList) {
+    RzSetS *set = rz_set_s_new(HT_STR_DUP);
+    if (!set) {
         return;
     }
-
     for (const QString &str : list) {
-        char *dupStr = strdup(str.toUtf8().constData());
-        if (dupStr) {
-            rz_list_append(rzList, dupStr);
-        }
+        rz_set_s_add(set, str.toUtf8().constData());
     }
-
-    rz_config_set_list(core->config, k, rzList);
+    rz_config_set_set(core->config, k, set);
+    rz_set_s_free(set);
 }
 
 int CutterCore::getConfigi(const char *k)
@@ -1226,16 +1221,12 @@ RzInterval CutterCore::getConfigItv(const char *k)
     return rz_config_get_interval(core->config, k);
 }
 
-QStringList CutterCore::getConfigList(const char *k)
+QSet<QString> CutterCore::getConfigSet(const char *k)
 {
     CORE_LOCK();
-
-    QStringList res;
-    RzList *list = rz_config_get_list(core->config, k);
-    for (const auto *s : CutterRzList<const char>(list)) {
-        res << QString::fromUtf8(s);
-    }
-    rz_list_free(list);
+    RzSetS *set = rz_config_get_set(core->config, k);
+    QSet<QString> res = convertRzSetS(set);
+    rz_set_s_free(set);
     return res;
 }
 
@@ -1295,18 +1286,21 @@ QString CutterCore::getConfig(const char *k)
     return { rz_config_get(core->config, k) };
 }
 
-QStringList CutterCore::getConfigOptions(const char *k)
+QSet<QString> CutterCore::getConfigOptions(const char *k)
 {
     CORE_LOCK();
     const RzConfigNode *node = rz_config_node_get(core->config, k);
     if (!(node && node->options)) {
         return {};
     }
-    QStringList list;
-    for (const auto &s : CutterRzList<char>(node->options)) {
-        list << s;
+    RzIterator rzIt = {};
+    rz_set_s_as_iter(node->options, &rzIt);
+
+    QSet<QString> res;
+    for (auto it = CutterRzIter<const char *>(rzIt); it; ++it) {
+        res << QString::fromUtf8(*it);
     }
-    return list;
+    return res;
 }
 
 void CutterCore::setConfig(const char *k, const QVariant &v)
@@ -2528,12 +2522,13 @@ void CutterCore::continueUntilSyscall()
     } else {
         if (!asyncTask(
                     [](RzCore *core) {
-                        rz_cons_break_push(
+                        rz_interrupt_break_push(
+                                core->intr,
                                 [](void *x) { rz_debug_stop(reinterpret_cast<RzDebug *>(x)); },
                                 core->dbg);
                         rz_reg_arena_swap(core->dbg->reg, true);
                         rz_debug_continue_syscalls(core->dbg, nullptr, 0);
-                        rz_cons_break_pop();
+                        rz_interrupt_break_pop(core->intr);
                         rz_core_dbg_follow_seek_register(core);
                         return nullptr;
                     },
@@ -4168,13 +4163,11 @@ QList<EvaluableVarDescription> CutterCore::getAllEvaluableVars()
                 var.type = EvaluableVarDescription::Interval;
                 const RzInterval itv = rz_config_var_get_interval(v);
                 value = QVariant::fromValue(itv);
-            } else if (RZ_CONFIG_VAR_IS_TYPE(flags, RZ_CONFIG_VAR_TYPE_LIST)) {
-                var.type = EvaluableVarDescription::List;
-                const RzList *list = rz_config_var_get_list(v);
-                QStringList stringList;
-                for (const auto *c : CutterRzList<const char>(list)) {
-                    stringList << QString(c);
-                }
+            } else if (RZ_CONFIG_VAR_IS_TYPE(flags, RZ_CONFIG_VAR_TYPE_SET)) {
+                var.type = EvaluableVarDescription::Set;
+                RzSetS *set = rz_config_var_get_set(v);
+                value = QVariant::fromValue(convertRzSetS(set));
+                rz_set_s_free(set);
             }
 
             if (value.isNull()) {
@@ -4182,13 +4175,9 @@ QList<EvaluableVarDescription> CutterCore::getAllEvaluableVars()
             }
             var.value = value;
 
-            const RzList *optionsList = rz_config_var_get_options(v);
-            if (optionsList) {
-                RzListIter *iter;
-                char *option;
-                CutterRzListForeach (optionsList, iter, char, option) {
-                    var.options << QString::fromUtf8(option);
-                }
+            const RzSetS *optionsSet = rz_config_var_get_options(v);
+            if (optionsSet) {
+                var.options = convertRzSetS(optionsSet);
             }
         } else {
             const RzConfigNode *node = &entry->node;
@@ -4203,10 +4192,8 @@ QList<EvaluableVarDescription> CutterCore::getAllEvaluableVars()
 
             var.value = QString::fromUtf8(rz_config_entry_get_as_string(entry));
 
-            RzListIter *iter;
-            char *option;
-            CutterRzListForeach (node->options, iter, char, option) {
-                var.options << QString::fromUtf8(option);
+            if (node->options) {
+                var.options = convertRzSetS(node->options);
             }
         }
 
@@ -4450,12 +4437,12 @@ class CutterSearchLock
 public:
     CutterSearchLock(RzCore *core) : core(core)
     {
-        rz_cons_break_push(nullptr, nullptr);
+        rz_interrupt_break_push(core->intr, nullptr, nullptr);
         core->in_search = true;
     }
     ~CutterSearchLock()
     {
-        rz_cons_break_pop();
+        rz_interrupt_break_pop(core->intr);
         core->in_search = false;
     }
 
@@ -5089,9 +5076,9 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
     options.vec = vec.get();
     {
         auto restoreSeek = seekTemp(offset);
-        if (rz_cons_singleton()->is_html) {
-            rz_cons_singleton()->is_html = false;
-            rz_cons_singleton()->was_html = true;
+        if (core->cons->is_html) {
+            core->cons->is_html = false;
+            core->cons->was_html = true;
         }
         rz_core_print_disasm(core, offset, core->block, core->blocksize, lines, nullptr, &options);
     }
@@ -5170,7 +5157,7 @@ void CutterCore::loadScript(const QString &scriptname)
     {
         CORE_LOCK();
         rz_core_cmd_file(core, scriptname.toUtf8().constData());
-        rz_cons_flush();
+        rz_cons_flush(core->cons);
     }
     triggerRefreshAll();
 }
@@ -5243,13 +5230,14 @@ QStringList CutterCore::getColorThemes()
 
 QHash<QString, QColor> CutterCore::getTheme()
 {
+    CORE_LOCK();
     QHash<QString, QColor> theme;
     for (int i = 0;; ++i) {
-        const char *k = rz_cons_pal_get_name(i);
+        const char *k = rz_cons_pal_get_name(core->cons, i);
         if (!k) {
             break;
         }
-        const RzColor color = rz_cons_pal_get_i(i);
+        const RzColor color = rz_cons_pal_get_i(core->cons, i);
         theme.insert(k, QColor(color.r, color.g, color.b));
     }
     return theme;
@@ -5257,9 +5245,10 @@ QHash<QString, QColor> CutterCore::getTheme()
 
 QStringList CutterCore::getThemeKeys()
 {
+    CORE_LOCK();
     QStringList stringList;
     for (int i = 0;; ++i) {
-        const char *k = rz_cons_pal_get_name(i);
+        const char *k = rz_cons_pal_get_name(core->cons, i);
         if (!k) {
             break;
         }
@@ -5270,10 +5259,11 @@ QStringList CutterCore::getThemeKeys()
 
 bool CutterCore::setColor(const QString &key, const QString &color)
 {
-    if (!rz_cons_pal_set(key.toUtf8().constData(), color.toUtf8().constData())) {
+    CORE_LOCK();
+    if (!rz_cons_pal_set(core->cons, key.toUtf8().constData(), color.toUtf8().constData())) {
         return false;
     }
-    rz_cons_pal_update_event();
+    rz_cons_pal_update_event(core->cons);
     return true;
 }
 
@@ -5285,10 +5275,11 @@ QString CutterCore::getColorNameFromOp(ut32 opType)
 
 QString CutterCore::ansiEscapeToHtml(const QString &text)
 {
+    CORE_LOCK();
     int len;
     QString r = text;
     r.replace("\t", "        ");
-    char *html = rz_cons_html_filter(r.toUtf8().constData(), &len);
+    char *html = rz_cons_html_filter(core->cons, r.toUtf8().constData(), &len);
     if (!html) {
         return {};
     }

@@ -10,6 +10,10 @@ on:
     - dev
     - stable
 
+env:
+  LLVM_VERSION: 20
+  USE_APT_LLVM_ORG: false
+
 jobs:
   changes:
     runs-on: ubuntu-latest
@@ -38,23 +42,32 @@ jobs:
       uses: actions/checkout@v7
 
     - name: Install wget, software-properties-common, lsb-release (dependencies of LLVM install script)
+      if: ${{ env.USE_APT_LLVM_ORG == 'true' }}
       run: sudo apt --assume-yes install wget software-properties-common lsb-release
 
     - name: Uninstall old conflicting packages
-      run: sudo apt purge --assume-yes --auto-remove llvm python3-lldb-14 llvm-14
+      if: ${{ env.USE_APT_LLVM_ORG == 'true' }}
+      run: |
+        pkgs=$(dpkg-query -W -f='${db:Status-Abbrev} ${Package}\n' 'llvm' 'llvm-[0-9]*' 'python3-lldb-[0-9]*' 2>/dev/null \
+          | awk '$1 == "ii" {print $2}' | grep -v -- "-${LLVM_VERSION}$" || true)
+        if [ -n "$pkgs" ]; then
+          sudo apt-get purge --assume-yes --auto-remove $pkgs
+        fi
 
-    - name: Install automatic LLVM 20
-      run: wget https://apt.llvm.org/llvm.sh -O /tmp/llvm-install.sh; chmod +x /tmp/llvm-install.sh; sudo /tmp/llvm-install.sh 20
+    - name: Install automatic LLVM ${{ env.LLVM_VERSION }}
+      if: ${{ env.USE_APT_LLVM_ORG == 'true' }}
+      run: wget https://apt.llvm.org/llvm.sh -O /tmp/llvm-install.sh; chmod +x /tmp/llvm-install.sh; sudo /tmp/llvm-install.sh "$LLVM_VERSION"
 
-    - name: Install clang-format-20
-      run: sudo apt --assume-yes install clang-format-20
+    - name: Install clang-format-${{ env.LLVM_VERSION }}
+      run: |
+        sudo apt-get install --assume-yes "clang-format-$LLVM_VERSION"
 
     - name: Install gitpython
       run: sudo pip install gitpython
 
     - name: Run clang-format
       run: |
-        sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-20 200
+        sudo update-alternatives --install /usr/bin/clang-format clang-format "/usr/bin/clang-format-$LLVM_VERSION" 200
         clang-format --version
         python scripts/clang-format.py --check --verbose
 
@@ -78,12 +91,13 @@ jobs:
           libqt6svgwidgets6 qt6-l10n-tools \
           libgl1-mesa-dev libglu1-mesa-dev 
 
-    - name: Install automatic LLVM 20
-      run: wget https://apt.llvm.org/llvm.sh -O /tmp/llvm-install.sh; chmod +x /tmp/llvm-install.sh; sudo /tmp/llvm-install.sh 20
+    - name: Install automatic LLVM ${{ env.LLVM_VERSION }}
+      if: ${{ env.USE_APT_LLVM_ORG == 'true' }}
+      run: wget https://apt.llvm.org/llvm.sh -O /tmp/llvm-install.sh; chmod +x /tmp/llvm-install.sh; sudo /tmp/llvm-install.sh "$LLVM_VERSION"
 
-    - name: Install clang-tidy-20
+    - name: Install clang-tidy-${{ env.LLVM_VERSION }}
       run: |
-        sudo apt --assume-yes install clang-tidy-20
+        sudo apt-get install --assume-yes "clang-tidy-$LLVM_VERSION"
 
     - name: CMake Configuration
       run: |
@@ -99,7 +113,7 @@ jobs:
 
     - name: Run Clang-Tidy
       run: |
-        sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-20 200
-        sudo update-alternatives --install /usr/bin/run-clang-tidy run-clang-tidy /usr/bin/run-clang-tidy-20 200
+        sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy "/usr/bin/clang-tidy-$LLVM_VERSION" 200
+        sudo update-alternatives --install /usr/bin/run-clang-tidy run-clang-tidy "/usr/bin/run-clang-tidy-$LLVM_VERSION" 200
         clang-tidy -version
         python3 scripts/clang-tidy.py

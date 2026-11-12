@@ -125,7 +125,7 @@ QVariant RizinConfigOptionsModel::data(const QModelIndex &index, int role) const
                 const auto itv = evalVar.value.value<RzInterval>();
                 return QString("%1+%2").arg(rzAddressString(itv.addr), rzSizeString(itv.size));
             }
-            if (evalVar.type == EvaluableVarDescription::List) {
+            if (evalVar.type == EvaluableVarDescription::Set) {
                 const QStringList list = evalVar.value.toStringList();
                 if (list.isEmpty()) {
                     return QString();
@@ -344,14 +344,16 @@ QWidget *RizinConfigOptionsDelegate::createEditor(QWidget *parent,
 
     if (evalVar.type == EvaluableVarDescription::Bool
         || evalVar.type == EvaluableVarDescription::Interval
-        || evalVar.type == EvaluableVarDescription::List) {
+        || evalVar.type == EvaluableVarDescription::Set) {
         // handled in lambda  connected to ui->treeView::doubleClicked
         return nullptr;
     }
 
     if (!evalVar.options.isEmpty()) {
         auto *comboBox = new QComboBox(parent);
-        for (const auto &opt : evalVar.options) {
+        QStringList opts = evalVar.options.values();
+        opts.sort();
+        for (const auto &opt : opts) {
             comboBox->addItem(opt);
         }
         return comboBox;
@@ -486,7 +488,7 @@ RizinConfigOptionsWidget::RizinConfigOptionsWidget(PreferencesDialog *parent)
             return;
         }
 
-        if (evalVar.type == EvaluableVarDescription::List) {
+        if (evalVar.type == EvaluableVarDescription::Set) {
             StringListDialog dialog(evalVar.value.toStringList(), this);
             dialog.setWindowTitle(tr("Edit List for %1").arg(evalVar.name));
 
@@ -596,8 +598,8 @@ void RizinConfigOptionsWidget::handleConfigOptionChanged(const QModelIndex &topL
     if (!originalValues.contains(evalVar.name)) {
         if (evalVar.type == EvaluableVarDescription::Interval) {
             originalValues[evalVar.name] = QVariant::fromValue(Core()->getConfigItv(evalVar.name));
-        } else if (evalVar.type == EvaluableVarDescription::List) {
-            originalValues[evalVar.name] = QVariant::fromValue(Core()->getConfigList(evalVar.name));
+        } else if (evalVar.type == EvaluableVarDescription::Set) {
+            originalValues[evalVar.name] = QVariant::fromValue(Core()->getConfigSet(evalVar.name));
         } else {
             originalValues[evalVar.name] = Core()->getConfig(evalVar.name);
         }

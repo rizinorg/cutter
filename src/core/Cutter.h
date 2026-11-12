@@ -92,8 +92,10 @@ class CUTTER_EXPORT CutterCore : public QObject
     Q_OBJECT
 
     friend class RzCoreLocked;
-    friend class RizinTask;
     friend class Basefind;
+    friend class RizinTask;
+    friend class AnalysisTask;
+    friend class RunScriptTask;
 
 public:
     explicit CutterCore(QObject *parent = nullptr);
@@ -507,12 +509,12 @@ public:
     bool getConfigb(const QString &k) { return getConfigb(k.toUtf8().constData()); }
     RzInterval getConfigItv(const char *k);
     RzInterval getConfigItv(const QString &k) { return getConfigItv(k.toUtf8().constData()); }
-    QStringList getConfigList(const char *k);
-    QStringList getConfigList(const QString &k) { return getConfigList(k.toUtf8().constData()); }
+    QSet<QString> getConfigSet(const char *k);
+    QSet<QString> getConfigSet(const QString &k) { return getConfigSet(k.toUtf8().constData()); }
     QString getConfig(const char *k);
     QString getConfig(const QString &k) { return getConfig(k.toUtf8().constData()); }
     QString getConfigDescription(const char *k);
-    QStringList getConfigOptions(const char *k);
+    QSet<QString> getConfigOptions(const char *k);
     QStringList getColorThemes();
     QHash<QString, QColor> getTheme();
     QStringList getThemeKeys();
@@ -939,7 +941,7 @@ public:
     CUTTER_DEPRECATED("Use CutterCore::lock instead")
     RzCoreLocked core();
 
-    static QString ansiEscapeToHtml(const QString &text);
+    QString ansiEscapeToHtml(const QString &text);
     BasicBlockHighlighter *getBBHighlighter();
     BasicInstructionHighlighter *getBIHighlighter();
 
