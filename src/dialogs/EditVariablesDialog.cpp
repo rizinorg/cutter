@@ -56,7 +56,8 @@ void EditVariablesDialog::applyFields()
     const auto desc = ui->dropdownLocalVars->currentData().value<VariableDescription>();
 
     RzCoreLocked core(Core());
-    auto *fcn = const_cast<RzAnalysisFunction *>(Core()->functionIn(core->offset));
+    // The function the dialog was opened for; the seek may have moved to another one.
+    auto *fcn = rz_analysis_get_function_at(core->analysis, functionAddress);
     if (!fcn) {
         return;
     }

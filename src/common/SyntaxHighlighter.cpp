@@ -23,51 +23,47 @@ void SyntaxHighlighter::updateTheme()
 
 #endif
 
+QStringList FallbackSyntaxHighlighter::keywords() const
+{
+    return {
+        "auto",   "break",  "case",     "char",   "const",    "continue", "default",  "do",
+        "double", "else",   "enum",     "extern", "float",    "for",      "goto",     "if",
+        "int",    "long",   "register", "return", "short",    "signed",   "sizeof",   "static",
+        "struct", "switch", "typedef",  "union",  "unsigned", "void",     "volatile", "while"
+    };
+}
+
+QColor FallbackSyntaxHighlighter::keywordColor() const
+{
+    return QColor(80, 200, 215);
+}
+
+QColor FallbackSyntaxHighlighter::functionColor() const
+{
+    return Qt::darkCyan;
+}
+
+QColor FallbackSyntaxHighlighter::commentColor() const
+{
+    return Qt::gray;
+}
+
+QColor FallbackSyntaxHighlighter::stringColor() const
+{
+    return Qt::darkGreen;
+}
+
 FallbackSyntaxHighlighter::FallbackSyntaxHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent), commentStartExpression("/\\*"), commentEndExpression("\\*/")
 {
     HighlightingRule rule;
-    QStringList keywordPatterns;
-
-    // C language keywords
-    keywordPatterns << "\\bauto\\b"
-                    << "\\bdouble\\b"
-                    << "\\bint\\b"
-                    << "\\bstruct\\b"
-                    << "\\bbreak\\b"
-                    << "\\belse\\b"
-                    << "\\blong\\b"
-                    << "\\switch\\b"
-                    << "\\bcase\\b"
-                    << "\\benum\\b"
-                    << "\\bregister\\b"
-                    << "\\btypedef\\b"
-                    << "\\bchar\\b"
-                    << "\\bextern\\b"
-                    << "\\breturn\\b"
-                    << "\\bunion\\b"
-                    << "\\bconst\\b"
-                    << "\\bfloat\\b"
-                    << "\\bshort\\b"
-                    << "\\bunsigned\\b"
-                    << "\\bcontinue\\b"
-                    << "\\bfor\\b"
-                    << "\\bsigned\\b"
-                    << "\\bvoid\\b"
-                    << "\\bdefault\\b"
-                    << "\\bgoto\\b"
-                    << "\\bsizeof\\b"
-                    << "\\bvolatile\\b"
-                    << "\\bdo\\b"
-                    << "\\bif\\b"
-                    << "\\static\\b"
-                    << "\\while\\b";
 
     QTextCharFormat keywordFormat;
-    keywordFormat.setForeground(QColor(80, 200, 215));
+    keywordFormat.setForeground(keywordColor());
 
-    for (const auto &pattern : std::as_const(keywordPatterns)) {
-        rule.pattern.setPattern(pattern);
+    const QStringList words = keywords();
+    for (const QString &keyword : words) {
+        rule.pattern.setPattern(QString("\\b%1\\b").arg(keyword));
         rule.format = keywordFormat;
         highlightingRules.append(rule);
     }
@@ -77,24 +73,24 @@ FallbackSyntaxHighlighter::FallbackSyntaxHighlighter(QTextDocument *parent)
     rule.format.clearBackground();
     rule.format.clearForeground();
     rule.format.setFontItalic(true);
-    rule.format.setForeground(Qt::darkCyan);
+    rule.format.setForeground(functionColor());
     highlightingRules.append(rule);
 
     // single-line comment
     rule.pattern.setPattern("//[^\n]*");
     rule.format.clearBackground();
     rule.format.clearForeground();
-    rule.format.setForeground(Qt::gray);
+    rule.format.setForeground(commentColor());
     highlightingRules.append(rule);
 
     // quotation
     rule.pattern.setPattern("\".*\"");
     rule.format.clearBackground();
     rule.format.clearForeground();
-    rule.format.setForeground(Qt::darkGreen);
+    rule.format.setForeground(stringColor());
     highlightingRules.append(rule);
 
-    multiLineCommentFormat.setForeground(Qt::gray);
+    multiLineCommentFormat.setForeground(commentColor());
 }
 
 void FallbackSyntaxHighlighter::highlightBlock(const QString &text)

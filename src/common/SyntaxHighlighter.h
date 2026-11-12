@@ -3,7 +3,9 @@
 
 #include "CutterCommon.h"
 
+#include <QColor>
 #include <QRegularExpression>
+#include <QStringList>
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 #include <QTextDocument>
@@ -36,6 +38,15 @@ class CUTTER_EXPORT FallbackSyntaxHighlighter : public QSyntaxHighlighter
 public:
     FallbackSyntaxHighlighter(QTextDocument *parent = nullptr);
     virtual ~FallbackSyntaxHighlighter() = default;
+
+    /**
+     * @brief The C keywords that are highlighted with keywordColor().
+     */
+    QStringList keywords() const;
+    QColor keywordColor() const;
+    QColor functionColor() const;
+    QColor commentColor() const;
+    QColor stringColor() const;
 
 protected:
     void highlightBlock(const QString &text) override;

@@ -14,6 +14,13 @@
 
 StringsModel::StringsModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
+void StringsModel::setStrings(const QList<StringDescription> &strings)
+{
+    beginResetModel();
+    this->strings = strings;
+    endResetModel();
+}
+
 int StringsModel::rowCount(const QModelIndex &) const
 {
     return strings.count();
@@ -204,17 +211,7 @@ StringsWidget::StringsWidget(MainWindow *main)
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
             [this] { ui->quickFilterView->setItemCount(proxyModel->rowCount()); });
 
-    QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
-    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
-            &ComboQuickFilterView::showFilter);
-    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    QShortcut *clearShortcut = Shortcuts()->makeQShortcut("General.clearFilter", this);
-    connect(clearShortcut, &QShortcut::activated, this, [this]() {
-        ui->quickFilterView->clearFilter();
-        ui->stringsTreeView->setFocus();
-    });
-    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    ui->quickFilterView->attachTo(ui->stringsTreeView, this);
 
     connect(Core(), &CutterCore::refreshAll, this, &StringsWidget::refreshStrings);
     connect(Core(), &CutterCore::codeRebased, this, &StringsWidget::refreshStrings);
@@ -241,13 +238,17 @@ StringsWidget::~StringsWidget() {}
 
 void StringsWidget::refreshStrings()
 {
-    if (task) {
-        task->wait();
-    }
-
+    // A search still running is superseded, not waited for: refreshes can come from a slot
+    // whose caller holds the core lock, which that search needs to finish. Its result is
+    // ignored when it arrives.
     task = std::shared_ptr<StringsTask>(new StringsTask(ui->rawStringsCheckBox->isChecked()));
+    const StringsTask *current = task.get();
     connect(task.get(), &StringsTask::stringSearchFinished, this,
-            &StringsWidget::stringSearchFinished);
+            [this, current](const QList<StringDescription> &strings) {
+                if (task.get() == current) {
+                    stringSearchFinished(strings);
+                }
+            });
     Core()->getAsyncTaskManager()->start(task);
 
     refreshSectionCombo();
@@ -269,9 +270,7 @@ void StringsWidget::refreshSectionCombo()
 
 void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings)
 {
-    model->beginResetModel();
-    model->strings = strings;
-    model->endResetModel();
+    model->setStrings(strings);
 
     qhelpers::adjustColumns(ui->stringsTreeView, StringsModel::ColumnCount, 0);
 

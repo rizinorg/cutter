@@ -422,6 +422,11 @@ void DecompilerWidget::seekChanged(RVA /* addr */, CutterCore::SeekHistoryType t
     } else if (type == CutterCore::SeekHistoryType::Redo) {
         ++historyPos;
     }
+    if (historyPos < 0 || historyPos >= scrollHistory.size()) {
+        // The widget was created after the history being undone or redone; start it here.
+        scrollHistory = { { 0, 0 } };
+        historyPos = 0;
+    }
     const RVA fcnAddr = Core()->getFunctionStart(seekable->getOffset());
     if (fcnAddr == RVA_INVALID || fcnAddr != decompiledFunctionAddr) {
         doRefresh();

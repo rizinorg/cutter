@@ -87,6 +87,9 @@ public:
 
     RVA address(const QModelIndex &index) const override;
     QString name(const QModelIndex &index) const override;
+
+    void setFunctions(const QList<FunctionDescription> &functions);
+    QList<FunctionDescription> getFunctions() const;
 private slots:
     void seekChanged(RVA addr);
     void functionRenamed(const RVA offset, const QString &new_name);
@@ -100,7 +103,7 @@ class FunctionSortFilterProxyModel : public AddressableFilterProxyModel
     Q_OBJECT
 
 public:
-    FunctionSortFilterProxyModel(FunctionModel *source_model, QObject *parent = nullptr);
+    FunctionSortFilterProxyModel(FunctionModel *sourceModel, QObject *parent = nullptr);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;

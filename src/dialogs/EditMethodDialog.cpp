@@ -217,8 +217,14 @@ void EditMethodDialog::editMethod(const QString &className, const QString &meth,
         return;
     }
 
-    QString classNameCopy = className;
-    if (!showDialog(tr("Edit Method"), false, &classNameCopy, &desc, parent)) {
+    QString chosenClass = className;
+    if (!showDialog(tr("Edit Method"), false, &chosenClass, &desc, parent)) {
+        return;
+    }
+    if (chosenClass != className) {
+        // The class combo box is editable: moving the method means leaving the old class.
+        Core()->deleteAnalysisMethod(className, meth);
+        Core()->setAnalysisMethod(chosenClass, desc);
         return;
     }
     if (desc.name != meth) {

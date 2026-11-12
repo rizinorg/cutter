@@ -10,6 +10,7 @@
 #include <climits>
 #include <cstdint>
 #include <cstdlib>
+#include <limits>
 #include <vector>
 
 /**
