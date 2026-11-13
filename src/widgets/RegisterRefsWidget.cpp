@@ -141,16 +141,10 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main)
     connect(ui->registerRefTreeView->selectionModel(), &QItemSelectionModel::currentChanged, this,
             &RegisterRefsWidget::onCurrentChanged);
 
-    // Ctrl-F to show/hide the filter entry
-    QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
-    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
-            &QuickFilterView::showFilter);
-    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    ui->quickFilterView->attachTo(ui->registerRefTreeView, this);
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, registerRefProxyModel,
             &QSortFilterProxyModel::setFilterWildcard);
-    connect(ui->quickFilterView, &QuickFilterView::filterClosed, ui->registerRefTreeView,
-            [this]() { ui->registerRefTreeView->setFocus(); });
     setScrollMode();
     connect(Core(), &CutterCore::refreshAll, this, &RegisterRefsWidget::refreshRegisterRef);
     connect(Core(), &CutterCore::registersChanged, this, &RegisterRefsWidget::refreshRegisterRef);
