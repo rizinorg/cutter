@@ -523,15 +523,13 @@ add_library(cutter_app STATIC ${CUTTER_SOURCES} ${BINDINGS_SOURCE})
 set_target_properties(cutter_app PROPERTIES
         POSITION_INDEPENDENT_CODE ON
         CXX_VISIBILITY_PRESET hidden)
-# PUBLIC: the Cutter executable and the tests compile against the same headers and link this
-# static library, so CUTTER_EXPORT must not turn into dllimport for them on Windows.
+
 target_compile_definitions(cutter_app PUBLIC CUTTER_SOURCE_BUILD)
 
-# WIN32 and the icon resource belong to the executable: a library can't take WIN32, and the
-# linker drops a resource from a static library because nothing references it.
+# Add WIN32 and the icon resource to the executable
 add_executable(Cutter ${OPTIONS} Main.cpp ${PLATFORM_RESOURCES})
-# Link every object of the library: plugins call into Cutter classes that Main.cpp alone may not
-# pull in, and the executable is what exports them.
+
+# Take every object file whether referenced or not
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24)
     target_link_libraries(Cutter PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,cutter_app>")
 else()
@@ -546,8 +544,6 @@ set_target_properties(Cutter PROPERTIES
 # Set Cutter as the startup project in Visual Studio
 set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Cutter)
 
-# Plugins link the exported Cutter::Cutter, not the library, so the executable carries the same
-# headers and public dependencies as an interface.
 foreach(_dir ${CUTTER_INCLUDE_DIRECTORIES})
     target_include_directories(cutter_app PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${_dir}>
