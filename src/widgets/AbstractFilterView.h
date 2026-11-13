@@ -24,7 +24,7 @@ public:
     virtual void showItemCount(bool show);
 
     void showFilter();
-    void clearFilter();
+    void clearFilter() const;
 
     virtual void closeFilter();
 

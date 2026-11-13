@@ -36,7 +36,7 @@ void AbstractFilterView::showFilter()
     lineEdit()->setFocus();
 }
 
-void AbstractFilterView::clearFilter()
+void AbstractFilterView::clearFilter() const
 {
     lineEdit()->setText("");
 }
