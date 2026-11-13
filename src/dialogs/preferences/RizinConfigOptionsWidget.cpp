@@ -433,6 +433,7 @@ RizinConfigOptionsWidget::RizinConfigOptionsWidget(PreferencesDialog *parent)
     qhelpers::adjustColumn(ui->treeView, RizinConfigOptionsModel::ValueColumn, 120);
 
     ui->comboQuickFilter->setLabelText("Space");
+    ui->comboQuickFilter->attachTo(ui->treeView, this);
 
     connect(ui->treeView, &QTreeView::doubleClicked, this, [this](const QModelIndex &index) {
         if (!index.isValid()) {

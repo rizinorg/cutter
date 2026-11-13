@@ -1,7 +1,11 @@
 #include "AbstractFilterView.h"
 
+#include "shortcuts/ShortcutManager.h"
+
+#include <QAbstractItemView>
 #include <QAction>
 #include <QMenu>
+#include <QShortcut>
 
 AbstractFilterView::AbstractFilterView(QWidget *parent) : QWidget(parent) {}
 
@@ -35,6 +39,59 @@ void AbstractFilterView::showFilter()
 void AbstractFilterView::clearFilter()
 {
     lineEdit()->setText("");
+}
+
+void AbstractFilterView::attachTo(QAbstractItemView *list, QWidget *scope)
+{
+    QList<QWidget *> scopes = { scope ? scope : list };
+    if (!scopes.first()->isAncestorOf(this)) {
+        scopes << this;
+    }
+
+    for (QWidget *widget : std::as_const(scopes)) {
+        QShortcut *find = Shortcuts()->makeQShortcut("General.showFilter", widget);
+        find->setContext(Qt::WidgetWithChildrenShortcut);
+        connect(find, &QShortcut::activated, this, &AbstractFilterView::showFilter);
+
+        QShortcut *esc = Shortcuts()->makeQShortcut("General.clearFilter", widget);
+        esc->setContext(Qt::WidgetWithChildrenShortcut);
+        connect(esc, &QShortcut::activated, this, &AbstractFilterView::clearOrCloseFilter);
+        escShortcuts << esc;
+    }
+
+    connect(this, &AbstractFilterView::filterClosed, list,
+            [list]() { list->setFocus(Qt::ShortcutFocusReason); });
+    connect(lineEdit(), &QLineEdit::textChanged, this, &AbstractFilterView::updateEscShortcuts);
+    updateEscShortcuts();
+}
+
+void AbstractFilterView::clearOrCloseFilter()
+{
+    if (!lineEdit()->text().isEmpty()) {
+        lineEdit()->setText("");
+    } else if (isClosable()) {
+        closeFilter();
+    }
+}
+
+void AbstractFilterView::updateEscShortcuts()
+{
+    const bool hasWork = !lineEdit()->text().isEmpty() || (isClosable() && isVisible());
+    for (QShortcut *esc : std::as_const(escShortcuts)) {
+        esc->setEnabled(hasWork);
+    }
+}
+
+void AbstractFilterView::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);
+    updateEscShortcuts();
+}
+
+void AbstractFilterView::hideEvent(QHideEvent *event)
+{
+    QWidget::hideEvent(event);
+    updateEscShortcuts();
 }
 
 void AbstractFilterView::closeFilter()

@@ -187,15 +187,7 @@ TypesWidget::TypesWidget(MainWindow *main)
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
             [this] { ui->quickFilterView->setItemCount(typesProxyModel->rowCount()); });
 
-    QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
-    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
-            &ComboQuickFilterView::showFilter);
-    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    QShortcut *clearShortcut = Shortcuts()->makeQShortcut("General.clearFilter", this);
-    connect(clearShortcut, &QShortcut::activated, ui->quickFilterView,
-            &ComboQuickFilterView::clearFilter);
-    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    ui->quickFilterView->attachTo(ui->typesTreeView, this);
 
     connect(Core(), &CutterCore::refreshAll, this, &TypesWidget::refreshTypes);
 
