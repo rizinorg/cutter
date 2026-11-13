@@ -238,7 +238,7 @@ void CutterCore::initialize(bool loadPlugins)
 
 CutterCore::~CutterCore()
 {
-    // Background tasks still use rzCore; stop them before it is freed.
+    // Background tasks still use rzCore, stop them before freeing
     asyncTaskManager->interruptAndWait();
     delete bbHighlighter;
     rz_interrupt_sleep_end(rzCore->intr, coreBed);
@@ -693,7 +693,7 @@ void CutterCore::renameFunction(const RVA offset, const QString &newName)
     if (!rz_core_analysis_function_rename(core, offset, newName.toStdString().c_str())) {
         return;
     }
-    // Rizin trims the name and may change it, so report the name it gave the function.
+    // rizin might trim the name or may change it, so report the name it gave the function
     const RzAnalysisFunction *function = rz_analysis_get_function_at(core->analysis, offset);
     emit functionRenamed(offset, function ? QString::fromUtf8(function->name) : newName);
 }
@@ -1181,7 +1181,6 @@ void CutterCore::setConfig(const char *k, ut64 v)
 void CutterCore::setConfig(const char *k, bool v)
 {
     CORE_LOCK();
-    // Typed variables (esil.breakoninvalid) reject rz_config_set_i on a bool.
     if (rz_config_node_get(core->config, k)) {
         rz_config_set_i(core->config, k, v ? 1 : 0);
     } else {
@@ -1224,7 +1223,6 @@ ut64 CutterCore::getConfigut64(const char *k)
 bool CutterCore::getConfigb(const char *k)
 {
     CORE_LOCK();
-    // Typed variables (esil.breakoninvalid) reject rz_config_get_i on a bool.
     if (rz_config_node_get(core->config, k)) {
         return rz_config_get_i(core->config, k) != 0;
     }
@@ -1302,7 +1300,6 @@ QString CutterCore::getConfig(const char *k)
     if (rz_config_node_get(core->config, k)) {
         return { rz_config_get(core->config, k) };
     }
-    // Typed variables (esil.stack.size is an integer) are only readable as text this way.
     char *value = rz_config_get_as_string(core->config, k);
     const QString result = QString::fromUtf8(value);
     free(value);
@@ -2314,9 +2311,8 @@ void CutterCore::attachDebug(int pid)
 
 void CutterCore::suspendDebug()
 {
-    // Breaking the task interrupts its console only; ESIL emulation checks the core's own
-    // interrupt, so a run under emulation needs that raised too. Not locked: the running task
-    // holds the core lock, and raising only sets a flag the loop polls.
+    // emulation ignores breakTask(), so interrupt the core too
+    // No CORE_LOCK(): the running task holds it, and this only sets a flag
     if (currentlyEmulating && isDebugTaskInProgress()) {
         rz_interrupt_raise(rzCore->intr);
     }
@@ -4836,7 +4832,7 @@ void CutterCore::modifyGlobalVariable(RVA offset, QString name, const QString &t
     }
     // Compare if the name is not the same - also rename it
     if (name.compare(glob->name)) {
-        // Renaming frees glob->name, which Rizin would still read as the old name.
+        // renaming frees glob->name
         const QByteArray oldName = QByteArray(glob->name);
         rz_analysis_var_global_rename(core->analysis, oldName.constData(),
                                       name.toUtf8().constData());

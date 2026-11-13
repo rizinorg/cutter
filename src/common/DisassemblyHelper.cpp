@@ -87,7 +87,7 @@ DisassemblyHelper::BracketResult DisassemblyHelper::findBracketRange(const QStri
             }
         }
         if (isInside) {
-            // Start after posInLine: the '[' under the cursor is openBracket itself.
+            // start after posInLine: the '[' under the cursor is openBracket itself.
             for (int i = posInLine + 1; i < closeBracket; ++i) {
                 if (line[i] == '[') {
                     isInside = false;

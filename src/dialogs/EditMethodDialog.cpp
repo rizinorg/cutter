@@ -222,7 +222,7 @@ void EditMethodDialog::editMethod(const QString &className, const QString &meth,
         return;
     }
     if (chosenClass != className) {
-        // The class combo box is editable: moving the method means leaving the old class.
+        // class combo box is editable, moving the method means leaving the old class
         Core()->deleteAnalysisMethod(className, meth);
         Core()->setAnalysisMethod(chosenClass, desc);
         return;

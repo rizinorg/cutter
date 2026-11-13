@@ -29,7 +29,7 @@ bool AsyncTask::wait(int timeout)
     QMutexLocker locker(&stateMutex);
     const QDeadlineTimer deadline(timeout);
     while (active) {
-        // wait() taking QDeadlineTimer as argument requires Qt >= 5.12, so the "ms" approach is
+        // wait() taking QDeadlineTimer as arg requires Qt >= 5.12, so the "ms" approach is
         // used here instead
         const qint64 remaining = deadline.remainingTime();
         const unsigned long waitMs =
