@@ -73,7 +73,6 @@ public:
 
     explicit MainWindow(QWidget *parent = nullptr);
 
-    void exportDisassembly(RVA funcMinAddr);
     ~MainWindow() override;
 
     void openNewFile(InitialOptions &options, bool skipOptionsDialog = false);
@@ -217,8 +216,6 @@ private slots:
     void onActionImportPdbTriggered();
 
     void onActionExportAsCodeTriggered();
-
-    void onActionExportDisassemblyTriggered();
 
     void onActionApplySigFromFileTriggered();
 

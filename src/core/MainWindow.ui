@@ -86,7 +86,6 @@
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
     <addaction name="actionExportAsCode"/>
-    <addaction name="actionExportDisassembly"/>
     <addaction name="separator"/>
     <addaction name="actionRunScript"/>
     <addaction name="separator"/>
@@ -755,11 +754,6 @@
   <action name="actionExportAsCode">
    <property name="text">
     <string>Export as code</string>
-   </property>
-  </action>
-  <action name="actionExportDisassembly">
-   <property name="text">
-    <string>Export disassembly of current function</string>
    </property>
   </action>
   <action name="actionApplySigFromFile">

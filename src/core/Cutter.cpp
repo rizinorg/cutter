@@ -1423,6 +1423,36 @@ RVA CutterCore::getFunctionMinAddr(RVA addr)
     return fcn ? rz_analysis_function_min_addr(const_cast<RzAnalysisFunction *>(fcn)) : RVA_INVALID;
 }
 
+QString CutterCore::getFunctionDisassembly(RVA addr)
+{
+    CORE_LOCK();
+    const RVA start = getFunctionMinAddr(addr);
+    const ut64 size = getFunctionSize(addr);
+    if (start == RVA_INVALID || size == 0) {
+        return {};
+    }
+
+    TempConfig config;
+    config.set("asm.lines", false);
+    return getFunctionExecOut(
+            [start, size](RzCore *core) {
+                ut8 *buf = static_cast<ut8 *>(malloc(size));
+                if (!buf) {
+                    return false;
+                }
+                if (!rz_io_read_at_mapped(core->io, start, buf, size)) {
+                    free(buf);
+                    return false;
+                }
+                RzCoreDisasmOptions options = {};
+                options.cbytes = 1;
+                rz_core_print_disasm(core, start, buf, size, 0, nullptr, &options);
+                free(buf);
+                return true;
+            },
+            start);
+}
+
 RVA CutterCore::getFunctionEnd(RVA addr)
 {
     const auto core = Core()->lock();

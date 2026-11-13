@@ -255,6 +255,7 @@ public:
      * @returns if function exists, return its minimum address. Otherwise return RVA_INVALID
      */
     RVA getFunctionMinAddr(RVA addr);
+    QString getFunctionDisassembly(RVA addr);
     /**
      * @brief finds the end address of a function in a given address
      * @param addr - an address which belongs to a function
