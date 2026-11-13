@@ -176,7 +176,15 @@ GlobalsWidget::GlobalsWidget(MainWindow *main)
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
             [this] { ui->quickFilterView->setItemCount(globalsProxyModel->rowCount()); });
 
-    ui->quickFilterView->attachTo(ui->treeView, this);
+    QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
+    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
+            &ComboQuickFilterView::showFilter);
+    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    QShortcut *clearShortcut = Shortcuts()->makeQShortcut("General.clearFilter", this);
+    connect(clearShortcut, &QShortcut::activated, ui->quickFilterView,
+            &ComboQuickFilterView::clearFilter);
+    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     actionEditGlobal = new QAction(tr("Edit Global Variable"), this);
     actionDeleteGlobal = new QAction(tr("Delete Global Variable"), this);

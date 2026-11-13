@@ -57,8 +57,30 @@ XrefsDialog::XrefsDialog(MainWindow *parent, bool hideXrefFrom)
     connect(ui->toQuickFilter, &QuickFilterView::filterTextChanged, &toProxyModel,
             &QSortFilterProxyModel::setFilterWildcard);
 
-    ui->toQuickFilter->attachTo(ui->toTreeWidget);
-    ui->fromQuickFilter->attachTo(ui->fromTreeWidget);
+    // SearchWidget shortcuts
+
+    const QShortcut *searchShortcut =
+            Shortcuts()->makeQShortcut("General.showFilter", ui->toTreeWidget);
+    const QShortcut *clearShortcut =
+            Shortcuts()->makeQShortcut("General.clearFilter", ui->fromQuickFilter);
+
+    connect(searchShortcut, &QShortcut::activated, this, [this]() {
+        const QWidget *fw = QApplication::focusWidget();
+        if (ui->toTreeWidget->isAncestorOf(fw)) {
+            ui->toQuickFilter->showFilter();
+        } else if (ui->fromTreeWidget->isAncestorOf(fw)) {
+            ui->fromQuickFilter->showFilter();
+        }
+    });
+
+    connect(clearShortcut, &QShortcut::activated, [this]() {
+        const QWidget *fw = QApplication::focusWidget();
+        if (ui->toQuickFilter->isAncestorOf(fw)) {
+            ui->toQuickFilter->clearFilter();
+        } else if (ui->fromQuickFilter->isAncestorOf(fw)) {
+            ui->fromQuickFilter->clearFilter();
+        }
+    });
 
     // Don't create recursive xref dialogs
     auto toContextMenu = ui->toTreeWidget->getItemContextMenu();

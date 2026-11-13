@@ -211,7 +211,17 @@ StringsWidget::StringsWidget(MainWindow *main)
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
             [this] { ui->quickFilterView->setItemCount(proxyModel->rowCount()); });
 
-    ui->quickFilterView->attachTo(ui->stringsTreeView, this);
+    QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
+    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
+            &ComboQuickFilterView::showFilter);
+    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    QShortcut *clearShortcut = Shortcuts()->makeQShortcut("General.clearFilter", this);
+    connect(clearShortcut, &QShortcut::activated, this, [this]() {
+        ui->quickFilterView->clearFilter();
+        ui->stringsTreeView->setFocus();
+    });
+    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     connect(Core(), &CutterCore::refreshAll, this, &StringsWidget::refreshStrings);
     connect(Core(), &CutterCore::codeRebased, this, &StringsWidget::refreshStrings);

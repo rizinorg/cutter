@@ -153,16 +153,31 @@ FlagsWidget::FlagsWidget(MainWindow *main)
 {
     ui->setupUi(this);
 
-    ui->quickFilterView->setLabelText(tr("Flagspace:"));
-    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, flagsProxyModel,
+    connect(ui->filterLineEdit, &QLineEdit::textChanged, flagsProxyModel,
             &QSortFilterProxyModel::setFilterWildcard);
     ui->flagsTreeView->setMainWindow(mainWindow);
     ui->flagsTreeView->setModel(static_cast<AddressableItemModelI *>(flagsProxyModel));
     ui->flagsTreeView->sortByColumn(FlagsModel::OFFSET, Qt::AscendingOrder);
 
-    ui->quickFilterView->attachTo(ui->flagsTreeView, this);
-    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this,
-            [this] { ui->quickFilterView->setItemCount(flagsProxyModel->rowCount()); });
+    // Ctrl-F to move the focus to the Filter search box
+    QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
+    connect(searchShortcut, &QShortcut::activated, ui->filterLineEdit,
+            [this]() { ui->filterLineEdit->setFocus(); });
+    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    // Esc to clear the filter entry
+    QShortcut *clearShortcut = Shortcuts()->makeQShortcut("General.clearFilter", this);
+    connect(clearShortcut, &QShortcut::activated, [this] {
+        if (ui->filterLineEdit->text().isEmpty()) {
+            ui->flagsTreeView->setFocus();
+        } else {
+            ui->filterLineEdit->setText("");
+        }
+    });
+    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    connect(ui->filterLineEdit, &QLineEdit::textChanged, this,
+            [this] { ui->filterLineEdit->setItemCount(flagsProxyModel->rowCount()); });
 
     setScrollMode();
 
@@ -179,7 +194,7 @@ FlagsWidget::FlagsWidget(MainWindow *main)
     addAction(ui->actionRename);
     addAction(ui->actionDelete);
 
-    connect(ui->quickFilterView->comboBox(), &QComboBox::currentTextChanged, this,
+    connect(ui->flagspaceCombo, &QComboBox::currentTextChanged, this,
             &FlagsWidget::onFlagspaceComboCurrentTextChanged);
     connect(ui->actionRename, &QAction::triggered, this, &FlagsWidget::onActionRenameTriggered);
     connect(ui->actionDelete, &QAction::triggered, this, &FlagsWidget::onActionDeleteTriggered);
@@ -226,22 +241,22 @@ void FlagsWidget::flagsChanged()
 
 void FlagsWidget::refreshFlagspaces()
 {
-    int curIdx = ui->quickFilterView->comboBox()->currentIndex();
+    int curIdx = ui->flagspaceCombo->currentIndex();
     if (curIdx < 0) {
         curIdx = 0;
     }
 
     disableFlagRefresh =
             true; // prevent duplicate flag refresh caused by flagspaceCombo modifications
-    ui->quickFilterView->comboBox()->clear();
-    ui->quickFilterView->comboBox()->addItem(tr("(all)"));
+    ui->flagspaceCombo->clear();
+    ui->flagspaceCombo->addItem(tr("(all)"));
 
     for (const FlagspaceDescription &i : Core()->getAllFlagspaces()) {
-        ui->quickFilterView->comboBox()->addItem(i.name, QVariant::fromValue(i));
+        ui->flagspaceCombo->addItem(i.name, QVariant::fromValue(i));
     }
 
     if (curIdx > 0) {
-        ui->quickFilterView->comboBox()->setCurrentIndex(curIdx);
+        ui->flagspaceCombo->setCurrentIndex(curIdx);
     }
     disableFlagRefresh = false;
 
@@ -255,7 +270,7 @@ void FlagsWidget::refreshFlags()
     }
     QString flagspace;
 
-    const QVariant flagspaceData = ui->quickFilterView->comboBox()->currentData();
+    const QVariant flagspaceData = ui->flagspaceCombo->currentData();
     if (flagspaceData.isValid()) {
         flagspace = flagspaceData.value<FlagspaceDescription>().name;
     }
@@ -265,7 +280,7 @@ void FlagsWidget::refreshFlags()
     flagsModel->endResetModel();
 
     // set the initial item count
-    ui->quickFilterView->setItemCount(flagsProxyModel->rowCount());
+    ui->filterLineEdit->setItemCount(flagsProxyModel->rowCount());
 }
 
 void FlagsWidget::setScrollMode()

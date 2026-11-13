@@ -141,10 +141,22 @@ VTablesWidget::VTablesWidget(MainWindow *main)
     ui->vTableTreeView->setModel(proxy);
     ui->vTableTreeView->sortByColumn(VTableModel::ADDRESS, Qt::AscendingOrder);
 
-    ui->quickFilterView->attachTo(ui->vTableTreeView, this);
+    // Esc to clear the filter entry
+    QShortcut *clearShortcut = Shortcuts()->makeQShortcut("General.clearFilter", this);
+    connect(clearShortcut, &QShortcut::activated, ui->quickFilterView,
+            &QuickFilterView::clearFilter);
+    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    // Ctrl-F to show/hide the filter entry
+    QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
+    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
+            &QuickFilterView::showFilter);
+    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, proxy,
             &QSortFilterProxyModel::setFilterWildcard);
+    connect(ui->quickFilterView, &QuickFilterView::filterClosed, ui->vTableTreeView,
+            [this]() { ui->vTableTreeView->setFocus(); });
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
             [this] { ui->quickFilterView->setItemCount(proxy->rowCount()); });
