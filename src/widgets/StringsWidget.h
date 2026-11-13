@@ -46,6 +46,15 @@ public:
 
     StringsModel(QObject *parent = nullptr);
 
+    /**
+     * @brief Replace the model's string list and reset the model.
+     *
+     * This is a behavior-preserving seam that factored the reset out of
+     * StringsWidget::stringSearchFinished so that tests can inject synthetic
+     * StringDescription lists without needing Core()/rizin.
+     */
+    void setStrings(const QList<StringDescription> &strings);
+
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 

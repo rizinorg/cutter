@@ -191,7 +191,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
 
 #undef ADD_ACTION
 
-    QTimer::singleShot(0, [this] { updateMaxLines(); });
+    QTimer::singleShot(0, this, [this] { updateMaxLines(); });
     connect(this, &CutterDockWidget::becameVisibleToUser, this, [this] { updateMaxLines(); });
 }
 
@@ -444,7 +444,9 @@ void DisassemblyWidget::scrollInstructions(int count, bool clampToScrollBarRange
     }
 
     refreshDisasm(offset, mode);
-    topOffsetHistory[topOffsetHistoryPos] = offset;
+    if (topOffsetHistoryPos >= 0 && topOffsetHistoryPos < topOffsetHistory.size()) {
+        topOffsetHistory[topOffsetHistoryPos] = offset;
+    }
 }
 
 void DisassemblyWidget::updateSelection()
@@ -1161,6 +1163,11 @@ void DisassemblyWidget::onSeekChanged(RVA offset, CutterCore::SeekHistoryType ty
         --topOffsetHistoryPos;
     } else if (type == CutterCore::SeekHistoryType::Redo) {
         ++topOffsetHistoryPos;
+    }
+    if (topOffsetHistoryPos < 0 || topOffsetHistoryPos >= topOffsetHistory.size()) {
+        // The widget was created after the history being undone or redone; start it here.
+        topOffsetHistory = { offset };
+        topOffsetHistoryPos = 0;
     }
     if (!seekFromCursor) {
         cursorLineOffset = 0;

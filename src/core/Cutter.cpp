@@ -238,6 +238,8 @@ void CutterCore::initialize(bool loadPlugins)
 
 CutterCore::~CutterCore()
 {
+    // Background tasks still use rzCore; stop them before it is freed.
+    asyncTaskManager->interruptAndWait();
     delete bbHighlighter;
     rz_interrupt_sleep_end(rzCore->intr, coreBed);
     rz_core_task_sync_end(&rzCore->tasks);
@@ -688,8 +690,12 @@ bool CutterCore::mapFile(const QString &path, RVA mapaddr)
 void CutterCore::renameFunction(const RVA offset, const QString &newName)
 {
     CORE_LOCK();
-    rz_core_analysis_function_rename(core, offset, newName.toStdString().c_str());
-    emit functionRenamed(offset, newName);
+    if (!rz_core_analysis_function_rename(core, offset, newName.toStdString().c_str())) {
+        return;
+    }
+    // Rizin trims the name and may change it, so report the name it gave the function.
+    const RzAnalysisFunction *function = rz_analysis_get_function_at(core->analysis, offset);
+    emit functionRenamed(offset, function ? QString::fromUtf8(function->name) : newName);
 }
 
 void CutterCore::delFunction(RVA addr)
@@ -706,7 +712,8 @@ void CutterCore::renameFlag(const QString &old_name, const QString &new_name)
     if (!flag) {
         return;
     }
-    rz_flag_rename(core->flags, flag, new_name.toStdString().c_str());
+    const QString name = sanitizeStringForCommand(new_name);
+    rz_flag_rename(core->flags, flag, name.toStdString().c_str());
     emit flagsChanged();
 }
 
@@ -1174,7 +1181,12 @@ void CutterCore::setConfig(const char *k, ut64 v)
 void CutterCore::setConfig(const char *k, bool v)
 {
     CORE_LOCK();
-    rz_config_set_i(core->config, k, v ? 1 : 0);
+    // Typed variables (esil.breakoninvalid) reject rz_config_set_i on a bool.
+    if (rz_config_node_get(core->config, k)) {
+        rz_config_set_i(core->config, k, v ? 1 : 0);
+    } else {
+        rz_config_set_bool(core->config, k, v);
+    }
 }
 
 void CutterCore::setConfig(const char *k, const RzInterval &itv)
@@ -1212,7 +1224,11 @@ ut64 CutterCore::getConfigut64(const char *k)
 bool CutterCore::getConfigb(const char *k)
 {
     CORE_LOCK();
-    return rz_config_get_i(core->config, k) != 0;
+    // Typed variables (esil.breakoninvalid) reject rz_config_get_i on a bool.
+    if (rz_config_node_get(core->config, k)) {
+        return rz_config_get_i(core->config, k) != 0;
+    }
+    return rz_config_get_bool(core->config, k);
 }
 
 RzInterval CutterCore::getConfigItv(const char *k)
@@ -1283,7 +1299,14 @@ void CutterCore::message(const QString &msg, bool debug)
 QString CutterCore::getConfig(const char *k)
 {
     CORE_LOCK();
-    return { rz_config_get(core->config, k) };
+    if (rz_config_node_get(core->config, k)) {
+        return { rz_config_get(core->config, k) };
+    }
+    // Typed variables (esil.stack.size is an integer) are only readable as text this way.
+    char *value = rz_config_get_as_string(core->config, k);
+    const QString result = QString::fromUtf8(value);
+    free(value);
+    return result;
 }
 
 QSet<QString> CutterCore::getConfigOptions(const char *k)
@@ -2291,6 +2314,12 @@ void CutterCore::attachDebug(int pid)
 
 void CutterCore::suspendDebug()
 {
+    // Breaking the task interrupts its console only; ESIL emulation checks the core's own
+    // interrupt, so a run under emulation needs that raised too. Not locked: the running task
+    // holds the core lock, and raising only sets a flag the loop polls.
+    if (currentlyEmulating && isDebugTaskInProgress()) {
+        rz_interrupt_raise(rzCore->intr);
+    }
     debugTask->breakTask();
     debugTask->joinTask();
 }
@@ -4042,6 +4071,13 @@ void CutterCore::renameAnalysisMethod(const QString &className, const QString &o
                                     newMethodName.toUtf8().constData());
 }
 
+void CutterCore::deleteAnalysisMethod(const QString &className, const QString &methodName)
+{
+    CORE_LOCK();
+    rz_analysis_class_method_delete(core->analysis, className.toUtf8().constData(),
+                                    methodName.toUtf8().constData());
+}
+
 QList<ResourcesDescription> CutterCore::getAllResources()
 {
     CORE_LOCK();
@@ -4800,7 +4836,10 @@ void CutterCore::modifyGlobalVariable(RVA offset, QString name, const QString &t
     }
     // Compare if the name is not the same - also rename it
     if (name.compare(glob->name)) {
-        rz_analysis_var_global_rename(core->analysis, glob->name, name.toStdString().c_str());
+        // Renaming frees glob->name, which Rizin would still read as the old name.
+        const QByteArray oldName = QByteArray(glob->name);
+        rz_analysis_var_global_rename(core->analysis, oldName.constData(),
+                                      name.toUtf8().constData());
     }
     char *errmsg = nullptr;
     RzType *globType = rz_type_parse_string_single(rz_analysis_get_type_db(core->analysis)->parser,
@@ -5308,15 +5347,17 @@ void CutterCore::commitWriteCache()
     // Temporarily disable cache mode
     TempConfig tempConfig;
     tempConfig.set("io.cache", false);
-    auto desc = core->io->desc;
+    // Reopening frees the current descriptor, so only its fd is kept.
+    const RzIODesc *desc = core->io->desc;
     const bool reopen = !isWriteModeEnabled() && desc;
+    const int fd = desc ? desc->fd : -1;
     if (reopen) {
-        rz_core_io_file_reopen(core, desc->fd, RZ_PERM_RW);
+        rz_core_io_file_reopen(core, fd, RZ_PERM_RW);
     }
     rz_io_cache_commit(core->io, 0, UT64_MAX);
     rz_core_block_read(core);
     if (reopen) {
-        rz_core_io_file_open(core, desc->fd);
+        rz_core_io_file_open(core, fd);
     }
 }
 

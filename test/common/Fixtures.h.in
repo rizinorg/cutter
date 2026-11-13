@@ -1,0 +1,11 @@
+#ifndef CUTTER_TEST_FIXTURES_H
+#define CUTTER_TEST_FIXTURES_H
+
+#include <QString>
+
+// Generated from test/common/Fixtures.cmake. Paths are relative to rizin-testbins.
+namespace CutterTest::Fixtures {
+@CUTTER_TEST_FIXTURE_FUNCTIONS@
+} // namespace CutterTest::Fixtures
+
+#endif // CUTTER_TEST_FIXTURES_H

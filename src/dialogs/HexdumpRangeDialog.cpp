@@ -64,6 +64,8 @@ void HexdumpRangeDialog::setStartAddress(ut64 start)
 void HexdumpRangeDialog::openAt(ut64 start)
 {
     setStartAddress(start);
+    // setText doesn't emit textEdited; without this, OK would use the previous start.
+    textEdited();
     setModal(false);
     show();
     activateWindow();

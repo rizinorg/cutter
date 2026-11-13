@@ -39,7 +39,7 @@ void CommentsDialog::setComment(const QString &comment)
 
 void CommentsDialog::addOrEditComment(RVA offset, QWidget *parent)
 {
-    QString comment = Core()->getCommentAt(offset);
+    const QString comment = Core()->getCommentAt(offset);
     CommentsDialog dialog(parent);
 
     if (comment.isNull() || comment.isEmpty()) {
@@ -49,13 +49,19 @@ void CommentsDialog::addOrEditComment(RVA offset, QWidget *parent)
     }
 
     dialog.setComment(comment);
-    if (dialog.exec()) {
-        comment = dialog.getComment();
-        if (comment.isEmpty()) {
-            Core()->delComment(offset);
-        } else {
-            Core()->setComment(offset, comment);
-        }
+    if (!dialog.exec()) {
+        return;
+    }
+
+    const QString newComment = dialog.getComment();
+    if (newComment == comment) {
+        return;
+    }
+
+    if (newComment.isEmpty()) {
+        Core()->delComment(offset);
+    } else {
+        Core()->setComment(offset, newComment);
     }
 }
 
