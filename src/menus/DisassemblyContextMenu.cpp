@@ -1,6 +1,8 @@
 #include "DisassemblyContextMenu.h"
 
 #include "MainWindow.h"
+#include "common/CommandTask.h"
+#include "common/TempConfig.h"
 #include "dialogs/BreakpointsDialog.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/EditFunctionDialog.h"
@@ -15,6 +17,7 @@
 
 #include <QApplication>
 #include <QClipboard>
+#include <QFileDialog>
 #include <QInputDialog>
 #include <QJsonArray>
 #include <QPushButton>
@@ -35,6 +38,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
       copySeparator(addSeparator()),
       actionCopyAddr(this),
       actionCopyInstrBytes(this),
+      actionExportDisassembly(this),
       actionAddComment(this),
       actionAnalyzeFunction(this),
       actionEditFunction(this),
@@ -97,6 +101,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     initShortcutAction(&actionEditFunction, "Disassembly.editFunction",
                        &DisassemblyContextMenu::editFunctionTriggered);
     addAction(&actionEditFunction);
+
+    initAction(&actionExportDisassembly, tr("Export disassembly"),
+               &DisassemblyContextMenu::exportDisassemblyTriggered);
+    addAction(&actionExportDisassembly);
 
     initAction(&actionDeleteComment, tr("Delete comment"),
                &DisassemblyContextMenu::deleteCommentTriggered);
@@ -592,9 +600,12 @@ void DisassemblyContextMenu::aboutToShowSlot()
         actionSetFunctionVarTypes.setVisible(!vars.empty());
         actionEditFunction.setVisible(true);
         actionEditFunction.setText(tr("Edit function \"%1\"").arg(inFcn->name));
+        actionExportDisassembly.setVisible(true);
+        actionExportDisassembly.setText(tr("Export disassembly of \"%1\"").arg(inFcn->name));
     } else {
         actionSetFunctionVarTypes.setVisible(false);
         actionEditFunction.setVisible(false);
+        actionExportDisassembly.setVisible(false);
     }
 
     // Decide to show Reverse jmp option
@@ -719,6 +730,32 @@ void DisassemblyContextMenu::copyInstrBytesTriggered() const
 {
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(Core()->getInstructionBytes(offset));
+}
+
+void DisassemblyContextMenu::exportDisassemblyTriggered()
+{
+    QFileDialog dialog(this, tr("Export Disassembly"));
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setNameFilters({ tr("Assembly (*.asm *.S)"), tr("All files (*)") });
+    dialog.setDefaultSuffix("asm");
+    if (!dialog.exec()) {
+        return;
+    }
+
+    const QString disassembly = Core()->getFunctionDisassembly(offset);
+    if (disassembly.isEmpty()) {
+        qWarning() << "Failed to generate function disassembly.";
+        return;
+    }
+
+    QFile file(dialog.selectedFiles().first());
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << tr("Can't open file");
+        return;
+    }
+    QTextStream fileOut(&file);
+    fileOut << disassembly;
 }
 
 void DisassemblyContextMenu::addBreakpointTriggered() const
