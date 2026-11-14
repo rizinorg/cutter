@@ -1425,7 +1425,7 @@ RVA CutterCore::getFunctionMinAddr(RVA addr)
 
 QString CutterCore::getFunctionDisassembly(RVA addr)
 {
-    CORE_LOCK();
+    const auto core = lock();
     const RVA start = getFunctionMinAddr(addr);
     const ut64 size = getFunctionSize(addr);
     if (start == RVA_INVALID || size == 0) {
