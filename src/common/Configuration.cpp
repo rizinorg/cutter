@@ -961,6 +961,39 @@ bool Configuration::getShowQuickFilter() const
     return s.value("showQuickFilter", true).toBool();
 }
 
+bool Configuration::getQuickFilterCaseSensitive() const
+{
+    return s.value("quickFilterCaseSensitive", false).toBool();
+}
+
+void Configuration::setQuickFilterCaseSensitive(bool caseSensitive)
+{
+    s.setValue("quickFilterCaseSensitive", caseSensitive);
+    emit quickFilterCaseSensitiveChanged(caseSensitive);
+}
+
+bool Configuration::getQuickFilterWholeWords() const
+{
+    return s.value("quickFilterWholeWords", false).toBool();
+}
+
+void Configuration::setQuickFilterWholeWords(bool wholeWords)
+{
+    s.setValue("quickFilterWholeWords", wholeWords);
+    emit quickFilterWholeWordsChanged(wholeWords);
+}
+
+bool Configuration::getQuickFilterRegex() const
+{
+    return s.value("quickFilterRegex", false).toBool();
+}
+
+void Configuration::setQuickFilterRegex(bool regex)
+{
+    s.setValue("quickFilterRegex", regex);
+    emit quickFilterRegexChanged(regex);
+}
+
 void Configuration::setItemCountVisible(bool visible)
 {
     s.setValue("itemCountVisible", visible);

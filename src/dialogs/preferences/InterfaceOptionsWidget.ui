@@ -178,6 +178,27 @@
            </widget>
           </item>
           <item>
+           <widget class="QCheckBox" name="caseSensitiveCheckBox">
+            <property name="text">
+             <string>Use case sensitive by default</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="wholeWordsCheckBox">
+            <property name="text">
+             <string>Match whole words by default</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="regexCheckBox">
+            <property name="text">
+             <string>Use regex by default</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QCheckBox" name="itemCountCheckBox">
             <property name="text">
              <string>Show Item Count in Quick Filter</string>

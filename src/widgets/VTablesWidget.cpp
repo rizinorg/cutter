@@ -1,5 +1,6 @@
 #include "VTablesWidget.h"
 
+#include "common/CutterSearchable.h"
 #include "common/Helpers.h"
 #include "core/MainWindow.h"
 #include "shortcuts/ShortcutManager.h"
@@ -153,12 +154,12 @@ VTablesWidget::VTablesWidget(MainWindow *main)
             &QuickFilterView::showFilter);
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, proxy,
-            &QSortFilterProxyModel::setFilterWildcard);
+    connect(ui->quickFilterView, &QuickFilterView::filterChanged, this,
+            [=](const QString &text, int options) { qhelpers::applyFilter(proxy, text, options); });
     connect(ui->quickFilterView, &QuickFilterView::filterClosed, ui->vTableTreeView,
             [this]() { ui->vTableTreeView->setFocus(); });
 
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this,
+    connect(ui->quickFilterView, &QuickFilterView::filterChanged, this,
             [this] { ui->quickFilterView->setItemCount(proxy->rowCount()); });
 
     connect(Core(), &CutterCore::codeRebased, this, &VTablesWidget::refreshVTables);
