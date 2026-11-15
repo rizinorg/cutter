@@ -175,6 +175,20 @@ set(SOURCES
     dialogs/preferences/RizinConfigOptionsWidget.cpp
     dialogs/IntervalDialog.cpp
     dialogs/StringListDialog.cpp
+    tools/bindiff/DiffLoadDialog.cpp
+    core/BinDiff.cpp
+    core/CutterDiff.cpp
+    tools/bindiff/CutterDiffWindow.cpp
+    tools/bindiff/DiffWaitDialog.cpp
+    tools/bindiff/HexDiffView.cpp
+    tools/bindiff/LineDiffWidget.cpp
+    tools/bindiff/GraphDiffWidget.cpp
+    tools/bindiff/DiffGraphView.cpp
+    tools/bindiff/DiffExportDialog.cpp
+    tools/bindiff/FunctionDiffNavWidget.cpp
+    tools/bindiff/DiffMatchWidget.cpp
+    tools/bindiff/DiffMisMatchWidget.cpp
+    tools/bindiff/HexDiffWidget.cpp
 )
 set(HEADER_FILES
     core/Cutter.h
@@ -358,6 +372,20 @@ set(HEADER_FILES
     dialogs/preferences/RizinConfigOptionsWidget.h
     dialogs/IntervalDialog.h
     dialogs/StringListDialog.h
+    tools/bindiff/DiffLoadDialog.h
+    core/BinDiff.h
+    core/CutterDiff.h
+    tools/bindiff/CutterDiffWindow.h
+    tools/bindiff/DiffWaitDialog.h
+    tools/bindiff/HexDiffView.h
+    tools/bindiff/LineDiffWidget.h
+    tools/bindiff/GraphDiffWidget.h
+    tools/bindiff/DiffGraphView.h
+    tools/bindiff/DiffExportDialog.h
+    tools/bindiff/FunctionDiffNavWidget.h
+    tools/bindiff/DiffMatchWidget.h
+    tools/bindiff/DiffMisMatchWidget.h
+    tools/bindiff/HexDiffWidget.h
 )
 set(UI_FILES
     dialogs/AboutDialog.ui
@@ -442,6 +470,10 @@ set(UI_FILES
     dialogs/preferences/SymbolsOptionsWidget.ui
     dialogs/preferences/InterfaceOptionsWidget.ui
     dialogs/preferences/RizinConfigOptionsWidget.ui
+    tools/bindiff/DiffLoadDialog.ui
+    tools/bindiff/CutterDiffWindow.ui
+    tools/bindiff/DiffWaitDialog.ui
+    tools/bindiff/HexDiffWidget.ui
 )
 set(QRC_FILES
     resources.qrc
@@ -518,6 +550,7 @@ set(CUTTER_SOURCES ${OPTIONS} ${UI_FILES} ${QRC_FILES} ${PLATFORM_RESOURCES} ${S
 source_group(TREE "${CMAKE_CURRENT_LIST_DIR}" FILES ${CUTTER_SOURCES})
 
 add_executable(Cutter ${CUTTER_SOURCES} ${BINDINGS_SOURCE})
+
 set_target_properties(Cutter PROPERTIES
         OUTPUT_NAME cutter
         RUNTIME_OUTPUT_DIRECTORY ..
@@ -594,6 +627,12 @@ if(CUTTER_ENABLE_PYTHON)
     endif()
 endif()
 
+if(CUTTER_ASAN)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdiagnostics-color=always -fsanitize=address,undefined -fno-omit-frame-pointer -fsanitize-address-use-after-scope")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color=always -fsanitize=address,undefined -fno-omit-frame-pointer -fsanitize-address-use-after-scope")
+    set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fdiagnostics-color=always -fsanitize=address,undefined -fno-omit-frame-pointer -fsanitize-address-use-after-scope")
+endif()
+
 if(TARGET KF${CUTTER_QT}::SyntaxHighlighting)
     target_link_libraries(Cutter PRIVATE KF${CUTTER_QT}::SyntaxHighlighting)
     target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_KSYNTAXHIGHLIGHTING)
@@ -604,11 +643,11 @@ if (CUTTER_APPIMAGE_BUILD)
 endif()
 
 if (CUTTER_PACKAGE_JSDEC)
-	target_compile_definitions(Cutter PRIVATE CUTTER_BUNDLE_JSDEC)
+        target_compile_definitions(Cutter PRIVATE CUTTER_BUNDLE_JSDEC)
 endif()
 
 if(APPLE AND CUTTER_ENABLE_PACKAGING AND CUTTER_USE_BUNDLED_RIZIN)
-	target_compile_definitions(Cutter PRIVATE MACOS_RZ_BUNDLED)
+        target_compile_definitions(Cutter PRIVATE MACOS_RZ_BUNDLED)
 endif()
 
 if(CUTTER_ENABLE_PACKAGING)
