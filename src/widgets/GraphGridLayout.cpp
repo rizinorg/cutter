@@ -285,7 +285,6 @@ void GraphGridLayout::calculateLayout(GraphLayout::Graph &blocks, ut64 entry, in
     LayoutState layoutState;
     layoutState.blocks = &blocks;
     if (blocks.empty()) {
-        // An empty graph has no size, whatever the caller passed in.
         width = 0;
         height = 0;
         return;

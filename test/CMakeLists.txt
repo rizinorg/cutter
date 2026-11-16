@@ -34,7 +34,6 @@ function(cutter_add_layer_test LAYER TEST_NAME)
     set_target_properties(${TEST_NAME} PROPERTIES
         AUTOMOC ON
         AUTOUIC ON
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/tests"
     )
 
     target_link_libraries(${TEST_NAME} PRIVATE
@@ -53,7 +52,7 @@ function(cutter_add_layer_test LAYER TEST_NAME)
     )
 endfunction()
 
-# Build targets for all tests (tests) and for one layer (tests_<layer>).
+# build targets for all tests (tests) and for one layer (tests_<layer>)
 add_custom_target(tests)
 
 function(cutter_add_layer_tests LAYER)
@@ -64,6 +63,9 @@ function(cutter_add_layer_tests LAYER)
         add_dependencies(tests_${LAYER} ${TEST_NAME})
     endforeach()
 endfunction()
+
+# put every test binary in one place: build/tests/
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
 
 add_subdirectory(unit)
 add_subdirectory(session)

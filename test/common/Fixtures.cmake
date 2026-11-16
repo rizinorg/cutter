@@ -9,7 +9,7 @@ set(CUTTER_TEST_FIXTURES
     coreutilsLs elf/ls                          15fa1384580e3bf7b1e2b3354cfb149e5eb5ea8b23cc29ed78166b67a2c70b00
 )
 
-option(CUTTER_FETCH_TEST_FIXTURES "Download the test fixtures from rizin-testbins" ON)
+option(CUTTER_TEST_FETCH_FIXTURES "Download the test fixtures from rizin-testbins" ON)
 set(CUTTER_TESTBINS_DIR "" CACHE PATH
     "Path to a local clone of rizin-testbins; if set, the test fixtures are not downloaded")
 
@@ -46,7 +46,7 @@ set(useCheckout ON)
 if(CUTTER_TEST_FIXTURES_DIR STREQUAL "")
     set(useCheckout OFF)
     set(CUTTER_TEST_FIXTURES_DIR "${CMAKE_BINARY_DIR}/test-fixtures")
-    set(fetchFixtures ${CUTTER_FETCH_TEST_FIXTURES})
+    set(fetchFixtures ${CUTTER_TEST_FETCH_FIXTURES})
 endif()
 
 set(localCloneHint "If you already have rizin-testbins cloned, set CUTTER_TESTBINS_DIR=<path to it>")

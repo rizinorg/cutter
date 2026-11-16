@@ -1165,7 +1165,6 @@ void DisassemblyWidget::onSeekChanged(RVA offset, CutterCore::SeekHistoryType ty
         ++topOffsetHistoryPos;
     }
     if (topOffsetHistoryPos < 0 || topOffsetHistoryPos >= topOffsetHistory.size()) {
-        // The widget was created after the history being undone or redone; start it here.
         topOffsetHistory = { offset };
         topOffsetHistoryPos = 0;
     }

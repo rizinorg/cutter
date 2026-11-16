@@ -1,8 +1,6 @@
 # Cutter test suite
 
-Tests cover what Cutter itself does as a frontend to rizin: turning rizin data
-into views, notifying views when state changes, wiring user actions to the core,
-and the state Cutter owns. They do not test the logic and functionality of rizin, it is extensively tested within rizin itself. See [rizin/test](https://github.com/rizinorg/rizin/tree/dev/test)
+Tests cover what Cutter itself does as a frontend to rizin. They do not test the logic and functionality of rizin, it is extensively tested within rizin itself. See [rizin/test](https://github.com/rizinorg/rizin/tree/dev/test)
 
 ## Layout
 
@@ -51,7 +49,7 @@ downloaded:
 cmake -B build -DCUTTER_TESTBINS_DIR=/path/to/rizin-testbins
 ```
 
-Offline, or with `-DCUTTER_FETCH_TEST_FIXTURES=OFF`, tests that need a missing
+Offline, or with `-DCUTTER_TEST_FETCH_FIXTURES=OFF`, tests that need a missing
 fixture are reported as skipped. To add a fixture, add a line to
 `common/Fixtures.cmake`. `Fixtures.h` is generated from it.
 
@@ -95,16 +93,16 @@ never touch your own Cutter configuration.
 ### One test method
 
 `ctest` runs a whole file. To run a single method, run the test binary itself and give the
-method name. Layer tests are in `build/bin/tests/`. Unit tests are in `build/test/unit/`.
+method name. All test binaries are in `build/tests/`.
 Set the same environment `ctest` does, so the test is headless and finds its binaries:
 
 ```sh
 export QT_QPA_PLATFORM=offscreen														   # run in headless mode (no GUI)
 export CUTTER_TESTBINS_DIR=$PWD/build/test-fixtures 									   # provide path to fixtures
 
-build/bin/tests/test_Navigation backAndForwardMoveTheViews                                 # one method
-build/bin/tests/test_Navigation backAndForwardMoveTheViews activatingXrefSeeksToReference  # several
-build/test/unit/test_GraphLayouts layoutKeepsDrawingRules:if_else_diamond/grid_wide        # one data row
+build/tests/test_Navigation backAndForwardMoveTheViews                                 # one method
+build/tests/test_Navigation backAndForwardMoveTheViews activatingXrefSeeksToReference  # several
+build/tests/test_GraphLayouts layoutKeepsDrawingRules:if_else_diamond/grid_wide        # one data row
 ```
 
 Some methods run once per row of data. To run one row, write `method:row`. 
@@ -116,9 +114,9 @@ if/else graph laid out with the Grid wide layout. This helps when you only want 
 Any QtTest option works after the binary as well:
 
 ```sh
-build/bin/tests/test_Navigation -functions                      # list the methods
-build/test/unit/test_GraphLayouts -datatags                     # list the rows
-build/bin/tests/test_Navigation -v2 backAndForwardMoveTheViews  # verbose output
+build/tests/test_Navigation -functions                      # list the methods
+build/tests/test_GraphLayouts -datatags                     # list the rows
+build/tests/test_Navigation -v2 backAndForwardMoveTheViews  # verbose output
 ```
 
 ## Adding a test

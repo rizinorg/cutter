@@ -607,13 +607,14 @@ FunctionsWidget::~FunctionsWidget() {}
 
 void FunctionsWidget::refreshTree()
 {
-    // A fetch still running is superseded, not waited for: refreshes can come from a slot
-    // whose caller holds the core lock, which that fetch needs to finish. Its result is
-    // ignored when it arrives.
+    // Don't wait for the old task to complete, if the lock is already held while this function
+    // runs, waiting can cause deadlock. This is related to "emitting signals while holding lock"
+    // issue
     task = std::shared_ptr<FunctionsTask>(new FunctionsTask());
     const FunctionsTask *current = task.get();
     connect(task.get(), &FunctionsTask::fetchFinished, this,
             [this, current](const QList<FunctionDescription> &functions) {
+                // ignore the old task
                 if (task.get() != current) {
                     return;
                 }
