@@ -5,9 +5,22 @@
 #include "ui_MarkDialog.h"
 
 #include <QColorDialog>
+#include <QMessageBox>
 #include <QRegularExpressionValidator>
 
+#include <algorithm>
 #include <utility>
+
+namespace {
+
+bool markExists(const QString &name)
+{
+    const QList<MarkDescription> marks = Core()->getMarks();
+    return std::any_of(marks.begin(), marks.end(),
+                       [&name](const MarkDescription &mark) { return mark.name == name; });
+}
+
+} // namespace
 
 MarkDialog::MarkDialog(RVA start, RVA end, QWidget *parent, QString name)
     : QDialog(parent),
@@ -77,11 +90,18 @@ void MarkDialog::accept()
     }
 
     const QString name = ui->nameEdit->text();
-    if (edit && !name.isEmpty() && name != markName) {
-        Core()->delMark(markName); // Delete the old mark
-    } else if (name.isEmpty()) {
+    if (name.isEmpty()) {
         QMessageBox::warning(this, tr("Invalid Input"), tr("Name cannot be empty"));
         return;
+    }
+    const bool nameChanged = !edit || name != markName;
+    if (nameChanged && markExists(name)) {
+        QMessageBox::warning(this, tr("Invalid Input"),
+                             tr("A mark named '%1' already exists").arg(name));
+        return;
+    }
+    if (edit && name != markName) {
+        Core()->delMark(markName); // Delete the old mark
     }
 
     markName = name;

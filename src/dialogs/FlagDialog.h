@@ -31,6 +31,7 @@ private:
     RVA offset;
     QString flagName;
     RVA flagOffset;
+    RVA flagSize = 1;
 };
 
 #endif // FLAGDIALOG_H

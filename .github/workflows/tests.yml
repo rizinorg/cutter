@@ -1,0 +1,116 @@
+name: Tests
+
+# Builds Cutter with its tests and runs each test layer as its own step, on Linux, macOS and
+# Windows.
+
+on:
+  push:
+    branches:
+    - dev
+    - stable
+  pull_request:
+    branches:
+    - dev
+    - stable
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: tests-${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux
+            os: ubuntu-22.04
+          - name: macos
+            os: macos-15
+          - name: windows
+            os: windows-2022
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Check Out Cutter
+      uses: actions/checkout@v7
+      with:
+        submodules: recursive
+        persist-credentials: false
+
+    - name: Set Up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: 3.12.x
+
+    - name: Install Dependencies
+      run: |
+        pip install --no-cache-dir meson ninja
+        case "$RUNNER_OS" in
+        Linux)
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends pkg-config libpcre2-dev \
+              mesa-common-dev libgl1-mesa-dev libegl1 libxkbcommon-dev libxkbcommon-x11-dev ;;
+        macOS)
+          brew install pkg-config || brew link --overwrite pkgconf ;;
+        Windows)
+          choco install winflexbison3 pkgconfiglite -y
+          vcpkg install zlib:x64-windows ;;
+        esac
+        scripts/fetch_deps.sh
+
+    - name: Build Cutter
+      id: build
+      if: runner.os != 'Windows'
+      run: |
+        source cutter-deps/env.sh
+        cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCUTTER_USE_BUNDLED_RIZIN=ON \
+            -DCUTTER_ENABLE_TEST=ON \
+            -DCUTTER_ENABLE_PYTHON=OFF \
+            -DCUTTER_ENABLE_GRAPHVIZ=OFF \
+            -DCUTTER_ENABLE_KSYNTAXHIGHLIGHTING=OFF \
+            -DCUTTER_ENABLE_TRANSLATIONS=OFF
+        cmake --build build
+
+    - name: Build Cutter (Windows)
+      id: build-windows
+      if: runner.os == 'Windows'
+      shell: cmd
+      run: |
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64 || exit /b 1
+        set PATH=%CD%\cutter-deps\qt\bin;%PATH%
+        cmake -S . -B build -G Ninja ^
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo ^
+            -DCMAKE_PREFIX_PATH="%CD%\cutter-deps\qt" ^
+            -DCMAKE_TOOLCHAIN_FILE=%VCPKG_INSTALLATION_ROOT%/scripts/buildsystems/vcpkg.cmake ^
+            -DCUTTER_USE_BUNDLED_RIZIN=ON ^
+            -DCUTTER_ENABLE_TEST=ON ^
+            -DCUTTER_ENABLE_PYTHON=OFF ^
+            -DCUTTER_ENABLE_GRAPHVIZ=OFF ^
+            -DCUTTER_ENABLE_KSYNTAXHIGHLIGHTING=OFF ^
+            -DCUTTER_ENABLE_TRANSLATIONS=OFF || exit /b 1
+        cmake --build build || exit /b 1
+        rem The tests find the Qt and Rizin DLLs through PATH.
+        echo %CD%\cutter-deps\qt\bin>>"%GITHUB_PATH%"
+        echo %CD%\build>>"%GITHUB_PATH%"
+
+    # One step per layer, so each shows on its own. They all run even if an earlier one fails, as
+    # long as the build worked.
+    - name: Run Unit Tests
+      if: ${{ !cancelled() && (steps.build.outcome == 'success' || steps.build-windows.outcome == 'success') }}
+      run: ctest --test-dir build -L '^unit$' --output-on-failure -j
+    - name: Run Session Tests
+      if: ${{ !cancelled() && (steps.build.outcome == 'success' || steps.build-windows.outcome == 'success') }}
+      run: ctest --test-dir build -L '^session$' --output-on-failure -j
+    - name: Run Dialog Tests
+      if: ${{ !cancelled() && (steps.build.outcome == 'success' || steps.build-windows.outcome == 'success') }}
+      run: ctest --test-dir build -L '^dialogs$' --output-on-failure -j
+    - name: Run Workflow Tests
+      if: ${{ !cancelled() && (steps.build.outcome == 'success' || steps.build-windows.outcome == 'success') }}
+      run: ctest --test-dir build -L '^workflows$' --output-on-failure -j

@@ -106,12 +106,12 @@ ConsoleWidget::ConsoleWidget(MainWindow *main)
 
     // Esc clears rzInputLineEdit and debugeeInputLineEdit (like OmniBar)
     QShortcut *rizinClearShortcut =
-            Shortcuts()->makeQShortcut("Console.clearRzInputLineEdit", ui->rzInputLineEdit);
+            Shortcuts()->makeQShortcut("Console.clearInput", ui->rzInputLineEdit);
     connect(rizinClearShortcut, &QShortcut::activated, this, &ConsoleWidget::clear);
     rizinClearShortcut->setContext(Qt::WidgetShortcut);
 
     QShortcut *debugeeClearShortcut =
-            Shortcuts()->makeQShortcut("Console.clearDebugee", ui->debugeeInputLineEdit);
+            Shortcuts()->makeQShortcut("Console.clearInput", ui->debugeeInputLineEdit);
     connect(debugeeClearShortcut, &QShortcut::activated, this, &ConsoleWidget::clear);
     debugeeClearShortcut->setContext(Qt::WidgetShortcut);
 

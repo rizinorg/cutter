@@ -17,20 +17,26 @@ FlagDialog::FlagDialog(RVA offset, QWidget *parent, QString flagNameHint)
     // Setup UI
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
-    if (!flagName.isEmpty()) {
-        flagOffset = offset;
-    } else {
+    {
         RzCoreLocked core(Core());
-        const RzFlagItem *flag = rz_flag_get_i(core->flags, offset);
-        if (flag) {
+        const RzFlagItem *flag = flagName.isEmpty()
+                ? rz_flag_get_i(core->flags, offset)
+                : rz_flag_get(core->flags, flagName.toUtf8().constData());
+        if (!flagName.isEmpty()) {
+            flagOffset = offset;
+        } else if (flag) {
             flagName = QString(flag->name);
             flagOffset = flag->offset;
+        }
+        if (flag && flag->size > 0) {
+            flagSize = flag->size;
         }
     }
 
     auto sizeValidator = new QIntValidator(ui->sizeEdit);
     sizeValidator->setBottom(1);
     ui->sizeEdit->setValidator(sizeValidator);
+    ui->sizeEdit->setText(QString::number(flagSize));
     if (!flagName.isEmpty()) {
         ui->nameEdit->setText(flagName);
         ui->labelAction->setText(tr("Edit flag at %1").arg(rzAddressString(offset)));
@@ -59,8 +65,13 @@ void FlagDialog::buttonBoxAccepted()
         }
     } else {
         if (flagOffset != RVA_INVALID) {
-            // Name provided and flag exists -> rename the flag
-            Core()->renameFlag(flagName, name);
+            // Name provided and flag exists -> rename it and apply the new size
+            if (name != flagName) {
+                Core()->renameFlag(flagName, name);
+            }
+            if (size != flagSize) {
+                Core()->addFlag(flagOffset, name, size);
+            }
         } else {
             // Name provided and flag does not exist -> create the flag
             Core()->addFlag(offset, name, size);

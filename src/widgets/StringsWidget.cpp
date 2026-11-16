@@ -14,6 +14,13 @@
 
 StringsModel::StringsModel(QObject *parent) : AddressableItemModel<QAbstractListModel>(parent) {}
 
+void StringsModel::setStrings(const QList<StringDescription> &strings)
+{
+    beginResetModel();
+    this->strings = strings;
+    endResetModel();
+}
+
 int StringsModel::rowCount(const QModelIndex &) const
 {
     return strings.count();
@@ -241,13 +248,14 @@ StringsWidget::~StringsWidget() {}
 
 void StringsWidget::refreshStrings()
 {
-    if (task) {
-        task->wait();
-    }
-
     task = std::shared_ptr<StringsTask>(new StringsTask(ui->rawStringsCheckBox->isChecked()));
+    const StringsTask *current = task.get();
     connect(task.get(), &StringsTask::stringSearchFinished, this,
-            &StringsWidget::stringSearchFinished);
+            [this, current](const QList<StringDescription> &strings) {
+                if (task.get() == current) {
+                    stringSearchFinished(strings);
+                }
+            });
     Core()->getAsyncTaskManager()->start(task);
 
     refreshSectionCombo();
@@ -269,9 +277,7 @@ void StringsWidget::refreshSectionCombo()
 
 void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings)
 {
-    model->beginResetModel();
-    model->strings = strings;
-    model->endResetModel();
+    model->setStrings(strings);
 
     qhelpers::adjustColumns(ui->stringsTreeView, StringsModel::ColumnCount, 0);
 

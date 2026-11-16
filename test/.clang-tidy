@@ -1,0 +1,7 @@
+---
+InheritParentConfig: true
+CheckOptions:
+  # allow "_data" for Qt test data functions
+  - key:   readability-identifier-naming.FunctionIgnoredRegexp
+    value: '.*_data$'
+...

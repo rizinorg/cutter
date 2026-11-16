@@ -392,6 +392,7 @@ public:
                            AnalysisMethodDescription *desc);
     void renameAnalysisMethod(const QString &className, const QString &oldMethodName,
                               const QString &newMethodName);
+    void deleteAnalysisMethod(const QString &className, const QString &methodName);
     void setAnalysisMethod(const QString &cls, const AnalysisMethodDescription &meth);
 
     /* File related methods */
