@@ -1,6 +1,8 @@
 /**
  * @file test_SessionLifecycle.cpp
  * @brief Tearing down a core while its background work is still running.
+ *
+ * Covers: CutterCore teardown, AnalysisTask.
  */
 
 #include "Fixtures.h"
@@ -33,10 +35,8 @@ private slots:
 /**
  * @brief Destroying the core stops the running analysis before freeing rizin.
  *
- * To reproduce:
- * 1. Open a large binary (e.g. /bin/ls) with "Auto analysis (experimental)".
- * 2. Close Cutter during the analysis: the analysis kept using the freed rizin and crashed (seen
- *    under ASan).
+ * Regression: closing Cutter during analysis used to crash, because the analysis kept using the
+ * freed rizin (seen under ASan).
  */
 void TestSessionLifecycle::destroyingCoreStopsRunningAnalysisFirst()
 {

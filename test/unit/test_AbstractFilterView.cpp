@@ -1,9 +1,11 @@
 /**
  * @file test_AbstractFilterView.cpp
  * @brief The list quick filter: debounce, clear, close, show and its Find/Esc keys.
+ *
+ * Covers: AbstractFilterView.
  */
 
-#include "IsolatedSettings.h"
+#include "TestEnv.h"
 
 #include "shortcuts/ShortcutManager.h"
 #include "widgets/AbstractFilterView.h"
@@ -28,16 +30,16 @@ class TestableFilterView : public AbstractFilterView
 
 public:
     explicit TestableFilterView(QWidget *parent = nullptr, bool closable = false)
-        : AbstractFilterView(parent), m_lineEdit(new ItemCountLineEdit(this)), closable(closable)
+        : AbstractFilterView(parent), icLineEdit(new ItemCountLineEdit(this)), closable(closable)
     {
         setupSharedConnections();
     }
 
-    ItemCountLineEdit *lineEdit() const override { return m_lineEdit; }
+    ItemCountLineEdit *lineEdit() const override { return icLineEdit; }
     bool isClosable() const override { return closable; }
 
 private:
-    ItemCountLineEdit *m_lineEdit; // TODO: rename
+    ItemCountLineEdit *icLineEdit; // TODO: rename
     bool closable;
 };
 
@@ -94,22 +96,9 @@ private slots:
     void testClearFilter();
     void testCloseFilter();
     void testShowFilter();
-
-    /**
-     * @brief Find pressed in the list shows a hidden bar and focuses it.
-     */
     void findInListShowsAndFocusesFilter();
-    /**
-     * @brief Esc clears the text, then closes a closable bar and refocuses the list.
-     */
     void escClearsThenClosesAndReturnsToList();
-    /**
-     * @brief A bar that can't close keeps Esc free once empty, so a dialog still closes.
-     */
     void escOnEmptyUnclosableBarClosesDialog();
-    /**
-     * @brief Two bars attached to two lists in one window each answer only their own list.
-     */
     void twoBarsInOneWindowStaySeparate();
 };
 
@@ -211,9 +200,6 @@ void TestAbstractFilterView::testShowFilter()
 
 /**
  * @brief Find pressed in the attached list shows the bar and focuses it.
- *
- * attachTo() wires the keys for every view; when each view wired them by hand, the Xrefs dialog
- * shipped without them.
  */
 void TestAbstractFilterView::findInListShowsAndFocusesFilter()
 {

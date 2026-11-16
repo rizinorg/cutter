@@ -1,9 +1,11 @@
 /**
  * @file test_DisassemblyHelper.cpp
  * @brief The word, bracket expression, offset and arrow under the cursor in disassembly text.
+ *
+ * Covers: DisassemblyHelper.
  */
 
-#include "IsolatedSettings.h"
+#include "TestEnv.h"
 
 #include "DisassemblyHelper.h"
 
@@ -51,6 +53,8 @@ void TestDisassemblyHelper::testFindBracketRange_data()
 /**
  * @brief findBracketRange returns the bracket expression around a position, including on its
  *        opening '['.
+ *
+ * Regression: hovering the '[' of a memory operand like [rbp - 0x8] used to show no preview.
  */
 void TestDisassemblyHelper::testFindBracketRange()
 {

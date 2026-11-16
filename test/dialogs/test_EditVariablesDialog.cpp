@@ -1,6 +1,8 @@
 /**
  * @file test_EditVariablesDialog.cpp
  * @brief Renaming and retyping a function's variables through their dialog.
+ *
+ * Covers: EditVariablesDialog.
  */
 
 #include "Fixtures.h"
@@ -52,12 +54,6 @@ private slots:
 
     void renameAppliesToVariable();
     void newNameIsSanitized();
-    /**
-     * @brief Editing a variable works when the seek is in another function.
-     *
-     * applyFields() looks up the function at the seek instead of the one the dialog was
-     * opened for, so with the seek elsewhere OK does nothing. Red until fixed.
-     */
     void editAppliesWhenSeekIsInAnotherFunction();
 
 private:
@@ -121,10 +117,7 @@ void TestEditVariablesDialog::newNameIsSanitized()
 /**
  * @brief The edit applies to the dialog's function when the seek is in another function.
  *
- * To reproduce:
- * 1. Show the Decompiler on a function and unsync it.
- * 2. Seek to another function in the Disassembly.
- * 3. In the Decompiler, right click a variable → Edit variable, rename it, OK: nothing changed.
+ * Regression: with the seek in another function, OK used to change nothing.
  */
 void TestEditVariablesDialog::editAppliesWhenSeekIsInAnotherFunction()
 {

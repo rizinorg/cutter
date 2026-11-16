@@ -1,9 +1,11 @@
 /**
  * @file test_MdHighlighter.cpp
  * @brief Markdown highlighting of the help text in the console and descriptions.
+ *
+ * Covers: MdHighlighter.
  */
 
-#include "IsolatedSettings.h"
+#include "TestEnv.h"
 
 #include "common/MdHighlighter.h"
 

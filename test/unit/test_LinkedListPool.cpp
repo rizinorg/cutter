@@ -1,9 +1,11 @@
 /**
  * @file test_LinkedListPool.cpp
  * @brief The linked list pool used by the graph grid layout.
+ *
+ * Covers: LinkedListPool.
  */
 
-#include "IsolatedSettings.h"
+#include "TestEnv.h"
 
 #include "common/LinkedListPool.h"
 

@@ -1,9 +1,11 @@
 /**
  * @file test_Helpers.cpp
  * @brief Small helpers from common/Helpers.h.
+ *
+ * Covers: common/Helpers.h.
  */
 
-#include "IsolatedSettings.h"
+#include "TestEnv.h"
 
 #include "common/Helpers.h"
 
@@ -31,7 +33,7 @@ private slots:
 void TestHelpers::testFormatByteCount()
 {
     QCOMPARE(qhelpers::formatByteCount(0), QString("0"));
-    QCOMPARE(qhelpers::formatByteCount(512), QString("512  B")); // Two spaces for raw bytes
+    QCOMPARE(qhelpers::formatByteCount(512), QString("512  B")); // two spaces for raw bytes
     QCOMPARE(qhelpers::formatByteCount(1024), QString("1 kB"));
     QCOMPARE(qhelpers::formatByteCount(1048576), QString("1 MB"));
     QCOMPARE(qhelpers::formatByteCount(1073741824), QString("1 GB"));
@@ -78,7 +80,7 @@ void TestHelpers::testSelectIndexByData()
 void TestHelpers::testApplyColorToSvg()
 {
     const QByteArray originalSvg = R"(<svg><path fill="#000000" style="fill:#123456;"/></svg>)";
-    const QColor newColor(0xFF, 0x00, 0x00); // Red (#ff0000)
+    const QColor newColor(0xFF, 0x00, 0x00); // red (#ff0000)
 
     const QByteArray coloredSvg = qhelpers::applyColorToSvg(originalSvg, newColor);
 

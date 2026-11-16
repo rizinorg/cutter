@@ -1,9 +1,11 @@
 /**
  * @file test_SelectionHighlight.cpp
  * @brief Highlighting the word under the cursor, matching braces and the current line.
+ *
+ * Covers: common/SelectionHighlight.h.
  */
 
-#include "IsolatedSettings.h"
+#include "TestEnv.h"
 
 #include "SelectionHighlight.h"
 

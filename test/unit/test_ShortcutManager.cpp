@@ -1,9 +1,11 @@
 /**
  * @file test_ShortcutManager.cpp
  * @brief Cutter's default shortcut table and how shortcuts are matched.
+ *
+ * Covers: ShortcutManager.
  */
 
-#include "IsolatedSettings.h"
+#include "TestEnv.h"
 
 #include "shortcuts/ShortcutManager.h"
 
@@ -51,7 +53,7 @@ void TestShortcutManager::defaultShortcutsDoNotConflictWithinContext()
 }
 
 /**
- * @brief Every default shortcut has a key on this OS; platform key bindings can be empty.
+ * @brief Every default shortcut has at least one key on the OS the test runs on.
  */
 void TestShortcutManager::everyShortcutHasKeyOnThisPlatform()
 {

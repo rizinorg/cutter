@@ -26,7 +26,6 @@ static void initCutterResources()
 namespace {
 
 constexpr int fileLoadTimeoutMs = 120000;
-constexpr RVA commentSearchRange = 0x100;
 
 void prepareEnvironment()
 {
@@ -36,7 +35,8 @@ void prepareEnvironment()
 
     initCutterResources();
 
-    // TODO: why is this needed??
+    // TODO: Same as src/main. we should clean this up in both places
+    // (PremadeS)
     qRegisterMetaType<QList<StringDescription>>();
     qRegisterMetaType<QList<FunctionDescription>>();
 
@@ -56,7 +56,7 @@ bool waitForOpenedFile()
             && !CutterTest::core()->getAsyncTaskManager()->getTasksRunning()) {
             return true;
         }
-        QTest::qWait(50); // TODO: blocks processor? can we not yield?
+        QTest::qWait(50);
     }
     return false;
 }
@@ -108,25 +108,12 @@ MainWindow *mainWindow()
 
 bool openFile(const QString &path)
 {
-    // TODO: should have permission as param??
     return core()->loadFile(path, 0, 0, RZ_PERM_R, 1, true);
 }
 
 void analyze()
 {
-    // TODO: should take the analysis level
     core()->cmdRaw("aaa");
-}
-
-RVA addressWithoutComment(RVA start)
-{
-    // TODO: why is this in env? shouldn't this be in helpers?
-    for (RVA candidate = start; candidate < start + commentSearchRange; ++candidate) {
-        if (core()->getCommentAt(candidate).isEmpty()) {
-            return candidate;
-        }
-    }
-    return RVA_INVALID;
 }
 
 int runWithoutCore(std::unique_ptr<QObject> test, int &argc, char **argv)
@@ -152,9 +139,6 @@ int runCoreTest(std::unique_ptr<QObject> test, int &argc, char **argv)
     return runTests(test);
 }
 
-// TODO: should we register an enum for this fixture? so no chances of wrong thing. Although it will
-// log an error if the fixture name/path is incorrect
-// TODO: maybe better name? because it auto analyzes via -A flag
 int runAppTest(std::unique_ptr<QObject> test, int &argc, char **argv, const QString &fixture)
 {
     prepareEnvironment();
@@ -174,7 +158,7 @@ int runAppTest(std::unique_ptr<QObject> test, int &argc, char **argv, const QStr
     QByteArrayList cutterArgs = { QByteArray(argv[0]), "--no-output-redirect",
                                   "--no-cutter-plugins", "--no-rizin-plugins" };
     if (!file.isEmpty()) {
-        cutterArgs << "-A" << "1" << QFile::encodeName(file);
+        cutterArgs << "-A" << QFile::encodeName(file);
     }
     std::vector<char *> cutterArgv;
     for (QByteArray &arg : cutterArgs) {

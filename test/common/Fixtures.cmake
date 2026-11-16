@@ -11,9 +11,9 @@ set(CUTTER_TEST_FIXTURES
 
 option(CUTTER_TEST_FETCH_FIXTURES "Download the test fixtures from rizin-testbins" ON)
 set(CUTTER_TESTBINS_DIR "" CACHE PATH
-    "Path to a local clone of rizin-testbins; if set, the test fixtures are not downloaded")
+    "Path to a local clone of rizin-testbins. If set, the test fixtures are not downloaded")
 
-function(cutter_fetch_test_fixture FIXTURE_PATH FIXTURE_HASH)
+function(cutter_test_fetch_fixture FIXTURE_PATH FIXTURE_HASH)
     set(destination "${CUTTER_TEST_FIXTURES_DIR}/${FIXTURE_PATH}")
     if(EXISTS "${destination}")
         file(SHA256 "${destination}" actual)
@@ -29,14 +29,14 @@ function(cutter_fetch_test_fixture FIXTURE_PATH FIXTURE_HASH)
     if(NOT code EQUAL 0)
         list(GET status 1 reason)
         file(REMOVE "${destination}")
-        message(WARNING "Could not download test fixture ${FIXTURE_PATH} (${reason}); tests using it will skip")
+        message(WARNING "Could not download test fixture ${FIXTURE_PATH} (${reason}), tests using it will skip")
         return()
     endif()
 
     file(SHA256 "${destination}" actual)
     if(NOT actual STREQUAL FIXTURE_HASH)
         file(REMOVE "${destination}")
-        message(WARNING "Test fixture ${FIXTURE_PATH} does not match its pinned SHA-256; tests using it will skip")
+        message(WARNING "Test fixture ${FIXTURE_PATH} does not match its pinned SHA-256, tests using it will skip")
     endif()
 endfunction()
 
@@ -73,7 +73,7 @@ foreach(nameIndex RANGE 0 ${lastFixtureField} 3)
     string(APPEND CUTTER_TEST_FIXTURE_FUNCTIONS
         "\ninline QString ${fixtureName}()\n{\n    return QStringLiteral(\"${fixturePath}\");\n}\n")
     if(fetchFixtures)
-        cutter_fetch_test_fixture(${fixturePath} ${fixtureHash})
+        cutter_test_fetch_fixture(${fixturePath} ${fixtureHash})
     endif()
 endforeach()
 

@@ -1,9 +1,11 @@
 /**
  * @file test_Json.cpp
  * @brief Showing rizin JSON as a tree of items.
+ *
+ * Covers: common/Json.h, CutterJson.
  */
 
-#include "IsolatedSettings.h"
+#include "TestEnv.h"
 
 #include "CutterJson.h"
 #include "Json.h"

@@ -1,9 +1,11 @@
 /**
  * @file test_GraphLayouts.cpp
- * @brief Graph layouts keep the drawing readable for every control-flow shape.
+ * @brief Graph layouts for every control-flow shape.
+ *
+ * Covers: GraphGridLayout and the other graph layouts (see layouts()).
  */
 
-#include "IsolatedSettings.h"
+#include "TestEnv.h"
 
 #include "widgets/GraphGridLayout.h"
 #include "widgets/GraphHorizontalAdapter.h"
@@ -669,10 +671,6 @@ void TestGraphLayouts::layoutKeepsDrawingRules_data()
 
 /**
  * @brief Every graph shape keeps the drawing rules in every layout.
- *
- * Coordinates depend on block sizes and tuning, so the rules are relations: blocks stay inside the
- * reported size and don't overlap, edges leave their source and reach their target, grid edges are
- * orthogonal and don't cut through blocks, and forward edges point down (right when horizontal).
  */
 void TestGraphLayouts::layoutKeepsDrawingRules()
 {

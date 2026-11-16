@@ -1,6 +1,7 @@
 #ifndef CUTTER_TEST_ENV_H
 #define CUTTER_TEST_ENV_H
 
+#include "IsolatedSettings.h"
 #include "core/Cutter.h"
 
 #include <QString>
@@ -12,7 +13,7 @@ class MainWindow;
 
 namespace CutterTest {
 
-constexpr int skipReturnCode = 77; // TODO: wat dis
+constexpr int skipReturnCode = 77;
 inline constexpr char testbinsVariable[] = "CUTTER_TESTBINS_DIR";
 
 QString fixturePath(const QString &relativePath);
@@ -23,10 +24,9 @@ MainWindow *mainWindow();
 
 bool openFile(const QString &path);
 void analyze();
-RVA addressWithoutComment(RVA start);
 
 /**
- * @brief Sets up the layer's environment and runs the tests of test in it.
+ * @brief Sets up the environment, then runs the test methods of the given test object in it.
  *
  * The arguments go to QtTest first. QtTest handles the options that only print something, like
  * -functions, and exits right there. So listing a test's methods doesn't start Cutter or load a
@@ -47,24 +47,38 @@ int runAppTest(std::unique_ptr<QObject> test, int &argc, char **argv, const QStr
     }                                                                                              \
     target = CutterTest::fixturePath(fixture)
 
+// Unit test: plain QApplication with isolated settings, no Cutter resources, core or window.
+#define CUTTER_UNIT_TEST_MAIN(TestClass)                                                           \
+    int main(int argc, char *argv[])                                                               \
+    {                                                                                              \
+        CutterTest::isolateSettings();                                                             \
+        QApplication app(argc, argv);                                                              \
+        TestClass test;                                                                            \
+        return QTest::qExec(&test, argc, argv);                                                    \
+    }
+
+// Cutter environment (resources, isolated settings) and a QApplication, but no core.
 #define CUTTER_NO_CORE_TEST_MAIN(TestClass)                                                        \
     int main(int argc, char *argv[])                                                               \
     {                                                                                              \
         return CutterTest::runWithoutCore(std::make_unique<TestClass>(), argc, argv);              \
     }
 
+// Cutter environment plus an initialized CutterCore, but no main window.
 #define CUTTER_CORE_TEST_MAIN(TestClass)                                                           \
     int main(int argc, char *argv[])                                                               \
     {                                                                                              \
         return CutterTest::runCoreTest(std::make_unique<TestClass>(), argc, argv);                 \
     }
 
+// Full Cutter app with its main window, with the fixture opened and analyzed (aaa).
 #define CUTTER_APP_TEST_MAIN_WITH_FILE(TestClass, fixture)                                         \
     int main(int argc, char *argv[])                                                               \
     {                                                                                              \
         return CutterTest::runAppTest(std::make_unique<TestClass>(), argc, argv, fixture);         \
     }
 
+// Full Cutter app with its main window and no file open.
 #define CUTTER_APP_TEST_MAIN(TestClass) CUTTER_APP_TEST_MAIN_WITH_FILE(TestClass, QString())
 
 #endif // CUTTER_TEST_ENV_H

@@ -1,6 +1,8 @@
 /**
  * @file test_SeekHistory.cpp
- * @brief Seek and seek history signals of the core.
+ * @brief Seek and seek history signals of core.
+ *
+ * Covers: CutterCore seek functions and seekChanged.
  */
 
 #include "Fixtures.h"

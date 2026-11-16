@@ -10,11 +10,7 @@
 namespace CutterTest {
 
 /**
- * @brief Points QSettings at an empty temporary folder for this process.
- *
- * Cutter's Configuration shows a modal "Settings are not writable" box when QSettings can't
- * write, which happens on Windows without an organization name. Isolated settings also keep a
- * test from reading or changing the user's own Cutter configuration.
+ * @brief Points QSettings to an empty temporary folder for this process.
  */
 inline void isolateSettings()
 {
@@ -26,17 +22,5 @@ inline void isolateSettings()
 }
 
 } // namespace CutterTest
-
-/**
- * @brief QTEST_MAIN with isolated settings: a plain QApplication, no core and no window.
- */
-#define CUTTER_UNIT_TEST_MAIN(TestClass)                                                           \
-    int main(int argc, char *argv[])                                                               \
-    {                                                                                              \
-        CutterTest::isolateSettings();                                                             \
-        QApplication app(argc, argv);                                                              \
-        TestClass test;                                                                            \
-        return QTest::qExec(&test, argc, argv);                                                    \
-    }
 
 #endif // CUTTER_TEST_ISOLATED_SETTINGS_H

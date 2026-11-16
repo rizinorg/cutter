@@ -1,6 +1,8 @@
 /**
  * @file test_FlagDialog.cpp
  * @brief Editing an existing flag through the flag dialog.
+ *
+ * Covers: FlagDialog.
  */
 
 #include "Fixtures.h"
@@ -16,7 +18,7 @@ namespace {
 constexpr RVA flagSearchRange = 0x100;
 
 /**
- * @brief The first address from start that has no flag.
+ * @brief The first address at or after start with no flag, or RVA_INVALID if none is found.
  */
 RVA addressWithoutFlag(RVA start)
 {
@@ -56,13 +58,7 @@ private slots:
     void init();
     void cleanup();
 
-    /**
-     * @brief Editing a flag shows its size and applies a new one.
-     */
     void editingFlagAppliesNewSize();
-    /**
-     * @brief Renaming replaces ';' and '@' in the name, like adding a flag does.
-     */
     void renameIsSanitizedLikeAdd();
 
 private:
@@ -94,9 +90,7 @@ void TestFlagDialog::cleanup()
 /**
  * @brief The dialog shows the flag's size, and a new size is applied.
  *
- * To reproduce:
- * 1. Right click a flagged address → Edit flag: the size field was empty.
- * 2. Enter a new size and press OK: the size didn't change.
+ * Regression: the size field used to be empty, and a new size wasn't applied.
  */
 void TestFlagDialog::editingFlagAppliesNewSize()
 {
@@ -112,9 +106,7 @@ void TestFlagDialog::editingFlagAppliesNewSize()
 /**
  * @brief Renaming a flag replaces the characters that adding a flag replaces.
  *
- * To reproduce:
- * 1. Right click a flagged address → Edit flag.
- * 2. Rename it to "a;b@c": the name kept ';' and '@', which rizin commands split on.
+ * Regression: a renamed flag used to keep ';' and '@', which rizin commands split on.
  */
 void TestFlagDialog::renameIsSanitizedLikeAdd()
 {

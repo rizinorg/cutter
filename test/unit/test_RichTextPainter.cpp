@@ -1,9 +1,13 @@
 /**
  * @file test_RichTextPainter.cpp
  * @brief Cropping and converting the rich text drawn in the graph blocks.
+ *
+ * Covers: RichTextPainter.
+ * TODO: since RichTextPainter is primarily focused on performance, we should have a benchmarking
+ * test for this once those are added
  */
 
-#include "IsolatedSettings.h"
+#include "TestEnv.h"
 
 #include "RichTextPainter.h"
 

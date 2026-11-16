@@ -1,11 +1,12 @@
 /**
  * @file test_HexdumpRangeDialog.cpp
  * @brief Choosing an address range by end address or by length.
+ *
+ * Covers: HexdumpRangeDialog.
  */
 
 #include "TestEnv.h"
-#include "UiHelpers.h"
-
+#include "UiHelpers.h" // IWYU pragma: keep
 #include "dialogs/HexdumpRangeDialog.h"
 
 #include <QRadioButton>
@@ -65,12 +66,6 @@ private slots:
     void endBeforeStartIsInvalid();
     void emptyRangeNeedsAllowEmpty();
     void lengthOverflowIsInvalid();
-    /**
-     * @brief Reopening the dialog at a new address and pressing OK uses that address.
-     *
-     * HexWidget reuses one dialog. openAt() only sets the start field's text, so the start
-     * from the previous use is kept and OK selects the old range. Red until fixed.
-     */
     void okRightAfterOpenUsesShownStart();
 };
 
@@ -159,10 +154,7 @@ void TestHexdumpRangeDialog::lengthOverflowIsInvalid()
 /**
  * @brief OK right after opening uses the start address the dialog shows.
  *
- * To reproduce:
- * 1. In the Hexdump, right click → Select range, enter an end and press OK.
- * 2. Move the cursor, open Select range again and press OK straight away: the range started at the
- *    old address.
+ * Regression: reopening the dialog at a new address and pressing OK used to select the old range.
  */
 void TestHexdumpRangeDialog::okRightAfterOpenUsesShownStart()
 {

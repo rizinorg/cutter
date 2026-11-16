@@ -1,6 +1,8 @@
 /**
  * @file test_AsyncTasks.cpp
  * @brief Background tasks run through the core's AsyncTaskManager.
+ *
+ * Covers: AsyncTask, AsyncTaskManager.
  */
 
 #include "CallbackTask.h"
@@ -60,43 +62,11 @@ private slots:
     void init();
     void cleanup();
 
-    /**
-     * @brief One task goes start -> running -> finished exactly once.
-     */
     void taskReportsFinishedOnceAndLeavesManager();
-
-    /**
-     * @brief tasksChanged is always emitted on the GUI thread.
-     *
-     * A direct-connected lambda runs on the emitting thread and records it. The finish emit
-     * sits next to tasks.removeOne(), so a background-thread emit means the task list was changed
-     * off the GUI thread while the GUI reads it.
-     */
     void tasksChangedArrivesOnGuiThread();
-
-    /**
-     * @brief The manager reports running until its last task finishes.
-     */
     void managerRunsUntilEveryTaskFinished();
-
-    /**
-     * @brief The manager owns a running task even after the caller drops it.
-     */
     void managerKeepsTaskAliveUntilFinished();
-
-    /**
-     * @brief wait() blocks while a task is queued and has not started.
-     *
-     * Every background thread is filled with gated tasks so the next one cannot run because there
-     * is no room, hence stays in queued state. wait() must time out until the gated tasks finish.
-     *
-     * wait() returning early means it isn't handled correctly on queued tasks.
-     */
     void waitBlocksWhileTaskIsQueued();
-
-    /**
-     * @brief Interrupting a real analysis finishes it quickly and cleanly.
-     */
     void interruptedAnalysisFinishesQuickly();
 };
 
@@ -142,6 +112,8 @@ void TestAsyncTasks::taskReportsFinishedOnceAndLeavesManager()
 
 /**
  * @brief tasksChanged is delivered on the GUI thread, also for a task finishing on a pool thread.
+ *
+ * Otherwise the task list changes off the GUI thread while the GUI reads it.
  */
 void TestAsyncTasks::tasksChangedArrivesOnGuiThread()
 {
@@ -225,9 +197,9 @@ void TestAsyncTasks::managerKeepsTaskAliveUntilFinished()
 /**
  * @brief wait() on a task that is still queued blocks until it ran.
  *
- * Every pool thread is kept busy so the task stays queued. wait() used to return before the task
- * started, which let FunctionsWidget and StringsWidget run two refreshes at once. Not reproducible
- * from the UI.
+ * Regression: wait() used to return before the task started, so FunctionsWidget and StringsWidget
+ * could run two refreshes at once.
+ * Every pool thread is kept busy so the task stays queued.
  */
 void TestAsyncTasks::waitBlocksWhileTaskIsQueued()
 {
@@ -259,9 +231,7 @@ void TestAsyncTasks::waitBlocksWhileTaskIsQueued()
 /**
  * @brief Interrupting a running analysis of a large binary ends the task quickly.
  *
- * To reproduce:
- * 1. Open a large binary (e.g. /bin/ls) with "Auto analysis (experimental)".
- * 2. Cancel in the progress dialog: Cutter stayed frozen until the analysis finished.
+ * Regression: after Cancel, Cutter used to stay frozen until the analysis finished.
  */
 void TestAsyncTasks::interruptedAnalysisFinishesQuickly()
 {

@@ -1,6 +1,8 @@
 /**
  * @file test_LayoutManager.cpp
  * @brief Renaming the user's saved layouts.
+ *
+ * Covers: LayoutManager.
  */
 
 #include "TestEnv.h"
@@ -63,21 +65,13 @@ class TestLayoutManager : public QObject
     Q_OBJECT
 
 private slots:
-    /**
-     * @brief Confirming the prefilled name on rename keeps the layout without an error.
-     *
-     * renameCurrentLayout() rejects every name already in the map, including the layout's
-     * own, so OK on the unchanged prompt warns "already used". Red until fixed.
-     */
     void renameToSameNameIsNotAnError();
 };
 
 /**
  * @brief Confirming the prefilled name when renaming a layout shows no error.
  *
- * To reproduce:
- * 1. View → Save layout, give it a name.
- * 2. View → Manage layouts, select it, Rename, and press OK: "'name' is already used."
+ * Regression: OK on the unchanged name used to warn that the name is already used.
  */
 void TestLayoutManager::renameToSameNameIsNotAnError()
 {

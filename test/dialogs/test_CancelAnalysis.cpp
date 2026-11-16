@@ -1,6 +1,8 @@
 /**
  * @file test_CancelAnalysis.cpp
  * @brief Cancelling analysis from the progress dialog.
+ *
+ * Covers: AsyncTaskDialog, AnalysisTask.
  */
 
 #include "Fixtures.h"
@@ -27,6 +29,9 @@ constexpr int cancelTimeoutMs = 10000;
 
 /**
  * @brief Whether the dialog's log shows that analysis began.
+ *
+ * Note: that this function is fragile and might break if something other than "Executing analysis"
+ * is logged
  */
 bool analysisStarted(AsyncTaskDialog *dialog)
 {
@@ -47,9 +52,9 @@ private slots:
 /**
  * @brief Cancel in the analysis progress dialog stops the analysis and leaves a usable window.
  *
- * To reproduce:
- * 1. Open a large binary (e.g. /bin/ls) and start the analysis.
- * 2. Press Cancel in the progress dialog: Cutter froze.
+ * Regression: pressing Cancel during analysis used to freeze Cutter.
+ * Uses the experimental analysis level so analysis runs long enough to cancel, skips if it still
+ * finishes first.
  */
 void TestCancelAnalysis::cancelDuringAnalysisDoesNotFreeze()
 {

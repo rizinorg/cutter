@@ -1,9 +1,11 @@
 /**
  * @file test_SyntaxHighlighter.cpp
  * @brief The fallback C highlighter, used when KSyntaxHighlighting is not available.
+ *
+ * Covers: SyntaxHighlighter.
  */
 
-#include "IsolatedSettings.h"
+#include "TestEnv.h"
 
 #include "common/SyntaxHighlighter.h"
 
@@ -80,6 +82,8 @@ void TestSyntaxHighlighter::everyKeywordIsHighlighted_data()
 
 /**
  * @brief Every C keyword is highlighted as a keyword.
+ *
+ * Regression: switch, static and while were never highlighted as keywords.
  */
 void TestSyntaxHighlighter::everyKeywordIsHighlighted()
 {
@@ -133,7 +137,7 @@ void TestSyntaxHighlighter::functionCallIsHighlighted()
 }
 
 /**
- * @brief A // comment covers the rest of its line only.
+ * @brief A "// comment" covers the rest of its line only.
  */
 void TestSyntaxHighlighter::lineCommentCoversRestOfLine()
 {

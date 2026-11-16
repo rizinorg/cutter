@@ -1,6 +1,8 @@
 /**
  * @file test_IOModes.cpp
  * @brief Cutter's IO modes: read-only, cache and write.
+ *
+ * Covers: CutterCore setIOCache, setWriteMode and commitWriteCache.
  */
 
 #include "Fixtures.h"
@@ -135,9 +137,7 @@ void TestIOModes::cacheModeEditLeavesFileUntouched()
 /**
  * @brief Committing the cache writes the edit to the file.
  *
- * To reproduce:
- * 1. File → Set mode → Cache mode, and change a byte in the Hexdump.
- * 2. File → Commit changes: a heap use after free under ASan.
+ * Regression: committing used to cause a heap use after free (seen under ASan).
  */
 void TestIOModes::commitWriteCacheWritesFile()
 {

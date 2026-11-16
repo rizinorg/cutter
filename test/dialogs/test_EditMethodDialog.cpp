@@ -1,6 +1,8 @@
 /**
  * @file test_EditMethodDialog.cpp
  * @brief Editing a class method through Edit Method.
+ *
+ * Covers: EditMethodDialog.
  */
 
 #include "Fixtures.h"
@@ -54,10 +56,7 @@ void TestEditMethodDialog::initTestCase()
 /**
  * @brief Choosing another class in Edit Method moves the method there.
  *
- * To reproduce:
- * 1. Windows → Info → Classes, with two classes.
- * 2. Right click a method → Edit Method, pick the other class and press OK: the method stayed in
- *    its class.
+ * Regression: the method used to stay in its original class.
  */
 void TestEditMethodDialog::editMethodMovesToChosenClass()
 {

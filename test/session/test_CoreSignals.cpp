@@ -1,6 +1,8 @@
 /**
  * @file test_CoreSignals.cpp
  * @brief The signals the core's edit operations emit.
+ *
+ * Covers: CutterCore edit functions and the signals they emit.
  */
 
 #include "Fixtures.h"
@@ -11,6 +13,21 @@
 #include <QTest>
 
 namespace {
+
+constexpr RVA commentSearchRange = 0x100;
+
+/**
+ * @brief The first address at or after start with no comment, or RVA_INVALID if none is found.
+ */
+RVA addressWithoutComment(CutterCore *core, RVA start)
+{
+    for (RVA candidate = start; candidate < start + commentSearchRange; ++candidate) {
+        if (core->getCommentAt(candidate).isEmpty()) {
+            return candidate;
+        }
+    }
+    return RVA_INVALID;
+}
 
 bool hasFlag(CutterCore *core, RVA address, const QString &name)
 {
@@ -83,7 +100,7 @@ void TestCoreSignals::initTestCase()
     const RVA start = core->getOffset();
     QVERIFY(start != RVA_INVALID);
 
-    freeAddress = CutterTest::addressWithoutComment(start);
+    freeAddress = addressWithoutComment(CutterTest::core(), start);
     QVERIFY2(freeAddress != RVA_INVALID, "no address without a comment near the current seek");
 
     const QList<FunctionDescription> functions = core->getAllFunctions();
@@ -137,9 +154,8 @@ void TestCoreSignals::commentEditsNotifyOnceWithAddress()
 /**
  * @brief Renaming a function emits functionRenamed once with the name rizin stored.
  *
- * To reproduce:
- * 1. Right click a function in Functions → Rename, and enter "  myname".
- * 2. Views updated from the signal showed "  myname"; the function is named "myname".
+ * Regression: the signal used to carry the name as typed (e.g. "  myname"), not the cleaned-up
+ * name rizin stored ("myname"), so views showed a name the function doesn't have.
  */
 void TestCoreSignals::renameFunctionNotifiesOnceWithNewName()
 {
@@ -162,7 +178,7 @@ void TestCoreSignals::renameFunctionNotifiesOnceWithNewName()
 /**
  * @brief Renaming at an address without a function emits nothing.
  *
- * Every view used to refresh as if a function had been renamed.
+ * Regression: every view used to refresh as if a function had been renamed.
  */
 void TestCoreSignals::renameFunctionWithoutFunctionNotifiesNothing()
 {
@@ -229,9 +245,7 @@ void TestCoreSignals::flagEditsNotifyOnce()
 /**
  * @brief Renaming a global variable keeps its type and emits globalVarsChanged once.
  *
- * To reproduce:
- * 1. Windows → Info → Globals, right click a global → Edit.
- * 2. Change only the name and press OK: a heap use after free under ASan.
+ * Regression: changing only the name used to cause a heap use after free (seen under ASan).
  */
 void TestCoreSignals::renameGlobalVariableKeepsTypeAndNotifiesOnce()
 {

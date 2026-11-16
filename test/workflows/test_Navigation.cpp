@@ -1,6 +1,8 @@
 /**
  * @file test_Navigation.cpp
- * @brief Jumping through the binary from lists, history and xrefs moves the views.
+ * @brief Jumping through the binary from lists, history and xrefs.
+ *
+ * Covers: Seeking from list docks, seek history and XrefsDialog.
  */
 
 #include "Fixtures.h"

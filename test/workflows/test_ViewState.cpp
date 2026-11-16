@@ -1,6 +1,8 @@
 /**
  * @file test_ViewState.cpp
- * @brief Editing in a code view keeps the user's place in it.
+ * @brief Keeping the user's place in a code view after an edit.
+ *
+ * Covers: DisassemblyWidget, DisassemblerGraphView, DecompilerWidget.
  */
 
 #include "Fixtures.h"
@@ -155,9 +157,7 @@ void TestViewState::graphKeepsViewportAfterComment()
 /**
  * @brief Renaming a variable in the Decompiler keeps its scroll position.
  *
- * To reproduce:
- * 1. Decompile a long function and scroll down.
- * 2. Rename a variable: the view jumped back to the top.
+ * Regression: the view used to jump back to the top.
  */
 void TestViewState::decompilerKeepsScrollAfterVariableRename()
 {

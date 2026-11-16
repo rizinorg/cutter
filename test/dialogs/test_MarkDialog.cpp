@@ -1,6 +1,8 @@
 /**
  * @file test_MarkDialog.cpp
  * @brief Adding and renaming marks through the mark dialog.
+ *
+ * Covers: MarkDialog.
  */
 
 #include "Fixtures.h"
@@ -35,13 +37,7 @@ private slots:
     void initTestCase();
     void init();
 
-    /**
-     * @brief Renaming a mark to another mark's name is refused and both marks stay.
-     */
     void renameOntoTakenNameIsRejected();
-    /**
-     * @brief Adding a mark under a taken name is refused and the other mark stays.
-     */
     void addWithTakenNameIsRejected();
 
 private:
@@ -85,10 +81,7 @@ void TestMarkDialog::verifyOtherMarkUnchanged()
 /**
  * @brief Renaming a mark to another mark's name is refused and the other mark is unchanged.
  *
- * To reproduce:
- * 1. Add two marks.
- * 2. Edit one and give it the other's name: the other mark's range, comment and color were
- *    replaced.
+ * Regression: the other mark's range, comment and color used to be replaced.
  */
 void TestMarkDialog::renameOntoTakenNameIsRejected()
 {
@@ -108,9 +101,7 @@ void TestMarkDialog::renameOntoTakenNameIsRejected()
 /**
  * @brief Adding a mark with a name already in use is refused and the other mark is unchanged.
  *
- * To reproduce:
- * 1. Add a mark.
- * 2. Add another with the same name: the first mark's range, comment and color were replaced.
+ * Regression: the first mark's range, comment and color used to be replaced.
  */
 void TestMarkDialog::addWithTakenNameIsRejected()
 {

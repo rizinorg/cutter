@@ -17,8 +17,9 @@
 
 namespace CutterTest {
 
-// TODO: document all of these
-
+/**
+ * @brief The first dock that follows the global seek, or nullptr.
+ */
 template<class Dock>
 Dock *findSynchronizedDock(MainWindow *main)
 {
@@ -31,6 +32,9 @@ Dock *findSynchronizedDock(MainWindow *main)
     return nullptr;
 }
 
+/**
+ * @brief The addresses of all lines the disassembly widget currently shows.
+ */
 inline QSet<RVA> disassemblyOffsets(DisassemblyWidget *disassembly)
 {
     QSet<RVA> offsets;
@@ -41,6 +45,9 @@ inline QSet<RVA> disassemblyOffsets(DisassemblyWidget *disassembly)
     return offsets;
 }
 
+/**
+ * @brief Whether any shown disassembly line contains text.
+ */
 inline bool disassemblyContains(DisassemblyWidget *disassembly, const QString &text)
 {
     const QList<DisassemblyLine> lines = disassembly->getLines();
@@ -52,6 +59,9 @@ inline bool disassemblyContains(DisassemblyWidget *disassembly, const QString &t
     return false;
 }
 
+/**
+ * @brief The address of the topmost shown disassembly line, or RVA_INVALID.
+ */
 inline RVA disassemblyTopOffset(DisassemblyWidget *disassembly)
 {
     const QList<DisassemblyLine> lines = disassembly->getLines();
@@ -59,11 +69,17 @@ inline RVA disassemblyTopOffset(DisassemblyWidget *disassembly)
     return start >= 0 && start < lines.size() ? lines.at(start).offset : RVA_INVALID;
 }
 
+/**
+ * @brief Whether the graph shows a block starting at address.
+ */
 inline bool graphHasBlock(GraphWidget *graph, RVA address)
 {
     return graph->getGraphView()->getBlocks().count(address) > 0;
 }
 
+/**
+ * @brief Whether any cell of the model, including nested rows, contains text.
+ */
 inline bool modelContains(const QAbstractItemModel *model, const QString &text,
                           const QModelIndex &parent = QModelIndex())
 {
@@ -82,6 +98,9 @@ inline bool modelContains(const QAbstractItemModel *model, const QString &text,
     return false;
 }
 
+/**
+ * @brief The first item view under parent whose model maps rows to addresses, or nullptr.
+ */
 inline QAbstractItemView *addressableView(QWidget *parent)
 {
     const QList<QAbstractItemView *> views = parent->findChildren<QAbstractItemView *>();
@@ -93,6 +112,9 @@ inline QAbstractItemView *addressableView(QWidget *parent)
     return nullptr;
 }
 
+/**
+ * @brief Waits until the model has at least one row, false if timeoutMs runs out first.
+ */
 inline bool waitForRows(const QAbstractItemModel *model, int timeoutMs)
 {
     const QDeadlineTimer deadline(timeoutMs);

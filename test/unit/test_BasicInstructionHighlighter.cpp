@@ -1,9 +1,11 @@
 /**
  * @file test_BasicInstructionHighlighter.cpp
  * @brief Highlighted instruction ranges: lookup, partial clear and full clear.
+ *
+ * Covers: BasicInstructionHighlighter.
  */
 
-#include "IsolatedSettings.h"
+#include "TestEnv.h"
 
 #include "common/BasicInstructionHighlighter.h"
 
@@ -20,7 +22,8 @@ private slots:
 };
 
 /**
- * @brief An address inside a highlighted range finds it; the end address doesn't.
+ * @brief Looking up an address inside a highlighted range returns that range, the address just
+ *        past its end returns nothing.
  */
 void TestInstructionHighlighters::testBasicLookup()
 {

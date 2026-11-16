@@ -1,6 +1,8 @@
 /**
  * @file test_Layouts.cpp
- * @brief Saved layouts come back after a restart with every dock where the user left it.
+ * @brief Saving and restoring dock layouts across a restart.
+ *
+ * Covers: MainWindow layout save and restore, CutterLayout.
  */
 
 #include "Fixtures.h"
@@ -122,9 +124,6 @@ private slots:
     void initTestCase();
     void cleanup();
 
-    /**
-     * @brief A layout using every area, tabs, floating, hidden and extra docks comes back.
-     */
     void complexLayoutIsRestored();
 
 private:
@@ -173,9 +172,8 @@ bool TestLayouts::saveRestartAndApply(const QString &name,
 /**
  * @brief A layout using every dock area is restored exactly after a restart.
  *
- * The layout has tab groups, a floating dock, a hidden default dock and extra memory widgets. It is
- * saved, the settings are reloaded as a restart would, the default layout is applied and then the
- * saved one, and every dock is compared with what was saved.
+ * The layout has tab groups, a floating dock, a hidden default dock and extra memory widgets. A
+ * restart is simulated by reloading the settings.
  */
 void TestLayouts::complexLayoutIsRestored()
 {

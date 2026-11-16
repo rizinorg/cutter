@@ -57,9 +57,6 @@ inline bool clickStandardButton(QWidget *dialog, QDialogButtonBox::StandardButto
     return true;
 }
 
-// TODO: this is onceVisible but it only waits for 20ms (nvm it keeps looping on 20ms)
-// Can we not just hook the aboutToShow or some other signal to know when the widget becomes
-// visible?
 template<class T, class Action>
 void onceVisible(QObject *context, Action action)
 {
@@ -75,6 +72,9 @@ void onceVisible(QObject *context, Action action)
     timer->start();
 }
 
+/**
+ * @brief While alive, closes every message box that pops up and records its text.
+ */
 class MessageBoxWatcher
 {
 public:

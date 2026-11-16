@@ -1,6 +1,8 @@
 /**
  * @file test_OpenFile.cpp
- * @brief Opening a binary: NewFileDialog, then InitialOptionsDialog, then analysis.
+ * @brief Opening a binary, from choosing the file to the analysis.
+ *
+ * Covers: NewFileDialog → InitialOptionsDialog → the analysis task.
  */
 
 #include "CutterApplication.h"
@@ -74,9 +76,7 @@ void TestOpenFile::cleanup()
 /**
  * @brief After cancelling the options dialog, another file can be chosen in the new file dialog.
  *
- * To reproduce:
- * 1. Choose a file and press Cancel in the options dialog.
- * 2. Choose another file in the new file dialog that opens: it was rejected.
+ * Regression: the new file dialog used to reject the next file.
  */
 void TestOpenFile::reselectAfterCancelingOptions()
 {
@@ -104,9 +104,7 @@ void TestOpenFile::reselectAfterCancelingOptions()
 /**
  * @brief The error about a missing file goes away once a valid file is chosen.
  *
- * To reproduce:
- * 1. Enter a path that doesn't exist in the new file dialog.
- * 2. Choose a valid file: the error kept appearing.
+ * Regression: the error used to keep appearing after a valid file was chosen.
  */
 void TestOpenFile::errorClearedAfterValidSelection()
 {

@@ -1,6 +1,8 @@
 /**
  * @file test_Docking.cpp
  * @brief Cutter's own dock behavior: the docking modifier and closing extra docks.
+ *
+ * Covers: CutterDockWidget and MainWindow dock handling.
  */
 
 #include "Fixtures.h"
@@ -46,13 +48,7 @@ class TestDocking : public QObject
 private slots:
     void initTestCase();
 
-    /**
-     * @brief Moving a floating dock with the modifier held blocks docking; releasing allows it.
-     */
     void modifierHeldBlocksDockingWhileMoving();
-    /**
-     * @brief A closed extra dock is deleted and gone from layout save and layout switch.
-     */
     void closedExtraDockLeavesNoDanglingDock();
 
 private:

@@ -1,9 +1,11 @@
 /**
  * @file test_BinaryTrees.cpp
  * @brief Segment trees used by the graph grid layout.
+ *
+ * Covers: common/BinaryTrees.h.
  */
 
-#include "IsolatedSettings.h"
+#include "TestEnv.h"
 
 #include "common/BinaryTrees.h"
 
@@ -25,14 +27,14 @@ private slots:
  */
 void TestBinaryTrees::testPointSetMinTreeBasic()
 {
-    // Initialize tree with 8 leaves and initial value 100
+    // init tree with 8 leaves and initial value 100
     PointSetMinTree tree(8, 100);
 
     for (size_t i = 0; i < 8; ++i) {
         QCOMPARE(tree.valueAtPoint(i), 100);
     }
 
-    // Set point values
+    // set point values
     tree.set(3, 15);
     tree.set(5, 42);
 
