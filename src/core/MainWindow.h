@@ -184,6 +184,8 @@ private slots:
 
     void onActionDefaultTriggered();
 
+    void onActionDiffFilesTriggered();
+
     /**
      * @brief MainWindow::on_actionNew_triggered
      * Open a new Cutter session.

@@ -117,6 +117,7 @@ CUTTER_EXPORT void selectIndexByData(QComboBox *comboBox, const QVariant &data,
 CUTTER_EXPORT void emitColumnChanged(QAbstractItemModel *model, int column);
 
 CUTTER_EXPORT bool filterStringContains(const QString &string, const QSortFilterProxyModel *model);
+CUTTER_EXPORT bool filterRegexEmpty(const QSortFilterProxyModel *model);
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 using ColorFloat = float;
