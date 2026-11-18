@@ -238,6 +238,8 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
     ui->analysisSlider->setValue(analysisLevel);
 
     shellcode = options.shellcode;
+    subBinArch = options.subBinArch;
+    subBinBits = options.subBinBits;
 
     if (!options.forceBinPlugin.isEmpty()) {
         ui->formatComboBox->setCurrentText(options.forceBinPlugin);
@@ -372,6 +374,8 @@ void InitialOptionsDialog::setupAndStartAnalysis()
         main->setWindowTitle("Cutter – " + options.filename);
     }
     options.shellcode = this->shellcode;
+    options.subBinArch = this->subBinArch;
+    options.subBinBits = this->subBinBits;
 
     // Where the bin header is located in the file (-B)
     if (ui->entryLoadOffset->text().length() > 0) {

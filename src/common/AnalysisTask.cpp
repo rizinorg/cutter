@@ -46,6 +46,15 @@ void AnalysisTask::runTask()
     if (rz_list_empty(descs) && options.filename.length()) {
         log(tr("Loading the file..."));
         openFailed = false;
+
+        // The file holds several binaries (e.g. fat Mach-O) and the user picked one in
+        // SubBinarySelectorDialog. Setting asm.arch/asm.bits before loading makes Rizin
+        // load only the matching sub-binary, the same as `rizin -a <arch> -b <bits> <file>`.
+        if (!options.subBinArch.isEmpty()) {
+            Core()->setConfig("asm.arch", options.subBinArch);
+            Core()->setConfig("asm.bits", options.subBinBits);
+        }
+
         const bool fileLoaded =
                 Core()->loadFile(options.filename, options.binLoadAddr, options.mapAddr, perms,
                                  options.useVA, options.loadBinInfo, options.forceBinPlugin);

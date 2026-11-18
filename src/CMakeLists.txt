@@ -85,6 +85,7 @@ set(SOURCES
     widgets/ProcessesWidget.cpp
     widgets/BacktraceWidget.cpp
     dialogs/MapFileDialog.cpp
+    dialogs/SubBinarySelectorDialog.cpp
     common/CommandTask.cpp
     widgets/ProgressIndicator.cpp
     common/RizinTask.cpp
@@ -260,6 +261,7 @@ set(HEADER_FILES
     widgets/ProcessesWidget.h
     widgets/BacktraceWidget.h
     dialogs/MapFileDialog.h
+    dialogs/SubBinarySelectorDialog.h
     common/StringsTask.h
     common/FunctionsTask.h
     common/CommandTask.h
@@ -404,6 +406,7 @@ set(UI_FILES
     widgets/ProcessesWidget.ui
     widgets/BacktraceWidget.ui
     dialogs/MapFileDialog.ui
+    dialogs/SubBinarySelectorDialog.ui
     dialogs/preferences/DebugOptionsWidget.ui
     widgets/BreakpointWidget.ui
     dialogs/BreakpointsDialog.ui

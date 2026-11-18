@@ -49,6 +49,13 @@ struct InitialOptions
     };
 
     QString shellcode;
+
+    /**
+     * Sub-binary picked in SubBinarySelectorDialog when the file holds several binaries
+     * (e.g. fat Mach-O). Empty arch means "no choice made, let Rizin pick".
+     */
+    QString subBinArch;
+    int subBinBits = 0;
 };
 
 #endif // CUTTER_INITIALOPTIONS_H

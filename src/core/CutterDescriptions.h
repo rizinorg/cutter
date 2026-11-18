@@ -455,6 +455,17 @@ struct EvaluableVarDescription
     QSet<QString> options;
 };
 
+struct SubBinaryDescription
+{
+    int index;
+    QString arch;
+    int bits;
+    QString machine;
+    RVA offset;
+    RVA size;
+    bool bigEndian;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -499,5 +510,6 @@ Q_DECLARE_METATYPE(BasefindResultDescription)
 Q_DECLARE_METATYPE(MarkDescription)
 Q_DECLARE_METATYPE(BacktraceDescription)
 Q_DECLARE_METATYPE(EvaluableVarDescription)
+Q_DECLARE_METATYPE(SubBinaryDescription)
 
 #endif // DESCRIPTIONS_H

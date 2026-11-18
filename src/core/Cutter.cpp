@@ -614,17 +614,6 @@ bool CutterCore::loadFile(const QString &path, ut64 baddr, ut64 mapaddr, int per
         if (!rz_core_bin_load(core, path.toUtf8().constData(), baddr)) {
             eprintf("CANNOT GET RBIN INFO\n");
         }
-
-#if HAVE_MULTIPLE_RBIN_FILES_INSIDE_SELECT_WHICH_ONE
-        if (!rz_core_file_open(core, path.toUtf8(), RZ_IO_READ | (rw ? RZ_IO_WRITE : 0, mapaddr))) {
-            eprintf("Cannot open file\n");
-        } else {
-            // load RzBin information
-            // XXX only for sub-bins
-            rz_core_bin_load(core, path.toUtf8(), baddr);
-            rz_bin_select_idx(core->bin, nullptr, idx);
-        }
-#endif
     }
 
     auto iod = core->io ? core->io->desc : nullptr;
@@ -670,6 +659,54 @@ bool CutterCore::tryFile(const QString &path, bool rw)
     rz_core_file_close(cf);
 
     return true;
+}
+
+QList<SubBinaryDescription> CutterCore::getSubBinaries(const QString &path)
+{
+    QList<SubBinaryDescription> result;
+
+    RzBuffer *buf = rz_buf_new_slurp(path.toUtf8().constData());
+    if (!buf) {
+        return result;
+    }
+    RzBin *bin = rz_bin_new();
+    if (!bin) {
+        rz_buf_free(buf);
+        return result;
+    }
+    // A fresh RzBin has extractor plugins disabled; turn them on so
+    // fat Mach-O and similar containers are split into their parts.
+    bin->use_xtr = true;
+
+    RzBinOptions opt;
+    rz_bin_options_init(&opt, -1, 0, 0, false);
+    const QByteArray pathUtf8 = path.toUtf8();
+    opt.filename = pathUtf8.constData();
+
+    RzBinFile *bf = rz_bin_open_buf(bin, buf, &opt);
+    if (bf && bf->curxtr && bf->xtr_data) {
+        int index = 0;
+        RzListIter *it;
+        RzBinXtrData *data;
+        CutterRzListForeach (bf->xtr_data, it, RzBinXtrData, data) {
+            if (!data || !data->metadata || !data->metadata->arch) {
+                continue;
+            }
+            SubBinaryDescription desc;
+            desc.index = index++;
+            desc.arch = QString::fromUtf8(data->metadata->arch);
+            desc.bits = data->metadata->bits;
+            desc.machine = QString::fromUtf8(data->metadata->machine);
+            desc.offset = data->offset;
+            desc.size = data->size;
+            desc.bigEndian = data->metadata->big_endian;
+            result << desc;
+        }
+    }
+
+    rz_bin_free(bin);
+    rz_buf_free(buf);
+    return result;
 }
 
 bool CutterCore::mapFile(const QString &path, RVA mapaddr)
