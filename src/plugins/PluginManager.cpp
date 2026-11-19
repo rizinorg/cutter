@@ -4,6 +4,7 @@
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
 #    include <Python.h>
 #    include <cutterbindings_python.h>
+#    include <sbkversion.h>
 #    include "PythonManager.h"
 #endif
 // clang-format on
@@ -216,12 +217,10 @@ CutterPlugin *PluginManager::loadPythonPlugin(const char *moduleName)
     }
 
     PythonToCppFunc pythonToCpp = Shiboken::Conversions::isPythonToCppPointerConvertible(
-#    if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#    if SHIBOKEN_MAJOR_VERSION < 6 || (SHIBOKEN_MAJOR_VERSION == 6 && SHIBOKEN_MINOR_VERSION < 7)
             reinterpret_cast<SbkObjectType *>(SbkCutterBindingsTypes[SBK_CUTTERPLUGIN_IDX]),
-#    elif QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
-            reinterpret_cast<SbkObjectType *>(SbkCutterBindingsTypes[SBK_CutterPlugin_IDX]),
 #    else
-            reinterpret_cast<PyTypeObject **>(SbkCutterBindingsTypeStructs)[SBK_CutterPlugin_IDX],
+            Shiboken::Module::get(SbkCutterBindingsTypeStructs[SBK_CutterPlugin_IDX]),
 #    endif
             pluginObject);
     if (!pythonToCpp) {
