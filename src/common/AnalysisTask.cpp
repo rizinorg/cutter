@@ -46,9 +46,12 @@ void AnalysisTask::runTask()
     if (rz_list_empty(descs) && options.filename.length()) {
         log(tr("Loading the file..."));
         openFailed = false;
-        const bool fileLoaded =
-                Core()->loadFile(options.filename, options.binLoadAddr, options.mapAddr, perms,
-                                 options.useVA, options.loadBinInfo, options.forceBinPlugin);
+        if (!options.arch.isEmpty() || options.bits > 0) {
+            Core()->setCPU(options.arch, options.cpu, options.bits);
+        }
+        const bool fileLoaded = Core()->loadFile(
+                options.filename, options.binLoadAddr, options.mapAddr, perms, options.useVA,
+                options.loadBinInfo, options.forceBinPlugin, options.subBinaryIndex);
         if (!fileLoaded) {
             // Something wrong happened, fallback to open dialog
             openFailed = true;

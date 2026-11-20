@@ -27,6 +27,7 @@
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/WelcomeDialog.h"
 #include "dialogs/preferences/PreferencesDialog.h"
+#include "dialogs/SubBinaryDialog.h"
 
 // Widgets Headers
 #include "widgets/BacktraceWidget.h"
@@ -588,6 +589,37 @@ void MainWindow::openNewFile(InitialOptions &options, bool skipOptionsDialog)
             if (mb.exec() == QMessageBox::Yes) {
                 options.script = script;
             }
+        }
+    }
+
+    /* Prompt to pick a sub-binary for multi-binary containers (fat Mach-O, APK, etc.) */
+   /* Prompt to pick a sub-binary for multi-binary containers (fat Mach-O, APK, etc.) */
+    if (!options.filename.isEmpty() && options.shellcode.isEmpty()
+        && options.projectFile.isEmpty() && options.subBinaryIndex < 0) {
+        const auto subBinaries = Core()->getSubBinaries(options.filename);
+        if (subBinaries.size() > 1) {
+            auto *dialog = new SubBinaryDialog(subBinaries, nullptr);
+            dialog->setAttribute(Qt::WA_DeleteOnClose);
+            connect(dialog, &QDialog::accepted, this,
+                    [this, dialog, subBinaries, options, skipOptionsDialog]() mutable {
+                        const int selectedIdx = dialog->selectedIndex();
+                        options.subBinaryIndex = selectedIdx;
+                        for (const auto &sub : subBinaries) {
+                            if (sub.index == selectedIdx) {
+                                if (options.arch.isEmpty() && !sub.arch.isEmpty()) {
+                                    options.arch = sub.arch;
+                                }
+                                if (options.bits <= 0 && sub.bits > 0) {
+                                    options.bits = sub.bits;
+                                }
+                                break;
+                            }
+                        }
+                        displayInitialOptionsDialog(options, skipOptionsDialog);
+                    });
+            connect(dialog, &QDialog::rejected, this, [this]() { displayNewFileDialog(); });
+            dialog->show();
+            return;
         }
     }
 

@@ -594,7 +594,7 @@ QStringList CutterCore::autocomplete(const QString &cmd, RzLinePromptType prompt
 }
 
 bool CutterCore::loadFile(const QString &path, ut64 baddr, ut64 mapaddr, int perms, int va,
-                          bool loadbin, const QString &forceBinPlugin)
+                          bool loadbin, const QString &forceBinPlugin, int subBinaryIndex)
 {
     CORE_LOCK();
     RzCoreFile *f;
@@ -610,21 +610,11 @@ bool CutterCore::loadFile(const QString &path, ut64 baddr, ut64 mapaddr, int per
         rz_bin_force_plugin(rz_core_get_bin(core), forceBinPlugin.toUtf8().constData());
     }
 
+    Q_UNUSED(subBinaryIndex);
     if (loadbin && va) {
         if (!rz_core_bin_load(core, path.toUtf8().constData(), baddr)) {
             eprintf("CANNOT GET RBIN INFO\n");
         }
-
-#if HAVE_MULTIPLE_RBIN_FILES_INSIDE_SELECT_WHICH_ONE
-        if (!rz_core_file_open(core, path.toUtf8(), RZ_IO_READ | (rw ? RZ_IO_WRITE : 0, mapaddr))) {
-            eprintf("Cannot open file\n");
-        } else {
-            // load RzBin information
-            // XXX only for sub-bins
-            rz_core_bin_load(core, path.toUtf8(), baddr);
-            rz_bin_select_idx(core->bin, nullptr, idx);
-        }
-#endif
     }
 
     auto iod = core->io ? core->io->desc : nullptr;
@@ -670,6 +660,53 @@ bool CutterCore::tryFile(const QString &path, bool rw)
     rz_core_file_close(cf);
 
     return true;
+}
+
+QList<SubBinaryDescription> CutterCore::getSubBinaries(const QString &path)
+{
+    QList<SubBinaryDescription> result;
+    if (path.isEmpty()) {
+        return result;
+    }
+
+    CORE_LOCK();
+    RzCoreFile *cf = rz_core_file_open(core, path.toUtf8().constData(), RZ_PERM_R, 0);
+    if (!cf) {
+        return result;
+    }
+
+    RzBinOptions opt;
+    rz_bin_options_init(&opt, cf->fd, 0, 0, false);
+    RzBinFile *bf = rz_bin_open_io(core->bin, &opt);
+   if (bf) {
+        if (bf->curxtr && bf->xtr_data) {
+            int idx = 0;
+            RzListIter *iter;
+            RzBinXtrData *xtr;
+            CutterRzListForeach (bf->xtr_data, iter, RzBinXtrData, xtr) {
+                if (!xtr || !xtr->metadata) {
+                    idx++;
+                    continue;
+                }
+                SubBinaryDescription desc;
+                desc.index = idx++;
+                desc.arch = xtr->metadata->arch ? QString::fromUtf8(xtr->metadata->arch)
+                                                : QString();
+                desc.bits = xtr->metadata->bits;
+                desc.machine = xtr->metadata->machine ? QString::fromUtf8(xtr->metadata->machine)
+                                                      : QString();
+                desc.type = xtr->metadata->type ? QString::fromUtf8(xtr->metadata->type)
+                                                : QString();
+                desc.offset = xtr->offset;
+                desc.size = xtr->size;
+                result.append(desc);
+            }
+        }
+        rz_bin_file_delete(core->bin, bf);
+    }
+
+    rz_core_file_close(cf);
+    return result;
 }
 
 bool CutterCore::mapFile(const QString &path, RVA mapaddr)
@@ -3781,6 +3818,9 @@ QList<EntrypointDescription> CutterCore::getAllEntrypoint()
 
     QList<EntrypointDescription> qList;
     const RzPVector *entries = rz_bin_object_get_entries(bf->o);
+    if (!entries) {
+        return {};
+    }
     for (const auto &entry : CutterPVector<RzBinAddr>(entries)) {
         if (entry->type != RZ_BIN_ENTRY_TYPE_PROGRAM) {
             continue;

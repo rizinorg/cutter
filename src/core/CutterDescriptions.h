@@ -455,6 +455,17 @@ struct EvaluableVarDescription
     QSet<QString> options;
 };
 
+struct SubBinaryDescription
+{
+    int index = 0;
+    QString arch;
+    int bits = 0;
+    QString machine;
+    QString type; // e.g.,"Mach-O","dex",or sub-file name
+    ut64 offset = 0;
+    ut64 size = 0;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
