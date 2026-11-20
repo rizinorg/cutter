@@ -21,6 +21,8 @@ struct InitialOptions
 {
     enum class Endianness : ut8 { Auto, Little, Big };
 
+    int subBinaryIndex = -1; // -1 means default / no sub-binary selected
+    
     QString filename;
     QString projectFile;
 

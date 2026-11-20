@@ -28,6 +28,7 @@ set(SOURCES
     common/DirectionalComboBox.cpp
     dialogs/preferences/AsmOptionsWidget.cpp
     dialogs/NewFileDialog.cpp
+    dialogs/SubBinaryDialog.cpp
     common/AnalysisTask.cpp
     widgets/CommentsWidget.cpp
     widgets/ConsoleWidget.cpp
@@ -204,6 +205,7 @@ set(HEADER_FILES
     common/DirectionalComboBox.h
     dialogs/InitialOptionsDialog.h
     dialogs/NewFileDialog.h
+    dialogs/SubBinaryDialog.h
     common/AnalysisTask.h
     widgets/CommentsWidget.h
     widgets/ConsoleWidget.h

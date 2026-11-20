@@ -409,8 +409,10 @@ public:
      * @return
      */
     bool loadFile(const QString &path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = RZ_PERM_R,
-                  int va = 0, bool loadbin = false, const QString &forceBinPlugin = QString());
+                  int va = 0, bool loadbin = false, const QString &forceBinPlugin = QString(),
+                int subBinaeryIndex=-1);
     bool tryFile(const QString &path, bool rw);
+    QList<SubBinaryDescription> getSubBinaries(const QString &path);
     /**
      * @brief Maps a file using Rizin API
      * @param path Path to file
