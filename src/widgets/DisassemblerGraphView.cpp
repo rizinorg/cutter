@@ -302,7 +302,7 @@ void DisassemblerGraphView::loadCurrentGraph()
             }
 
             QTextDocument textDoc;
-            textDoc.setHtml(CutterCore::ansiEscapeToHtml(op->text));
+            textDoc.setHtml(Core()->ansiEscapeToHtml(op->text));
 
             instr.plainText = textDoc.toPlainText();
 

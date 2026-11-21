@@ -14,7 +14,7 @@ if (-not $dist) {
 $FRIDA_VERSION = "17.17.0"
 
 if (-not (Test-Path -Path 'rz-frida\meson.build' -PathType Leaf)) {
-    git clone https://github.com/rizinorg/rz-frida.git --depth 1 rz-frida
+    git clone https://github.com/rizinorg/rz-frida.git --depth 1 --branch "dev" rz-frida
 }
 cd rz-frida
 if (-not (Test-Path -Path 'frida-core-devkit\frida-core.h' -PathType Leaf)) {

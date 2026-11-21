@@ -92,8 +92,10 @@ class CUTTER_EXPORT CutterCore : public QObject
     Q_OBJECT
 
     friend class RzCoreLocked;
-    friend class RizinTask;
     friend class Basefind;
+    friend class RizinTask;
+    friend class AnalysisTask;
+    friend class RunScriptTask;
 
 public:
     explicit CutterCore(QObject *parent = nullptr);
@@ -927,7 +929,7 @@ public:
     CUTTER_DEPRECATED("Use CutterCore::lock instead")
     RzCoreLocked core();
 
-    static QString ansiEscapeToHtml(const QString &text);
+    QString ansiEscapeToHtml(const QString &text);
     BasicBlockHighlighter *getBBHighlighter();
     BasicInstructionHighlighter *getBIHighlighter();
 

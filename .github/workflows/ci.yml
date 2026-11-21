@@ -403,7 +403,7 @@ jobs:
             arch: x86_64
             package: true
           - name: macos-arm64
-            os: macos-14
+            os: macos-15
             arch: arm64
             package: true
             output-id: artifact_macos
@@ -579,7 +579,7 @@ jobs:
             artifact-job: build-linux
             artifact-output: artifact_linux
           - name: macos-arm64
-            os: macos-14
+            os: macos-15
             artifact-job: build
             artifact-output: artifact_macos
           - name: windows

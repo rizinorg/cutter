@@ -15,7 +15,9 @@ AnalysisTask::~AnalysisTask() {}
 void AnalysisTask::interrupt()
 {
     AsyncTask::interrupt();
-    rz_cons_singleton()->context->breaked = true;
+
+    // assume caller holds the lock already so it should be safe to use raw rzCore here
+    rz_interrupt_set_breaked(Core()->rzCore->intr, true);
 }
 
 QString AnalysisTask::getTitle() const
