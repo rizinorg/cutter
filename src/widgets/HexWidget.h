@@ -588,6 +588,7 @@ private:
     bool showAscii;
     bool showExHex;
     bool showExAddr;
+    bool uppercaseHex = false;
 
     QColor borderColor;
     QColor backgroundColor;
@@ -614,6 +615,7 @@ private:
     QList<QAction *> actionsItemFormat;
     QAction *actionItemBigEndian;
     QAction *actionHexPairs;
+    QAction *actionUppercaseHex;
     QAction *actionCopy;
     QAction *actionCopyAddress;
     QAction *actionComment;
