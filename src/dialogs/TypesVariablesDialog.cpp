@@ -171,6 +171,7 @@ TypesVariablesDialog::TypesVariablesDialog(QWidget *parent, const QString &typeN
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, proxyModel,
             &TypesVariablesProxyModel::setFilterFixedString);
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this, updateCount);
+    ui->quickFilterView->attachTo(ui->treeView, this);
 
     connect(scopeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
             [this, scopeCombo, updateCount](int index) {
