@@ -78,7 +78,7 @@ bool Omnibar::eventFilter(QObject *obj, QEvent *event)
 {
     QAbstractItemView *popup = completer->popup();
 
-    if (((obj == popup || obj == this) && (event->type() == QEvent::KeyPress))
+    if (((obj == popup || obj == this) && event->type() == QEvent::KeyPress)
         || (obj == popup->viewport() && event->type() == QEvent::MouseButtonPress)) {
 
         QModelIndex index;
@@ -93,14 +93,23 @@ bool Omnibar::eventFilter(QObject *obj, QEvent *event)
 
             const int keyInt = keyEvent->modifiers() | keyEvent->key();
             const QKeySequence eventSeq(keyInt);
+
             if (eventSeq == Shortcuts()->getKeySequence("Omnibar.showMore")) {
                 handleShowMore(popup->currentIndex().row());
                 return true;
             } else if (eventSeq == Shortcuts()->getKeySequence("Omnibar.showAll")) {
                 handleShowAll(popup->currentIndex().row());
                 return true;
-            } else if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
+            } else if (keyEvent->key() == Qt::Key_Enter
+                       || keyEvent->key() == Qt::Key_Return) {
                 index = popup->currentIndex();
+
+                // Navigate directly when no autocomplete result is selected.
+                if (!index.isValid()) {
+                    goToEntry();
+                    popup->hide();
+                    return true;
+                }
             }
         }
 
@@ -119,6 +128,7 @@ bool Omnibar::eventFilter(QObject *obj, QEvent *event)
             return true;
         }
     }
+
     return QObject::eventFilter(obj, event);
 }
 
