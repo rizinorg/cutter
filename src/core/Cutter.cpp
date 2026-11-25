@@ -3490,7 +3490,8 @@ static QString decodedComments(const char *raw)
     QByteArray out;
     out.reserve(in.size());
     for (int i = 0; i < in.size(); i++) {
-        if (in[i] == '\\' && i + 3 < in.size() && in[i + 1] == 'x' && isxdigit((unsigned char)in[i + 2]) && isxdigit((unsigned char)in[i + 3])){
+        if (in[i] == '\\' && i + 3 < in.size() && in[i + 1] == 'x'
+            && isxdigit((unsigned char)in[i + 2]) && isxdigit((unsigned char)in[i + 3])) {
             out.append(char(in.mid(i + 2, 2).toInt(nullptr, 16)));
             i += 3;
         } else {
