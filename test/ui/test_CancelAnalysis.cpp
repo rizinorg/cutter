@@ -5,7 +5,7 @@
  * Covers: AsyncTaskDialog, AnalysisTask.
  */
 
-#include "Fixtures.h"
+#include "TestBins.h"
 #include "TestEnv.h"
 #include "UiHelpers.h"
 
@@ -58,7 +58,7 @@ private slots:
  */
 void TestCancelAnalysis::cancelDuringAnalysisDoesNotFreeze()
 {
-    CUTTER_REQUIRE_FIXTURE(const QString path, CutterTest::Fixtures::coreutilsLs());
+    CUTTER_REQUIRE_BIN(const QString path, CutterTest::Bins::coreutilsLs());
 
     NewFileDialog *newFileDialog = nullptr;
     QTRY_VERIFY((newFileDialog = CutterTest::findVisibleTopLevel<NewFileDialog>()));

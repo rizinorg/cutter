@@ -6,7 +6,7 @@
  */
 
 #include "CutterApplication.h"
-#include "Fixtures.h"
+#include "TestBins.h"
 #include "TestEnv.h"
 #include "UiHelpers.h"
 #include "common/AsyncTask.h"
@@ -57,8 +57,8 @@ private:
 
 void TestOpenFile::initTestCase()
 {
-    CUTTER_REQUIRE_FIXTURE(helloPath, CutterTest::Fixtures::helloX64());
-    CUTTER_REQUIRE_FIXTURE(crackmePath, CutterTest::Fixtures::crackmeX86());
+    CUTTER_REQUIRE_BIN(helloPath, CutterTest::Bins::helloX64());
+    CUTTER_REQUIRE_BIN(crackmePath, CutterTest::Bins::crackmeX86());
 }
 
 void TestOpenFile::init()

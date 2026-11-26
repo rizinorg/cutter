@@ -5,7 +5,7 @@
  * Covers: Seeking from list docks, seek history and XrefsDialog.
  */
 
-#include "Fixtures.h"
+#include "TestBins.h"
 #include "TestEnv.h"
 #include "ViewHelpers.h"
 
@@ -173,7 +173,7 @@ void TestNavigation::backAndForwardMoveTheViews()
             second = function.offset;
         }
     }
-    QVERIFY2(second != RVA_INVALID, "fixture needs at least three analyzed functions");
+    QVERIFY2(second != RVA_INVALID, "test binary needs at least three analyzed functions");
 
     auto *back = main->findChild<QAction *>("actionBackward");
     auto *forward = main->findChild<QAction *>("actionForward");
@@ -228,5 +228,5 @@ void TestNavigation::activatingXrefSeeksToReference()
                              viewRefreshTimeoutMs);
 }
 
-CUTTER_APP_TEST_MAIN_WITH_FILE(TestNavigation, CutterTest::Fixtures::helloX64())
+CUTTER_APP_TEST_MAIN_WITH_FILE(TestNavigation, CutterTest::Bins::helloX64())
 #include "test_Navigation.moc"

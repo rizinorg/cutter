@@ -5,7 +5,7 @@
  * Covers: MarkDialog.
  */
 
-#include "Fixtures.h"
+#include "TestBins.h"
 #include "TestEnv.h"
 #include "UiHelpers.h"
 
@@ -51,7 +51,7 @@ private:
 
 void TestMarkDialog::initTestCase()
 {
-    CUTTER_REQUIRE_FIXTURE(const QString path, CutterTest::Fixtures::helloX64());
+    CUTTER_REQUIRE_BIN(const QString path, CutterTest::Bins::helloX64());
     QVERIFY(CutterTest::openFile(path));
     from = CutterTest::core()->getOffset();
     QVERIFY(from != RVA_INVALID);

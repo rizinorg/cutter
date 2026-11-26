@@ -10,13 +10,13 @@ set(TEST_INCLUDES
 
 enable_testing()
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/common/Fixtures.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/common/TestBins.cmake)
 
 set(CUTTER_TEST_HARNESS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/common/TestEnv.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/TestEnv.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common/IsolatedSettings.h
-    ${CUTTER_TEST_GENERATED_DIR}/Fixtures.h
+    ${CUTTER_TEST_GENERATED_DIR}/TestBins.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common/UiHelpers.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common/ViewHelpers.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common/CallbackTask.h
@@ -46,7 +46,7 @@ function(cutter_add_layer_test LAYER TEST_NAME)
 
     set_tests_properties(${LAYER}.${TEST_NAME} PROPERTIES
         LABELS "${LAYER}"
-        ENVIRONMENT "QT_QPA_PLATFORM=offscreen;CUTTER_TESTBINS_DIR=${CUTTER_TEST_FIXTURES_DIR}"
+        ENVIRONMENT "QT_QPA_PLATFORM=offscreen;CUTTER_TESTBINS_DIR=${CUTTER_TESTBINS_DIR}"
         TIMEOUT 300
         SKIP_RETURN_CODE 77
     )
@@ -64,8 +64,8 @@ function(cutter_add_layer_tests LAYER)
     endforeach()
 endfunction()
 
-# put every test binary in one place: build/tests/
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
+# put every test binary in one place: build/test/
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test")
 
 add_subdirectory(unit)
 add_subdirectory(session)

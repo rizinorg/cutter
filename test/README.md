@@ -35,12 +35,11 @@ Each directory is one layer of tests. Each `ctest` label matches its directory.
 - Shared helpers for all layers.
 - It is the only code that creates the core or the app.
 
-## Fixtures
+## Test binaries
 
 `session/`, `ui/` and `integration/` load a few binaries from
-[rizin-testbins](https://github.com/rizinorg/rizin-testbins). CMake clones it into `test/bins/`
-as a shallow, blobless, sparse clone, so only the files listed in `common/Fixtures.cmake` are
-downloaded, not the whole repository. Nothing to set up.
+[rizin-testbins](https://github.com/rizinorg/rizin-testbins). CMake fetches only the files
+listed in `common/TestBins.cmake` into `test/bins/`. Nothing to set up.
 
 If you already have rizin-testbins cloned, point CMake at it and nothing is cloned:
 
@@ -48,9 +47,9 @@ If you already have rizin-testbins cloned, point CMake at it and nothing is clon
 cmake -B build -DCUTTER_TESTBINS_DIR=/path/to/rizin-testbins
 ```
 
-To add a fixture, add a line to `common/Fixtures.cmake` and re-run cmake, which fetches just that
-file. `Fixtures.h` is generated from the list. If the file is newer than your `test/bins/`, run
-`git -C test/bins pull` first. Offline, tests that need a missing fixture are reported as skipped.
+To add a test binary, add a line to `common/TestBins.cmake` and re-run cmake, which fetches just that
+file. `TestBins.h` is generated from the list. If the file is newer than your `test/bins/`, run
+`git -C test/bins pull` first. Offline, tests that need a missing binary are reported as skipped.
 
 ## Building
 
@@ -92,16 +91,16 @@ never touch your own Cutter configuration.
 ### One test method
 
 `ctest` runs a whole file. To run a single method, run the test binary itself and give the
-method name. All test binaries are in `build/tests/`.
+method name. All test binaries are in `build/test/`.
 Set the same environment `ctest` does, so the test is headless and finds its binaries:
 
 ```sh
 export QT_QPA_PLATFORM=offscreen														   # run in headless mode (no GUI)
-export CUTTER_TESTBINS_DIR=$PWD/test/bins 									   # provide path to fixtures
+export CUTTER_TESTBINS_DIR=$PWD/test/bins 									   # provide path to test binaries
 
-build/tests/test_Navigation backAndForwardMoveTheViews                                 # one method
-build/tests/test_Navigation backAndForwardMoveTheViews activatingXrefSeeksToReference  # several
-build/tests/test_GraphLayouts layoutKeepsDrawingRules:if_else_diamond/grid_wide        # one data row
+build/test/test_Navigation backAndForwardMoveTheViews                                 # one method
+build/test/test_Navigation backAndForwardMoveTheViews activatingXrefSeeksToReference  # several
+build/test/test_GraphLayouts layoutKeepsDrawingRules:if_else_diamond/grid_wide        # one data row
 ```
 
 Some methods run once per row of data. To run one row, write `method:row`. 
@@ -113,9 +112,9 @@ if/else graph laid out with the Grid wide layout. This helps when you only want 
 Any QtTest option works after the binary as well:
 
 ```sh
-build/tests/test_Navigation -functions                      # list the methods
-build/tests/test_GraphLayouts -datatags                     # list the rows
-build/tests/test_Navigation -v2 backAndForwardMoveTheViews  # verbose output
+build/test/test_Navigation -functions                      # list the methods
+build/test/test_GraphLayouts -datatags                     # list the rows
+build/test/test_Navigation -v2 backAndForwardMoveTheViews  # verbose output
 ```
 
 ## Adding a test

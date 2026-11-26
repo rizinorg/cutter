@@ -5,7 +5,7 @@
  * Covers: CutterCore setIOCache, setWriteMode and commitWriteCache.
  */
 
-#include "Fixtures.h"
+#include "TestBins.h"
 #include "TestEnv.h"
 
 #include <QCryptographicHash>
@@ -59,10 +59,10 @@ private:
 
 void TestIOModes::initTestCase()
 {
-    CUTTER_REQUIRE_FIXTURE(const QString fixture, CutterTest::Fixtures::helloX64());
+    CUTTER_REQUIRE_BIN(const QString bin, CutterTest::Bins::helloX64());
     QVERIFY(tempDir.isValid());
-    filePath = tempDir.filePath("io-modes-fixture");
-    QVERIFY(QFile::copy(fixture, filePath));
+    filePath = tempDir.filePath("io-modes-bin");
+    QVERIFY(QFile::copy(bin, filePath));
     QVERIFY(QFile::setPermissions(filePath, QFile::ReadOwner | QFile::WriteOwner));
 
     QFile file(filePath);

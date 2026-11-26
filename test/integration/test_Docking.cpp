@@ -5,7 +5,7 @@
  * Covers: CutterDockWidget and MainWindow dock handling.
  */
 
-#include "Fixtures.h"
+#include "TestBins.h"
 #include "TestEnv.h"
 
 #include "core/MainWindow.h"
@@ -118,5 +118,5 @@ void TestDocking::closedExtraDockLeavesNoDanglingDock()
     QVERIFY(!main->findChild<QDockWidget *>(name));
 }
 
-CUTTER_APP_TEST_MAIN_WITH_FILE(TestDocking, CutterTest::Fixtures::helloX64())
+CUTTER_APP_TEST_MAIN_WITH_FILE(TestDocking, CutterTest::Bins::helloX64())
 #include "test_Docking.moc"

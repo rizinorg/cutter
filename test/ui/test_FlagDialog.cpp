@@ -5,7 +5,7 @@
  * Covers: FlagDialog.
  */
 
-#include "Fixtures.h"
+#include "TestBins.h"
 #include "TestEnv.h"
 #include "UiHelpers.h"
 
@@ -69,7 +69,7 @@ private:
 
 void TestFlagDialog::initTestCase()
 {
-    CUTTER_REQUIRE_FIXTURE(const QString path, CutterTest::Fixtures::helloX64());
+    CUTTER_REQUIRE_BIN(const QString path, CutterTest::Bins::helloX64());
     QVERIFY(CutterTest::openFile(path));
 
     address = addressWithoutFlag(CutterTest::core()->getOffset());

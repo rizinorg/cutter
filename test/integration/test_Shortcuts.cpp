@@ -5,7 +5,7 @@
  * Covers: ShortcutManager and the shortcuts set up in the views.
  */
 
-#include "Fixtures.h"
+#include "TestBins.h"
 #include "TestEnv.h"
 #include "ViewHelpers.h"
 
@@ -77,5 +77,5 @@ void TestShortcuts::hexdumpCopyShortcutCopiesSelection()
     QTRY_COMPARE(QApplication::clipboard()->text(), expected);
 }
 
-CUTTER_APP_TEST_MAIN_WITH_FILE(TestShortcuts, CutterTest::Fixtures::helloX64())
+CUTTER_APP_TEST_MAIN_WITH_FILE(TestShortcuts, CutterTest::Bins::helloX64())
 #include "test_Shortcuts.moc"

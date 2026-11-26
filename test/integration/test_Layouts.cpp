@@ -5,7 +5,7 @@
  * Covers: MainWindow layout save and restore, CutterLayout.
  */
 
-#include "Fixtures.h"
+#include "TestBins.h"
 #include "TestEnv.h"
 #include "UiHelpers.h"
 
@@ -233,5 +233,5 @@ void TestLayouts::complexLayoutIsRestored()
     QCOMPARE(search->height(), savedHeight);
 }
 
-CUTTER_APP_TEST_MAIN_WITH_FILE(TestLayouts, CutterTest::Fixtures::helloX64())
+CUTTER_APP_TEST_MAIN_WITH_FILE(TestLayouts, CutterTest::Bins::helloX64())
 #include "test_Layouts.moc"

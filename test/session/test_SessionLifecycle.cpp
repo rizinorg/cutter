@@ -5,7 +5,7 @@
  * Covers: CutterCore teardown, AnalysisTask.
  */
 
-#include "Fixtures.h"
+#include "TestBins.h"
 #include "TestEnv.h"
 
 #include "common/AnalysisTask.h"
@@ -40,7 +40,7 @@ private slots:
  */
 void TestSessionLifecycle::destroyingCoreStopsRunningAnalysisFirst()
 {
-    CUTTER_REQUIRE_FIXTURE(const QString path, CutterTest::Fixtures::coreutilsLs());
+    CUTTER_REQUIRE_BIN(const QString path, CutterTest::Bins::coreutilsLs());
 
     auto core = std::make_unique<CutterCore>();
     core->initialize(false);

@@ -76,7 +76,7 @@ int runTests(std::unique_ptr<QObject> &test)
 
 namespace CutterTest {
 
-QString fixturePath(const QString &relativePath)
+QString binPath(const QString &relativePath)
 {
     const QString root = qEnvironmentVariable(testbinsVariable);
     if (root.isEmpty()) {
@@ -86,7 +86,7 @@ QString fixturePath(const QString &relativePath)
     return info.isFile() ? info.absoluteFilePath() : QString();
 }
 
-const char *missingFixtureMessage()
+const char *missingBinMessage()
 {
     static const QByteArray message =
             QByteArray("test file not available: re-run cmake with network access to fetch it, "
@@ -139,16 +139,16 @@ int runCoreTest(std::unique_ptr<QObject> test, int &argc, char **argv)
     return runTests(test);
 }
 
-int runAppTest(std::unique_ptr<QObject> test, int &argc, char **argv, const QString &fixture)
+int runAppTest(std::unique_ptr<QObject> test, int &argc, char **argv, const QString &bin)
 {
     prepareEnvironment();
 
     QString file;
-    if (!fixture.isEmpty()) {
-        file = fixturePath(fixture);
+    if (!bin.isEmpty()) {
+        file = binPath(bin);
         if (file.isEmpty()) {
-            std::fprintf(stderr, "SKIP: fixture '%s' not found: %s\n", qPrintable(fixture),
-                         missingFixtureMessage());
+            std::fprintf(stderr, "SKIP: test binary '%s' not found: %s\n", qPrintable(bin),
+                         missingBinMessage());
             return skipReturnCode;
         }
     }

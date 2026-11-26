@@ -1,0 +1,11 @@
+#ifndef CUTTER_TEST_BINS_H
+#define CUTTER_TEST_BINS_H
+
+#include <QString>
+
+// Generated from test/common/TestBins.cmake. Paths are relative to rizin-testbins.
+namespace CutterTest::Bins {
+@CUTTER_TEST_BIN_FUNCTIONS@
+} // namespace CutterTest::Bins
+
+#endif // CUTTER_TEST_BINS_H

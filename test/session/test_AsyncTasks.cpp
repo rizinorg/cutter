@@ -6,7 +6,7 @@
  */
 
 #include "CallbackTask.h"
-#include "Fixtures.h"
+#include "TestBins.h"
 #include "TestEnv.h"
 #include "common/AnalysisTask.h"
 
@@ -235,7 +235,7 @@ void TestAsyncTasks::waitBlocksWhileTaskIsQueued()
  */
 void TestAsyncTasks::interruptedAnalysisFinishesQuickly()
 {
-    CUTTER_REQUIRE_FIXTURE(const QString path, CutterTest::Fixtures::coreutilsLs());
+    CUTTER_REQUIRE_BIN(const QString path, CutterTest::Bins::coreutilsLs());
 
     const CommandDescription analysis = { "aaaa", "Auto analysis (experimental)" };
     InitialOptions options;

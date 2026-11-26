@@ -99,5 +99,5 @@ docs/source/_build
 .kdev/
 *.kdev4
 
-# Test fixtures cloned from rizin-testbins
+# Test binaries cloned from rizin-testbins
 /test/bins

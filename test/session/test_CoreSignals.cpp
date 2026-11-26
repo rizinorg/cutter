@@ -5,7 +5,7 @@
  * Covers: CutterCore edit functions and the signals they emit.
  */
 
-#include "Fixtures.h"
+#include "TestBins.h"
 #include "TestEnv.h"
 
 #include <QScopeGuard>
@@ -92,7 +92,7 @@ private:
 
 void TestCoreSignals::initTestCase()
 {
-    CUTTER_REQUIRE_FIXTURE(const QString path, CutterTest::Fixtures::helloX64());
+    CUTTER_REQUIRE_BIN(const QString path, CutterTest::Bins::helloX64());
     QVERIFY(CutterTest::openFile(path));
     CutterTest::analyze();
 
@@ -122,7 +122,7 @@ void TestCoreSignals::initTestCase()
         }
     }
     QVERIFY2(renameTarget != RVA_INVALID && undefineTarget != RVA_INVALID,
-             "fixture needs at least three analyzed functions");
+             "test binary needs at least three analyzed functions");
 }
 
 /**

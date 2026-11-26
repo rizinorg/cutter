@@ -16,8 +16,8 @@ namespace CutterTest {
 constexpr int skipReturnCode = 77;
 inline constexpr char testbinsVariable[] = "CUTTER_TESTBINS_DIR";
 
-QString fixturePath(const QString &relativePath);
-const char *missingFixtureMessage();
+QString binPath(const QString &relativePath);
+const char *missingBinMessage();
 
 CutterCore *core();
 MainWindow *mainWindow();
@@ -37,15 +37,15 @@ void analyze();
  */
 int runWithoutCore(std::unique_ptr<QObject> test, int &argc, char **argv);
 int runCoreTest(std::unique_ptr<QObject> test, int &argc, char **argv);
-int runAppTest(std::unique_ptr<QObject> test, int &argc, char **argv, const QString &fixture);
+int runAppTest(std::unique_ptr<QObject> test, int &argc, char **argv, const QString &bin);
 
 } // namespace CutterTest
 
-#define CUTTER_REQUIRE_FIXTURE(target, fixture)                                                    \
-    if (CutterTest::fixturePath(fixture).isEmpty()) {                                              \
-        QSKIP(CutterTest::missingFixtureMessage());                                                \
+#define CUTTER_REQUIRE_BIN(target, bin)                                                            \
+    if (CutterTest::binPath(bin).isEmpty()) {                                                      \
+        QSKIP(CutterTest::missingBinMessage());                                                    \
     }                                                                                              \
-    target = CutterTest::fixturePath(fixture)
+    target = CutterTest::binPath(bin)
 
 // Unit test: plain QApplication with isolated settings, no Cutter resources, core or window.
 #define CUTTER_UNIT_TEST_MAIN(TestClass)                                                           \
@@ -71,11 +71,11 @@ int runAppTest(std::unique_ptr<QObject> test, int &argc, char **argv, const QStr
         return CutterTest::runCoreTest(std::make_unique<TestClass>(), argc, argv);                 \
     }
 
-// Full Cutter app with its main window, with the fixture opened and analyzed (aaa).
-#define CUTTER_APP_TEST_MAIN_WITH_FILE(TestClass, fixture)                                         \
+// Full Cutter app with its main window, with the test binary opened and analyzed (aaa).
+#define CUTTER_APP_TEST_MAIN_WITH_FILE(TestClass, bin)                                             \
     int main(int argc, char *argv[])                                                               \
     {                                                                                              \
-        return CutterTest::runAppTest(std::make_unique<TestClass>(), argc, argv, fixture);         \
+        return CutterTest::runAppTest(std::make_unique<TestClass>(), argc, argv, bin);             \
     }
 
 // Full Cutter app with its main window and no file open.

@@ -5,7 +5,7 @@
  * Covers: DisassemblyWidget, DisassemblerGraphView, DecompilerWidget.
  */
 
-#include "Fixtures.h"
+#include "TestBins.h"
 #include "TestEnv.h"
 #include "ViewHelpers.h"
 
@@ -203,5 +203,5 @@ void TestViewState::decompilerKeepsScrollAfterVariableRename()
     QCOMPARE(scroll->value(), position);
 }
 
-CUTTER_APP_TEST_MAIN_WITH_FILE(TestViewState, CutterTest::Fixtures::coreutilsLs())
+CUTTER_APP_TEST_MAIN_WITH_FILE(TestViewState, CutterTest::Bins::coreutilsLs())
 #include "test_ViewState.moc"
