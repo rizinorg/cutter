@@ -3484,24 +3484,7 @@ QList<FlirtDescription> CutterCore::getSignaturesDB()
 
     return sigdb;
 }
-static QString decodedComments(const char *raw)
-{
-    const QByteArray in(raw ? raw : "");
-    QByteArray out;
-    out.reserve(in.size());
-    for (int i = 0; i < in.size(); i++) {
-        if (in[i] == '\\' && i + 3 < in.size() && in[i + 1] == 'x'
-            && isxdigit((unsigned char)in[i + 2]) && isxdigit((unsigned char)in[i + 3])) {
-            out.append(char(in.mid(i + 2, 2).toInt(nullptr, 16)));
-            i += 3;
-        } else {
-            out.append(in[i]);
-        }
-    }
-    QString s = QString::fromUtf8(out);
-    s.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
-    return s;
-}
+
 QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
 {
     CORE_LOCK();
@@ -3511,6 +3494,10 @@ QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
     RzAnalysisMetaItem *item;
     const RzSpace *spaces = rz_spaces_current(rz_analysis_get_meta_spaces(core->analysis));
     const RzIntervalTree *tmeta = rz_analysis_get_meta(core->analysis);
+    RzStrEscOptions opt = {};
+    opt.show_asciidot = false;
+    opt.esc_bslash = true;
+    opt.keep_printable = true;
     rz_interval_tree_foreach(tmeta, it, pVoid)
     {
         item = reinterpret_cast<RzAnalysisMetaItem *>(pVoid);
@@ -3527,7 +3514,7 @@ QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
         const RzIntervalNode *node = rz_interval_tree_iter_get(&it);
         CommentDescription comment;
         comment.offset = node->start;
-        comment.name = decodedComments(item->str);
+        comment.name = fromOwnedCharPtr(rz_str_escape_utf8(item->str, &opt));
         qList << comment;
     }
     return qList;
