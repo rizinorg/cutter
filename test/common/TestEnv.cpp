@@ -158,7 +158,7 @@ int runAppTest(std::unique_ptr<QObject> test, int &argc, char **argv, const QStr
     QByteArrayList cutterArgs = { QByteArray(argv[0]), "--no-output-redirect",
                                   "--no-cutter-plugins", "--no-rizin-plugins" };
     if (!file.isEmpty()) {
-        cutterArgs << "-A" << QFile::encodeName(file);
+        cutterArgs << "-A" << "1" << QFile::encodeName(file);
     }
     std::vector<char *> cutterArgv;
     for (QByteArray &arg : cutterArgs) {
