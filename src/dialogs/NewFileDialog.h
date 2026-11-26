@@ -73,6 +73,8 @@ private:
     void loadFile(const QString &filename);
     void loadProject(const QString &project);
     void loadShellcode(const QString &shellcode, const int size);
+    /** Extract hex digits; pad a trailing lone nibble with 0 (issue #2831). */
+    static QString extractShellcodeHex(const QString &shellcode);
     /**
      * @brief Updates IO plugin and file path based on the selected recent item
      * @param item The list item containing the IO mode and file path in its UserRole data
