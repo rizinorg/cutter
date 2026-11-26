@@ -17,8 +17,8 @@ Each directory is one layer of tests. Each `ctest` label matches its directory.
 - Each test opens the binary it needs.
 - main is defined via `CUTTER_CORE_TEST_MAIN`.
 
-### `dialogs/`
-- Tests one dialog at a time: input, validation, cancel and errors.
+### `ui/`
+- Tests one UI component at a time, such as a dialog: input, validation, cancel and errors.
 - The core runs, but there is no `MainWindow`. The test creates the dialog itself.
 - Files end with `CUTTER_CORE_TEST_MAIN`.
 - The startup dialogs (`test_OpenFile`, `test_CancelAnalysis`) are different. They run the whole
@@ -26,7 +26,7 @@ Each directory is one layer of tests. Each `ctest` label matches its directory.
 - main is defined via 
   `CUTTER_APP_TEST_MAIN`.
 
-### `workflows/`
+### `integration/`
 - Tests user scenarios that go across several widgets.
 - The whole app runs with a binary already loaded.
 - main is defined via `CUTTER_APP_TEST_MAIN_WITH_FILE`.
@@ -37,7 +37,7 @@ Each directory is one layer of tests. Each `ctest` label matches its directory.
 
 ## Fixtures
 
-`session/`, `dialogs/` and `workflows/` load a few binaries from
+`session/`, `ui/` and `integration/` load a few binaries from
 [rizin-testbins](https://github.com/rizinorg/rizin-testbins). CMake downloads
 only those files, at the commit pinned in `common/Fixtures.cmake`, into
 `build/test-fixtures/` and checks each one's SHA-256. Nothing to set up.

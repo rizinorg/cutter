@@ -1,5 +1,5 @@
-# Add dialog tests here (alphabetically sorted)
-cutter_add_layer_tests(dialogs
+# Add UI tests here (alphabetically sorted)
+cutter_add_layer_tests(ui
     test_CancelAnalysis
     test_EditMethodDialog
     test_EditVariablesDialog

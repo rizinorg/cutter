@@ -92,9 +92,9 @@ jobs:
     - name: Run Session Tests
       if: ${{ !cancelled() && (steps.build.outcome == 'success' || steps.build-windows.outcome == 'success') }}
       run: ctest --test-dir build -L '^session$' --output-on-failure -j
-    - name: Run Dialog Tests
+    - name: Run UI Tests
       if: ${{ !cancelled() && (steps.build.outcome == 'success' || steps.build-windows.outcome == 'success') }}
-      run: ctest --test-dir build -L '^dialogs$' --output-on-failure -j
-    - name: Run Workflow Tests
+      run: ctest --test-dir build -L '^ui$' --output-on-failure -j
+    - name: Run Integration Tests
       if: ${{ !cancelled() && (steps.build.outcome == 'success' || steps.build-windows.outcome == 'success') }}
-      run: ctest --test-dir build -L '^workflows$' --output-on-failure -j
+      run: ctest --test-dir build -L '^integration$' --output-on-failure -j
