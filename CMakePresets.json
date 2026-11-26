@@ -1,0 +1,34 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "ci-test",
+      "displayName": "CI tests",
+      "description": "Builds Cutter with its tests, as the Tests workflow does.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CUTTER_USE_BUNDLED_RIZIN": "ON",
+        "CUTTER_ENABLE_TEST": "ON",
+        "CUTTER_ENABLE_PYTHON": "OFF",
+        "CUTTER_ENABLE_GRAPHVIZ": "OFF",
+        "CUTTER_ENABLE_KSYNTAXHIGHLIGHTING": "OFF",
+        "CUTTER_ENABLE_TRANSLATIONS": "OFF"
+      }
+    },
+    {
+      "name": "ci-test-windows",
+      "displayName": "CI tests (Windows)",
+      "inherits": "ci-test",
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "${sourceDir}/cutter-deps/qt",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "ci-test", "configurePreset": "ci-test" },
+    { "name": "ci-test-windows", "configurePreset": "ci-test-windows" }
+  ]
+}
