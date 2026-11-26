@@ -89,7 +89,7 @@ QString fixturePath(const QString &relativePath)
 const char *missingFixtureMessage()
 {
     static const QByteArray message =
-            QByteArray("test file not available: re-run cmake with network access to download it, "
+            QByteArray("test file not available: re-run cmake with network access to fetch it, "
                        "or pass -D")
             + testbinsVariable + "=<path to your rizin-testbins clone> to cmake";
     return message.constData();

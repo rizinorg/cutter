@@ -98,3 +98,6 @@ docs/source/_build
 # Kdevelop
 .kdev/
 *.kdev4
+
+# Test fixtures cloned from rizin-testbins
+/test/bins

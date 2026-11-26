@@ -1,81 +1,72 @@
-# Test fixtures: binaries from rizin-testbins, downloaded at a pinned commit and checked by
-# SHA-256, so the tests never need the full repository. Each entry is
-# <function in CutterTest::Fixtures> <path in rizin-testbins> <sha256>.
-# To add one, append an entry here; Fixtures.h is generated from this list.
-set(CUTTER_TESTBINS_COMMIT f305b3dccf2f139290dd83f7a6e7cff663aa6b4f)
+# Test fixtures: binaries from rizin-testbins. Only the files listed here are fetched, through a
+# shallow, blobless, sparse clone into test/bins. Each entry is
+# <function in CutterTest::Fixtures> <path in rizin-testbins>.
+# A path can also be a directory, ending in /. Fixtures.h is generated from this list.
 set(CUTTER_TEST_FIXTURES
-    helloX64    elf/analysis/hello-linux-x86_64 7bdbf25324af1946ec0b16dbf928875a588a786f7c279cd115729c5a3a297a55
-    crackmeX86  elf/ioli/crackme0x00            3aed9a3821134a2ab1d69cb455e5e9d80bb651a1c97af04cdba4f3bb0adaa37b
-    coreutilsLs elf/ls                          15fa1384580e3bf7b1e2b3354cfb149e5eb5ea8b23cc29ed78166b67a2c70b00
+    helloX64    elf/analysis/hello-linux-x86_64
+    crackmeX86  elf/ioli/crackme0x00
+    coreutilsLs elf/ls
 )
 
-option(CUTTER_TEST_FETCH_FIXTURES "Download the test fixtures from rizin-testbins" ON)
 set(CUTTER_TESTBINS_DIR "" CACHE PATH
-    "Path to a local clone of rizin-testbins. If set, the test fixtures are not downloaded")
-
-function(cutter_test_fetch_fixture FIXTURE_PATH FIXTURE_HASH)
-    set(destination "${CUTTER_TEST_FIXTURES_DIR}/${FIXTURE_PATH}")
-    if(EXISTS "${destination}")
-        file(SHA256 "${destination}" actual)
-        if(actual STREQUAL FIXTURE_HASH)
-            return()
-        endif()
-    endif()
-
-    message(STATUS "Downloading test fixture ${FIXTURE_PATH}")
-    set(url "https://raw.githubusercontent.com/rizinorg/rizin-testbins/${CUTTER_TESTBINS_COMMIT}/${FIXTURE_PATH}")
-    file(DOWNLOAD "${url}" "${destination}" STATUS status TLS_VERIFY ON)
-    list(GET status 0 code)
-    if(NOT code EQUAL 0)
-        list(GET status 1 reason)
-        file(REMOVE "${destination}")
-        message(WARNING "Could not download test fixture ${FIXTURE_PATH} (${reason}), tests using it will skip")
-        return()
-    endif()
-
-    file(SHA256 "${destination}" actual)
-    if(NOT actual STREQUAL FIXTURE_HASH)
-        file(REMOVE "${destination}")
-        message(WARNING "Test fixture ${FIXTURE_PATH} does not match its pinned SHA-256, tests using it will skip")
-    endif()
-endfunction()
-
-string(STRIP "${CUTTER_TESTBINS_DIR}" CUTTER_TEST_FIXTURES_DIR)
-set(fetchFixtures OFF)
-set(useCheckout ON)
-if(CUTTER_TEST_FIXTURES_DIR STREQUAL "")
-    set(useCheckout OFF)
-    set(CUTTER_TEST_FIXTURES_DIR "${CMAKE_BINARY_DIR}/test-fixtures")
-    set(fetchFixtures ${CUTTER_TEST_FETCH_FIXTURES})
-endif()
-
-set(localCloneHint "If you already have rizin-testbins cloned, set CUTTER_TESTBINS_DIR=<path to it>")
-if(useCheckout)
-    message(STATUS "Test fixtures: using your local rizin-testbins clone at ${CUTTER_TEST_FIXTURES_DIR}")
-elseif(fetchFixtures)
-    message(STATUS "Test fixtures: downloading the files tests need from rizin-testbins "
-                   "(commit ${CUTTER_TESTBINS_COMMIT}) into ${CUTTER_TEST_FIXTURES_DIR}. ${localCloneHint}")
-else()
-    message(STATUS "Test fixtures: download disabled; tests whose file is missing from "
-                   "${CUTTER_TEST_FIXTURES_DIR} will be skipped. ${localCloneHint}")
-endif()
+    "Path to a local clone of rizin-testbins. If set, test/bins is not cloned")
 
 set(CUTTER_TEST_FIXTURE_FUNCTIONS "")
+set(sparsePaths "")
 list(LENGTH CUTTER_TEST_FIXTURES fixtureFieldCount)
 math(EXPR lastFixtureField "${fixtureFieldCount} - 1")
-foreach(nameIndex RANGE 0 ${lastFixtureField} 3)
+foreach(nameIndex RANGE 0 ${lastFixtureField} 2)
     math(EXPR pathIndex "${nameIndex} + 1")
-    math(EXPR hashIndex "${nameIndex} + 2")
     list(GET CUTTER_TEST_FIXTURES ${nameIndex} fixtureName)
     list(GET CUTTER_TEST_FIXTURES ${pathIndex} fixturePath)
-    list(GET CUTTER_TEST_FIXTURES ${hashIndex} fixtureHash)
-
     string(APPEND CUTTER_TEST_FIXTURE_FUNCTIONS
         "\ninline QString ${fixtureName}()\n{\n    return QStringLiteral(\"${fixturePath}\");\n}\n")
-    if(fetchFixtures)
-        cutter_test_fetch_fixture(${fixturePath} ${fixtureHash})
-    endif()
+    list(APPEND sparsePaths "/${fixturePath}")
 endforeach()
+
+string(STRIP "${CUTTER_TESTBINS_DIR}" CUTTER_TEST_FIXTURES_DIR)
+if(NOT CUTTER_TEST_FIXTURES_DIR STREQUAL "")
+    message(STATUS "Test fixtures: using your rizin-testbins clone at ${CUTTER_TEST_FIXTURES_DIR}")
+else()
+    set(CUTTER_TEST_FIXTURES_DIR "${CMAKE_SOURCE_DIR}/test/bins")
+    find_package(Git QUIET)
+    set(fixturesError "")
+    if(NOT GIT_FOUND)
+        set(fixturesError "git was not found")
+    elseif(NOT EXISTS "${CUTTER_TEST_FIXTURES_DIR}/.git")
+        message(STATUS "Test fixtures: cloning the files tests need from rizin-testbins into "
+                       "${CUTTER_TEST_FIXTURES_DIR}")
+        execute_process(
+            COMMAND "${GIT_EXECUTABLE}" clone --depth 1 --filter=blob:none --no-checkout
+                    https://github.com/rizinorg/rizin-testbins.git "${CUTTER_TEST_FIXTURES_DIR}"
+            RESULT_VARIABLE result ERROR_VARIABLE output)
+        if(NOT result EQUAL 0)
+            set(fixturesError "${output}")
+            file(REMOVE_RECURSE "${CUTTER_TEST_FIXTURES_DIR}")
+        endif()
+    endif()
+    # Run on every configure, so newly listed fixtures are fetched.
+    if(fixturesError STREQUAL "")
+        execute_process(
+            COMMAND "${GIT_EXECUTABLE}" sparse-checkout set --no-cone ${sparsePaths}
+            WORKING_DIRECTORY "${CUTTER_TEST_FIXTURES_DIR}"
+            RESULT_VARIABLE result ERROR_VARIABLE output)
+        if(result EQUAL 0)
+            execute_process(
+                COMMAND "${GIT_EXECUTABLE}" checkout
+                WORKING_DIRECTORY "${CUTTER_TEST_FIXTURES_DIR}"
+                RESULT_VARIABLE result OUTPUT_QUIET ERROR_VARIABLE output)
+        endif()
+        if(NOT result EQUAL 0)
+            set(fixturesError "${output}")
+        endif()
+    endif()
+    if(NOT fixturesError STREQUAL "")
+        message(WARNING "Could not fetch the test fixtures (${fixturesError}). Tests that need "
+                        "them will skip. If you have rizin-testbins cloned, set "
+                        "CUTTER_TESTBINS_DIR=<path to it>")
+    endif()
+endif()
 
 set(CUTTER_TEST_GENERATED_DIR "${CMAKE_BINARY_DIR}/test/generated")
 configure_file("${CMAKE_CURRENT_LIST_DIR}/Fixtures.h.in"

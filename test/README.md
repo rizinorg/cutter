@@ -38,20 +38,19 @@ Each directory is one layer of tests. Each `ctest` label matches its directory.
 ## Fixtures
 
 `session/`, `ui/` and `integration/` load a few binaries from
-[rizin-testbins](https://github.com/rizinorg/rizin-testbins). CMake downloads
-only those files, at the commit pinned in `common/Fixtures.cmake`, into
-`build/test-fixtures/` and checks each one's SHA-256. Nothing to set up.
+[rizin-testbins](https://github.com/rizinorg/rizin-testbins). CMake clones it into `test/bins/`
+as a shallow, blobless, sparse clone, so only the files listed in `common/Fixtures.cmake` are
+downloaded, not the whole repository. Nothing to set up.
 
-If you already have rizin-testbins cloned, point CMake at it and nothing is
-downloaded:
+If you already have rizin-testbins cloned, point CMake at it and nothing is cloned:
 
 ```sh
 cmake -B build -DCUTTER_TESTBINS_DIR=/path/to/rizin-testbins
 ```
 
-Offline, or with `-DCUTTER_TEST_FETCH_FIXTURES=OFF`, tests that need a missing
-fixture are reported as skipped. To add a fixture, add a line to
-`common/Fixtures.cmake`. `Fixtures.h` is generated from it.
+To add a fixture, add a line to `common/Fixtures.cmake` and re-run cmake, which fetches just that
+file. `Fixtures.h` is generated from the list. If the file is newer than your `test/bins/`, run
+`git -C test/bins pull` first. Offline, tests that need a missing fixture are reported as skipped.
 
 ## Building
 
@@ -98,7 +97,7 @@ Set the same environment `ctest` does, so the test is headless and finds its bin
 
 ```sh
 export QT_QPA_PLATFORM=offscreen														   # run in headless mode (no GUI)
-export CUTTER_TESTBINS_DIR=$PWD/build/test-fixtures 									   # provide path to fixtures
+export CUTTER_TESTBINS_DIR=$PWD/test/bins 									   # provide path to fixtures
 
 build/tests/test_Navigation backAndForwardMoveTheViews                                 # one method
 build/tests/test_Navigation backAndForwardMoveTheViews activatingXrefSeeksToReference  # several
