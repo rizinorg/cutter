@@ -3,7 +3,7 @@ import argparse
 import subprocess
 import sys
 
-DEFAULT_REGEX = r".*src/(?!(themes|bindings|fonts|img|translations|Cutter_autogen)).*\.(cpp|h)$"
+DEFAULT_REGEX = r".*src/(?!(themes|bindings|fonts|img|translations|\w*_autogen)).*\.(cpp|h)$"
 
 def run_tidy(args):
     cmd = [args.run_clang_tidy, "-p", args.build_path]

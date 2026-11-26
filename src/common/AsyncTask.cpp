@@ -18,7 +18,7 @@ AsyncTask::~AsyncTask()
 
 void AsyncTask::wait()
 {
-    QMutexLocker locker(&stateMutex);
+    const QMutexLocker locker(&stateMutex);
     while (active) {
         doneCondition.wait(&stateMutex);
     }
@@ -26,7 +26,7 @@ void AsyncTask::wait()
 
 bool AsyncTask::wait(int timeout)
 {
-    QMutexLocker locker(&stateMutex);
+    const QMutexLocker locker(&stateMutex);
     const QDeadlineTimer deadline(timeout);
     while (active) {
         // wait() taking QDeadlineTimer as arg requires Qt >= 5.12, so the "ms" approach is

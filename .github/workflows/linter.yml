@@ -109,7 +109,7 @@ jobs:
 
     - name: Run autogen
       run: |
-        cmake --build build --target Cutter_autogen
+        cmake --build build --target cutter_app_autogen
 
     - name: Run Clang-Tidy
       run: |
