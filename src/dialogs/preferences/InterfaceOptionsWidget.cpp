@@ -10,6 +10,7 @@ InterfaceOptionsWidget::InterfaceOptionsWidget(PreferencesDialog *dialog)
     ui->setupUi(this);
 
     setUpQuickFilter();
+    setUpNavigation();
     setUpOmnibar();
     setUpFunctions();
 }
@@ -30,6 +31,13 @@ void InterfaceOptionsWidget::setUpFunctions()
 
     connect<void (QSpinBox::*)(int)>(ui->fcnTruncateSpinBox, &QSpinBox::valueChanged, Config(),
                                      &Configuration::setFunctionNameColWidth);
+}
+
+void InterfaceOptionsWidget::setUpNavigation()
+{
+    ui->globalWidgetSwitchHistoryCheckBox->setChecked(Config()->getGlobalWidgetSwitchHistory());
+    connect(ui->globalWidgetSwitchHistoryCheckBox, &QCheckBox::toggled, Config(),
+            &Configuration::setGlobalWidgetSwitchHistory);
 }
 
 void InterfaceOptionsWidget::setUpOmnibar()

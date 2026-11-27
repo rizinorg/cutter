@@ -90,6 +90,31 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="navigationGroupBox">
+         <property name="title">
+          <string>Navigation</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <property name="topMargin">
+           <number>24</number>
+          </property>
+          <item>
+           <widget class="QCheckBox" name="globalWidgetSwitchHistoryCheckBox">
+            <property name="toolTip">
+             <string>Keep track of all the widget switches on seek change and switch to the corresponding widget on undo and redo actions</string>
+            </property>
+            <property name="text">
+             <string>Enable global widget switch history</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="omnibarGroupBox">
          <property name="title">
           <string>Omnibar</string>
