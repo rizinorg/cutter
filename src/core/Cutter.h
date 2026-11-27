@@ -412,6 +412,18 @@ public:
                   int va = 0, bool loadbin = false, const QString &forceBinPlugin = QString());
     bool tryFile(const QString &path, bool rw);
     /**
+     * @brief List the binaries inside a container file (e.g. fat Mach-O).
+     * Uses a temporary RzBin, so the currently loaded file is not affected.
+     * @return one entry per sub-binary; empty if the file is not a container
+     */
+    QList<SubBinaryDescription> getSubBinaries(const QString &path);
+    /**
+     * @brief Make the sub-binary at \a index of the loaded container file the current one,
+     * like the `obs` command. \a index is SubBinaryDescription::index.
+     * @return false if there is no such sub-binary or it could not be loaded
+     */
+    bool selectSubBinary(int index);
+    /**
      * @brief Maps a file using Rizin API
      * @param path Path to file
      * @param mapaddr Map Address

@@ -5,6 +5,7 @@
 #include "common/HighDpiPixmap.h"
 #include "core/MainWindow.h"
 #include "dialogs/AboutDialog.h"
+#include "dialogs/SubBinarySelectorDialog.h"
 #include "ui_NewFileDialog.h"
 
 #include <QDir>
@@ -370,6 +371,7 @@ void NewFileDialog::loadFile(const QString &filename)
 {
     const bool isFileless = ui->checkBoxFilelessOpen->isChecked();
     QString ioFile;
+    int subBinIndex = -1;
     if (!isFileless) {
         const QString &nativeFn = QDir::toNativeSeparators(filename);
         if (ui->ioPlugin->currentIndex() == 0 && !Core()->tryFile(nativeFn, false)) {
@@ -377,6 +379,18 @@ void NewFileDialog::loadFile(const QString &filename)
             msgBox.setText(tr("Select a new program or a previous one before continuing."));
             msgBox.exec();
             return;
+        }
+
+        // If the file holds several binaries (e.g. fat Mach-O), ask which one to load.
+        if (ui->ioPlugin->currentIndex() == 0) {
+            const QList<SubBinaryDescription> subBins = Core()->getSubBinaries(nativeFn);
+            if (subBins.size() > 1) {
+                SubBinarySelectorDialog selector(nativeFn, subBins, this);
+                if (selector.exec() != QDialog::Accepted) {
+                    return;
+                }
+                subBinIndex = selector.getSelectedSubBinary().index;
+            }
         }
 
         const QString ioMode = ui->ioPlugin->currentText();
@@ -396,6 +410,7 @@ void NewFileDialog::loadFile(const QString &filename)
     // Close dialog and open MainWindow/InitialOptionsDialog
     InitialOptions options;
     options.filename = ioFile;
+    options.subBinIndex = subBinIndex;
     main->openNewFile(options, isFileless);
 
     close();

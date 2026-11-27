@@ -49,6 +49,13 @@ struct InitialOptions
     };
 
     QString shellcode;
+
+    /**
+     * Sub-binary picked in SubBinarySelectorDialog when the file holds several binaries
+     * (e.g. fat Mach-O), as its index in the container. -1 means "no choice made, let Rizin
+     * pick".
+     */
+    int subBinIndex = -1;
 };
 
 #endif // CUTTER_INITIALOPTIONS_H

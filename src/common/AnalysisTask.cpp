@@ -46,6 +46,7 @@ void AnalysisTask::runTask()
     if (rz_list_empty(descs) && options.filename.length()) {
         log(tr("Loading the file..."));
         openFailed = false;
+
         const bool fileLoaded =
                 Core()->loadFile(options.filename, options.binLoadAddr, options.mapAddr, perms,
                                  options.useVA, options.loadBinInfo, options.forceBinPlugin);
@@ -55,6 +56,13 @@ void AnalysisTask::runTask()
             emit openFileFailed();
             interrupt();
             return;
+        }
+
+        // The file holds several binaries (e.g. fat Mach-O) and the user picked one in
+        // SubBinarySelectorDialog. Switch to it by index: arch/bits alone can't tell apart
+        // sub-binaries that differ only by machine.
+        if (options.subBinIndex >= 0 && !Core()->selectSubBinary(options.subBinIndex)) {
+            log(tr("Could not load the selected sub-binary, using the default one."));
         }
     }
 
