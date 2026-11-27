@@ -528,6 +528,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     setModels(functionProxyModel);
     ui->treeView->sortByColumn(FunctionModel::NameColumn, Qt::AscendingOrder);
     ui->treeView->setExpandsOnDoubleClick(false);
+    maxFunctionNameWidth = Config()->getFunctionNameColWidth();
 
     auto viewTypeGroup = new QActionGroup(titleContextMenu);
     actionHorizontal.setCheckable(true);
@@ -556,10 +557,11 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
     ui->treeView->addActions(itemContextMenu->actions());
 
     // Use a custom context menu on the dock title bar
-    if (!functionModel->isNested()) {
-        actionHorizontal.setChecked(true);
-    } else {
+    // Restore the layout type (horizontal/vertical) saved in the settings
+    if (Config()->getFunctionsWidgetLayout() == QStringLiteral("vertical")) {
         actionVertical.setChecked(true);
+    } else {
+        actionHorizontal.setChecked(true);
     }
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this,
@@ -590,7 +592,6 @@ FunctionsWidget::FunctionsWidget(MainWindow *main)
                                truncate ? maxFunctionNameWidth : -1);
     };
     connect(Config(), &Configuration::functionsOptionsChanged, this, updateNameColumnWidth);
-    maxFunctionNameWidth = Config()->getFunctionNameColWidth();
 }
 
 FunctionsWidget::~FunctionsWidget() {}
