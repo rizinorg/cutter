@@ -3494,6 +3494,10 @@ QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
     RzAnalysisMetaItem *item;
     const RzSpace *spaces = rz_spaces_current(rz_analysis_get_meta_spaces(core->analysis));
     const RzIntervalTree *tmeta = rz_analysis_get_meta(core->analysis);
+    RzStrEscOptions opt = {};
+    opt.show_asciidot = false;
+    opt.esc_bslash = true;
+    opt.keep_printable = true;
     rz_interval_tree_foreach(tmeta, it, pVoid)
     {
         item = reinterpret_cast<RzAnalysisMetaItem *>(pVoid);
@@ -3510,7 +3514,7 @@ QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
         const RzIntervalNode *node = rz_interval_tree_iter_get(&it);
         CommentDescription comment;
         comment.offset = node->start;
-        comment.name = fromOwnedCharPtr(rz_str_escape(item->str));
+        comment.name = fromOwnedCharPtr(rz_str_escape_utf8(item->str, &opt));
         qList << comment;
     }
     return qList;
