@@ -6,6 +6,7 @@
 
 #include <QGestureEvent>
 #include <QLabel>
+#include <QMetaType>
 #include <QPainter>
 #include <QShortcut>
 #include <QWidget>
@@ -151,5 +152,7 @@ protected:
 private:
     void colorsUpdatedSlot();
 };
+
+Q_DECLARE_METATYPE(CutterGraphView::GraphExportType)
 
 #endif // CUTTER_GRAPHVIEW_H
