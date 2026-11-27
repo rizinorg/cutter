@@ -24,6 +24,7 @@
 #include <QRegularExpression>
 #include <QResizeEvent>
 #include <QScrollBar>
+#include <QSettings>
 #include <QToolTip>
 #include <QWheelEvent>
 #include <QtEndian>
@@ -131,6 +132,16 @@ HexWidget::HexWidget(QWidget *parent)
     actionHexPairs = new QAction(tr("Bytes as pairs"), this);
     actionHexPairs->setCheckable(true);
     connect(actionHexPairs, &QAction::triggered, this, &HexWidget::onHexPairsModeEnabled);
+
+    uppercaseHex = QSettings().value("hex/uppercase", false).toBool();
+    actionUppercaseHex = new QAction(tr("Uppercase hex"), this);
+    actionUppercaseHex->setCheckable(true);
+    actionUppercaseHex->setChecked(uppercaseHex);
+    connect(actionUppercaseHex, &QAction::toggled, this, [this](bool enabled) {
+        uppercaseHex = enabled;
+        QSettings().setValue("hex/uppercase", enabled);
+        updateViewport();
+    });
 
     actionCopy = Shortcuts()->makeAction("Hex.copy", this);
     addAction(actionCopy);
@@ -1232,6 +1243,7 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
     formatMenu->addActions(actionsItemFormat);
     menu->addMenu(rowSizeMenu);
     menu->addAction(actionHexPairs);
+    menu->addAction(actionUppercaseHex);
     menu->addAction(actionItemBigEndian);
     QMenu *writeMenu = menu->addMenu(tr("Edit"));
     writeMenu->addActions(actionsWriteString);
@@ -1786,6 +1798,9 @@ void HexWidget::drawAddrArea(QPainter &painter)
         addrString = QString("%1").arg(offset, addrCharLen, 16, QLatin1Char('0'));
         if (showExAddr) {
             addrString.prepend(hexPrefix);
+        }
+        if (uppercaseHex) {
+            addrString = addrString.toUpper();
         }
         painter.drawText(strRect, Qt::AlignVCenter, addrString);
     }
@@ -2386,6 +2401,9 @@ QString HexWidget::renderItem(int offset, QColor *color)
         item = QString("%1").arg(itemVal.toULongLong(), itemLen, 16, QLatin1Char('0'));
         if (itemByteLen > 1 && showExHex) {
             item.prepend(hexPrefix);
+        }
+        if (uppercaseHex) {
+            item = item.toUpper();
         }
         break;
     case ItemFormatOct:
