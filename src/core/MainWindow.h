@@ -72,6 +72,7 @@ public:
     bool responsive;
 
     explicit MainWindow(QWidget *parent = nullptr);
+
     ~MainWindow() override;
 
     void openNewFile(InitialOptions &options, bool skipOptionsDialog = false);
@@ -228,6 +229,7 @@ private slots:
     bool eventFilter(QObject *object, QEvent *event) override;
     bool event(QEvent *event) override;
     void toggleDebugView();
+
     /**
      * @brief When theme changed, change icons which have a special version for the theme.
      */

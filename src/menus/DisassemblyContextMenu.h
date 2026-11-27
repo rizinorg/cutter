@@ -46,6 +46,7 @@ private slots:
     void copyTriggered();
     void copyAddrTriggered() const;
     void copyInstrBytesTriggered() const;
+    void exportDisassemblyTriggered();
     void addCommentTriggered();
     void analyzeFunctionTriggered();
     void renameTriggered();
@@ -97,6 +98,7 @@ private:
     QAction *copySeparator;
     QAction actionCopyAddr;
     QAction actionCopyInstrBytes;
+    QAction actionExportDisassembly;
 
     QAction actionAddComment;
     QAction actionAnalyzeFunction;
