@@ -14,19 +14,7 @@ ListDockWidget::ListDockWidget(MainWindow *main)
 {
     ui->setupUi(this);
 
-    // Ctrl-F to show/hide the filter entry
-    QShortcut *searchShortcut = Shortcuts()->makeQShortcut("General.showFilter", this);
-    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
-            &QuickFilterView::showFilter);
-    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    // Esc to clear the filter entry
-    QShortcut *clearShortcut = Shortcuts()->makeQShortcut("General.clearFilter", this);
-    connect(clearShortcut, &QShortcut::activated, [this]() {
-        ui->quickFilterView->clearFilter();
-        ui->treeView->setFocus();
-    });
-    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    ui->quickFilterView->attachTo(ui->treeView, this);
 
     qhelpers::setVerticalScrollMode(ui->treeView);
 
@@ -43,8 +31,6 @@ void ListDockWidget::setModels(AddressableFilterProxyModel *objectFilterProxyMod
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, objectFilterProxyModel,
             &QSortFilterProxyModel::setFilterWildcard);
-    connect(ui->quickFilterView, &QuickFilterView::filterClosed, ui->treeView,
-            static_cast<void (QWidget::*)()>(&QWidget::setFocus));
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
         ui->quickFilterView->setItemCount(this->objectFilterProxyModel->rowCount());
