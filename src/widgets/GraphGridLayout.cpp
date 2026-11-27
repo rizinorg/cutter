@@ -285,6 +285,8 @@ void GraphGridLayout::calculateLayout(GraphLayout::Graph &blocks, ut64 entry, in
     LayoutState layoutState;
     layoutState.blocks = &blocks;
     if (blocks.empty()) {
+        width = 0;
+        height = 0;
         return;
     }
     if (blocks.find(entry) == blocks.end()) {

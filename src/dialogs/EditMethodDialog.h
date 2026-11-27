@@ -48,7 +48,7 @@ public:
                            AnalysisMethodDescription *desc, QWidget *parent = nullptr);
 
     /**
-     * @brief Show the dialog to add a new method a given class
+     * @brief Show the dialog to add a new method in a given class
      */
     static void newMethod(QString className = nullptr, const QString &meth = QString(),
                           QWidget *parent = nullptr);

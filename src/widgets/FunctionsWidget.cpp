@@ -366,6 +366,16 @@ QString FunctionModel::name(const QModelIndex &index) const
     return function.name;
 }
 
+void FunctionModel::setFunctions(const QList<FunctionDescription> &functions)
+{
+    this->functions = functions;
+}
+
+QList<FunctionDescription> FunctionModel::getFunctions() const
+{
+    return functions;
+}
+
 void FunctionModel::seekChanged(RVA)
 {
     const int previousIndex = currentIndex;
@@ -413,9 +423,9 @@ void FunctionModel::functionRenamed(const RVA offset, const QString &new_name)
     }
 }
 
-FunctionSortFilterProxyModel::FunctionSortFilterProxyModel(FunctionModel *source_model,
+FunctionSortFilterProxyModel::FunctionSortFilterProxyModel(FunctionModel *sourceModel,
                                                            QObject *parent)
-    : AddressableFilterProxyModel(source_model, parent)
+    : AddressableFilterProxyModel(sourceModel, parent)
 {
     setFilterCaseSensitivity(Qt::CaseInsensitive);
     setSortCaseSensitivity(Qt::CaseInsensitive);
@@ -597,13 +607,17 @@ FunctionsWidget::~FunctionsWidget() {}
 
 void FunctionsWidget::refreshTree()
 {
-    if (task) {
-        task->wait();
-    }
-
+    // Don't wait for the old task to complete, if the lock is already held while this function
+    // runs, waiting can cause deadlock. This is related to "emitting signals while holding lock"
+    // issue
     task = std::shared_ptr<FunctionsTask>(new FunctionsTask());
+    const FunctionsTask *current = task.get();
     connect(task.get(), &FunctionsTask::fetchFinished, this,
-            [this](const QList<FunctionDescription> &functions) {
+            [this, current](const QList<FunctionDescription> &functions) {
+                // ignore the old task
+                if (task.get() != current) {
+                    return;
+                }
                 functionModel->beginResetModel();
 
                 functionModel->functions = functions;

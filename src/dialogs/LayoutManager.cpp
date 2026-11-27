@@ -40,7 +40,12 @@ void LayoutManager::renameCurrentLayout()
     const QString current = ui->layoutSelector->currentText();
     if (layouts.contains(current)) {
         QString newName;
-        while (newName.isEmpty() || isBuiltinLayoutName(newName) || layouts.contains(newName)) {
+        // Keeping the prefilled name is no rename, not a clash with the layout itself.
+        const auto taken = [&]() {
+            return isBuiltinLayoutName(newName)
+                    || (layouts.contains(newName) && newName != current);
+        };
+        while (newName.isEmpty() || taken()) {
             if (!newName.isEmpty()) {
                 QMessageBox::warning(this, tr("Rename layout error"),
                                      tr("'%1' is already used.").arg(newName));
@@ -50,6 +55,9 @@ void LayoutManager::renameCurrentLayout()
             if (newName.isEmpty()) {
                 return;
             }
+        }
+        if (newName == current) {
+            return;
         }
         auto layout = layouts.take(current);
         layouts.insert(newName, layout);

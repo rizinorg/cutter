@@ -8,6 +8,7 @@
 #include <QMutex>
 #include <QRunnable>
 #include <QThreadPool>
+#include <QWaitCondition>
 
 #include <memory>
 
@@ -55,7 +56,11 @@ signals:
 private:
     bool running;
     bool interrupted;
-    QMutex runningMutex;
+    // Set from the moment the task is queued (or starts, if run directly) until it has
+    // finished, so wait() also waits for a task that is queued but not running yet.
+    bool active = false;
+    QMutex stateMutex;
+    QWaitCondition doneCondition;
 
     QElapsedTimer timer;
     QString logBuffer;
@@ -81,6 +86,7 @@ public:
 
     void start(const AsyncTask::Ptr &task);
     bool getTasksRunning();
+    void interruptAndWait();
 
 signals:
     void tasksChanged();

@@ -27,6 +27,7 @@ option(CUTTER_PACKAGE_RZ_LIBYARA "Compile and install rz-libyara during the inst
 option(CUTTER_PACKAGE_RZ_SILHOUETTE "Compile and install rz-silhouette during the install step." OFF)
 option(CUTTER_PACKAGE_RZ_FRIDA "Compile and install rz-frida during the install step." OFF)
 option(CUTTER_PACKAGE_JSDEC "Compile and install jsdec during install step." OFF)
+option(CUTTER_ENABLE_TEST "Enable building automated unit and integration tests." OFF)
 set("CUTTER_QT" 6 CACHE STRING "Major QT version to use 5|6")
 set_property(CACHE "CUTTER_QT" PROPERTY STRINGS 5 6)
 option(CUTTER_INCLUDE_GIT_HASH "Include git hash in full version" ON)
@@ -186,6 +187,7 @@ message(STATUS "- Package RzLibYara: ${CUTTER_PACKAGE_RZ_LIBYARA}")
 message(STATUS "- Package RzSilhouette: ${CUTTER_PACKAGE_RZ_SILHOUETTE}")
 message(STATUS "- Package RzFrida: ${CUTTER_PACKAGE_RZ_FRIDA}")
 message(STATUS "- Package JSDec: ${CUTTER_PACKAGE_JSDEC}")
+message(STATUS "- Enable Test: ${CUTTER_ENABLE_TEST}")
 message(STATUS "- QT: ${CUTTER_QT}")
 message(STATUS "")
 
@@ -197,4 +199,12 @@ add_subdirectory(src)
 
 if(CUTTER_ENABLE_PACKAGING)
 	add_subdirectory(dist)
+endif()
+
+
+if(CUTTER_ENABLE_TEST AND NOT CUTTER_QT EQUAL 6)
+    message(WARNING "The tests need Qt 6 (CUTTER_QT=${CUTTER_QT}); building without them.")
+elseif(CUTTER_ENABLE_TEST)
+    enable_testing()
+    add_subdirectory(test)
 endif()
