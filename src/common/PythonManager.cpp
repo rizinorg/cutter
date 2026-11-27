@@ -60,12 +60,80 @@ void PythonManager::initPythonHome()
     if (!customPythonHome.isNull()) {
         qInfo() << "PYTHONHOME =" << customPythonHome;
         pythonHome = Py_DecodeLocale(customPythonHome.toLocal8Bit().constData(), nullptr);
+        // Py_SetPythonHome() was removed in Python 3.16; PYTHONHOME is
+        // picked up from the environment.
+#if PY_VERSION_HEX < 0x03100000
         Py_SetPythonHome(pythonHome);
+#endif
     }
 }
 
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
+#    if PY_VERSION_HEX >= 0x030F0000
+extern "C" PySlot *PyModExport_CutterBindings(void);
+
+// PythonAPI.h limits declarations to the Python 3.5 stable ABI.
+extern "C" {
+PyAPI_FUNC(PyObject *) PyModule_FromSlotsAndSpec(const PySlot *slots, PyObject *spec);
+PyAPI_FUNC(int) PyModule_Exec(PyObject *module);
+}
+
+static bool initializeCutterBindings()
+{
+    PyObject *machinery = PyImport_ImportModule("importlib.machinery");
+    if (!machinery) {
+        return false;
+    }
+
+    PyObject *moduleSpecType = PyObject_GetAttrString(machinery, "ModuleSpec");
+    PyObject *builtinImporter = PyObject_GetAttrString(machinery, "BuiltinImporter");
+    Py_DECREF(machinery);
+    if (!moduleSpecType || !builtinImporter) {
+        Py_XDECREF(moduleSpecType);
+        Py_XDECREF(builtinImporter);
+        return false;
+    }
+
+    PyObject *moduleName = PyUnicode_FromString("CutterBindings");
+    if (!moduleName) {
+        Py_DECREF(moduleSpecType);
+        Py_DECREF(builtinImporter);
+        return false;
+    }
+
+    PyObject *spec =
+            PyObject_CallFunctionObjArgs(moduleSpecType, moduleName, builtinImporter, nullptr);
+    Py_DECREF(moduleName);
+    Py_DECREF(moduleSpecType);
+    Py_DECREF(builtinImporter);
+    if (!spec) {
+        return false;
+    }
+
+    PyObject *module = PyModule_FromSlotsAndSpec(PyModExport_CutterBindings(), spec);
+    Py_DECREF(spec);
+    if (!module) {
+        return false;
+    }
+
+    PyObject *modules = PyImport_GetModuleDict();
+    if (PyDict_SetItemString(modules, "CutterBindings", module) < 0) {
+        Py_DECREF(module);
+        return false;
+    }
+
+    if (PyModule_Exec(module) < 0) {
+        PyDict_DelItemString(modules, "CutterBindings");
+        Py_DECREF(module);
+        return false;
+    }
+
+    Py_DECREF(module);
+    return true;
+}
+#    else
 extern "C" PyObject *PyInit_CutterBindings();
+#    endif
 #endif
 
 void PythonManager::initialize()
@@ -75,11 +143,22 @@ void PythonManager::initialize()
     PyImport_AppendInittab("_cutter", &PyInit_api);
     PyImport_AppendInittab("_qtres", &PyInit_qtres);
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
+#    if PY_VERSION_HEX < 0x030F0000
     PyImport_AppendInittab("CutterBindings", &PyInit_CutterBindings);
+#    endif
 #endif
     Py_Initialize();
-    // This function is deprecated does nothing starting from Python 3.9
-#if (PY_MAJOR_VERSION <= 3) && (PY_MICRO_VERSION < 9)
+#ifdef CUTTER_ENABLE_PYTHON_BINDINGS
+#    if PY_VERSION_HEX >= 0x030F0000
+    if (!initializeCutterBindings()) {
+        qCritical() << "Failed to initialize the CutterBindings Python module:";
+        PyErr_Print();
+    }
+#    endif
+#endif
+    // PyEval_InitThreads() is a no-op starting from Python 3.9 and was
+    // removed in Python 3.13.
+#if PY_VERSION_HEX < 0x03090000
     PyEval_InitThreads();
 #endif
     pyThreadStateCounter = 1; // we have the thread now => 1
