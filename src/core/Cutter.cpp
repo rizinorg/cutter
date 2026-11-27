@@ -685,15 +685,17 @@ QList<SubBinaryDescription> CutterCore::getSubBinaries(const QString &path)
 
     RzBinFile *bf = rz_bin_open_buf(bin, buf, &opt);
     if (bf && bf->curxtr && bf->xtr_data) {
-        int index = 0;
+        int index = -1;
         RzListIter *it;
         RzBinXtrData *data;
         CutterRzListForeach (bf->xtr_data, it, RzBinXtrData, data) {
+            // index is the position in xtr_data, so count skipped entries too
+            index++;
             if (!data || !data->metadata || !data->metadata->arch) {
                 continue;
             }
             SubBinaryDescription desc;
-            desc.index = index++;
+            desc.index = index;
             desc.arch = QString::fromUtf8(data->metadata->arch);
             desc.bits = data->metadata->bits;
             desc.machine = QString::fromUtf8(data->metadata->machine);
@@ -707,6 +709,30 @@ QList<SubBinaryDescription> CutterCore::getSubBinaries(const QString &path)
     rz_bin_free(bin);
     rz_buf_free(buf);
     return result;
+}
+
+bool CutterCore::selectSubBinary(int index)
+{
+    CORE_LOCK();
+    RzBinFile *bf = rz_bin_cur(core->bin);
+    if (!bf || !bf->xtr_data) {
+        return false;
+    }
+    auto data = reinterpret_cast<RzBinXtrData *>(rz_list_get_n(bf->xtr_data, index));
+    if (!data || !data->metadata) {
+        return false;
+    }
+    if (data->loaded) {
+        return true;
+    }
+    // Same steps as the `obs` command: drop the flags of the object loaded by default,
+    // load the chosen one and apply its info.
+    rz_flag_reset_obj_flags(core->flags, nullptr);
+    if (!rz_bin_file_set_xtr_data_as_current_obj(core->bin, bf, &data->obj_opts, data)
+        || !rz_bin_file_set_obj(bf, bf->o) || !rz_bin_set_cur_binfile(core->bin, bf)) {
+        return false;
+    }
+    return rz_core_bin_apply_all_info(core, bf);
 }
 
 bool CutterCore::mapFile(const QString &path, RVA mapaddr)

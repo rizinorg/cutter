@@ -371,8 +371,7 @@ void NewFileDialog::loadFile(const QString &filename)
 {
     const bool isFileless = ui->checkBoxFilelessOpen->isChecked();
     QString ioFile;
-    QString subBinArch;
-    int subBinBits = 0;
+    int subBinIndex = -1;
     if (!isFileless) {
         const QString &nativeFn = QDir::toNativeSeparators(filename);
         if (ui->ioPlugin->currentIndex() == 0 && !Core()->tryFile(nativeFn, false)) {
@@ -390,9 +389,7 @@ void NewFileDialog::loadFile(const QString &filename)
                 if (selector.exec() != QDialog::Accepted) {
                     return;
                 }
-                const SubBinaryDescription chosen = selector.getSelectedSubBinary();
-                subBinArch = chosen.arch;
-                subBinBits = chosen.bits;
+                subBinIndex = selector.getSelectedSubBinary().index;
             }
         }
 
@@ -413,8 +410,7 @@ void NewFileDialog::loadFile(const QString &filename)
     // Close dialog and open MainWindow/InitialOptionsDialog
     InitialOptions options;
     options.filename = ioFile;
-    options.subBinArch = subBinArch;
-    options.subBinBits = subBinBits;
+    options.subBinIndex = subBinIndex;
     main->openNewFile(options, isFileless);
 
     close();

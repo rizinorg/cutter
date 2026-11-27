@@ -47,8 +47,7 @@ private:
 
     QString analysisDescription(int level);
     QString shellcode;
-    QString subBinArch;
-    int subBinBits = 0;
+    int subBinIndex = -1;
     int analysisLevel;
     QList<RzAsmPluginDescription> asmPlugins;
 
